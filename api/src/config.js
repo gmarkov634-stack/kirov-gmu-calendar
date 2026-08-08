@@ -11,5 +11,7 @@ export function loadConfig(env = process.env) {
     secretAccessKey: env.S3_SECRET_ACCESS_KEY || "",
     dataDir: env.DATA_DIR || path.resolve("data"),
     cacheTtlMs: Number(env.CACHE_TTL_MS || 300000),
+    publicSiteUrl: env.PUBLIC_SITE_URL || "https://gmarkov634-stack.github.io/kirov-gmu-calendar/",
+    enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
   };
 }

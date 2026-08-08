@@ -2,13 +2,33 @@ import { buildCalendar } from "./calendar.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 
-function send(response, status, body, type = "application/json; charset=utf-8") {
+function send(response, status, body, type = "application/json; charset=utf-8", cacheControl) {
   const content = type.startsWith("application/json") ? JSON.stringify(body) : body;
   response.writeHead(status, {
     "Content-Type": type,
-    "Cache-Control": status === 200 ? "public, max-age=300" : "no-store",
+    "Cache-Control": cacheControl || (status === 200 ? "public, max-age=300" : "no-store"),
   });
   response.end(content);
+}
+
+function validateSubscription(subscription) {
+  const expiresAt = Date.parse(subscription?.expiresAt);
+  if (!subscription || subscription.version !== 1 || !/^\d{3}$/.test(String(subscription.group)) || !Number.isFinite(expiresAt)) {
+    throw new Error("Invalid subscription record");
+  }
+  return { ...subscription, expiresAt };
+}
+
+function emptySchedule(subscription) {
+  return {
+    group: String(subscription.group),
+    faculty: subscription.faculty,
+    course: subscription.course,
+    academicYear: subscription.academicYear,
+    semester: subscription.semester,
+    timezone: "Europe/Moscow",
+    events: [],
+  };
 }
 
 export function createHandler({ store, config }) {
@@ -40,8 +60,35 @@ export function createHandler({ store, config }) {
       return send(response, 200, { groups: store.listGroups() });
     }
 
+    const subscriptionMatch = url.pathname.match(/^\/api\/v1\/subscriptions\/([A-Za-z0-9_-]{43})\/calendar\.ics$/);
+    if (subscriptionMatch) {
+      try {
+        const rawSubscription = await store.getSubscription(subscriptionMatch[1]);
+        if (!rawSubscription) return send(response, 404, { error: "subscription_not_found" });
+        const subscription = validateSubscription(rawSubscription);
+        const active = subscription.status === "active" && Date.now() < subscription.expiresAt;
+        const schedule = active ? await store.get(String(subscription.group)) : emptySchedule(subscription);
+        if (!schedule) throw new Error("Subscription schedule is not published");
+        if (active && (
+          schedule.faculty !== subscription.faculty ||
+          schedule.course !== subscription.course ||
+          schedule.academicYear !== subscription.academicYear ||
+          schedule.semester !== subscription.semester
+        )) throw new Error("Subscription does not match published schedule");
+
+        const calendar = buildCalendar(schedule, config.publicSiteUrl);
+        response.setHeader("Content-Disposition", `inline; filename=kgmu-${subscription.group}.ics`);
+        response.setHeader("X-Subscription-Status", active ? "active" : subscription.status === "active" ? "expired" : "revoked");
+        return send(response, 200, calendar, "text/calendar; charset=utf-8", "private, no-store");
+      } catch (error) {
+        console.error(error);
+        return send(response, 503, { error: "subscription_unavailable" });
+      }
+    }
+
     const match = url.pathname.match(/^\/api\/v1\/groups\/(\d{3})\/(schedule|calendar\.ics)$/);
     if (!match) return send(response, 404, { error: "not_found" });
+    if (!config.enablePublicEndpoints) return send(response, 404, { error: "not_found" });
 
     try {
       const schedule = await store.get(match[1]);

@@ -3,10 +3,7 @@ import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
 import { ScheduleStore } from "./store.js";
 
-const config = {
-  ...loadConfig(),
-  publicSiteUrl: process.env.PUBLIC_SITE_URL || "https://gmarkov634-stack.github.io/kirov-gmu-calendar/",
-};
+const config = loadConfig();
 const store = new ScheduleStore(config);
 const server = http.createServer(createHandler({ store, config }));
 
