@@ -4,8 +4,52 @@ const title = document.querySelector("#selector-title");
 const kicker = document.querySelector("#step-kicker");
 const backButton = document.querySelector("#back-button");
 const notice = document.querySelector("#notice");
+const savedOrders = document.querySelector("#saved-orders");
+const savedOrdersList = document.querySelector("#saved-orders-list");
 const state = { step: "faculty", faculty: null, course: null, group: null };
 const stepOrder = ["faculty", "course", "group", "checkout"];
+const savedOrderKey = "kgmu-calendar-orders-v1";
+const validOrderId = (value) => /^[A-Za-z0-9_-]{32}$/.test(value || "");
+
+function readSavedOrderIds() {
+  try {
+    const values = JSON.parse(localStorage.getItem(savedOrderKey) || "[]");
+    return Array.isArray(values) ? values.filter(validOrderId).slice(0, 10) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOrderId(orderId) {
+  if (!validOrderId(orderId)) return;
+  const values = [orderId, ...readSavedOrderIds().filter((value) => value !== orderId)].slice(0, 10);
+  try { localStorage.setItem(savedOrderKey, JSON.stringify(values)); } catch { /* storage can be unavailable */ }
+}
+
+async function renderSavedOrders() {
+  const orderIds = readSavedOrderIds();
+  if (!orderIds.length) return;
+  const orders = await Promise.all(orderIds.map(async (savedOrderId) => {
+    try {
+      const response = await fetch(`${data.apiBase}/api/v1/orders/${savedOrderId}`, { cache: "no-store" });
+      if (!response.ok) return null;
+      const order = await response.json();
+      return order.status === "succeeded" ? { id: savedOrderId, group: order.group } : null;
+    } catch {
+      return null;
+    }
+  }));
+  const completed = orders.filter(Boolean);
+  if (!completed.length) return;
+  savedOrdersList.replaceChildren(...completed.map((order) => {
+    const link = document.createElement("a");
+    link.className = "saved-order-link";
+    link.href = `?order=${encodeURIComponent(order.id)}`;
+    link.textContent = `Открыть группу ${order.group}`;
+    return link;
+  }));
+  savedOrders.hidden = false;
+}
 
 function makeCard({ icon, title: cardTitle, subtitle, className = "", onClick }) {
   const button = document.createElement("button");
@@ -118,6 +162,7 @@ async function startPayment(event) {
     });
     const result = await response.json();
     if (!response.ok || !result.confirmationUrl) throw new Error(result.error || "payment_unavailable");
+    saveOrderId(result.orderId);
     window.location.assign(result.confirmationUrl);
   } catch {
     notice.hidden = false;
@@ -144,6 +189,7 @@ async function renderOrderResult(orderId) {
       const order = await response.json();
       if (!response.ok) throw new Error(order.error);
       if (order.status === "succeeded" && order.subscriptionUrl) {
+        saveOrderId(orderId);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
         card.innerHTML = `
@@ -189,5 +235,10 @@ backButton.addEventListener("click", () => {
   else setStep("faculty");
 });
 const orderId = new URLSearchParams(window.location.search).get("order");
-if (/^[A-Za-z0-9_-]{32}$/.test(orderId || "")) renderOrderResult(orderId);
-else render();
+if (validOrderId(orderId)) {
+  saveOrderId(orderId);
+  renderOrderResult(orderId);
+} else {
+  render();
+  renderSavedOrders();
+}
