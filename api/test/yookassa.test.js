@@ -5,7 +5,7 @@ import { YooKassaService } from "../src/yookassa.js";
 const config = {
   yookassaShopId: "test-shop",
   yookassaSecretKey: "test-key",
-  subscriptionSigningSecret: "a-long-test-signing-secret",
+  subscriptionSigningSecret: "a-long-test-signing-secret-32-bytes-minimum",
   publicSiteUrl: "https://example.test/",
   publicApiUrl: "https://api.example.test",
   offerPrice: "490.00",
