@@ -2,6 +2,12 @@ name: Publish API image
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - ".github/workflows/publish-api.yml"
 
 env:
   IMAGE: kgmu-calendar-api.cr.cloud.ru/api
