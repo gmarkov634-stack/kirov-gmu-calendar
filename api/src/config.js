@@ -16,6 +16,7 @@ export function loadConfig(env = process.env) {
     enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
     yookassaShopId: env.YOOKASSA_SHOP_ID || "",
     yookassaSecretKey: env.YOOKASSA_SECRET_KEY || "",
+    yookassaTestMode: env.YOOKASSA_TEST_MODE === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     offerPrice: env.OFFER_PRICE || "490.00",
     offerExpiresAt: env.OFFER_EXPIRES_AT || "2026-08-31T23:59:59+03:00",
