@@ -37,6 +37,34 @@ PUBLIC_SITE_URL=https://gmarkov634-stack.github.io/kirov-gmu-calendar/
 
 При `ENABLE_PUBLIC_ENDPOINTS=false` прямые маршруты `/api/v1/groups/{group}/schedule` и `/api/v1/groups/{group}/calendar.ics` закрыты. Персональные маршруты продолжают работать.
 
-## Следующий этап
+## Автоматическая выдача после оплаты
 
-Webhook ЮKassa после подтверждённой оплаты должен создавать такую же запись подписки и один раз возвращать покупателю приватную ссылку. До внедрения webhook генератор позволяет безопасно проверить весь цикл вручную.
+API создаёт заказ, направляет студента на платёжную форму ЮKassa и принимает уведомление `payment.succeeded`. Перед выдачей ссылки сервер повторно получает платёж через API ЮKassa и сверяет статус, сумму, валюту, идентификатор заказа и платежа. Повторное уведомление создаёт тот же токен и не выдаёт второй доступ.
+
+Дополнительные переменные контейнера:
+
+```text
+PUBLIC_API_URL=https://kgmu-calendar-api.containerapps.ru
+YOOKASSA_SHOP_ID=<идентификатор магазина>
+YOOKASSA_SECRET_KEY=<секретный ключ, хранить как секрет>
+SUBSCRIPTION_SIGNING_SECRET=<случайная строка не короче 32 байт, хранить как секрет>
+OFFER_PRICE=490.00
+OFFER_EXPIRES_AT=2026-08-31T23:59:59+03:00
+YOOKASSA_SEND_RECEIPT=true
+RECEIPT_VAT_CODE=1
+```
+
+Webhook для события `payment.succeeded`:
+
+```text
+https://kgmu-calendar-api.containerapps.ru/api/v1/yookassa/webhook
+```
+
+`RECEIPT_VAT_CODE=1` означает «без НДС». Перед включением чеков проверьте ставку и способ формирования чеков в настройках конкретного магазина ЮKassa.
+
+Новые приватные объекты в бакете:
+
+```text
+orders/<случайный-id>.json
+subscriptions/<sha256-токена>.json
+```
