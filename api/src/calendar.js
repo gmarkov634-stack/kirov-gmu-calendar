@@ -1,0 +1,67 @@
+function escapeIcs(value = "") {
+  return String(value)
+    .replaceAll("\\", "\\\\")
+    .replaceAll("\n", "\\n")
+    .replaceAll(",", "\\,")
+    .replaceAll(";", "\\;");
+}
+
+function utcStamp(value) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function foldLine(line) {
+  const chunks = [];
+  let rest = line;
+  while (Buffer.byteLength(rest, "utf8") > 73) {
+    let index = 0;
+    let bytes = 0;
+    for (const char of rest) {
+      const size = Buffer.byteLength(char, "utf8");
+      if (bytes + size > 73) break;
+      bytes += size;
+      index += char.length;
+    }
+    chunks.push(rest.slice(0, index));
+    rest = ` ${rest.slice(index)}`;
+  }
+  chunks.push(rest);
+  return chunks.join("\r\n");
+}
+
+export function buildCalendar(schedule, publicBaseUrl = "") {
+  const generatedAt = utcStamp(new Date());
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Календарь КГМУ//Расписание//RU",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    `X-WR-CALNAME:${escapeIcs(`КГМУ · группа ${schedule.group}`)}`,
+    "X-WR-TIMEZONE:Europe/Moscow",
+    "X-PUBLISHED-TTL:PT6H",
+  ];
+
+  for (const event of schedule.events || []) {
+    const description = [
+      event.description,
+      "Составлено по официальному расписанию. Переносы, согласованные группой с преподавателем, не отображаются.",
+      publicBaseUrl && `Расписание: ${publicBaseUrl}`,
+    ].filter(Boolean).join("\n\n");
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${escapeIcs(event.id)}@kgmu-calendar`,
+      `DTSTAMP:${generatedAt}`,
+      `DTSTART:${utcStamp(event.start)}`,
+      `DTEND:${utcStamp(event.end)}`,
+      `SUMMARY:${escapeIcs(event.title)}`,
+      `LOCATION:${escapeIcs(event.location || "")}`,
+      `DESCRIPTION:${escapeIcs(description)}`,
+      "STATUS:CONFIRMED",
+      "TRANSP:OPAQUE",
+      "END:VEVENT",
+    );
+  }
+  lines.push("END:VCALENDAR");
+  return `${lines.map(foldLine).join("\r\n")}\r\n`;
+}
