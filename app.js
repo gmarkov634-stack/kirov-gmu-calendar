@@ -23,7 +23,7 @@ function setStep(step) {
     element.classList.toggle("is-active", index === activeIndex);
     element.classList.toggle("is-complete", index < activeIndex);
   });
-  kicker.textContent = `Шаг ${activeIndex + 1} из 3`;
+  kicker.textContent = `Шаг ${activeIndex + 1} из ${stepOrder.length}`;
   backButton.hidden = step === "faculty";
   notice.hidden = true;
   render();
