@@ -12,6 +12,7 @@ function publicOrder(order) {
     status: order.status,
     group: order.group,
     amount: order.amount,
+    testMode: order.testMode === true,
     subscriptionUrl: order.status === "succeeded" ? order.subscriptionUrl : undefined,
   };
 }
@@ -50,6 +51,15 @@ export class YooKassaService {
     return body;
   }
 
+  assertPaymentMode(payment) {
+    const isTestPayment = payment?.test === true;
+    if (isTestPayment !== this.config.yookassaTestMode) {
+      throw new Error(this.config.yookassaTestMode
+        ? "YooKassa returned a real payment while test mode is enabled"
+        : "YooKassa returned a test payment while production mode is enabled");
+    }
+  }
+
   async create({ group, email, schedule }) {
     if (!this.enabled) throw new Error("Payments are not configured");
     const orderId = randomBytes(24).toString("base64url");
@@ -66,6 +76,7 @@ export class YooKassaService {
       expiresAt: this.config.offerExpiresAt,
       amount: this.config.offerPrice,
       currency: "RUB",
+      testMode: this.config.yookassaTestMode,
       email,
       createdAt: now,
       updatedAt: now,
@@ -101,6 +112,7 @@ export class YooKassaService {
       headers: { "Idempotence-Key": randomUUID() },
       body: JSON.stringify(body),
     });
+    this.assertPaymentMode(payment);
     order.status = payment.status === "succeeded" ? "pending" : payment.status;
     order.paymentId = payment.id;
     order.updatedAt = new Date().toISOString();
@@ -117,6 +129,7 @@ export class YooKassaService {
 
   async fulfill(payment) {
     if (payment.status !== "succeeded" || payment.paid !== true) return null;
+    this.assertPaymentMode(payment);
     const orderId = payment.metadata?.order_id;
     const order = await this.store.getOrder(orderId);
     if (!order || order.paymentId && order.paymentId !== payment.id) throw new Error("Payment does not match order");
