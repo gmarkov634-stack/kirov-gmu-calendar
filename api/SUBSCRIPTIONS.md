@@ -47,12 +47,17 @@ API создаёт заказ, направляет студента на пла
 PUBLIC_API_URL=https://kgmu-calendar-api.containerapps.ru
 YOOKASSA_SHOP_ID=<идентификатор магазина>
 YOOKASSA_SECRET_KEY=<секретный ключ, хранить как секрет>
+YOOKASSA_TEST_MODE=true
 SUBSCRIPTION_SIGNING_SECRET=<случайная строка не короче 32 байт, хранить как секрет>
 OFFER_PRICE=490.00
 OFFER_EXPIRES_AT=2026-08-31T23:59:59+03:00
 YOOKASSA_SEND_RECEIPT=true
 RECEIPT_VAT_CODE=1
 ```
+
+Для первой проверки используйте идентификатор и секретный ключ **тестового магазина** и оставьте `YOOKASSA_TEST_MODE=true`. API сверяет поле `test` в каждом платеже и не выдаёт ссылку, если режим магазина не совпадает с настройкой. Перед запуском настоящих платежей замените реквизиты на боевые, установите `YOOKASSA_TEST_MODE=false` и уберите `testMode: true` из `data.js`.
+
+Тестовая карта успешной оплаты: `5555 5555 5555 4477`, срок `01/30` или любая будущая дата, CVC `123`, код 3-D Secure `123`. В тестовом магазине деньги не списываются.
 
 Webhook для события `payment.succeeded`:
 
