@@ -24,7 +24,13 @@ export class YooKassaService {
   }
 
   get enabled() {
-    return Boolean(this.config.yookassaShopId && this.config.yookassaSecretKey && this.config.subscriptionSigningSecret);
+    return Boolean(
+      this.config.yookassaShopId &&
+      this.config.yookassaSecretKey &&
+      this.config.subscriptionSigningSecret?.length >= 32 &&
+      /^\d+\.\d{2}$/.test(this.config.offerPrice) &&
+      Number.isFinite(Date.parse(this.config.offerExpiresAt))
+    );
   }
 
   async request(path, options = {}) {
