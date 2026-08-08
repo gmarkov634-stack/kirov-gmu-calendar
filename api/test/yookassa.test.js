@@ -5,6 +5,7 @@ import { YooKassaService } from "../src/yookassa.js";
 const config = {
   yookassaShopId: "test-shop",
   yookassaSecretKey: "test-key",
+  yookassaTestMode: true,
   subscriptionSigningSecret: "a-long-test-signing-secret-32-bytes-minimum",
   publicSiteUrl: "https://example.test/",
   publicApiUrl: "https://api.example.test",
@@ -34,6 +35,7 @@ test("payment creation uses server offer and receipt data", async () => {
     return new Response(JSON.stringify({
       id: "payment_12345678",
       status: "pending",
+      test: true,
       confirmation: { confirmation_url: "https://yookassa.test/pay" },
     }), { status: 200, headers: { "content-type": "application/json" } });
   } });
@@ -74,6 +76,7 @@ test("verified succeeded payment creates one deterministic semester token", asyn
     id: "payment_12345678",
     status: "succeeded",
     paid: true,
+    test: true,
     amount: { value: "490.00", currency: "RUB" },
     metadata: { order_id: orderId },
   };
@@ -101,8 +104,25 @@ test("payment with altered amount cannot issue a subscription", async () => {
     id: "payment_12345678",
     status: "succeeded",
     paid: true,
+    test: true,
     amount: { value: "1.00", currency: "RUB" },
     metadata: { order_id: orderId },
   }), /amount/);
   assert.equal(store.subscriptions.size, 0);
+});
+
+test("test mode rejects a payment created by a real shop", async () => {
+  const store = memoryStore();
+  const service = new YooKassaService({ config, store, fetchFn: async () => new Response(JSON.stringify({
+    id: "payment_12345678",
+    status: "pending",
+    test: false,
+    confirmation: { confirmation_url: "https://yookassa.ru/pay" },
+  }), { status: 200, headers: { "content-type": "application/json" } }) });
+
+  await assert.rejects(service.create({
+    group: "132",
+    email: "student@example.com",
+    schedule: { faculty: "pediatrics", course: 1, academicYear: "2025-2026", semester: 2 },
+  }), /real payment/);
 });
