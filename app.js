@@ -75,6 +75,12 @@ function renderCheckout() {
   title.textContent = `Группа ${state.group}`;
   const wrapper = document.createElement("div");
   wrapper.className = "checkout-card";
+  const testNote = data.offer.testMode ? `
+      <div class="test-payment-note">
+        <strong>Тестовая оплата — деньги не спишутся</strong>
+        <span>Карта 5555 5555 5555 4477 · срок 01/30 · CVC 123 · код 3-D Secure 123</span>
+      </div>` : "";
+  const payLabel = data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате";
   wrapper.innerHTML = `
     <div class="order-summary">
       <span>${state.faculty.short} · ${state.course} курс</span>
@@ -84,7 +90,8 @@ function renderCheckout() {
     <form id="checkout-form">
       <label for="customer-email">Email покупателя</label>
       <input id="customer-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="student@example.com" />
-      <button class="pay-button" type="submit">Перейти к оплате · ${data.offer.price}</button>
+      ${testNote}
+      <button class="pay-button" type="submit">${payLabel} · ${data.offer.price}</button>
       <p class="form-hint">После оплаты вернитесь на эту страницу — персональная ссылка появится автоматически.</p>
     </form>`;
   grid.append(wrapper);
@@ -116,7 +123,7 @@ async function startPayment(event) {
     notice.hidden = false;
     notice.textContent = "Не удалось открыть оплату. Проверьте интернет и попробуйте ещё раз.";
     button.disabled = false;
-    button.textContent = `Перейти к оплате · ${data.offer.price}`;
+    button.textContent = `${data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате"} · ${data.offer.price}`;
   }
 }
 
@@ -137,7 +144,7 @@ async function renderOrderResult(orderId) {
       const order = await response.json();
       if (!response.ok) throw new Error(order.error);
       if (order.status === "succeeded" && order.subscriptionUrl) {
-        title.textContent = "Календарь оплачен";
+        title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
         card.innerHTML = `
           <div class="success-mark">✓</div>
