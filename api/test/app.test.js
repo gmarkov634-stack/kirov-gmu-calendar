@@ -90,3 +90,26 @@ test("public schedule endpoints can be disabled", async () => {
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("checkout validates selection and creates payment", () => withServer(async (base) => {
+  const paymentServer = http.createServer(createHandler({
+    store,
+    config: { ...config, offerExpiresAt: "2999-08-31T23:59:59+03:00" },
+    payments: {
+      enabled: true,
+      create: async ({ group, email }) => ({ orderId: "o".repeat(32), confirmationUrl: `https://pay.test/${group}/${email}` }),
+    },
+  }));
+  await new Promise((resolve) => paymentServer.listen(0, "127.0.0.1", resolve));
+  try {
+    const response = await fetch(`http://127.0.0.1:${paymentServer.address().port}/api/v1/payments`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ faculty: "pediatrics", course: 1, group: "132", email: "Student@example.com" }),
+    });
+    assert.equal(response.status, 201);
+    assert.match((await response.json()).confirmationUrl, /student@example.com$/);
+  } finally {
+    await new Promise((resolve) => paymentServer.close(resolve));
+  }
+}));

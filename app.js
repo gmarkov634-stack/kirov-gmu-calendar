@@ -4,8 +4,8 @@ const title = document.querySelector("#selector-title");
 const kicker = document.querySelector("#step-kicker");
 const backButton = document.querySelector("#back-button");
 const notice = document.querySelector("#notice");
-const state = { step: "faculty", faculty: null, course: null };
-const stepOrder = ["faculty", "course", "group"];
+const state = { step: "faculty", faculty: null, course: null, group: null };
+const stepOrder = ["faculty", "course", "group", "checkout"];
 
 function makeCard({ icon, title: cardTitle, subtitle, className = "", onClick }) {
   const button = document.createElement("button");
@@ -23,7 +23,7 @@ function setStep(step) {
     element.classList.toggle("is-active", index === activeIndex);
     element.classList.toggle("is-complete", index < activeIndex);
   });
-  kicker.textContent = `Шаг ${activeIndex + 1} из 3`;
+  kicker.textContent = `Шаг ${activeIndex + 1} из ${stepOrder.length}`;
   backButton.hidden = step === "faculty";
   notice.hidden = true;
   render();
@@ -61,21 +61,118 @@ function renderGroups() {
     return;
   }
   groups.forEach((group) => {
-    const key = `${state.faculty.id}-${state.course}-${group}`;
-    const calendarUrl = data.calendars[key];
     grid.append(makeCard({
       icon: "№",
       title: `Группа ${group}`,
-      subtitle: calendarUrl ? "Открыть календарь" : "Календарь готовится к подключению",
+      subtitle: `Календарь на ${data.offer.semester} семестр`,
       className: "group-card",
-      onClick: () => {
-        if (calendarUrl) { window.location.href = calendarUrl; return; }
-        notice.hidden = false;
-        notice.textContent = `Группа ${group} найдена. Ссылка на её календарь появится после импорта расписания в Cloud.ru.`;
-        notice.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      },
+      onClick: () => { state.group = group; setStep("checkout"); },
     }));
   });
+}
+
+function renderCheckout() {
+  title.textContent = `Группа ${state.group}`;
+  const wrapper = document.createElement("div");
+  wrapper.className = "checkout-card";
+  const testNote = data.offer.testMode ? `
+      <div class="test-payment-note">
+        <strong>Тестовая оплата — деньги не спишутся</strong>
+        <span>Карта 5555 5555 5555 4477 · срок 01/30 · CVC 123 · код 3-D Secure 123</span>
+      </div>` : "";
+  const payLabel = data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате";
+  wrapper.innerHTML = `
+    <div class="order-summary">
+      <span>${state.faculty.short} · ${state.course} курс</span>
+      <strong>${data.offer.price}</strong>
+      <small>${data.offer.semester} семестр ${data.offer.academicYear} · доступ до ${data.offer.expires}</small>
+    </div>
+    <form id="checkout-form">
+      <label for="customer-email">Email покупателя</label>
+      <input id="customer-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="student@example.com" />
+      ${testNote}
+      <button class="pay-button" type="submit">${payLabel} · ${data.offer.price}</button>
+      <p class="form-hint">После оплаты вернитесь на эту страницу — персональная ссылка появится автоматически.</p>
+    </form>`;
+  grid.append(wrapper);
+  wrapper.querySelector("form").addEventListener("submit", startPayment);
+}
+
+async function startPayment(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button");
+  button.disabled = true;
+  button.textContent = "Создаём платёж…";
+  notice.hidden = true;
+  try {
+    const response = await fetch(`${data.apiBase}/api/v1/payments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        faculty: state.faculty.id,
+        course: state.course,
+        group: state.group,
+        email: new FormData(form).get("email"),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.confirmationUrl) throw new Error(result.error || "payment_unavailable");
+    window.location.assign(result.confirmationUrl);
+  } catch {
+    notice.hidden = false;
+    notice.textContent = "Не удалось открыть оплату. Проверьте интернет и попробуйте ещё раз.";
+    button.disabled = false;
+    button.textContent = `${data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате"} · ${data.offer.price}`;
+  }
+}
+
+async function renderOrderResult(orderId) {
+  document.querySelector(".steps").hidden = true;
+  backButton.hidden = true;
+  kicker.textContent = "Результат оплаты";
+  title.textContent = "Проверяем платёж";
+  grid.replaceChildren();
+  const card = document.createElement("div");
+  card.className = "checkout-card result-card";
+  card.innerHTML = "<div class=\"loading-dot\"></div><p>Обычно это занимает несколько секунд.</p>";
+  grid.append(card);
+
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    try {
+      const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, { cache: "no-store" });
+      const order = await response.json();
+      if (!response.ok) throw new Error(order.error);
+      if (order.status === "succeeded" && order.subscriptionUrl) {
+        title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
+        const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
+        card.innerHTML = `
+          <div class="success-mark">✓</div>
+          <h3>Группа ${order.group}</h3>
+          <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
+          <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
+          <button class="copy-button" type="button">Скопировать ссылку</button>
+          <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
+        card.querySelector(".copy-button").addEventListener("click", async (event) => {
+          await navigator.clipboard.writeText(order.subscriptionUrl);
+          event.currentTarget.textContent = "Ссылка скопирована";
+        });
+        return;
+      }
+      if (order.status === "canceled") {
+        title.textContent = "Платёж отменён";
+        card.innerHTML = "<p>Деньги не списаны. Вернитесь на главную страницу и попробуйте снова.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
+        return;
+      }
+    } catch (error) {
+      if (attempt === 14) {
+        title.textContent = "Платёж ещё проверяется";
+        card.innerHTML = "<p>Обновите страницу через минуту. Заказ сохранён, повторно оплачивать не нужно.</p>";
+        return;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
 }
 
 function render() {
@@ -83,7 +180,14 @@ function render() {
   if (state.step === "faculty") renderFaculties();
   if (state.step === "course") renderCourses();
   if (state.step === "group") renderGroups();
+  if (state.step === "checkout") renderCheckout();
 }
 
-backButton.addEventListener("click", () => { if (state.step === "group") setStep("course"); else setStep("faculty"); });
-render();
+backButton.addEventListener("click", () => {
+  if (state.step === "checkout") setStep("group");
+  else if (state.step === "group") setStep("course");
+  else setStep("faculty");
+});
+const orderId = new URLSearchParams(window.location.search).get("order");
+if (/^[A-Za-z0-9_-]{32}$/.test(orderId || "")) renderOrderResult(orderId);
+else render();
