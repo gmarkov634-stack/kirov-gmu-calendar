@@ -52,6 +52,8 @@ h2 { margin:0; font-size:clamp(24px,3.4vw,34px); letter-spacing:-.03em; }
 #checkout-form label { margin-bottom:8px; font-size:13px; font-weight:700; }
 #checkout-form input { width:100%; min-height:50px; padding:0 15px; border:1px solid #bdcbe0; border-radius:12px; background:#fff; color:var(--ink); font:inherit; }
 #checkout-form input:focus { border-color:var(--blue-600); outline:3px solid rgba(40,114,232,.14); }
+.test-payment-note { display:flex; flex-direction:column; gap:4px; margin-top:12px; padding:12px 14px; border:1px solid #f4d89a; border-radius:12px; background:#fff9e9; color:#79551a; font-size:12px; line-height:1.45; }
+.test-payment-note strong { font-size:13px; }
 .pay-button,.copy-button { display:grid; min-height:50px; margin-top:14px; padding:0 18px; place-items:center; border:0; border-radius:12px; cursor:pointer; text-decoration:none; font-weight:800; }
 .pay-button { background:var(--blue-700); color:#fff; }
 .pay-button:disabled { cursor:wait; opacity:.65; }
