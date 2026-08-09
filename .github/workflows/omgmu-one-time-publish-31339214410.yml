@@ -1,0 +1,103 @@
+name: One-time publish verified ОмГМУ schedules
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/omgmu-one-time-publish-31339214410.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'Publish verified ОмГМУ schedules from run 31339214410'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download verified publication plan
+        uses: actions/download-artifact@v4
+        with:
+          name: omgmu-publication-plan
+          path: api/data/publication/downloaded
+          run-id: 31339214410
+          github-token: ${{ github.token }}
+
+      - name: Resolve publication package
+        id: package
+        run: |
+          manifest="$(find data/publication/downloaded -name publication-manifest.json -type f -print -quit)"
+          if [ -z "$manifest" ]; then
+            echo "publication-manifest.json was not found" >&2
+            exit 2
+          fi
+          package_dir="$(dirname "$manifest")"
+          echo "dir=$package_dir" >> "$GITHUB_OUTPUT"
+          echo "Using publication package: $package_dir"
+
+      - name: Validate verified package
+        run: npm run publish:omgmu:s3 -- --package=${{ steps.package.outputs.dir }} --expected-publishable=39 --expected-blocked=4
+
+      - name: Publish verified schedules to Cloud.ru S3
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+        run: npm run publish:omgmu:s3 -- --package=${{ steps.package.outputs.dir }} --expected-publishable=39 --expected-blocked=4 --confirm
+
+      - name: Record publication result
+        if: always()
+        working-directory: .
+        env:
+          JOB_STATUS: ${{ job.status }}
+          SOURCE_RUN_ID: "31339214410"
+          SOURCE_HEAD_SHA: "06de55ae8143380f11083ce729ed5a6b8fa15f1e"
+          MERGE_SHA: "c58bb68429ffb3ff5cf16fde402f5f7a48c1a3a6"
+        run: |
+          mkdir -p ops/reports
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          payload = {
+              "version": 1,
+              "university": "omgmu",
+              "operation": "publish-schedules-to-cloud-ru-s3",
+              "jobStatus": os.environ.get("JOB_STATUS"),
+              "sourceRunId": int(os.environ["SOURCE_RUN_ID"]),
+              "sourceHeadSha": os.environ["SOURCE_HEAD_SHA"],
+              "mergeSha": os.environ["MERGE_SHA"],
+              "recordedAt": datetime.now(timezone.utc).isoformat(),
+          }
+          reports = list(Path("api/data/publication/downloaded").rglob("s3-publication-report.json"))
+          if reports:
+              payload["publisherReport"] = json.loads(reports[0].read_text(encoding="utf-8"))
+          output = Path("ops/reports/omgmu-s3-publication-31339214410.json")
+          output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/reports/omgmu-s3-publication-31339214410.json
+          git commit -m "Record ОмГМУ S3 publication result for run 31339214410" || true
+          git push
