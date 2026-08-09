@@ -8,9 +8,10 @@ const DAYS = {
 };
 
 const HOLIDAYS_2026 = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
-const TIME_RANGE = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/;
+const TIME_RANGE = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/g;
 const DATE_RANGE = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})/;
 const DATE_SINGLE = /(?<!\d)(\d{2})\.(\d{2})(?!\d)/g;
+const ALLOWED_MINUTES = new Set([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
 
 function isoDate(year, month, day) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -49,6 +50,27 @@ function russianSection(text) {
   return index >= 0 ? String(text).slice(index) : String(text || "");
 }
 
+function findTimeRange(value) {
+  for (const match of String(value || "").matchAll(TIME_RANGE)) {
+    const startHour = Number(match[1]);
+    const startMinute = Number(match[2]);
+    const endHour = Number(match[3]);
+    const endMinute = Number(match[4]);
+    if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) continue;
+    if (!ALLOWED_MINUTES.has(startMinute) || !ALLOWED_MINUTES.has(endMinute)) continue;
+    const duration = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+    if (duration <= 0 || duration > 300) continue;
+    return { match, startHour, startMinute, endHour, endMinute };
+  }
+  return null;
+}
+
+function stableHash(value) {
+  let hash = 5381;
+  for (const character of String(value)) hash = ((hash << 5) + hash) ^ character.charCodeAt(0);
+  return (hash >>> 0).toString(36);
+}
+
 export function detectGroupColumns(text) {
   const lines = russianSection(text).split(/\r?\n/);
   let best = [];
@@ -72,9 +94,9 @@ export function detectGroupColumns(text) {
   }));
 }
 
-function cleanTitle(value) {
+function cleanTitle(value, timeText) {
   return value
-    .replace(TIME_RANGE, " ")
+    .replace(timeText, " ")
     .replace(DATE_RANGE, " ")
     .replace(/\b\d+\s*(?:зан\.|з\.|лекц(?:ий|ии)?|cl\.)\s*:?/gi, " ")
     .replace(/\b(?:ауд\.|корпус|здание)\b.*$/i, " ")
@@ -85,16 +107,17 @@ function cleanTitle(value) {
 
 function parseCell(buffer, { groupCode, weekday, course, stream }) {
   const text = buffer.join(" ").replace(/\s+/g, " ").trim();
-  const time = text.match(TIME_RANGE);
+  const time = findTimeRange(text);
   if (!time || !weekday) return [];
   const dates = explicitDates(text, weekday);
   if (!dates.length) return [];
-  const title = cleanTitle(text);
+  const title = cleanTitle(text, time.match[0]);
   if (!title || /^\d/.test(title)) return [];
-  const startTime = `${String(time[1]).padStart(2, "0")}:${time[2]}`;
-  const endTime = `${String(time[3]).padStart(2, "0")}:${time[4]}`;
+  const startTime = `${String(time.startHour).padStart(2, "0")}:${String(time.startMinute).padStart(2, "0")}`;
+  const endTime = `${String(time.endHour).padStart(2, "0")}:${String(time.endMinute).padStart(2, "0")}`;
+  const titleHash = stableHash(title);
   return dates.map((date) => ({
-    id: `omgmu-${groupCode}-${date}-${startTime.replace(":", "")}`,
+    id: `omgmu-${groupCode}-${date}-${startTime.replace(":", "")}-${titleHash}`,
     title,
     start: `${date}T${startTime}:00+06:00`,
     end: `${date}T${endTime}:00+06:00`,
@@ -131,9 +154,9 @@ export function parseWeeklyTable(text, { course, stream = null } = {}) {
     for (const column of columns) {
       const cell = rawLine.slice(column.start, column.end).trim();
       if (!cell) continue;
-      if (TIME_RANGE.test(cell) && buffers[column.code].some((line) => TIME_RANGE.test(line))) flush(column.code);
+      if (findTimeRange(cell) && buffers[column.code].some((line) => findTimeRange(line))) flush(column.code);
       buffers[column.code].push(cell);
-      if ((DATE_RANGE.test(cell) || [...cell.matchAll(DATE_SINGLE)].length > 1) && TIME_RANGE.test(buffers[column.code].join(" "))) {
+      if ((DATE_RANGE.test(cell) || [...cell.matchAll(DATE_SINGLE)].length > 1) && findTimeRange(buffers[column.code].join(" "))) {
         flush(column.code);
       }
     }
