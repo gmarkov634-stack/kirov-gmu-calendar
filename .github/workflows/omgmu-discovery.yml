@@ -94,6 +94,8 @@ jobs:
           NODE
       - name: Check normalized schedule quality
         run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json --manual-review=2108,2111,386,393
+      - name: Build publication dry run
+        run: npm run publish:omgmu:plan -- --input=data/imports/omgmu-schedules --output=data/publication/omgmu --expected-publishable=39 --expected-blocked=4
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -136,5 +138,13 @@ jobs:
           path: |
             api/data/imports/omgmu-quality-report.json
             api/data/imports/omgmu-coverage-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload publication dry run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-publication-plan
+          path: api/data/publication/omgmu
           if-no-files-found: error
           retention-days: 14

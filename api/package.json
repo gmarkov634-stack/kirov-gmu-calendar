@@ -15,7 +15,8 @@
     "parse:omgmu:fifth": "node tools/omgmu-parse-fifth.mjs",
     "quality:omgmu": "node tools/omgmu-quality.mjs",
     "review:omgmu:prepare": "node tools/omgmu-review-prepare.mjs",
-    "review:omgmu:apply": "node tools/omgmu-review-apply.mjs"
+    "review:omgmu:apply": "node tools/omgmu-review-apply.mjs",
+    "publish:omgmu:plan": "node tools/omgmu-publish-plan.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0"
