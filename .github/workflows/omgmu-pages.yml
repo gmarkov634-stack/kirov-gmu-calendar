@@ -1,0 +1,74 @@
+name: ОмГМУ landing
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "site/omgmu/**"
+      - ".github/workflows/omgmu-pages.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "site/omgmu/**"
+      - ".github/workflows/omgmu-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: omgmu-pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate landing files and catalog
+        run: |
+          test -f site/omgmu/index.html
+          test -f site/omgmu/styles.css
+          test -f site/omgmu/app.js
+          test -f site/omgmu/config.js
+          test -f site/omgmu/groups.js
+          node - <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const code = fs.readFileSync('site/omgmu/groups.js', 'utf8');
+          const sandbox = { window: {} };
+          vm.runInNewContext(code, sandbox);
+          const catalog = sandbox.window.OMGMU_GROUPS;
+          if (!Array.isArray(catalog)) throw new Error('OMGMU_GROUPS is not an array');
+          const groups = catalog.flatMap(item => item.groups || []);
+          const blocked = ['2108', '2111', '386', '393'];
+          if (groups.length !== 39) throw new Error(`Expected 39 groups, got ${groups.length}`);
+          for (const code of blocked) {
+            if (groups.includes(code)) throw new Error(`Blocked group ${code} is exposed`);
+          }
+          const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
+          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl']) {
+            if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
+          }
+          console.log('ОмГМУ landing validation passed');
+          NODE
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/omgmu
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
