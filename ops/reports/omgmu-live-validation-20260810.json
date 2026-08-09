@@ -2,7 +2,7 @@
   "version": 1,
   "university": "omgmu",
   "operation": "live-validation-after-s3-publication",
-  "generatedAt": "2026-08-09T22:42:26.848599+00:00",
+  "generatedAt": "2026-08-09T22:44:36.001117+00:00",
   "resources": {
     "health": {
       "url": "https://kgmu-calendar-api.containerapps.ru/health",
@@ -14,7 +14,7 @@
       "url": "https://kgmu-calendar-api.containerapps.ru/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/schedule?groupCode=1101&stream=1",
       "httpStatus": 200,
       "stderr": "",
-      "bodyPreview": "{\"version\":1,\"university\":\"omgmu\",\"universityName\":\"ОмГМУ\",\"program\":\"medicine-international\",\"course\":1,\"stream\":\"1\",\"academicYear\":\"2025-2026\",\"semester\":2,\"timezone\":\"Asia/Omsk\",\"group\":{\"id\":\"omgmu:medicine-international:1:stream-1:1101\",\"code\":\"1101\",\"displayName\":\"Группа 1101\"},\"sources\":[],\"events\":[{\"id\":\"omgmu-1101-2026-04-06-0800-bc916bc62e\",\"title\":\"Гистология, эмбриология, цитология\",\"start\":\"2026-04-06T08:00:00+06:00\",\"end\":\"2026-04-06T10:25:00+06:00\",\"location\":\"\",\"sourceType\":\"weekly-pdf-table\",\"course\":1,\"stream\":\"1\"},{\"id\":\"omgmu-1101-2026-04-06-1040-2ad92e45c1\",\"title\":\"История России\",\"start\":\"2026-04-06T10:40:00+06:00\",\"end\":\"2026-04-06T13:05:00+06:00\",\"location\":\"\",\"sourceType\":\"weekly-pdf-table\",\"course\":1,\"stream\":\"1\"},{\"id\":\"omgmu-1101-2026-04-06-1340-bd77539a28\",\"title\":\"Химия\",\"start\":\"2026-04-06T13:40:00+06:00\",\"end\":\"2026-04-06T15:20:00+06:00\",\"location\":\"1 ауд. ГК\",\"sourceType\":\"weekly-pdf-table\",\"course\":1,\"stream\":\"1\"},{\"id\":\"omgmu-1101-2026-04-06-1540-e7"
+      "bodyPreview": "{\"version\":1,\"university\":\"omgmu\",\"universityName\":\"ОмГМУ\",\"program\":\"medicine-international\",\"course\":1,\"stream\":\"1\",\"academicYear\":\"2025-2026\",\"semester\":2,\"timezone\":\"Asia/Omsk\",\"group\":{\"id\":\"omgmu:medicine-international:1:stream-1:1101\",\"code\":\"1101\",\"displayName\":\"Группа 1101\"},\"sources\":[],\"events\":[{\"id\":\"omgmu-1101-2026-04-06-0800-bc916bc62e\",\"title\":\"Гистология, эмбриология, цитология\",\"start\":\"2026-04-06T08:00:00+06:00\",\"end\":\"2026-04-06T10:25:00+06:00\",\"location\":\"\",\"sourceType\":\"wee"
     },
     "2113": {
       "url": "https://kgmu-calendar-api.containerapps.ru/api/v2/schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2113/schedule?groupCode=2113&stream=2",
@@ -40,6 +40,12 @@
       "stderr": "",
       "bodyPreview": "{\"error\":\"schedule_not_published\"}"
     },
+    "index": {
+      "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/",
+      "httpStatus": 200,
+      "stderr": "",
+      "bodyPreview": "<!doctype html>\n<html lang=\"ru\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <meta name=\"description\" content=\"Расписание ОмГМУ в Google Calendar и Apple Calendar.\">\n  <title>Расписание ОмГМУ в календаре</title>\n  <link rel=\"stylesheet\" href=\"../site/omgmu/styles.css\">\n</head>\n<body>\n  <header class=\"hero\"><div class=\"shell\"><p class=\"eyebrow\">Омский государственный медицинский университет</p><h1>Расписание ОмГМУ прямо в вашем календар"
+    },
     "config": {
       "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/config.js",
       "httpStatus": 200,
@@ -47,10 +53,16 @@
       "bodyPreview": "window.OMGMU_CONFIG = Object.freeze({\n  university: \"omgmu\",\n  program: \"medicine-international\",\n  timezone: \"Asia/Omsk\",\n  apiBaseUrl: \"https://REPLACE_WITH_CLOUD_RU_API\",\n  paymentPath: \"/api/v2/payments\",\n  priceRub: 490,\n  checkoutEnabled: false,\n});\n"
     },
     "groups": {
-      "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/groups.js",
-      "httpStatus": 404,
+      "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/site/omgmu/groups.js",
+      "httpStatus": 200,
       "stderr": "",
-      "bodyPreview": "<!DOCTYPE html>\n<html>\n  <head>\n    <meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'\">\n    <title>Page not found &middot; GitHub Pages</title>\n    <style type=\"text/css\" media=\"screen\">\n      body {\n        background-color: #f1f1f1;\n        margin: 0;\n        font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n      }\n\n      .container { margin: 50px auto 40px auto; width: 600px; text-align: center; }\n\n      a { color: #4183c4; text-decoration: none; }\n      a:hover { text-decoration: underline; }\n\n      h1 { width: 800px; position:relative; left: -100px; letter-spacing: -1px; line-height: 60px; font-size: 60px; font-weight: 100; margin: 0px 0 50px 0; text-shadow: 0 1px 0 #fff; }\n      p { color: rgba(0, 0, 0, 0.5); margin: 20px 0; line-height: 1.6; }\n\n      ul { list-style: none; margin: 25px 0; padding: 0; }\n      li { d"
+      "bodyPreview": "window.OMGMU_GROUPS = Object.freeze([\n  { course: 1, stream: 1, groups: [\"1101\", \"1102\", \"1103\", \"1104\", \"1105\", \"1106\"] },\n  { course: 1, stream: 2, groups: [\"1107\", \"1108\", \"1109\", \"1110\", \"1111\", \"1112\"] },\n  { course: 2, stream: 1, groups: [\"2101\", \"2102\", \"2103\", \"2104\", \"2105\", \"2106\", \"2107\", \"2108\", \"2109\", \"2110\"] },\n  { course: 2, stream: 2, groups: [\"2111\", \"2112\", \"2115\", \"2116\", \"2117\", \"2118\", \"2119\", \"2120\"] },\n  { course: 3, stream: null, groups: [\"385\", \"386\", \"387\", \"388\", \"394"
+    },
+    "app": {
+      "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/site/omgmu/app.js",
+      "httpStatus": 200,
+      "stderr": "",
+      "bodyPreview": "const config = window.OMGMU_CONFIG;\nconst catalog = window.OMGMU_GROUPS;\n\nconst courseSelect = document.querySelector('#course');\nconst streamSelect = document.querySelector('#stream');\nconst groupSelect = document.querySelector('#group');\nconst emailInput = document.querySelector('#email');\nconst form = document.querySelector('#order-form');\nconst status = document.querySelector('#form-status');\n\nconst courses = [...new Set(catalog.map((item) => item.course))].sort((a, b) => a - b);\nfor (const "
     }
   },
   "health": {
@@ -72,12 +84,52 @@
   },
   "landing": {
     "checkoutDisabled": true,
-    "groupCount": 0,
-    "groups": []
+    "apiPlaceholderPresent": true,
+    "groupCount": 39,
+    "groups": [
+      "385",
+      "386",
+      "387",
+      "388",
+      "394",
+      "395",
+      "485",
+      "486",
+      "585",
+      "1101",
+      "1102",
+      "1103",
+      "1104",
+      "1105",
+      "1106",
+      "1107",
+      "1108",
+      "1109",
+      "1110",
+      "1111",
+      "1112",
+      "2101",
+      "2102",
+      "2103",
+      "2104",
+      "2105",
+      "2106",
+      "2107",
+      "2108",
+      "2109",
+      "2110",
+      "2111",
+      "2112",
+      "2115",
+      "2116",
+      "2117",
+      "2118",
+      "2119",
+      "2120"
+    ],
+    "assetMode": "branch-relative-shared-assets"
   },
-  "errors": [
-    "live groups.js returned HTTP 404"
-  ],
-  "validationStatus": "failure",
-  "jobStatus": "failure"
+  "errors": [],
+  "validationStatus": "success",
+  "jobStatus": "success"
 }
