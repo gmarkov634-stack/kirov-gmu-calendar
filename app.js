@@ -286,13 +286,20 @@ backButton.addEventListener("click", () => {
   else if (state.step === "group") setStep("course");
   else setStep("faculty");
 });
-const pageParams = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
-const orderId = pageParams.get("order");
-const accessToken = pageParams.get("access") || "";
-if (validOrderId(orderId)) {
-  saveOrder(orderId, accessToken);
-  renderOrderResult(orderId, accessToken);
-} else {
-  render();
+function renderCurrentPage() {
+  const pageParams = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
+  const orderId = pageParams.get("order");
+  const accessToken = pageParams.get("access") || "";
+  if (validOrderId(orderId)) {
+    saveOrder(orderId, accessToken);
+    renderOrderResult(orderId, accessToken);
+    return;
+  }
+
+  document.querySelector(".steps").hidden = false;
+  setStep(state.step);
   renderSavedOrders();
 }
+
+window.addEventListener("hashchange", renderCurrentPage);
+renderCurrentPage();
