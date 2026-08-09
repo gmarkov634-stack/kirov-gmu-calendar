@@ -1,0 +1,112 @@
+name: One-time delete blocked ОмГМУ schedules
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/omgmu-one-time-delete-blocked-20260809.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.event.head_commit.message == 'Delete blocked ОмГМУ schedules from Cloud.ru S3'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+
+      - name: Delete blocked objects
+        working-directory: api
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import { DeleteObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
+
+          const bucket = process.env.S3_BUCKET || 'kgmu-calendar-data-gmarkov634';
+          const endpoint = process.env.S3_ENDPOINT || 'https://s3.cloud.ru';
+          const region = process.env.S3_REGION || 'ru-central-1';
+          const keys = [
+            'schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2113.json',
+            'schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2114.json',
+            'schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A389.json',
+            'schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A393.json',
+          ];
+          const client = new S3Client({
+            endpoint,
+            region,
+            forcePathStyle: true,
+            credentials: {
+              accessKeyId: process.env.S3_ACCESS_KEY_ID,
+              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+            },
+          });
+          const report = {
+            version: 1,
+            university: 'omgmu',
+            operation: 'delete-blocked-schedules',
+            generatedAt: new Date().toISOString(),
+            bucket,
+            endpoint,
+            deleted: [],
+            alreadyAbsent: [],
+          };
+          for (const key of keys) {
+            try {
+              await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+              await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+              report.deleted.push(key);
+            } catch (error) {
+              const notFound = error?.$metadata?.httpStatusCode === 404 || error?.name === 'NotFound' || error?.name === 'NoSuchKey';
+              if (!notFound) throw error;
+              report.alreadyAbsent.push(key);
+            }
+          }
+          const output = path.resolve('../ops/reports/omgmu-s3-blocked-cleanup-20260809.json');
+          await fs.mkdir(path.dirname(output), { recursive: true });
+          await fs.writeFile(output, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+          console.log(JSON.stringify(report));
+          NODE
+
+      - name: Record cleanup result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p ops/reports
+          if [ ! -f ops/reports/omgmu-s3-blocked-cleanup-20260809.json ]; then
+            printf '{"version":1,"university":"omgmu","operation":"delete-blocked-schedules","jobStatus":"%s"}\n' "$JOB_STATUS" > ops/reports/omgmu-s3-blocked-cleanup-20260809.json
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('ops/reports/omgmu-s3-blocked-cleanup-20260809.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          data['jobStatus'] = __import__('os').environ['JOB_STATUS']
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/reports/omgmu-s3-blocked-cleanup-20260809.json
+          git commit -m "Record blocked ОмГМУ S3 cleanup result" || true
+          git push
