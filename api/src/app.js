@@ -95,7 +95,13 @@ function sameSchedule(schedule, subscription) {
 }
 
 function safeFilename(value) {
-  return String(value || "group").replace(/[^\p{L}\p{N}._-]+/gu, "-").slice(0, 80);
+  const result = String(value || "calendar")
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+  return result || "calendar";
 }
 
 export function createHandler({ store, config, payments }) {
