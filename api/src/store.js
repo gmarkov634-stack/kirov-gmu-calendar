@@ -123,10 +123,25 @@ export class ScheduleStore {
       value,
       expiresAt: Date.now() + this.config.cacheTtlMs,
     });
-    if (value.status !== "active") {
-      const accessKey = `subscription-access/${hash}.json`;
-      const record = await this.#readJson(accessKey);
-      if (record) await this.#writeJson(accessKey, { ...record, status: value.status, statusChangedAt: value.revokedAt });
+    const accessKey = `subscription-access/${hash}.json`;
+    const record = await this.#readJson(accessKey);
+    if (value.status === "active" && !record) {
+      await this.#writeJson(accessKey, {
+        version: 1,
+        tokenHash: hash,
+        orderId: value.orderId || null,
+        group: String(value.group),
+        status: value.status,
+        issuedAt: value.createdAt || new Date().toISOString(),
+        firstSeenAt: null,
+        lastSeenAt: null,
+        totalRequests: 0,
+        suspicious: false,
+        sourceCount: 0,
+        sources: [],
+      });
+    } else if (value.status !== "active" && record) {
+      await this.#writeJson(accessKey, { ...record, status: value.status, statusChangedAt: value.revokedAt });
     }
   }
 
@@ -200,7 +215,7 @@ export class ScheduleStore {
         if (value) records.push(value);
       }
     }
-    return records.sort((a, b) => String(b.lastSeenAt).localeCompare(String(a.lastSeenAt)));
+    return records.sort((a, b) => String(b.lastSeenAt || b.issuedAt || "").localeCompare(String(a.lastSeenAt || a.issuedAt || "")));
   }
 
   async revokeSubscriptionByHash(hash) {
