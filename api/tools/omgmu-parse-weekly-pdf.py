@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Parse merged ОмГМУ weekly schedule tables directly from PDF geometry."""
-
 from __future__ import annotations
 
 import argparse
@@ -11,48 +9,63 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
-TIME_RE = re.compile(r"(?<!\d)(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})(?!\d)")
+TIME_RE = re.compile(r"(?<!\d)(\d{1,2})[.:/](\d{2})\s*[-–]\s*(\d{1,2})[.:/](\d{2})(?!\d)")
+TIME_START_RE = re.compile(r"^\s*[,;]?\s*(\d{1,2})[.:/](\d{2})\s*[-–]\s*(\d{1,2})[.:/](\d{2})(?!\d)")
 RANGE_RE = re.compile(r"(?<!\d)(\d{2})\.(\d{2})\s*[-–]\s*(\d{2})\.(\d{2})(?!\d)")
 SINGLE_DATE_RE = re.compile(r"(?<!\d)(\d{2})\.(\d{2})(?!\d)")
 COUNT_MARKER_RE = re.compile(
-    r",?\s*\d+(?:/\d+)?\s*(?:зан\.?|з\.?|лекц(?:ий|ии|ия|и)?\.?|лек\.?|cl\.?)\s*: ?",
+    r",?\s*\d+(?:/\d+)?\s*(?:зан(?:ятий|ятие|ятия)?\.?|з\.?|лекц(?:ий|ии|ия|и)?\.?|лек\.?|cl\.?)\s*[:.]*",
     re.IGNORECASE,
 )
 GROUP_RE = re.compile(r"\d{3,4}")
 HOLIDAYS = {"2026-05-01", "2026-05-09", "2026-06-12"}
+DAY_BY_NAME = {
+    "понедельник": 0,
+    "вторник": 1,
+    "среда": 2,
+    "четверг": 3,
+    "пятница": 4,
+    "суббота": 5,
+}
 
 
 def compact(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "").replace("\n", " ")).strip(" ,;\t")
 
 
-def valid_time_matches(value: str) -> list[re.Match[str]]:
-    matches: list[re.Match[str]] = []
-    for match in TIME_RE.finditer(value):
-        start_hour, start_minute, end_hour, end_minute = map(int, match.groups())
-        duration = end_hour * 60 + end_minute - (start_hour * 60 + start_minute)
-        if (
-            0 <= start_hour <= 23
-            and 0 <= end_hour <= 23
-            and 0 <= start_minute <= 59
-            and 0 <= end_minute <= 59
-            and 0 < duration <= 300
-        ):
-            matches.append(match)
-    return matches
+def valid_time(match: re.Match[str]) -> bool:
+    start_hour, start_minute, end_hour, end_minute = map(int, match.groups())
+    duration = end_hour * 60 + end_minute - (start_hour * 60 + start_minute)
+    return (
+        0 <= start_hour <= 23
+        and 0 <= end_hour <= 23
+        and 0 <= start_minute <= 59
+        and 0 <= end_minute <= 59
+        and 0 < duration <= 300
+    )
 
 
 def split_event_segments(cell: str) -> list[str]:
-    value = compact(cell)
-    matches = valid_time_matches(value)
-    return [
-        value[match.start() : (matches[index + 1].start() if index + 1 < len(matches) else len(value))].strip(" ,;")
-        for index, match in enumerate(matches)
-    ]
+    segments: list[str] = []
+    current: list[str] = []
+    for raw_line in str(cell or "").splitlines():
+        line = re.sub(r"(\d{1,2}[.:/]\d)\s+(\d)", r"\1\2", raw_line.strip())
+        if not line:
+            continue
+        match = TIME_START_RE.match(line)
+        if match and valid_time(match):
+            if current:
+                segments.append(" ".join(current).strip(" ,;"))
+            current = [line]
+        elif current:
+            current.append(line)
+    if current:
+        segments.append(" ".join(current).strip(" ,;"))
+    return segments
 
 
 def valid_semester_date(day: int, month: int) -> bool:
-    if month < 4 or month > 8:
+    if not 4 <= month <= 8:
         return False
     try:
         date(2026, month, day)
@@ -61,91 +74,106 @@ def valid_semester_date(day: int, month: int) -> bool:
         return False
 
 
-def protected_spans(matches: list[re.Match[str]]) -> list[tuple[int, int]]:
-    return [(match.start(), match.end()) for match in matches]
-
-
 def overlaps(match: re.Match[str], spans: list[tuple[int, int]]) -> bool:
     return any(match.start() < end and match.end() > start for start, end in spans)
 
 
-def extract_dates(value: str) -> tuple[list[str], int | None]:
+def extract_dates(value: str) -> tuple[list[str], int | None, list[str]]:
     ranges = list(RANGE_RE.finditer(value))
-    range_spans = protected_spans(ranges)
+    range_spans = [(match.start(), match.end()) for match in ranges]
     singles = [match for match in SINGLE_DATE_RE.finditer(value) if not overlaps(match, range_spans)]
-    result: set[str] = set()
-    last_end: int | None = None
+    dates: set[str] = set()
+    last_date_end: int | None = None
+    errors: list[str] = []
 
     for match in ranges:
         start_day, start_month, end_day, end_month = map(int, match.groups())
         if not valid_semester_date(start_day, start_month) or not valid_semester_date(end_day, end_month):
+            errors.append(f"invalid date range {match.group(0)}")
             continue
         cursor = date(2026, start_month, start_day)
         end = date(2026, end_month, end_day)
         if end < cursor or (end - cursor).days > 180:
+            errors.append(f"invalid date range {match.group(0)}")
             continue
         while cursor <= end:
             if cursor.isoformat() not in HOLIDAYS:
-                result.add(cursor.isoformat())
+                dates.add(cursor.isoformat())
             cursor += timedelta(days=7)
-        last_end = max(last_end or 0, match.end())
+        last_date_end = max(last_date_end or 0, match.end())
 
     for match in singles:
         day, month = map(int, match.groups())
         if not valid_semester_date(day, month):
             continue
-        value_date = date(2026, month, day).isoformat()
-        if value_date not in HOLIDAYS:
-            result.add(value_date)
-        last_end = max(last_end or 0, match.end())
+        event_date = date(2026, month, day).isoformat()
+        if event_date not in HOLIDAYS:
+            dates.add(event_date)
+        last_date_end = max(last_date_end or 0, match.end())
 
-    return sorted(result), last_end
+    return sorted(dates), last_date_end, errors
 
 
-def extract_title_and_location(value: str, date_end: int | None) -> tuple[str, str]:
+def extract_title_and_location(value: str, last_date_end: int | None) -> tuple[str, str]:
     ranges = list(RANGE_RE.finditer(value))
-    range_spans = protected_spans(ranges)
+    range_spans = [(match.start(), match.end()) for match in ranges]
     singles = [match for match in SINGLE_DATE_RE.finditer(value) if not overlaps(match, range_spans)]
-    cut = len(value)
+    candidates: list[int] = []
     marker = COUNT_MARKER_RE.search(value)
     if marker:
-        cut = min(cut, marker.start())
+        candidates.append(marker.start())
     if ranges:
-        cut = min(cut, ranges[0].start())
+        candidates.append(ranges[0].start())
     if singles:
-        cut = min(cut, singles[0].start())
-
+        candidates.append(singles[0].start())
+    cut = min(candidates) if candidates else len(value)
     title = value[:cut].strip(" ,;.")
-    title = re.sub(r"^[,.;\s]+", "", title)
+    title = re.sub(r"^\s*[,.;]+\s*", "", title)
     title = re.sub(r"\(\s*\)", "", title)
     title = re.sub(r"\s+", " ", title).strip(" ,;.")
 
     location = ""
-    if date_end is not None:
-        candidate = value[date_end:].strip(" ,;.")
-        if candidate and not re.search(r"\b(?:зан|з|лекц)\b", candidate, re.IGNORECASE):
-            location = candidate
+    if last_date_end is not None:
+        location = re.sub(r"\s+", " ", value[last_date_end:].strip(" ,;."))
     return title, location
 
 
-def parse_event_segment(segment: str) -> dict[str, Any] | None:
-    time_matches = valid_time_matches(segment)
-    if not time_matches:
-        return None
-    match = time_matches[0]
+def decode_day(value: Any) -> int | None:
+    letters = re.sub(r"[^а-яё]", "", str(value or "").lower())
+    for candidate in (letters, letters[::-1]):
+        for name, weekday in DAY_BY_NAME.items():
+            if candidate == name or candidate.startswith(name) or (len(candidate) >= 5 and name.startswith(candidate)):
+                return weekday
+    return None
+
+
+def parse_segment(segment: str, expected_weekday: int | None) -> tuple[dict[str, Any] | None, list[str]]:
+    match = TIME_START_RE.match(segment)
+    if not match or not valid_time(match):
+        return None, ["invalid or missing start time"]
     start_hour, start_minute, end_hour, end_minute = map(int, match.groups())
-    remainder = segment[match.end() :].strip()
-    dates, date_end = extract_dates(remainder)
-    title, location = extract_title_and_location(remainder, date_end)
-    if not title or not dates:
-        return None
+    remainder = segment[match.end():].strip(" ,;")
+    dates, last_date_end, fatal = extract_dates(remainder)
+    title, location = extract_title_and_location(remainder, last_date_end)
+    if not title:
+        fatal.append("missing title")
+    if not dates:
+        fatal.append("missing dates")
+    if fatal:
+        return None, fatal
+
+    warnings: list[str] = []
+    if expected_weekday is not None:
+        mismatches = [value for value in dates if date.fromisoformat(value).weekday() != expected_weekday]
+        if mismatches:
+            warnings.append(f"weekday mismatch: {', '.join(mismatches)}")
     return {
         "title": title,
         "dates": dates,
         "startTime": f"{start_hour:02d}:{start_minute:02d}",
         "endTime": f"{end_hour:02d}:{end_minute:02d}",
         "location": location,
-    }
+    }, warnings
 
 
 def table_groups(table: list[list[Any]]) -> list[str]:
@@ -154,7 +182,7 @@ def table_groups(table: list[list[Any]]) -> list[str]:
     return [compact(value) for value in table[0][1:] if GROUP_RE.fullmatch(compact(value))]
 
 
-def select_schedule_table(pdf_path: Path) -> list[list[Any]]:
+def select_table(pdf_path: Path) -> list[list[Any]]:
     try:
         import pdfplumber  # type: ignore
     except ImportError as error:
@@ -163,13 +191,12 @@ def select_schedule_table(pdf_path: Path) -> list[list[Any]]:
     candidates: list[tuple[int, list[list[Any]]]] = []
     with pdfplumber.open(pdf_path) as document:
         for page in document.pages:
-            page_text = page.extract_text() or ""
+            text = page.extract_text() or ""
+            cyrillic_score = len(re.findall(r"[А-Яа-яЁё]", text))
             for table in page.extract_tables():
                 groups = table_groups(table)
-                if len(groups) < 2:
-                    continue
-                score = len(groups) * 10 + (100 if "РАСПИСАНИЕ" in page_text.upper() else 0)
-                candidates.append((score, table))
+                if len(groups) >= 2:
+                    candidates.append((len(groups) * 100 + cyrillic_score, table))
     if not candidates:
         raise RuntimeError(f"No schedule table found in {pdf_path}")
     return max(candidates, key=lambda item: item[0])[1]
@@ -180,130 +207,159 @@ def event_id(group: str, event_date: str, start_time: str, title: str) -> str:
     return f"omgmu-{group}-{event_date}-{start_time.replace(':', '')}-{digest}"
 
 
-def parse_table(table: list[list[Any]], *, course: int, stream: str | None, source_url: str | None) -> list[dict[str, Any]]:
-    groups = table_groups(table)
-    if len(groups) < 2:
-        raise RuntimeError("Schedule table does not contain group headers")
+def combine_alternatives(parsed: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    buckets: dict[tuple[str, str, tuple[str, ...]], list[dict[str, Any]]] = {}
+    for item in parsed:
+        key = (item["startTime"], item["endTime"], tuple(item["dates"]))
+        buckets.setdefault(key, []).append(item)
 
+    combined: list[dict[str, Any]] = []
+    for (start_time, end_time, dates), items in buckets.items():
+        if len(items) == 1:
+            combined.append(items[0])
+            continue
+        titles: list[str] = []
+        locations: list[str] = []
+        for item in items:
+            if item["title"] not in titles:
+                titles.append(item["title"])
+            if item["location"] and item["location"] not in locations:
+                locations.append(item["location"])
+        combined.append({
+            "title": " / ".join(titles) + " (уточнить дисциплину)",
+            "dates": list(dates),
+            "startTime": start_time,
+            "endTime": end_time,
+            "location": " / ".join(locations),
+        })
+    return combined
+
+
+def parse_table(table: list[list[Any]], course: int, stream: str | None, source_url: str | None) -> list[dict[str, Any]]:
+    groups = table_groups(table)
     events: dict[str, list[dict[str, Any]]] = {group: [] for group in groups}
-    warnings: list[str] = []
+    warnings: dict[str, list[str]] = {group: [] for group in groups}
+    current_day: int | None = None
 
     for row_index, row in enumerate(table[1:], start=1):
-        cells = list(row[1 : 1 + len(groups)])
-        cells += [None] * (len(groups) - len(cells))
+        day = decode_day(row[0] if row else None)
+        if day is not None:
+            current_day = day
+        row_cells = list(row[1:1 + len(groups)])
+        row_cells += [None] * max(0, len(groups) - len(row_cells))
         index = 0
         while index < len(groups):
-            cell = cells[index]
+            cell = row_cells[index]
             if cell is None:
                 index += 1
                 continue
             end_index = index + 1
-            while end_index < len(groups) and cells[end_index] is None:
+            while end_index < len(groups) and row_cells[end_index] is None:
                 end_index += 1
             covered_groups = groups[index:end_index]
-            value = compact(cell)
-            if value:
-                segments = split_event_segments(value)
-                if not segments and TIME_RE.search(value):
-                    warnings.append(f"row {row_index}, groups {covered_groups[0]}-{covered_groups[-1]}: invalid time")
-                for segment in segments:
-                    parsed = parse_event_segment(segment)
-                    if not parsed:
-                        warnings.append(f"row {row_index}, groups {covered_groups[0]}-{covered_groups[-1]}: unparsed {segment[:120]}")
-                        continue
+            segments = split_event_segments(str(cell or ""))
+            parsed: list[dict[str, Any]] = []
+            if compact(cell) and not segments:
+                for group in covered_groups:
+                    warnings[group].append(f"row {row_index}: no event time in {compact(cell)[:120]}")
+            for segment in segments:
+                item, issues = parse_segment(segment, current_day)
+                if item:
+                    parsed.append(item)
+                    for warning in issues:
+                        for group in covered_groups:
+                            warnings[group].append(f"row {row_index}: {warning}: {segment[:120]}")
+                else:
                     for group in covered_groups:
-                        for event_date in parsed["dates"]:
-                            events[group].append(
-                                {
-                                    "id": event_id(group, event_date, parsed["startTime"], parsed["title"]),
-                                    "title": parsed["title"],
-                                    "start": f"{event_date}T{parsed['startTime']}:00+06:00",
-                                    "end": f"{event_date}T{parsed['endTime']}:00+06:00",
-                                    "location": parsed["location"],
-                                    "sourceType": "weekly-pdf-table",
-                                    "course": course,
-                                    "stream": stream,
-                                }
-                            )
+                        warnings[group].append(f"row {row_index}: {'; '.join(issues)}: {segment[:120]}")
+
+            for item in combine_alternatives(parsed):
+                for group in covered_groups:
+                    for event_date in item["dates"]:
+                        events[group].append({
+                            "id": event_id(group, event_date, item["startTime"], item["title"]),
+                            "title": item["title"],
+                            "start": f"{event_date}T{item['startTime']}:00+06:00",
+                            "end": f"{event_date}T{item['endTime']}:00+06:00",
+                            "location": item["location"],
+                            "sourceType": "weekly-pdf-table",
+                            "course": course,
+                            "stream": stream,
+                        })
             index = end_index
 
     schedules: list[dict[str, Any]] = []
     for group in groups:
         unique: dict[tuple[str, str, str, str], dict[str, Any]] = {}
         for event in events[group]:
-            key = (event["start"], event["end"], event["title"], event["location"])
-            unique[key] = event
+            unique[(event["start"], event["end"], event["title"], event["location"])] = event
         normalized_events = sorted(unique.values(), key=lambda event: (event["start"], event["end"], event["title"]))
-        schedules.append(
-            {
-                "version": 1,
-                "university": "omgmu",
-                "universityName": "ОмГМУ",
-                "program": "medicine-international",
-                "course": course,
-                "stream": stream,
-                "academicYear": "2025-2026",
-                "semester": 2,
-                "timezone": "Asia/Omsk",
-                "group": {
-                    "id": f"omgmu:medicine-international:{course}:{f'stream-{stream}:' if stream else ''}{group}",
-                    "code": group,
-                    "displayName": f"Группа {group}",
-                },
-                "sources": ([{"url": source_url, "part": "combined-pdf-table"}] if source_url else []),
-                "events": normalized_events,
-                "importWarnings": warnings,
-            }
-        )
+        schedules.append({
+            "version": 1,
+            "university": "omgmu",
+            "universityName": "ОмГМУ",
+            "program": "medicine-international",
+            "course": course,
+            "stream": stream,
+            "academicYear": "2025-2026",
+            "semester": 2,
+            "timezone": "Asia/Omsk",
+            "group": {
+                "id": f"omgmu:medicine-international:{course}:{f'stream-{stream}:' if stream else ''}{group}",
+                "code": group,
+                "displayName": f"Группа {group}",
+            },
+            "sources": ([{"url": source_url, "part": "combined-pdf-table"}] if source_url else []),
+            "events": normalized_events,
+            "importWarnings": warnings[group],
+        })
     return schedules
 
 
 def self_test() -> None:
     table = [
-        ["", "1101", "1102", "1103"],
-        ["", "08.00-09.40 Анатомия, 3 зан.: 06.04-20.04", None, "10.00-11.40 Химия, 2 зан.: 07.04, 14.04"],
-        [None, "11.30-13.10 Иностранный язык, 1 зан.: 11.04", None, ""],
+        ["", "1101", "1102"],
+        ["к\nи\nн\nь\nл\nе\nд\nе\nн\nо\nп", "15.40-17.20 История медицины, 2 лекции: 06.04-13.04\n15.40-17.20 Основы паразитарных заболеваний, 2 лекции: 06.04-13.04", None],
+        ["а\nт\nо\nб\nб\nу\nс", "11.30-13.10 Ин. язык (рус. язык), 1 занятие: 11.04", None],
+        ["ц\nи\nн\nт\nя\nп", "16.20-18.45 Биохимия, 2 занятия: 09.04-16.04", None],
+        [None, "08.30-10.1 0 Общая хирургия, 2 занятия: 10.04-17.04", None],
     ]
     schedules = parse_table(table, course=1, stream="1", source_url=None)
-    by_group = {item["group"]["code"]: item for item in schedules}
-    assert len(by_group["1101"]["events"]) == 4
-    assert len(by_group["1102"]["events"]) == 4
-    assert len(by_group["1103"]["events"]) == 2
-    dates_1101 = {event["start"][:10] for event in by_group["1101"]["events"]}
-    assert "2026-04-11" in dates_1101
-    assert all(not value.startswith("2026-10") for value in dates_1101)
-    assert all("11.04" not in event["title"] for event in by_group["1101"]["events"])
-    print("ОмГМУ PDF table parser self-test passed")
+    first = schedules[0]
+    assert any("История медицины / Основы паразитарных заболеваний" in event["title"] for event in first["events"])
+    assert any(event["start"].startswith("2026-04-11T11:30") for event in first["events"])
+    assert not any(event["start"].startswith("2026-10") for event in first["events"])
+    assert any(event["start"].startswith("2026-04-10T08:30") for event in first["events"])
+    assert any("weekday mismatch" in warning for warning in first["importWarnings"])
+    print("ОмГМУ weekly PDF parser self-test passed")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input")
     parser.add_argument("--course", type=int)
-    parser.add_argument("--stream", default=None)
-    parser.add_argument("--source", default=None)
+    parser.add_argument("--stream")
+    parser.add_argument("--source")
     parser.add_argument("--output", default="data/imports/omgmu-schedules")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
-
     if args.self_test:
         self_test()
         return
     if not args.input or not args.course:
         parser.error("--input and --course are required")
 
-    input_path = Path(args.input).resolve()
-    output_dir = Path(args.output).resolve()
-    table = select_schedule_table(input_path)
-    schedules = parse_table(table, course=args.course, stream=args.stream or None, source_url=args.source)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    event_count = 0
+    schedules = parse_table(select_table(Path(args.input)), args.course, args.stream, args.source)
+    output = Path(args.output)
+    output.mkdir(parents=True, exist_ok=True)
     for schedule in schedules:
-        group = schedule["group"]["code"]
-        target = output_dir / f"{group}.json"
+        target = output / f"{schedule['group']['code']}.json"
         target.write_text(json.dumps(schedule, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        event_count += len(schedule["events"])
+    event_count = sum(len(schedule["events"]) for schedule in schedules)
     print(f"Parsed {event_count} events for {len(schedules)} ОмГМУ groups from PDF table")
+    for schedule in schedules:
+        if schedule["importWarnings"]:
+            print(f"Warnings {schedule['group']['code']}: {len(schedule['importWarnings'])}")
     if not schedules or not event_count or any(not schedule["events"] for schedule in schedules):
         raise SystemExit(2)
 
