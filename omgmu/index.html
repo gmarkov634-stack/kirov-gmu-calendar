@@ -5,53 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Расписание ОмГМУ в Google Calendar и Apple Calendar.">
   <title>Расписание ОмГМУ в календаре</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../site/omgmu/styles.css">
 </head>
 <body>
-  <header class="hero">
-    <div class="shell">
-      <p class="eyebrow">Омский государственный медицинский университет</p>
-      <h1>Расписание ОмГМУ прямо в вашем календаре</h1>
-      <p class="lead">Занятия, время и обновления расписания в Google Calendar или Apple Calendar.</p>
-      <a class="primary" href="#order">Выбрать группу</a>
-    </div>
-  </header>
-
+  <header class="hero"><div class="shell"><p class="eyebrow">Омский государственный медицинский университет</p><h1>Расписание ОмГМУ прямо в вашем календаре</h1><p class="lead">Занятия, время и обновления расписания в Google Calendar или Apple Calendar.</p><a class="primary" href="#order">Выбрать группу</a></div></header>
   <main>
-    <section class="benefits shell" aria-label="Преимущества">
-      <article><strong>Автоматические обновления</strong><span>Изменения появляются без повторного импорта.</span></article>
-      <article><strong>Часовой пояс Омска</strong><span>Все события создаются в Asia/Omsk.</span></article>
-      <article><strong>Google и Apple</strong><span>Одна подписная ссылка работает на телефоне и компьютере.</span></article>
-    </section>
-
-    <section id="order" class="order shell">
-      <div>
-        <p class="eyebrow">Лечебное дело для иностранных граждан</p>
-        <h2>Выберите свою группу</h2>
-        <p>На странице показываются только расписания, прошедшие автоматическую или ручную проверку.</p>
-      </div>
-      <form id="order-form" novalidate>
-        <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
-        <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
-        <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
-        <label>Email для получения ссылки
-          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required>
-        </label>
-        <fieldset>
-          <legend>Куда добавить календарь</legend>
-          <label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label>
-          <label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label>
-        </fieldset>
-        <p class="note">После оплаты вы получите универсальную подписную ссылку. Её можно открыть и в Google Calendar, и в Apple Calendar.</p>
-        <button class="primary" type="submit">Перейти к оплате</button>
-        <p id="form-status" class="status" role="status" aria-live="polite"></p>
-      </form>
-    </section>
+    <section class="benefits shell" aria-label="Преимущества"><article><strong>Автоматические обновления</strong><span>Изменения появляются без повторного импорта.</span></article><article><strong>Часовой пояс Омска</strong><span>Все события создаются в Asia/Omsk.</span></article><article><strong>Google и Apple</strong><span>Одна подписная ссылка работает на телефоне и компьютере.</span></article></section>
+    <section id="order" class="order shell"><div><p class="eyebrow">Лечебное дело для иностранных граждан</p><h2>Выберите свою группу</h2><p>На странице показываются только расписания, прошедшие автоматическую или ручную проверку.</p></div><form id="order-form" novalidate><label>Курс<select id="course" required><option value="">Выберите курс</option></select></label><label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label><label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label><label>Email для получения ссылки<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label><fieldset><legend>Куда добавить календарь</legend><label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label><label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label></fieldset><p class="note">После оплаты вы получите универсальную подписную ссылку. Её можно открыть и в Google Calendar, и в Apple Calendar.</p><button class="primary" type="submit">Перейти к оплате</button><p id="form-status" class="status" role="status" aria-live="polite"></p></form></section>
   </main>
-
   <footer class="shell">Сервис расписаний не является официальным сайтом ОмГМУ.</footer>
   <script src="config.js"></script>
-  <script src="groups.js"></script>
-  <script src="app.js"></script>
+  <script src="../site/omgmu/groups.js"></script>
+  <script src="../site/omgmu/app.js"></script>
 </body>
 </html>
