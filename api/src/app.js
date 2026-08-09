@@ -107,7 +107,10 @@ function safeFilename(value) {
 export function createHandler({ store, config, payments }) {
   return async function handler(request, response) {
     const origin = request.headers.origin;
-    if (origin && origin === config.allowedOrigin) {
+    const allowedOrigins = Array.isArray(config.allowedOrigins)
+      ? config.allowedOrigins
+      : [config.allowedOrigin].filter(Boolean);
+    if (origin && allowedOrigins.includes(origin)) {
       response.setHeader("Access-Control-Allow-Origin", origin);
       response.setHeader("Vary", "Origin");
     }
