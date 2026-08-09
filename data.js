@@ -1,4 +1,13 @@
 window.CALENDAR_DATA = {
+  university: {
+    id: "kgmu",
+    shortName: "КГМУ",
+    name: "Кировский государственный медицинский университет",
+    city: "Киров",
+    timezone: "Europe/Moscow",
+    brandLetter: "К",
+    themeColor: "#1559d6",
+  },
   apiBase: "https://kgmu-calendar-api.containerapps.ru",
   offer: { price: "490 ₽", academicYear: "2025/26", semester: 2, expires: "31 августа 2026", testMode: true },
   faculties: [
