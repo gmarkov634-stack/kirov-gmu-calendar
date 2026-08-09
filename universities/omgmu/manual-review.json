@@ -1,34 +1,64 @@
 {
-  "version": 1,
+  "version": 2,
   "university": "omgmu",
+  "applicationConfirmedBy": "Григорий",
+  "applicationConfirmedOn": "2026-08-10",
   "groups": [
     {
       "group": "2113",
       "course": 2,
       "stream": "2",
-      "status": "pending",
-      "reason": "source-weekday-date-mismatch"
+      "status": "approved",
+      "reason": "source-weekday-date-mismatch",
+      "sourceFile": "04_medicine-international_course-2_stream-2_combined.pdf",
+      "sourceSha256": "35983ba32a518f9d61c184ba946907ec9d56b2bd03a99d2ace8bb1b3ad8afc69",
+      "eventCount": 176,
+      "eventsSha256": "f87e51a61add00aa568ffef835bbd7bb39fee054afff7387e7dc165874ade8ac",
+      "reviewedBy": "GPT-5.6 Thinking (визуальная сверка официального PDF)",
+      "reviewedAt": "2026-08-09T22:57:40.020335Z",
+      "decision": "Сохранены даты, прямо напечатанные в PDF: четверги 09.04–02.07, 16:20–18:45."
     },
     {
       "group": "2114",
       "course": 2,
       "stream": "2",
-      "status": "pending",
-      "reason": "source-weekday-date-mismatch"
+      "status": "approved",
+      "reason": "source-weekday-date-mismatch",
+      "sourceFile": "04_medicine-international_course-2_stream-2_combined.pdf",
+      "sourceSha256": "35983ba32a518f9d61c184ba946907ec9d56b2bd03a99d2ace8bb1b3ad8afc69",
+      "eventCount": 176,
+      "eventsSha256": "f87e51a61add00aa568ffef835bbd7bb39fee054afff7387e7dc165874ade8ac",
+      "reviewedBy": "GPT-5.6 Thinking (визуальная сверка официального PDF)",
+      "reviewedAt": "2026-08-09T22:57:40.020335Z",
+      "decision": "Сохранены даты, прямо напечатанные в PDF: четверги 09.04–02.07, 16:20–18:45."
     },
     {
       "group": "389",
       "course": 3,
       "stream": null,
-      "status": "pending",
-      "reason": "source-weekday-date-mismatch"
+      "status": "approved",
+      "reason": "source-weekday-date-mismatch",
+      "sourceFile": "05_medicine-international_course-3_combined.pdf",
+      "sourceSha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427",
+      "eventCount": 167,
+      "eventsSha256": "221df6317329540704752c06e83b03ed42fde735069f4045cf65d02ad27e1c8c",
+      "reviewedBy": "GPT-5.6 Thinking (визуальная сверка официального PDF)",
+      "reviewedAt": "2026-08-09T22:57:40.020335Z",
+      "decision": "Сохранена явно указанная дата 24.06.2026 (среда), 14:20–16:00."
     },
     {
       "group": "393",
       "course": 3,
       "stream": null,
-      "status": "pending",
-      "reason": "source-weekday-date-mismatch"
+      "status": "approved",
+      "reason": "source-weekday-date-mismatch",
+      "sourceFile": "05_medicine-international_course-3_combined.pdf",
+      "sourceSha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427",
+      "eventCount": 167,
+      "eventsSha256": "221df6317329540704752c06e83b03ed42fde735069f4045cf65d02ad27e1c8c",
+      "reviewedBy": "GPT-5.6 Thinking (визуальная сверка официального PDF)",
+      "reviewedAt": "2026-08-09T22:57:40.020335Z",
+      "decision": "Сохранена явно указанная дата 24.06.2026 (среда), 14:20–16:00."
     }
   ]
 }
