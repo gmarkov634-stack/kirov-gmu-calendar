@@ -28,6 +28,11 @@ const plan = buildPublicationPlan(schedules);
 await fs.rm(outputDir, { recursive: true, force: true });
 await fs.mkdir(path.join(outputDir, "objects"), { recursive: true });
 
+const blocked = plan.blocked.map(({ group, reason, key }) => {
+  if (!key) throw new Error(`Blocked schedule ${group || "unknown"} is missing its storage key`);
+  return { group, reason, key };
+});
+
 const manifest = {
   version: plan.version,
   university: plan.university,
@@ -35,7 +40,7 @@ const manifest = {
   publishableCount: plan.publishable.length,
   blockedCount: plan.blocked.length,
   objects: [],
-  blocked: plan.blocked.map(({ group, reason }) => ({ group, reason })),
+  blocked,
 };
 
 for (const entry of plan.publishable) {
