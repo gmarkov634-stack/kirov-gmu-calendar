@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Контроль ссылок · Календарь КГМУ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="admin-page">
+      <section class="selector admin-panel">
+        <p class="section-kicker">Календарь КГМУ</p>
+        <h1>Контроль персональных ссылок</h1>
+        <form id="admin-login" class="admin-login">
+          <label for="admin-token">Ключ администратора</label>
+          <div><input id="admin-token" type="password" autocomplete="current-password" required /><button class="pay-button" type="submit">Открыть</button></div>
+        </form>
+        <div id="admin-message" class="notice" hidden></div>
+        <div id="admin-summary" class="admin-summary" hidden></div>
+        <div id="admin-list" class="admin-list"></div>
+      </section>
+    </main>
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
