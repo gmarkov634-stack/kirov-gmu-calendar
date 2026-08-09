@@ -28,6 +28,11 @@ function validEmail(value) {
   return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function orderAccessToken(request) {
+  const value = request.headers["x-order-token"];
+  return typeof value === "string" ? value : "";
+}
+
 function validateSubscription(subscription) {
   const expiresAt = Date.parse(subscription?.expiresAt);
   if (!subscription || subscription.version !== 1 || !/^\d{3}$/.test(String(subscription.group)) || !Number.isFinite(expiresAt)) {
@@ -56,7 +61,7 @@ export function createHandler({ store, config, payments }) {
       response.setHeader("Vary", "Origin");
     }
     response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Order-Token");
     if (request.method === "OPTIONS") return send(response, 204, "", "text/plain");
     const url = new URL(request.url, "http://localhost");
     if (request.method === "POST" && url.pathname === "/api/v1/payments") {
@@ -94,6 +99,21 @@ export function createHandler({ store, config, payments }) {
       }
     }
 
+    const rotateMatch = url.pathname.match(/^\/api\/v1\/orders\/([A-Za-z0-9_-]{32})\/subscription\/reset$/);
+    if (request.method === "POST" && rotateMatch) {
+      if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
+      try {
+        const order = await payments.rotateSubscription(rotateMatch[1], orderAccessToken(request));
+        if (!order) return send(response, 404, { error: "order_not_found" });
+        return send(response, 200, order, "application/json; charset=utf-8", "no-store");
+      } catch (error) {
+        if (error.code === "order_forbidden") return send(response, 403, { error: error.code });
+        if (error.code === "order_not_succeeded") return send(response, 409, { error: error.code });
+        console.error(error);
+        return send(response, 503, { error: "subscription_reset_unavailable" });
+      }
+    }
+
     if (request.method !== "GET") return send(response, 405, { error: "method_not_allowed" });
 
     if (url.pathname === "/health") {
@@ -116,10 +136,11 @@ export function createHandler({ store, config, payments }) {
     if (orderMatch) {
       if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
       try {
-        const order = await payments.getOrder(orderMatch[1]);
+        const order = await payments.getOrder(orderMatch[1], { accessToken: orderAccessToken(request) });
         if (!order) return send(response, 404, { error: "order_not_found" });
         return send(response, 200, order, "application/json; charset=utf-8", "no-store");
       } catch (error) {
+        if (error.code === "order_forbidden") return send(response, 403, { error: error.code });
         console.error(error);
         return send(response, 503, { error: "order_unavailable" });
       }
