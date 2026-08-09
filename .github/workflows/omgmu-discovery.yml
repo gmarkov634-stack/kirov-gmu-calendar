@@ -29,10 +29,21 @@ jobs:
           cache-dependency-path: api/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Install PDF text tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - name: Discover official ОмГМУ sources
         run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json
       - name: Download official ОмГМУ PDF files
         run: npm run download:omgmu -- --manifest=data/imports/omgmu-source-manifest.json --output=data/imports/omgmu-pdfs
+      - name: Extract PDF text
+        run: |
+          mkdir -p data/imports/omgmu-text
+          for file in data/imports/omgmu-pdfs/*.pdf; do
+            name="$(basename "${file%.pdf}")"
+            pdftotext -layout "$file" "data/imports/omgmu-text/$name.txt"
+          done
+      - name: Build ОмГМУ group catalog
+        run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,3 +60,13 @@ jobs:
           path: api/data/imports/omgmu-pdfs
           if-no-files-found: error
           retention-days: 7
+      - name: Upload group catalog
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-group-catalog
+          path: |
+            api/data/imports/omgmu-catalog.json
+            api/data/imports/omgmu-text
+          if-no-files-found: error
+          retention-days: 14
