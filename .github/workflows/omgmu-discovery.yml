@@ -44,6 +44,8 @@ jobs:
           done
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
+      - name: Parse fifth-course schedule
+        run: npm run parse:omgmu:fifth -- --input=data/imports/omgmu-text/08_medicine-international_course-5_combined.txt --output=data/imports/omgmu-schedules/585.json
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,5 +70,13 @@ jobs:
           path: |
             api/data/imports/omgmu-catalog.json
             api/data/imports/omgmu-text
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload normalized schedules
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-normalized-schedules
+          path: api/data/imports/omgmu-schedules
           if-no-files-found: error
           retention-days: 14
