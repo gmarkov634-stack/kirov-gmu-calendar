@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "timezone": "Asia/Omsk",
+  "source": "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
+  "groupCatalogMode": "extract-from-schedule-files",
+  "groupCodePattern": null,
+  "programs": [
+    {
+      "id": "medicine",
+      "name": "Лечебное дело",
+      "courses": 6,
+      "streamsByCourse": {
+        "4": ["1", "2"],
+        "5": ["1", "2"],
+        "6": ["1", "2"]
+      },
+      "partsByCourse": {
+        "4": ["lectures", "cycles"],
+        "5": ["lectures", "cycles"],
+        "6": ["lectures", "cycles"]
+      }
+    },
+    {
+      "id": "medicine-international",
+      "name": "Лечебное дело для иностранных граждан",
+      "courses": 5,
+      "streamsByCourse": {
+        "1": ["1", "2"],
+        "2": ["1", "2"]
+      },
+      "partsByCourse": {
+        "4": ["lectures", "cycles"]
+      }
+    },
+    {
+      "id": "preventive-medicine",
+      "name": "Медико-профилактическое дело",
+      "courses": 6,
+      "partsByCourse": {
+        "4": ["front", "cycles"],
+        "5": ["front", "cycles"],
+        "6": ["front", "cycles"]
+      }
+    },
+    {
+      "id": "pediatrics",
+      "name": "Педиатрия",
+      "courses": 6,
+      "partsByCourse": {
+        "4": ["lectures", "cycles"],
+        "5": ["lectures", "cycles"],
+        "6": ["lectures", "cycles"]
+      }
+    },
+    {
+      "id": "dentistry",
+      "name": "Стоматология",
+      "courses": 5,
+      "partsByCourse": {
+        "4": ["lectures", "cycles"],
+        "5": ["lectures", "cycles", "electives"]
+      }
+    },
+    {
+      "id": "pharmacy",
+      "name": "Фармация",
+      "courses": 5,
+      "variantsByCourse": {
+        "1": ["contact", "distance"]
+      }
+    }
+  ]
+}
