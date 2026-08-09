@@ -28,6 +28,20 @@
     element.textContent = university.name;
   });
 
+  const appUtils = window.CALENDAR_APP_UTILS;
+  if (appUtils?.findPurchasedOrder) {
+    const findPurchasedOrder = appUtils.findPurchasedOrder;
+    appUtils.findPurchasedOrder = (group, savedOrders, loadOrder) => findPurchasedOrder(
+      group,
+      savedOrders,
+      async (orderId, accessToken) => {
+        const order = await loadOrder(orderId, accessToken);
+        const orderUniversity = order?.university || "kgmu";
+        return orderUniversity === university.id ? order : null;
+      },
+    );
+  }
+
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === "string" ? input : input?.url || "";
