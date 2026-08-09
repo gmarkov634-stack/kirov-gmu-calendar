@@ -21,6 +21,23 @@ function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
 }
 
+function issuedAccessRecord(hash, subscription) {
+  return {
+    version: 1,
+    tokenHash: hash,
+    orderId: subscription.orderId || null,
+    group: String(subscription.group),
+    status: subscription.status,
+    issuedAt: subscription.createdAt || subscription.updatedAt || null,
+    firstSeenAt: null,
+    lastSeenAt: null,
+    totalRequests: 0,
+    suspicious: false,
+    sourceCount: 0,
+    sources: [],
+  };
+}
+
 export class ScheduleStore {
   constructor(config) {
     this.config = config;
@@ -126,20 +143,7 @@ export class ScheduleStore {
     const accessKey = `subscription-access/${hash}.json`;
     const record = await this.#readJson(accessKey);
     if (value.status === "active" && !record) {
-      await this.#writeJson(accessKey, {
-        version: 1,
-        tokenHash: hash,
-        orderId: value.orderId || null,
-        group: String(value.group),
-        status: value.status,
-        issuedAt: value.createdAt || new Date().toISOString(),
-        firstSeenAt: null,
-        lastSeenAt: null,
-        totalRequests: 0,
-        suspicious: false,
-        sourceCount: 0,
-        sources: [],
-      });
+      await this.#writeJson(accessKey, issuedAccessRecord(hash, value));
     } else if (value.status !== "active" && record) {
       await this.#writeJson(accessKey, { ...record, status: value.status, statusChangedAt: value.revokedAt });
     }
@@ -214,6 +218,36 @@ export class ScheduleStore {
         const value = await this.#readJson(`subscription-access/${name}`);
         if (value) records.push(value);
       }
+    }
+    const knownHashes = new Set(records.map((record) => record.tokenHash));
+    const addUnrequested = async (key) => {
+      const hash = key.match(/^subscriptions\/([a-f0-9]{64})\.json$/)?.[1];
+      if (!hash || knownHashes.has(hash)) return;
+      const subscription = await this.#readJson(key);
+      if (!subscription || !["active", "revoked"].includes(subscription.status)) return;
+      records.push(issuedAccessRecord(hash, subscription));
+      knownHashes.add(hash);
+    };
+    if (this.s3) {
+      let continuationToken;
+      do {
+        const response = await this.s3.send(new ListObjectsV2Command({
+          Bucket: this.config.bucket,
+          Prefix: "subscriptions/",
+          ContinuationToken: continuationToken,
+        }));
+        for (const object of response.Contents || []) await addUnrequested(object.Key || "");
+        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+      } while (continuationToken);
+    } else {
+      const directory = path.join(this.config.dataDir, "subscriptions");
+      let names = [];
+      try {
+        names = await fs.readdir(directory);
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+      for (const name of names) await addUnrequested(`subscriptions/${name}`);
     }
     return records.sort((a, b) => String(b.lastSeenAt || b.issuedAt || "").localeCompare(String(a.lastSeenAt || a.issuedAt || "")));
   }
