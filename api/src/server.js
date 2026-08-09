@@ -1,16 +1,16 @@
 import http from "node:http";
 import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
-import { ScheduleStore } from "./store.js";
+import { MultiUniversityStore } from "./university-store.js";
 import { YooKassaService } from "./yookassa.js";
 
 const config = loadConfig();
-const store = new ScheduleStore(config);
+const store = new MultiUniversityStore(config);
 const payments = new YooKassaService({ store, config });
 const server = http.createServer(createHandler({ store, config, payments }));
 
 server.listen(config.port, "0.0.0.0", () => {
-  console.log(`kgmu-calendar-api listening on :${config.port}`);
+  console.log(`medical-calendar-api listening on :${config.port}`);
 });
 
 function shutdown() {
