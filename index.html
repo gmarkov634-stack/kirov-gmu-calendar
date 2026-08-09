@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1559d6" />
-    <meta name="description" content="Электронное расписание и календари студентов Кировского ГМУ" />
-    <title>Календарь КГМУ</title>
+    <meta name="description" content="Электронное расписание и календари студентов" />
+    <title>Календарь университета</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,7 +15,7 @@
     <header class="topbar">
       <a class="brand" href="./" aria-label="На главную">
         <span class="brand-mark" aria-hidden="true">К</span>
-        <span><strong>Календарь КГМУ</strong><small>Электронное расписание</small></span>
+        <span><strong>Календарь университета</strong><small>Электронное расписание</small></span>
       </a>
     </header>
     <main>
@@ -32,7 +32,7 @@
       </section>
       <section class="schedule-policy" aria-label="Важная информация о расписании">
         <strong>Важно</strong>
-        <p>Календарь составлен по официальному расписанию КГМУ на момент публикации. Переносы, замены и другие изменения, согласованные группой с преподавателем, в календаре не отображаются.</p>
+        <p>Календарь составлен по официальному расписанию <span data-university-short>вуза</span> на момент публикации. Переносы, замены и другие изменения, согласованные группой с преподавателем, в календаре не отображаются.</p>
       </section>
       <section class="selector" aria-labelledby="selector-title">
         <div class="steps" aria-label="Этапы оформления">
@@ -57,12 +57,13 @@
       </section>
       <section class="benefits" aria-label="Преимущества">
         <article><span class="benefit-icon" aria-hidden="true">✓</span><div><strong>Без ручного ввода</strong><p>Занятия добавляются одним подключением.</p></div></article>
-        <article><span class="benefit-icon" aria-hidden="true">◎</span><div><strong>Официальный источник</strong><p>Календарь подготовлен по опубликованному расписанию КГМУ.</p></div></article>
+        <article><span class="benefit-icon" aria-hidden="true">◎</span><div><strong>Официальный источник</strong><p>Календарь подготовлен по опубликованному расписанию <span data-university-short>вуза</span>.</p></div></article>
         <article><span class="benefit-icon" aria-hidden="true">▣</span><div><strong>На любом устройстве</strong><p>Подходит для Google и Apple Календаря.</p></div></article>
       </section>
     </main>
-    <footer><p>Неофициальный сервис электронного расписания студентов Кировского ГМУ</p></footer>
+    <footer><p>Неофициальный сервис электронного расписания студентов <span data-university-name>университета</span></p></footer>
     <script src="data.js"></script>
+    <script src="platform.js?v=multi-university-1"></script>
     <script src="app-utils.js?v=prevent-duplicate-payment-1"></script>
     <script src="app.js?v=prevent-duplicate-payment-1"></script>
   </body>
