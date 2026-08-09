@@ -42,13 +42,13 @@ function renderRecord(record) {
     revoke.textContent = "Заблокировать";
     revoke.addEventListener("click", () => action(record, "revoke"));
     actions.append(revoke);
-    if (record.orderId) {
-      const rotate = document.createElement("button");
-      rotate.type = "button";
-      rotate.textContent = "Перевыпустить";
-      rotate.addEventListener("click", () => action(record, "rotate"));
-      actions.append(rotate);
-    }
+  }
+  if (record.orderId) {
+    const rotate = document.createElement("button");
+    rotate.type = "button";
+    rotate.textContent = "Перевыпустить";
+    rotate.addEventListener("click", () => action(record, "rotate"));
+    actions.append(rotate);
   }
   return card;
 }
