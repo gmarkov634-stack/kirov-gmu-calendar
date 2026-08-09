@@ -48,10 +48,35 @@ jobs:
         run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/01_medicine-international_course-1_stream-1_combined.txt --course=1 --stream=1 --output=data/imports/omgmu-schedules
       - name: Parse first-course stream 2 schedules
         run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/02_medicine-international_course-1_stream-2_combined.txt --course=1 --stream=2 --output=data/imports/omgmu-schedules
+      - name: Parse second-course stream 1 schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/03_medicine-international_course-2_stream-1_combined.txt --course=2 --stream=1 --output=data/imports/omgmu-schedules
+      - name: Parse second-course stream 2 schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/04_medicine-international_course-2_stream-2_combined.txt --course=2 --stream=2 --output=data/imports/omgmu-schedules
       - name: Parse fourth-course schedules
         run: npm run parse:omgmu:fourth -- --lectures=data/imports/omgmu-text/06_medicine-international_course-4_lectures.txt --cycles=data/imports/omgmu-text/07_medicine-international_course-4_cycles.txt --output=data/imports/omgmu-schedules
       - name: Parse fifth-course schedule
         run: npm run parse:omgmu:fifth -- --input=data/imports/omgmu-text/08_medicine-international_course-5_combined.txt --output=data/imports/omgmu-schedules/585.json
+      - name: Validate normalized schedule coverage
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = 'data/imports/omgmu-schedules';
+          const expected = [
+            ...Array.from({length: 12}, (_, i) => String(1101 + i)),
+            ...Array.from({length: 20}, (_, i) => String(2101 + i)),
+            '485', '486', '585'
+          ];
+          const missing = expected.filter(code => !fs.existsSync(`${path}/${code}.json`));
+          const empty = expected.filter(code => {
+            const file = `${path}/${code}.json`;
+            if (!fs.existsSync(file)) return false;
+            return JSON.parse(fs.readFileSync(file, 'utf8')).events.length === 0;
+          });
+          console.log(`Normalized schedules: ${expected.length - missing.length}/${expected.length}`);
+          if (missing.length) console.error(`Missing: ${missing.join(', ')}`);
+          if (empty.length) console.error(`Empty: ${empty.join(', ')}`);
+          if (missing.length || empty.length) process.exit(2);
+          NODE
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
