@@ -1,9 +1,16 @@
 import path from "node:path";
 
 export function loadConfig(env = process.env) {
+  const defaultOrigin = "https://gmarkov634-stack.github.io";
+  const allowedOrigins = String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || defaultOrigin)
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
   return {
     port: Number(env.PORT || 8080),
-    allowedOrigin: env.ALLOWED_ORIGIN || "https://gmarkov634-stack.github.io",
+    allowedOrigin: allowedOrigins[0] || defaultOrigin,
+    allowedOrigins,
     bucket: env.S3_BUCKET || "kgmu-calendar-data-gmarkov634",
     endpoint: env.S3_ENDPOINT || "https://s3.cloud.ru",
     region: env.S3_REGION || "ru-central-1",
