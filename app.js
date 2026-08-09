@@ -12,6 +12,7 @@ const savedOrderKey = "kgmu-calendar-orders-v2";
 const legacySavedOrderKey = "kgmu-calendar-orders-v1";
 const validOrderId = (value) => /^[A-Za-z0-9_-]{32}$/.test(value || "");
 const validAccessToken = (value) => /^[A-Za-z0-9_-]{43}$/.test(value || "");
+let scrollToReadyLink = false;
 
 function readSavedOrders() {
   try {
@@ -71,6 +72,7 @@ async function renderSavedOrders() {
     link.className = "saved-order-link";
     link.href = orderPageUrl(order.id, order.accessToken);
     link.textContent = `Открыть группу ${order.group}`;
+    link.addEventListener("click", () => { scrollToReadyLink = true; });
     return link;
   }));
   savedOrders.hidden = false;
@@ -220,50 +222,35 @@ async function renderOrderResult(orderId, accessToken = "") {
         saveOrder(orderId, accessToken);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
-        const resetButton = accessToken
-          ? '<button class="reset-link-button" type="button">Сбросить переданную ссылку</button>'
-          : "";
         card.innerHTML = `
           <div class="success-mark">✓</div>
           <h3>Группа ${order.group}</h3>
           <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
           <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
           <button class="copy-button" type="button">Скопировать ссылку</button>
-          ${resetButton}
           <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
         card.querySelector(".copy-button").addEventListener("click", async (event) => {
           await navigator.clipboard.writeText(order.subscriptionUrl);
           event.currentTarget.textContent = "Ссылка скопирована";
         });
-        card.querySelector(".reset-link-button")?.addEventListener("click", async (event) => {
-          if (!window.confirm("Старая ссылка перестанет работать. Перевыпустить календарь?")) return;
-          const button = event.currentTarget;
-          button.disabled = true;
-          button.textContent = "Перевыпускаем…";
-          const resetResponse = await fetch(`${data.apiBase}/api/v1/orders/${orderId}/subscription/reset`, {
-            method: "POST",
-            headers: orderHeaders(accessToken),
+        if (scrollToReadyLink) {
+          scrollToReadyLink = false;
+          card.scrollIntoView({
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+            block: "start",
           });
-          if (!resetResponse.ok) {
-            button.disabled = false;
-            button.textContent = "Сбросить переданную ссылку";
-            notice.hidden = false;
-            notice.textContent = "Не удалось перевыпустить ссылку. Попробуйте ещё раз.";
-            return;
-          }
-          await resetResponse.json();
-          title.textContent = "Ссылка перевыпущена";
-          await renderOrderResult(orderId, accessToken);
-        });
+        }
         return;
       }
       if (order.status === "canceled") {
+        scrollToReadyLink = false;
         title.textContent = "Платёж отменён";
         card.innerHTML = "<p>Деньги не списаны. Вернитесь на главную страницу и попробуйте снова.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
         return;
       }
     } catch (error) {
       if (attempt === 14) {
+        scrollToReadyLink = false;
         title.textContent = "Платёж ещё проверяется";
         card.innerHTML = "<p>Обновите страницу через минуту. Заказ сохранён, повторно оплачивать не нужно.</p>";
         return;
