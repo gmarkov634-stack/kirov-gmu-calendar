@@ -1,8 +1,10 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
+import { scheduleContext } from "./order-context.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
+const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 
 function send(response, status, body, type = "application/json; charset=utf-8", cacheControl) {
   const content = type.startsWith("application/json") ? JSON.stringify(body) : body;
@@ -39,29 +41,61 @@ function adminAllowed(request, config) {
   const actual = request.headers["x-admin-token"];
   const expected = config.adminToken;
   if (typeof actual !== "string" || typeof expected !== "string" || expected.length < 32) return false;
-  const left = createHash("sha256").update(actual).digest();
-  const right = createHash("sha256").update(expected).digest();
-  return timingSafeEqual(left, right);
+  return timingSafeEqual(
+    createHash("sha256").update(actual).digest(),
+    createHash("sha256").update(expected).digest(),
+  );
 }
 
-function validateSubscription(subscription) {
-  const expiresAt = Date.parse(subscription?.expiresAt);
-  if (!subscription || subscription.version !== 1 || !/^\d{3}$/.test(String(subscription.group)) || !Number.isFinite(expiresAt)) {
+function validateContext(value) {
+  const context = scheduleContext(value, value?.university);
+  if (
+    !UNIVERSITY_ID.test(context.university || "") ||
+    !context.program ||
+    !Number.isInteger(context.course) ||
+    context.course < 1 ||
+    !context.groupCode ||
+    !context.groupId
+  ) return null;
+  return context;
+}
+
+function validateSubscription(value) {
+  const context = validateContext(value);
+  const expiresAt = Date.parse(value?.expiresAt);
+  if (!value || value.version !== 2 || !context || !Number.isFinite(expiresAt)) {
     throw new Error("Invalid subscription record");
   }
-  return { ...subscription, expiresAt };
+  return { ...value, ...context, expiresAt };
 }
 
 function emptySchedule(subscription) {
   return {
-    group: String(subscription.group),
-    faculty: subscription.faculty,
-    course: subscription.course,
-    academicYear: subscription.academicYear,
-    semester: subscription.semester,
-    timezone: "Europe/Moscow",
+    version: 1,
+    ...scheduleContext(subscription),
+    group: {
+      id: subscription.groupId,
+      code: subscription.groupCode,
+      displayName: subscription.groupDisplayName,
+    },
+    sources: [],
     events: [],
   };
+}
+
+function sameSchedule(schedule, subscription) {
+  const actual = scheduleContext(schedule);
+  return actual.university === subscription.university &&
+    actual.program === subscription.program &&
+    actual.course === subscription.course &&
+    actual.stream === subscription.stream &&
+    actual.groupId === subscription.groupId &&
+    actual.academicYear === subscription.academicYear &&
+    actual.semester === subscription.semester;
+}
+
+function safeFilename(value) {
+  return String(value || "group").replace(/[^\p{L}\p{N}._-]+/gu, "-").slice(0, 80);
 }
 
 export function createHandler({ store, config, payments }) {
@@ -74,19 +108,22 @@ export function createHandler({ store, config, payments }) {
     response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Order-Token, X-Admin-Token");
     if (request.method === "OPTIONS") return send(response, 204, "", "text/plain");
+
     const url = new URL(request.url, "http://localhost");
-    if (request.method === "POST" && url.pathname === "/api/v1/payments") {
+
+    if (request.method === "POST" && url.pathname === "/api/v2/payments") {
       if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
       try {
         const input = await readJson(request);
-        const group = String(input.group || "");
-        if (!/^\d{3}$/.test(group) || !validEmail(input.email)) return send(response, 400, { error: "invalid_checkout" });
-        const schedule = await store.get(group);
-        if (!schedule || schedule.faculty !== input.faculty || schedule.course !== Number(input.course)) {
+        if (!validEmail(input.email)) return send(response, 400, { error: "invalid_checkout" });
+        const context = validateContext(input);
+        if (!context) return send(response, 400, { error: "invalid_checkout" });
+        const schedule = await store.getSchedule(context);
+        if (!schedule || !sameSchedule(schedule, { ...context, academicYear: scheduleContext(schedule).academicYear, semester: scheduleContext(schedule).semester })) {
           return send(response, 400, { error: "offer_not_found" });
         }
         if (Date.now() >= Date.parse(config.offerExpiresAt)) return send(response, 409, { error: "offer_expired" });
-        const payment = await payments.create({ group, email: input.email.trim().toLowerCase(), schedule });
+        const payment = await payments.create({ email: input.email.trim().toLowerCase(), schedule });
         if (!payment.confirmationUrl) throw new Error("YooKassa did not return confirmation URL");
         return send(response, 201, payment, "application/json; charset=utf-8", "no-store");
       } catch (error) {
@@ -118,7 +155,7 @@ export function createHandler({ store, config, payments }) {
         if (adminAction[2] === "revoke") {
           const subscription = await store.revokeSubscriptionByHash(adminAction[1]);
           if (!subscription) return send(response, 404, { error: "subscription_not_found" });
-          return send(response, 200, { status: "revoked", group: subscription.group }, "application/json; charset=utf-8", "no-store");
+          return send(response, 200, { status: "revoked", groupCode: subscription.groupCode }, "application/json; charset=utf-8", "no-store");
         }
         if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
         const record = (await store.listSubscriptionAccess()).find((item) => item.tokenHash === adminAction[1]);
@@ -150,21 +187,11 @@ export function createHandler({ store, config, payments }) {
 
     if (request.method !== "GET") return send(response, 405, { error: "method_not_allowed" });
 
-    if (url.pathname === "/health") {
-      return send(response, 200, { status: "ok", service: "kgmu-calendar-api" });
+    if (url.pathname === "/health") return send(response, 200, { status: "ok", service: "medical-calendar-api" });
+    if (url.pathname === "/api/v2/meta") {
+      return send(response, 200, { service: "Календари медицинских вузов", version: 2, disclaimer: DISCLAIMER });
     }
-    if (url.pathname === "/api/v1/meta") {
-      return send(response, 200, {
-        service: "Календарь КГМУ",
-        timezone: "Europe/Moscow",
-        academicYear: "2025-2026",
-        semester: 2,
-        disclaimer: DISCLAIMER,
-      });
-    }
-    if (url.pathname === "/api/v1/groups") {
-      return send(response, 200, { groups: store.listGroups() });
-    }
+
     if (url.pathname === "/api/v1/admin/subscriptions") {
       if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
       if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
@@ -209,17 +236,12 @@ export function createHandler({ store, config, payments }) {
           }
         }
         const active = subscription.status === "active" && Date.now() < subscription.expiresAt;
-        const schedule = active ? await store.get(String(subscription.group)) : emptySchedule(subscription);
+        const schedule = active ? await store.getSchedule(subscription) : emptySchedule(subscription);
         if (!schedule) throw new Error("Subscription schedule is not published");
-        if (active && (
-          schedule.faculty !== subscription.faculty ||
-          schedule.course !== subscription.course ||
-          schedule.academicYear !== subscription.academicYear ||
-          schedule.semester !== subscription.semester
-        )) throw new Error("Subscription does not match published schedule");
+        if (active && !sameSchedule(schedule, subscription)) throw new Error("Subscription does not match published schedule");
 
         const calendar = buildCalendar(schedule, config.publicSiteUrl);
-        response.setHeader("Content-Disposition", `inline; filename=kgmu-${subscription.group}.ics`);
+        response.setHeader("Content-Disposition", `inline; filename=${safeFilename(`${subscription.university}-${subscription.groupCode}`)}.ics`);
         response.setHeader("X-Subscription-Status", active ? "active" : subscription.status === "active" ? "expired" : "revoked");
         return send(response, 200, calendar, "text/calendar; charset=utf-8", "private, no-store");
       } catch (error) {
@@ -228,17 +250,23 @@ export function createHandler({ store, config, payments }) {
       }
     }
 
-    const match = url.pathname.match(/^\/api\/v1\/groups\/(\d{3})\/(schedule|calendar\.ics)$/);
-    if (!match) return send(response, 404, { error: "not_found" });
-    if (!config.enablePublicEndpoints) return send(response, 404, { error: "not_found" });
-
+    const publicMatch = url.pathname.match(/^\/api\/v2\/schedules\/([^/]+)\/([^/]+)\/(\d+)\/([^/]+)\/(schedule|calendar\.ics)$/);
+    if (!publicMatch || !config.enablePublicEndpoints) return send(response, 404, { error: "not_found" });
     try {
-      const schedule = await store.get(match[1]);
-      if (!schedule) return send(response, 404, { error: "schedule_not_published", group: match[1] });
-      if (match[2] === "calendar.ics") {
-        const calendar = buildCalendar(schedule, config.publicSiteUrl);
-        response.setHeader("Content-Disposition", `inline; filename=kgmu-${match[1]}.ics`);
-        return send(response, 200, calendar, "text/calendar; charset=utf-8");
+      const context = validateContext({
+        university: decodeURIComponent(publicMatch[1]),
+        program: decodeURIComponent(publicMatch[2]),
+        course: Number(publicMatch[3]),
+        groupId: decodeURIComponent(publicMatch[4]),
+        groupCode: url.searchParams.get("groupCode") || decodeURIComponent(publicMatch[4]),
+        stream: url.searchParams.get("stream"),
+      });
+      if (!context) return send(response, 400, { error: "invalid_schedule_context" });
+      const schedule = await store.getSchedule(context);
+      if (!schedule) return send(response, 404, { error: "schedule_not_published" });
+      if (publicMatch[5] === "calendar.ics") {
+        response.setHeader("Content-Disposition", `inline; filename=${safeFilename(`${context.university}-${context.groupCode}`)}.ics`);
+        return send(response, 200, buildCalendar(schedule, config.publicSiteUrl), "text/calendar; charset=utf-8");
       }
       return send(response, 200, { ...schedule, disclaimer: DISCLAIMER });
     } catch (error) {
