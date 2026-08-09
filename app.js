@@ -248,16 +248,15 @@ async function renderOrderResult(orderId, accessToken = "") {
         card.innerHTML = "<p>Деньги не списаны. Вернитесь на главную страницу и попробуйте снова.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
         return;
       }
-    } catch (error) {
-      if (attempt === 14) {
-        scrollToReadyLink = false;
-        title.textContent = "Платёж ещё проверяется";
-        card.innerHTML = "<p>Обновите страницу через минуту. Заказ сохранён, повторно оплачивать не нужно.</p>";
-        return;
-      }
+    } catch {
+      // Transient API failures use the same safe fallback after all attempts.
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+
+  scrollToReadyLink = false;
+  title.textContent = "Платёж не завершён";
+  card.innerHTML = "<p>Доступ не выдан. Если вы отменили оплату, вернитесь к выбору. Если уже оплатили, обновите страницу через минуту — повторно оплачивать не нужно.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
 }
 
 function render() {
