@@ -134,6 +134,10 @@ function renderCheckout() {
     <form id="checkout-form">
       <label for="customer-email">Email покупателя</label>
       <input id="customer-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="student@example.com" />
+      <div class="schedule-note">
+        <strong>Перед оплатой</strong>
+        <span>Календарь составлен по официальному расписанию КГМУ и автоматически не обновляется. Переносы и изменения, согласованные группой с преподавателем, не учитываются.</span>
+      </div>
       ${testNote}
       <button class="pay-button" type="submit">${payLabel} · ${data.offer.price}</button>
       <p class="form-hint">После оплаты вернитесь на эту страницу — персональная ссылка появится автоматически.</p>
@@ -196,6 +200,10 @@ async function renderOrderResult(orderId) {
           <div class="success-mark">✓</div>
           <h3>Группа ${order.group}</h3>
           <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
+          <div class="schedule-note result-note">
+            <strong>Обратите внимание</strong>
+            <span>Календарь основан на официальном расписании КГМУ и автоматически не обновляется. Переносы и изменения, согласованные с преподавателем, в нём не отображаются.</span>
+          </div>
           <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
           <button class="copy-button" type="button">Скопировать ссылку</button>
           <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
