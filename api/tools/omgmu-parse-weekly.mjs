@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { buildWeeklySchedules } from "../src/adapters/omgmu/weekly-parser.mjs";
+import { buildWeeklySchedules } from "../src/adapters/omgmu/weekly-parser-blocks.mjs";
 
 function readArg(name, fallback) {
   const prefix = `--${name}=`;
