@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "manual-review-package",
+  "generatedAt": "2026-08-09T22:48:24.176870+00:00",
+  "sourceRunId": 31339883275,
+  "artifactName": "omgmu-manual-review-package-20260810",
+  "groups": [
+    "2113",
+    "2114",
+    "389",
+    "393"
+  ],
+  "drafts": {
+    "2113": {
+      "file": "drafts/2113.review.json",
+      "sourceSha256": "35983ba32a518f9d61c184ba946907ec9d56b2bd03a99d2ace8bb1b3ad8afc69",
+      "sourceFile": "04_medicine-international_course-2_stream-2_combined.pdf",
+      "eventCount": 176,
+      "status": "pending"
+    },
+    "2114": {
+      "file": "drafts/2114.review.json",
+      "sourceSha256": "35983ba32a518f9d61c184ba946907ec9d56b2bd03a99d2ace8bb1b3ad8afc69",
+      "sourceFile": "04_medicine-international_course-2_stream-2_combined.pdf",
+      "eventCount": 176,
+      "status": "pending"
+    },
+    "389": {
+      "file": "drafts/389.review.json",
+      "sourceSha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427",
+      "sourceFile": "05_medicine-international_course-3_combined.pdf",
+      "eventCount": 167,
+      "status": "pending"
+    },
+    "393": {
+      "file": "drafts/393.review.json",
+      "sourceSha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427",
+      "sourceFile": "05_medicine-international_course-3_combined.pdf",
+      "eventCount": 167,
+      "status": "pending"
+    }
+  },
+  "sources": {
+    "course-2-stream-2.pdf": {
+      "sha256": "35983ba32a518f9d61c184ba946907ec9d56b2bd03a99d2ace8bb1b3ad8afc69",
+      "sizeBytes": 270724
+    },
+    "course-3.pdf": {
+      "sha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427",
+      "sizeBytes": 258532
+    }
+  },
+  "workflowRunId": 31340302264,
+  "jobStatus": "success"
+}
