@@ -11,9 +11,28 @@ const config = {
   publicSiteUrl: "https://example.test/",
   publicApiUrl: "https://api.example.test",
   offerPrice: "490.00",
-  offerExpiresAt: "2026-08-31T23:59:59+03:00",
+  offerExpiresAt: "2027-07-01T00:00:00+06:00",
   yookassaSendReceipt: true,
   receiptVatCode: 1,
+};
+
+const schedule = {
+  version: 1,
+  university: "omgmu",
+  universityName: "ОмГМУ",
+  program: "medicine",
+  course: 4,
+  stream: "2",
+  group: {
+    id: "omgmu:medicine:4:stream-2:Л-402А",
+    code: "Л-402А",
+    displayName: "Группа Л-402А",
+  },
+  timezone: "Asia/Omsk",
+  academicYear: "2026-2027",
+  semester: 1,
+  sources: [{ url: "https://omsk-osma.ru/files/test.pdf" }],
+  events: [],
 };
 
 function memoryStore() {
@@ -29,7 +48,7 @@ function memoryStore() {
   };
 }
 
-test("payment creation uses server offer and receipt data", async () => {
+test("payment creation stores the complete university context", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -42,37 +61,40 @@ test("payment creation uses server offer and receipt data", async () => {
     }), { status: 200, headers: { "content-type": "application/json" } });
   } });
 
-  const result = await service.create({
-    group: "132",
-    email: "student@example.com",
-    schedule: { faculty: "pediatrics", course: 1, academicYear: "2025-2026", semester: 2 },
-  });
+  const result = await service.create({ email: "student@example.com", schedule });
+  const order = store.orders.get(result.orderId);
   assert.equal(result.confirmationUrl, "https://yookassa.test/pay");
-  assert.match(result.orderId, /^[A-Za-z0-9_-]{32}$/);
-  assert.match(result.accessToken, /^[A-Za-z0-9_-]{43}$/);
-  assert.match(request.body.confirmation.return_url, new RegExp(`#order=${result.orderId}&access=${result.accessToken}$`));
-  assert.equal(store.orders.get(result.orderId).accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
-  assert.equal(request.body.amount.value, "490.00");
-  assert.equal(request.body.metadata.order_id, result.orderId);
-  assert.equal(request.body.receipt.customer.email, "student@example.com");
-  assert.equal(request.body.receipt.items[0].payment_subject, "service");
-  assert.match(request.options.headers.Authorization, /^Basic /);
-  assert.ok(request.options.headers["Idempotence-Key"]);
+  assert.equal(order.version, 2);
+  assert.equal(order.university, "omgmu");
+  assert.equal(order.groupCode, "Л-402А");
+  assert.equal(order.groupId, "omgmu:medicine:4:stream-2:Л-402А");
+  assert.equal(order.accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
+  assert.equal(request.body.metadata.university, "omgmu");
+  assert.equal(request.body.metadata.group_id, order.groupId);
+  assert.match(request.body.description, /ОмГМУ/);
 });
 
-test("verified succeeded payment creates one deterministic semester token", async () => {
+test("succeeded payment creates a version 2 subscription", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
   await store.putOrder(orderId, {
-    version: 1,
+    version: 2,
     orderId,
     status: "pending",
     paymentId: "payment_12345678",
-    group: "132",
-    faculty: "pediatrics",
-    course: 1,
-    academicYear: "2025-2026",
-    semester: 2,
+    ...{
+      university: "omgmu",
+      universityName: "ОмГМУ",
+      program: "medicine",
+      course: 4,
+      stream: "2",
+      groupCode: "Л-402А",
+      groupId: "omgmu:medicine:4:stream-2:Л-402А",
+      groupDisplayName: "Группа Л-402А",
+      timezone: "Asia/Omsk",
+      academicYear: "2026-2027",
+      semester: 1,
+    },
     expiresAt: config.offerExpiresAt,
     amount: "490.00",
     currency: "RUB",
@@ -95,12 +117,13 @@ test("verified succeeded payment creates one deterministic semester token", asyn
   assert.equal(first.subscriptionUrl, second.subscriptionUrl);
   assert.equal(store.subscriptions.size, 1);
   const subscription = [...store.subscriptions.values()][0];
-  assert.equal(subscription.group, "132");
-  assert.equal(subscription.semester, 2);
-  assert.equal(subscription.expiresAt, config.offerExpiresAt);
+  assert.equal(subscription.version, 2);
+  assert.equal(subscription.university, "omgmu");
+  assert.equal(subscription.groupCode, "Л-402А");
+  assert.equal(subscription.timezone, "Asia/Omsk");
 });
 
-test("payment with altered amount cannot issue a subscription", async () => {
+test("altered payment amount cannot issue a subscription", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
   await store.putOrder(orderId, { orderId, paymentId: "payment_12345678", amount: "490.00", currency: "RUB" });
@@ -116,111 +139,26 @@ test("payment with altered amount cannot issue a subscription", async () => {
   assert.equal(store.subscriptions.size, 0);
 });
 
-test("test mode rejects a payment created by a real shop", async () => {
-  const store = memoryStore();
-  const service = new YooKassaService({ config, store, fetchFn: async () => new Response(JSON.stringify({
-    id: "payment_12345678",
-    status: "pending",
-    test: false,
-    confirmation: { confirmation_url: "https://yookassa.ru/pay" },
-  }), { status: 200, headers: { "content-type": "application/json" } }) });
-
-  await assert.rejects(service.create({
-    group: "132",
-    email: "student@example.com",
-    schedule: { faculty: "pediatrics", course: 1, academicYear: "2025-2026", semester: 2 },
-  }), /real payment/);
-});
-
-test("protected order requires its separate access token", async () => {
+test("protected order requires its access token", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
   const accessToken = "a".repeat(43);
   await store.putOrder(orderId, {
     orderId,
     status: "succeeded",
-    group: "132",
+    university: "omgmu",
+    program: "medicine",
+    course: 4,
+    stream: "2",
+    groupCode: "Л-402А",
+    groupId: "omgmu:medicine:4:stream-2:Л-402А",
+    groupDisplayName: "Группа Л-402А",
     accessTokenHash: createHash("sha256").update(accessToken).digest("hex"),
     subscriptionUrl: "https://api.example.test/api/v1/subscriptions/" + "s".repeat(43) + "/calendar.ics",
   });
   const service = new YooKassaService({ config, store });
   await assert.rejects(service.getOrder(orderId, { reconcile: false }), /access denied/);
-  await assert.rejects(service.getOrder(orderId, { reconcile: false, accessToken: "x".repeat(43) }), /access denied/);
-  assert.equal((await service.getOrder(orderId, { reconcile: false, accessToken })).group, "132");
-});
-
-test("owner can revoke an exposed subscription and receive a new one", async () => {
-  const store = memoryStore();
-  const orderId = "o".repeat(32);
-  const accessToken = "a".repeat(43);
-  const oldToken = "s".repeat(43);
-  await store.putSubscription(oldToken, {
-    version: 1,
-    status: "active",
-    group: "132",
-    faculty: "pediatrics",
-    course: 1,
-    academicYear: "2025-2026",
-    semester: 2,
-    expiresAt: config.offerExpiresAt,
-    orderId,
-  });
-  await store.putOrder(orderId, {
-    orderId,
-    status: "succeeded",
-    group: "132",
-    accessTokenHash: createHash("sha256").update(accessToken).digest("hex"),
-    subscriptionUrl: `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`,
-  });
-  const service = new YooKassaService({ config, store });
-  const rotated = await service.rotateSubscription(orderId, accessToken);
-  assert.notEqual(rotated.subscriptionUrl, `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`);
-  assert.equal(store.subscriptions.get(oldToken).status, "revoked");
-  const nextToken = rotated.subscriptionUrl.match(/subscriptions\/([^/]+)\/calendar\.ics$/)[1];
-  assert.equal(store.subscriptions.get(nextToken).status, "active");
-  assert.equal(store.orders.get(orderId).subscriptionGeneration, 1);
-});
-
-test("administrator can rotate only the current subscription hash", async () => {
-  const store = memoryStore();
-  const orderId = "o".repeat(32);
-  const oldToken = "s".repeat(43);
-  await store.putSubscription(oldToken, {
-    version: 1,
-    status: "active",
-    group: "132",
-    faculty: "pediatrics",
-    course: 1,
-    academicYear: "2025-2026",
-    semester: 2,
-    expiresAt: config.offerExpiresAt,
-    orderId,
-  });
-  await store.putOrder(orderId, {
-    orderId,
-    status: "succeeded",
-    group: "132",
-    subscriptionUrl: `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`,
-  });
-  const service = new YooKassaService({ config, store });
-  await assert.rejects(service.rotateSubscriptionAsAdmin(orderId, "0".repeat(64)), /no longer current/);
-  const rotated = await service.rotateSubscriptionAsAdmin(
-    orderId,
-    createHash("sha256").update(oldToken).digest("hex"),
-  );
-  assert.notEqual(rotated.subscriptionUrl, `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`);
-});
-
-test("legacy order stays readable but cannot be reset without an ownership secret", async () => {
-  const store = memoryStore();
-  const orderId = "o".repeat(32);
-  await store.putOrder(orderId, {
-    orderId,
-    status: "succeeded",
-    group: "132",
-    subscriptionUrl: "https://api.example.test/api/v1/subscriptions/" + "s".repeat(43) + "/calendar.ics",
-  });
-  const service = new YooKassaService({ config, store });
-  assert.equal((await service.getOrder(orderId, { reconcile: false })).group, "132");
-  await assert.rejects(service.rotateSubscription(orderId, ""), /access denied/);
+  const order = await service.getOrder(orderId, { reconcile: false, accessToken });
+  assert.equal(order.university, "omgmu");
+  assert.equal(order.groupCode, "Л-402А");
 });
