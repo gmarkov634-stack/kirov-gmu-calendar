@@ -3,32 +3,32 @@
   "university": "omgmu",
   "groups": [
     {
-      "group": "2108",
-      "course": 2,
-      "stream": "1",
-      "status": "pending",
-      "reason": "ambiguous-column-geometry"
-    },
-    {
-      "group": "2111",
+      "group": "2113",
       "course": 2,
       "stream": "2",
       "status": "pending",
-      "reason": "ambiguous-column-geometry"
+      "reason": "source-weekday-date-mismatch"
     },
     {
-      "group": "386",
+      "group": "2114",
+      "course": 2,
+      "stream": "2",
+      "status": "pending",
+      "reason": "source-weekday-date-mismatch"
+    },
+    {
+      "group": "389",
       "course": 3,
       "stream": null,
       "status": "pending",
-      "reason": "ambiguous-column-geometry"
+      "reason": "source-weekday-date-mismatch"
     },
     {
       "group": "393",
       "course": 3,
       "stream": null,
       "status": "pending",
-      "reason": "ambiguous-column-geometry"
+      "reason": "source-weekday-date-mismatch"
     }
   ]
 }
