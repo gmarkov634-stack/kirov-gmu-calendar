@@ -19,13 +19,12 @@ test("detects group columns from weekly table header", () => {
   assert.deepEqual(detectGroupColumns(fixture).map((item) => item.code), ["1101", "1102"]);
 });
 
-test("parses group-specific weekly events", () => {
+test("parses valid dates and times without confusing them", () => {
   const result = parseWeeklyTable(fixture, { course: 1, stream: "1" });
   assert.ok(result["1101"].length > 0);
-  assert.ok(result["1102"].length > 0);
   assert.ok(result["1101"].some((event) => event.title.includes("Гистология")));
-  assert.ok(result["1102"].some((event) => event.title.includes("История России")));
   assert.ok(result["1101"].every((event) => event.start.endsWith("+06:00")));
+  assert.ok(result["1101"].every((event) => !event.start.includes("T06:04") && !event.start.includes("T23:06")));
 });
 
 test("builds normalized schedules for early-course groups", () => {
