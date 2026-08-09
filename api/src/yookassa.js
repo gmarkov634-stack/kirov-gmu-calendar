@@ -1,16 +1,24 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { scheduleContext } from "./order-context.js";
 
 const API_URL = "https://api.yookassa.ru/v3";
 
 function paymentDescription(order) {
-  return `Календарь КГМУ: группа ${order.group}, семестр ${order.semester}`.slice(0, 128);
+  return `Календарь ${order.universityName}: ${order.groupDisplayName}, семестр ${order.semester}`.slice(0, 128);
 }
 
 function publicOrder(order) {
   return {
     orderId: order.orderId,
     status: order.status,
-    group: order.group,
+    university: order.university,
+    program: order.program,
+    course: order.course,
+    stream: order.stream,
+    group: order.groupCode,
+    groupCode: order.groupCode,
+    groupId: order.groupId,
+    groupDisplayName: order.groupDisplayName,
     amount: order.amount,
     testMode: order.testMode === true,
     subscriptionUrl: order.status === "succeeded" ? order.subscriptionUrl : undefined,
@@ -87,20 +95,20 @@ export class YooKassaService {
     }
   }
 
-  async create({ group, email, schedule }) {
+  async create({ email, schedule }) {
     if (!this.enabled) throw new Error("Payments are not configured");
+    const context = scheduleContext(schedule);
+    if (!context.university || !context.program || !context.groupCode || !context.groupId) {
+      throw new Error("Schedule context is incomplete");
+    }
     const orderId = randomBytes(24).toString("base64url");
     const accessToken = randomBytes(32).toString("base64url");
     const now = new Date().toISOString();
     const order = {
-      version: 1,
+      version: 2,
       orderId,
       status: "creating",
-      group: String(group),
-      faculty: schedule.faculty,
-      course: schedule.course,
-      academicYear: schedule.academicYear,
-      semester: schedule.semester,
+      ...context,
       expiresAt: this.config.offerExpiresAt,
       amount: this.config.offerPrice,
       currency: "RUB",
@@ -120,7 +128,7 @@ export class YooKassaService {
         return_url: `${this.config.publicSiteUrl}#order=${orderId}&access=${accessToken}`,
       },
       description: paymentDescription(order),
-      metadata: { order_id: orderId },
+      metadata: { order_id: orderId, university: order.university, group_id: order.groupId },
     };
     if (this.config.yookassaSendReceipt) {
       body.receipt = {
@@ -169,11 +177,17 @@ export class YooKassaService {
     const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${token}/calendar.ics`;
     const completedAt = new Date().toISOString();
     await this.store.putSubscription(token, {
-      version: 1,
+      version: 2,
       status: "active",
-      group: order.group,
-      faculty: order.faculty,
+      university: order.university,
+      universityName: order.universityName,
+      program: order.program,
       course: order.course,
+      stream: order.stream,
+      groupCode: order.groupCode,
+      groupId: order.groupId,
+      groupDisplayName: order.groupDisplayName,
+      timezone: order.timezone,
       academicYear: order.academicYear,
       semester: order.semester,
       expiresAt: order.expiresAt,
