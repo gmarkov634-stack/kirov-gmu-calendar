@@ -6,6 +6,8 @@ on:
     paths:
       - "api/src/adapters/omgmu/**"
       - "api/tools/omgmu-*.mjs"
+      - "api/tools/omgmu-*.py"
+      - "api/tools/requirements-omgmu.txt"
       - "universities/omgmu/structure.json"
       - ".github/workflows/omgmu-discovery.yml"
 
@@ -27,10 +29,13 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: api/package-lock.json
-      - name: Install dependencies
+      - name: Install Node dependencies
         run: npm ci
-      - name: Install PDF text tools
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Install PDF tools and parser dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          python3 -m pip install --disable-pip-version-check -r tools/requirements-omgmu.txt
       - name: Discover official ОмГМУ sources
         run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json
       - name: Download official ОмГМУ PDF files
@@ -45,15 +50,15 @@ jobs:
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
-        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/01_medicine-international_course-1_stream-1_combined.txt --course=1 --stream=1 --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/01_medicine-international_course-1_stream-1_combined.pdf --course=1 --stream=1 --output=data/imports/omgmu-schedules
       - name: Parse first-course stream 2 schedules
-        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/02_medicine-international_course-1_stream-2_combined.txt --course=1 --stream=2 --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/02_medicine-international_course-1_stream-2_combined.pdf --course=1 --stream=2 --output=data/imports/omgmu-schedules
       - name: Parse second-course stream 1 schedules
-        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/03_medicine-international_course-2_stream-1_combined.txt --course=2 --stream=1 --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/03_medicine-international_course-2_stream-1_combined.pdf --course=2 --stream=1 --output=data/imports/omgmu-schedules
       - name: Parse second-course stream 2 schedules
-        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/04_medicine-international_course-2_stream-2_combined.txt --course=2 --stream=2 --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/04_medicine-international_course-2_stream-2_combined.pdf --course=2 --stream=2 --output=data/imports/omgmu-schedules
       - name: Parse third-course schedules
-        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/05_medicine-international_course-3_combined.txt --course=3 --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/05_medicine-international_course-3_combined.pdf --course=3 --output=data/imports/omgmu-schedules
       - name: Parse fourth-course schedules
         run: npm run parse:omgmu:fourth -- --lectures=data/imports/omgmu-text/06_medicine-international_course-4_lectures.txt --cycles=data/imports/omgmu-text/07_medicine-international_course-4_cycles.txt --output=data/imports/omgmu-schedules
       - name: Parse fifth-course schedule
@@ -76,21 +81,19 @@ jobs:
             if (!fs.existsSync(file)) return false;
             return JSON.parse(fs.readFileSync(file, 'utf8')).events.length === 0;
           });
-          const unexpectedEmpty = empty.filter(code => !manualReview.includes(code));
           const report = {
             expected: expected.length,
             created: expected.length - missing.length,
             empty,
-            manualReview: empty.filter(code => manualReview.includes(code)),
-            unexpectedEmpty,
+            manualReview,
             missing,
           };
           fs.writeFileSync('data/imports/omgmu-coverage-report.json', `${JSON.stringify(report, null, 2)}\n`);
           console.log(`Normalized schedules: ${report.created}/${report.expected}`);
+          console.log(`Manual review remains blocked: ${manualReview.join(', ')}`);
           if (missing.length) console.error(`Missing: ${missing.join(', ')}`);
-          if (report.manualReview.length) console.warn(`Manual review: ${report.manualReview.join(', ')}`);
-          if (unexpectedEmpty.length) console.error(`Unexpected empty: ${unexpectedEmpty.join(', ')}`);
-          if (missing.length || unexpectedEmpty.length) process.exit(2);
+          if (empty.length) console.error(`Unexpected empty: ${empty.join(', ')}`);
+          if (missing.length || empty.length) process.exit(2);
           NODE
       - name: Check normalized schedule quality
         run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json --manual-review=2108,2111,386,393
