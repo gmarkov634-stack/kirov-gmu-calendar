@@ -210,6 +210,16 @@ async function renderOrderResult(orderId, accessToken = "") {
   card.innerHTML = "<div class=\"loading-dot\"></div><p>Обычно это занимает несколько секунд.</p>";
   grid.append(card);
 
+  let resultShown = false;
+  const showIncompletePayment = () => {
+    if (resultShown) return;
+    resultShown = true;
+    scrollToReadyLink = false;
+    title.textContent = "Платёж не завершён";
+    card.innerHTML = "<p>Доступ не выдан. Если вы отменили оплату, вернитесь к выбору. Если уже оплатили, обновите страницу через минуту — повторно оплачивать не нужно.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
+  };
+  const fallbackTimer = window.setTimeout(showIncompletePayment, 20000);
+
   for (let attempt = 0; attempt < 15; attempt += 1) {
     try {
       const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, {
@@ -217,8 +227,11 @@ async function renderOrderResult(orderId, accessToken = "") {
         headers: orderHeaders(accessToken),
       });
       const order = await response.json();
+      if (resultShown) return;
       if (!response.ok) throw new Error(order.error);
       if (order.status === "succeeded" && order.subscriptionUrl) {
+        resultShown = true;
+        window.clearTimeout(fallbackTimer);
         saveOrder(orderId, accessToken);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
@@ -243,6 +256,8 @@ async function renderOrderResult(orderId, accessToken = "") {
         return;
       }
       if (order.status === "canceled") {
+        resultShown = true;
+        window.clearTimeout(fallbackTimer);
         scrollToReadyLink = false;
         title.textContent = "Платёж отменён";
         card.innerHTML = "<p>Деньги не списаны. Вернитесь на главную страницу и попробуйте снова.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
@@ -254,9 +269,8 @@ async function renderOrderResult(orderId, accessToken = "") {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  scrollToReadyLink = false;
-  title.textContent = "Платёж не завершён";
-  card.innerHTML = "<p>Доступ не выдан. Если вы отменили оплату, вернитесь к выбору. Если уже оплатили, обновите страницу через минуту — повторно оплачивать не нужно.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
+  window.clearTimeout(fallbackTimer);
+  showIncompletePayment();
 }
 
 function render() {
