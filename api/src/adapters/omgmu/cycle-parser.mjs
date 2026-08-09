@@ -1,6 +1,4 @@
 const RANGE = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})\s*\((лекции|циклы)\)/i;
-const TIME = /(\d{2})[.:](\d{2})\s*-/;
-const TIME_END = /^\s{20,}(\d{2})[.:](\d{2})\s*$/;
 const HOLIDAYS_2026 = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
 
 function isoDate(year, month, day) {
@@ -36,6 +34,12 @@ function blockDiscipline(lines) {
     .trim();
 }
 
+function timeColumnValue(line) {
+  const match = line.slice(28, 41).match(/(\d{2})[.:](\d{2})(\s*-)?/);
+  if (!match) return null;
+  return { value: `${match[1]}:${match[2]}`, isStart: Boolean(match[3]) };
+}
+
 function parseBlock(block) {
   const lines = block.split(/\r?\n/);
   const discipline = blockDiscipline(lines);
@@ -45,10 +49,9 @@ function parseBlock(block) {
   const ends = [];
   const ranges = [];
   for (const line of lines) {
-    const start = line.match(TIME);
-    if (start) starts.push(`${start[1]}:${start[2]}`);
-    const end = line.match(TIME_END);
-    if (end) ends.push(`${end[1]}:${end[2]}`);
+    const time = timeColumnValue(line);
+    if (time?.isStart) starts.push(time.value);
+    else if (time) ends.push(time.value);
     const range = line.match(RANGE);
     if (range) {
       ranges.push({
