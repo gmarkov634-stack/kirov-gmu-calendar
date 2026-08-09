@@ -8,13 +8,17 @@ const DAYS = {
 };
 
 const HOLIDAYS_2026 = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
-const TIME_RANGE = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/g;
-const DATE_RANGE = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})/;
-const DATE_SINGLE = /(?<!\d)(\d{2})\.(\d{2})(?!\d)/g;
+const TIME_PATTERN = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/;
+const DATE_PATTERN = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})/;
+const DATE_SINGLE_PATTERN = /(?<!\d)(\d{2})\.(\d{2})(?!\d)/;
 const ALLOWED_MINUTES = new Set([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
 
 function isoDate(year, month, day) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function validCalendarPart(day, month) {
+  return day >= 1 && day <= 31 && month >= 1 && month <= 12;
 }
 
 function datesForWeekday(start, end, weekday, year = 2026) {
@@ -29,19 +33,39 @@ function datesForWeekday(start, end, weekday, year = 2026) {
   return result;
 }
 
+function findDateRange(value) {
+  for (const match of String(value || "").matchAll(new RegExp(DATE_PATTERN.source, "g"))) {
+    const startDay = Number(match[1]);
+    const startMonth = Number(match[2]);
+    const endDay = Number(match[3]);
+    const endMonth = Number(match[4]);
+    if (!validCalendarPart(startDay, startMonth) || !validCalendarPart(endDay, endMonth)) continue;
+    return { match, startDay, startMonth, endDay, endMonth };
+  }
+  return null;
+}
+
 function explicitDates(text, weekday, year = 2026) {
-  const range = text.match(DATE_RANGE);
+  const range = findDateRange(text);
   if (range) {
     return datesForWeekday(
-      { day: Number(range[1]), month: Number(range[2]) },
-      { day: Number(range[3]), month: Number(range[4]) },
+      { day: range.startDay, month: range.startMonth },
+      { day: range.endDay, month: range.endMonth },
       weekday,
       year,
     );
   }
-  return [...text.matchAll(DATE_SINGLE)]
-    .map((match) => isoDate(year, Number(match[2]), Number(match[1])))
+  return [...String(text).matchAll(new RegExp(DATE_SINGLE_PATTERN.source, "g"))]
+    .map((match) => ({ day: Number(match[1]), month: Number(match[2]) }))
+    .filter((part) => validCalendarPart(part.day, part.month))
+    .map((part) => isoDate(year, part.month, part.day))
     .filter((value) => !HOLIDAYS_2026.has(value));
+}
+
+function hasDateExpression(text) {
+  if (findDateRange(text)) return true;
+  return [...String(text).matchAll(new RegExp(DATE_SINGLE_PATTERN.source, "g"))]
+    .some((match) => validCalendarPart(Number(match[1]), Number(match[2])));
 }
 
 function russianSection(text) {
@@ -51,7 +75,7 @@ function russianSection(text) {
 }
 
 function findTimeRange(value) {
-  for (const match of String(value || "").matchAll(TIME_RANGE)) {
+  for (const match of String(value || "").matchAll(new RegExp(TIME_PATTERN.source, "g"))) {
     const startHour = Number(match[1]);
     const startMinute = Number(match[2]);
     const endHour = Number(match[3]);
@@ -94,10 +118,10 @@ export function detectGroupColumns(text) {
   }));
 }
 
-function cleanTitle(value, timeText) {
+function cleanTitle(value, timeText, dateText) {
   return value
     .replace(timeText, " ")
-    .replace(DATE_RANGE, " ")
+    .replace(dateText || "", " ")
     .replace(/\b\d+\s*(?:зан\.|з\.|лекц(?:ий|ии)?|cl\.)\s*:?/gi, " ")
     .replace(/\b(?:ауд\.|корпус|здание)\b.*$/i, " ")
     .replace(/[,:;]\s*$/, "")
@@ -108,10 +132,11 @@ function cleanTitle(value, timeText) {
 function parseCell(buffer, { groupCode, weekday, course, stream }) {
   const text = buffer.join(" ").replace(/\s+/g, " ").trim();
   const time = findTimeRange(text);
+  const dateRange = findDateRange(text);
   if (!time || !weekday) return [];
   const dates = explicitDates(text, weekday);
   if (!dates.length) return [];
-  const title = cleanTitle(text, time.match[0]);
+  const title = cleanTitle(text, time.match[0], dateRange?.match?.[0]);
   if (!title || /^\d/.test(title)) return [];
   const startTime = `${String(time.startHour).padStart(2, "0")}:${String(time.startMinute).padStart(2, "0")}`;
   const endTime = `${String(time.endHour).padStart(2, "0")}:${String(time.endMinute).padStart(2, "0")}`;
@@ -156,9 +181,7 @@ export function parseWeeklyTable(text, { course, stream = null } = {}) {
       if (!cell) continue;
       if (findTimeRange(cell) && buffers[column.code].some((line) => findTimeRange(line))) flush(column.code);
       buffers[column.code].push(cell);
-      if ((DATE_RANGE.test(cell) || [...cell.matchAll(DATE_SINGLE)].length > 1) && findTimeRange(buffers[column.code].join(" "))) {
-        flush(column.code);
-      }
+      if (hasDateExpression(cell) && findTimeRange(buffers[column.code].join(" "))) flush(column.code);
     }
   }
   for (const code of Object.keys(buffers)) flush(code);
