@@ -33,7 +33,7 @@ async function action(record, operation) {
 function renderRecord(record) {
   const card = document.createElement("article");
   card.className = `admin-record${record.suspicious ? " is-suspicious" : ""}`;
-  const lastSeen = new Date(record.lastSeenAt).toLocaleString("ru-RU");
+  const lastSeen = record.lastSeenAt ? new Date(record.lastSeenAt).toLocaleString("ru-RU") : "Ещё не запрашивался";
   card.innerHTML = `<div><strong>Группа ${record.group}</strong><span>${record.suspicious ? "Подозрительная активность" : "Обычная активность"}</span></div><dl><dt>Источников</dt><dd>${record.sourceCount}</dd><dt>Запросов</dt><dd>${record.totalRequests}</dd><dt>Последний</dt><dd>${lastSeen}</dd><dt>Статус</dt><dd>${record.status}</dd></dl><div class="admin-actions"></div>`;
   const actions = card.querySelector(".admin-actions");
   if (record.status === "active") {
