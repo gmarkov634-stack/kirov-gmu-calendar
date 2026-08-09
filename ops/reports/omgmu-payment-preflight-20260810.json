@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "payment-preflight-without-payment-creation",
+  "generatedAt": "2026-08-09T23:30:13.685223+00:00",
+  "liveConfig": {
+    "httpStatus": 200,
+    "apiConfigured": true,
+    "checkoutDisabled": true,
+    "bodyPreview": "window.OMGMU_CONFIG = Object.freeze({\n  university: \"omgmu\",\n  program: \"medicine-international\",\n  timezone: \"Asia/Omsk\",\n  apiBaseUrl: \"https://kgmu-calendar-api.containerapps.ru\",\n  paymentPath: \"/api/v2/payments\",\n  priceRub: 490,\n  checkoutEnabled: false,\n});\n"
+  },
+  "cors": {
+    "httpStatus": 204,
+    "allowOrigin": "https://gmarkov634-stack.github.io"
+  },
+  "paymentEndpoint": {
+    "httpStatus": 400,
+    "response": {
+      "error": "invalid_checkout"
+    },
+    "paymentConfigured": true,
+    "paymentCreated": false,
+    "testEmailWasIntentionallyInvalid": true
+  },
+  "errors": [],
+  "validationStatus": "success",
+  "jobStatus": "success"
+}
