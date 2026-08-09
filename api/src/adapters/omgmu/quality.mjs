@@ -52,8 +52,9 @@ export function inspectSchedule(schedule) {
     const durationMinutes = (end - start) / 60000;
     if (durationMinutes <= 0) issues.push(issue("error", "invalid-duration", group, event, "Окончание не позже начала"));
     if (durationMinutes > 600) issues.push(issue("warning", "long-duration", group, event, `Продолжительность ${durationMinutes} минут`));
-    if (start.getUTCFullYear() !== 2026 || end.getUTCFullYear() !== 2026) {
-      issues.push(issue("error", "unexpected-year", group, event, "Событие находится вне 2026 года"));
+    const years = new Set([start.getUTCFullYear(), end.getUTCFullYear()]);
+    if ([...years].some((year) => year !== 2025 && year !== 2026)) {
+      issues.push(issue("error", "unexpected-year", group, event, "Событие находится вне 2025/26 учебного года"));
     }
 
     const key = eventKey(event);
