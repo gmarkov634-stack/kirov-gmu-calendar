@@ -4,6 +4,7 @@ const catalog = window.OMGMU_GROUPS;
 const courseSelect = document.querySelector('#course');
 const streamSelect = document.querySelector('#stream');
 const groupSelect = document.querySelector('#group');
+const emailInput = document.querySelector('#email');
 const form = document.querySelector('#order-form');
 const status = document.querySelector('#form-status');
 
@@ -44,11 +45,27 @@ streamSelect.addEventListener('change', () => {
   fillGroups(entriesForCourse().filter((item) => String(item.stream || '') === streamSelect.value));
 });
 
+function buildGroupId({ course, stream, groupCode }) {
+  return [
+    config.university,
+    config.program,
+    String(course),
+    stream ? `stream-${stream}` : null,
+    groupCode,
+  ].filter(Boolean).join(':');
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
+
   if (!courseSelect.value || !groupSelect.value) {
     status.textContent = 'Выберите курс и группу.';
+    return;
+  }
+  if (!emailInput.validity.valid) {
+    status.textContent = 'Укажите корректный email.';
+    emailInput.focus();
     return;
   }
   if (config.apiBaseUrl.includes('REPLACE_WITH')) {
@@ -56,17 +73,23 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
+  const course = Number(courseSelect.value);
+  const stream = streamSelect.value || null;
+  const groupCode = groupSelect.value;
   const payload = {
+    email: emailInput.value.trim(),
     university: config.university,
     program: config.program,
-    course: Number(courseSelect.value),
-    stream: streamSelect.value ? Number(streamSelect.value) : null,
-    groupCode: groupSelect.value,
-    groupId: `${config.university}:${config.program}:${courseSelect.value}:${groupSelect.value}`,
+    course,
+    stream,
+    groupCode,
+    groupId: buildGroupId({ course, stream, groupCode }),
     timezone: config.timezone,
-    calendarType: new FormData(form).get('calendar'),
-    returnUrl: window.location.href,
   };
+
+  const submit = form.querySelector('button[type="submit"]');
+  submit.disabled = true;
+  submit.textContent = 'Создаём оплату…';
 
   try {
     const response = await fetch(`${config.apiBaseUrl}${config.paymentPath}`, {
@@ -74,12 +97,13 @@ form.addEventListener('submit', async (event) => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Не удалось создать оплату');
-    const redirect = result.confirmationUrl || result.confirmation_url || result.url;
-    if (!redirect) throw new Error('API не вернул ссылку на оплату');
-    window.location.assign(redirect);
+    if (!result.confirmationUrl) throw new Error('API не вернул ссылку на оплату');
+    window.location.assign(result.confirmationUrl);
   } catch (error) {
     status.textContent = error.message;
+    submit.disabled = false;
+    submit.textContent = 'Перейти к оплате';
   }
 });
