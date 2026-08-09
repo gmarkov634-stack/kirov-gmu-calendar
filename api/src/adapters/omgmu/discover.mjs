@@ -15,8 +15,9 @@ function decodeHtml(value = "") {
     .trim();
 }
 
-export function classifyOmgmuLabel(label) {
+export function classifyOmgmuLabel(label, url = "") {
   const normalized = label.toLowerCase().replaceAll("ё", "е").replace(/\s+/g, " ").trim();
+  const normalizedUrl = String(url).toLowerCase();
   const course = Number(normalized.match(/(?:^|\s)([1-6])\s*(?:курс|леч|мед|пед|стом|фарм)/)?.[1] || 0) || null;
   const stream = normalized.match(/([12])\s*поток/)?.[1] || null;
 
@@ -29,7 +30,7 @@ export function classifyOmgmuLabel(label) {
   else if (/практич/.test(normalized)) part = "practice";
 
   let program = null;
-  if (/иностран/.test(normalized)) program = "medicine-international";
+  if (/иностран/.test(normalized) || /\/bilingva\//.test(normalizedUrl)) program = "medicine-international";
   else if (/леч/.test(normalized)) program = "medicine";
   else if (/мед.*проф/.test(normalized)) program = "preventive-medicine";
   else if (/пед/.test(normalized)) program = "pediatrics";
@@ -49,7 +50,7 @@ export function extractOmgmuSources(html, sourceUrl = OMG_MU_SOURCE) {
     let url;
     try { url = new URL(match[1], base).href; } catch { continue; }
     if (!/\.pdf(?:$|[?#])/i.test(url) && !/\/files\//i.test(url)) continue;
-    links.push({ label, url, ...classifyOmgmuLabel(label) });
+    links.push({ label, url, ...classifyOmgmuLabel(label, url) });
   }
   return links;
 }
