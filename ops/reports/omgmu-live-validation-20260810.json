@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "live-validation-after-s3-publication",
+  "validationStatus": "failure",
+  "errors": [
+    "validation report was not generated"
+  ],
+  "jobStatus": "failure"
+}
