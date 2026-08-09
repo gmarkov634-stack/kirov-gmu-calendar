@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "publish-approved-43-schedules-to-cloud-ru-s3",
+  "jobStatus": "success",
+  "sourceRunId": 31341768461,
+  "sourceHeadSha": "ebd91286287378059483fe191567b8702aa0aa6d",
+  "mergeSha": "6db9959f1b3ec397ec580baf3600a53da29ea184",
+  "recordedAt": "2026-08-09T23:25:50.963902+00:00",
+  "publisherReport": {
+    "version": 1,
+    "university": "omgmu",
+    "mode": "publish",
+    "generatedAt": "2026-08-09T23:25:41.215Z",
+    "bucket": "kgmu-calendar-data-gmarkov634",
+    "endpoint": "https://s3.cloud.ru",
+    "expectedPublishable": 43,
+    "expectedBlocked": 0,
+    "uploaded": [
+      {
+        "group": "2113",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2113.json",
+        "sha256": "9cf2dc0c9f5dc92535a0d5aeae9c17d572d703d6ebe1f96d68b7b973455f30f6",
+        "eventCount": 176
+      },
+      {
+        "group": "2114",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2114.json",
+        "sha256": "0a0dc9b1287bd39d624e343f7187b25014307d60ca370991f12a17e2f5c09ec2",
+        "eventCount": 176
+      },
+      {
+        "group": "389",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A389.json",
+        "sha256": "b2ab2823ab5bfe172dcc6e86e006077398ec1ec69df3732c14a4b4876b9dc8e7",
+        "eventCount": 167
+      },
+      {
+        "group": "393",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A393.json",
+        "sha256": "875cc6f181bab05ab613e455683383568725c3681bf771815954c9627549b5dc",
+        "eventCount": 167
+      }
+    ],
+    "unchanged": [
+      {
+        "group": "1101",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101.json",
+        "sha256": "5195a49fe41b1fdd666635c92c2f74421179ce8fda2020610ca5d7d0950af070",
+        "eventCount": 230
+      },
+      {
+        "group": "1102",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1102.json",
+        "sha256": "30f9389eadd3e0b2c39421843633351cd9811e2619fcabdd36392a721d2f3344",
+        "eventCount": 230
+      },
+      {
+        "group": "1103",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1103.json",
+        "sha256": "d74ba77be2867c6405423cd69501556ba0b21cef0f8e70482e7f56b968759269",
+        "eventCount": 230
+      },
+      {
+        "group": "1104",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1104.json",
+        "sha256": "99dfefd4bdcfbdd44c689e1685068ab6919e2a7120e7c62f16877d3095fb7c29",
+        "eventCount": 230
+      },
+      {
+        "group": "1105",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1105.json",
+        "sha256": "760593b81bb330bfa4f62ae455add34d5384d9156f70f84dbcfa533ffc40859f",
+        "eventCount": 237
+      },
+      {
+        "group": "1106",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1106.json",
+        "sha256": "a9b62e3b226b9e4a804bcc459eaef9ce87059570110b3c26655bf67b902035d8",
+        "eventCount": 237
+      },
+      {
+        "group": "1107",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1107.json",
+        "sha256": "7e83e875dacb120f4f2fd6f99f4d372cb57b37e4ff40d75d29b6d000af1880a9",
+        "eventCount": 227
+      },
+      {
+        "group": "1108",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1108.json",
+        "sha256": "e1e4e1b8ad72d2138c01b7009cb88f23fd3ae707d7f77dde488b95ba25fb5312",
+        "eventCount": 227
+      },
+      {
+        "group": "1109",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1109.json",
+        "sha256": "86ae954e86df55ff7fde6b21ba56f834991ac5f91cfd877c6a0d93ff36df7ff5",
+        "eventCount": 227
+      },
+      {
+        "group": "1110",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1110.json",
+        "sha256": "8c641f2340acb5e82be50e2e6bf42a1f68920b69cf4a06d931a08d50f065451b",
+        "eventCount": 227
+      },
+      {
+        "group": "1111",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1111.json",
+        "sha256": "79fd4ff4c38617b974ffd41c84922487822761ce4ed67bdbb650e27e8a3debfb",
+        "eventCount": 227
+      },
+      {
+        "group": "1112",
+        "key": "schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-2%3A1112.json",
+        "sha256": "edf4f9a4889ca499da58aa1eb3e43bf27962b11767c3c34a3d1c01b14058f570",
+        "eventCount": 227
+      },
+      {
+        "group": "2101",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2101.json",
+        "sha256": "d433ad537e19132c7a284b3e90ba123822ac68aea7d7bb8025f3839332a3187d",
+        "eventCount": 176
+      },
+      {
+        "group": "2102",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2102.json",
+        "sha256": "18f40a1caa0c3d72ce54a3aa1b2400d060f8c2b4bdc37217818fa2c7dbe42b45",
+        "eventCount": 176
+      },
+      {
+        "group": "2103",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2103.json",
+        "sha256": "56537a23f6820077bfcb6589a92fa0c3f2ec3daaeffb8a8a04d31c39d97f9f72",
+        "eventCount": 176
+      },
+      {
+        "group": "2104",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2104.json",
+        "sha256": "3a27e1689ca285c87e5f374982ff71ca4b12fc18e577ce39871196145003bc0a",
+        "eventCount": 176
+      },
+      {
+        "group": "2105",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2105.json",
+        "sha256": "35cd3d42002186e96b638ca7cbb36ebd3542d669e1498532d4ffb5a364c8f60f",
+        "eventCount": 176
+      },
+      {
+        "group": "2106",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2106.json",
+        "sha256": "c17a90561b1586c5ef01caf947ee1839c82d659a3dc39b46f7bbc8f02e442180",
+        "eventCount": 176
+      },
+      {
+        "group": "2107",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2107.json",
+        "sha256": "5e21e94ae73c53c01269d3369d0ae8e891e648375bf3548381b3bb72dfb1e9f0",
+        "eventCount": 176
+      },
+      {
+        "group": "2108",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2108.json",
+        "sha256": "f20008ebc54d6acbcf93eb2644e918a757e89635a08556fa40d265e352577981",
+        "eventCount": 176
+      },
+      {
+        "group": "2109",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2109.json",
+        "sha256": "136910fbdc41e1dbbfe6f95a04a6ea2f6c73006ec61827816af92673e84e7c2a",
+        "eventCount": 176
+      },
+      {
+        "group": "2110",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-1%3A2110.json",
+        "sha256": "bfbd9851d03e214d7e703c20d9e11950e3f3d73a270cda0649fc6b349d7c909c",
+        "eventCount": 176
+      },
+      {
+        "group": "2111",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2111.json",
+        "sha256": "74eb50b2423f6ffd66e0513950a5621a94beb0a9853eb1b514100d69d224d228",
+        "eventCount": 171
+      },
+      {
+        "group": "2112",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2112.json",
+        "sha256": "d6eee7fb086032908a1850a6a2595636db6f5f4c499fecab91bd0e2d394c0c2c",
+        "eventCount": 171
+      },
+      {
+        "group": "2115",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2115.json",
+        "sha256": "0c9d06dbc80ca4d5801eac9b87b904ad9f93d212d5d41b4482f86b3125dc0b16",
+        "eventCount": 176
+      },
+      {
+        "group": "2116",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2116.json",
+        "sha256": "2df7f1052db0fad2665d8d30eb9a516d98d26a20eb75d7d2052d776bf1bad8c2",
+        "eventCount": 176
+      },
+      {
+        "group": "2117",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2117.json",
+        "sha256": "719b600422aa3f5bbe9a36fd2d7b5c9a60f433761d063e4c78f5be3de1a96fa3",
+        "eventCount": 171
+      },
+      {
+        "group": "2118",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2118.json",
+        "sha256": "1edd160d0b281b4d78533b1751f76629454802d538916dd4aa643291817931f8",
+        "eventCount": 171
+      },
+      {
+        "group": "2119",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2119.json",
+        "sha256": "1cbbdd6f1d6a24afbaf6767da0582c8f4d48afcb6221e5fbe42ec6857819f293",
+        "eventCount": 176
+      },
+      {
+        "group": "2120",
+        "key": "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2120.json",
+        "sha256": "4f6ac0c735956a07ca50518032ab49c69be29c6738491d8002503a49449e6137",
+        "eventCount": 176
+      },
+      {
+        "group": "385",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A385.json",
+        "sha256": "2332baf33ccbaac73d42ce07584be66c223a7635f7857ae26108825f28028e15",
+        "eventCount": 166
+      },
+      {
+        "group": "386",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A386.json",
+        "sha256": "e6d24349e772aa5c44d4498d1ee57ab73b13f4a8130baca2fdce939f5d1e3eb9",
+        "eventCount": 166
+      },
+      {
+        "group": "387",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A387.json",
+        "sha256": "5827c1c21d64940c296f62d0553f8375be944ac86d13fa5c5c778e7e49e26e4a",
+        "eventCount": 166
+      },
+      {
+        "group": "388",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A388.json",
+        "sha256": "86a2ae86954808a50c10c1586858797fab6af60a4b1d323248c00cffced2dfff",
+        "eventCount": 166
+      },
+      {
+        "group": "394",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A394.json",
+        "sha256": "7d621b17e58ee39b698029e38227efd74c2bb60dded25fff6a6793d1a123aa7b",
+        "eventCount": 166
+      },
+      {
+        "group": "395",
+        "key": "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A395.json",
+        "sha256": "7adac75e3b29193df317c07c96a0102580489557c8ae4105cd037b4130e3bbd3",
+        "eventCount": 166
+      },
+      {
+        "group": "485",
+        "key": "schedules/omgmu/medicine-international/4/omgmu%3Amedicine-international%3A4%3A485.json",
+        "sha256": "8b954552e362b63a64d3392fa4fc610907fbc2e92252437a05639faa5722441a",
+        "eventCount": 159
+      },
+      {
+        "group": "486",
+        "key": "schedules/omgmu/medicine-international/4/omgmu%3Amedicine-international%3A4%3A486.json",
+        "sha256": "e47344df43988f03bf29a5ad61ae770c64456e4dfb39daf6952ef2f1168658dc",
+        "eventCount": 143
+      },
+      {
+        "group": "585",
+        "key": "schedules/omgmu/medicine-international/5/omgmu%3Amedicine-international%3A5%3A585.json",
+        "sha256": "cf79af956e6a7d364adccbb9e25c57378acb7896dc3638e2db4848a1b19f9112",
+        "eventCount": 86
+      }
+    ],
+    "deleted": [],
+    "alreadyAbsent": [],
+    "planned": [],
+    "plannedDeletes": []
+  }
+}
