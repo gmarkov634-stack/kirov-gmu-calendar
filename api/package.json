@@ -16,6 +16,7 @@
     "quality:omgmu": "node tools/omgmu-quality.mjs",
     "review:omgmu:prepare": "node tools/omgmu-review-prepare.mjs",
     "review:omgmu:apply": "node tools/omgmu-review-apply.mjs",
+    "review:omgmu:apply-registry": "node tools/omgmu-review-apply-registry.mjs",
     "publish:omgmu:plan": "node tools/omgmu-publish-plan.mjs",
     "publish:omgmu:s3": "node tools/omgmu-publish-s3.mjs"
   },

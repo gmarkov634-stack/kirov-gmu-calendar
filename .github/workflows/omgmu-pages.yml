@@ -58,10 +58,12 @@ jobs:
           const config = sandbox.window.OMGMU_CONFIG;
           if (!Array.isArray(catalog)) throw new Error('OMGMU_GROUPS is not an array');
           const groups = catalog.flatMap(item => item.groups || []);
-          const blocked = ['2113', '2114', '389', '393'];
-          if (groups.length !== 39) throw new Error(`Expected 39 groups, got ${groups.length}`);
-          for (const group of blocked) {
-            if (groups.includes(group)) throw new Error(`Blocked group ${group} is exposed`);
+          const unique = new Set(groups);
+          const approvedManual = ['2113', '2114', '389', '393'];
+          if (groups.length !== 43) throw new Error(`Expected 43 groups, got ${groups.length}`);
+          if (unique.size !== groups.length) throw new Error('Duplicate ОмГМУ groups are exposed');
+          for (const group of approvedManual) {
+            if (!groups.includes(group)) throw new Error(`Approved group ${group} is missing`);
           }
           if (config.checkoutEnabled !== false) throw new Error('ОмГМУ checkout must remain disabled during schedule rollout');
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
