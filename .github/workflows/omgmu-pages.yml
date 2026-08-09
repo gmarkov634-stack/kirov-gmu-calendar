@@ -1,15 +1,25 @@
-name: ОмГМУ landing
+name: Medical university landings
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "index.html"
+      - "styles.css"
+      - "data.js"
+      - "app.js"
+      - "app-utils.js"
       - "site/omgmu/**"
       - ".github/workflows/omgmu-pages.yml"
   push:
     branches:
       - main
     paths:
+      - "index.html"
+      - "styles.css"
+      - "data.js"
+      - "app.js"
+      - "app-utils.js"
       - "site/omgmu/**"
       - ".github/workflows/omgmu-pages.yml"
 
@@ -19,7 +29,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: omgmu-pages
+  group: medical-calendar-pages
   cancel-in-progress: true
 
 jobs:
@@ -30,11 +40,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate landing files and catalog
         run: |
-          test -f site/omgmu/index.html
-          test -f site/omgmu/styles.css
-          test -f site/omgmu/app.js
-          test -f site/omgmu/config.js
-          test -f site/omgmu/groups.js
+          for file in index.html styles.css data.js app.js app-utils.js; do
+            test -f "$file"
+          done
+          for file in index.html styles.css app.js config.js groups.js; do
+            test -f "site/omgmu/$file"
+          done
           node - <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
@@ -46,14 +57,14 @@ jobs:
           const groups = catalog.flatMap(item => item.groups || []);
           const blocked = ['2108', '2111', '386', '393'];
           if (groups.length !== 39) throw new Error(`Expected 39 groups, got ${groups.length}`);
-          for (const code of blocked) {
-            if (groups.includes(code)) throw new Error(`Blocked group ${code} is exposed`);
+          for (const group of blocked) {
+            if (groups.includes(group)) throw new Error(`Blocked group ${group} is exposed`);
           }
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
           for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
           }
-          console.log('ОмГМУ landing validation passed');
+          console.log('Landing validation passed');
           NODE
       - name: Prepare production artifact
         if: github.event_name != 'pull_request'
@@ -87,23 +98,26 @@ jobs:
             exit 2
           }
 
-          rm -rf dist/omgmu
-          mkdir -p dist/omgmu
-          cp -R site/omgmu/. dist/omgmu/
+          rm -rf dist/site
+          mkdir -p dist/site/omgmu
+          cp index.html styles.css data.js app.js app-utils.js dist/site/
+          cp -R site/omgmu/. dist/site/omgmu/
+          touch dist/site/.nojekyll
+
           API_URL="$CLOUD_RU_API_URL" node - <<'NODE'
           const fs = require('fs');
-          const path = 'dist/omgmu/config.js';
+          const path = 'dist/site/omgmu/config.js';
           const apiUrl = process.env.API_URL;
           const source = fs.readFileSync(path, 'utf8');
           if (!source.includes('https://REPLACE_WITH_CLOUD_RU_API')) throw new Error('API placeholder missing');
           fs.writeFileSync(path, source.replace('https://REPLACE_WITH_CLOUD_RU_API', apiUrl));
           NODE
-          ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/omgmu
+          ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/omgmu
+          path: dist/site
 
   deploy:
     if: github.event_name != 'pull_request'
