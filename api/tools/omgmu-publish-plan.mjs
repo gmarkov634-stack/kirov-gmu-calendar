@@ -8,8 +8,18 @@ function arg(name, fallback) {
   return value ? value.slice(prefix.length) : fallback;
 }
 
+function optionalCount(name) {
+  const value = arg(name, null);
+  if (value == null) return null;
+  const count = Number(value);
+  if (!Number.isInteger(count) || count < 0) throw new Error(`Invalid --${name}: ${value}`);
+  return count;
+}
+
 const inputDir = path.resolve(arg("input", "data/imports/omgmu-schedules"));
 const outputDir = path.resolve(arg("output", "data/publication/omgmu"));
+const expectedPublishable = optionalCount("expected-publishable");
+const expectedBlocked = optionalCount("expected-blocked");
 const files = (await fs.readdir(inputDir)).filter((name) => name.endsWith(".json")).sort();
 const schedules = [];
 for (const file of files) schedules.push(JSON.parse(await fs.readFile(path.join(inputDir, file), "utf8")));
@@ -38,3 +48,14 @@ await fs.writeFile(path.join(outputDir, "publication-manifest.json"), `${JSON.st
 console.log(`Publishable: ${manifest.publishableCount}; blocked: ${manifest.blockedCount}`);
 for (const item of manifest.blocked) console.log(`Blocked ${item.group}: ${item.reason}`);
 console.log(`Publication package: ${outputDir}`);
+
+const mismatches = [];
+if (expectedPublishable != null && manifest.publishableCount !== expectedPublishable) {
+  mismatches.push(`publishable expected ${expectedPublishable}, got ${manifest.publishableCount}`);
+}
+if (expectedBlocked != null && manifest.blockedCount !== expectedBlocked) {
+  mismatches.push(`blocked expected ${expectedBlocked}, got ${manifest.blockedCount}`);
+}
+if (mismatches.length) {
+  throw new Error(`Publication count mismatch: ${mismatches.join("; ")}`);
+}
