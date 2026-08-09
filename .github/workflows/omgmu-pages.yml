@@ -49,19 +49,23 @@ jobs:
           node - <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          const code = fs.readFileSync('site/omgmu/groups.js', 'utf8');
+          const groupCode = fs.readFileSync('site/omgmu/groups.js', 'utf8');
+          const configCode = fs.readFileSync('site/omgmu/config.js', 'utf8');
           const sandbox = { window: {} };
-          vm.runInNewContext(code, sandbox);
+          vm.runInNewContext(groupCode, sandbox);
+          vm.runInNewContext(configCode, sandbox);
           const catalog = sandbox.window.OMGMU_GROUPS;
+          const config = sandbox.window.OMGMU_CONFIG;
           if (!Array.isArray(catalog)) throw new Error('OMGMU_GROUPS is not an array');
           const groups = catalog.flatMap(item => item.groups || []);
-          const blocked = ['2108', '2111', '386', '393'];
+          const blocked = ['2113', '2114', '389', '393'];
           if (groups.length !== 39) throw new Error(`Expected 39 groups, got ${groups.length}`);
           for (const group of blocked) {
             if (groups.includes(group)) throw new Error(`Blocked group ${group} is exposed`);
           }
+          if (config.checkoutEnabled !== false) throw new Error('ОмГМУ checkout must remain disabled during schedule rollout');
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl']) {
+          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
           }
           console.log('Landing validation passed');

@@ -1,6 +1,6 @@
 import path from "node:path";
 
-export const OMG_MU_MANUAL_REVIEW_GROUPS = new Set(["2108", "2111", "386", "393"]);
+export const OMG_MU_MANUAL_REVIEW_GROUPS = new Set(["2113", "2114", "389", "393"]);
 
 export function scheduleObjectKey(schedule) {
   const university = String(schedule?.university || "").trim();

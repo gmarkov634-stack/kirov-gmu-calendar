@@ -25,11 +25,11 @@ test("publishes an automatically verified group", () => {
 });
 
 test("blocks a pending manual-review group", () => {
-  assert.deepEqual(publicationDecision(schedule("2108")), { publish: false, reason: "manual-review-pending" });
+  assert.deepEqual(publicationDecision(schedule("2113")), { publish: false, reason: "manual-review-pending" });
 });
 
 test("publishes only trusted approved manual events", () => {
-  const approved = schedule("2108", {
+  const approved = schedule("2113", {
     review: { status: "approved", sourceSha256: "abc" },
     events: [{ id: "m1", title: "Анатомия", start: "2026-04-06T08:00:00+06:00", end: "2026-04-06T10:00:00+06:00", sourceType: "manual-review" }],
   });
@@ -37,7 +37,7 @@ test("publishes only trusted approved manual events", () => {
 });
 
 test("reports publishable and blocked schedules", () => {
-  const plan = buildPublicationPlan([schedule("2101"), schedule("2108")]);
+  const plan = buildPublicationPlan([schedule("2101"), schedule("2113")]);
   assert.equal(plan.publishable.length, 1);
   assert.equal(plan.blocked.length, 1);
   assert.equal(plan.blocked[0].reason, "manual-review-pending");
