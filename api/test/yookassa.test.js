@@ -181,6 +181,36 @@ test("owner can revoke an exposed subscription and receive a new one", async () 
   assert.equal(store.orders.get(orderId).subscriptionGeneration, 1);
 });
 
+test("administrator can rotate only the current subscription hash", async () => {
+  const store = memoryStore();
+  const orderId = "o".repeat(32);
+  const oldToken = "s".repeat(43);
+  await store.putSubscription(oldToken, {
+    version: 1,
+    status: "active",
+    group: "132",
+    faculty: "pediatrics",
+    course: 1,
+    academicYear: "2025-2026",
+    semester: 2,
+    expiresAt: config.offerExpiresAt,
+    orderId,
+  });
+  await store.putOrder(orderId, {
+    orderId,
+    status: "succeeded",
+    group: "132",
+    subscriptionUrl: `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`,
+  });
+  const service = new YooKassaService({ config, store });
+  await assert.rejects(service.rotateSubscriptionAsAdmin(orderId, "0".repeat(64)), /no longer current/);
+  const rotated = await service.rotateSubscriptionAsAdmin(
+    orderId,
+    createHash("sha256").update(oldToken).digest("hex"),
+  );
+  assert.notEqual(rotated.subscriptionUrl, `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`);
+});
+
 test("legacy order stays readable but cannot be reset without an ownership secret", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
