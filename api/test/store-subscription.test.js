@@ -37,3 +37,28 @@ test("local store persists private orders and generated subscriptions", async ()
     await fs.rm(dataDir, { recursive: true, force: true });
   }
 });
+
+test("access monitor marks many recent sources and revocation clears the cached subscription", async () => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "kgmu-access-"));
+  try {
+    const store = new ScheduleStore({ dataDir, cacheTtlMs: 300000, suspiciousSourceThreshold: 3 });
+    const token = "m".repeat(43);
+    const subscription = { version: 1, status: "active", group: "133", orderId: "o".repeat(32) };
+    await store.putSubscription(token, subscription);
+    for (let index = 0; index < 3; index += 1) {
+      await store.recordSubscriptionAccess(token, subscription, {
+        fingerprint: String(index).repeat(64),
+        client: "other",
+        seenAt: `2026-08-0${index + 7}T12:00:00.000Z`,
+      });
+    }
+    const [record] = await store.listSubscriptionAccess();
+    assert.equal(record.sourceCount, 3);
+    assert.equal(record.suspicious, true);
+    await store.revokeSubscriptionByHash(createHash("sha256").update(token).digest("hex"));
+    assert.equal((await store.getSubscription(token)).status, "revoked");
+    assert.equal((await store.listSubscriptionAccess())[0].status, "revoked");
+  } finally {
+    await fs.rm(dataDir, { recursive: true, force: true });
+  }
+});
