@@ -12,7 +12,8 @@
     "catalog:omgmu": "node tools/omgmu-catalog.mjs",
     "parse:omgmu:weekly": "node tools/omgmu-parse-weekly.mjs",
     "parse:omgmu:fourth": "node tools/omgmu-parse-fourth.mjs",
-    "parse:omgmu:fifth": "node tools/omgmu-parse-fifth.mjs"
+    "parse:omgmu:fifth": "node tools/omgmu-parse-fifth.mjs",
+    "quality:omgmu": "node tools/omgmu-quality.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0"
