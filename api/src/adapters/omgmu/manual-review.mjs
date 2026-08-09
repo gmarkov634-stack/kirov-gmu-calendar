@@ -4,16 +4,6 @@ export function sourceSha256(buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
-export function eventsSha256(events) {
-  const normalized = (events || []).map((event) => ({
-    end: event?.end || "",
-    location: event?.location || "",
-    start: event?.start || "",
-    title: event?.title || "",
-  }));
-  return crypto.createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
-}
-
 export function validateReview(review, { expectedGroup, sourceHash } = {}) {
   const errors = [];
   if (!review || review.version !== 1) errors.push("unsupported-version");
@@ -61,55 +51,6 @@ export function applyApprovedReview(schedule, review, { sourceHash } = {}) {
       start: event.start,
       end: event.end,
       location: event.location || "",
-      sourceType: "manual-review",
-    })),
-  };
-}
-
-export function applyApprovedDecision(
-  schedule,
-  approval,
-  { sourceHash, userConfirmation, confirmedAt } = {},
-) {
-  const errors = [];
-  const group = String(schedule?.group?.code || "");
-  if (!approval || String(approval.group || "") !== group) errors.push("group-mismatch");
-  if (!approval?.sourceSha256) errors.push("missing-source-sha256");
-  if (sourceHash && approval?.sourceSha256 !== sourceHash) errors.push("source-changed");
-  if (!Number.isInteger(approval?.eventCount) || approval.eventCount < 1) errors.push("invalid-event-count");
-  if (!approval?.eventsSha256) errors.push("missing-events-sha256");
-  if (!approval?.reviewedBy) errors.push("missing-reviewer");
-  if (!approval?.reviewedAt || Number.isNaN(Date.parse(approval.reviewedAt))) errors.push("invalid-reviewed-at");
-  if (!approval?.decision) errors.push("missing-decision");
-  if (!userConfirmation) errors.push("missing-user-confirmation");
-  if (!confirmedAt || Number.isNaN(Date.parse(confirmedAt))) errors.push("invalid-confirmed-at");
-
-  const events = Array.isArray(schedule?.events) ? schedule.events : [];
-  const actualHash = eventsSha256(events);
-  if (events.length !== approval?.eventCount) errors.push("event-count-changed");
-  if (approval?.eventsSha256 && actualHash !== approval.eventsSha256) errors.push("events-changed");
-
-  if (errors.length) {
-    const error = new Error(`Approved manual decision is invalid: ${errors.join(", ")}`);
-    error.code = "INVALID_APPROVED_DECISION";
-    error.details = errors;
-    throw error;
-  }
-
-  return {
-    ...schedule,
-    review: {
-      status: "approved",
-      reviewedBy: approval.reviewedBy,
-      reviewedAt: approval.reviewedAt,
-      sourceSha256: approval.sourceSha256,
-      eventsSha256: approval.eventsSha256,
-      decision: approval.decision,
-      userConfirmation,
-      confirmedAt,
-    },
-    events: events.map((event) => ({
-      ...event,
       sourceType: "manual-review",
     })),
   };
