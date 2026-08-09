@@ -3,6 +3,7 @@ const HOLIDAYS = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
 const TIME_RE = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/g;
 const DATE_RE = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})/g;
 const SINGLE_DATE_RE = /(?<!\d)(\d{2})\.(\d{2})(?!\d)/g;
+const PARTIAL_TIME_RE = /(?:^|\s)(?:с\s*)?\d{1,2}[.:]\d{2}\s*[-–]\s*\d{1,2}(?:[.:]\d{0,2})?/gi;
 
 function section(text) {
   const value = String(text || "").replace(/\f/g, "\n");
@@ -14,29 +15,56 @@ function validDatePart(day, month) {
   return day >= 1 && day <= 31 && month >= 1 && month <= 12;
 }
 
+function validSemesterDatePart(day, month) {
+  return validDatePart(day, month) && month <= 8;
+}
+
+function validTimeMatch(match) {
+  const sh = Number(match[1]); const sm = Number(match[2]);
+  const eh = Number(match[3]); const em = Number(match[4]);
+  const duration = eh * 60 + em - (sh * 60 + sm);
+  return sh <= 23 && eh <= 23 && sm <= 59 && em <= 59 && duration > 0 && duration <= 300;
+}
+
+function findTimes(value) {
+  return [...String(value).matchAll(TIME_RE)]
+    .filter(validTimeMatch)
+    .map((match) => ({
+      match,
+      sh: Number(match[1]),
+      sm: Number(match[2]),
+      eh: Number(match[3]),
+      em: Number(match[4]),
+    }));
+}
+
 function findTime(value) {
-  for (const match of String(value).matchAll(TIME_RE)) {
-    const sh = Number(match[1]); const sm = Number(match[2]);
-    const eh = Number(match[3]); const em = Number(match[4]);
-    const duration = eh * 60 + em - (sh * 60 + sm);
-    if (sh <= 23 && eh <= 23 && sm <= 59 && em <= 59 && duration > 0 && duration <= 300) {
-      return { match, sh, sm, eh, em };
-    }
-  }
-  return null;
+  return findTimes(value)[0] || null;
 }
 
 function findDateRange(value) {
   for (const match of String(value).matchAll(DATE_RE)) {
     const sd = Number(match[1]); const sm = Number(match[2]);
     const ed = Number(match[3]); const em = Number(match[4]);
-    if (validDatePart(sd, sm) && validDatePart(ed, em)) return { match, sd, sm, ed, em };
+    if (validSemesterDatePart(sd, sm) && validSemesterDatePart(ed, em)) return { match, sd, sm, ed, em };
   }
   return null;
 }
 
 function iso(month, day) {
   return `2026-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function protectedSpans(value) {
+  const text = String(value);
+  return [...text.matchAll(TIME_RE), ...text.matchAll(DATE_RE)]
+    .map((match) => [match.index, match.index + match[0].length]);
+}
+
+function overlapsProtected(match, spans) {
+  const start = match.index;
+  const end = start + match[0].length;
+  return spans.some(([spanStart, spanEnd]) => start < spanEnd && end > spanStart);
 }
 
 function eventDates(text, weekday) {
@@ -52,11 +80,16 @@ function eventDates(text, weekday) {
     }
     return result;
   }
-  return [...String(text).matchAll(SINGLE_DATE_RE)]
+
+  const value = String(text);
+  const spans = protectedSpans(value);
+  return [...value.matchAll(SINGLE_DATE_RE)]
+    .filter((match) => !overlapsProtected(match, spans))
     .map((match) => ({ day: Number(match[1]), month: Number(match[2]) }))
-    .filter((part) => validDatePart(part.day, part.month))
+    .filter((part) => validSemesterDatePart(part.day, part.month))
     .map((part) => iso(part.month, part.day))
-    .filter((value) => !HOLIDAYS.has(value));
+    .filter((date) => new Date(`${date}T00:00:00Z`).getUTCDay() === weekday)
+    .filter((date) => !HOLIDAYS.has(date));
 }
 
 function hash(value) {
@@ -105,17 +138,32 @@ function dayBlocks(lines) {
   }));
 }
 
+function stripSingleDates(value) {
+  return String(value).replace(SINGLE_DATE_RE, (full, day, month) => (
+    validSemesterDatePart(Number(day), Number(month)) ? " " : full
+  ));
+}
+
 function cleanTitle(text, timeText, dateText) {
-  return text.replace(timeText, " ").replace(dateText || "", " ")
+  let value = String(text).replace(timeText, " ").replace(dateText || "", " ");
+  value = value.replace(TIME_RE, " ").replace(DATE_RE, " ");
+  value = stripSingleDates(value).replace(PARTIAL_TIME_RE, " ");
+  return value
+    .replace(/^\s*с\s+/i, " ")
     .replace(/\b\d+\s*(?:зан\.|з\.|лекц(?:ий|ии)?|cl\.)\s*:?/gi, " ")
     .replace(/\b(?:ауд\.|корпус|здание)\b.*$/i, " ")
-    .replace(/[,:;]\s*$/, "").replace(/\s+/g, " ").trim();
+    .replace(/\(\s*\)/g, " ")
+    .replace(/[,:;]\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function parseChunk(lines, groupCode, weekday, course, stream) {
   const text = lines.join(" ").replace(/\s+/g, " ").trim();
-  const time = findTime(text); const range = findDateRange(text);
-  if (!time) return [];
+  const times = findTimes(text);
+  const range = findDateRange(text);
+  if (times.length !== 1) return [];
+  const time = times[0];
   const dates = eventDates(text, weekday);
   const title = cleanTitle(text, time.match[0], range?.match?.[0]);
   if (!dates.length || !title || /^\d/.test(title)) return [];
@@ -182,3 +230,5 @@ export function buildWeeklySchedules(text, { course, stream = null, sourceUrl = 
     events,
   }));
 }
+
+export const weeklyParserInternals = Object.freeze({ eventDates, cleanTitle });
