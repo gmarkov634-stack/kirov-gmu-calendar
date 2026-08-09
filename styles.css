@@ -77,5 +77,25 @@ h2 { margin:0; font-size:clamp(24px,3.4vw,34px); letter-spacing:-.03em; }
 .benefits strong { font-size:14px; }
 .benefits p { margin:5px 0 0; color:var(--muted); font-size:12px; line-height:1.55; }
 footer { padding:24px 16px 34px; border-top:1px solid var(--line); color:var(--muted); text-align:center; font-size:12px; }
+.admin-page { width:min(900px,calc(100% - 24px)); }
+.admin-panel { margin:24px 0; }
+.admin-panel h1 { margin:6px 0 24px; font-size:clamp(30px,5vw,48px); }
+.admin-login label { display:block; margin-bottom:8px; font-size:13px; font-weight:700; }
+.admin-login div { display:grid; grid-template-columns:1fr auto; gap:10px; }
+.admin-login input { min-width:0; min-height:50px; padding:0 14px; border:1px solid var(--line); border-radius:12px; font:inherit; }
+.admin-login .pay-button { min-width:120px; margin:0; }
+.admin-summary { margin:22px 0 12px; color:var(--muted); font-size:14px; }
+.admin-list { display:grid; gap:12px; }
+.admin-record { padding:18px; border:1px solid var(--line); border-radius:16px; background:#fff; }
+.admin-record.is-suspicious { border-color:#e5ad45; }
+.admin-record > div:first-child { display:flex; justify-content:space-between; gap:12px; }
+.admin-record > div:first-child span { color:var(--muted); font-size:13px; }
+.admin-record.is-suspicious > div:first-child span { color:#9a5a00; font-weight:700; }
+.admin-record dl { display:grid; grid-template-columns:repeat(4,auto 1fr); gap:8px 10px; margin:16px 0; font-size:12px; }
+.admin-record dt { color:var(--muted); }
+.admin-record dd { margin:0; font-weight:700; }
+.admin-actions { display:flex; gap:8px; }
+.admin-actions button { min-height:40px; padding:0 13px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--blue-700); cursor:pointer; font-weight:700; }
 @media (max-width:760px) { .topbar{min-height:68px} main{width:min(100% - 20px,620px)} .hero{grid-template-columns:1fr;min-height:auto;margin-top:10px;padding:34px 24px;border-radius:24px} .hero-visual{display:none} .hero p{font-size:15px;line-height:1.6} .selector{margin-top:12px;padding:20px 14px;border-radius:22px} .steps{gap:5px} .step{justify-content:center;padding:9px 6px} .step strong{display:none} .panel-head{align-items:center;margin-top:25px} .choice-grid{grid-template-columns:1fr;gap:10px} .choice-card{min-height:105px;padding:17px} .choice-card .card-icon{float:left;margin:0 13px 0 0} .checkout-card{grid-template-columns:1fr;padding:14px}.order-summary{padding:18px}.saved-orders{align-items:stretch;flex-direction:column}.saved-orders-list{justify-content:stretch}.saved-order-link{justify-content:center}.benefits{grid-template-columns:1fr;margin-bottom:26px} }
+@media (max-width:760px) { .admin-login div{grid-template-columns:1fr}.admin-login .pay-button{width:100%}.admin-record dl{grid-template-columns:auto 1fr}.admin-record>div:first-child{align-items:flex-start;flex-direction:column}.admin-actions{flex-direction:column} }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important;transition:none!important} }
