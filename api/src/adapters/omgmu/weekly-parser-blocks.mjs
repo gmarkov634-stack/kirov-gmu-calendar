@@ -65,6 +65,16 @@ function hash(value) {
   return (result >>> 0).toString(36);
 }
 
+function deduplicateEvents(events) {
+  const seen = new Set();
+  return events.filter((event) => {
+    const key = [event.start, event.end, event.title, event.location || ""].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function detectGroupColumns(text) {
   let best = [];
   let width = 0;
@@ -151,6 +161,7 @@ export function parseWeeklyTable(text, { course, stream = null } = {}) {
     const blockLines = lines.slice(block.start, block.end);
     for (const column of columns) result[column.code].push(...parseColumn(blockLines, column, block.weekday, course, stream));
   }
+  for (const code of Object.keys(result)) result[code] = deduplicateEvents(result[code]);
   return result;
 }
 
