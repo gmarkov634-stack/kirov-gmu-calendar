@@ -5,8 +5,8 @@ on:
   pull_request:
     paths:
       - "api/src/adapters/omgmu/**"
-      - "api/tools/omgmu-discover.mjs"
-      - "universities/omgmu-structure.json"
+      - "api/tools/omgmu-*.mjs"
+      - "universities/omgmu/structure.json"
       - ".github/workflows/omgmu-discovery.yml"
 
 permissions:
@@ -31,6 +31,8 @@ jobs:
         run: npm ci
       - name: Discover official ОмГМУ sources
         run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json
+      - name: Download official ОмГМУ PDF files
+        run: npm run download:omgmu -- --manifest=data/imports/omgmu-source-manifest.json --output=data/imports/omgmu-pdfs
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -39,3 +41,11 @@ jobs:
           path: api/data/imports/omgmu-source-manifest.json
           if-no-files-found: error
           retention-days: 14
+      - name: Upload PDF bundle and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-source-pdfs
+          path: api/data/imports/omgmu-pdfs
+          if-no-files-found: error
+          retention-days: 7
