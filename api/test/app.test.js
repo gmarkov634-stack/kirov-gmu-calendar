@@ -113,3 +113,47 @@ test("checkout validates selection and creates payment", () => withServer(async 
     await new Promise((resolve) => paymentServer.close(resolve));
   }
 }));
+
+test("order endpoints pass the private access token and reject missing ownership", async () => {
+  const protectedServer = http.createServer(createHandler({
+    store,
+    config,
+    payments: {
+      enabled: true,
+      getOrder: async (orderId, { accessToken }) => {
+        if (accessToken !== "a".repeat(43)) {
+          const error = new Error("denied");
+          error.code = "order_forbidden";
+          throw error;
+        }
+        return { orderId, status: "succeeded", group: "132" };
+      },
+      rotateSubscription: async (orderId, accessToken) => {
+        if (accessToken !== "a".repeat(43)) {
+          const error = new Error("denied");
+          error.code = "order_forbidden";
+          throw error;
+        }
+        return { orderId, status: "succeeded", group: "132", subscriptionUrl: "https://new.test/calendar.ics" };
+      },
+    },
+  }));
+  await new Promise((resolve) => protectedServer.listen(0, "127.0.0.1", resolve));
+  const base = `http://127.0.0.1:${protectedServer.address().port}`;
+  const orderId = "o".repeat(32);
+  try {
+    assert.equal((await fetch(`${base}/api/v1/orders/${orderId}`)).status, 403);
+    const orderResponse = await fetch(`${base}/api/v1/orders/${orderId}`, {
+      headers: { "X-Order-Token": "a".repeat(43) },
+    });
+    assert.equal(orderResponse.status, 200);
+    const resetResponse = await fetch(`${base}/api/v1/orders/${orderId}/subscription/reset`, {
+      method: "POST",
+      headers: { "X-Order-Token": "a".repeat(43) },
+    });
+    assert.equal(resetResponse.status, 200);
+    assert.equal((await resetResponse.json()).subscriptionUrl, "https://new.test/calendar.ics");
+  } finally {
+    await new Promise((resolve) => protectedServer.close(resolve));
+  }
+});
