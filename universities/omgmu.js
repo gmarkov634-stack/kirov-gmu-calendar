@@ -15,6 +15,7 @@ window.CALENDAR_DATA = {
     semester: 1,
     expires: "31 августа 2027",
     testMode: true,
+    checkoutEnabled: false,
   },
   faculties: [
     { id: "medicine", name: "Лечебный факультет", short: "Лечебное дело", icon: "Л", courses: 6, groups: {} },
