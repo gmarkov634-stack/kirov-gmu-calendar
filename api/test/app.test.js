@@ -157,3 +157,62 @@ test("order endpoints pass the private access token and reject missing ownership
     await new Promise((resolve) => protectedServer.close(resolve));
   }
 });
+
+test("calendar access is monitored without blocking and admin actions require a separate token", async () => {
+  const tokenHash = "f".repeat(64);
+  let observed = false;
+  let revoked = false;
+  const monitoredStore = {
+    ...store,
+    recordSubscriptionAccess: async (_token, _subscription, observation) => {
+      observed = /^[a-f0-9]{64}$/.test(observation.fingerprint);
+    },
+    listSubscriptionAccess: async () => [{
+      version: 1,
+      tokenHash,
+      orderId: "o".repeat(32),
+      group: "132",
+      status: "active",
+      suspicious: true,
+      sourceCount: 8,
+      totalRequests: 10,
+      sources: [{ fingerprint: "private" }],
+      lastSeenAt: "2026-08-09T12:00:00.000Z",
+    }],
+    revokeSubscriptionByHash: async (hash) => {
+      revoked = hash === tokenHash;
+      return { group: "132", status: "revoked" };
+    },
+  };
+  const monitoredConfig = {
+    ...config,
+    subscriptionSigningSecret: "a-long-test-signing-secret-32-bytes-minimum",
+    adminToken: "a-separate-admin-token-that-is-long-enough",
+  };
+  const server = http.createServer(createHandler({ store: monitoredStore, config: monitoredConfig }));
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const calendar = await fetch(`${base}/api/v1/subscriptions/${"a".repeat(43)}/calendar.ics`, {
+      headers: { "user-agent": "CalendarAgent Apple" },
+    });
+    assert.equal(calendar.status, 200);
+    assert.equal(observed, true);
+    assert.equal((await fetch(`${base}/api/v1/admin/subscriptions`)).status, 403);
+    const listResponse = await fetch(`${base}/api/v1/admin/subscriptions`, {
+      headers: { "X-Admin-Token": monitoredConfig.adminToken },
+    });
+    assert.equal(listResponse.status, 200);
+    const record = (await listResponse.json()).subscriptions[0];
+    assert.equal(record.suspicious, true);
+    assert.equal("sources" in record, false);
+    const revokeResponse = await fetch(`${base}/api/v1/admin/subscriptions/${tokenHash}/revoke`, {
+      method: "POST",
+      headers: { "X-Admin-Token": monitoredConfig.adminToken },
+    });
+    assert.equal(revokeResponse.status, 200);
+    assert.equal(revoked, true);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
