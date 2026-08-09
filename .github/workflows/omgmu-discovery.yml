@@ -44,6 +44,10 @@ jobs:
           done
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
+      - name: Parse first-course stream 1 schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/01_medicine-international_course-1_stream-1_combined.txt --course=1 --stream=1 --output=data/imports/omgmu-schedules
+      - name: Parse first-course stream 2 schedules
+        run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-text/02_medicine-international_course-1_stream-2_combined.txt --course=1 --stream=2 --output=data/imports/omgmu-schedules
       - name: Parse fourth-course schedules
         run: npm run parse:omgmu:fourth -- --lectures=data/imports/omgmu-text/06_medicine-international_course-4_lectures.txt --cycles=data/imports/omgmu-text/07_medicine-international_course-4_cycles.txt --output=data/imports/omgmu-schedules
       - name: Parse fifth-course schedule
