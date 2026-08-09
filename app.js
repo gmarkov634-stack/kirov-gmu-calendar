@@ -220,24 +220,22 @@ async function renderOrderResult(orderId, accessToken = "") {
         saveOrder(orderId, accessToken);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
+        const resetButton = accessToken
+          ? '<button class="reset-link-button" type="button">Сбросить переданную ссылку</button>'
+          : "";
         card.innerHTML = `
           <div class="success-mark">✓</div>
           <h3>Группа ${order.group}</h3>
           <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
           <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
           <button class="copy-button" type="button">Скопировать ссылку</button>
-          <button class="reset-link-button" type="button">Сбросить переданную ссылку</button>
+          ${resetButton}
           <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
         card.querySelector(".copy-button").addEventListener("click", async (event) => {
           await navigator.clipboard.writeText(order.subscriptionUrl);
           event.currentTarget.textContent = "Ссылка скопирована";
         });
-        card.querySelector(".reset-link-button").addEventListener("click", async (event) => {
-          if (!accessToken) {
-            notice.hidden = false;
-            notice.textContent = "Для старой покупки автоматический перевыпуск недоступен.";
-            return;
-          }
+        card.querySelector(".reset-link-button")?.addEventListener("click", async (event) => {
           if (!window.confirm("Старая ссылка перестанет работать. Перевыпустить календарь?")) return;
           const button = event.currentTarget;
           button.disabled = true;
