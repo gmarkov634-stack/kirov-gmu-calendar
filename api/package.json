@@ -10,6 +10,7 @@
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
     "catalog:omgmu": "node tools/omgmu-catalog.mjs",
+    "parse:omgmu:fourth": "node tools/omgmu-parse-fourth.mjs",
     "parse:omgmu:fifth": "node tools/omgmu-parse-fifth.mjs"
   },
   "dependencies": {
