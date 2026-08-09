@@ -55,11 +55,36 @@ jobs:
           }
           console.log('ОмГМУ landing validation passed');
           NODE
+      - name: Prepare production artifact
+        if: github.event_name != 'pull_request'
+        env:
+          CLOUD_RU_API_URL: ${{ vars.CLOUD_RU_API_URL }}
+        run: |
+          if [ -z "$CLOUD_RU_API_URL" ]; then
+            echo "Repository variable CLOUD_RU_API_URL is required for deployment" >&2
+            exit 2
+          fi
+          case "$CLOUD_RU_API_URL" in
+            https://*) ;;
+            *) echo "CLOUD_RU_API_URL must use https://" >&2; exit 2 ;;
+          esac
+          rm -rf dist/omgmu
+          mkdir -p dist/omgmu
+          cp -R site/omgmu/. dist/omgmu/
+          API_URL="$CLOUD_RU_API_URL" node - <<'NODE'
+          const fs = require('fs');
+          const path = 'dist/omgmu/config.js';
+          const apiUrl = process.env.API_URL.replace(/\/$/, '');
+          const source = fs.readFileSync(path, 'utf8');
+          if (!source.includes('https://REPLACE_WITH_CLOUD_RU_API')) throw new Error('API placeholder missing');
+          fs.writeFileSync(path, source.replace('https://REPLACE_WITH_CLOUD_RU_API', apiUrl));
+          NODE
+          ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/omgmu
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site/omgmu
+          path: dist/omgmu
 
   deploy:
     if: github.event_name != 'pull_request'
