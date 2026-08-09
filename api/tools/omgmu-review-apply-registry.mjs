@@ -71,6 +71,9 @@ for (const entry of approvedEntries) {
     throw new Error(`Parsed events changed for group ${group}: ${actualEventsHash}`);
   }
 
+  const resolvedImportWarnings = Array.isArray(schedule.importWarnings)
+    ? schedule.importWarnings.map(String)
+    : [];
   const review = {
     version: 1,
     group,
@@ -81,10 +84,12 @@ for (const entry of approvedEntries) {
     events,
   };
   const approved = applyApprovedReview(schedule, review, { sourceHash: actualSourceHash });
+  approved.importWarnings = [];
   approved.review = {
     ...approved.review,
     eventsSha256: entry.eventsSha256,
     decision: entry.decision,
+    resolvedImportWarnings,
     applicationConfirmedBy: registry.applicationConfirmedBy,
     applicationConfirmedOn: registry.applicationConfirmedOn,
   };
@@ -95,6 +100,7 @@ for (const entry of approvedEntries) {
     sourceSha256: actualSourceHash,
     eventsSha256: actualEventsHash,
     eventCount: events.length,
+    resolvedImportWarningCount: resolvedImportWarnings.length,
   });
 }
 
