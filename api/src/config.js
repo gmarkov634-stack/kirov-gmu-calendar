@@ -18,6 +18,8 @@ export function loadConfig(env = process.env) {
     yookassaSecretKey: env.YOOKASSA_SECRET_KEY || "",
     yookassaTestMode: env.YOOKASSA_TEST_MODE === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
+    adminToken: env.ADMIN_TOKEN || "",
+    suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
     offerPrice: env.OFFER_PRICE || "490.00",
     offerExpiresAt: env.OFFER_EXPIRES_AT || "2026-08-31T23:59:59+03:00",
     yookassaSendReceipt: env.YOOKASSA_SEND_RECEIPT === "true",
