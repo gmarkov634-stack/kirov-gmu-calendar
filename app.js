@@ -8,33 +8,58 @@ const savedOrders = document.querySelector("#saved-orders");
 const savedOrdersList = document.querySelector("#saved-orders-list");
 const state = { step: "faculty", faculty: null, course: null, group: null };
 const stepOrder = ["faculty", "course", "group", "checkout"];
-const savedOrderKey = "kgmu-calendar-orders-v1";
+const savedOrderKey = "kgmu-calendar-orders-v2";
+const legacySavedOrderKey = "kgmu-calendar-orders-v1";
 const validOrderId = (value) => /^[A-Za-z0-9_-]{32}$/.test(value || "");
+const validAccessToken = (value) => /^[A-Za-z0-9_-]{43}$/.test(value || "");
 
-function readSavedOrderIds() {
+function readSavedOrders() {
   try {
     const values = JSON.parse(localStorage.getItem(savedOrderKey) || "[]");
-    return Array.isArray(values) ? values.filter(validOrderId).slice(0, 10) : [];
+    const current = Array.isArray(values)
+      ? values.filter((value) => validOrderId(value?.orderId) && (!value.accessToken || validAccessToken(value.accessToken)))
+      : [];
+    const legacy = JSON.parse(localStorage.getItem(legacySavedOrderKey) || "[]");
+    const migrated = Array.isArray(legacy)
+      ? legacy.filter(validOrderId).map((orderId) => ({ orderId, accessToken: "" }))
+      : [];
+    return [...current, ...migrated.filter((old) => !current.some((item) => item.orderId === old.orderId))].slice(0, 10);
   } catch {
     return [];
   }
 }
 
-function saveOrderId(orderId) {
+function saveOrder(orderId, accessToken = "") {
   if (!validOrderId(orderId)) return;
-  const values = [orderId, ...readSavedOrderIds().filter((value) => value !== orderId)].slice(0, 10);
+  if (accessToken && !validAccessToken(accessToken)) return;
+  const existing = readSavedOrders().find((value) => value.orderId === orderId);
+  const entry = { orderId, accessToken: accessToken || existing?.accessToken || "" };
+  const values = [entry, ...readSavedOrders().filter((value) => value.orderId !== orderId)].slice(0, 10);
   try { localStorage.setItem(savedOrderKey, JSON.stringify(values)); } catch { /* storage can be unavailable */ }
 }
 
+function orderHeaders(accessToken) {
+  return accessToken ? { "X-Order-Token": accessToken } : {};
+}
+
+function orderPageUrl(orderId, accessToken) {
+  const params = new URLSearchParams({ order: orderId });
+  if (accessToken) params.set("access", accessToken);
+  return `#${params}`;
+}
+
 async function renderSavedOrders() {
-  const orderIds = readSavedOrderIds();
-  if (!orderIds.length) return;
-  const orders = await Promise.all(orderIds.map(async (savedOrderId) => {
+  const saved = readSavedOrders();
+  if (!saved.length) return;
+  const orders = await Promise.all(saved.map(async ({ orderId, accessToken }) => {
     try {
-      const response = await fetch(`${data.apiBase}/api/v1/orders/${savedOrderId}`, { cache: "no-store" });
+      const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, {
+        cache: "no-store",
+        headers: orderHeaders(accessToken),
+      });
       if (!response.ok) return null;
       const order = await response.json();
-      return order.status === "succeeded" ? { id: savedOrderId, group: order.group } : null;
+      return order.status === "succeeded" ? { id: orderId, accessToken, group: order.group } : null;
     } catch {
       return null;
     }
@@ -44,7 +69,7 @@ async function renderSavedOrders() {
   savedOrdersList.replaceChildren(...completed.map((order) => {
     const link = document.createElement("a");
     link.className = "saved-order-link";
-    link.href = `?order=${encodeURIComponent(order.id)}`;
+    link.href = orderPageUrl(order.id, order.accessToken);
     link.textContent = `Открыть группу ${order.group}`;
     return link;
   }));
@@ -162,7 +187,7 @@ async function startPayment(event) {
     });
     const result = await response.json();
     if (!response.ok || !result.confirmationUrl) throw new Error(result.error || "payment_unavailable");
-    saveOrderId(result.orderId);
+    saveOrder(result.orderId, result.accessToken);
     window.location.assign(result.confirmationUrl);
   } catch {
     notice.hidden = false;
@@ -172,7 +197,7 @@ async function startPayment(event) {
   }
 }
 
-async function renderOrderResult(orderId) {
+async function renderOrderResult(orderId, accessToken = "") {
   document.querySelector(".steps").hidden = true;
   backButton.hidden = true;
   kicker.textContent = "Результат оплаты";
@@ -185,23 +210,50 @@ async function renderOrderResult(orderId) {
 
   for (let attempt = 0; attempt < 15; attempt += 1) {
     try {
-      const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, { cache: "no-store" });
+      const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, {
+        cache: "no-store",
+        headers: orderHeaders(accessToken),
+      });
       const order = await response.json();
       if (!response.ok) throw new Error(order.error);
       if (order.status === "succeeded" && order.subscriptionUrl) {
-        saveOrderId(orderId);
+        saveOrder(orderId, accessToken);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
+        const resetButton = accessToken
+          ? '<button class="reset-link-button" type="button">Сбросить переданную ссылку</button>'
+          : "";
         card.innerHTML = `
           <div class="success-mark">✓</div>
           <h3>Группа ${order.group}</h3>
           <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
           <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
           <button class="copy-button" type="button">Скопировать ссылку</button>
+          ${resetButton}
           <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
         card.querySelector(".copy-button").addEventListener("click", async (event) => {
           await navigator.clipboard.writeText(order.subscriptionUrl);
           event.currentTarget.textContent = "Ссылка скопирована";
+        });
+        card.querySelector(".reset-link-button")?.addEventListener("click", async (event) => {
+          if (!window.confirm("Старая ссылка перестанет работать. Перевыпустить календарь?")) return;
+          const button = event.currentTarget;
+          button.disabled = true;
+          button.textContent = "Перевыпускаем…";
+          const resetResponse = await fetch(`${data.apiBase}/api/v1/orders/${orderId}/subscription/reset`, {
+            method: "POST",
+            headers: orderHeaders(accessToken),
+          });
+          if (!resetResponse.ok) {
+            button.disabled = false;
+            button.textContent = "Сбросить переданную ссылку";
+            notice.hidden = false;
+            notice.textContent = "Не удалось перевыпустить ссылку. Попробуйте ещё раз.";
+            return;
+          }
+          await resetResponse.json();
+          title.textContent = "Ссылка перевыпущена";
+          await renderOrderResult(orderId, accessToken);
         });
         return;
       }
@@ -234,10 +286,12 @@ backButton.addEventListener("click", () => {
   else if (state.step === "group") setStep("course");
   else setStep("faculty");
 });
-const orderId = new URLSearchParams(window.location.search).get("order");
+const pageParams = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
+const orderId = pageParams.get("order");
+const accessToken = pageParams.get("access") || "";
 if (validOrderId(orderId)) {
-  saveOrderId(orderId);
-  renderOrderResult(orderId);
+  saveOrder(orderId, accessToken);
+  renderOrderResult(orderId, accessToken);
 } else {
   render();
   renderSavedOrders();

@@ -114,6 +114,10 @@ export class ScheduleStore {
   async putSubscription(token, value) {
     if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new Error("Invalid subscription token");
     await this.#writeJson(`subscriptions/${tokenHash(token)}.json`, value);
+    this.cache.set(`subscription:${tokenHash(token)}`, {
+      value,
+      expiresAt: Date.now() + this.config.cacheTtlMs,
+    });
   }
 
   async #readJson(key) {

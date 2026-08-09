@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import { YooKassaService } from "../src/yookassa.js";
 
@@ -24,6 +25,7 @@ function memoryStore() {
     putOrder: async (id, value) => orders.set(id, structuredClone(value)),
     getOrder: async (id) => structuredClone(orders.get(id) || null),
     putSubscription: async (token, value) => subscriptions.set(token, structuredClone(value)),
+    getSubscription: async (token) => structuredClone(subscriptions.get(token) || null),
   };
 }
 
@@ -47,6 +49,9 @@ test("payment creation uses server offer and receipt data", async () => {
   });
   assert.equal(result.confirmationUrl, "https://yookassa.test/pay");
   assert.match(result.orderId, /^[A-Za-z0-9_-]{32}$/);
+  assert.match(result.accessToken, /^[A-Za-z0-9_-]{43}$/);
+  assert.match(request.body.confirmation.return_url, new RegExp(`#order=${result.orderId}&access=${result.accessToken}$`));
+  assert.equal(store.orders.get(result.orderId).accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
   assert.equal(request.body.amount.value, "490.00");
   assert.equal(request.body.metadata.order_id, result.orderId);
   assert.equal(request.body.receipt.customer.email, "student@example.com");
@@ -125,4 +130,67 @@ test("test mode rejects a payment created by a real shop", async () => {
     email: "student@example.com",
     schedule: { faculty: "pediatrics", course: 1, academicYear: "2025-2026", semester: 2 },
   }), /real payment/);
+});
+
+test("protected order requires its separate access token", async () => {
+  const store = memoryStore();
+  const orderId = "o".repeat(32);
+  const accessToken = "a".repeat(43);
+  await store.putOrder(orderId, {
+    orderId,
+    status: "succeeded",
+    group: "132",
+    accessTokenHash: createHash("sha256").update(accessToken).digest("hex"),
+    subscriptionUrl: "https://api.example.test/api/v1/subscriptions/" + "s".repeat(43) + "/calendar.ics",
+  });
+  const service = new YooKassaService({ config, store });
+  await assert.rejects(service.getOrder(orderId, { reconcile: false }), /access denied/);
+  await assert.rejects(service.getOrder(orderId, { reconcile: false, accessToken: "x".repeat(43) }), /access denied/);
+  assert.equal((await service.getOrder(orderId, { reconcile: false, accessToken })).group, "132");
+});
+
+test("owner can revoke an exposed subscription and receive a new one", async () => {
+  const store = memoryStore();
+  const orderId = "o".repeat(32);
+  const accessToken = "a".repeat(43);
+  const oldToken = "s".repeat(43);
+  await store.putSubscription(oldToken, {
+    version: 1,
+    status: "active",
+    group: "132",
+    faculty: "pediatrics",
+    course: 1,
+    academicYear: "2025-2026",
+    semester: 2,
+    expiresAt: config.offerExpiresAt,
+    orderId,
+  });
+  await store.putOrder(orderId, {
+    orderId,
+    status: "succeeded",
+    group: "132",
+    accessTokenHash: createHash("sha256").update(accessToken).digest("hex"),
+    subscriptionUrl: `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`,
+  });
+  const service = new YooKassaService({ config, store });
+  const rotated = await service.rotateSubscription(orderId, accessToken);
+  assert.notEqual(rotated.subscriptionUrl, `https://api.example.test/api/v1/subscriptions/${oldToken}/calendar.ics`);
+  assert.equal(store.subscriptions.get(oldToken).status, "revoked");
+  const nextToken = rotated.subscriptionUrl.match(/subscriptions\/([^/]+)\/calendar\.ics$/)[1];
+  assert.equal(store.subscriptions.get(nextToken).status, "active");
+  assert.equal(store.orders.get(orderId).subscriptionGeneration, 1);
+});
+
+test("legacy order stays readable but cannot be reset without an ownership secret", async () => {
+  const store = memoryStore();
+  const orderId = "o".repeat(32);
+  await store.putOrder(orderId, {
+    orderId,
+    status: "succeeded",
+    group: "132",
+    subscriptionUrl: "https://api.example.test/api/v1/subscriptions/" + "s".repeat(43) + "/calendar.ics",
+  });
+  const service = new YooKassaService({ config, store });
+  assert.equal((await service.getOrder(orderId, { reconcile: false })).group, "132");
+  await assert.rejects(service.rotateSubscription(orderId, ""), /access denied/);
 });
