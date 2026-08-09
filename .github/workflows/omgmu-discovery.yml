@@ -60,7 +60,7 @@ jobs:
       - name: Parse third-course schedules
         run: npm run parse:omgmu:weekly -- --input=data/imports/omgmu-pdfs/05_medicine-international_course-3_combined.pdf --course=3 --output=data/imports/omgmu-schedules
       - name: Parse fourth-course schedules
-        run: npm run parse:omgmu:fourth -- --lectures=data/imports/omgmu-text/06_medicine-international_course-4_lectures.txt --cycles=data/imports/omgmu-text/07_medicine-international_course-4_cycles.txt --output=data/imports/omgmu-schedules
+        run: npm run parse:omgmu:fourth -- --lectures=data/imports/omgmu-text/06_medicine-international_course-4_lectures.txt --cycles=data/imports/omgmu-pdfs/07_medicine-international_course-4_cycles.pdf --output=data/imports/omgmu-schedules
       - name: Parse fifth-course schedule
         run: npm run parse:omgmu:fifth -- --input=data/imports/omgmu-text/08_medicine-international_course-5_combined.txt --output=data/imports/omgmu-schedules/585.json
       - name: Validate normalized schedule coverage
@@ -74,7 +74,7 @@ jobs:
             '385', '386', '387', '388', '389', '393', '394', '395',
             '485', '486', '585'
           ];
-          const manualReview = ['2108', '2111', '386', '393'];
+          const manualReview = ['2113', '2114', '389', '393'];
           const missing = expected.filter(code => !fs.existsSync(`${path}/${code}.json`));
           const empty = expected.filter(code => {
             const file = `${path}/${code}.json`;
@@ -96,7 +96,7 @@ jobs:
           if (missing.length || empty.length) process.exit(2);
           NODE
       - name: Check normalized schedule quality
-        run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json --manual-review=2108,2111,386,393
+        run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json --manual-review=2113,2114,389,393
       - name: Build publication dry run
         run: npm run publish:omgmu:plan -- --input=data/imports/omgmu-schedules --output=data/publication/omgmu --expected-publishable=39 --expected-blocked=4
       - name: Upload source manifest
