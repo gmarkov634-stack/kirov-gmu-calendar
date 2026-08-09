@@ -59,6 +59,10 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
 
+  if (config.checkoutEnabled !== true) {
+    status.textContent = 'Продажи временно приостановлены до завершения проверки расписаний.';
+    return;
+  }
   if (!courseSelect.value || !groupSelect.value) {
     status.textContent = 'Выберите курс и группу.';
     return;
