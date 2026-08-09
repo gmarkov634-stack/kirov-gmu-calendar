@@ -80,6 +80,8 @@ jobs:
           if (empty.length) console.error(`Empty: ${empty.join(', ')}`);
           if (missing.length || empty.length) process.exit(2);
           NODE
+      - name: Check normalized schedule quality
+        run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json
       - name: Upload source manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -112,5 +114,13 @@ jobs:
         with:
           name: omgmu-normalized-schedules
           path: api/data/imports/omgmu-schedules
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload quality report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-quality-report
+          path: api/data/imports/omgmu-quality-report.json
           if-no-files-found: error
           retention-days: 14
