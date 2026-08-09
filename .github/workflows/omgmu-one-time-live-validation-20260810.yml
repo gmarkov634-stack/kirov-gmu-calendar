@@ -1,4 +1,4 @@
-name: One-time validate live ОмГМУ schedules
+name: One-time diagnose live ОмГМУ schedules
 
 on:
   push:
@@ -12,37 +12,37 @@ permissions:
 
 jobs:
   validate:
-    if: github.event.head_commit.message == 'Validate live ОмГМУ schedules after S3 publication'
+    if: github.event.head_commit.message == 'Diagnose live ОмГМУ validation after S3 publication'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch live API and landing resources
+      - name: Fetch live resources with diagnostics
         run: |
           mkdir -p live-check
           API_BASE="https://kgmu-calendar-api.containerapps.ru"
           SITE_BASE="https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu"
-          curl --fail-with-body --silent --show-error --max-time 30 "$API_BASE/health" -o live-check/health.json
-          curl --fail-with-body --silent --show-error --max-time 30 \
-            "$API_BASE/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/schedule?groupCode=1101&stream=1" \
-            -o live-check/1101.json
-          for spec in \
-            "2113|2|omgmu%3Amedicine-international%3A2%3Astream-2%3A2113|2" \
-            "2114|2|omgmu%3Amedicine-international%3A2%3Astream-2%3A2114|2" \
-            "389|3|omgmu%3Amedicine-international%3A3%3A389|" \
-            "393|3|omgmu%3Amedicine-international%3A3%3A393|"
-          do
-            IFS='|' read -r group course group_id stream <<< "$spec"
-            url="$API_BASE/api/v2/schedules/omgmu/medicine-international/$course/$group_id/schedule?groupCode=$group"
-            if [ -n "$stream" ]; then url="$url&stream=$stream"; fi
-            status="$(curl --silent --show-error --max-time 30 -o "live-check/$group.json" -w '%{http_code}' "$url")"
-            printf '%s' "$status" > "live-check/$group.status"
-          done
-          curl --fail-with-body --silent --show-error --max-time 30 "$SITE_BASE/config.js" -o live-check/config.js
-          curl --fail-with-body --silent --show-error --max-time 30 "$SITE_BASE/groups.js" -o live-check/groups.js
+          fetch_resource() {
+            name="$1"
+            url="$2"
+            status="$(curl --silent --show-error --location --max-time 30 \
+              --output "live-check/$name.body" \
+              --write-out '%{http_code}' \
+              "$url" 2>"live-check/$name.stderr" || true)"
+            printf '%s' "${status:-000}" > "live-check/$name.status"
+            printf '%s' "$url" > "live-check/$name.url"
+          }
+          fetch_resource health "$API_BASE/health"
+          fetch_resource 1101 "$API_BASE/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/schedule?groupCode=1101&stream=1"
+          fetch_resource 2113 "$API_BASE/api/v2/schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2113/schedule?groupCode=2113&stream=2"
+          fetch_resource 2114 "$API_BASE/api/v2/schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2114/schedule?groupCode=2114&stream=2"
+          fetch_resource 389 "$API_BASE/api/v2/schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A389/schedule?groupCode=389"
+          fetch_resource 393 "$API_BASE/api/v2/schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A393/schedule?groupCode=393"
+          fetch_resource config "$SITE_BASE/config.js"
+          fetch_resource groups "$SITE_BASE/groups.js"
 
-      - name: Validate live data
+      - name: Build detailed validation report
         env:
           REPORT_PATH: ops/reports/omgmu-live-validation-20260810.json
         run: |
@@ -55,24 +55,58 @@ jobs:
 
           root = Path('live-check')
           errors = []
-          health = json.loads((root / 'health.json').read_text(encoding='utf-8'))
-          if health.get('status') != 'ok':
+          resources = {}
+
+          def status(name):
+              value = (root / f'{name}.status').read_text(encoding='utf-8').strip() or '000'
+              try:
+                  return int(value)
+              except ValueError:
+                  return 0
+
+          def body(name):
+              path = root / f'{name}.body'
+              return path.read_text(encoding='utf-8', errors='replace') if path.exists() else ''
+
+          def parse_json(name):
+              try:
+                  return json.loads(body(name))
+              except Exception as exc:
+                  errors.append(f'{name}: invalid JSON: {exc}')
+                  return {}
+
+          for name in ('health', '1101', '2113', '2114', '389', '393', 'config', 'groups'):
+              stderr_path = root / f'{name}.stderr'
+              resources[name] = {
+                  'url': (root / f'{name}.url').read_text(encoding='utf-8'),
+                  'httpStatus': status(name),
+                  'stderr': stderr_path.read_text(encoding='utf-8', errors='replace')[:1000] if stderr_path.exists() else '',
+                  'bodyPreview': body(name)[:1000],
+              }
+
+          health = parse_json('health') if status('health') == 200 else {}
+          if status('health') != 200:
+              errors.append(f"health endpoint returned HTTP {status('health')}")
+          elif health.get('status') != 'ok':
               errors.append(f"health status is {health.get('status')!r}")
 
-          schedule = json.loads((root / '1101.json').read_text(encoding='utf-8'))
+          schedule = parse_json('1101') if status('1101') == 200 else {}
+          if status('1101') != 200:
+              errors.append(f"group 1101 returned HTTP {status('1101')}")
           events = schedule.get('events') if isinstance(schedule.get('events'), list) else []
           starts = sorted(str(item.get('start', '')) for item in events)
           dates = [value[:10] for value in starts if len(value) >= 10]
-          if schedule.get('group', {}).get('code') != '1101':
-              errors.append('live schedule has the wrong group code')
-          if len(events) != 230:
-              errors.append(f"group 1101 event count is {len(events)}, expected 230")
           first_date = min(dates) if dates else None
           last_date = max(dates) if dates else None
-          if first_date != '2026-04-06':
-              errors.append(f"group 1101 first date is {first_date}")
-          if last_date != '2026-08-03':
-              errors.append(f"group 1101 last date is {last_date}")
+          if status('1101') == 200:
+              if schedule.get('group', {}).get('code') != '1101':
+                  errors.append('live schedule has the wrong group code')
+              if len(events) != 230:
+                  errors.append(f"group 1101 event count is {len(events)}, expected 230")
+              if first_date != '2026-04-06':
+                  errors.append(f"group 1101 first date is {first_date}")
+              if last_date != '2026-08-03':
+                  errors.append(f"group 1101 last date is {last_date}")
 
           ids = set()
           suspicious = []
@@ -91,34 +125,38 @@ jobs:
           if suspicious:
               errors.append(f"suspicious titles: {suspicious[:5]}")
 
-          blocked_statuses = {}
-          for group in ('2113', '2114', '389', '393'):
-              status = (root / f'{group}.status').read_text(encoding='utf-8').strip()
-              blocked_statuses[group] = int(status)
-              if status != '404':
-                  errors.append(f"blocked group {group} returned HTTP {status}")
+          blocked_statuses = {group: status(group) for group in ('2113', '2114', '389', '393')}
+          for group, value in blocked_statuses.items():
+              if value != 404:
+                  errors.append(f"blocked group {group} returned HTTP {value}")
 
-          config_text = (root / 'config.js').read_text(encoding='utf-8')
-          checkout_disabled = bool(re.search(r'checkoutEnabled\s*:\s*false', config_text))
-          if not checkout_disabled:
+          config_text = body('config')
+          checkout_disabled = status('config') == 200 and bool(re.search(r'checkoutEnabled\s*:\s*false', config_text))
+          if status('config') != 200:
+              errors.append(f"live config.js returned HTTP {status('config')}")
+          elif not checkout_disabled:
               errors.append('checkoutEnabled is not false on the live landing')
 
-          groups_text = (root / 'groups.js').read_text(encoding='utf-8')
+          groups_text = body('groups')
           groups = sorted(set(re.findall(r'"(\d{3,4})"', groups_text)), key=int)
-          if len(groups) != 39:
-              errors.append(f"live landing exposes {len(groups)} groups, expected 39")
-          for group in ('2113', '2114', '389', '393'):
-              if group in groups:
-                  errors.append(f"blocked group {group} is exposed on the live landing")
-          for group in ('2108', '2111', '386'):
-              if group not in groups:
-                  errors.append(f"verified group {group} is missing from the live landing")
+          if status('groups') != 200:
+              errors.append(f"live groups.js returned HTTP {status('groups')}")
+          else:
+              if len(groups) != 39:
+                  errors.append(f"live landing exposes {len(groups)} groups, expected 39")
+              for group in ('2113', '2114', '389', '393'):
+                  if group in groups:
+                      errors.append(f"blocked group {group} is exposed on the live landing")
+              for group in ('2108', '2111', '386'):
+                  if group not in groups:
+                      errors.append(f"verified group {group} is missing from the live landing")
 
           report = {
               'version': 1,
               'university': 'omgmu',
               'operation': 'live-validation-after-s3-publication',
               'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'resources': resources,
               'health': health,
               'group1101': {
                   'eventCount': len(events),
@@ -129,7 +167,6 @@ jobs:
               },
               'blockedHttpStatuses': blocked_statuses,
               'landing': {
-                  'checkoutEnabled': not checkout_disabled,
                   'checkoutDisabled': checkout_disabled,
                   'groupCount': len(groups),
                   'groups': groups,
@@ -145,14 +182,14 @@ jobs:
               raise SystemExit(2)
           PY
 
-      - name: Record live validation result
+      - name: Record diagnostic result
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p ops/reports
           if [ ! -f ops/reports/omgmu-live-validation-20260810.json ]; then
-            printf '{"version":1,"university":"omgmu","operation":"live-validation-after-s3-publication","validationStatus":"failure","errors":["validation report was not generated"]}\n' > ops/reports/omgmu-live-validation-20260810.json
+            printf '{"version":1,"university":"omgmu","operation":"live-validation-after-s3-publication","validationStatus":"failure","errors":["diagnostic report was not generated"]}\n' > ops/reports/omgmu-live-validation-20260810.json
           fi
           python - <<'PY'
           import json
@@ -166,5 +203,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ops/reports/omgmu-live-validation-20260810.json
-          git commit -m "Record live ОмГМУ validation result" || true
+          git commit -m "Record diagnostic live ОмГМУ validation result" || true
           git push
