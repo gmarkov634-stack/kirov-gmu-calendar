@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ОмГМУ — ручная проверка расписания</title>
+  <style>
+    body{font-family:system-ui,sans-serif;margin:0;background:#f5f7fb;color:#182033} header{padding:18px 24px;background:white;border-bottom:1px solid #dfe4ee} main{padding:20px;max-width:1200px;margin:auto}.toolbar,.meta,.event{background:white;border:1px solid #dfe4ee;border-radius:12px;padding:14px;margin-bottom:14px}.toolbar{display:flex;gap:10px;flex-wrap:wrap}button,label.file{border:0;border-radius:9px;padding:10px 14px;background:#2457d6;color:white;cursor:pointer}button.secondary{background:#64748b}button.danger{background:#b42318}input{padding:9px;border:1px solid #cbd5e1;border-radius:8px;width:100%;box-sizing:border-box}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.event{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr auto;gap:8px;align-items:end}.muted{color:#64748b;font-size:14px}.error{color:#b42318;font-weight:600}@media(max-width:800px){.event,.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><h1>ОмГМУ — ручная проверка</h1><div class="muted">Файл обрабатывается только в браузере и никуда не отправляется.</div></header>
+<main>
+  <div class="toolbar">
+    <label class="file">Открыть review.json<input id="file" type="file" accept="application/json" hidden></label>
+    <button id="add" class="secondary">Добавить занятие</button>
+    <button id="approve">Утвердить и скачать</button>
+  </div>
+  <div id="status" class="error"></div>
+  <section class="meta">
+    <div class="grid">
+      <label>Группа<input id="group" readonly></label>
+      <label>SHA-256 источника<input id="hash" readonly></label>
+      <label>Проверил<input id="reviewedBy" placeholder="ФИО или логин"></label>
+      <label>Дата проверки<input id="reviewedAt" type="datetime-local"></label>
+    </div>
+  </section>
+  <div id="events"></div>
+</main>
+<script>
+let review=null;
+const q=id=>document.getElementById(id);
+function render(){
+  q('events').innerHTML='';
+  if(!review)return;
+  q('group').value=review.group||''; q('hash').value=review.sourceSha256||'';
+  q('reviewedBy').value=review.reviewedBy||'';
+  q('reviewedAt').value=review.reviewedAt?review.reviewedAt.slice(0,16):'';
+  review.events.forEach((event,index)=>{
+    const row=document.createElement('div'); row.className='event';
+    row.innerHTML=`<label>Название<input data-k="title" value="${esc(event.title||'')}"></label><label>Начало<input data-k="start" value="${esc(event.start||'')}"></label><label>Окончание<input data-k="end" value="${esc(event.end||'')}"></label><label>Адрес<input data-k="location" value="${esc(event.location||'')}"></label><button class="danger">Удалить</button>`;
+    row.querySelectorAll('input').forEach(input=>input.oninput=()=>review.events[index][input.dataset.k]=input.value);
+    row.querySelector('button').onclick=()=>{review.events.splice(index,1);render()}; q('events').append(row);
+  });
+}
+function esc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+q('file').onchange=async e=>{try{review=JSON.parse(await e.target.files[0].text());if(!Array.isArray(review.events))review.events=[];q('status').textContent='';render()}catch{q('status').textContent='Не удалось прочитать JSON'}};
+q('add').onclick=()=>{if(!review)return q('status').textContent='Сначала откройте review.json';review.events.push({title:'',start:'',end:'',location:''});render()};
+q('approve').onclick=()=>{
+  if(!review)return q('status').textContent='Сначала откройте review.json';
+  review.reviewedBy=q('reviewedBy').value.trim(); const local=q('reviewedAt').value;
+  review.reviewedAt=local?new Date(local).toISOString():''; review.status='approved';
+  const errors=[]; if(!review.reviewedBy)errors.push('укажите проверяющего'); if(!review.reviewedAt)errors.push('укажите дату'); if(!review.events.length)errors.push('добавьте занятия');
+  review.events.forEach((e,i)=>{if(!e.title||!Date.parse(e.start)||!Date.parse(e.end)||Date.parse(e.end)<=Date.parse(e.start))errors.push(`проверьте занятие ${i+1}`)});
+  if(errors.length){q('status').textContent=errors.join('; ');return}
+  const blob=new Blob([JSON.stringify(review,null,2)+'\n'],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${review.group}.review.json`;a.click();URL.revokeObjectURL(a.href);q('status').textContent='';
+};
+</script>
+</body>
+</html>
