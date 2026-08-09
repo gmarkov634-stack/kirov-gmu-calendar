@@ -30,9 +30,22 @@ test("local store persists private orders and generated subscriptions", async ()
     const orderId = "o".repeat(32);
     const token = "s".repeat(43);
     await store.putOrder(orderId, { status: "pending" });
-    await store.putSubscription(token, { version: 1, group: "132" });
+    await store.putSubscription(token, {
+      version: 1,
+      status: "active",
+      group: "132",
+      orderId,
+      createdAt: "2026-08-09T12:00:00.000Z",
+    });
     assert.deepEqual(await store.getOrder(orderId), { status: "pending" });
-    assert.deepEqual(await store.getSubscription(token), { version: 1, group: "132" });
+    assert.equal((await store.getSubscription(token)).group, "132");
+    const [record] = await store.listSubscriptionAccess();
+    assert.equal(record.group, "132");
+    assert.equal(record.orderId, orderId);
+    assert.equal(record.sourceCount, 0);
+    assert.equal(record.totalRequests, 0);
+    assert.equal(record.suspicious, false);
+    assert.equal(record.lastSeenAt, null);
   } finally {
     await fs.rm(dataDir, { recursive: true, force: true });
   }
@@ -45,6 +58,9 @@ test("access monitor marks many recent sources and revocation clears the cached 
     const token = "m".repeat(43);
     const subscription = { version: 1, status: "active", group: "133", orderId: "o".repeat(32) };
     await store.putSubscription(token, subscription);
+    const [issued] = await store.listSubscriptionAccess();
+    assert.equal(issued.sourceCount, 0);
+    assert.equal(issued.totalRequests, 0);
     for (let index = 0; index < 3; index += 1) {
       await store.recordSubscriptionAccess(token, subscription, {
         fingerprint: String(index).repeat(64),
