@@ -47,6 +47,9 @@ export function inspectSchedule(schedule) {
 
   if (!schedule?.group?.code) issues.push(issue("error", "missing-group-code", group, null, "Отсутствует код группы"));
   if (!events.length) issues.push(issue("error", "empty-schedule", group, null, "Расписание не содержит событий"));
+  for (const warning of Array.isArray(schedule?.importWarnings) ? schedule.importWarnings : []) {
+    issues.push(issue("error", "import-warning", group, null, String(warning)));
+  }
 
   const sorted = [...events].sort((a, b) => String(a.start).localeCompare(String(b.start)));
   for (const event of sorted) {
@@ -63,7 +66,7 @@ export function inspectSchedule(schedule) {
     if (/РАСПИСАНИЕ|ГРУППА|ПОНЕДЕЛЬНИК|ВТОРНИК|СРЕДА|ЧЕТВЕРГ|ПЯТНИЦА|СУББОТА/i.test(title)) {
       issues.push(issue("error", "header-in-title", group, event, "В название занятия попал заголовок таблицы"));
     }
-    if (/\b\d{1,2}[.:]\d{2}\b/.test(title)) {
+    if (/\b\d{1,2}[.:]\d{1,2}\b/.test(title)) {
       issues.push(issue("error", "date-or-time-in-title", group, event, "В названии занятия остался фрагмент даты или времени"));
     }
     if (/занятий\s+предусмотрены|сокращени[яе]|информационн(?:ая|ое)\s+сообщени/i.test(title)) {
