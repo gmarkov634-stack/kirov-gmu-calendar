@@ -29,16 +29,32 @@ function foldLine(line) {
   return chunks.join("\r\n");
 }
 
+const UNIVERSITY_NAMES = {
+  kgmu: "КГМУ",
+  omgmu: "ОмГМУ",
+  pgmu: "ПГМУ",
+};
+
+function calendarIdentity(schedule) {
+  const university = schedule.university || "kgmu";
+  const universityName = schedule.universityName || UNIVERSITY_NAMES[university] || university.toUpperCase();
+  const timezone = schedule.timezone || (university === "omgmu" ? "Asia/Omsk" : university === "pgmu" ? "Asia/Yekaterinburg" : "Europe/Moscow");
+  const groupCode = schedule.group?.code || schedule.groupCode || schedule.group;
+  const groupName = schedule.group?.displayName || schedule.groupDisplayName || `Группа ${groupCode}`;
+  return { university, universityName, timezone, groupCode, groupName };
+}
+
 export function buildCalendar(schedule, publicBaseUrl = "") {
   const generatedAt = utcStamp(new Date());
+  const identity = calendarIdentity(schedule);
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Календарь КГМУ//Расписание//RU",
+    `PRODID:-//Календарь ${escapeIcs(identity.universityName)}//Расписание//RU`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeIcs(`КГМУ · группа ${schedule.group}`)}`,
-    "X-WR-TIMEZONE:Europe/Moscow",
+    `X-WR-CALNAME:${escapeIcs(`${identity.universityName} · ${identity.groupName}`)}`,
+    `X-WR-TIMEZONE:${escapeIcs(identity.timezone)}`,
     "X-PUBLISHED-TTL:PT6H",
   ];
 
@@ -50,7 +66,7 @@ export function buildCalendar(schedule, publicBaseUrl = "") {
     ].filter(Boolean).join("\n\n");
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${escapeIcs(event.id)}@kgmu-calendar`,
+      `UID:${escapeIcs(event.id)}@${identity.university}-calendar`,
       `DTSTAMP:${generatedAt}`,
       `DTSTART:${utcStamp(event.start)}`,
       `DTEND:${utcStamp(event.end)}`,
