@@ -5,6 +5,12 @@ function isoDate(date) {
   return date.toISOString().slice(0, 10);
 }
 
+function stableHash(value) {
+  let hash = 5381;
+  for (const character of String(value)) hash = ((hash << 5) + hash) ^ character.charCodeAt(0);
+  return (hash >>> 0).toString(36);
+}
+
 function rangeDates(start, end, { weekday = null, includeSaturday = false } = {}) {
   const dates = [];
   const cursor = new Date(Date.UTC(2026, start.month - 1, start.day));
@@ -131,14 +137,17 @@ export function parseFourthCourseCycles(text) {
 
 function scheduleFor(groupCode, lectureRecords, cycleRecords, sources) {
   const records = [...lectureRecords, ...cycleRecords];
-  const events = records.flatMap((record) => record.dates.map((date) => ({
-    id: `omgmu-${groupCode}-${date}-${record.startTime.replace(":", "")}-${record.kind}`,
-    title: `${record.kind === "lecture" ? "Лекция" : "Цикл"}: ${record.discipline}`,
-    start: `${date}T${record.startTime}:00+06:00`,
-    end: `${date}T${record.endTime}:00+06:00`,
-    location: record.location || "",
-    sourceType: record.kind,
-  })));
+  const events = records.flatMap((record) => {
+    const disciplineHash = stableHash(record.discipline);
+    return record.dates.map((date) => ({
+      id: `omgmu-${groupCode}-${date}-${record.startTime.replace(":", "")}-${record.kind}-${disciplineHash}`,
+      title: `${record.kind === "lecture" ? "Лекция" : "Цикл"}: ${record.discipline}`,
+      start: `${date}T${record.startTime}:00+06:00`,
+      end: `${date}T${record.endTime}:00+06:00`,
+      location: record.location || "",
+      sourceType: record.kind,
+    }));
+  });
   events.sort((a, b) => a.start.localeCompare(b.start));
   return {
     version: 1,
