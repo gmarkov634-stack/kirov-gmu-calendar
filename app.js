@@ -6,12 +6,11 @@ const backButton = document.querySelector("#back-button");
 const notice = document.querySelector("#notice");
 const savedOrders = document.querySelector("#saved-orders");
 const savedOrdersList = document.querySelector("#saved-orders-list");
+const { validOrderId, validAccessToken, orderPageUrl, findPurchasedOrder } = window.CALENDAR_APP_UTILS;
 const state = { step: "faculty", faculty: null, course: null, group: null };
 const stepOrder = ["faculty", "course", "group", "checkout"];
 const savedOrderKey = "kgmu-calendar-orders-v2";
 const legacySavedOrderKey = "kgmu-calendar-orders-v1";
-const validOrderId = (value) => /^[A-Za-z0-9_-]{32}$/.test(value || "");
-const validAccessToken = (value) => /^[A-Za-z0-9_-]{43}$/.test(value || "");
 let scrollToReadyLink = false;
 
 function readSavedOrders() {
@@ -41,12 +40,6 @@ function saveOrder(orderId, accessToken = "") {
 
 function orderHeaders(accessToken) {
   return accessToken ? { "X-Order-Token": accessToken } : {};
-}
-
-function orderPageUrl(orderId, accessToken) {
-  const params = new URLSearchParams({ order: orderId });
-  if (accessToken) params.set("access", accessToken);
-  return `#${params}`;
 }
 
 async function renderSavedOrders() {
@@ -142,9 +135,40 @@ function renderGroups() {
   });
 }
 
-function renderCheckout() {
+async function loadSavedOrder(orderId, accessToken) {
+  const response = await fetch(`${data.apiBase}/api/v1/orders/${orderId}`, {
+    cache: "no-store",
+    headers: orderHeaders(accessToken),
+  });
+  if (!response.ok) throw new Error("order_unavailable");
+  return response.json();
+}
+
+function renderPurchasedGroup(wrapper, purchased) {
+  title.textContent = `Группа ${state.group} уже куплена`;
+  wrapper.innerHTML = `
+    <div class="success-mark">✓</div>
+    <h3>Эта группа уже куплена</h3>
+    <p>Повторно оплачивать не нужно. Откройте сохранённый доступ к календарю.</p>
+    <a class="pay-button link-button" href="${orderPageUrl(purchased.orderId, purchased.accessToken)}">Открыть группу ${state.group}</a>`;
+  wrapper.querySelector("a").addEventListener("click", () => { scrollToReadyLink = true; });
+}
+
+async function renderCheckout() {
+  const selectedGroup = String(state.group);
   title.textContent = `Группа ${state.group}`;
   const wrapper = document.createElement("div");
+  wrapper.className = "checkout-card result-card";
+  wrapper.innerHTML = "<div class=\"loading-dot\"></div><p>Проверяем сохранённые покупки…</p>";
+  grid.append(wrapper);
+
+  const purchased = await findPurchasedOrder(selectedGroup, readSavedOrders(), loadSavedOrder);
+  if (state.step !== "checkout" || String(state.group) !== selectedGroup || !wrapper.isConnected) return;
+  if (purchased) {
+    renderPurchasedGroup(wrapper, purchased);
+    return;
+  }
+
   wrapper.className = "checkout-card";
   const testNote = data.offer.testMode ? `
       <div class="test-payment-note">
@@ -165,7 +189,6 @@ function renderCheckout() {
       <button class="pay-button" type="submit">${payLabel} · ${data.offer.price}</button>
       <p class="form-hint">После оплаты вернитесь на эту страницу — персональная ссылка появится автоматически.</p>
     </form>`;
-  grid.append(wrapper);
   wrapper.querySelector("form").addEventListener("submit", startPayment);
 }
 
