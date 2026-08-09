@@ -36,9 +36,13 @@ test("publishes only trusted approved manual events", () => {
   assert.equal(publicationDecision(approved).publish, true);
 });
 
-test("reports publishable and blocked schedules", () => {
+test("reports publishable and blocked schedules with storage keys", () => {
   const plan = buildPublicationPlan([schedule("2101"), schedule("2113")]);
   assert.equal(plan.publishable.length, 1);
   assert.equal(plan.blocked.length, 1);
   assert.equal(plan.blocked[0].reason, "manual-review-pending");
+  assert.equal(
+    plan.blocked[0].key,
+    "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3A2113.json",
+  );
 });
