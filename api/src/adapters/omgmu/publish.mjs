@@ -33,11 +33,19 @@ export function publicationDecision(schedule) {
 export function buildPublicationPlan(schedules) {
   const entries = schedules.map((schedule) => {
     const decision = publicationDecision(schedule);
-    return {
+    const entry = {
       group: String(schedule?.group?.code || ""),
       ...decision,
       schedule,
     };
+    if (!entry.key) {
+      try {
+        entry.key = scheduleObjectKey(schedule);
+      } catch {
+        // Invalid schedules remain blocked without a storage key.
+      }
+    }
+    return entry;
   });
   return {
     version: 1,
