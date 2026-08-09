@@ -64,10 +64,11 @@ export function detectGroupColumns(text) {
   }
 
   if (best.length < 2) return [];
+  const centers = best.map((match) => match.index + match[1].length / 2);
   return best.map((match, index) => ({
     code: match[1],
-    start: match.index,
-    end: best[index + 1]?.index ?? bestLineLength + 30,
+    start: Math.max(0, Math.floor(index === 0 ? centers[0] - (centers[1] - centers[0]) / 2 : (centers[index - 1] + centers[index]) / 2)),
+    end: Math.ceil(index === best.length - 1 ? Math.max(bestLineLength + 60, centers[index] + (centers[index] - centers[index - 1]) / 2) : (centers[index] + centers[index + 1]) / 2),
   }));
 }
 
