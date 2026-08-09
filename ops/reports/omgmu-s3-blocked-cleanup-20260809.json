@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "delete-blocked-schedules",
+  "generatedAt": "2026-08-09T22:34:03.809Z",
+  "bucket": "kgmu-calendar-data-gmarkov634",
+  "endpoint": "https://s3.cloud.ru",
+  "deleted": [
+    "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2113.json",
+    "schedules/omgmu/medicine-international/2/omgmu%3Amedicine-international%3A2%3Astream-2%3A2114.json",
+    "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A389.json"
+  ],
+  "alreadyAbsent": [
+    "schedules/omgmu/medicine-international/3/omgmu%3Amedicine-international%3A3%3A393.json"
+  ],
+  "jobStatus": "success"
+}
