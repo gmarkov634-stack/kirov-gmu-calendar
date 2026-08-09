@@ -51,17 +51,24 @@ function russianSection(text) {
 
 export function detectGroupColumns(text) {
   const lines = russianSection(text).split(/\r?\n/);
+  let best = [];
+  let bestLineLength = 0;
+
   for (const line of lines) {
-    const matches = [...line.matchAll(/(?<!\d)(\d{3,4})(?!\d)/g)];
-    if (matches.length >= 2) {
-      return matches.map((match, index) => ({
-        code: match[1],
-        start: match.index,
-        end: matches[index + 1]?.index ?? line.length + 30,
-      }));
+    const matches = [...line.matchAll(/(?<!\d)(\d{3,4})(?!\d)/g)]
+      .filter((match) => !["2025", "2026"].includes(match[1]));
+    if (matches.length > best.length) {
+      best = matches;
+      bestLineLength = line.length;
     }
   }
-  return [];
+
+  if (best.length < 2) return [];
+  return best.map((match, index) => ({
+    code: match[1],
+    start: match.index,
+    end: best[index + 1]?.index ?? bestLineLength + 30,
+  }));
 }
 
 function cleanTitle(value) {
