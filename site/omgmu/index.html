@@ -21,7 +21,7 @@
     <section class="benefits shell" aria-label="Преимущества">
       <article><strong>Автоматические обновления</strong><span>Изменения появляются без повторного импорта.</span></article>
       <article><strong>Часовой пояс Омска</strong><span>Все события создаются в Asia/Omsk.</span></article>
-      <article><strong>Google и Apple</strong><span>Подписка работает на телефоне и компьютере.</span></article>
+      <article><strong>Google и Apple</strong><span>Одна подписная ссылка работает на телефоне и компьютере.</span></article>
     </section>
 
     <section id="order" class="order shell">
@@ -34,13 +34,17 @@
         <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
         <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
         <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
+        <label>Email для получения ссылки
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required>
+        </label>
         <fieldset>
-          <legend>Формат календаря</legend>
+          <legend>Куда добавить календарь</legend>
           <label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label>
           <label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label>
         </fieldset>
+        <p class="note">После оплаты вы получите универсальную подписную ссылку. Её можно открыть и в Google Calendar, и в Apple Calendar.</p>
         <button class="primary" type="submit">Перейти к оплате</button>
-        <p id="form-status" class="status" role="status"></p>
+        <p id="form-status" class="status" role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
