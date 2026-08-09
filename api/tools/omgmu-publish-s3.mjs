@@ -20,8 +20,8 @@ function validScheduleKey(value) {
 const confirmed = process.argv.includes("--confirm");
 const packageDir = path.resolve(arg("package", "data/publication/omgmu"));
 const manifestPath = path.join(packageDir, "publication-manifest.json");
-const expectedPublishable = Number(arg("expected-publishable", "39"));
-const expectedBlocked = Number(arg("expected-blocked", "4"));
+const expectedPublishable = Number(arg("expected-publishable", "43"));
+const expectedBlocked = Number(arg("expected-blocked", "0"));
 const reportPath = path.resolve(arg("report", path.join(packageDir, "s3-publication-report.json")));
 
 const bucket = process.env.S3_BUCKET || "kgmu-calendar-data-gmarkov634";
