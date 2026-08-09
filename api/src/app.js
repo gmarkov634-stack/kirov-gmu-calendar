@@ -1,3 +1,5 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
@@ -33,6 +35,15 @@ function orderAccessToken(request) {
   return typeof value === "string" ? value : "";
 }
 
+function adminAllowed(request, config) {
+  const actual = request.headers["x-admin-token"];
+  const expected = config.adminToken;
+  if (typeof actual !== "string" || typeof expected !== "string" || expected.length < 32) return false;
+  const left = createHash("sha256").update(actual).digest();
+  const right = createHash("sha256").update(expected).digest();
+  return timingSafeEqual(left, right);
+}
+
 function validateSubscription(subscription) {
   const expiresAt = Date.parse(subscription?.expiresAt);
   if (!subscription || subscription.version !== 1 || !/^\d{3}$/.test(String(subscription.group)) || !Number.isFinite(expiresAt)) {
@@ -61,7 +72,7 @@ export function createHandler({ store, config, payments }) {
       response.setHeader("Vary", "Origin");
     }
     response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Order-Token");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Order-Token, X-Admin-Token");
     if (request.method === "OPTIONS") return send(response, 204, "", "text/plain");
     const url = new URL(request.url, "http://localhost");
     if (request.method === "POST" && url.pathname === "/api/v1/payments") {
@@ -99,6 +110,29 @@ export function createHandler({ store, config, payments }) {
       }
     }
 
+    const adminAction = url.pathname.match(/^\/api\/v1\/admin\/subscriptions\/([a-f0-9]{64})\/(revoke|rotate)$/);
+    if (request.method === "POST" && adminAction) {
+      if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
+      if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
+      try {
+        if (adminAction[2] === "revoke") {
+          const subscription = await store.revokeSubscriptionByHash(adminAction[1]);
+          if (!subscription) return send(response, 404, { error: "subscription_not_found" });
+          return send(response, 200, { status: "revoked", group: subscription.group }, "application/json; charset=utf-8", "no-store");
+        }
+        if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
+        const record = (await store.listSubscriptionAccess()).find((item) => item.tokenHash === adminAction[1]);
+        if (!record?.orderId) return send(response, 409, { error: "order_not_available" });
+        const order = await payments.rotateSubscriptionAsAdmin(record.orderId, adminAction[1]);
+        if (!order) return send(response, 404, { error: "order_not_found" });
+        return send(response, 200, order, "application/json; charset=utf-8", "no-store");
+      } catch (error) {
+        if (error.code === "subscription_not_current") return send(response, 409, { error: error.code });
+        console.error(error);
+        return send(response, 503, { error: "admin_action_unavailable" });
+      }
+    }
+
     const rotateMatch = url.pathname.match(/^\/api\/v1\/orders\/([A-Za-z0-9_-]{32})\/subscription\/reset$/);
     if (request.method === "POST" && rotateMatch) {
       if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
@@ -131,6 +165,17 @@ export function createHandler({ store, config, payments }) {
     if (url.pathname === "/api/v1/groups") {
       return send(response, 200, { groups: store.listGroups() });
     }
+    if (url.pathname === "/api/v1/admin/subscriptions") {
+      if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
+      if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
+      try {
+        const records = await store.listSubscriptionAccess();
+        return send(response, 200, { subscriptions: records.map(({ sources, ...record }) => record) }, "application/json; charset=utf-8", "no-store");
+      } catch (error) {
+        console.error(error);
+        return send(response, 503, { error: "admin_list_unavailable" });
+      }
+    }
 
     const orderMatch = url.pathname.match(/^\/api\/v1\/orders\/([A-Za-z0-9_-]{32})$/);
     if (orderMatch) {
@@ -152,6 +197,17 @@ export function createHandler({ store, config, payments }) {
         const rawSubscription = await store.getSubscription(subscriptionMatch[1]);
         if (!rawSubscription) return send(response, 404, { error: "subscription_not_found" });
         const subscription = validateSubscription(rawSubscription);
+        if (subscription.status === "active" && config.subscriptionSigningSecret?.length >= 32) {
+          try {
+            await store.recordSubscriptionAccess(
+              subscriptionMatch[1],
+              subscription,
+              accessObservation(request, config.subscriptionSigningSecret),
+            );
+          } catch (error) {
+            console.error("subscription access monitoring failed", error);
+          }
+        }
         const active = subscription.status === "active" && Date.now() < subscription.expiresAt;
         const schedule = active ? await store.get(String(subscription.group)) : emptySchedule(subscription);
         if (!schedule) throw new Error("Subscription schedule is not published");

@@ -214,6 +214,22 @@ export class YooKassaService {
     const order = await this.store.getOrder(orderId);
     if (!order) return null;
     if (!order.accessTokenHash || !accessAllowed(order, accessToken)) throw forbidden();
+    return this.#rotateSubscription(order);
+  }
+
+  async rotateSubscriptionAsAdmin(orderId, expectedTokenHash) {
+    const order = await this.store.getOrder(orderId);
+    if (!order) return null;
+    const currentToken = order.subscriptionUrl?.match(/\/subscriptions\/([A-Za-z0-9_-]{43})\/calendar\.ics$/)?.[1];
+    if (!currentToken || accessTokenHash(currentToken) !== expectedTokenHash) {
+      const error = new Error("Subscription is no longer current");
+      error.code = "subscription_not_current";
+      throw error;
+    }
+    return this.#rotateSubscription(order);
+  }
+
+  async #rotateSubscription(order) {
     if (order.status !== "succeeded" || !order.subscriptionUrl) {
       const error = new Error("Order is not fulfilled");
       error.code = "order_not_succeeded";
@@ -228,7 +244,7 @@ export class YooKassaService {
     await this.store.putSubscription(currentToken, { ...current, status: "revoked", revokedAt: rotatedAt });
 
     const generation = Number(order.subscriptionGeneration || 0) + 1;
-    const nextToken = subscriptionToken(this.config, orderId, generation);
+    const nextToken = subscriptionToken(this.config, order.orderId, generation);
     const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${nextToken}/calendar.ics`;
     await this.store.putSubscription(nextToken, {
       ...current,
@@ -243,7 +259,7 @@ export class YooKassaService {
       subscriptionGeneration: generation,
       updatedAt: rotatedAt,
     };
-    await this.store.putOrder(orderId, updated);
+    await this.store.putOrder(order.orderId, updated);
     return publicOrder(updated);
   }
 }

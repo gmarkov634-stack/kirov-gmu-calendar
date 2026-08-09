@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const GROUPS = ["131", "132", "133", "134", "135", "136", "137", "138", "139"];
 
@@ -11,6 +11,10 @@ function isValidGroup(group) {
 
 function tokenHash(token) {
   return createHash("sha256").update(token).digest("hex");
+}
+
+function isValidTokenHash(hash) {
+  return /^[a-f0-9]{64}$/.test(hash);
 }
 
 function isMissingObject(error) {
@@ -113,11 +117,105 @@ export class ScheduleStore {
 
   async putSubscription(token, value) {
     if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new Error("Invalid subscription token");
-    await this.#writeJson(`subscriptions/${tokenHash(token)}.json`, value);
-    this.cache.set(`subscription:${tokenHash(token)}`, {
+    const hash = tokenHash(token);
+    await this.#writeJson(`subscriptions/${hash}.json`, value);
+    this.cache.set(`subscription:${hash}`, {
       value,
       expiresAt: Date.now() + this.config.cacheTtlMs,
     });
+    if (value.status !== "active") {
+      const accessKey = `subscription-access/${hash}.json`;
+      const record = await this.#readJson(accessKey);
+      if (record) await this.#writeJson(accessKey, { ...record, status: value.status, statusChangedAt: value.revokedAt });
+    }
+  }
+
+  async recordSubscriptionAccess(token, subscription, observation) {
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new Error("Invalid subscription token");
+    const hash = tokenHash(token);
+    const key = `subscription-access/${hash}.json`;
+    const current = await this.#readJson(key);
+    const cutoff = Date.parse(observation.seenAt) - 7 * 24 * 60 * 60 * 1000;
+    const sources = (Array.isArray(current?.sources) ? current.sources : [])
+      .filter((source) => Date.parse(source.lastSeenAt) >= cutoff);
+    const existing = sources.find((source) => source.fingerprint === observation.fingerprint);
+    if (existing) {
+      existing.lastSeenAt = observation.seenAt;
+      existing.count = Number(existing.count || 0) + 1;
+    } else if (sources.length < 32) {
+      sources.push({
+        fingerprint: observation.fingerprint,
+        client: observation.client,
+        firstSeenAt: observation.seenAt,
+        lastSeenAt: observation.seenAt,
+        count: 1,
+      });
+    }
+    const threshold = Math.max(2, Number(this.config.suspiciousSourceThreshold || 8));
+    const value = {
+      version: 1,
+      tokenHash: hash,
+      orderId: subscription.orderId || null,
+      group: String(subscription.group),
+      status: subscription.status,
+      firstSeenAt: current?.firstSeenAt || observation.seenAt,
+      lastSeenAt: observation.seenAt,
+      totalRequests: Number(current?.totalRequests || 0) + 1,
+      suspicious: sources.length >= threshold,
+      sourceCount: sources.length,
+      sources,
+    };
+    await this.#writeJson(key, value);
+    return value;
+  }
+
+  async listSubscriptionAccess() {
+    const records = [];
+    if (this.s3) {
+      let continuationToken;
+      do {
+        const response = await this.s3.send(new ListObjectsV2Command({
+          Bucket: this.config.bucket,
+          Prefix: "subscription-access/",
+          ContinuationToken: continuationToken,
+        }));
+        for (const object of response.Contents || []) {
+          if (object.Key?.endsWith(".json")) {
+            const value = await this.#readJson(object.Key);
+            if (value) records.push(value);
+          }
+        }
+        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+      } while (continuationToken);
+    } else {
+      const directory = path.join(this.config.dataDir, "subscription-access");
+      let names = [];
+      try {
+        names = await fs.readdir(directory);
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+      for (const name of names.filter((value) => /^[a-f0-9]{64}\.json$/.test(value))) {
+        const value = await this.#readJson(`subscription-access/${name}`);
+        if (value) records.push(value);
+      }
+    }
+    return records.sort((a, b) => String(b.lastSeenAt).localeCompare(String(a.lastSeenAt)));
+  }
+
+  async revokeSubscriptionByHash(hash) {
+    if (!isValidTokenHash(hash)) throw new Error("Invalid subscription hash");
+    const key = `subscriptions/${hash}.json`;
+    const subscription = await this.#readJson(key);
+    if (!subscription) return null;
+    const revokedAt = new Date().toISOString();
+    const updated = { ...subscription, status: "revoked", revokedAt };
+    await this.#writeJson(key, updated);
+    this.cache.set(`subscription:${hash}`, { value: updated, expiresAt: Date.now() + this.config.cacheTtlMs });
+    const accessKey = `subscription-access/${hash}.json`;
+    const record = await this.#readJson(accessKey);
+    if (record) await this.#writeJson(accessKey, { ...record, status: "revoked", statusChangedAt: revokedAt });
+    return updated;
   }
 
   async #readJson(key) {
