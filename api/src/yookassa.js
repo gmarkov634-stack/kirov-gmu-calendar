@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { scheduleContext } from "./order-context.js";
+import { semesterEndFromSchedule } from "./subscription-period.js";
 
 const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -34,21 +35,25 @@ function configuredOffer(config, plan) {
     error.code = "invalid_plan";
     throw error;
   }
-  const legacy = plan === "semester" && config.offerPrice && config.offerExpiresAt
-    ? { price: config.offerPrice, expiresAt: config.offerExpiresAt }
-    : null;
-  const offer = config.offers?.[plan] || legacy;
-  if (!offer || !/^\d+\.\d{2}$/.test(String(offer.price || "")) || Number(offer.price) <= 0 || !Number.isFinite(Date.parse(offer.expiresAt))) {
+  const offer = config.offers?.[plan];
+  if (!offer || !/^\d+\.\d{2}$/.test(String(offer.price || "")) || Number(offer.price) <= 0) {
     const error = new Error(`Offer is not configured for ${plan}`);
     error.code = "offer_not_configured";
     throw error;
   }
-  if (Date.now() >= Date.parse(offer.expiresAt)) {
-    const error = new Error(`Offer has expired for ${plan}`);
-    error.code = "offer_expired";
-    throw error;
+  if (plan === "year") {
+    if (!Number.isFinite(Date.parse(offer.expiresAt))) {
+      const error = new Error("Year offer end is not configured");
+      error.code = "offer_not_configured";
+      throw error;
+    }
+    if (Date.now() >= Date.parse(offer.expiresAt)) {
+      const error = new Error("Year offer has expired");
+      error.code = "offer_expired";
+      throw error;
+    }
   }
-  return { id: plan, price: String(offer.price), expiresAt: String(offer.expiresAt) };
+  return { id: plan, price: String(offer.price), expiresAt: offer.expiresAt ? String(offer.expiresAt) : undefined };
 }
 
 function paymentDescription(order) {
@@ -157,6 +162,12 @@ export class YooKassaService {
       throw new Error("Schedule context is incomplete");
     }
     const returnSiteUrl = universitySiteUrl(this.config, context.university);
+    const expiresAt = plan === "semester" ? semesterEndFromSchedule(schedule) : offer.expiresAt;
+    if (Date.now() >= Date.parse(expiresAt)) {
+      const error = new Error(`${plan} offer has expired`);
+      error.code = "offer_expired";
+      throw error;
+    }
     const orderId = randomBytes(24).toString("base64url");
     const accessToken = randomBytes(32).toString("base64url");
     const now = new Date().toISOString();
@@ -166,7 +177,7 @@ export class YooKassaService {
       status: "creating",
       ...context,
       plan: offer.id,
-      expiresAt: offer.expiresAt,
+      expiresAt,
       amount: offer.price,
       currency: "RUB",
       testMode: this.config.yookassaTestMode,
