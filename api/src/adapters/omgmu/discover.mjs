@@ -15,6 +15,19 @@ function decodeHtml(value = "") {
     .trim();
 }
 
+export function extractOmgmuScheduleContext(html) {
+  const text = decodeHtml(html);
+  const marker = text.toLowerCase().indexOf("расписание учебных занятий");
+  const context = marker >= 0 ? text.slice(marker, marker + 700) : text.slice(0, 700);
+  const academicYear = context.match(/20\d{2}\s*\/\s*20\d{2}/)?.[0]?.replace(/\s+/g, "") || null;
+  const semester = /осенн/i.test(context) ? "autumn" : /весенн/i.test(context) ? "spring" : null;
+  return {
+    academicYear,
+    semester,
+    heading: context.slice(0, 320).trim() || null,
+  };
+}
+
 export function classifyOmgmuLabel(label, url = "") {
   const normalized = label.toLowerCase().replaceAll("ё", "е").replace(/\s+/g, " ").trim();
   const normalizedUrl = String(url).toLowerCase();
@@ -77,12 +90,14 @@ export async function discoverOmgmuSources({ sourceUrl = OMG_MU_SOURCE, output, 
   });
   if (!response.ok) throw new Error(`ОмГМУ page request failed: ${response.status}`);
 
-  const sources = extractOmgmuSources(await response.text(), sourceUrl);
+  const html = await response.text();
+  const sources = extractOmgmuSources(html, sourceUrl);
   const manifest = {
-    version: 1,
+    version: 2,
     university: "omgmu",
     sourcePage: sourceUrl,
     discoveredAt: new Date().toISOString(),
+    scheduleContext: extractOmgmuScheduleContext(html),
     sourceCount: sources.length,
     sources,
   };
