@@ -52,7 +52,6 @@ function subscription(plan) {
 }
 
 const config = {
-  publicSiteUrl: "https://kgmu.example.test/",
   universitySiteUrls: { kgmu: "https://kgmu.example.test/" },
   enablePublicEndpoints: false,
 };
@@ -85,5 +84,37 @@ test("semester subscription stays bound to the purchased semester", () => withSe
     const response = await fetch(`${base}/api/v1/subscriptions/${token}/calendar.ics`);
     assert.equal(response.status, 503);
     assert.deepEqual(await response.json(), { error: "subscription_unavailable" });
+  },
+));
+
+test("semester subscription extends automatically when the official schedule gains a later class", () => withServer(
+  createHandler({
+    store: {
+      getSubscription: async () => ({
+        ...subscription("semester"),
+        expiresAt: "2026-08-01T00:00:00.000Z",
+      }),
+      getSchedule: async () => ({
+        ...schedule,
+        semester: 1,
+        events: [
+          {
+            id: "later-class",
+            start: "2026-12-22T08:00:00.000Z",
+            end: "2026-12-22T09:30:00.000Z",
+            title: "Педиатрия",
+            location: "КГМУ",
+          },
+        ],
+      }),
+    },
+    config,
+  }),
+  async (base) => {
+    const response = await fetch(`${base}/api/v1/subscriptions/${token}/calendar.ics`);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-subscription-status"), "active");
+    assert.equal(response.headers.get("x-subscription-expires-at"), "2026-12-22T09:30:00.000Z");
+    assert.match(await response.text(), /SUMMARY:Педиатрия/);
   },
 ));
