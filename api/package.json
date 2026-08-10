@@ -12,7 +12,7 @@
     "download:omgmu": "node tools/omgmu-download.mjs",
     "catalog:omgmu": "node tools/omgmu-catalog.mjs",
     "parse:omgmu:weekly": "python3 tools/omgmu-parse-weekly-pdf.py",
-    "parse:omgmu:fourth": "python3 tools/omgmu-parse-fourth-pdf.py --self-test",
+    "parse:omgmu:fourth": "python3 tools/omgmu-parse-fourth-pdf.py",
     "parse:omgmu:fifth": "node tools/omgmu-parse-fifth.mjs",
     "quality:omgmu": "node tools/omgmu-quality.mjs",
     "review:omgmu:prepare": "node tools/omgmu-review-prepare.mjs",
