@@ -2,6 +2,46 @@
 
 Платформа электронных расписаний и подписных календарей для медицинских вузов.
 
+## Лендинги
+
+У каждого университета отдельный продающий лендинг. Backend общий и определяет вуз по полю `university` в запросе.
+
+Поддерживаемые идентификаторы:
+
+```text
+kgmu
+omgmu
+pgmu
+```
+
+URL возврата после оплаты задаются независимо через:
+
+```text
+KGMU_SITE_URL
+OMGMU_SITE_URL
+PGMU_SITE_URL
+```
+
+## Тарифы
+
+Checkout API принимает `plan`:
+
+```text
+semester — 299 ₽, доступ на текущий семестр
+year     — 499 ₽, доступ на учебный год
+```
+
+Цены и даты окончания настраиваются переменными окружения:
+
+```text
+OFFER_SEMESTER_PRICE
+OFFER_SEMESTER_EXPIRES_AT
+OFFER_YEAR_PRICE
+OFFER_YEAR_EXPIRES_AT
+```
+
+Годовая подписка сохраняет тот же персональный URL календаря и может автоматически перейти с первого на второй семестр в пределах того же учебного года после публикации нового расписания.
+
 ## Многовузовское ядро
 
 Расписание идентифицируется контекстом:
@@ -38,7 +78,7 @@ GET  /api/v2/schedules/{university}/{program}/{course}/{groupId}/calendar.ics
 GET /api/v1/subscriptions/{token}/calendar.ics
 ```
 
-Но записи подписок используют схему версии 2 с полями `university`, `program`, `course`, `stream`, `groupCode`, `groupId`, `timezone`, `academicYear` и `semester`.
+Но записи подписок используют схему версии 2 с полями `university`, `program`, `course`, `stream`, `groupCode`, `groupId`, `timezone`, `academicYear`, `semester` и `plan`.
 
 ## VK Callback API
 
