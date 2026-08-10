@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "operation": "live-ics-tzid-check",
+  "hasVtimezone": true,
+  "hasAsiaOmsk": true,
+  "hasOmskOffset": true,
+  "firstEventDtstartLine": "DTSTART;TZID=Asia/Omsk:20260406T080000",
+  "containsUtcEventStart": false,
+  "status": "success"
+}
