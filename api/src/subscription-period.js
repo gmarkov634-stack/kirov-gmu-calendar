@@ -14,11 +14,12 @@ export function semesterEndFromSchedule(schedule) {
 
 export function effectiveSubscriptionEnd(subscription, schedule) {
   if (subscription?.plan === "semester") return semesterEndFromSchedule(schedule);
-  const value = String(subscription?.expiresAt || "");
-  if (!Number.isFinite(Date.parse(value))) {
+  const raw = subscription?.expiresAt;
+  const timestamp = typeof raw === "number" ? raw : Date.parse(String(raw || ""));
+  if (!Number.isFinite(timestamp)) {
     const error = new Error("Subscription end is invalid");
     error.code = "subscription_end_invalid";
     throw error;
   }
-  return value;
+  return new Date(timestamp).toISOString();
 }
