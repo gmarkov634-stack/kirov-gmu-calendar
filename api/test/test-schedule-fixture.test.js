@@ -28,8 +28,8 @@ test("synthetic KGMU autumn fixture is served only when explicitly enabled", asy
   assert.equal(schedule.academicYear, "2026/27");
   assert.equal(schedule.semester, 1);
   assert.equal(schedule.group.code, "132");
-  assert.equal(schedule.events.length, 12);
-  assert.equal(semesterEndFromSchedule(schedule), "2026-12-29T14:30:00.000Z");
+  assert.equal(schedule.events.length, 13);
+  assert.equal(semesterEndFromSchedule(schedule), "2026-12-30T10:30:00.000Z");
 
   const disabledStore = new MultiUniversityStore(config(false));
   assert.equal(await disabledStore.getSchedule(request), null);
