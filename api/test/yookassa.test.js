@@ -48,7 +48,7 @@ function memoryStore() {
   };
 }
 
-test("payment creation stores the complete university context", async () => {
+test("payment creation stores the complete university context and returns to its landing", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -72,6 +72,35 @@ test("payment creation stores the complete university context", async () => {
   assert.equal(request.body.metadata.university, "omgmu");
   assert.equal(request.body.metadata.group_id, order.groupId);
   assert.match(request.body.description, /ОмГМУ/);
+
+  const returnUrl = new URL(request.body.confirmation.return_url);
+  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://example.test/omgmu/");
+  const returnParams = new URLSearchParams(returnUrl.hash.slice(1));
+  assert.equal(returnParams.get("order"), result.orderId);
+  assert.equal(returnParams.get("access"), result.accessToken);
+});
+
+test("КГМУ payments keep returning to the root landing", async () => {
+  const store = memoryStore();
+  let request;
+  const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
+    request = { url, options, body: JSON.parse(options.body) };
+    return new Response(JSON.stringify({
+      id: "payment_kgmu_123",
+      status: "pending",
+      test: true,
+      confirmation: { confirmation_url: "https://yookassa.test/pay" },
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  } });
+  const kgmu = {
+    ...schedule,
+    university: "kgmu",
+    universityName: "КГМУ",
+    group: { id: "kgmu:medicine:4:402", code: "402", displayName: "Группа 402" },
+  };
+  await service.create({ email: "student@example.com", schedule: kgmu });
+  const returnUrl = new URL(request.body.confirmation.return_url);
+  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://example.test/");
 });
 
 test("succeeded payment creates a version 2 subscription", async () => {
