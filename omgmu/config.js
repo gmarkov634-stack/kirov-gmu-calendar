@@ -6,5 +6,5 @@ window.OMGMU_CONFIG = Object.freeze({
   paymentPath: "/api/v2/payments",
   priceRub: 490,
   testMode: true,
-  checkoutEnabled: false,
+  checkoutEnabled: true,
 });
