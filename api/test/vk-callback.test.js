@@ -52,8 +52,10 @@ function successfulVkFetch(requests) {
 
 function scheduleStore(groupSets = {}) {
   return {
-    async listScheduleGroups({ university, program, course }) {
+    async listScheduleGroups({ university, program, course, academicYear, semester }) {
       assert.equal(university, "kgmu");
+      assert.equal(academicYear, "2026/2027");
+      assert.equal(semester, 1);
       return groupSets[`${program}:${course}`] || [];
     },
   };
@@ -70,6 +72,8 @@ const env = {
   VK_CALLBACK_CONFIRMATION_CODE: "confirmation-code",
   VK_CALLBACK_SECRET: "test-secret",
   VK_ACCESS_TOKEN: "vk1-test-token",
+  VK_ACADEMIC_YEAR: "2026/2027",
+  VK_SEMESTER: "1",
 };
 
 test("VK confirmation returns configured confirmation code", async () => {
@@ -195,7 +199,7 @@ test("dentistry program button sends five course buttons", async () => {
   assert.equal(labels.includes("6 курс"), false);
 });
 
-test("course selection shows only groups published for that program and course", async () => {
+test("course selection shows only groups published for the target academic period", async () => {
   const requests = [];
   const response = fakeResponse();
   await createVkCallbackHandler(env, {
@@ -230,7 +234,7 @@ test("course selection shows only groups published for that program and course",
   });
 });
 
-test("course selection does not invent groups when schedule is not published", async () => {
+test("course selection does not invent groups when target schedule is not published", async () => {
   const requests = [];
   const response = fakeResponse();
   await createVkCallbackHandler(env, {
@@ -247,7 +251,8 @@ test("course selection does not invent groups when schedule is not published", a
   );
 
   const body = requests[0].options.body;
-  assert.match(body.get("message"), /Расписание для этого курса пока не опубликовано/);
+  assert.match(body.get("message"), /2026\/27 учебный год, осенний семестр/);
+  assert.match(body.get("message"), /пока не опубликовано/);
   const menu = JSON.parse(body.get("keyboard"));
   const labels = menu.buttons.flat().map((button) => button.action.label);
   assert.deepEqual(labels, ["← К курсам", "← Выбрать направление"]);
