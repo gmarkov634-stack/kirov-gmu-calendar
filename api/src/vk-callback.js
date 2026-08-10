@@ -29,6 +29,18 @@ const SCHEDULE_REPLY = [
   "После выбора мы перейдём к курсу и группе.",
 ].join("\n");
 
+function defaultAcademicPeriod(now = new Date()) {
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
+  if (month >= 7) return { academicYear: `${year}/${year + 1}`, semester: 1 };
+  return { academicYear: `${year - 1}/${year}`, semester: 2 };
+}
+
+function shortAcademicYear(value) {
+  const match = String(value || "").match(/(\d{4})\D+(\d{4})/);
+  return match ? `${match[1]}/${match[2].slice(-2)}` : String(value || "");
+}
+
 function selectedProgramReply(program) {
   return [
     `✅ ${program.label}`,
@@ -37,7 +49,7 @@ function selectedProgramReply(program) {
   ].join("\n");
 }
 
-function selectedCourseReply(program, course, groups) {
+function selectedCourseReply(program, course, groups, academicYear, semester) {
   if (groups.length) {
     return [
       `✅ ${program.label} · ${course} курс`,
@@ -45,10 +57,11 @@ function selectedCourseReply(program, course, groups) {
       "Выберите группу:",
     ].join("\n");
   }
+  const semesterLabel = semester === 1 ? "осенний семестр" : "весенний семестр";
   return [
     `✅ ${program.label} · ${course} курс`,
     "",
-    "Расписание для этого курса пока не опубликовано.",
+    `Расписание на ${shortAcademicYear(academicYear)} учебный год, ${semesterLabel}, для этого курса пока не опубликовано.`,
     "Группы появятся здесь автоматически после загрузки актуального расписания Кировского ГМУ.",
   ].join("\n");
 }
@@ -229,6 +242,10 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
   const randomIdFactory = dependencies.randomIdFactory || (() => Math.floor(Math.random() * 2147483647) + 1);
   const scheduleStore = dependencies.store;
+  const defaultPeriod = defaultAcademicPeriod(dependencies.now ? dependencies.now() : new Date());
+  const academicYear = String(env.VK_ACADEMIC_YEAR || defaultPeriod.academicYear).trim();
+  const configuredSemester = Number(env.VK_SEMESTER || defaultPeriod.semester);
+  const semester = [1, 2].includes(configuredSemester) ? configuredSemester : defaultPeriod.semester;
 
   async function reply(message, text, messageKeyboard) {
     if (!accessToken) {
@@ -258,6 +275,8 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
         university: "kgmu",
         program: program.id,
         course,
+        academicYear,
+        semester,
       });
     } catch (error) {
       console.error("vk group list failed", error);
@@ -316,7 +335,7 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
             const groups = await publishedGroups(program, course);
             await reply(
               message,
-              selectedCourseReply(program, course, groups),
+              selectedCourseReply(program, course, groups, academicYear, semester),
               groups.length ? groupKeyboard(program, course, groups) : noGroupsKeyboard(program),
             );
           }
