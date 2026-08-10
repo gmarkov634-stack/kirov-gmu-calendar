@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildCalendar } from "../src/calendar.js";
 
-test("buildCalendar produces one event with official-schedule notice", () => {
+test("buildCalendar emits floating local study time for KГМУ", () => {
   const result = buildCalendar({
     group: "132",
+    timezone: "Europe/Moscow",
     events: [{
       id: "132-20260127-histology",
       title: "Лекция: Гистология, эмбриология, цитология",
@@ -13,16 +14,20 @@ test("buildCalendar produces one event with official-schedule notice", () => {
       location: "1 корпус, аудитория 411, ул. Владимирская, 137",
     }],
   });
+
   assert.match(result, /BEGIN:VCALENDAR/);
   assert.match(result, /UID:132-20260127-histology@kgmu-calendar/);
-  assert.match(result, /TZID:Europe\/Moscow/);
-  assert.match(result, /TZOFFSETTO:\+0300/);
-  assert.match(result, /DTSTART;TZID=Europe\/Moscow:20260127T110000/);
+  assert.match(result, /DTSTART:20260127T110000/);
+  assert.match(result, /DTEND:20260127T123000/);
+  assert.doesNotMatch(result, /BEGIN:VTIMEZONE/);
+  assert.doesNotMatch(result, /TZID=/);
+  assert.doesNotMatch(result, /X-WR-TIMEZONE/);
+  assert.doesNotMatch(result, /DTSTART[^\r\n]*Z/);
   assert.match(result, /Переносы/);
   assert.match(result, /END:VCALENDAR/);
 });
 
-test("ОмГМУ ICS keeps the official local lesson time in Asia/Omsk", () => {
+test("ОмГМУ floating ICS always keeps the official lesson clock time", () => {
   const result = buildCalendar({
     university: "omgmu",
     universityName: "ОмГМУ",
@@ -37,12 +42,11 @@ test("ОмГМУ ICS keeps the official local lesson time in Asia/Omsk", () => {
     }],
   });
 
-  assert.match(result, /BEGIN:VTIMEZONE/);
-  assert.match(result, /TZID:Asia\/Omsk/);
-  assert.match(result, /X-LIC-LOCATION:Asia\/Omsk/);
-  assert.match(result, /TZOFFSETFROM:\+0600/);
-  assert.match(result, /TZOFFSETTO:\+0600/);
-  assert.match(result, /DTSTART;TZID=Asia\/Omsk:20260713T090000/);
-  assert.match(result, /DTEND;TZID=Asia\/Omsk:20260713T112500/);
+  assert.match(result, /DTSTART:20260713T090000/);
+  assert.match(result, /DTEND:20260713T112500/);
+  assert.doesNotMatch(result, /BEGIN:VTIMEZONE/);
+  assert.doesNotMatch(result, /TZID=/);
+  assert.doesNotMatch(result, /X-WR-TIMEZONE/);
   assert.doesNotMatch(result, /DTSTART:20260713T030000Z/);
+  assert.match(result, /не пересчитывается при смене часового пояса/);
 });
