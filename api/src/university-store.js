@@ -4,6 +4,8 @@ import { GetObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { ScheduleStore } from "./store.js";
 import { scheduleContext, scheduleStorageKey } from "./order-context.js";
 
+const TEST_FIXTURE_URL = new URL("../fixtures/kgmu-pediatrics-1-132-autumn-2026.json", import.meta.url);
+
 function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
 }
@@ -61,6 +63,17 @@ function legacyKgmuGroup(program, course, filename) {
   };
 }
 
+function isTestFixtureContext(context) {
+  return context.university === "kgmu" &&
+    context.program === "pediatrics" &&
+    context.course === 1 &&
+    context.groupCode === "132";
+}
+
+async function readTestFixture() {
+  return JSON.parse(await fs.readFile(TEST_FIXTURE_URL, "utf8"));
+}
+
 function sortGroups(groups) {
   return groups.sort((a, b) =>
     a.groupCode.localeCompare(b.groupCode, "ru", { numeric: true, sensitivity: "base" }),
@@ -74,6 +87,15 @@ export class MultiUniversityStore extends ScheduleStore {
     const cacheKey = `schedule:${key}`;
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
+
+    if (this.config.testScheduleFixtureEnabled && isTestFixtureContext(context)) {
+      const value = await readTestFixture();
+      this.cache.set(cacheKey, {
+        value,
+        expiresAt: Date.now() + this.config.cacheTtlMs,
+      });
+      return value;
+    }
 
     const keys = [key];
     const legacyKey = legacyKgmuScheduleKey(context);
@@ -151,6 +173,14 @@ export class MultiUniversityStore extends ScheduleStore {
       const group = legacyKgmuGroup(context.program, context.course, filename);
       if (group && !groups.has(group.groupId)) groups.set(group.groupId, group);
     };
+
+    if (this.config.testScheduleFixtureEnabled && context.university === "kgmu" && context.program === "pediatrics" && context.course === 1) {
+      groups.set("kgmu:pediatrics:1:132", {
+        groupId: "kgmu:pediatrics:1:132",
+        groupCode: "132",
+        displayName: "Группа 132",
+      });
+    }
 
     if (this.s3) {
       const listPrefix = async (targetPrefix, add) => {
