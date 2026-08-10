@@ -16,6 +16,35 @@ function normalizedHttpsBaseUrl(value) {
   }
 }
 
+function normalizeAcademicYear(value) {
+  const match = String(value || "").match(/(\d{4})\D+(\d{2,4})/);
+  if (!match) return "";
+  const start = Number(match[1]);
+  let end = Number(match[2]);
+  if (match[2].length === 2) {
+    end = Math.floor(start / 100) * 100 + end;
+    if (end < start) end += 100;
+  }
+  if (!Number.isInteger(start) || !Number.isInteger(end) || end !== start + 1) return "";
+  return `${start}/${end}`;
+}
+
+function assertSchedulePeriodForSale(config, context) {
+  const expectedYear = normalizeAcademicYear(config.offerAcademicYear);
+  const actualYear = normalizeAcademicYear(context.academicYear);
+  const expectedSemester = Number(config.offerSemester);
+  if (!expectedYear || ![1, 2].includes(expectedSemester)) {
+    const error = new Error("Sale period is not configured");
+    error.code = "offer_period_not_configured";
+    throw error;
+  }
+  if (actualYear !== expectedYear || context.semester !== expectedSemester) {
+    const error = new Error("Published schedule is not for the period currently on sale");
+    error.code = "schedule_period_not_for_sale";
+    throw error;
+  }
+}
+
 function universitySiteUrl(config, university) {
   if (!UNIVERSITY_ID.test(String(university || ""))) throw new Error("Invalid university id for return URL");
   const value = normalizedHttpsBaseUrl(config.universitySiteUrls?.[university]);
@@ -161,6 +190,7 @@ export class YooKassaService {
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
     }
+    assertSchedulePeriodForSale(this.config, context);
     const returnSiteUrl = universitySiteUrl(this.config, context.university);
     const expiresAt = plan === "semester" ? semesterEndFromSchedule(schedule) : offer.expiresAt;
     if (Date.now() >= Date.parse(expiresAt)) {
