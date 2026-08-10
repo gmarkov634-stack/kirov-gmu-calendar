@@ -3,18 +3,45 @@ import { scheduleContext } from "./order-context.js";
 
 const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const PLAN_IDS = new Set(["semester", "year"]);
 
 function universitySiteUrl(config, university) {
-  const value = String(config.publicSiteUrl || "").trim();
-  if (!value) throw new Error("PUBLIC_SITE_URL is not configured");
-  const root = value.endsWith("/") ? value : `${value}/`;
-  if (university === "kgmu") return root;
   if (!UNIVERSITY_ID.test(String(university || ""))) throw new Error("Invalid university id for return URL");
-  return new URL(`${university}/`, root).toString();
+  const configured = config.universitySiteUrls?.[university];
+  const fallback = university === "kgmu" ? config.publicSiteUrl : "";
+  const value = String(configured || fallback || "").trim();
+  if (!value) throw new Error(`Site URL is not configured for ${university}`);
+  return value.endsWith("/") ? value : `${value}/`;
+}
+
+function configuredOffer(config, plan) {
+  if (!PLAN_IDS.has(plan)) {
+    const error = new Error("Invalid subscription plan");
+    error.code = "invalid_plan";
+    throw error;
+  }
+  const legacy = plan === "semester" && config.offerPrice && config.offerExpiresAt
+    ? { price: config.offerPrice, expiresAt: config.offerExpiresAt }
+    : null;
+  const offer = config.offers?.[plan] || legacy;
+  if (!offer || !/^\d+\.\d{2}$/.test(String(offer.price || "")) || Number(offer.price) <= 0 || !Number.isFinite(Date.parse(offer.expiresAt))) {
+    const error = new Error(`Offer is not configured for ${plan}`);
+    error.code = "offer_not_configured";
+    throw error;
+  }
+  if (Date.now() >= Date.parse(offer.expiresAt)) {
+    const error = new Error(`Offer has expired for ${plan}`);
+    error.code = "offer_expired";
+    throw error;
+  }
+  return { id: plan, price: String(offer.price), expiresAt: String(offer.expiresAt) };
 }
 
 function paymentDescription(order) {
-  return `Календарь ${order.universityName}: ${order.groupDisplayName}, семестр ${order.semester}`.slice(0, 128);
+  const period = order.plan === "year"
+    ? `учебный год ${order.academicYear}`
+    : `${order.semester} семестр`;
+  return `Календарь ${order.universityName}: ${order.groupDisplayName}, ${period}`.slice(0, 128);
 }
 
 function publicOrder(order) {
@@ -29,7 +56,9 @@ function publicOrder(order) {
     groupCode: order.groupCode,
     groupId: order.groupId,
     groupDisplayName: order.groupDisplayName,
+    plan: order.plan || "semester",
     amount: order.amount,
+    expiresAt: order.expiresAt,
     testMode: order.testMode === true,
     subscriptionUrl: order.status === "succeeded" ? order.subscriptionUrl : undefined,
   };
@@ -73,9 +102,7 @@ export class YooKassaService {
     return Boolean(
       this.config.yookassaShopId &&
       this.config.yookassaSecretKey &&
-      this.config.subscriptionSigningSecret?.length >= 32 &&
-      /^\d+\.\d{2}$/.test(this.config.offerPrice) &&
-      Number.isFinite(Date.parse(this.config.offerExpiresAt))
+      this.config.subscriptionSigningSecret?.length >= 32
     );
   }
 
@@ -105,8 +132,9 @@ export class YooKassaService {
     }
   }
 
-  async create({ email, schedule }) {
+  async create({ email, schedule, plan = "semester" }) {
     if (!this.enabled) throw new Error("Payments are not configured");
+    const offer = configuredOffer(this.config, plan);
     const context = scheduleContext(schedule);
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
@@ -119,8 +147,9 @@ export class YooKassaService {
       orderId,
       status: "creating",
       ...context,
-      expiresAt: this.config.offerExpiresAt,
-      amount: this.config.offerPrice,
+      plan: offer.id,
+      expiresAt: offer.expiresAt,
+      amount: offer.price,
       currency: "RUB",
       testMode: this.config.yookassaTestMode,
       email,
@@ -138,7 +167,12 @@ export class YooKassaService {
         return_url: `${universitySiteUrl(this.config, order.university)}#order=${orderId}&access=${accessToken}`,
       },
       description: paymentDescription(order),
-      metadata: { order_id: orderId, university: order.university, group_id: order.groupId },
+      metadata: {
+        order_id: orderId,
+        university: order.university,
+        group_id: order.groupId,
+        plan: order.plan,
+      },
     };
     if (this.config.yookassaSendReceipt) {
       body.receipt = {
@@ -200,6 +234,7 @@ export class YooKassaService {
       timezone: order.timezone,
       academicYear: order.academicYear,
       semester: order.semester,
+      plan: order.plan || "semester",
       expiresAt: order.expiresAt,
       orderId,
       paymentId: payment.id,
