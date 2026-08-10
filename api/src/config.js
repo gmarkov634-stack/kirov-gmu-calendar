@@ -6,7 +6,6 @@ export function loadConfig(env = process.env) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const semesterExpiresAt = env.OFFER_SEMESTER_EXPIRES_AT || env.OFFER_EXPIRES_AT || "2027-01-31T23:59:59+03:00";
   const yearExpiresAt = env.OFFER_YEAR_EXPIRES_AT || "2027-08-31T23:59:59+03:00";
 
   return {
@@ -37,7 +36,6 @@ export function loadConfig(env = process.env) {
       semester: {
         id: "semester",
         price: env.OFFER_SEMESTER_PRICE || env.OFFER_PRICE || "299.00",
-        expiresAt: semesterExpiresAt,
       },
       year: {
         id: "year",
@@ -45,8 +43,6 @@ export function loadConfig(env = process.env) {
         expiresAt: yearExpiresAt,
       },
     },
-    offerPrice: env.OFFER_PRICE || "490.00",
-    offerExpiresAt: env.OFFER_EXPIRES_AT || semesterExpiresAt,
     yookassaSendReceipt: env.YOOKASSA_SEND_RECEIPT === "true",
     receiptVatCode: Number(env.RECEIPT_VAT_CODE || 1),
   };
