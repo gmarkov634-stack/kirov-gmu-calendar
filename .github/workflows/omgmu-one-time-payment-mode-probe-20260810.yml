@@ -1,0 +1,115 @@
+name: One-time probe ОмГМУ YooKassa mode
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/omgmu-one-time-payment-mode-probe-20260810.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    if: github.event.head_commit.message == 'Probe ОмГМУ YooKassa mode without payment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create unpaid payment intent and inspect order mode
+        env:
+          API_BASE: https://kgmu-calendar-api.containerapps.ru
+        run: |
+          set -euo pipefail
+          mkdir -p live-check ops/reports
+          payload='{"email":"omgmu-probe@example.com","university":"omgmu","program":"medicine-international","course":1,"stream":"1","groupCode":"1101","groupId":"omgmu:medicine-international:1:stream-1:1101","timezone":"Asia/Omsk"}'
+          status="$(curl --silent --show-error --max-time 30 \
+            -H 'Content-Type: application/json' \
+            -o live-check/create.json -w '%{http_code}' \
+            -X POST --data "$payload" \
+            "$API_BASE/api/v2/payments")"
+          if [ "$status" != "201" ]; then
+            echo "Payment intent endpoint returned HTTP $status" >&2
+            cat live-check/create.json >&2
+            exit 2
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('live-check/create.json').read_text())
+          order_id = data.get('orderId', '')
+          access = data.get('accessToken', '')
+          confirmation = data.get('confirmationUrl', '')
+          if len(order_id) != 32 or len(access) != 43 or not confirmation.startswith('https://'):
+              raise SystemExit('Invalid payment intent response')
+          Path('live-check/order-id').write_text(order_id)
+          Path('live-check/access-token').write_text(access)
+          PY
+          order_id="$(cat live-check/order-id)"
+          access="$(cat live-check/access-token)"
+          order_status="$(curl --silent --show-error --max-time 30 \
+            -H "X-Order-Token: $access" \
+            -o live-check/order.json -w '%{http_code}' \
+            "$API_BASE/api/v1/orders/$order_id")"
+          if [ "$order_status" != "200" ]; then
+            echo "Order endpoint returned HTTP $order_status" >&2
+            cat live-check/order.json >&2
+            exit 2
+          fi
+          python - <<'PY'
+          import hashlib, json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          created = json.loads(Path('live-check/create.json').read_text())
+          order = json.loads(Path('live-check/order.json').read_text())
+          errors = []
+          if order.get('university') != 'omgmu': errors.append('wrong university')
+          if order.get('groupCode') != '1101': errors.append('wrong group')
+          if order.get('testMode') is not True: errors.append('YooKassa is not in test mode')
+          if order.get('status') == 'succeeded': errors.append('probe unexpectedly succeeded')
+          report = {
+              'version': 1,
+              'university': 'omgmu',
+              'operation': 'yookassa-mode-probe-without-payment',
+              'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'paymentCreated': True,
+              'paymentCompleted': False,
+              'testMode': order.get('testMode'),
+              'orderStatus': order.get('status'),
+              'amount': order.get('amount'),
+              'currency': 'RUB',
+              'groupCode': order.get('groupCode'),
+              'orderIdSha256': hashlib.sha256(created['orderId'].encode()).hexdigest(),
+              'confirmationHost': created.get('confirmationUrl', '').split('/')[2] if '://' in created.get('confirmationUrl', '') else '',
+              'errors': errors,
+              'validationStatus': 'success' if not errors else 'failure',
+          }
+          Path('ops/reports/omgmu-yookassa-mode-probe-20260810.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+          print(json.dumps(report, ensure_ascii=False))
+          if errors: raise SystemExit(3)
+          PY
+
+      - name: Record probe result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p ops/reports
+          if [ ! -f ops/reports/omgmu-yookassa-mode-probe-20260810.json ]; then
+            printf '{"version":1,"university":"omgmu","operation":"yookassa-mode-probe-without-payment","validationStatus":"failure","errors":["probe report was not generated"]}\n' > ops/reports/omgmu-yookassa-mode-probe-20260810.json
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path('ops/reports/omgmu-yookassa-mode-probe-20260810.json')
+          data = json.loads(path.read_text())
+          data['jobStatus'] = os.environ['JOB_STATUS']
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/reports/omgmu-yookassa-mode-probe-20260810.json
+          git commit -m "Record ОмГМУ YooKassa mode probe" || true
+          git push
