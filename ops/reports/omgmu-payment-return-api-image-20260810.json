@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "operation": "verify-api-image",
+  "image": "kgmu-calendar-api.cr.cloud.ru/api:a7eb36817636ab305b78f373725c76064230b7a9",
+  "available": true,
+  "manifestSha256": "95e7b9476cdd1157de868eaa815ff579897c2c491d33e94613bbcd3720dba03c",
+  "jobStatus": "success"
+}
