@@ -45,7 +45,7 @@ jobs:
           for file in index.html styles.css data.js app.js app-utils.js; do
             test -f "$file"
           done
-          for file in index.html styles.css app.js config.js groups.js; do
+          for file in index.html styles.css mobile.css app.js config.js groups.js; do
             test -f "site/omgmu/$file"
           done
           node - <<'NODE'
@@ -69,6 +69,14 @@ jobs:
           }
           if (config.checkoutEnabled === true && config.testMode !== true) {
             throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
+          }
+          if (!configCode.includes('mobile.css') || !configCode.includes('document.currentScript')) {
+            throw new Error('ОмГМУ mobile stylesheet loader is missing');
+          }
+
+          const mobileCss = fs.readFileSync('site/omgmu/mobile.css', 'utf8');
+          for (const marker of ['max-width: 760px', 'font-size: 16px', 'safe-area-inset-bottom', 'prefers-reduced-motion']) {
+            if (!mobileCss.includes(marker)) throw new Error(`Mobile UX marker missing: ${marker}`);
           }
 
           const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
