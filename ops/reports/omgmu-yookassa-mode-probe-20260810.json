@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "yookassa-mode-probe-without-payment",
+  "generatedAt": "2026-08-10T09:49:11.680722+00:00",
+  "paymentCreated": true,
+  "paymentCompleted": false,
+  "testMode": true,
+  "orderStatus": "pending",
+  "amount": "490.00",
+  "currency": "RUB",
+  "groupCode": "1101",
+  "orderIdSha256": "6555237d55bb6dd500cd8d122d5f5cbf5ca4eaaf98aa2c269d21942bf0e553b1",
+  "confirmationHost": "yoomoney.ru",
+  "errors": [],
+  "validationStatus": "success",
+  "jobStatus": "success"
+}
