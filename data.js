@@ -1,6 +1,6 @@
 window.CALENDAR_DATA = {
   university: "kgmu",
-  apiBase: "https://kgmu-calendar-api.containerapps.ru",
+  apiBase: "https://student-calendar-api.containerapps.ru",
   offer: {
     academicYear: "2026/27",
     semester: 1,
@@ -10,7 +10,7 @@ window.CALENDAR_DATA = {
         id: "semester",
         label: "Семестр",
         price: "299 ₽",
-        expires: "31 января 2027",
+        expires: "последнего занятия по официальному расписанию",
         description: "Текущий семестр и все официальные обновления расписания.",
       },
       year: {
