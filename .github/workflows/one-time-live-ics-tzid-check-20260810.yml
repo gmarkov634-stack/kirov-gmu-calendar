@@ -1,0 +1,52 @@
+name: One-time live ОмГМУ ICS TZID check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/one-time-live-ics-tzid-check-20260810.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch live calendar
+        run: |
+          set -euo pipefail
+          url='https://kgmu-calendar-api.containerapps.ru/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/calendar.ics?groupCode=1101&stream=1'
+          curl -fsS --max-time 30 "$url" -o /tmp/1101.ics
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          text=Path('/tmp/1101.ics').read_text(errors='replace')
+          starts=re.findall(r'^DTSTART[^:]*:(.+)$', text, flags=re.M)
+          event_starts=[s.strip() for s in starts if s.strip()!='19700101T000000']
+          report={
+            'version':1,
+            'operation':'live-ics-tzid-check',
+            'hasVtimezone':'BEGIN:VTIMEZONE' in text,
+            'hasAsiaOmsk':'TZID:Asia/Omsk' in text,
+            'hasOmskOffset':'TZOFFSETTO:+0600' in text,
+            'firstEventDtstartLine': next((line.strip() for line in text.splitlines() if line.startswith('DTSTART;TZID=Asia/Omsk:')), ''),
+            'containsUtcEventStart': bool(re.search(r'^DTSTART:\d{8}T\d{6}Z$', text, flags=re.M)),
+            'status':'success'
+          }
+          ok=(report['hasVtimezone'] and report['hasAsiaOmsk'] and report['hasOmskOffset'] and report['firstEventDtstartLine'].startswith('DTSTART;TZID=Asia/Omsk:') and not report['containsUtcEventStart'])
+          if not ok:
+            report['status']='failure'
+          Path('ops/reports/live-ics-tzid-20260810.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(report,ensure_ascii=False))
+          if not ok: raise SystemExit(2)
+          PY
+      - name: Record report
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/reports/live-ics-tzid-20260810.json || true
+          git commit -m "Record live ОмГМУ ICS timezone check" || true
+          git push
