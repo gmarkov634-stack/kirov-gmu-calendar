@@ -15,11 +15,9 @@ const config = {
   },
   publicApiUrl: "https://api.example.test",
   offers: {
-    semester: { id: "semester", price: "299.00", expiresAt: "2027-01-31T23:59:59+03:00" },
+    semester: { id: "semester", price: "299.00" },
     year: { id: "year", price: "499.00", expiresAt: "2027-08-31T23:59:59+03:00" },
   },
-  offerPrice: "490.00",
-  offerExpiresAt: "2027-07-01T00:00:00+06:00",
   yookassaSendReceipt: true,
   receiptVatCode: 1,
 };
@@ -40,7 +38,20 @@ const schedule = {
   academicYear: "2026-2027",
   semester: 1,
   sources: [{ url: "https://omsk-osma.ru/files/test.pdf" }],
-  events: [],
+  events: [
+    {
+      id: "class-1",
+      start: "2026-12-18T02:30:00.000Z",
+      end: "2026-12-18T04:00:00.000Z",
+      title: "Анатомия",
+    },
+    {
+      id: "class-2",
+      start: "2026-12-22T05:00:00.000Z",
+      end: "2026-12-22T06:30:00.000Z",
+      title: "Физиология",
+    },
+  ],
 };
 
 function memoryStore() {
@@ -56,7 +67,7 @@ function memoryStore() {
   };
 }
 
-test("payment creation stores the complete university context and returns to its own landing", async () => {
+test("payment creation stores the complete university context and derives semester end from the last class", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -78,6 +89,7 @@ test("payment creation stores the complete university context and returns to its
   assert.equal(order.groupId, "omgmu:medicine:4:stream-2:Л-402А");
   assert.equal(order.plan, "semester");
   assert.equal(order.amount, "299.00");
+  assert.equal(order.expiresAt, "2026-12-22T06:30:00.000Z");
   assert.equal(order.accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
   assert.equal(request.body.metadata.university, "omgmu");
   assert.equal(request.body.metadata.group_id, order.groupId);
@@ -89,6 +101,21 @@ test("payment creation stores the complete university context and returns to its
   const returnParams = new URLSearchParams(returnUrl.hash.slice(1));
   assert.equal(returnParams.get("order"), result.orderId);
   assert.equal(returnParams.get("access"), result.accessToken);
+});
+
+test("semester checkout is rejected when the official schedule has no class end", async () => {
+  const store = memoryStore();
+  let fetchCalled = false;
+  const service = new YooKassaService({ config, store, fetchFn: async () => {
+    fetchCalled = true;
+    throw new Error("must not call YooKassa");
+  } });
+  await assert.rejects(
+    service.create({ email: "student@example.com", schedule: { ...schedule, events: [] } }),
+    (error) => error.code === "semester_end_not_found",
+  );
+  assert.equal(fetchCalled, false);
+  assert.equal(store.orders.size, 0);
 });
 
 test("КГМУ payments return only to the configured КГМУ landing", async () => {
@@ -173,21 +200,20 @@ test("succeeded payment creates a version 2 subscription", async () => {
     orderId,
     status: "pending",
     paymentId: "payment_12345678",
-    ...{
-      university: "omgmu",
-      universityName: "ОмГМУ",
-      program: "medicine",
-      course: 4,
-      stream: "2",
-      groupCode: "Л-402А",
-      groupId: "omgmu:medicine:4:stream-2:Л-402А",
-      groupDisplayName: "Группа Л-402А",
-      timezone: "Asia/Omsk",
-      academicYear: "2026-2027",
-      semester: 1,
-    },
-    expiresAt: config.offerExpiresAt,
-    amount: "490.00",
+    university: "omgmu",
+    universityName: "ОмГМУ",
+    program: "medicine",
+    course: 4,
+    stream: "2",
+    groupCode: "Л-402А",
+    groupId: "omgmu:medicine:4:stream-2:Л-402А",
+    groupDisplayName: "Группа Л-402А",
+    timezone: "Asia/Omsk",
+    academicYear: "2026-2027",
+    semester: 1,
+    plan: "semester",
+    expiresAt: "2026-12-22T06:30:00.000Z",
+    amount: "299.00",
     currency: "RUB",
   });
   const payment = {
@@ -195,7 +221,7 @@ test("succeeded payment creates a version 2 subscription", async () => {
     status: "succeeded",
     paid: true,
     test: true,
-    amount: { value: "490.00", currency: "RUB" },
+    amount: { value: "299.00", currency: "RUB" },
     metadata: { order_id: orderId },
   };
   const service = new YooKassaService({ config, store, fetchFn: async () => new Response(JSON.stringify(payment), {
@@ -213,12 +239,13 @@ test("succeeded payment creates a version 2 subscription", async () => {
   assert.equal(subscription.groupCode, "Л-402А");
   assert.equal(subscription.timezone, "Asia/Omsk");
   assert.equal(subscription.plan, "semester");
+  assert.equal(subscription.expiresAt, "2026-12-22T06:30:00.000Z");
 });
 
 test("altered payment amount cannot issue a subscription", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
-  await store.putOrder(orderId, { orderId, paymentId: "payment_12345678", amount: "490.00", currency: "RUB" });
+  await store.putOrder(orderId, { orderId, paymentId: "payment_12345678", amount: "299.00", currency: "RUB" });
   const service = new YooKassaService({ config, store });
   await assert.rejects(service.fulfill({
     id: "payment_12345678",
