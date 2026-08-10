@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "expectedAcademicYear": "2026/2027",
+  "targetPrograms": [
+    { "program": "medicine", "label": "Лечебное дело" },
+    { "program": "pediatrics", "label": "Педиатрия" },
+    { "program": "dentistry", "label": "Стоматология" },
+    { "program": "preventive-medicine", "label": "Медико-профилактическое дело" },
+    { "program": "pharmacy", "label": "Фармация" }
+  ],
+  "knownProgram": {
+    "program": "medicine-international",
+    "label": "Лечебное дело для иностранных обучающихся"
+  }
+}

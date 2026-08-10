@@ -1,0 +1,107 @@
+name: ОмГМУ source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */6 * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/omgmu/discover.mjs"
+      - "api/src/adapters/omgmu/watch.mjs"
+      - "api/tools/omgmu-watch-sources.mjs"
+      - "api/test/omgmu-source-watch.test.mjs"
+      - "api/package.json"
+      - "universities/omgmu/source-watch.json"
+      - ".github/workflows/omgmu-source-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test source watch
+        run: node --test test/omgmu-source-watch.test.mjs
+
+      - name: Discover official ОмГМУ sources
+        run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json
+
+      - name: Classify target programs
+        id: watch
+        run: |
+          set -euo pipefail
+          npm run watch:omgmu -- \
+            --manifest=data/imports/omgmu-source-manifest.json \
+            --config=../universities/omgmu/source-watch.json \
+            --output=data/imports/omgmu-source-watch-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/omgmu-source-watch-report.json', 'utf8'));
+          console.log(`has_target=${report.hasNewProgramSources ? 'true' : 'false'}`);
+          console.log(`ready=${report.readyFor2026AutumnIngest ? 'true' : 'false'}`);
+          NODE
+
+      - name: Capture newly active official PDFs
+        if: steps.watch.outputs.has_target == 'true'
+        run: npm run download:omgmu -- --manifest=data/imports/omgmu-source-manifest.json --output=data/imports/omgmu-watched-pdfs
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const path = 'data/imports/omgmu-source-watch-report.json';
+          if (!fs.existsSync(path)) {
+            console.log('## ОмГМУ source watch\n\nReport was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          console.log('## ОмГМУ source watch');
+          console.log('');
+          console.log(`Official page period: **${report.pageAcademicYear || 'unknown'} / ${report.pageSemester || 'unknown'}**`);
+          console.log(`Expected: **${report.expectedAcademicYear} / autumn**`);
+          console.log(`Status: **${report.status}**`);
+          console.log('');
+          console.log('| Program | Sources | Courses |');
+          console.log('|---|---:|---|');
+          for (const item of report.targetPrograms) {
+            console.log(`| ${item.label} | ${item.sourceCount} | ${item.courses.join(', ') || '—'} |`);
+          }
+          NODE
+
+      - name: Upload watch report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-source-watch
+          path: |
+            api/data/imports/omgmu-source-manifest.json
+            api/data/imports/omgmu-source-watch-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload newly active PDFs
+        if: steps.watch.outputs.has_target == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-new-program-pdfs
+          path: api/data/imports/omgmu-watched-pdfs
+          if-no-files-found: error
+          retention-days: 30
