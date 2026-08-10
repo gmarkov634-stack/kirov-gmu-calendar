@@ -39,6 +39,28 @@ function scheduleGroupFromFilename(filename) {
   };
 }
 
+function legacyKgmuScheduleKey(context) {
+  if (
+    context.university !== "kgmu" ||
+    !/^[a-z][a-z0-9-]{1,63}$/.test(context.program || "") ||
+    !Number.isInteger(context.course) ||
+    context.course < 1 ||
+    !/^\d{3}$/.test(context.groupCode || "")
+  ) return null;
+  return `schedules/${context.program}/${context.course}/${context.groupCode}.json`;
+}
+
+function legacyKgmuGroup(program, course, filename) {
+  const match = String(filename || "").match(/^(\d{3})\.json$/);
+  if (!match) return null;
+  const groupCode = match[1];
+  return {
+    groupId: `kgmu:${program}:${course}:${groupCode}`,
+    groupCode,
+    displayName: `Группа ${groupCode}`,
+  };
+}
+
 function sortGroups(groups) {
   return groups.sort((a, b) =>
     a.groupCode.localeCompare(b.groupCode, "ru", { numeric: true, sensitivity: "base" }),
@@ -53,26 +75,37 @@ export class MultiUniversityStore extends ScheduleStore {
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-    let value;
+    const keys = [key];
+    const legacyKey = legacyKgmuScheduleKey(context);
+    if (legacyKey && legacyKey !== key) keys.push(legacyKey);
+
+    let value = null;
     if (this.s3) {
-      try {
-        const response = await this.s3.send(new GetObjectCommand({
-          Bucket: this.config.bucket,
-          Key: key,
-        }));
-        value = JSON.parse(await response.Body.transformToString("utf8"));
-      } catch (error) {
-        if (isMissingObject(error)) return null;
-        throw error;
+      for (const candidate of keys) {
+        try {
+          const response = await this.s3.send(new GetObjectCommand({
+            Bucket: this.config.bucket,
+            Key: candidate,
+          }));
+          value = JSON.parse(await response.Body.transformToString("utf8"));
+          break;
+        } catch (error) {
+          if (isMissingObject(error)) continue;
+          throw error;
+        }
       }
     } else {
-      try {
-        value = JSON.parse(await fs.readFile(path.join(this.config.dataDir, key), "utf8"));
-      } catch (error) {
-        if (error.code === "ENOENT") return null;
-        throw error;
+      for (const candidate of keys) {
+        try {
+          value = JSON.parse(await fs.readFile(path.join(this.config.dataDir, candidate), "utf8"));
+          break;
+        } catch (error) {
+          if (error.code === "ENOENT") continue;
+          throw error;
+        }
       }
     }
+    if (!value) return null;
 
     this.cache.set(cacheKey, {
       value,
@@ -100,6 +133,9 @@ export class MultiUniversityStore extends ScheduleStore {
     }
 
     const prefix = `schedules/${context.university}/${context.program}/${context.course}/`;
+    const legacyPrefix = context.university === "kgmu"
+      ? `schedules/${context.program}/${context.course}/`
+      : null;
     const groups = new Map();
     const addKey = (key) => {
       if (typeof key !== "string" || !key.startsWith(prefix)) return;
@@ -108,27 +144,42 @@ export class MultiUniversityStore extends ScheduleStore {
       const group = scheduleGroupFromFilename(filename);
       if (group) groups.set(group.groupId, group);
     };
+    const addLegacyKey = (key) => {
+      if (!legacyPrefix || typeof key !== "string" || !key.startsWith(legacyPrefix)) return;
+      const filename = key.slice(legacyPrefix.length);
+      if (!filename || filename.includes("/")) return;
+      const group = legacyKgmuGroup(context.program, context.course, filename);
+      if (group && !groups.has(group.groupId)) groups.set(group.groupId, group);
+    };
 
     if (this.s3) {
-      let continuationToken;
-      do {
-        const response = await this.s3.send(new ListObjectsV2Command({
-          Bucket: this.config.bucket,
-          Prefix: prefix,
-          ContinuationToken: continuationToken,
-        }));
-        for (const object of response.Contents || []) addKey(object.Key || "");
-        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
-      } while (continuationToken);
+      const listPrefix = async (targetPrefix, add) => {
+        let continuationToken;
+        do {
+          const response = await this.s3.send(new ListObjectsV2Command({
+            Bucket: this.config.bucket,
+            Prefix: targetPrefix,
+            ContinuationToken: continuationToken,
+          }));
+          for (const object of response.Contents || []) add(object.Key || "");
+          continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+        } while (continuationToken);
+      };
+      await listPrefix(prefix, addKey);
+      if (legacyPrefix) await listPrefix(legacyPrefix, addLegacyKey);
     } else {
-      const directory = path.join(this.config.dataDir, prefix);
-      let names = [];
-      try {
-        names = await fs.readdir(directory);
-      } catch (error) {
-        if (error.code !== "ENOENT") throw error;
-      }
-      for (const name of names) addKey(`${prefix}${name}`);
+      const readDirectory = async (targetPrefix, add) => {
+        const directory = path.join(this.config.dataDir, targetPrefix);
+        let names = [];
+        try {
+          names = await fs.readdir(directory);
+        } catch (error) {
+          if (error.code !== "ENOENT") throw error;
+        }
+        for (const name of names) add(`${targetPrefix}${name}`);
+      };
+      await readDirectory(prefix, addKey);
+      if (legacyPrefix) await readDirectory(legacyPrefix, addLegacyKey);
     }
 
     const candidates = sortGroups([...groups.values()]);
