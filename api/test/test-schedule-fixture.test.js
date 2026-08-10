@@ -11,9 +11,12 @@ const request = {
   groupCode: "132",
 };
 
-function config(enabled) {
+function config(enabled, spring = false) {
   return {
     testScheduleFixtureEnabled: enabled,
+    testScheduleSpringFixtureEnabled: spring,
+    offerAcademicYear: "2026/27",
+    offerSemester: 1,
     cacheTtlMs: 1000,
     dataDir: "/tmp/nonexistent-calendar-test-data",
     accessKeyId: "",
@@ -33,4 +36,36 @@ test("synthetic KGMU autumn fixture is served only when explicitly enabled", asy
 
   const disabledStore = new MultiUniversityStore(config(false));
   assert.equal(await disabledStore.getSchedule(request), null);
+});
+
+test("published spring fixture moves year plan forward while semester plan stays on autumn", async () => {
+  const store = new MultiUniversityStore(config(true, true));
+
+  const semesterSchedule = await store.getSchedule({
+    ...request,
+    academicYear: "2026/27",
+    semester: 1,
+    plan: "semester",
+  });
+  assert.equal(semesterSchedule.semester, 1);
+  assert.match(semesterSchedule.events[0].title, /^\[ТЕСТ\]/);
+
+  const yearSchedule = await store.getSchedule({
+    ...request,
+    academicYear: "2026/27",
+    semester: 1,
+    plan: "year",
+  });
+  assert.equal(yearSchedule.semester, 2);
+  assert.match(yearSchedule.events[0].title, /^\[ТЕСТ ВЕСНА\]/);
+  assert.equal(yearSchedule.events.length, 8);
+
+  const springGroups = await store.listScheduleGroups({
+    university: "kgmu",
+    program: "pediatrics",
+    course: 1,
+    academicYear: "2026/27",
+    semester: 2,
+  });
+  assert.equal(springGroups.some((group) => group.groupCode === "132"), true);
 });
