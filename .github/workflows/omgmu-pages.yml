@@ -70,12 +70,12 @@ jobs:
           if (config.checkoutEnabled === true && config.testMode !== true) {
             throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
           }
-          if (!configCode.includes('mobile.css') || !configCode.includes('document.currentScript')) {
-            throw new Error('ОмГМУ mobile stylesheet loader is missing');
+          for (const marker of ['mobile.css', 'document.currentScript', 'searchParams.get("v")', 'searchParams.set("v"']) {
+            if (!configCode.includes(marker)) throw new Error(`ОмГМУ versioned mobile stylesheet loader missing: ${marker}`);
           }
 
           const mobileCss = fs.readFileSync('site/omgmu/mobile.css', 'utf8');
-          for (const marker of ['max-width: 760px', 'font-size: 16px', 'safe-area-inset-bottom', 'prefers-reduced-motion']) {
+          for (const marker of ['max-width: 760px', 'font-size: 16px', 'safe-area-inset-bottom', 'prefers-reduced-motion', 'order-has-result', 'hero-text-link']) {
             if (!mobileCss.includes(marker)) throw new Error(`Mobile UX marker missing: ${marker}`);
           }
 
@@ -94,11 +94,14 @@ jobs:
           }
 
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel', 'enableSavedOrderRecovery', 'restoreOrderButton']) {
+          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel', 'enableSavedOrderRecovery', 'restoreOrderButton', 'order-has-result']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
           }
           if (!app.includes("window.location.hash === '#order'")) {
             throw new Error('Return-to-group reset guard is missing');
+          }
+          if (!app.includes("copySubscriptionUrl(order.subscriptionUrl, copyButton), 'secondary'")) {
+            throw new Error('Google copy action must be secondary after payment');
           }
           console.log('Landing validation passed');
           NODE
@@ -149,7 +152,31 @@ jobs:
           if (!pattern.test(source)) throw new Error('apiBaseUrl setting missing');
           fs.writeFileSync(path, source.replace(pattern, `apiBaseUrl: "${apiUrl}"`));
           NODE
+
+          BUILD_VERSION="$GITHUB_SHA" node - <<'NODE'
+          const fs = require('fs');
+          const path = 'dist/site/omgmu/index.html';
+          const version = process.env.BUILD_VERSION;
+          if (!/^[0-9a-f]{40}$/.test(version || '')) throw new Error('Invalid Pages build version');
+          let html = fs.readFileSync(path, 'utf8');
+          const replacements = [
+            ['href="styles.css"', `href="styles.css?v=${version}"`],
+            ['src="config.js"', `src="config.js?v=${version}"`],
+            ['src="groups.js"', `src="groups.js?v=${version}"`],
+            ['src="app.js"', `src="app.js?v=${version}"`],
+          ];
+          for (const [from, to] of replacements) {
+            if (!html.includes(from)) throw new Error(`Asset reference missing before cache bust: ${from}`);
+            html = html.replace(from, to);
+          }
+          fs.writeFileSync(path, html);
+          NODE
+
           ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
+          grep -q 'styles.css?v=' dist/site/omgmu/index.html
+          grep -q 'config.js?v=' dist/site/omgmu/index.html
+          grep -q 'groups.js?v=' dist/site/omgmu/index.html
+          grep -q 'app.js?v=' dist/site/omgmu/index.html
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
