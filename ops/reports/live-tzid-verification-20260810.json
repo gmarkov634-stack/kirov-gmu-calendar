@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "operation": "live-omgmu-tzid-verification",
+  "generatedAt": "2026-08-10T13:37:04.259043+00:00",
+  "httpStatus": 200,
+  "timezone": "Asia/Omsk",
+  "vtimezonePresent": true,
+  "tzidPresent": true,
+  "offset": "+0600",
+  "eventCount": 230,
+  "firstEventStart": "DTSTART;TZID=Asia/Omsk:20260406T080000",
+  "firstEventEnd": "DTEND;TZID=Asia/Omsk:20260406T102500",
+  "allEventsUseTzid": true,
+  "utcEventTimestamps": 0,
+  "errors": [],
+  "validationStatus": "success",
+  "jobStatus": "success"
+}
