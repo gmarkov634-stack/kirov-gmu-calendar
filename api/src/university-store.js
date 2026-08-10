@@ -8,6 +8,19 @@ function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
 }
 
+function normalizeAcademicYear(value) {
+  const match = String(value || "").match(/(\d{4})\D+(\d{2,4})/);
+  if (!match) return null;
+  const start = Number(match[1]);
+  let end = Number(match[2]);
+  if (match[2].length === 2) {
+    end = Math.floor(start / 100) * 100 + end;
+    if (end < start) end += 100;
+  }
+  if (!Number.isInteger(start) || !Number.isInteger(end) || end !== start + 1) return null;
+  return `${start}/${end}`;
+}
+
 function scheduleGroupFromFilename(filename) {
   if (typeof filename !== "string" || !filename.endsWith(".json")) return null;
   let groupId;
@@ -24,6 +37,12 @@ function scheduleGroupFromFilename(filename) {
     groupCode,
     displayName: `Группа ${groupCode}`,
   };
+}
+
+function sortGroups(groups) {
+  return groups.sort((a, b) =>
+    a.groupCode.localeCompare(b.groupCode, "ru", { numeric: true, sensitivity: "base" }),
+  );
 }
 
 export class MultiUniversityStore extends ScheduleStore {
@@ -68,6 +87,18 @@ export class MultiUniversityStore extends ScheduleStore {
       throw new Error("Incomplete schedule context");
     }
 
+    const expectedAcademicYear = input?.academicYear == null
+      ? null
+      : normalizeAcademicYear(input.academicYear);
+    if (input?.academicYear != null && !expectedAcademicYear) {
+      throw new Error("Invalid academic year");
+    }
+
+    const expectedSemester = input?.semester == null ? null : Number(input.semester);
+    if (input?.semester != null && ![1, 2].includes(expectedSemester)) {
+      throw new Error("Invalid semester");
+    }
+
     const prefix = `schedules/${context.university}/${context.program}/${context.course}/`;
     const groups = new Map();
     const addKey = (key) => {
@@ -100,8 +131,27 @@ export class MultiUniversityStore extends ScheduleStore {
       for (const name of names) addKey(`${prefix}${name}`);
     }
 
-    return [...groups.values()].sort((a, b) =>
-      a.groupCode.localeCompare(b.groupCode, "ru", { numeric: true, sensitivity: "base" }),
-    );
+    const candidates = sortGroups([...groups.values()]);
+    if (!expectedAcademicYear && expectedSemester == null) return candidates;
+
+    const filtered = await Promise.all(candidates.map(async (group) => {
+      const schedule = await this.getSchedule({
+        university: context.university,
+        program: context.program,
+        course: context.course,
+        groupId: group.groupId,
+        groupCode: group.groupCode,
+      });
+      if (!schedule) return null;
+      const actual = scheduleContext(schedule);
+      if (expectedAcademicYear && normalizeAcademicYear(actual.academicYear) !== expectedAcademicYear) return null;
+      if (expectedSemester != null && actual.semester !== expectedSemester) return null;
+      return {
+        ...group,
+        displayName: actual.groupDisplayName || group.displayName,
+      };
+    }));
+
+    return sortGroups(filtered.filter(Boolean));
   }
 }
