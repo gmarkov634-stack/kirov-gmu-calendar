@@ -301,5 +301,11 @@ form.addEventListener('submit', async (event) => {
 
 handlePaymentReturn();
 window.addEventListener('hashchange', () => {
-  if (window.location.hash === '#order-status') handlePaymentReturn();
+  if (window.location.hash === '#order-status') {
+    handlePaymentReturn();
+    return;
+  }
+  if (window.location.hash === '#order' && !form.querySelector('#course')) {
+    window.location.reload();
+  }
 });
