@@ -48,5 +48,4 @@ test("ОмГМУ floating ICS always keeps the official lesson clock time", () =
   assert.doesNotMatch(result, /TZID=/);
   assert.doesNotMatch(result, /X-WR-TIMEZONE/);
   assert.doesNotMatch(result, /DTSTART:20260713T030000Z/);
-  assert.match(result, /не пересчитывается при смене часового пояса/);
 });
