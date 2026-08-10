@@ -106,7 +106,6 @@
   .hero { padding-top: 24px; }
   h1 { font-size: 1.78rem; }
   .lead { font-size: .86rem; }
-  .calendar-preview .preview-event:last-child { display: none; }
   .program-code { margin-left: auto; }
   .summary-row { display: grid; gap: 2px; }
   .summary-row strong { max-width: none; text-align: left; }
