@@ -8,8 +8,15 @@ const emailInput = document.querySelector('#email');
 const form = document.querySelector('#order-form');
 const status = document.querySelector('#form-status');
 const orderSection = document.querySelector('#order');
-const orderIntro = orderSection.querySelector(':scope > div');
+const orderIntro = orderSection.querySelector('.order-copy');
+const resultPanel = document.querySelector('#order-result');
+const selectionSummary = document.querySelector('#selection-summary');
+const priceSummary = document.querySelector('#price-summary');
 const savedOrderKey = 'omgmu-calendar-orders-v2';
+
+const initialIntroTitle = orderIntro.querySelector('h2')?.textContent || 'Выберите курс и группу';
+const introParagraphs = orderIntro.querySelectorAll('p');
+const initialIntroText = introParagraphs[introParagraphs.length - 1]?.textContent || '';
 
 function validOrderId(value) {
   return typeof value === 'string' && /^[A-Za-z0-9_-]{32}$/.test(value);
@@ -64,17 +71,32 @@ function fillGroups(entries) {
   const groups = entries.flatMap((item) => item.groups).sort((a, b) => a.localeCompare(b, 'ru', { numeric: true }));
   for (const group of groups) groupSelect.add(new Option(`Группа ${group}`, group));
   groupSelect.disabled = groups.length === 0;
+  updateSelectionSummary();
+}
+
+function updateSelectionSummary() {
+  if (!selectionSummary) return;
+  if (!courseSelect.value) {
+    selectionSummary.textContent = 'Выберите курс и группу';
+    return;
+  }
+
+  const parts = [`${courseSelect.value} курс`];
+  if (streamSelect.value) parts.push(`${streamSelect.value} поток`);
+  parts.push(groupSelect.value ? `группа ${groupSelect.value}` : 'выберите группу');
+  selectionSummary.textContent = parts.join(' · ');
 }
 
 courseSelect.addEventListener('change', () => {
   reset(streamSelect, 'Не требуется');
   reset(groupSelect, 'Выберите группу');
   const entries = entriesForCourse();
-  const streams = entries.map((item) => item.stream).filter(Boolean);
+  const streams = [...new Set(entries.map((item) => item.stream).filter(Boolean))];
   if (streams.length > 1) {
     streamSelect.replaceChildren(new Option('Выберите поток', ''));
     for (const stream of streams) streamSelect.add(new Option(`${stream} поток`, String(stream)));
     streamSelect.disabled = false;
+    updateSelectionSummary();
   } else {
     fillGroups(entries);
   }
@@ -83,6 +105,8 @@ courseSelect.addEventListener('change', () => {
 streamSelect.addEventListener('change', () => {
   fillGroups(entriesForCourse().filter((item) => String(item.stream || '') === streamSelect.value));
 });
+
+groupSelect.addEventListener('change', updateSelectionSummary);
 
 function buildGroupId({ course, stream, groupCode }) {
   return [
@@ -101,16 +125,28 @@ function setIntro(title, text) {
   if (paragraphs.length) paragraphs[paragraphs.length - 1].textContent = text;
 }
 
-function clearResultForm() {
-  form.replaceChildren();
-  form.removeAttribute('novalidate');
+function showResultShell(title, text) {
+  form.hidden = true;
+  resultPanel.hidden = false;
+  resultPanel.replaceChildren();
+  setIntro(title, text);
+}
+
+function restoreOrderForm({ scroll = true } = {}) {
+  resultPanel.hidden = true;
+  resultPanel.replaceChildren();
+  form.hidden = false;
+  status.textContent = '';
+  setIntro(initialIntroTitle, initialIntroText);
+  history.replaceState(null, '', `${window.location.pathname}${window.location.search}#order`);
+  if (scroll) orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function addText(text, className = 'note') {
   const element = document.createElement('p');
   element.className = className;
   element.textContent = text;
-  form.append(element);
+  resultPanel.append(element);
   return element;
 }
 
@@ -119,17 +155,17 @@ function addLink(label, href, className = 'primary') {
   link.className = className;
   link.href = href;
   link.textContent = label;
-  form.append(link);
+  resultPanel.append(link);
   return link;
 }
 
-function addButton(label, handler) {
+function addButton(label, handler, className = 'primary') {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'primary';
+  button.className = className;
   button.textContent = label;
   button.addEventListener('click', handler);
-  form.append(button);
+  resultPanel.append(button);
   return button;
 }
 
@@ -143,40 +179,41 @@ async function copySubscriptionUrl(url, button) {
 }
 
 function showSucceededOrder(order) {
-  clearResultForm();
-  setIntro(
+  showResultShell(
     order.testMode ? 'Тестовая оплата прошла' : 'Календарь оплачен',
     order.testMode
       ? 'Тестовый платёж завершён. Деньги не списывались.'
       : 'Оплата подтверждена. Персональная ссылка на календарь готова.',
   );
-  addText(`Группа ${order.groupCode || order.group}. Не пересылайте персональную ссылку другим людям.`);
+
+  addText('Готово', 'result-kicker');
+  addText(`Группа ${order.groupCode || order.group}`, 'result-group');
+  addText('Персональная ссылка создана. Не пересылайте её другим людям.');
+
   const webcalUrl = order.subscriptionUrl.replace(/^https:/, 'webcal:');
   addLink('Подключить на iPhone / Apple Calendar', webcalUrl);
   const copyButton = addButton('Скопировать ссылку для Google Calendar', () => copySubscriptionUrl(order.subscriptionUrl, copyButton));
-  addText('Для Google Calendar откройте «Другие календари → Добавить по URL» и вставьте скопированную ссылку.');
-  addLink('Открыть Google Calendar', 'https://calendar.google.com/calendar/', 'primary');
-  addLink('Вернуться к выбору группы', './#order', 'primary');
+  addText('В Google Calendar откройте «Другие календари → Добавить по URL» и вставьте скопированную ссылку.');
+  addLink('Открыть Google Calendar', 'https://calendar.google.com/calendar/', 'secondary');
+  addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
 }
 
 function showCanceledOrder() {
-  clearResultForm();
-  setIntro('Платёж отменён', 'Доступ не выдан. В тестовом режиме деньги не списываются.');
-  addLink('Вернуться к выбору группы', './#order');
+  showResultShell('Платёж отменён', 'Доступ не выдан. В тестовом режиме деньги не списываются.');
+  addText('Платёж не завершён. Можно вернуться к форме и попробовать ещё раз.');
+  addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
 }
 
 function showPendingOrder(orderId, accessToken) {
-  clearResultForm();
-  setIntro('Платёж ещё обрабатывается', 'Если оплата уже завершена, повторно платить не нужно.');
-  addText('Нажмите «Проверить статус» через несколько секунд.');
+  showResultShell('Платёж ещё обрабатывается', 'Если оплата уже завершена, повторно платить не нужно.');
+  addText('Подождите несколько секунд и проверьте статус ещё раз.');
   addButton('Проверить статус', () => renderOrderResult(orderId, accessToken));
-  addLink('Вернуться к выбору группы', './#order');
+  addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
 }
 
 async function renderOrderResult(orderId, accessToken) {
-  clearResultForm();
-  setIntro('Проверяем платёж', 'Обычно подтверждение занимает несколько секунд.');
-  addText('Получаем статус заказа…');
+  showResultShell('Проверяем платёж', 'Обычно подтверждение занимает несколько секунд.');
+  addText('Получаем статус заказа…', 'result-loading');
 
   for (let attempt = 0; attempt < 15; attempt += 1) {
     try {
@@ -226,6 +263,9 @@ function handlePaymentReturn() {
   return false;
 }
 
+priceSummary.textContent = `${config.priceRub} ₽`;
+updateSelectionSummary();
+
 const submit = form.querySelector('button[type="submit"]');
 if (config.checkoutEnabled !== true) {
   submit.disabled = true;
@@ -233,8 +273,8 @@ if (config.checkoutEnabled !== true) {
 } else if (config.testMode === true) {
   submit.textContent = `Провести тестовую оплату · ${config.priceRub} ₽`;
   const testNote = document.createElement('p');
-  testNote.className = 'note';
-  testNote.textContent = 'Тестовый магазин ЮKassa: деньги не списываются.';
+  testNote.className = 'test-note';
+  testNote.textContent = 'Тестовый магазин ЮKassa · реальные деньги не списываются';
   submit.before(testNote);
 }
 
@@ -305,7 +345,5 @@ window.addEventListener('hashchange', () => {
     handlePaymentReturn();
     return;
   }
-  if (window.location.hash === '#order' && !form.querySelector('#course')) {
-    window.location.reload();
-  }
+  if (window.location.hash === '#order' && form.hidden) restoreOrderForm({ scroll: false });
 });

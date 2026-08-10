@@ -94,17 +94,32 @@
         </ol>
       </div>
 
-      <form id="order-form" novalidate>
-        <div class="form-title"><strong>Параметры расписания</strong><span>Лечебное дело</span></div>
-        <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
-        <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
-        <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
-        <label>Email для получения ссылки<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
-        <fieldset><legend>Куда добавить календарь</legend><label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label><label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label></fieldset>
-        <p class="note">После оплаты вы получите универсальную персональную ссылку. Её можно использовать и в Google Calendar, и в Apple Calendar.</p>
-        <button class="primary" type="submit">Перейти к оплате</button>
-        <p id="form-status" class="status" role="status" aria-live="polite"></p>
-      </form>
+      <div class="order-panel">
+        <form id="order-form" novalidate>
+          <div class="form-title"><strong>Параметры расписания</strong><span>Лечебное дело</span></div>
+          <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
+          <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
+          <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
+          <label>Email для получения ссылки<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
+
+          <div class="purchase-summary" aria-live="polite">
+            <div class="summary-row">
+              <span class="summary-label">Ваш календарь</span>
+              <strong id="selection-summary">Выберите курс и группу</strong>
+            </div>
+            <div class="summary-row summary-price">
+              <span class="summary-label">Стоимость</span>
+              <strong id="price-summary">—</strong>
+            </div>
+          </div>
+
+          <p class="note">После оплаты вы получите одну персональную ссылку. На следующем экране можно сразу подключить Apple Calendar или скопировать эту же ссылку для Google Calendar.</p>
+          <button class="primary" type="submit">Перейти к оплате</button>
+          <p id="form-status" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div id="order-result" class="order-result" hidden aria-live="polite"></div>
+      </div>
     </section>
   </main>
 

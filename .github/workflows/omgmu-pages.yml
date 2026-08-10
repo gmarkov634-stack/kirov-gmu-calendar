@@ -70,8 +70,17 @@ jobs:
           if (config.checkoutEnabled === true && config.testMode !== true) {
             throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
           }
+
+          const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
+          for (const requiredId of ['order-form', 'order-result', 'selection-summary', 'price-summary']) {
+            if (!html.includes(`id="${requiredId}"`)) throw new Error(`Checkout UX element missing: ${requiredId}`);
+          }
+          if (/name=["']calendar["']/.test(html)) {
+            throw new Error('Calendar provider must not be selected before payment; subscription URL is universal');
+          }
+
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled']) {
+          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
           }
           if (!app.includes("window.location.hash === '#order'")) {
