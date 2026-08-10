@@ -18,5 +18,6 @@ main:focus{outline:none}
 }
 @media(max-width:390px){
   .test-banner .shell{font-size:.65rem;gap:5px}
+  .calendar-preview .preview-event:last-child{display:grid}
 }
 @media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
