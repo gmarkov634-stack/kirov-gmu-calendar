@@ -72,15 +72,21 @@ jobs:
           }
 
           const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
-          for (const requiredId of ['order-form', 'order-result', 'selection-summary', 'price-summary']) {
-            if (!html.includes(`id="${requiredId}"`)) throw new Error(`Checkout UX element missing: ${requiredId}`);
+          for (const requiredId of ['how', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'restore-order', 'faq']) {
+            if (!html.includes(`id="${requiredId}"`)) throw new Error(`Landing UX element missing: ${requiredId}`);
+          }
+          for (const requiredCopy of ['Оплата проходит через ЮKassa', 'Без автосписаний', 'Открыть последний заказ', 'Это официальный сервис ОмГМУ?']) {
+            if (!html.includes(requiredCopy)) throw new Error(`Trust/FAQ copy missing: ${requiredCopy}`);
           }
           if (/name=["']calendar["']/.test(html)) {
             throw new Error('Calendar provider must not be selected before payment; subscription URL is universal');
           }
+          if (html.includes('Email для получения ссылки')) {
+            throw new Error('Landing must not claim that the subscription URL is delivered by email');
+          }
 
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel']) {
+          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel', 'enableSavedOrderRecovery', 'restoreOrderButton']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
           }
           if (!app.includes("window.location.hash === '#order'")) {

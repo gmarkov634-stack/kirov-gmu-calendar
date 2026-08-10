@@ -16,6 +16,7 @@
         <p class="lead">Подписка на учебное расписание для Apple Calendar и Google Calendar. Время занятий показывается ровно как в расписании, без сдвига при смене часового пояса.</p>
         <div class="hero-actions">
           <a class="primary" href="#programs">Выбрать направление</a>
+          <a class="hero-text-link" href="#how">Как это работает</a>
           <span class="hero-meta">6 направлений · сейчас доступно 43 группы · Apple / Google</span>
         </div>
       </div>
@@ -82,16 +83,38 @@
       </div>
     </section>
 
+    <section id="how" class="how shell">
+      <div class="section-heading">
+        <p class="eyebrow">Как это работает</p>
+        <h2>Один раз подключили — дальше календарь живёт сам</h2>
+        <p>Это именно подписка на календарь, а не одноразовый импорт файла. При обновлении расписания не нужно заново добавлять все занятия вручную.</p>
+      </div>
+      <div class="how-grid">
+        <article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Укажите курс, поток и группу. Перед оплатой вы увидите итоговый выбор и стоимость.</p></article>
+        <article class="how-card"><span class="how-number">2</span><h3>Оплатите один раз</h3><p>Оплата проходит через ЮKassa. Автоматических ежемесячных списаний у календаря нет.</p></article>
+        <article class="how-card"><span class="how-number">3</span><h3>Подключите календарь</h3><p>Для iPhone есть кнопка подключения, для Google Calendar — та же персональная ссылка через «Добавить по URL».</p></article>
+      </div>
+      <div class="trust-strip" aria-label="О сервисе">
+        <div><strong>Официальные источники</strong><span>Расписание берётся из опубликованных материалов ОмГМУ.</span></div>
+        <div><strong>Только проверенные группы</strong><span>Недоступные или неоднозначные расписания не выставляются на продажу.</span></div>
+        <div><strong>Без автосписаний</strong><span>Покупка календаря — разовый платёж, а не банковская подписка.</span></div>
+      </div>
+    </section>
+
     <section id="order" class="order shell">
       <div class="order-copy">
         <p class="eyebrow">Лечебное дело · иностранные обучающиеся</p>
         <h2>Выберите курс и группу</h2>
-        <p>Выберите параметры расписания, укажите email и получите персональную ссылку для подписки после оплаты.</p>
+        <p>Выберите параметры расписания, укажите email для заказа и получите персональную ссылку сразу после оплаты.</p>
         <ol class="steps" aria-label="Этапы подключения">
           <li><span>1</span>Выбор группы</li>
           <li><span>2</span>Оплата</li>
           <li><span>3</span>Подписка на календарь</li>
         </ol>
+        <div class="order-trust">
+          <strong>Перед оплатой</strong>
+          <span>Проверьте курс и группу в итоговом блоке. Ссылка персональная и появляется на этой странице после успешной оплаты.</span>
+        </div>
       </div>
 
       <div class="order-panel">
@@ -100,7 +123,7 @@
           <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
           <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
           <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
-          <label>Email для получения ссылки<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
+          <label>Email для заказа<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
 
           <div class="purchase-summary" aria-live="polite">
             <div class="summary-row">
@@ -113,17 +136,54 @@
             </div>
           </div>
 
-          <p class="note">После оплаты вы получите одну персональную ссылку. На следующем экране можно сразу подключить Apple Calendar или скопировать эту же ссылку для Google Calendar.</p>
+          <p class="note">После оплаты персональная ссылка появится на этой странице. Она одна и та же для Apple Calendar и Google Calendar.</p>
           <button class="primary" type="submit">Перейти к оплате</button>
+          <button id="restore-order" class="secondary" type="button" hidden>Открыть последний заказ</button>
           <p id="form-status" class="status" role="status" aria-live="polite"></p>
         </form>
 
         <div id="order-result" class="order-result" hidden aria-live="polite"></div>
       </div>
     </section>
+
+    <section id="faq" class="faq shell">
+      <div class="section-heading">
+        <p class="eyebrow">Вопросы и ответы</p>
+        <h2>Что важно знать перед подключением</h2>
+      </div>
+      <div class="faq-list">
+        <details open>
+          <summary>Что будет, если расписание изменится?</summary>
+          <p>После обновления данных на сервисе изменения попадут в подписной календарь автоматически при следующем обновлении календаря на устройстве. Скорость обновления зависит от Apple Calendar или Google Calendar.</p>
+        </details>
+        <details>
+          <summary>Нужно ли снова платить после изменения расписания?</summary>
+          <p>Нет. Обновления уже приобретённого расписания приходят по той же персональной подписной ссылке и не требуют новой покупки.</p>
+        </details>
+        <details>
+          <summary>Почему время не меняется, если я уехал в другой часовой пояс?</summary>
+          <p>Учебное время хранится как время из расписания. Если занятие указано в 09:00, в календаре оно остаётся в 09:00 независимо от часового пояса телефона.</p>
+        </details>
+        <details>
+          <summary>Что делать, если я закрыл страницу и потерял ссылку?</summary>
+          <p>На том же устройстве откройте страницу снова и нажмите «Открыть последний заказ». Данные последнего заказа сохраняются локально в браузере. На другом устройстве автоматического восстановления пока нет, поэтому персональную ссылку лучше сохранить.</p>
+        </details>
+        <details>
+          <summary>Одна ссылка подходит и для Apple, и для Google?</summary>
+          <p>Да. После оплаты создаётся одна персональная подписная ссылка. На iPhone её можно открыть как подписной календарь, а в Google Calendar — добавить через «Другие календари → Добавить по URL».</p>
+        </details>
+        <details>
+          <summary>Это официальный сервис ОмГМУ?</summary>
+          <p>Нет. Это независимый сервис календарей расписания. Для подготовки расписания используются официально опубликованные материалы ОмГМУ, но сам сервис не является сайтом университета.</p>
+        </details>
+      </div>
+    </section>
   </main>
 
-  <footer class="shell"><strong>Расписание ОмГМУ в календаре</strong><span>Сервис не является официальным сайтом ОмГМУ.</span></footer>
+  <footer class="shell">
+    <div><strong>Расписание ОмГМУ в календаре</strong><span>Независимый сервис на основе опубликованного расписания.</span></div>
+    <nav aria-label="Ссылки в подвале"><a href="#programs">Направления</a><a href="#how">Как это работает</a><a href="#faq">FAQ</a></nav>
+  </footer>
   <script src="config.js"></script>
   <script src="groups.js"></script>
   <script src="app.js"></script>
