@@ -108,9 +108,7 @@ function safeFilename(value) {
 }
 
 function siteUrl(config, university) {
-  const configured = config.universitySiteUrls?.[university];
-  if (configured) return configured;
-  return university === "kgmu" ? config.publicSiteUrl : "";
+  return String(config.universitySiteUrls?.[university] || "").trim();
 }
 
 export function createHandler({ store, config, payments }) {
