@@ -10,6 +10,25 @@ function utcStamp(value) {
   return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 
+function zonedStamp(value, timezone) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new Error("Invalid calendar event date");
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts
+    .filter((part) => part.type !== "literal")
+    .map((part) => [part.type, part.value]));
+  return `${values.year}${values.month}${values.day}T${values.hour}${values.minute}${values.second}`;
+}
+
 function foldLine(line) {
   const chunks = [];
   let rest = line;
@@ -35,6 +54,29 @@ const UNIVERSITY_NAMES = {
   pgmu: "ПГМУ",
 };
 
+const TIMEZONE_DEFINITIONS = {
+  "Europe/Moscow": { offset: "+0300", name: "MSK" },
+  "Asia/Yekaterinburg": { offset: "+0500", name: "YEKT" },
+  "Asia/Omsk": { offset: "+0600", name: "OMST" },
+};
+
+function timezoneLines(timezone) {
+  const definition = TIMEZONE_DEFINITIONS[timezone];
+  if (!definition) return [];
+  return [
+    "BEGIN:VTIMEZONE",
+    `TZID:${timezone}`,
+    `X-LIC-LOCATION:${timezone}`,
+    "BEGIN:STANDARD",
+    "DTSTART:19700101T000000",
+    `TZOFFSETFROM:${definition.offset}`,
+    `TZOFFSETTO:${definition.offset}`,
+    `TZNAME:${definition.name}`,
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ];
+}
+
 function calendarIdentity(schedule) {
   const university = schedule.university || "kgmu";
   const universityName = schedule.universityName || UNIVERSITY_NAMES[university] || university.toUpperCase();
@@ -56,6 +98,7 @@ export function buildCalendar(schedule, publicBaseUrl = "") {
     `X-WR-CALNAME:${escapeIcs(`${identity.universityName} · ${identity.groupName}`)}`,
     `X-WR-TIMEZONE:${escapeIcs(identity.timezone)}`,
     "X-PUBLISHED-TTL:PT6H",
+    ...timezoneLines(identity.timezone),
   ];
 
   for (const event of schedule.events || []) {
@@ -68,8 +111,8 @@ export function buildCalendar(schedule, publicBaseUrl = "") {
       "BEGIN:VEVENT",
       `UID:${escapeIcs(event.id)}@${identity.university}-calendar`,
       `DTSTAMP:${generatedAt}`,
-      `DTSTART:${utcStamp(event.start)}`,
-      `DTEND:${utcStamp(event.end)}`,
+      `DTSTART;TZID=${identity.timezone}:${zonedStamp(event.start, identity.timezone)}`,
+      `DTEND;TZID=${identity.timezone}:${zonedStamp(event.end, identity.timezone)}`,
       `SUMMARY:${escapeIcs(event.title)}`,
       `LOCATION:${escapeIcs(event.location || "")}`,
       `DESCRIPTION:${escapeIcs(description)}`,
