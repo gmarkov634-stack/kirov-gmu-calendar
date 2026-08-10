@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
+import { effectiveSubscriptionEnd } from "./subscription-period.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -146,6 +147,7 @@ export function createHandler({ store, config, payments }) {
         console.error(error);
         if (["invalid_json", "request_too_large"].includes(error.message)) return send(response, 400, { error: error.message });
         if (error.code === "invalid_plan") return send(response, 400, { error: "invalid_checkout" });
+        if (error.code === "semester_end_not_found") return send(response, 409, { error: "offer_not_ready" });
         if (error.code === "offer_expired") return send(response, 409, { error: "offer_expired" });
         return send(response, 503, { error: "payment_unavailable" });
       }
@@ -253,14 +255,22 @@ export function createHandler({ store, config, payments }) {
             console.error("subscription access monitoring failed", error);
           }
         }
-        const active = subscription.status === "active" && Date.now() < subscription.expiresAt;
-        const schedule = active ? await store.getSchedule(subscription) : emptySchedule(subscription);
-        if (!schedule) throw new Error("Subscription schedule is not published");
-        if (active && !sameSchedule(schedule, subscription)) throw new Error("Subscription does not match published schedule");
+
+        let publishedSchedule = null;
+        let effectiveExpiresAt = new Date(subscription.expiresAt).toISOString();
+        if (subscription.status === "active") {
+          publishedSchedule = await store.getSchedule(subscription);
+          if (!publishedSchedule) throw new Error("Subscription schedule is not published");
+          if (!sameSchedule(publishedSchedule, subscription)) throw new Error("Subscription does not match published schedule");
+          effectiveExpiresAt = effectiveSubscriptionEnd(subscription, publishedSchedule);
+        }
+        const active = subscription.status === "active" && Date.now() < Date.parse(effectiveExpiresAt);
+        const schedule = active ? publishedSchedule : emptySchedule(subscription);
 
         const calendar = buildCalendar(schedule, siteUrl(config, subscription.university));
         response.setHeader("Content-Disposition", `inline; filename=${safeFilename(`${subscription.university}-${subscription.groupCode}`)}.ics`);
         response.setHeader("X-Subscription-Status", active ? "active" : subscription.status === "active" ? "expired" : "revoked");
+        response.setHeader("X-Subscription-Expires-At", effectiveExpiresAt);
         return send(response, 200, calendar, "text/calendar; charset=utf-8", "private, no-store");
       } catch (error) {
         console.error(error);
