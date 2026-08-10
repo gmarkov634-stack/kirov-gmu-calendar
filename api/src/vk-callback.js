@@ -6,14 +6,15 @@ const VK_API_URL = "https://api.vk.com/method/messages.send";
 const START_COMMANDS = new Set(["/start", "start", "начать"]);
 const GET_SCHEDULE_COMMAND = "получить расписание";
 const PROGRAMS = [
-  "Лечебное дело",
-  "Педиатрия",
-  "Стоматология",
-  "Медицинская биохимия",
+  { id: "medicine", label: "Лечебное дело", courseCount: 6 },
+  { id: "pediatrics", label: "Педиатрия", courseCount: 6 },
+  { id: "dentistry", label: "Стоматология", courseCount: 5 },
+  { id: "biochemistry", label: "Медицинская биохимия", courseCount: 6 },
 ];
 const PROGRAM_BY_NORMALIZED_TEXT = new Map(
-  PROGRAMS.map((program) => [program.toLowerCase(), program]),
+  PROGRAMS.map((program) => [program.label.toLowerCase(), program]),
 );
+const PROGRAM_BY_ID = new Map(PROGRAMS.map((program) => [program.id, program]));
 
 const WELCOME_REPLY = [
   "👋 Добро пожаловать!",
@@ -30,9 +31,18 @@ const SCHEDULE_REPLY = [
 
 function selectedProgramReply(program) {
   return [
-    `✅ Вы выбрали: ${program}.`,
+    `✅ ${program.label}`,
     "",
-    "Направление сохранено для текущего шага. Далее подключаем выбор курса и группы.",
+    "Выберите курс:",
+  ].join("\n");
+}
+
+function selectedCourseReply(program, course) {
+  return [
+    `✅ ${program.label} · ${course} курс`,
+    "",
+    "Следующий шаг — выбор группы.",
+    "Группы этого курса появятся здесь после загрузки актуального расписания Кировского ГМУ.",
   ].join("\n");
 }
 
@@ -55,6 +65,14 @@ function keyboard(buttonRows, { oneTime = false, inline = false } = {}) {
   });
 }
 
+function chunk(items, size) {
+  const rows = [];
+  for (let index = 0; index < items.length; index += size) {
+    rows.push(items.slice(index, index + size));
+  }
+  return rows;
+}
+
 const START_KEYBOARD = keyboard([
   [textButton("Получить расписание", { action: "get_schedule" }, "primary")],
 ]);
@@ -66,10 +84,29 @@ const PROGRAM_KEYBOARD = keyboard([
   [textButton("Медицинская биохимия", { action: "program", program: "biochemistry" })],
 ]);
 
+function courseKeyboard(program) {
+  const courseButtons = Array.from({ length: program.courseCount }, (_, index) => {
+    const course = index + 1;
+    return textButton(
+      `${course} курс`,
+      { action: "course", program: program.id, course },
+      "primary",
+    );
+  });
+  return keyboard([
+    ...chunk(courseButtons, 3),
+    [textButton("← Выбрать направление", { action: "back_programs" })],
+  ]);
+}
+
+const COURSE_SELECTED_KEYBOARD = keyboard([
+  [textButton("← Выбрать направление", { action: "back_programs" })],
+]);
+
 async function readJson(request) {
   let body = "";
-  for await (const chunk of request) {
-    body += chunk;
+  for await (const chunkPart of request) {
+    body += chunkPart;
     if (Buffer.byteLength(body) > MAX_BODY_BYTES) throw new Error("request_too_large");
   }
   try {
@@ -101,6 +138,26 @@ function incomingMessage(event) {
 
 function normalizeMessageText(message) {
   return String(message?.text || "").trim().toLowerCase();
+}
+
+function messagePayload(message) {
+  const payload = message?.payload;
+  if (!payload) return null;
+  if (typeof payload === "object") return payload;
+  if (typeof payload !== "string") return null;
+  try {
+    const parsed = JSON.parse(payload);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function validCourse(program, value) {
+  const course = Number(value);
+  return Number.isInteger(course) && course >= 1 && course <= program.courseCount
+    ? course
+    : null;
 }
 
 async function sendVkMessage({ token, apiVersion, peerId, message, keyboard: messageKeyboard, fetchImpl, randomId }) {
@@ -188,15 +245,33 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
       const message = incomingMessage(event);
       if (message) {
         const text = normalizeMessageText(message);
+        const payload = messagePayload(message);
+
         if (text === TEST_COMMAND) {
           await reply(message, TEST_REPLY);
         } else if (START_COMMANDS.has(text)) {
           await reply(message, WELCOME_REPLY, START_KEYBOARD);
-        } else if (text === GET_SCHEDULE_COMMAND) {
+        } else if (text === GET_SCHEDULE_COMMAND || payload?.action === "back_programs") {
           await reply(message, SCHEDULE_REPLY, PROGRAM_KEYBOARD);
         } else {
-          const program = PROGRAM_BY_NORMALIZED_TEXT.get(text);
-          if (program) await reply(message, selectedProgramReply(program));
+          const payloadProgram = payload?.action === "program"
+            ? PROGRAM_BY_ID.get(String(payload.program || ""))
+            : null;
+          const program = payloadProgram || PROGRAM_BY_NORMALIZED_TEXT.get(text);
+
+          if (program) {
+            await reply(message, selectedProgramReply(program), courseKeyboard(program));
+          } else if (payload?.action === "course") {
+            const courseProgram = PROGRAM_BY_ID.get(String(payload.program || ""));
+            const course = courseProgram ? validCourse(courseProgram, payload.course) : null;
+            if (courseProgram && course) {
+              await reply(
+                message,
+                selectedCourseReply(courseProgram, course),
+                COURSE_SELECTED_KEYBOARD,
+              );
+            }
+          }
         }
       }
 
