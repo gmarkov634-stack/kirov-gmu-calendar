@@ -8,7 +8,6 @@ const config = {
   yookassaSecretKey: "test-key",
   yookassaTestMode: true,
   subscriptionSigningSecret: "a-long-test-signing-secret-32-bytes-minimum",
-  publicSiteUrl: "https://kgmu.example.test/",
   universitySiteUrls: {
     kgmu: "https://kgmu.example.test/",
     omgmu: "https://omgmu.example.test/",
@@ -92,7 +91,7 @@ test("payment creation stores the complete university context and returns to its
   assert.equal(returnParams.get("access"), result.accessToken);
 });
 
-test("КГМУ payments return to the КГМУ landing", async () => {
+test("КГМУ payments return only to the configured КГМУ landing", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -113,6 +112,34 @@ test("КГМУ payments return to the КГМУ landing", async () => {
   await service.create({ email: "student@example.com", schedule: kgmu });
   const returnUrl = new URL(request.body.confirmation.return_url);
   assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://kgmu.example.test/");
+});
+
+test("university checkout is rejected when its own landing URL is missing", async () => {
+  const store = memoryStore();
+  let fetchCalled = false;
+  const service = new YooKassaService({
+    config: {
+      ...config,
+      universitySiteUrls: { ...config.universitySiteUrls, omgmu: "" },
+    },
+    store,
+    fetchFn: async () => {
+      fetchCalled = true;
+      throw new Error("must not call YooKassa");
+    },
+  });
+
+  await assert.rejects(
+    service.create({ email: "student@example.com", schedule }),
+    /Site URL is not configured for omgmu/,
+  );
+  assert.equal(fetchCalled, false);
+  assert.equal(store.orders.size, 0);
+});
+
+test("payments stay disabled without a shared PUBLIC_API_URL", () => {
+  const service = new YooKassaService({ config: { ...config, publicApiUrl: "" }, store: memoryStore() });
+  assert.equal(service.enabled, false);
 });
 
 test("year plan charges 499 rubles and stores year access", async () => {
