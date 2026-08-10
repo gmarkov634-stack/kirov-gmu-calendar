@@ -1,0 +1,117 @@
+name: One-time live ОмГМУ TZID verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/one-time-live-tzid-check-20260810.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.event.head_commit.message == 'Verify live ОмГМУ TZID calendar'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch live public ICS
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/live-tzid ops/reports
+          API='https://kgmu-calendar-api.containerapps.ru'
+          URL="$API/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/calendar.ics?groupCode=1101&stream=1"
+          code="$(curl --silent --show-error --max-time 30 -o /tmp/live-tzid/1101.ics -w '%{http_code}' "$URL")"
+          printf '%s' "$code" > /tmp/live-tzid/http-code
+          if [ "$code" != '200' ]; then
+            cat /tmp/live-tzid/1101.ics >&2 || true
+            exit 2
+          fi
+      - name: Validate timezone semantics
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          text = Path('/tmp/live-tzid/1101.ics').read_text(encoding='utf-8')
+          errors = []
+          required = [
+              'BEGIN:VTIMEZONE',
+              'TZID:Asia/Omsk',
+              'X-WR-TIMEZONE:Asia/Omsk',
+              'TZOFFSETTO:+0600',
+              'DTSTART;TZID=Asia/Omsk:20260406T080000',
+              'DTEND;TZID=Asia/Omsk:20260406T102500',
+          ]
+          for value in required:
+              if value not in text:
+                  errors.append(f'missing {value}')
+
+          in_event = False
+          event_starts = []
+          event_ends = []
+          for raw in text.replace('\r\n', '\n').split('\n'):
+              line = raw.strip()
+              if line == 'BEGIN:VEVENT':
+                  in_event = True
+              elif line == 'END:VEVENT':
+                  in_event = False
+              elif in_event and line.startswith('DTSTART'):
+                  event_starts.append(line)
+              elif in_event and line.startswith('DTEND'):
+                  event_ends.append(line)
+
+          if not event_starts:
+              errors.append('no VEVENT DTSTART lines')
+          if any(line.endswith('Z') for line in event_starts + event_ends):
+              errors.append('VEVENT still contains UTC Z timestamps')
+          if any('TZID=Asia/Omsk' not in line for line in event_starts + event_ends):
+              errors.append('VEVENT contains timestamp without Asia/Omsk TZID')
+
+          report = {
+              'version': 1,
+              'operation': 'live-omgmu-tzid-verification',
+              'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'httpStatus': int(Path('/tmp/live-tzid/http-code').read_text()),
+              'timezone': 'Asia/Omsk',
+              'vtimezonePresent': 'BEGIN:VTIMEZONE' in text,
+              'tzidPresent': 'TZID:Asia/Omsk' in text,
+              'offset': '+0600' if 'TZOFFSETTO:+0600' in text else None,
+              'eventCount': len(event_starts),
+              'firstEventStart': event_starts[0] if event_starts else None,
+              'firstEventEnd': event_ends[0] if event_ends else None,
+              'allEventsUseTzid': bool(event_starts) and not any('TZID=Asia/Omsk' not in line for line in event_starts + event_ends),
+              'utcEventTimestamps': sum(1 for line in event_starts + event_ends if line.endswith('Z')),
+              'errors': errors,
+              'validationStatus': 'success' if not errors else 'failure',
+          }
+          Path('ops/reports/live-tzid-verification-20260810.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(report, ensure_ascii=False))
+          if errors:
+              raise SystemExit(3)
+          PY
+      - name: Record result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/reports
+          if [ ! -f ops/reports/live-tzid-verification-20260810.json ]; then
+            printf '{"version":1,"operation":"live-omgmu-tzid-verification","validationStatus":"failure","errors":["report not generated"]}\n' > ops/reports/live-tzid-verification-20260810.json
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('ops/reports/live-tzid-verification-20260810.json')
+          d=json.loads(p.read_text())
+          d['jobStatus']=os.environ['JOB_STATUS']
+          p.write_text(json.dumps(d, ensure_ascii=False, indent=2)+'\n')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ops/reports/live-tzid-verification-20260810.json
+          git commit -m 'Record live ОмГМУ TZID verification' || true
+          git push
