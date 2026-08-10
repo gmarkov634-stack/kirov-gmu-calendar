@@ -8,3 +8,8 @@ window.OMGMU_CONFIG = Object.freeze({
   testMode: true,
   checkoutEnabled: true,
 });
+
+const omgmuMobileStyles = document.createElement("link");
+omgmuMobileStyles.rel = "stylesheet";
+omgmuMobileStyles.href = new URL("mobile.css", document.currentScript.src).href;
+document.head.append(omgmuMobileStyles);
