@@ -9,7 +9,7 @@ const config = loadConfig();
 const store = new MultiUniversityStore(config);
 const payments = new YooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
-const vkCallbackHandler = createVkCallbackHandler();
+const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, "http://localhost");

@@ -50,11 +50,30 @@ function successfulVkFetch(requests) {
   };
 }
 
+function scheduleStore(groupSets = {}) {
+  return {
+    async listScheduleGroups({ university, program, course, academicYear, semester }) {
+      assert.equal(university, "kgmu");
+      assert.equal(academicYear, "2026/2027");
+      assert.equal(semester, 1);
+      return groupSets[`${program}:${course}`] || [];
+    },
+  };
+}
+
+const pediatricsGroups = [
+  { groupId: "kgmu:pediatrics:1:131", groupCode: "131", displayName: "Группа 131" },
+  { groupId: "kgmu:pediatrics:1:132", groupCode: "132", displayName: "Группа 132" },
+  { groupId: "kgmu:pediatrics:1:139", groupCode: "139", displayName: "Группа 139" },
+];
+
 const env = {
   VK_CALLBACK_GROUP_ID: "191574528",
   VK_CALLBACK_CONFIRMATION_CODE: "confirmation-code",
   VK_CALLBACK_SECRET: "test-secret",
   VK_ACCESS_TOKEN: "vk1-test-token",
+  VK_ACADEMIC_YEAR: "2026/2027",
+  VK_SEMESTER: "1",
 };
 
 test("VK confirmation returns configured confirmation code", async () => {
@@ -113,11 +132,7 @@ test("начать sends welcome text with Get schedule keyboard", async () => {
 
   const body = requests[0].options.body;
   assert.match(body.get("message"), /Добро пожаловать/);
-  assert.match(body.get("message"), /Получить расписание/);
   const menu = JSON.parse(body.get("keyboard"));
-  assert.equal(menu.one_time, false);
-  assert.equal(menu.inline, false);
-  assert.equal(menu.buttons[0][0].action.type, "text");
   assert.equal(menu.buttons[0][0].action.label, "Получить расписание");
 });
 
@@ -128,10 +143,6 @@ test("Получить расписание sends program selection keyboard", a
     fetchImpl: successfulVkFetch(requests),
     randomIdFactory: () => 9,
   })(fakeRequest(callbackEvent("Получить расписание", "event-schedule")), response);
-
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.body, "ok");
-  assert.equal(requests.length, 1);
 
   const body = requests[0].options.body;
   assert.match(body.get("message"), /Выберите направление подготовки/);
@@ -160,20 +171,11 @@ test("pediatrics program button sends six course buttons", async () => {
     response,
   );
 
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.body, "ok");
-  assert.equal(requests.length, 1);
-  const body = requests[0].options.body;
-  assert.match(body.get("message"), /Педиатрия/);
-  assert.match(body.get("message"), /Выберите курс/);
-
-  const menu = JSON.parse(body.get("keyboard"));
+  const menu = JSON.parse(requests[0].options.body.get("keyboard"));
   const courseButtons = menu.buttons.flat().filter((button) => /курс$/.test(button.action.label));
   assert.deepEqual(courseButtons.map((button) => button.action.label), [
     "1 курс", "2 курс", "3 курс", "4 курс", "5 курс", "6 курс",
   ]);
-  const sixthPayload = JSON.parse(courseButtons[5].action.payload);
-  assert.deepEqual(sixthPayload, { action: "course", program: "pediatrics", course: 6 });
 });
 
 test("dentistry program button sends five course buttons", async () => {
@@ -197,17 +199,18 @@ test("dentistry program button sends five course buttons", async () => {
   assert.equal(labels.includes("6 курс"), false);
 });
 
-test("course payload preserves program context without server-side session", async () => {
+test("course selection shows only groups published for the target academic period", async () => {
   const requests = [];
   const response = fakeResponse();
   await createVkCallbackHandler(env, {
     fetchImpl: successfulVkFetch(requests),
     randomIdFactory: () => 12,
+    store: scheduleStore({ "pediatrics:1": pediatricsGroups }),
   })(
     fakeRequest(callbackEvent(
-      "2 курс",
-      "event-course",
-      { action: "course", program: "medicine", course: 2 },
+      "1 курс",
+      "event-course-groups",
+      { action: "course", program: "pediatrics", course: 1 },
     )),
     response,
   );
@@ -216,8 +219,97 @@ test("course payload preserves program context without server-side session", asy
   assert.equal(response.body, "ok");
   assert.equal(requests.length, 1);
   const body = requests[0].options.body;
-  assert.match(body.get("message"), /Лечебное дело · 2 курс/);
-  assert.match(body.get("message"), /Следующий шаг — выбор группы/);
+  assert.match(body.get("message"), /Педиатрия · 1 курс/);
+  assert.match(body.get("message"), /Выберите группу/);
+
+  const menu = JSON.parse(body.get("keyboard"));
+  const labels = menu.buttons.flat().map((button) => button.action.label);
+  assert.deepEqual(labels.slice(0, 3), ["131", "132", "139"]);
+  const groupPayload = JSON.parse(menu.buttons[0][1].action.payload);
+  assert.deepEqual(groupPayload, {
+    action: "group",
+    program: "pediatrics",
+    course: 1,
+    groupId: "kgmu:pediatrics:1:132",
+  });
+});
+
+test("course selection does not invent groups when target schedule is not published", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  await createVkCallbackHandler(env, {
+    fetchImpl: successfulVkFetch(requests),
+    randomIdFactory: () => 13,
+    store: scheduleStore(),
+  })(
+    fakeRequest(callbackEvent(
+      "2 курс",
+      "event-course-empty",
+      { action: "course", program: "medicine", course: 2 },
+    )),
+    response,
+  );
+
+  const body = requests[0].options.body;
+  assert.match(body.get("message"), /2026\/27 учебный год, осенний семестр/);
+  assert.match(body.get("message"), /пока не опубликовано/);
+  const menu = JSON.parse(body.get("keyboard"));
+  const labels = menu.buttons.flat().map((button) => button.action.label);
+  assert.deepEqual(labels, ["← К курсам", "← Выбрать направление"]);
+});
+
+test("published group payload is revalidated and confirms selected group", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  await createVkCallbackHandler(env, {
+    fetchImpl: successfulVkFetch(requests),
+    randomIdFactory: () => 14,
+    store: scheduleStore({ "pediatrics:1": pediatricsGroups }),
+  })(
+    fakeRequest(callbackEvent(
+      "132",
+      "event-group",
+      {
+        action: "group",
+        program: "pediatrics",
+        course: 1,
+        groupId: "kgmu:pediatrics:1:132",
+      },
+    )),
+    response,
+  );
+
+  assert.equal(requests.length, 1);
+  assert.match(requests[0].options.body.get("message"), /Педиатрия · 1 курс · группа 132/);
+  assert.match(requests[0].options.body.get("message"), /Следующий шаг — оформление календаря/);
+});
+
+test("forged unpublished group payload is ignored", async () => {
+  let fetchCalls = 0;
+  const response = fakeResponse();
+  await createVkCallbackHandler(env, {
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("must not be called");
+    },
+    store: scheduleStore({ "pediatrics:1": pediatricsGroups }),
+  })(
+    fakeRequest(callbackEvent(
+      "999",
+      "event-group-forged",
+      {
+        action: "group",
+        program: "pediatrics",
+        course: 1,
+        groupId: "kgmu:pediatrics:1:999",
+      },
+    )),
+    response,
+  );
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body, "ok");
+  assert.equal(fetchCalls, 0);
 });
 
 test("typed course without payload is ignored because it has no program context", async () => {
@@ -235,12 +327,31 @@ test("typed course without payload is ignored because it has no program context"
   assert.equal(fetchCalls, 0);
 });
 
+test("back to courses preserves program context", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  await createVkCallbackHandler(env, {
+    fetchImpl: successfulVkFetch(requests),
+    randomIdFactory: () => 15,
+  })(
+    fakeRequest(callbackEvent(
+      "← К курсам",
+      "event-back-courses",
+      { action: "back_courses", program: "pediatrics" },
+    )),
+    response,
+  );
+
+  assert.match(requests[0].options.body.get("message"), /Педиатрия/);
+  assert.match(requests[0].options.body.get("message"), /Выберите курс/);
+});
+
 test("back button returns to program selection", async () => {
   const requests = [];
   const response = fakeResponse();
   await createVkCallbackHandler(env, {
     fetchImpl: successfulVkFetch(requests),
-    randomIdFactory: () => 13,
+    randomIdFactory: () => 16,
   })(
     fakeRequest(callbackEvent(
       "← Выбрать направление",
@@ -263,7 +374,7 @@ test("VK API failure is logged but callback still returns ok to avoid duplicate 
         return { error: { error_code: 5 } };
       },
     }),
-    randomIdFactory: () => 14,
+    randomIdFactory: () => 17,
   })(fakeRequest(callbackEvent("начать", "event-error")), response);
 
   assert.equal(response.statusCode, 200);

@@ -29,6 +29,18 @@ const SCHEDULE_REPLY = [
   "После выбора мы перейдём к курсу и группе.",
 ].join("\n");
 
+function defaultAcademicPeriod(now = new Date()) {
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
+  if (month >= 7) return { academicYear: `${year}/${year + 1}`, semester: 1 };
+  return { academicYear: `${year - 1}/${year}`, semester: 2 };
+}
+
+function shortAcademicYear(value) {
+  const match = String(value || "").match(/(\d{4})\D+(\d{4})/);
+  return match ? `${match[1]}/${match[2].slice(-2)}` : String(value || "");
+}
+
 function selectedProgramReply(program) {
   return [
     `✅ ${program.label}`,
@@ -37,12 +49,28 @@ function selectedProgramReply(program) {
   ].join("\n");
 }
 
-function selectedCourseReply(program, course) {
+function selectedCourseReply(program, course, groups, academicYear, semester) {
+  if (groups.length) {
+    return [
+      `✅ ${program.label} · ${course} курс`,
+      "",
+      "Выберите группу:",
+    ].join("\n");
+  }
+  const semesterLabel = semester === 1 ? "осенний семестр" : "весенний семестр";
   return [
     `✅ ${program.label} · ${course} курс`,
     "",
-    "Следующий шаг — выбор группы.",
-    "Группы этого курса появятся здесь после загрузки актуального расписания Кировского ГМУ.",
+    `Расписание на ${shortAcademicYear(academicYear)} учебный год, ${semesterLabel}, для этого курса пока не опубликовано.`,
+    "Группы появятся здесь автоматически после загрузки актуального расписания Кировского ГМУ.",
+  ].join("\n");
+}
+
+function selectedGroupReply(program, course, group) {
+  return [
+    `✅ ${program.label} · ${course} курс · группа ${group.groupCode}`,
+    "",
+    "Группа выбрана. Следующий шаг — оформление календаря.",
   ].join("\n");
 }
 
@@ -99,9 +127,32 @@ function courseKeyboard(program) {
   ]);
 }
 
-const COURSE_SELECTED_KEYBOARD = keyboard([
-  [textButton("← Выбрать направление", { action: "back_programs" })],
-]);
+function courseBackRows(program) {
+  return [
+    [textButton("← К курсам", { action: "back_courses", program: program.id })],
+    [textButton("← Выбрать направление", { action: "back_programs" })],
+  ];
+}
+
+function groupKeyboard(program, course, groups) {
+  const groupButtons = groups.map((group) => textButton(
+    group.groupCode,
+    { action: "group", program: program.id, course, groupId: group.groupId },
+    "primary",
+  ));
+  return keyboard([
+    ...chunk(groupButtons, 3),
+    ...courseBackRows(program),
+  ]);
+}
+
+function noGroupsKeyboard(program) {
+  return keyboard(courseBackRows(program));
+}
+
+function selectedGroupKeyboard(program) {
+  return keyboard(courseBackRows(program));
+}
 
 async function readJson(request) {
   let body = "";
@@ -190,6 +241,11 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
   const apiVersion = String(env.VK_API_VERSION || "5.199").trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
   const randomIdFactory = dependencies.randomIdFactory || (() => Math.floor(Math.random() * 2147483647) + 1);
+  const scheduleStore = dependencies.store;
+  const defaultPeriod = defaultAcademicPeriod(dependencies.now ? dependencies.now() : new Date());
+  const academicYear = String(env.VK_ACADEMIC_YEAR || defaultPeriod.academicYear).trim();
+  const configuredSemester = Number(env.VK_SEMESTER || defaultPeriod.semester);
+  const semester = [1, 2].includes(configuredSemester) ? configuredSemester : defaultPeriod.semester;
 
   async function reply(message, text, messageKeyboard) {
     if (!accessToken) {
@@ -209,6 +265,22 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
       console.log("vk reply sent", { peerId: message.peer_id });
     } catch (error) {
       console.error("vk reply failed", error);
+    }
+  }
+
+  async function publishedGroups(program, course) {
+    if (!scheduleStore?.listScheduleGroups) return [];
+    try {
+      return await scheduleStore.listScheduleGroups({
+        university: "kgmu",
+        program: program.id,
+        course,
+        academicYear,
+        semester,
+      });
+    } catch (error) {
+      console.error("vk group list failed", error);
+      return [];
     }
   }
 
@@ -253,25 +325,40 @@ export function createVkCallbackHandler(env = process.env, dependencies = {}) {
           await reply(message, WELCOME_REPLY, START_KEYBOARD);
         } else if (text === GET_SCHEDULE_COMMAND || payload?.action === "back_programs") {
           await reply(message, SCHEDULE_REPLY, PROGRAM_KEYBOARD);
+        } else if (payload?.action === "back_courses") {
+          const program = PROGRAM_BY_ID.get(String(payload.program || ""));
+          if (program) await reply(message, selectedProgramReply(program), courseKeyboard(program));
+        } else if (payload?.action === "course") {
+          const program = PROGRAM_BY_ID.get(String(payload.program || ""));
+          const course = program ? validCourse(program, payload.course) : null;
+          if (program && course) {
+            const groups = await publishedGroups(program, course);
+            await reply(
+              message,
+              selectedCourseReply(program, course, groups, academicYear, semester),
+              groups.length ? groupKeyboard(program, course, groups) : noGroupsKeyboard(program),
+            );
+          }
+        } else if (payload?.action === "group") {
+          const program = PROGRAM_BY_ID.get(String(payload.program || ""));
+          const course = program ? validCourse(program, payload.course) : null;
+          if (program && course) {
+            const groups = await publishedGroups(program, course);
+            const group = groups.find((item) => item.groupId === String(payload.groupId || ""));
+            if (group) {
+              await reply(
+                message,
+                selectedGroupReply(program, course, group),
+                selectedGroupKeyboard(program),
+              );
+            }
+          }
         } else {
           const payloadProgram = payload?.action === "program"
             ? PROGRAM_BY_ID.get(String(payload.program || ""))
             : null;
           const program = payloadProgram || PROGRAM_BY_NORMALIZED_TEXT.get(text);
-
-          if (program) {
-            await reply(message, selectedProgramReply(program), courseKeyboard(program));
-          } else if (payload?.action === "course") {
-            const courseProgram = PROGRAM_BY_ID.get(String(payload.program || ""));
-            const course = courseProgram ? validCourse(courseProgram, payload.course) : null;
-            if (courseProgram && course) {
-              await reply(
-                message,
-                selectedCourseReply(courseProgram, course),
-                COURSE_SELECTED_KEYBOARD,
-              );
-            }
-          }
+          if (program) await reply(message, selectedProgramReply(program), courseKeyboard(program));
         }
       }
 
