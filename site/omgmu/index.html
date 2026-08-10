@@ -9,47 +9,81 @@
 </head>
 <body>
   <header class="hero">
-    <div class="shell">
-      <p class="eyebrow">Омский государственный медицинский университет</p>
-      <h1>Расписание ОмГМУ прямо в вашем календаре</h1>
-      <p class="lead">Занятия, время и обновления расписания в Google Calendar или Apple Calendar.</p>
-      <a class="primary" href="#order">Выбрать группу</a>
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Омский государственный медицинский университет</p>
+        <h1>Расписание ОмГМУ — сразу в календаре</h1>
+        <p class="lead">Подписка на учебное расписание для Apple Calendar и Google Calendar. Время занятий показывается ровно как в расписании, без сдвига при смене часового пояса.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#programs">Выбрать направление</a>
+          <span class="hero-meta">43 группы · 1–5 курс · Apple / Google</span>
+        </div>
+      </div>
+      <div class="calendar-preview" aria-hidden="true">
+        <div class="preview-top"><span>Сегодня</span><strong>Расписание</strong></div>
+        <div class="preview-event"><time>08:30</time><div><strong>Анатомия человека</strong><span>Учебное занятие</span></div></div>
+        <div class="preview-event"><time>10:40</time><div><strong>Гистология</strong><span>Учебное занятие</span></div></div>
+        <div class="preview-event"><time>14:30</time><div><strong>Иностранный язык</strong><span>Учебное занятие</span></div></div>
+      </div>
     </div>
   </header>
 
   <main>
     <section class="benefits shell" aria-label="Преимущества">
-      <article><strong>Автоматические обновления</strong><span>Изменения появляются без повторного импорта.</span></article>
-      <article><strong>Часовой пояс Омска</strong><span>Все события создаются в Asia/Omsk.</span></article>
-      <article><strong>Google и Apple</strong><span>Одна подписная ссылка работает на телефоне и компьютере.</span></article>
+      <article><span class="benefit-icon">↻</span><strong>Обновляется по подписке</strong><span>Не нужно заново импортировать календарь после обновления расписания.</span></article>
+      <article><span class="benefit-icon">09:00</span><strong>Время как в расписании</strong><span>09:00 остаётся 09:00 независимо от часового пояса устройства.</span></article>
+      <article><span class="benefit-icon">✓</span><strong>Apple и Google</strong><span>Одна персональная подписная ссылка подходит для основных календарей.</span></article>
+    </section>
+
+    <section id="programs" class="programs shell">
+      <div class="section-heading">
+        <p class="eyebrow">Направления</p>
+        <h2>Выберите своё расписание</h2>
+        <p>Сейчас опубликовано одно полностью проверенное направление. Другие направления будут появляться здесь по мере подготовки и проверки расписаний.</p>
+      </div>
+      <div class="program-grid">
+        <article class="program-card program-card-active">
+          <div class="program-card-top"><span class="badge">Доступно</span><span class="program-count">43 группы</span></div>
+          <h3>Лечебное дело</h3>
+          <p class="program-subtitle">для иностранных обучающихся</p>
+          <p class="program-description">Курсы 1–5. Расписания прошли автоматическую проверку, а неоднозначные группы — ручную сверку.</p>
+          <a class="primary" href="#order">Выбрать курс и группу</a>
+        </article>
+        <article class="program-card program-card-soon">
+          <span class="badge badge-muted">В подготовке</span>
+          <h3>Другие направления ОмГМУ</h3>
+          <p class="program-description">Добавим их после получения и проверки официальных расписаний. Недоступные группы не продаются.</p>
+        </article>
+      </div>
     </section>
 
     <section id="order" class="order shell">
-      <div>
-        <p class="eyebrow">Лечебное дело для иностранных граждан</p>
-        <h2>Выберите свою группу</h2>
-        <p>На странице показываются только расписания, прошедшие автоматическую или ручную проверку.</p>
+      <div class="order-copy">
+        <p class="eyebrow">Лечебное дело · иностранные обучающиеся</p>
+        <h2>Выберите курс и группу</h2>
+        <p>Выберите параметры расписания, укажите email и получите персональную ссылку для подписки после оплаты.</p>
+        <ol class="steps" aria-label="Этапы подключения">
+          <li><span>1</span>Выбор группы</li>
+          <li><span>2</span>Оплата</li>
+          <li><span>3</span>Подписка на календарь</li>
+        </ol>
       </div>
+
       <form id="order-form" novalidate>
+        <div class="form-title"><strong>Параметры расписания</strong><span>Лечебное дело</span></div>
         <label>Курс<select id="course" required><option value="">Выберите курс</option></select></label>
         <label>Поток<select id="stream" disabled><option value="">Не требуется</option></select></label>
         <label>Группа<select id="group" required disabled><option value="">Выберите группу</option></select></label>
-        <label>Email для получения ссылки
-          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required>
-        </label>
-        <fieldset>
-          <legend>Куда добавить календарь</legend>
-          <label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label>
-          <label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label>
-        </fieldset>
-        <p class="note">После оплаты вы получите универсальную подписную ссылку. Её можно открыть и в Google Calendar, и в Apple Calendar.</p>
+        <label>Email для получения ссылки<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
+        <fieldset><legend>Куда добавить календарь</legend><label class="radio"><input type="radio" name="calendar" value="google" checked> Google Calendar</label><label class="radio"><input type="radio" name="calendar" value="apple"> Apple Calendar</label></fieldset>
+        <p class="note">После оплаты вы получите универсальную персональную ссылку. Её можно использовать и в Google Calendar, и в Apple Calendar.</p>
         <button class="primary" type="submit">Перейти к оплате</button>
         <p id="form-status" class="status" role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
 
-  <footer class="shell">Сервис расписаний не является официальным сайтом ОмГМУ.</footer>
+  <footer class="shell"><strong>Расписание ОмГМУ в календаре</strong><span>Сервис не является официальным сайтом ОмГМУ.</span></footer>
   <script src="config.js"></script>
   <script src="groups.js"></script>
   <script src="app.js"></script>

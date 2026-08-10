@@ -9,6 +9,7 @@ on:
       - "data.js"
       - "app.js"
       - "app-utils.js"
+      - "omgmu/**"
       - "site/omgmu/**"
       - ".github/workflows/omgmu-pages.yml"
   push:
@@ -20,6 +21,7 @@ on:
       - "data.js"
       - "app.js"
       - "app-utils.js"
+      - "omgmu/**"
       - "site/omgmu/**"
       - ".github/workflows/omgmu-pages.yml"
 
@@ -65,10 +67,15 @@ jobs:
           for (const group of approvedManual) {
             if (!groups.includes(group)) throw new Error(`Approved group ${group} is missing`);
           }
-          if (config.checkoutEnabled !== false) throw new Error('ОмГМУ checkout must remain disabled during schedule rollout');
+          if (config.checkoutEnabled === true && config.testMode !== true) {
+            throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
+          }
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
           for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled']) {
             if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
+          }
+          if (!app.includes("window.location.hash === '#order'")) {
+            throw new Error('Return-to-group reset guard is missing');
           }
           console.log('Landing validation passed');
           NODE
@@ -115,8 +122,9 @@ jobs:
           const path = 'dist/site/omgmu/config.js';
           const apiUrl = process.env.API_URL;
           const source = fs.readFileSync(path, 'utf8');
-          if (!source.includes('https://REPLACE_WITH_CLOUD_RU_API')) throw new Error('API placeholder missing');
-          fs.writeFileSync(path, source.replace('https://REPLACE_WITH_CLOUD_RU_API', apiUrl));
+          const pattern = /apiBaseUrl:\s*"https:\/\/[^\"]+"/;
+          if (!pattern.test(source)) throw new Error('apiBaseUrl setting missing');
+          fs.writeFileSync(path, source.replace(pattern, `apiBaseUrl: "${apiUrl}"`));
           NODE
           ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
       - name: Upload Pages artifact
