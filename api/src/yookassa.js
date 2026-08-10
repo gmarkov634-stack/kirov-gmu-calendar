@@ -5,13 +5,27 @@ const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PLAN_IDS = new Set(["semester", "year"]);
 
+function normalizedHttpsBaseUrl(value) {
+  try {
+    const url = new URL(String(value || "").trim());
+    if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) return "";
+    return url.toString().replace(/\/+$/, "");
+  } catch {
+    return "";
+  }
+}
+
 function universitySiteUrl(config, university) {
   if (!UNIVERSITY_ID.test(String(university || ""))) throw new Error("Invalid university id for return URL");
-  const configured = config.universitySiteUrls?.[university];
-  const fallback = university === "kgmu" ? config.publicSiteUrl : "";
-  const value = String(configured || fallback || "").trim();
+  const value = normalizedHttpsBaseUrl(config.universitySiteUrls?.[university]);
   if (!value) throw new Error(`Site URL is not configured for ${university}`);
-  return value.endsWith("/") ? value : `${value}/`;
+  return `${value}/`;
+}
+
+function publicApiBaseUrl(config) {
+  const value = normalizedHttpsBaseUrl(config.publicApiUrl);
+  if (!value) throw new Error("PUBLIC_API_URL is not configured");
+  return value;
 }
 
 function configuredOffer(config, plan) {
@@ -56,6 +70,8 @@ function publicOrder(order) {
     groupCode: order.groupCode,
     groupId: order.groupId,
     groupDisplayName: order.groupDisplayName,
+    academicYear: order.academicYear,
+    semester: order.semester,
     plan: order.plan || "semester",
     amount: order.amount,
     expiresAt: order.expiresAt,
@@ -69,7 +85,7 @@ function accessTokenHash(token) {
 }
 
 function validAccessToken(token) {
-  return typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token);
+  return typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token || "");
 }
 
 function accessAllowed(order, token) {
@@ -102,7 +118,8 @@ export class YooKassaService {
     return Boolean(
       this.config.yookassaShopId &&
       this.config.yookassaSecretKey &&
-      this.config.subscriptionSigningSecret?.length >= 32
+      this.config.subscriptionSigningSecret?.length >= 32 &&
+      normalizedHttpsBaseUrl(this.config.publicApiUrl)
     );
   }
 
@@ -139,6 +156,7 @@ export class YooKassaService {
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
     }
+    const returnSiteUrl = universitySiteUrl(this.config, context.university);
     const orderId = randomBytes(24).toString("base64url");
     const accessToken = randomBytes(32).toString("base64url");
     const now = new Date().toISOString();
@@ -164,7 +182,7 @@ export class YooKassaService {
       capture: true,
       confirmation: {
         type: "redirect",
-        return_url: `${universitySiteUrl(this.config, order.university)}#order=${orderId}&access=${accessToken}`,
+        return_url: `${returnSiteUrl}#order=${orderId}&access=${accessToken}`,
       },
       description: paymentDescription(order),
       metadata: {
@@ -218,7 +236,7 @@ export class YooKassaService {
 
     if (order.status === "succeeded" && order.subscriptionUrl) return publicOrder(order);
     const token = subscriptionToken(this.config, orderId);
-    const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${token}/calendar.ics`;
+    const subscriptionUrl = `${publicApiBaseUrl(this.config)}/api/v1/subscriptions/${token}/calendar.ics`;
     const completedAt = new Date().toISOString();
     await this.store.putSubscription(token, {
       version: 2,
@@ -304,7 +322,7 @@ export class YooKassaService {
 
     const generation = Number(order.subscriptionGeneration || 0) + 1;
     const nextToken = subscriptionToken(this.config, order.orderId, generation);
-    const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${nextToken}/calendar.ics`;
+    const subscriptionUrl = `${publicApiBaseUrl(this.config)}/api/v1/subscriptions/${nextToken}/calendar.ics`;
     await this.store.putSubscription(nextToken, {
       ...current,
       status: "active",
