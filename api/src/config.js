@@ -19,6 +19,7 @@ export function loadConfig(env = process.env) {
     secretAccessKey: env.S3_SECRET_ACCESS_KEY || "",
     dataDir: env.DATA_DIR || path.resolve("data"),
     cacheTtlMs: Number(env.CACHE_TTL_MS || 300000),
+    testScheduleFixtureEnabled: env.TEST_SCHEDULE_FIXTURE_ENABLED === "true",
     universitySiteUrls: {
       kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
