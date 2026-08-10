@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "operation": "live-omgmu-floating-time-verification",
+  "generatedAt": "2026-08-10T14:02:12.332019+00:00",
+  "httpStatus": 200,
+  "eventCount": 230,
+  "firstEventStart": "DTSTART:20260406T080000",
+  "firstEventEnd": "DTEND:20260406T102500",
+  "vtimezonePresent": false,
+  "calendarTimezonePresent": false,
+  "tzidEventTimestamps": 0,
+  "utcEventTimestamps": 0,
+  "allEventsFloating": true,
+  "errors": [],
+  "validationStatus": "success",
+  "jobStatus": "success"
+}
