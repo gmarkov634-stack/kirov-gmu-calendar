@@ -1,0 +1,118 @@
+/* Mobile-first refinements layered on top of styles.css. */
+
+@media (max-width: 760px) {
+  html { scroll-padding-top: 12px; }
+  body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  a, button, select, input, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .shell { width: calc(100% - 24px); }
+
+  .hero { padding: 38px 0 44px; }
+  .hero-grid { gap: 24px; }
+  .eyebrow { margin-bottom: 9px; font-size: .68rem; letter-spacing: .105em; line-height: 1.45; }
+  h1 { font-size: clamp(2.18rem, 11vw, 2.8rem); line-height: 1.01; margin-bottom: 14px; letter-spacing: -.04em; }
+  .lead { font-size: 1rem; line-height: 1.52; }
+  .hero-actions { gap: 10px; margin-top: 22px; }
+  .hero-actions .primary { min-height: 54px; border-radius: 13px; }
+  .hero-text-link { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .hero-meta { font-size: .79rem; line-height: 1.4; }
+
+  .calendar-preview { padding: 15px 16px; border-radius: 18px; box-shadow: 0 18px 44px rgba(7,29,53,.22); }
+  .preview-top { padding-bottom: 11px; font-size: .8rem; }
+  .preview-event { grid-template-columns: 52px 1fr; gap: 10px; padding: 12px 0; }
+  .preview-event time { font-size: .9rem; }
+  .preview-event strong { font-size: .92rem; }
+  .preview-event span { font-size: .76rem; margin-top: 2px; }
+
+  .benefits { gap: 10px; margin-top: 14px; }
+  .benefits article { display: grid; grid-template-columns: 42px minmax(0,1fr); column-gap: 11px; row-gap: 3px; padding: 15px 16px; border-radius: 15px; }
+  .benefit-icon { grid-row: 1 / span 2; margin: 0; align-self: start; min-width: 38px; height: 34px; }
+  .benefits strong { align-self: end; font-size: .96rem; }
+  .benefits article > span:last-child { margin: 0; font-size: .83rem; line-height: 1.42; }
+
+  .programs { padding-top: 50px; padding-bottom: 20px; }
+  .section-heading { margin-bottom: 20px; }
+  h2 { font-size: clamp(1.8rem, 9vw, 2.35rem); line-height: 1.06; margin-bottom: 10px; }
+  .section-heading > p:last-child, .order-copy > p { font-size: .94rem; line-height: 1.52; }
+  .program-grid { gap: 11px; }
+  .program-card { padding: 17px; border-radius: 16px; }
+  .program-card h3 { margin-top: 12px; font-size: 1.25rem; }
+  .program-card-active { padding: 20px; }
+  .program-card-active .program-description { margin: 12px 0 17px; font-size: .91rem; line-height: 1.5; }
+  .program-card-active .primary { width: 100%; min-height: 52px; }
+  .program-card-soon { min-height: 0; }
+  .program-card-soon .program-card-top { flex-direction: row; align-items: center; }
+  .program-card-soon h3 { margin: 11px 0 0; font-size: 1.12rem; }
+  .program-card-soon .program-description { display: none; }
+  .badge { padding: 6px 9px; font-size: .72rem; }
+  .program-code, .program-count { font-size: .76rem; }
+
+  .how { padding: 46px 0 20px; }
+  .how-grid { gap: 10px; }
+  .how-card { display: grid; grid-template-columns: 38px minmax(0,1fr); column-gap: 12px; row-gap: 4px; padding: 16px; border-radius: 16px; }
+  .how-number { grid-row: 1 / span 2; width: 36px; height: 36px; }
+  .how-card h3 { margin: 1px 0 0; font-size: 1rem; }
+  .how-card p { margin: 0; font-size: .86rem; line-height: 1.45; }
+  .trust-strip { margin-top: 14px; border-radius: 16px; }
+  .trust-strip > div { padding: 14px 16px; }
+  .trust-strip strong { font-size: .9rem; }
+  .trust-strip span { margin-top: 4px; font-size: .82rem; line-height: 1.42; }
+
+  .order { gap: 22px; padding: 46px 0 58px; }
+  .steps { margin-top: 20px; gap: 9px; }
+  .steps li { font-size: .9rem; }
+  .steps li span { width: 27px; height: 27px; font-size: .75rem; }
+  .order-trust { margin-top: 18px; padding: 13px 14px; }
+  .order form, .order-result { gap: 15px; padding: 18px; border-radius: 18px; }
+  .form-title { padding-bottom: 14px; }
+  label { font-size: .9rem; }
+  select, input[type=email] { min-height: 52px; margin-top: 6px; padding: 12px 13px; border-radius: 12px; font-size: 16px; }
+  .purchase-summary { gap: 9px; padding: 14px; border-radius: 13px; }
+  .summary-row { gap: 10px; }
+  .summary-row strong { max-width: 64%; font-size: .9rem; }
+  .summary-price { padding-top: 9px; }
+  .summary-price strong { font-size: 1.12rem; }
+  .note { font-size: .84rem; line-height: 1.45; }
+  .test-note { font-size: .8rem; padding: 10px 11px; }
+  .order form > .primary { min-height: 58px; border-radius: 14px; font-size: 1rem; box-shadow: 0 12px 28px rgba(12,31,55,.18); }
+  .order form > .secondary, .order-result > .primary, .order-result > .secondary { min-height: 52px; }
+  .status { min-height: 0; font-size: .84rem; }
+  .order-result { min-height: 0; }
+  .result-group { font-size: 1.35rem; }
+
+  .faq { padding: 2px 0 56px; }
+  .faq-list { gap: 8px; }
+  .faq details { border-radius: 14px; box-shadow: none; }
+  .faq summary { min-height: 54px; display: flex; align-items: center; padding: 14px 44px 14px 15px; font-size: .92rem; line-height: 1.35; }
+  .faq summary::after { right: 15px; }
+  .faq details p { padding: 14px 15px; font-size: .86rem; line-height: 1.52; }
+
+  footer { padding: 26px 0 calc(30px + env(safe-area-inset-bottom)); gap: 16px; font-size: .82rem; }
+  footer nav { gap: 14px; }
+  footer a { min-height: 36px; display: inline-flex; align-items: center; }
+}
+
+@media (max-width: 390px) {
+  .shell { width: calc(100% - 20px); }
+  .hero { padding-top: 32px; }
+  h1 { font-size: 2.08rem; }
+  .lead { font-size: .95rem; }
+  .calendar-preview .preview-event:last-child { display: none; }
+  .program-card-soon .program-card-top { gap: 8px; }
+  .program-code { margin-left: auto; }
+  .summary-row { display: grid; gap: 3px; }
+  .summary-row strong { max-width: none; text-align: left; }
+  .summary-price { grid-template-columns: 1fr auto; }
+  .summary-price strong { text-align: right; }
+}
+
+@media (max-width: 760px) and (orientation: landscape) {
+  .hero { padding-top: 28px; }
+  .hero-grid { grid-template-columns: 1.05fr .95fr; align-items: start; }
+  .calendar-preview { margin-top: 2px; }
+  .hero-actions .primary { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .primary, .secondary { transition: none; }
+}
