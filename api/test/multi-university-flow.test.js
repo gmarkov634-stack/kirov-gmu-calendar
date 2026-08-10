@@ -63,7 +63,7 @@ test("MultiUniversityStore reads the normalized university path", async () => {
   assert.equal(loaded.timezone, "Asia/Omsk");
 });
 
-test("version 2 ОмГМУ subscription returns its ICS calendar", async () => {
+test("version 2 ОмГМУ subscription returns its floating-time ICS calendar", async () => {
   const token = "a".repeat(43);
   const store = {
     getSubscription: async (value) => value === token ? subscription : null,
@@ -84,7 +84,11 @@ test("version 2 ОмГМУ subscription returns its ICS calendar", async () => {
     assert.match(response.headers.get("content-disposition"), /omgmu-/);
     const calendar = await response.text();
     assert.match(calendar, /X-WR-CALNAME:ОмГМУ · Группа Л-402А/);
-    assert.match(calendar, /X-WR-TIMEZONE:Asia\/Omsk/);
+    assert.match(calendar, /DTSTART:20260901T080000/);
+    assert.match(calendar, /DTEND:20260901T093000/);
+    assert.doesNotMatch(calendar, /X-WR-TIMEZONE/);
+    assert.doesNotMatch(calendar, /TZID=/);
+    assert.doesNotMatch(calendar, /BEGIN:VTIMEZONE/);
     assert.match(calendar, /UID:omgmu-l402a-20260901@omgmu-calendar/);
   } finally {
     await new Promise((resolve) => server.close(resolve));
