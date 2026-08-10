@@ -3,6 +3,7 @@ import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
 import { MultiUniversityStore } from "./university-store.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
+import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
 
@@ -12,6 +13,7 @@ const payments = new YooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
+const vkControlHandler = createVkControlHandler();
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, "http://localhost");
@@ -20,6 +22,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/vk/wall") {
     return vkWallHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/control") {
+    return vkControlHandler(request, response);
   }
   return appHandler(request, response);
 });
