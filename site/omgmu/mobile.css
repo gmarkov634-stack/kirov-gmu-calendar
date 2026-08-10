@@ -1,112 +1,121 @@
 /* Mobile-first refinements layered on top of styles.css. */
 
 @media (max-width: 760px) {
-  html { scroll-padding-top: 12px; }
+  html { scroll-padding-top: 10px; }
   body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
   a, button, select, input, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  .shell { width: calc(100% - 24px); }
+  .shell { width: calc(100% - 20px); }
 
-  .hero { padding: 38px 0 44px; }
-  .hero-grid { gap: 24px; }
-  .eyebrow { margin-bottom: 9px; font-size: .68rem; letter-spacing: .105em; line-height: 1.45; }
-  h1 { font-size: clamp(2.18rem, 11vw, 2.8rem); line-height: 1.01; margin-bottom: 14px; letter-spacing: -.04em; }
-  .lead { font-size: 1rem; line-height: 1.52; }
-  .hero-actions { gap: 10px; margin-top: 22px; }
-  .hero-actions .primary { min-height: 54px; border-radius: 13px; }
-  .hero-text-link { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-  .hero-meta { font-size: .79rem; line-height: 1.4; }
+  .hero { padding: 28px 0 30px; }
+  .hero-grid { gap: 16px; }
+  .eyebrow { margin-bottom: 7px; font-size: .62rem; letter-spacing: .09em; line-height: 1.35; }
+  h1 { font-size: clamp(1.82rem, 8.8vw, 2.22rem); line-height: 1.02; margin-bottom: 10px; letter-spacing: -.035em; }
+  .lead { max-width: 95%; font-size: .9rem; line-height: 1.42; }
 
-  .calendar-preview { padding: 15px 16px; border-radius: 18px; box-shadow: 0 18px 44px rgba(7,29,53,.22); }
-  .preview-top { padding-bottom: 11px; font-size: .8rem; }
-  .preview-event { grid-template-columns: 52px 1fr; gap: 10px; padding: 12px 0; }
-  .preview-event time { font-size: .9rem; }
-  .preview-event strong { font-size: .92rem; }
-  .preview-event span { font-size: .76rem; margin-top: 2px; }
+  .hero-features { gap: 5px; margin-top: 16px; }
+  .hero-features > div { gap: 5px; font-size: .65rem; line-height: 1.15; }
+  .hero-feature-icon { width: 30px; height: 30px; flex-basis: 30px; border-radius: 9px; font-size: .82rem; }
 
-  .benefits { gap: 10px; margin-top: 14px; }
-  .benefits article { display: grid; grid-template-columns: 42px minmax(0,1fr); column-gap: 11px; row-gap: 3px; padding: 15px 16px; border-radius: 15px; }
-  .benefit-icon { grid-row: 1 / span 2; margin: 0; align-self: start; min-width: 38px; height: 34px; }
-  .benefits strong { align-self: end; font-size: .96rem; }
-  .benefits article > span:last-child { margin: 0; font-size: .83rem; line-height: 1.42; }
+  .hero-actions { gap: 9px; margin-top: 16px; }
+  .hero-actions > .primary { min-height: 48px; border-radius: 12px; padding: 11px 15px; font-size: .94rem; }
+  .hero-price { gap: 9px; }
+  .hero-price strong { min-height: 36px; padding: 6px 12px; border-radius: 11px; font-size: 1rem; }
+  .hero-price span { font-size: .75rem; line-height: 1.25; }
 
-  .programs { padding-top: 50px; padding-bottom: 20px; }
-  .section-heading { margin-bottom: 20px; }
-  h2 { font-size: clamp(1.8rem, 9vw, 2.35rem); line-height: 1.06; margin-bottom: 10px; }
-  .section-heading > p:last-child, .order-copy > p { font-size: .94rem; line-height: 1.52; }
-  .program-grid { gap: 11px; }
-  .program-card { padding: 17px; border-radius: 16px; }
-  .program-card h3 { margin-top: 12px; font-size: 1.25rem; }
-  .program-card-active { padding: 20px; }
-  .program-card-active .program-description { margin: 12px 0 17px; font-size: .91rem; line-height: 1.5; }
-  .program-card-active .primary { width: 100%; min-height: 52px; }
-  .program-card-soon { min-height: 0; }
+  .calendar-preview { padding: 12px 14px; border-radius: 16px; box-shadow: 0 15px 34px rgba(7,29,53,.2); }
+  .preview-top { padding-bottom: 8px; font-size: .74rem; }
+  .preview-event { grid-template-columns: 48px 1fr; gap: 8px; padding: 9px 0; }
+  .preview-event time { font-size: .84rem; }
+  .preview-event strong { font-size: .86rem; }
+  .preview-event span { margin-top: 1px; font-size: .7rem; }
+
+  .programs { padding-top: 34px; padding-bottom: 10px; }
+  .section-heading, .compact-heading { margin-bottom: 14px; }
+  h2 { font-size: clamp(1.55rem, 7.4vw, 1.9rem); line-height: 1.04; margin-bottom: 7px; }
+  .section-heading > p:last-child, .order-copy > p { font-size: .84rem; line-height: 1.42; }
+
+  .program-grid { gap: 7px; }
+  .program-card { padding: 13px 14px; border-radius: 14px; }
+  .program-card-active { padding: 15px; }
+  .program-card h3 { margin-top: 8px; font-size: 1.08rem; }
+  .program-subtitle { font-size: .9rem; }
+  .program-card-active .program-description { margin: 7px 0 11px; font-size: .8rem; line-height: 1.35; }
+  .program-select { min-height: 44px; padding: 10px 12px; border-radius: 11px; font-size: .87rem; }
+  .program-card-soon { padding: 11px 13px; }
   .program-card-soon .program-card-top { flex-direction: row; align-items: center; }
-  .program-card-soon h3 { margin: 11px 0 0; font-size: 1.12rem; }
-  .program-card-soon .program-description { display: none; }
-  .badge { padding: 6px 9px; font-size: .72rem; }
-  .program-code, .program-count { font-size: .76rem; }
+  .program-card-soon h3 { margin: 7px 0 0; font-size: .91rem; line-height: 1.2; }
+  .badge { padding: 4px 7px; font-size: .64rem; }
+  .program-code, .program-count { font-size: .69rem; }
 
-  .how { padding: 46px 0 20px; }
-  .how-grid { gap: 10px; }
-  .how-card { display: grid; grid-template-columns: 38px minmax(0,1fr); column-gap: 12px; row-gap: 4px; padding: 16px; border-radius: 16px; }
-  .how-number { grid-row: 1 / span 2; width: 36px; height: 36px; }
-  .how-card h3 { margin: 1px 0 0; font-size: 1rem; }
-  .how-card p { margin: 0; font-size: .86rem; line-height: 1.45; }
-  .trust-strip { margin-top: 14px; border-radius: 16px; }
-  .trust-strip > div { padding: 14px 16px; }
-  .trust-strip strong { font-size: .9rem; }
-  .trust-strip span { margin-top: 4px; font-size: .82rem; line-height: 1.42; }
+  .how { padding: 34px 0 12px; }
+  .how-grid { gap: 7px; }
+  .how-card { display: grid; grid-template-columns: 31px minmax(0,1fr); column-gap: 9px; row-gap: 2px; padding: 12px 13px; border-radius: 13px; }
+  .how-number { grid-row: 1 / span 2; width: 29px; height: 29px; border-radius: 9px; font-size: .75rem; }
+  .how-card h3 { margin: 0; font-size: .9rem; }
+  .how-card p { margin: 0; font-size: .75rem; line-height: 1.35; }
+  .trust-strip { margin-top: 9px; border-radius: 13px; }
+  .trust-strip > div { padding: 11px 13px; }
+  .trust-strip strong { font-size: .82rem; }
+  .trust-strip span { margin-top: 2px; font-size: .74rem; line-height: 1.34; }
 
-  .order { gap: 22px; padding: 46px 0 58px; }
-  .steps { margin-top: 20px; gap: 9px; }
-  .steps li { font-size: .9rem; }
-  .steps li span { width: 27px; height: 27px; font-size: .75rem; }
-  .order-trust { margin-top: 18px; padding: 13px 14px; }
-  .order form, .order-result { gap: 15px; padding: 18px; border-radius: 18px; }
-  .form-title { padding-bottom: 14px; }
-  label { font-size: .9rem; }
-  select, input[type=email] { min-height: 52px; margin-top: 6px; padding: 12px 13px; border-radius: 12px; font-size: 16px; }
-  .purchase-summary { gap: 9px; padding: 14px; border-radius: 13px; }
-  .summary-row { gap: 10px; }
-  .summary-row strong { max-width: 64%; font-size: .9rem; }
-  .summary-price { padding-top: 9px; }
-  .summary-price strong { font-size: 1.12rem; }
-  .note { font-size: .84rem; line-height: 1.45; }
-  .test-note { font-size: .8rem; padding: 10px 11px; }
-  .order form > .primary { min-height: 58px; border-radius: 14px; font-size: 1rem; box-shadow: 0 12px 28px rgba(12,31,55,.18); }
-  .order form > .secondary, .order-result > .primary, .order-result > .secondary { min-height: 52px; }
-  .status { min-height: 0; font-size: .84rem; }
+  .order { gap: 14px; padding: 34px 0 44px; }
+  .order-copy .eyebrow { font-size: .6rem; }
+  .order-copy h2 { margin-bottom: 6px; }
+  .steps { grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 13px; }
+  .steps li { display: grid; justify-items: center; gap: 5px; text-align: center; font-size: .69rem; line-height: 1.18; }
+  .steps li span { width: 25px; height: 25px; font-size: .68rem; }
+  .order-trust { margin-top: 12px; padding: 10px 11px; border-left-width: 3px; }
+  .order-trust strong { font-size: .8rem; }
+  .order-trust span { font-size: .74rem; line-height: 1.35; }
+
+  .order form, .order-result { gap: 11px; padding: 14px; border-radius: 15px; }
+  .form-title { padding-bottom: 10px; }
+  .form-title strong { font-size: .88rem; }
+  .form-title span { font-size: .75rem; }
+  label { font-size: .8rem; }
+  select, input[type=email] { min-height: 48px; margin-top: 5px; padding: 10px 11px; border-radius: 10px; font-size: 16px; }
+  .purchase-summary { gap: 7px; padding: 11px; border-radius: 11px; }
+  .summary-row { gap: 8px; }
+  .summary-label { font-size: .74rem; }
+  .summary-row strong { max-width: 65%; font-size: .82rem; }
+  .summary-price { padding-top: 7px; }
+  .summary-price strong { font-size: 1rem; }
+  .note { font-size: .75rem; line-height: 1.35; }
+  .test-note { padding: 8px 9px; font-size: .72rem; }
+  .order form > .primary { min-height: 50px; border-radius: 12px; font-size: .9rem; }
+  .order form > .secondary, .order-result > .primary, .order-result > .secondary { min-height: 46px; font-size: .86rem; }
+  .status { min-height: 0; font-size: .76rem; }
   .order-result { min-height: 0; }
-  .result-group { font-size: 1.35rem; }
+  .result-group { font-size: 1.18rem; }
 
-  .faq { padding: 2px 0 56px; }
-  .faq-list { gap: 8px; }
-  .faq details { border-radius: 14px; box-shadow: none; }
-  .faq summary { min-height: 54px; display: flex; align-items: center; padding: 14px 44px 14px 15px; font-size: .92rem; line-height: 1.35; }
-  .faq summary::after { right: 15px; }
-  .faq details p { padding: 14px 15px; font-size: .86rem; line-height: 1.52; }
+  .faq { padding: 0 0 42px; }
+  .faq-list { gap: 6px; }
+  .faq details { border-radius: 12px; box-shadow: none; }
+  .faq summary { min-height: 46px; display: flex; align-items: center; padding: 11px 38px 11px 12px; font-size: .82rem; line-height: 1.25; }
+  .faq summary::after { right: 12px; }
+  .faq details p { padding: 11px 12px; font-size: .76rem; line-height: 1.42; }
 
-  footer { padding: 26px 0 calc(30px + env(safe-area-inset-bottom)); gap: 16px; font-size: .82rem; }
-  footer nav { gap: 14px; }
-  footer a { min-height: 36px; display: inline-flex; align-items: center; }
+  footer { padding: 20px 0 calc(24px + env(safe-area-inset-bottom)); gap: 10px; font-size: .75rem; }
+  footer > div { gap: 2px; }
+  footer nav { gap: 10px; }
+  footer a { min-height: 30px; display: inline-flex; align-items: center; }
 }
 
 @media (max-width: 390px) {
-  .shell { width: calc(100% - 20px); }
-  .hero { padding-top: 32px; }
-  h1 { font-size: 2.08rem; }
-  .lead { font-size: .95rem; }
+  .shell { width: calc(100% - 18px); }
+  .hero { padding-top: 24px; }
+  h1 { font-size: 1.78rem; }
+  .lead { font-size: .86rem; }
   .calendar-preview .preview-event:last-child { display: none; }
-  .program-card-soon .program-card-top { gap: 8px; }
   .program-code { margin-left: auto; }
-  .summary-row { display: grid; gap: 3px; }
+  .summary-row { display: grid; gap: 2px; }
   .summary-row strong { max-width: none; text-align: left; }
   .summary-price { grid-template-columns: 1fr auto; }
   .summary-price strong { text-align: right; }
 }
 
 @media (max-width: 760px) and (orientation: landscape) {
-  .hero { padding-top: 28px; }
+  .hero { padding-top: 22px; }
   .hero-grid { grid-template-columns: 1.05fr .95fr; align-items: start; }
   .calendar-preview { margin-top: 2px; }
   .hero-actions .primary { width: auto; }

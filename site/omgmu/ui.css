@@ -11,8 +11,12 @@
 main:focus{outline:none}
 
 @media(max-width:760px){
-  .test-banner .shell{min-height:38px;font-size:.78rem;padding-block:7px}
-  .test-banner-dot{width:7px;height:7px}
+  .test-banner .shell{min-height:32px;gap:6px;padding-block:5px;font-size:.69rem;line-height:1.2;text-align:left}
+  .test-banner strong{white-space:nowrap}
+  .test-banner-dot{width:6px;height:6px}
   .skip-link{left:10px;top:8px}
+}
+@media(max-width:390px){
+  .test-banner .shell{font-size:.65rem;gap:5px}
 }
 @media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
