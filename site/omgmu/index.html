@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Подписка на расписание ОмГМУ для Apple Calendar и Google Calendar: занятия, время и обновления календаря для своей группы.">
+  <meta name="description" content="Подписка на расписание ОмГМУ для Apple Calendar и Google Calendar: выберите группу и добавьте занятия в календарь.">
   <meta name="robots" content="index,follow">
-  <meta name="theme-color" content="#174b82">
+  <meta name="theme-color" content="#123b6d">
   <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ru_RU">
@@ -27,16 +27,23 @@
 
   <header class="hero">
     <div class="shell hero-grid">
-      <div>
+      <div class="hero-copy">
         <p class="eyebrow">Омский государственный медицинский университет</p>
         <h1>Расписание ОмГМУ — сразу в календаре</h1>
-        <p class="lead">Подписка на учебное расписание для Apple Calendar и Google Calendar. Время занятий показывается ровно как в расписании, без сдвига при смене часового пояса.</p>
+        <p class="lead">Подписка на учебное расписание для Apple Calendar и Google Calendar.</p>
+
+        <div class="hero-features" aria-label="Главные преимущества">
+          <div><span class="hero-feature-icon" aria-hidden="true">↻</span><span>Обновляется<br>автоматически</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">✓</span><span>Apple и<br>Google</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">1×</span><span>Оплата<br>один раз</span></div>
+        </div>
+
         <div class="hero-actions">
-          <a class="primary" href="#programs">Выбрать направление</a>
-          <a class="hero-text-link" href="#how">Как это работает</a>
-          <span class="hero-meta">6 направлений · сейчас доступно 43 группы · Apple / Google</span>
+          <a class="primary" href="#programs">Выбрать направление <span aria-hidden="true">→</span></a>
+          <div class="hero-price"><strong>490 ₽</strong><span>Один раз · обновления включены</span></div>
         </div>
       </div>
+
       <div class="calendar-preview" aria-hidden="true">
         <div class="preview-top"><span>Сегодня</span><strong>Расписание</strong></div>
         <div class="preview-event"><time>08:30</time><div><strong>Анатомия человека</strong><span>Учебное занятие</span></div></div>
@@ -47,74 +54,59 @@
   </header>
 
   <main id="main-content" tabindex="-1">
-    <section class="benefits shell" aria-label="Преимущества">
-      <article><span class="benefit-icon">↻</span><strong>Обновляется по подписке</strong><span>Не нужно заново импортировать календарь после обновления расписания.</span></article>
-      <article><span class="benefit-icon">09:00</span><strong>Время как в расписании</strong><span>09:00 остаётся 09:00 независимо от часового пояса устройства.</span></article>
-      <article><span class="benefit-icon">✓</span><strong>Apple и Google</strong><span>Одна персональная подписная ссылка подходит для основных календарей.</span></article>
-    </section>
-
     <section id="programs" class="programs shell">
-      <div class="section-heading">
+      <div class="section-heading compact-heading">
         <p class="eyebrow">Направления ОмГМУ</p>
         <h2>Выберите своё направление</h2>
-        <p>Показываем все основные программы специалитета. Купить можно только расписание, которое уже получено из официального источника и прошло проверку.</p>
+        <p>Купить можно только расписание, которое уже получено из официального источника и прошло проверку.</p>
       </div>
+
       <div class="program-grid">
         <article class="program-card program-card-active">
           <div class="program-card-top"><span class="badge">Доступно</span><span class="program-count">43 группы</span></div>
           <h3>Лечебное дело</h3>
           <p class="program-subtitle">для иностранных обучающихся</p>
-          <p class="program-description">Курсы 1–5. Расписания прошли автоматическую проверку, а неоднозначные группы — ручную сверку.</p>
-          <a class="primary" href="#order">Выбрать курс и группу</a>
+          <p class="program-description">Курсы 1–5 · расписание проверено</p>
+          <a class="secondary program-select" href="#order">Выбрать курс и группу <span aria-hidden="true">→</span></a>
         </article>
 
         <article class="program-card program-card-soon">
           <div class="program-card-top"><span class="badge badge-muted">Ожидаем расписание</span><span class="program-code">31.05.01</span></div>
           <h3>Лечебное дело</h3>
-          <p class="program-description">Основная программа. Карточка станет доступной после публикации и проверки расписания.</p>
         </article>
-
         <article class="program-card program-card-soon">
           <div class="program-card-top"><span class="badge badge-muted">Ожидаем расписание</span><span class="program-code">31.05.02</span></div>
           <h3>Педиатрия</h3>
-          <p class="program-description">Добавим группы и курсы сразу после появления официальных файлов расписания.</p>
         </article>
-
         <article class="program-card program-card-soon">
           <div class="program-card-top"><span class="badge badge-muted">Ожидаем расписание</span><span class="program-code">31.05.03</span></div>
           <h3>Стоматология</h3>
-          <p class="program-description">Продажа будет включена только после автоматического разбора и контроля качества.</p>
         </article>
-
         <article class="program-card program-card-soon">
           <div class="program-card-top"><span class="badge badge-muted">Ожидаем расписание</span><span class="program-code">32.05.01</span></div>
           <h3>Медико-профилактическое дело</h3>
-          <p class="program-description">Сейчас направление показано в каталоге, но расписание ещё не опубликовано в сервисе.</p>
         </article>
-
         <article class="program-card program-card-soon">
           <div class="program-card-top"><span class="badge badge-muted">Ожидаем расписание</span><span class="program-code">33.05.01</span></div>
           <h3>Фармация</h3>
-          <p class="program-description">После появления официального расписания проверим структуру групп и добавим календарь.</p>
         </article>
       </div>
     </section>
 
     <section id="how" class="how shell">
-      <div class="section-heading">
+      <div class="section-heading compact-heading">
         <p class="eyebrow">Как это работает</p>
-        <h2>Один раз подключили — дальше календарь живёт сам</h2>
-        <p>Это именно подписка на календарь, а не одноразовый импорт файла. При обновлении расписания не нужно заново добавлять все занятия вручную.</p>
+        <h2>Три шага — и расписание в календаре</h2>
       </div>
       <div class="how-grid">
-        <article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Укажите курс, поток и группу. Перед оплатой вы увидите итоговый выбор и стоимость.</p></article>
-        <article class="how-card"><span class="how-number">2</span><h3>Оплатите один раз</h3><p>Оплата проходит через ЮKassa. Автоматических ежемесячных списаний у календаря нет.</p></article>
-        <article class="how-card"><span class="how-number">3</span><h3>Подключите календарь</h3><p>Для iPhone есть кнопка подключения, для Google Calendar — та же персональная ссылка через «Добавить по URL».</p></article>
+        <article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Направление, курс и группа.</p></article>
+        <article class="how-card"><span class="how-number">2</span><h3>Оплатите один раз</h3><p>Оплата проходит через ЮKassa. Без автосписаний.</p></article>
+        <article class="how-card"><span class="how-number">3</span><h3>Добавьте в календарь</h3><p>Получите персональную ссылку для Apple Calendar или Google Calendar.</p></article>
       </div>
       <div class="trust-strip" aria-label="О сервисе">
+        <div><strong>Обновляется автоматически</strong><span>После изменения расписания заново импортировать календарь не нужно.</span></div>
         <div><strong>Официальные источники</strong><span>Расписание берётся из опубликованных материалов ОмГМУ.</span></div>
-        <div><strong>Только проверенные группы</strong><span>Недоступные или неоднозначные расписания не выставляются на продажу.</span></div>
-        <div><strong>Без автосписаний</strong><span>Покупка календаря — разовый платёж, а не банковская подписка.</span></div>
+        <div><strong>Apple и Google</strong><span>Одна персональная ссылка подходит для обоих календарей.</span></div>
       </div>
     </section>
 
@@ -122,7 +114,7 @@
       <div class="order-copy">
         <p class="eyebrow">Лечебное дело · иностранные обучающиеся</p>
         <h2>Выберите курс и группу</h2>
-        <p>Выберите параметры расписания, укажите email для заказа и получите персональную ссылку сразу после оплаты.</p>
+        <p>Проверьте параметры расписания и оформите доступ к персональному календарю.</p>
         <ol class="steps" aria-label="Этапы подключения">
           <li><span>1</span>Выбор группы</li>
           <li><span>2</span>Оплата</li>
@@ -143,14 +135,8 @@
           <label>Email для заказа<input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="student@example.com" required></label>
 
           <div class="purchase-summary" aria-live="polite">
-            <div class="summary-row">
-              <span class="summary-label">Ваш календарь</span>
-              <strong id="selection-summary">Выберите курс и группу</strong>
-            </div>
-            <div class="summary-row summary-price">
-              <span class="summary-label">Стоимость</span>
-              <strong id="price-summary">—</strong>
-            </div>
+            <div class="summary-row"><span class="summary-label">Ваш календарь</span><strong id="selection-summary">Выберите курс и группу</strong></div>
+            <div class="summary-row summary-price"><span class="summary-label">Стоимость</span><strong id="price-summary">—</strong></div>
           </div>
 
           <p class="note">После оплаты персональная ссылка появится на этой странице. Она одна и та же для Apple Calendar и Google Calendar.</p>
@@ -158,32 +144,27 @@
           <button id="restore-order" class="secondary" type="button" hidden>Открыть последний заказ</button>
           <p id="form-status" class="status" role="status" aria-live="polite"></p>
         </form>
-
         <div id="order-result" class="order-result" hidden aria-live="polite"></div>
       </div>
     </section>
 
     <section id="faq" class="faq shell">
-      <div class="section-heading">
+      <div class="section-heading compact-heading">
         <p class="eyebrow">Вопросы и ответы</p>
-        <h2>Что важно знать перед подключением</h2>
+        <h2>FAQ</h2>
       </div>
       <div class="faq-list">
-        <details open>
-          <summary>Что будет, если расписание изменится?</summary>
-          <p>После обновления данных на сервисе изменения попадут в подписной календарь автоматически при следующем обновлении календаря на устройстве. Скорость обновления зависит от Apple Calendar или Google Calendar.</p>
+        <details>
+          <summary>Обновляется ли расписание автоматически?</summary>
+          <p>Да. После обновления данных на сервисе изменения попадут в подписной календарь при следующем обновлении календаря на устройстве.</p>
         </details>
         <details>
           <summary>Нужно ли снова платить после изменения расписания?</summary>
           <p>Нет. Обновления уже приобретённого расписания приходят по той же персональной подписной ссылке и не требуют новой покупки.</p>
         </details>
         <details>
-          <summary>Почему время не меняется, если я уехал в другой часовой пояс?</summary>
-          <p>Учебное время хранится как время из расписания. Если занятие указано в 09:00, в календаре оно остаётся в 09:00 независимо от часового пояса телефона.</p>
-        </details>
-        <details>
           <summary>Что делать, если я закрыл страницу и потерял ссылку?</summary>
-          <p>На том же устройстве откройте страницу снова и нажмите «Открыть последний заказ». Данные последнего заказа сохраняются локально в браузере. На другом устройстве автоматического восстановления пока нет, поэтому персональную ссылку лучше сохранить.</p>
+          <p>На том же устройстве откройте страницу снова и нажмите «Открыть последний заказ». Данные последнего заказа сохраняются локально в браузере.</p>
         </details>
         <details>
           <summary>Одна ссылка подходит и для Apple, и для Google?</summary>
