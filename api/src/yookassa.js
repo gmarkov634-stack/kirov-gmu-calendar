@@ -2,6 +2,16 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import { scheduleContext } from "./order-context.js";
 
 const API_URL = "https://api.yookassa.ru/v3";
+const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+
+function universitySiteUrl(config, university) {
+  const value = String(config.publicSiteUrl || "").trim();
+  if (!value) throw new Error("PUBLIC_SITE_URL is not configured");
+  const root = value.endsWith("/") ? value : `${value}/`;
+  if (university === "kgmu") return root;
+  if (!UNIVERSITY_ID.test(String(university || ""))) throw new Error("Invalid university id for return URL");
+  return new URL(`${university}/`, root).toString();
+}
 
 function paymentDescription(order) {
   return `Календарь ${order.universityName}: ${order.groupDisplayName}, семестр ${order.semester}`.slice(0, 128);
@@ -125,7 +135,7 @@ export class YooKassaService {
       capture: true,
       confirmation: {
         type: "redirect",
-        return_url: `${this.config.publicSiteUrl}#order=${orderId}&access=${accessToken}`,
+        return_url: `${universitySiteUrl(this.config, order.university)}#order=${orderId}&access=${accessToken}`,
       },
       description: paymentDescription(order),
       metadata: { order_id: orderId, university: order.university, group_id: order.groupId },
