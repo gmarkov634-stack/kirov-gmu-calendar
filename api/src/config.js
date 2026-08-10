@@ -32,6 +32,8 @@ export function loadConfig(env = process.env) {
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     adminToken: env.ADMIN_TOKEN || "",
     suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
+    offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
+    offerSemester: Number(env.OFFER_SEMESTER || 1),
     offers: {
       semester: {
         id: "semester",
