@@ -1,0 +1,117 @@
+name: One-time live ОмГМУ floating-time verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/one-time-live-floating-time-check-20260810.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.event.head_commit.message == 'Verify live ОмГМУ floating study time'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch live public ICS
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/live-floating ops/reports
+          API='https://kgmu-calendar-api.containerapps.ru'
+          URL="$API/api/v2/schedules/omgmu/medicine-international/1/omgmu%3Amedicine-international%3A1%3Astream-1%3A1101/calendar.ics?groupCode=1101&stream=1"
+          code="$(curl --silent --show-error --max-time 30 -o /tmp/live-floating/1101.ics -w '%{http_code}' "$URL")"
+          printf '%s' "$code" > /tmp/live-floating/http-code
+          if [ "$code" != '200' ]; then
+            cat /tmp/live-floating/1101.ics >&2 || true
+            exit 2
+          fi
+      - name: Validate floating-time semantics
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          text = Path('/tmp/live-floating/1101.ics').read_text(encoding='utf-8')
+          unfolded = text.replace('\r\n ', '').replace('\n ', '')
+          errors = []
+
+          if 'DTSTART:20260406T080000' not in unfolded:
+              errors.append('first lesson start is not floating 08:00')
+          if 'DTEND:20260406T102500' not in unfolded:
+              errors.append('first lesson end is not floating 10:25')
+          if 'BEGIN:VTIMEZONE' in unfolded:
+              errors.append('VTIMEZONE is still present')
+          if 'X-WR-TIMEZONE:' in unfolded:
+              errors.append('X-WR-TIMEZONE is still present')
+
+          in_event = False
+          event_starts = []
+          event_ends = []
+          for raw in unfolded.replace('\r\n', '\n').split('\n'):
+              line = raw.strip()
+              if line == 'BEGIN:VEVENT':
+                  in_event = True
+              elif line == 'END:VEVENT':
+                  in_event = False
+              elif in_event and line.startswith('DTSTART'):
+                  event_starts.append(line)
+              elif in_event and line.startswith('DTEND'):
+                  event_ends.append(line)
+
+          if len(event_starts) != 230:
+              errors.append(f'expected 230 events, got {len(event_starts)}')
+          if any(';TZID=' in line for line in event_starts + event_ends):
+              errors.append('VEVENT still contains TZID')
+          if any(line.endswith('Z') for line in event_starts + event_ends):
+              errors.append('VEVENT still contains UTC Z timestamps')
+          if any(not line.startswith(('DTSTART:', 'DTEND:')) for line in event_starts + event_ends):
+              errors.append('VEVENT contains non-floating time syntax')
+
+          report = {
+              'version': 1,
+              'operation': 'live-omgmu-floating-time-verification',
+              'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'httpStatus': int(Path('/tmp/live-floating/http-code').read_text()),
+              'eventCount': len(event_starts),
+              'firstEventStart': event_starts[0] if event_starts else None,
+              'firstEventEnd': event_ends[0] if event_ends else None,
+              'vtimezonePresent': 'BEGIN:VTIMEZONE' in unfolded,
+              'calendarTimezonePresent': 'X-WR-TIMEZONE:' in unfolded,
+              'tzidEventTimestamps': sum(1 for line in event_starts + event_ends if ';TZID=' in line),
+              'utcEventTimestamps': sum(1 for line in event_starts + event_ends if line.endswith('Z')),
+              'allEventsFloating': bool(event_starts) and not any(';TZID=' in line or line.endswith('Z') for line in event_starts + event_ends),
+              'errors': errors,
+              'validationStatus': 'success' if not errors else 'failure',
+          }
+          Path('ops/reports/live-floating-time-verification-20260810.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(report, ensure_ascii=False))
+          if errors:
+              raise SystemExit(3)
+          PY
+      - name: Record result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/reports
+          if [ ! -f ops/reports/live-floating-time-verification-20260810.json ]; then
+            printf '{"version":1,"operation":"live-omgmu-floating-time-verification","validationStatus":"failure","errors":["report not generated"]}\n' > ops/reports/live-floating-time-verification-20260810.json
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('ops/reports/live-floating-time-verification-20260810.json')
+          d=json.loads(p.read_text())
+          d['jobStatus']=os.environ['JOB_STATUS']
+          p.write_text(json.dumps(d, ensure_ascii=False, indent=2)+'\n')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ops/reports/live-floating-time-verification-20260810.json
+          git commit -m 'Record live ОмГМУ floating-time verification' || true
+          git push
