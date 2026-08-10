@@ -12,6 +12,7 @@ const orderIntro = orderSection.querySelector('.order-copy');
 const resultPanel = document.querySelector('#order-result');
 const selectionSummary = document.querySelector('#selection-summary');
 const priceSummary = document.querySelector('#price-summary');
+const restoreOrderButton = document.querySelector('#restore-order');
 const savedOrderKey = 'omgmu-calendar-orders-v2';
 
 const initialIntroTitle = orderIntro.querySelector('h2')?.textContent || 'Выберите курс и группу';
@@ -263,8 +264,21 @@ function handlePaymentReturn() {
   return false;
 }
 
+function enableSavedOrderRecovery() {
+  if (!restoreOrderButton) return;
+  const saved = latestSavedOrder();
+  if (!saved) return;
+
+  restoreOrderButton.hidden = false;
+  restoreOrderButton.addEventListener('click', () => {
+    history.replaceState(null, '', `${window.location.pathname}${window.location.search}#order-status`);
+    renderOrderResult(saved.orderId, saved.accessToken);
+  });
+}
+
 priceSummary.textContent = `${config.priceRub} ₽`;
 updateSelectionSummary();
+enableSavedOrderRecovery();
 
 const submit = form.querySelector('button[type="submit"]');
 if (config.checkoutEnabled !== true) {
