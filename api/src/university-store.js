@@ -3,14 +3,14 @@ import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { ScheduleStore } from "./store.js";
 import {
-  academicYearStorageSegment,
   normalizeAcademicYear,
   scheduleContext,
   scheduleFlatStorageKey,
   scheduleStorageKey,
 } from "./order-context.js";
 
-const TEST_FIXTURE_URL = new URL("../fixtures/kgmu-pediatrics-1-132-autumn-2026.json", import.meta.url);
+const AUTUMN_TEST_FIXTURE_URL = new URL("../fixtures/kgmu-pediatrics-1-132-autumn-2026.json", import.meta.url);
+const SPRING_TEST_FIXTURE_URL = new URL("../fixtures/kgmu-pediatrics-1-132-spring-2027.json", import.meta.url);
 
 function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
@@ -63,8 +63,15 @@ function isTestFixtureContext(context) {
     context.groupCode === "132";
 }
 
-async function readTestFixture() {
-  return JSON.parse(await fs.readFile(TEST_FIXTURE_URL, "utf8"));
+async function readFixture(url) {
+  return JSON.parse(await fs.readFile(url, "utf8"));
+}
+
+async function enabledTestFixtures(config) {
+  const fixtures = [];
+  if (config.testScheduleSpringFixtureEnabled) fixtures.push(await readFixture(SPRING_TEST_FIXTURE_URL));
+  fixtures.push(await readFixture(AUTUMN_TEST_FIXTURE_URL));
+  return fixtures;
 }
 
 function sortGroups(groups) {
@@ -118,13 +125,14 @@ export class MultiUniversityStore extends ScheduleStore {
     const flatKey = scheduleFlatStorageKey(context);
     const periods = requestedPeriods(input, this.config);
     const cachePeriod = periods.map((period) => `${period.academicYear}:${period.semester}`).join(",") || "any";
-    const cacheKey = `schedule:${flatKey}:${input?.plan || "semester"}:${cachePeriod}`;
+    const fixtureState = this.config.testScheduleSpringFixtureEnabled ? "spring" : "autumn";
+    const cacheKey = `schedule:${flatKey}:${input?.plan || "semester"}:${cachePeriod}:${fixtureState}`;
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
     if (this.config.testScheduleFixtureEnabled && isTestFixtureContext(context)) {
-      const value = await readTestFixture();
-      if (matchesAnyPeriod(value, periods)) {
+      for (const value of await enabledTestFixtures(this.config)) {
+        if (!matchesAnyPeriod(value, periods)) continue;
         this.cache.set(cacheKey, {
           value,
           expiresAt: Date.now() + this.config.cacheTtlMs,
@@ -242,11 +250,11 @@ export class MultiUniversityStore extends ScheduleStore {
     };
 
     if (this.config.testScheduleFixtureEnabled && context.university === "kgmu" && context.program === "pediatrics" && context.course === 1) {
-      const fixture = await readTestFixture();
-      const fixtureContext = scheduleContext(fixture);
-      const yearMatches = !expectedAcademicYear || normalizeAcademicYear(fixtureContext.academicYear) === expectedAcademicYear;
-      const semesterMatches = !expectedSemester || fixtureContext.semester === expectedSemester;
-      if (yearMatches && semesterMatches) {
+      for (const fixture of await enabledTestFixtures(this.config)) {
+        const fixtureContext = scheduleContext(fixture);
+        const yearMatches = !expectedAcademicYear || normalizeAcademicYear(fixtureContext.academicYear) === expectedAcademicYear;
+        const semesterMatches = !expectedSemester || fixtureContext.semester === expectedSemester;
+        if (!yearMatches || !semesterMatches) continue;
         groups.set("kgmu:pediatrics:1:132", {
           groupId: "kgmu:pediatrics:1:132",
           groupCode: "132",
