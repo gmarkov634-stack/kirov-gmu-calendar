@@ -8,8 +8,17 @@ const config = {
   yookassaSecretKey: "test-key",
   yookassaTestMode: true,
   subscriptionSigningSecret: "a-long-test-signing-secret-32-bytes-minimum",
-  publicSiteUrl: "https://example.test/",
+  publicSiteUrl: "https://kgmu.example.test/",
+  universitySiteUrls: {
+    kgmu: "https://kgmu.example.test/",
+    omgmu: "https://omgmu.example.test/",
+    pgmu: "https://pgmu.example.test/",
+  },
   publicApiUrl: "https://api.example.test",
+  offers: {
+    semester: { id: "semester", price: "299.00", expiresAt: "2027-01-31T23:59:59+03:00" },
+    year: { id: "year", price: "499.00", expiresAt: "2027-08-31T23:59:59+03:00" },
+  },
   offerPrice: "490.00",
   offerExpiresAt: "2027-07-01T00:00:00+06:00",
   yookassaSendReceipt: true,
@@ -48,7 +57,7 @@ function memoryStore() {
   };
 }
 
-test("payment creation stores the complete university context and returns to its landing", async () => {
+test("payment creation stores the complete university context and returns to its own landing", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -68,19 +77,22 @@ test("payment creation stores the complete university context and returns to its
   assert.equal(order.university, "omgmu");
   assert.equal(order.groupCode, "Л-402А");
   assert.equal(order.groupId, "omgmu:medicine:4:stream-2:Л-402А");
+  assert.equal(order.plan, "semester");
+  assert.equal(order.amount, "299.00");
   assert.equal(order.accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
   assert.equal(request.body.metadata.university, "omgmu");
   assert.equal(request.body.metadata.group_id, order.groupId);
+  assert.equal(request.body.metadata.plan, "semester");
   assert.match(request.body.description, /ОмГМУ/);
 
   const returnUrl = new URL(request.body.confirmation.return_url);
-  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://example.test/omgmu/");
+  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://omgmu.example.test/");
   const returnParams = new URLSearchParams(returnUrl.hash.slice(1));
   assert.equal(returnParams.get("order"), result.orderId);
   assert.equal(returnParams.get("access"), result.accessToken);
 });
 
-test("КГМУ payments keep returning to the root landing", async () => {
+test("КГМУ payments return to the КГМУ landing", async () => {
   const store = memoryStore();
   let request;
   const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
@@ -100,7 +112,30 @@ test("КГМУ payments keep returning to the root landing", async () => {
   };
   await service.create({ email: "student@example.com", schedule: kgmu });
   const returnUrl = new URL(request.body.confirmation.return_url);
-  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://example.test/");
+  assert.equal(`${returnUrl.origin}${returnUrl.pathname}`, "https://kgmu.example.test/");
+});
+
+test("year plan charges 499 rubles and stores year access", async () => {
+  const store = memoryStore();
+  let request;
+  const service = new YooKassaService({ config, store, fetchFn: async (url, options) => {
+    request = { url, options, body: JSON.parse(options.body) };
+    return new Response(JSON.stringify({
+      id: "payment_year_123",
+      status: "pending",
+      test: true,
+      confirmation: { confirmation_url: "https://yookassa.test/pay" },
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  } });
+
+  const result = await service.create({ email: "student@example.com", schedule, plan: "year" });
+  const order = store.orders.get(result.orderId);
+  assert.equal(order.plan, "year");
+  assert.equal(order.amount, "499.00");
+  assert.equal(order.expiresAt, "2027-08-31T23:59:59+03:00");
+  assert.equal(request.body.amount.value, "499.00");
+  assert.equal(request.body.metadata.plan, "year");
+  assert.match(request.body.description, /учебный год/);
 });
 
 test("succeeded payment creates a version 2 subscription", async () => {
@@ -150,6 +185,7 @@ test("succeeded payment creates a version 2 subscription", async () => {
   assert.equal(subscription.university, "omgmu");
   assert.equal(subscription.groupCode, "Л-402А");
   assert.equal(subscription.timezone, "Asia/Omsk");
+  assert.equal(subscription.plan, "semester");
 });
 
 test("altered payment amount cannot issue a subscription", async () => {
