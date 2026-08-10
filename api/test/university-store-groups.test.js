@@ -14,6 +14,13 @@ function localStore(dataDir) {
   });
 }
 
+async function writeSchedule(directory, groupId, schedule) {
+  await fs.writeFile(
+    path.join(directory, `${encodeURIComponent(groupId)}.json`),
+    JSON.stringify(schedule),
+  );
+}
+
 test("listScheduleGroups reads and naturally sorts published group files", async (t) => {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "kgmu-groups-"));
   t.after(() => fs.rm(dataDir, { recursive: true, force: true }));
@@ -26,12 +33,7 @@ test("listScheduleGroups reads and naturally sorts published group files", async
     "kgmu:pediatrics:1:131",
     "kgmu:pediatrics:1:132",
   ];
-  for (const groupId of groupIds) {
-    await fs.writeFile(
-      path.join(directory, `${encodeURIComponent(groupId)}.json`),
-      JSON.stringify({ groupId }),
-    );
-  }
+  for (const groupId of groupIds) await writeSchedule(directory, groupId, { groupId });
   await fs.writeFile(path.join(directory, "ignore.txt"), "ignore");
 
   const groups = await localStore(dataDir).listScheduleGroups({
@@ -47,6 +49,40 @@ test("listScheduleGroups reads and naturally sorts published group files", async
   ]);
 });
 
+test("listScheduleGroups filters out stale academic years and other semesters", async (t) => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "kgmu-groups-period-"));
+  t.after(() => fs.rm(dataDir, { recursive: true, force: true }));
+
+  const directory = path.join(dataDir, "schedules", "kgmu", "pediatrics", "1");
+  await fs.mkdir(directory, { recursive: true });
+
+  await writeSchedule(directory, "kgmu:pediatrics:1:131", {
+    academicYear: "2025/2026",
+    semester: 1,
+  });
+  await writeSchedule(directory, "kgmu:pediatrics:1:132", {
+    academicYear: "2026/27",
+    semester: 1,
+    group: { id: "kgmu:pediatrics:1:132", code: "132", displayName: "Педиатрия 132" },
+  });
+  await writeSchedule(directory, "kgmu:pediatrics:1:133", {
+    academicYear: "2026-2027",
+    semester: 2,
+  });
+
+  const groups = await localStore(dataDir).listScheduleGroups({
+    university: "kgmu",
+    program: "pediatrics",
+    course: 1,
+    academicYear: "2026/2027",
+    semester: 1,
+  });
+
+  assert.deepEqual(groups, [
+    { groupId: "kgmu:pediatrics:1:132", groupCode: "132", displayName: "Педиатрия 132" },
+  ]);
+});
+
 test("listScheduleGroups returns empty list when course directory is not published", async (t) => {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "kgmu-groups-empty-"));
   t.after(() => fs.rm(dataDir, { recursive: true, force: true }));
@@ -55,6 +91,8 @@ test("listScheduleGroups returns empty list when course directory is not publish
     university: "kgmu",
     program: "medicine",
     course: 4,
+    academicYear: "2026/2027",
+    semester: 1,
   });
 
   assert.deepEqual(groups, []);
