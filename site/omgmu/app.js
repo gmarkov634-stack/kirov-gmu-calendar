@@ -130,6 +130,7 @@ function showResultShell(title, text) {
   form.hidden = true;
   resultPanel.hidden = false;
   resultPanel.replaceChildren();
+  orderSection.classList.add('order-has-result');
   setIntro(title, text);
 }
 
@@ -137,6 +138,7 @@ function restoreOrderForm({ scroll = true } = {}) {
   resultPanel.hidden = true;
   resultPanel.replaceChildren();
   form.hidden = false;
+  orderSection.classList.remove('order-has-result');
   status.textContent = '';
   setIntro(initialIntroTitle, initialIntroText);
   history.replaceState(null, '', `${window.location.pathname}${window.location.search}#order`);
@@ -193,7 +195,7 @@ function showSucceededOrder(order) {
 
   const webcalUrl = order.subscriptionUrl.replace(/^https:/, 'webcal:');
   addLink('Подключить на iPhone / Apple Calendar', webcalUrl);
-  const copyButton = addButton('Скопировать ссылку для Google Calendar', () => copySubscriptionUrl(order.subscriptionUrl, copyButton));
+  const copyButton = addButton('Скопировать ссылку для Google Calendar', () => copySubscriptionUrl(order.subscriptionUrl, copyButton), 'secondary');
   addText('В Google Calendar откройте «Другие календари → Добавить по URL» и вставьте скопированную ссылку.');
   addLink('Открыть Google Calendar', 'https://calendar.google.com/calendar/', 'secondary');
   addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
