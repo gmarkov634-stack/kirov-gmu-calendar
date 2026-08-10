@@ -14,6 +14,8 @@ const config = {
     pgmu: "https://pgmu.example.test/",
   },
   publicApiUrl: "https://api.example.test",
+  offerAcademicYear: "2026/27",
+  offerSemester: 1,
   offers: {
     semester: { id: "semester", price: "299.00" },
     year: { id: "year", price: "499.00", expiresAt: "2027-08-31T23:59:59+03:00" },
@@ -167,6 +169,33 @@ test("university checkout is rejected when its own landing URL is missing", asyn
 test("payments stay disabled without a shared PUBLIC_API_URL", () => {
   const service = new YooKassaService({ config: { ...config, publicApiUrl: "" }, store: memoryStore() });
   assert.equal(service.enabled, false);
+});
+
+test("archived schedules cannot be sold as semester or year plans", async () => {
+  const archived = {
+    ...schedule,
+    university: "kgmu",
+    universityName: "КГМУ",
+    program: "pediatrics",
+    course: 1,
+    group: { id: "kgmu:pediatrics:1:132", code: "132", displayName: "Группа 132" },
+    academicYear: "2025-2026",
+    semester: 2,
+  };
+  for (const plan of ["semester", "year"]) {
+    const store = memoryStore();
+    let fetchCalled = false;
+    const service = new YooKassaService({ config, store, fetchFn: async () => {
+      fetchCalled = true;
+      throw new Error("must not call YooKassa");
+    } });
+    await assert.rejects(
+      service.create({ email: "student@example.com", schedule: archived, plan }),
+      (error) => error.code === "schedule_period_not_for_sale",
+    );
+    assert.equal(fetchCalled, false);
+    assert.equal(store.orders.size, 0);
+  }
 });
 
 test("year plan charges 499 rubles and stores year access", async () => {
