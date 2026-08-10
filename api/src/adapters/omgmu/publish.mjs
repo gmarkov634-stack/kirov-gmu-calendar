@@ -1,4 +1,4 @@
-import path from "node:path";
+import { normalizeAcademicYear, scheduleStorageKey } from "../../order-context.js";
 
 export const OMG_MU_MANUAL_REVIEW_GROUPS = new Set(["2113", "2114", "389", "393"]);
 
@@ -7,10 +7,12 @@ export function scheduleObjectKey(schedule) {
   const program = String(schedule?.program || "").trim();
   const course = String(schedule?.course || "").trim();
   const groupId = String(schedule?.group?.id || "").trim();
-  if (!university || !program || !course || !groupId) {
-    throw new Error("Schedule is missing publication context");
+  const academicYear = normalizeAcademicYear(schedule?.academicYear);
+  const semester = Number(schedule?.semester);
+  if (!university || !program || !course || !groupId || !academicYear || ![1, 2].includes(semester)) {
+    throw new Error("Schedule is missing publication context or period");
   }
-  return path.posix.join("schedules", university, program, course, `${encodeURIComponent(groupId)}.json`);
+  return scheduleStorageKey({ ...schedule, academicYear, semester });
 }
 
 export function publicationDecision(schedule) {
@@ -27,7 +29,11 @@ export function publicationDecision(schedule) {
     }
   }
 
-  return { publish: true, reason: "verified", key: scheduleObjectKey(schedule) };
+  try {
+    return { publish: true, reason: "verified", key: scheduleObjectKey(schedule) };
+  } catch {
+    return { publish: false, reason: "missing-publication-period" };
+  }
 }
 
 export function buildPublicationPlan(schedules) {
