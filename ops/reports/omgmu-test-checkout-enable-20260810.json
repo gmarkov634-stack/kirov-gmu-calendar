@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "operation": "enable-test-checkout",
+  "testMode": true,
+  "priceRub": 490,
+  "scope": "omgmu-only",
+  "status": "prepared"
+}
