@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "operation": "verify-floating-time-api-image",
+  "image": "kgmu-calendar-api.cr.cloud.ru/api:1e539eece8e8a139aa37ec516b845f0d4ccc24b6",
+  "available": true,
+  "manifestSha256": "701b57e58c838096525b30e9dc37e1f6520ad0945db5ba338957e1fdf050608e",
+  "jobStatus": "success"
+}
