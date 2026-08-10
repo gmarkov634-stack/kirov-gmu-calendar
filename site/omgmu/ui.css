@@ -1,0 +1,20 @@
+.skip-link{position:fixed;left:16px;top:12px;z-index:1000;transform:translateY(-180%);padding:10px 14px;border-radius:10px;background:#fff;color:#174b82;font-weight:800;box-shadow:0 8px 24px rgba(7,29,53,.22);transition:transform .15s ease}
+.skip-link:focus{transform:translateY(0)}
+
+.test-banner{background:#fff4c8;color:#624c0b;border-bottom:1px solid #efd879}
+.test-banner .shell{display:flex;align-items:center;justify-content:center;gap:10px;min-height:42px;padding-block:8px;text-align:center;font-size:.88rem;line-height:1.35}
+.test-banner strong{color:#4f3d08}
+.test-banner-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:#bd8b00}
+
+:where(a,button,select,input,summary):focus-visible{outline:3px solid rgba(35,106,168,.34);outline-offset:3px}
+.hero :where(a,button):focus-visible{outline-color:rgba(255,255,255,.75)}
+
+main:focus{outline:none}
+
+@media(max-width:760px){
+  .test-banner .shell{min-height:38px;font-size:.78rem;padding-block:7px}
+  .test-banner-dot{width:7px;height:7px}
+  .skip-link{left:10px;top:8px}
+}
+
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}

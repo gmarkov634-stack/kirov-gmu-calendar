@@ -3,11 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Расписание ОмГМУ в Google Calendar и Apple Calendar.">
-  <title>Расписание ОмГМУ в календаре</title>
+  <meta name="description" content="Подписка на расписание ОмГМУ для Apple Calendar и Google Calendar: занятия, время и обновления календаря для своей группы.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#174b82">
+  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Расписание ОмГМУ в календаре">
+  <meta property="og:title" content="Расписание ОмГМУ — сразу в календаре">
+  <meta property="og:description" content="Выберите группу и подключите расписание ОмГМУ к Apple Calendar или Google Calendar по персональной подписной ссылке.">
+  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/">
+  <meta name="twitter:card" content="summary">
+  <title>Расписание ОмГМУ в Apple и Google Calendar</title>
   <link rel="stylesheet" href="../site/omgmu/styles.css">
+  <link rel="stylesheet" href="../site/omgmu/ui.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Расписание ОмГМУ в календаре","url":"https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/","inLanguage":"ru-RU","description":"Независимый сервис подписки на опубликованное расписание ОмГМУ для Apple Calendar и Google Calendar."}</script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+  <div id="test-banner" class="test-banner" hidden role="status" aria-live="polite">
+    <div class="shell"><span class="test-banner-dot" aria-hidden="true"></span><strong>Тестовый запуск</strong><span>ЮKassa работает в тестовом режиме — реальные деньги не списываются.</span></div>
+  </div>
+
   <header class="hero">
     <div class="shell hero-grid">
       <div>
@@ -29,7 +46,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <section class="benefits shell" aria-label="Преимущества">
       <article><span class="benefit-icon">↻</span><strong>Обновляется по подписке</strong><span>Не нужно заново импортировать календарь после обновления расписания.</span></article>
       <article><span class="benefit-icon">09:00</span><strong>Время как в расписании</strong><span>09:00 остаётся 09:00 независимо от часового пояса устройства.</span></article>
@@ -185,6 +202,7 @@
     <nav aria-label="Ссылки в подвале"><a href="#programs">Направления</a><a href="#how">Как это работает</a><a href="#faq">FAQ</a></nav>
   </footer>
   <script src="config.js"></script>
+  <script src="../site/omgmu/ui.js"></script>
   <script src="../site/omgmu/groups.js"></script>
   <script src="../site/omgmu/app.js"></script>
 </body>
