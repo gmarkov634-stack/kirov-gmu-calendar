@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "operation": "verify-ics-tzid-api-image",
+  "image": "kgmu-calendar-api.cr.cloud.ru/api:8b076e2592d5a674d7d6c9e5b2c5ee169d005684",
+  "available": true,
+  "manifestSha256": "3031f512dbda1a75b7dda17e7cbb4d22b47fa8f8acf981d3f1003e81a506e13f",
+  "jobStatus": "success"
+}
