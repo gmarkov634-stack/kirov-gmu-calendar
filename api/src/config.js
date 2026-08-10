@@ -6,7 +6,6 @@ export function loadConfig(env = process.env) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const publicSiteUrl = env.PUBLIC_SITE_URL || "https://gmarkov634-stack.github.io/kirov-gmu-calendar/";
   const semesterExpiresAt = env.OFFER_SEMESTER_EXPIRES_AT || env.OFFER_EXPIRES_AT || "2027-01-31T23:59:59+03:00";
   const yearExpiresAt = env.OFFER_YEAR_EXPIRES_AT || "2027-08-31T23:59:59+03:00";
 
@@ -21,13 +20,12 @@ export function loadConfig(env = process.env) {
     secretAccessKey: env.S3_SECRET_ACCESS_KEY || "",
     dataDir: env.DATA_DIR || path.resolve("data"),
     cacheTtlMs: Number(env.CACHE_TTL_MS || 300000),
-    publicSiteUrl,
     universitySiteUrls: {
-      kgmu: env.KGMU_SITE_URL || publicSiteUrl,
+      kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
       pgmu: env.PGMU_SITE_URL || "",
     },
-    publicApiUrl: env.PUBLIC_API_URL || "https://kgmu-calendar-api.containerapps.ru",
+    publicApiUrl: env.PUBLIC_API_URL || "",
     enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
     yookassaShopId: env.YOOKASSA_SHOP_ID || "",
     yookassaSecretKey: env.YOOKASSA_SECRET_KEY || "",
