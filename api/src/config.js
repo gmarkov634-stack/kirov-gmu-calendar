@@ -1,5 +1,15 @@
 import path from "node:path";
 
+function parseWatchSemesters(value) {
+  const semesters = [...new Set(
+    String(value || "1,2")
+      .split(",")
+      .map((item) => Number(item.trim()))
+      .filter((item) => item === 1 || item === 2),
+  )].sort();
+  return semesters.length ? semesters : [1, 2];
+}
+
 export function loadConfig(env = process.env) {
   const defaultOrigin = "https://gmarkov634-stack.github.io";
   const allowedOrigins = String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || defaultOrigin)
@@ -38,6 +48,7 @@ export function loadConfig(env = process.env) {
     kgmuAutoPublish: env.KGMU_AUTO_PUBLISH === "true",
     kgmuWatchEnabled: env.KGMU_WATCH_ENABLED === "true",
     kgmuWatchIntervalMs: Math.max(60000, Number(env.KGMU_WATCH_INTERVAL_MS || 900000)),
+    kgmuWatchSemesters: parseWatchSemesters(env.KGMU_WATCH_SEMESTERS),
     kgmuParserRevision: env.KGMU_PARSER_REVISION || "g20-r66-c13-s07-v1",
     kgmuMedicineSchedulePage: env.KGMU_MEDICINE_SCHEDULE_PAGE || "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
     kgmuPediatricsSchedulePage: env.KGMU_PEDIATRICS_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",

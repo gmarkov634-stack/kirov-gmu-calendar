@@ -10,7 +10,7 @@
 
 ```text
 официальные страницы расписания КГМУ
-  -> watcher: фильтр учебного года/семестра + SHA-256
+  -> watcher: фильтр учебного года + набора семестров + SHA-256
   -> новый/изменённый XLSX
   -> structural XLSX reader (cells + native merged ranges)
   -> classifier R / C / S / UNKNOWN
@@ -90,12 +90,22 @@
 Watcher читает три официальные страницы:
 
 ```text
-Лечебный факультет      https://kirovgma.ru/lechebnyy-fakultet-raspisanie
-Педиатрический факультет https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet
+Лечебный факультет        https://kirovgma.ru/lechebnyy-fakultet-raspisanie
+Педиатрический факультет  https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet
 Стоматологический факультет https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet
 ```
 
-Из текста XLSX-ссылки извлекаются программа, курс, диапазон групп, учебный год и семестр. Watcher обрабатывает **только** период `OFFER_ACADEMIC_YEAR + OFFER_SEMESTER`. Поэтому старые расписания не запускают ingest при включении мониторинга нового семестра.
+Из текста XLSX-ссылки извлекаются программа, курс, диапазон групп, учебный год и семестр.
+
+Watcher фильтрует по `OFFER_ACADEMIC_YEAR`, а перечень отслеживаемых семестров задаётся отдельно через `KGMU_WATCH_SEMESTERS`. По умолчанию отслеживаются **оба семестра: `1,2`**. Это отделяет мониторинг источников от коммерческого параметра `OFFER_SEMESTER`: семестровая подписка может продаваться для семестра 1, пока watcher уже следит и за будущим семестром 2 для годовых подписок.
+
+Пример production-конфигурации:
+
+```text
+OFFER_ACADEMIC_YEAR=2026/27
+OFFER_SEMESTER=1
+KGMU_WATCH_SEMESTERS=1,2
+```
 
 Для каждого логического слота `program/course/year/semester/group-range` хранится последний SHA-256 в:
 
@@ -117,6 +127,7 @@ X-Admin-Token: <ADMIN_TOKEN>
 ```text
 KGMU_WATCH_ENABLED=true
 KGMU_WATCH_INTERVAL_MS=900000
+KGMU_WATCH_SEMESTERS=1,2
 ```
 
 Минимальный интервал в коде — 60 секунд; рекомендуемое начальное значение — 15 минут.
@@ -214,7 +225,7 @@ Telegram используется в двух случаях:
 1. Merge PR и собрать новый API image.
 2. Обновить ревизию Cloud.ru Container Apps этим образом.
 3. Оставить `KGMU_AUTO_PUBLISH=false`.
-4. Добавить `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `KGMU_WATCH_ENABLED=true`, `KGMU_WATCH_INTERVAL_MS=900000`.
+4. Установить `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `KGMU_WATCH_ENABLED=true`, `KGMU_WATCH_INTERVAL_MS=900000`, `KGMU_WATCH_SEMESTERS=1,2`.
 5. Проверить вручную `POST /api/v1/admin/kgmu/watch`.
 6. Первые реальные обновления публиковать вручную через review ID.
 7. Только после накопления безопасной статистики решать, нужен ли `KGMU_AUTO_PUBLISH=true`.
