@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { classifyKgmuWorkbook } from "./classifier.mjs";
+import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
 import { readKgmuXlsxStructure } from "./xlsx-reader.mjs";
 
 function sha256(buffer) {
@@ -19,10 +20,11 @@ function normalizeMetadata(metadata = {}) {
 }
 
 export class KgmuIngestService {
-  constructor({ queue, notifier, config }) {
+  constructor({ queue, notifier, config, store }) {
     this.queue = queue;
     this.notifier = notifier;
     this.config = config;
+    this.store = store;
   }
 
   async ingest(buffer, metadata = {}) {
@@ -34,18 +36,71 @@ export class KgmuIngestService {
     });
     const classification = classifyKgmuWorkbook(workbook);
 
-    // Parsing is deliberately fail-closed until each R/C/S implementation is ported
-    // from the approved rule specifications and regression-tested against source XLSX.
-    const reason = classification.type === "UNKNOWN"
-      ? "UNKNOWN_PATTERN"
-      : `PARSER_${classification.type}_NOT_ENABLED`;
+    if (classification.type === "C") {
+      try {
+        const parsed = parseKgmuCycleWorkbook(workbook, {
+          ...normalized,
+          sourceSha256,
+          sourceKey,
+        });
+        if (parsed.qa.passed) {
+          const provenance = {
+            type: "xlsx",
+            fileName: normalized.filename,
+            sha256: sourceSha256,
+            storageKey: sourceKey,
+          };
+          const schedules = parsed.schedules.map((schedule) => ({
+            ...schedule,
+            sources: [provenance],
+          }));
+          const publication = await this.store.putScheduleBundle(schedules, { sourceSha256 });
+          return {
+            status: "PUBLISHED",
+            parserType: "C",
+            sourceSha256,
+            classification,
+            qa: parsed.qa,
+            publication,
+            publicationBlocked: false,
+          };
+        }
+        return this.#review({
+          reason: "PARSER_C_QA_FAILED",
+          sourceSha256,
+          sourceKey,
+          metadata: normalized,
+          classification,
+          qa: parsed.qa,
+        });
+      } catch (error) {
+        console.error("KGMU C parser failed", error);
+        return this.#review({
+          reason: "PARSER_C_FAILED",
+          sourceSha256,
+          sourceKey,
+          metadata: normalized,
+          classification,
+          parserError: {
+            code: error.code || "KGMU_C_FAILED",
+            message: String(error.message || error).slice(0, 500),
+          },
+        });
+      }
+    }
 
-    const review = await this.queue.createReview({
-      reason,
+    return this.#review({
+      reason: classification.type === "UNKNOWN" ? "UNKNOWN_PATTERN" : `PARSER_${classification.type}_NOT_ENABLED`,
       sourceSha256,
       sourceKey,
       metadata: normalized,
       classification,
+    });
+  }
+
+  async #review(details) {
+    const review = await this.queue.createReview({
+      ...details,
       publicationBlocked: true,
       currentPublishedSchedulePreserved: true,
     });
@@ -61,9 +116,10 @@ export class KgmuIngestService {
     return {
       reviewId: review.reviewId,
       status: review.status,
-      reason,
-      sourceSha256,
-      classification,
+      reason: review.reason,
+      sourceSha256: review.sourceSha256,
+      classification: review.classification,
+      qa: review.qa || undefined,
       notification,
       publicationBlocked: true,
     };
