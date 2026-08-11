@@ -1,0 +1,31 @@
+name: KGMU mixed regression
+
+on:
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/mixed-s-parser.mjs"
+      - "api/src/adapters/kgmu/mixed-s-safe.mjs"
+      - "api/src/adapters/kgmu/s-pipeline.mjs"
+      - "api/src/adapters/kgmu/classifier.mjs"
+      - "api/src/adapters/kgmu/xlsx-reader.mjs"
+      - "api/tools/kgmu-verify-mixed.mjs"
+      - ".github/workflows/kgmu-mixed-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify official 291-294 XLSX against golden digest
+        run: node tools/kgmu-verify-mixed.mjs
