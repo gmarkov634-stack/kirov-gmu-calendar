@@ -2,6 +2,8 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache unzip
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
