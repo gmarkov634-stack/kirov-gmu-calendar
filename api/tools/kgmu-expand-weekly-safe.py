@@ -159,10 +159,13 @@ base.parse_segment = safe_parse_segment
 
 
 def self_test():
-    base.self_test()
     start = dt.date(2026, 1, 26)
     end = dt.date(2026, 6, 13)
     holidays = {dt.date(2026, 5, 1), dt.date(2026, 5, 9)}
+
+    assert safe_time_bounds("8.30-10.00") == ("08:30", "10:00")
+    assert _valid_time_run("8.00-9.30, 9.40-10.25")
+    assert not _valid_time_run("26.01-11.05, 18.05-9.00")
 
     # User-confirmed semantics: only the named date gets the changed time.
     segment = "13.45-15.15 Гистология, эмбриология, цитология 26.01-25.05, 01.06-13.45-16.55"
