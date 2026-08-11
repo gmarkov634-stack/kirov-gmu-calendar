@@ -90,20 +90,20 @@
 Watcher читает три официальные страницы:
 
 ```text
-Лечебный факультет      https://kirovgma.ru/lechebnyy-fakultet-raspisanie
+Лечебный факультет       https://kirovgma.ru/lechebnyy-fakultet-raspisanie
 Педиатрический факультет https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet
 Стоматологический факультет https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet
 ```
 
 Из текста XLSX-ссылки извлекаются программа, курс, диапазон групп, учебный год и семестр. Watcher обрабатывает **только** период `OFFER_ACADEMIC_YEAR + OFFER_SEMESTER`. Поэтому старые расписания не запускают ingest при включении мониторинга нового семестра.
 
-Для каждого логического слота `program/course/year/semester/group-range` хранится последний SHA-256 в:
+Для каждого логического слота `program/course/year/semester/group-range` хранится последний SHA-256 и версия парсера в:
 
 ```text
 watch/kgmu/state.json
 ```
 
-Если SHA не изменился, повторного ingest и повторного Telegram-сообщения нет. Если файл новый или изменился, он проходит обычный parser/QA pipeline.
+Повторный ingest не выполняется, если одновременно не изменились **и SHA-256 XLSX, и `KGMU_PARSER_REVISION`**. Если университет заменил файл, он будет обработан автоматически. Если мы научили сервер новому паттерну при неизменном исходном XLSX, достаточно увеличить `KGMU_PARSER_REVISION`: на следующей проверке тот же файл будет переразобран новой версией парсера без ручной очистки watcher-state.
 
 Watcher можно запустить вручную:
 
@@ -117,6 +117,7 @@ X-Admin-Token: <ADMIN_TOKEN>
 ```text
 KGMU_WATCH_ENABLED=true
 KGMU_WATCH_INTERVAL_MS=900000
+KGMU_PARSER_REVISION=g20-r66-c13-s07-v1
 ```
 
 Минимальный интервал в коде — 60 секунд; рекомендуемое начальное значение — 15 минут.
@@ -214,7 +215,8 @@ Telegram используется в двух случаях:
 1. Merge PR и собрать новый API image.
 2. Обновить ревизию Cloud.ru Container Apps этим образом.
 3. Оставить `KGMU_AUTO_PUBLISH=false`.
-4. Добавить `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `KGMU_WATCH_ENABLED=true`, `KGMU_WATCH_INTERVAL_MS=900000`.
+4. Добавить `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `KGMU_WATCH_ENABLED=true`, `KGMU_WATCH_INTERVAL_MS=900000`, `KGMU_PARSER_REVISION=g20-r66-c13-s07-v1`.
 5. Проверить вручную `POST /api/v1/admin/kgmu/watch`.
 6. Первые реальные обновления публиковать вручную через review ID.
-7. Только после накопления безопасной статистики решать, нужен ли `KGMU_AUTO_PUBLISH=true`.
+7. При добавлении нового правила/паттерна увеличивать `KGMU_PARSER_REVISION`, чтобы watcher повторно прогонял неизменившийся XLSX.
+8. Только после накопления безопасной статистики решать, нужен ли `KGMU_AUTO_PUBLISH=true`.
