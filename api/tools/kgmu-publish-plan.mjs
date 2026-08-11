@@ -8,26 +8,28 @@ function readArg(name, fallback) {
   return value ? value.slice(prefix.length) : fallback;
 }
 
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, "utf8"));
+async function readSchedules(directory) {
+  const absolute = path.resolve(directory);
+  const entries = await fs.readdir(absolute, { withFileTypes: true });
+  const schedules = [];
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith(".json") || entry.name === "summary.json") continue;
+    const value = JSON.parse(await fs.readFile(path.join(absolute, entry.name), "utf8"));
+    if (value?.university === "kgmu" && value?.group?.code) schedules.push(value);
+  }
+  return schedules;
 }
 
-const qualityPath = readArg("quality", "data/imports/kgmu-2026-27-quality-report.json");
-const weeklyPath = readArg("weekly", "data/imports/kgmu-2026-27-weekly-event-report.json");
-const calendarPath = readArg("calendar", "data/imports/kgmu-2026-27-calendar-grid-report.json");
+const schedulesDir = readArg("schedules", "data/imports/kgmu-normalized-schedules");
 const outputPath = readArg("output", "data/imports/kgmu-publication-plan.json");
 
-const [qualityReport, weeklyReport, calendarReport] = await Promise.all([
-  readJson(qualityPath),
-  readJson(weeklyPath),
-  readJson(calendarPath),
-]);
-
-const plan = buildKgmuPublicationPlan({ qualityReport, weeklyReport, calendarReport });
+const schedules = await readSchedules(schedulesDir);
+const plan = buildKgmuPublicationPlan(schedules);
 await fs.mkdir(path.dirname(path.resolve(outputPath)), { recursive: true });
 await fs.writeFile(outputPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
 
 console.log("KGMU publication plan: DRY RUN ONLY");
+console.log(`Normalized schedules: ${schedules.length}`);
 console.log(`Publishable groups: ${plan.publishable.length}`);
 console.log(`Blocked groups: ${plan.blocked.length}`);
 console.log(`Plan: ${outputPath}`);
