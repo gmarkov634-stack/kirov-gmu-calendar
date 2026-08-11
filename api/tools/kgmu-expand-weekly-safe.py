@@ -25,6 +25,9 @@ CANCELLED_LECTURE_RE = re.compile(
 DATE_RANGE_PART_RE = re.compile(
     rf"^\s*(?P<start>{base.DATE_TOKEN})\s*-\s*(?P<end>{base.DATE_TOKEN})\s*$"
 )
+MISSING_TIME_HYPHEN_RE = re.compile(
+    r"(?<!\d)(?P<start>\d{1,2}\.\d{2})\.(?P<end>\d{1,2}\.\d{2})(?=\s+[А-Яа-яЁё])"
+)
 
 
 def _clock_parts(value):
@@ -74,6 +77,37 @@ def safe_time_bounds(value):
 
 
 base.time_bounds = safe_time_bounds
+
+
+def _repair_missing_time_hyphen(value):
+    def replace(match):
+        start = match.group("start")
+        end = match.group("end")
+        start_minutes = _clock_minutes(start)
+        end_minutes = _clock_minutes(end)
+        if start_minutes is None or end_minutes is None or start_minutes >= end_minutes:
+            return match.group(0)
+        return f"{start}-{end}"
+
+    return MISSING_TIME_HYPHEN_RE.sub(replace, str(value or ""))
+
+
+_base_read_xlsx = base.read_xlsx
+
+
+def safe_read_xlsx(path):
+    values, rows, merges, covered = _base_read_xlsx(path)
+    for ref, value in list(values.items()):
+        repaired = _repair_missing_time_hyphen(value)
+        if repaired == value:
+            continue
+        values[ref] = repaired
+        col, row = base.cell_position(ref)
+        rows[row][col] = repaired
+    return values, rows, merges, covered
+
+
+base.read_xlsx = safe_read_xlsx
 
 
 def _same_cell_period(rows):
@@ -234,6 +268,8 @@ def self_test():
     assert not _valid_time_run("15.05-12.30")
     assert not _valid_time_run("26.01-11.05, 18.05-9.00")
     assert _date_range_run("06.03-20.03, 03.04-17.04, 08.05-15.05", start, end)
+    assert _repair_missing_time_hyphen("13.05.14.35 ЛЕКЦИЯ МИКРОБИОЛОГИЯ") == "13.05-14.35 ЛЕКЦИЯ МИКРОБИОЛОГИЯ"
+    assert _repair_missing_time_hyphen("26.01.11.05 текст") == "26.01.11.05 текст"
 
     # User-confirmed semantics: only the named date gets the changed time.
     segment = "13.45-15.15 Гистология, эмбриология, цитология 26.01-25.05, 01.06-13.45-16.55"
