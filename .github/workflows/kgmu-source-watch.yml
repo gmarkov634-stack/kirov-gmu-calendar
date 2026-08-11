@@ -37,8 +37,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test KGMU source watch and quality gate
-        run: node --test test/kgmu-source-watch.test.mjs test/kgmu-quality.test.mjs
+      - name: Test KGMU source watch, quality gate and publication gate
+        run: node --test test/kgmu-source-watch.test.mjs test/kgmu-quality.test.mjs test/kgmu-publish.test.mjs
 
       - name: Test KGMU XLSX structural parser
         run: python3 tools/kgmu-parse-xlsx.py --self-test
@@ -189,6 +189,28 @@ jobs:
           print(f"Publishable: **{report['publishableGroupCount']}**")
           PY
 
+      - name: Dry-run archive publication gate
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run publish:kgmu:plan -- \
+            --schedules=data/imports/kgmu-normalized-archive-schedules \
+            --output=data/imports/kgmu-archive-publication-plan.json
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const plan = JSON.parse(fs.readFileSync('data/imports/kgmu-archive-publication-plan.json', 'utf8'));
+          if (plan.publishable.length !== 0) throw new Error('archive schedule received a publication key');
+          if (!plan.blocked.length) throw new Error('archive dry-run did not inspect any schedules');
+          if (!plan.blocked.every((entry) => entry.reason === 'archive-reference')) {
+            throw new Error('archive dry-run produced a non-archive publication decision');
+          }
+          console.log('');
+          console.log('## КГМУ archive dry-run publication gate');
+          console.log('');
+          console.log(`Publishable groups: **${plan.publishable.length}**`);
+          console.log(`Blocked as archive/reference: **${plan.blocked.length}**`);
+          console.log('No S3 write is available in this workflow.');
+          NODE
+
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
         run: |
@@ -269,6 +291,24 @@ jobs:
           print('No S3 publication is performed by this workflow.')
           PY
 
+      - name: Build dry-run publication plan for 2026/27
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run publish:kgmu:plan -- \
+            --schedules=data/imports/kgmu-normalized-2026-27-schedules \
+            --output=data/imports/kgmu-2026-27-publication-plan.json
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const plan = JSON.parse(fs.readFileSync('data/imports/kgmu-2026-27-publication-plan.json', 'utf8'));
+          console.log('');
+          console.log('## КГМУ 2026/27 dry-run publication plan');
+          console.log('');
+          console.log(`Publishable groups: **${plan.publishable.length}**`);
+          console.log(`Blocked groups: **${plan.blocked.length}**`);
+          console.log('');
+          console.log('This is a dry run. No S3 write is available in this workflow.');
+          NODE
+
       - name: Write job summary
         if: always()
         run: |
@@ -281,7 +321,7 @@ jobs:
           }
           const report = JSON.parse(fs.readFileSync(path, 'utf8'));
           console.log('## КГМУ source watch');
-          console.log('')
+          console.log('');
           console.log(`Expected: **${report.expectedAcademicYear} / semester ${report.expectedSemester}**`);
           console.log(`Status: **${report.status}**`);
           console.log(`Target XLSX files: **${report.targetSourceCount}**; groups: **${report.targetGroupCount}**`);
@@ -317,6 +357,7 @@ jobs:
             api/data/imports/kgmu-archive-quality-report.json
             api/data/imports/kgmu-normalized-archive-schedules
             api/data/imports/kgmu-normalized-archive-summary.json
+            api/data/imports/kgmu-archive-publication-plan.json
           if-no-files-found: error
           retention-days: 7
 
@@ -332,5 +373,6 @@ jobs:
             api/data/imports/kgmu-2026-27-quality-report.json
             api/data/imports/kgmu-normalized-2026-27-schedules
             api/data/imports/kgmu-normalized-2026-27-summary.json
+            api/data/imports/kgmu-2026-27-publication-plan.json
           if-no-files-found: error
           retention-days: 30
