@@ -1,146 +1,140 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildKgmuPublicationPlan, buildKgmuSchedule } from "../src/adapters/kgmu/publish.mjs";
+import { buildKgmuPublicationPlan, publicationDecision, scheduleObjectKey } from "../src/adapters/kgmu/publish.mjs";
 
 const hash = "a".repeat(64);
 
-function quality(overrides = {}) {
+function schedule(overrides = {}) {
   return {
+    version: 1,
     university: "kgmu",
+    universityName: "КГМУ",
     program: "pediatrics",
     course: 1,
-    groupCode: "132",
-    groupId: "kgmu:pediatrics:1:132",
-    layout: "weekly-grid",
+    group: {
+      id: "kgmu:pediatrics:1:132",
+      code: "132",
+      displayName: "Группа 132",
+    },
+    timezone: "Europe/Moscow",
     academicYear: "2026/27",
     semester: 1,
-    sourceFile: "weekly.xlsx",
-    sourceUrl: "https://example.test/weekly.xlsx",
-    sourceSha256: hash,
-    status: "ready-for-publication-plan",
+    sources: [{
+      type: "official-xlsx",
+      url: "https://example.test/weekly.xlsx",
+      sha256: hash,
+    }],
+    events: [{
+      id: "event-1",
+      title: "Анатомия",
+      start: "2026-09-01T05:00:00.000Z",
+      end: "2026-09-01T06:30:00.000Z",
+      location: "КГМУ",
+      sourceType: "official-xlsx",
+    }],
+    qa: {
+      archiveReferenceOnly: false,
+      commercialTargetPeriod: true,
+      passed: true,
+      blockingIssueCount: 0,
+    },
+    publishable: true,
     ...overrides,
   };
 }
 
-test("archive groups never receive a publication key", () => {
-  const plan = buildKgmuPublicationPlan({
-    qualityReport: { groups: [quality({ status: "archive-reference", academicYear: "2025/2026", semester: 2 })] },
-    weeklyReport: { reports: [] },
-    calendarReport: { reports: [] },
-  });
-  assert.equal(plan.publishable.length, 0);
-  assert.equal(plan.blocked[0].reason, "archive-reference");
-  assert.equal("key" in plan.blocked[0], false);
-});
-
-test("builds a weekly KGMU schedule with Moscow offset and versioned key", () => {
-  const q = quality();
-  const weeklyReport = {
-    reports: [{
-      sourceFile: "weekly.xlsx",
-      groups: {
-        132: {
-          events: [{
-            id: "event-1",
-            date: "2026-09-01",
-            start: "08:00",
-            end: "09:30",
-            title: "Анатомия",
-            locationText: "ул. Карла Маркса, 112",
-            sourceCell: "C7",
-            raw: "08.00-09.30 Анатомия 01.09",
-          }],
-        },
-      },
-    }],
-  };
-  const plan = buildKgmuPublicationPlan({
-    qualityReport: { groups: [q] },
-    weeklyReport,
-    calendarReport: { reports: [] },
-  });
-  assert.equal(plan.publishable.length, 1);
-  assert.equal(plan.publishable[0].schedule.academicYear, "2026/2027");
-  assert.equal(plan.publishable[0].schedule.events[0].start, "2026-09-01T08:00:00+03:00");
-  assert.equal(plan.publishable[0].schedule.events[0].end, "2026-09-01T09:30:00+03:00");
+test("builds the versioned KGMU storage key from a normalized schedule", () => {
   assert.equal(
-    plan.publishable[0].key,
+    scheduleObjectKey(schedule()),
     "schedules/kgmu/pediatrics/1/2026-2027/semester-1/kgmu%3Apediatrics%3A1%3A132.json",
   );
 });
 
-test("preserves a date-specific weekly time override already resolved by the parser", () => {
-  const schedule = buildKgmuSchedule({
-    quality: quality(),
-    weeklyReport: {
-      reports: [{
-        sourceFile: "weekly.xlsx",
-        groups: {
-          132: {
-            events: [
-              { id: "ordinary", date: "2026-05-25", start: "13:45", end: "15:15", title: "Гистология" },
-              { id: "override", date: "2026-06-01", start: "13:45", end: "16:55", title: "Гистология" },
-            ],
-          },
-        },
-      }],
+test("archive/reference schedules never receive a publication key", () => {
+  const archived = schedule({
+    academicYear: "2025/2026",
+    semester: 2,
+    qa: {
+      archiveReferenceOnly: true,
+      commercialTargetPeriod: false,
+      passed: true,
+      blockingIssueCount: 0,
     },
-    calendarReport: { reports: [] },
+    publishable: false,
   });
-  assert.equal(schedule.events[0].end, "2026-05-25T15:15:00+03:00");
-  assert.equal(schedule.events[1].end, "2026-06-01T16:55:00+03:00");
-});
-
-test("expands a clean calendar-grid cycle into dated events", () => {
-  const q = quality({
-    program: "medicine",
-    course: 5,
-    groupCode: "501",
-    groupId: "kgmu:medicine:5:501",
-    layout: "calendar-grid",
-    sourceFile: "calendar.xlsx",
-    sourceUrl: "https://example.test/calendar.xlsx",
-  });
-  const schedule = buildKgmuSchedule({
-    quality: q,
-    weeklyReport: { reports: [] },
-    calendarReport: {
-      reports: [{
-        sourceFile: "calendar.xlsx",
-        groups: {
-          501: {
-            blocks: [{
-              kind: "discipline-cycle",
-              status: "matched",
-              requiresReview: false,
-              metadataMatch: "Госпитальная хирургия",
-              sourceCell: "D10",
-              raw: "Госпитальная хирургия",
-              dates: ["2026-09-01", "2026-09-02", "2026-09-03"],
-              address: "ул. Тестовая, 1",
-              timing: {
-                status: "resolved",
-                firstDateTime: { start: "12:00", end: "15:00" },
-                remainingDatesTime: { start: "08:30", end: "11:35" },
-              },
-            }],
-          },
-        },
-      }],
-    },
-  });
-  assert.equal(schedule.events.length, 3);
-  assert.equal(schedule.events[0].start, "2026-09-01T12:00:00+03:00");
-  assert.equal(schedule.events[1].start, "2026-09-02T08:30:00+03:00");
-  assert.equal(schedule.events[0].title, "Госпитальная хирургия");
-});
-
-test("blocks a supposedly ready group when the source hash is missing", () => {
-  const plan = buildKgmuPublicationPlan({
-    qualityReport: { groups: [quality({ sourceSha256: null })] },
-    weeklyReport: { reports: [{ sourceFile: "weekly.xlsx", groups: { 132: { events: [] } } }] },
-    calendarReport: { reports: [] },
-  });
+  assert.deepEqual(publicationDecision(archived), { publish: false, reason: "archive-reference" });
+  const plan = buildKgmuPublicationPlan([archived]);
   assert.equal(plan.publishable.length, 0);
-  assert.equal(plan.blocked[0].reason, "missing-source-hash");
+  assert.equal("key" in plan.blocked[0], false);
+});
+
+test("publishes only a QA-passed target schedule with official source hash", () => {
+  const decision = publicationDecision(schedule());
+  assert.equal(decision.publish, true);
+  assert.equal(decision.reason, "verified-dry-run");
+  assert.equal(decision.sourceSha256, hash);
+});
+
+test("blocks a target group with parser QA issues", () => {
+  assert.deepEqual(
+    publicationDecision(schedule({
+      qa: {
+        archiveReferenceOnly: false,
+        commercialTargetPeriod: true,
+        passed: false,
+        blockingIssueCount: 1,
+      },
+      publishable: false,
+    })),
+    { publish: false, reason: "parser-qa-blocked" },
+  );
+});
+
+test("blocks schedules without the hash of the exact official XLSX", () => {
+  assert.deepEqual(
+    publicationDecision(schedule({
+      sources: [{ type: "official-xlsx", url: "https://example.test/weekly.xlsx", sha256: null }],
+    })),
+    { publish: false, reason: "missing-official-source-hash" },
+  );
+});
+
+test("blocks schedules containing non-official generated events", () => {
+  assert.deepEqual(
+    publicationDecision(schedule({
+      events: [{
+        id: "manual",
+        title: "Анатомия",
+        start: "2026-09-01T05:00:00.000Z",
+        end: "2026-09-01T06:30:00.000Z",
+        sourceType: "manual",
+      }],
+    })),
+    { publish: false, reason: "untrusted-events" },
+  );
+});
+
+test("publication planning does not reinterpret a parser-resolved date-specific time", () => {
+  const normalized = schedule({
+    events: [
+      {
+        id: "ordinary",
+        title: "Гистология",
+        start: "2026-05-25T10:45:00.000Z",
+        end: "2026-05-25T12:15:00.000Z",
+        sourceType: "official-xlsx",
+      },
+      {
+        id: "override",
+        title: "Гистология",
+        start: "2026-06-01T10:45:00.000Z",
+        end: "2026-06-01T13:55:00.000Z",
+        sourceType: "official-xlsx",
+      },
+    ],
+  });
+  const plan = buildKgmuPublicationPlan([normalized]);
+  assert.equal(plan.publishable.length, 1);
+  assert.equal(plan.publishable[0].schedule.events[0].end, "2026-05-25T12:15:00.000Z");
+  assert.equal(plan.publishable[0].schedule.events[1].end, "2026-06-01T13:55:00.000Z");
 });
