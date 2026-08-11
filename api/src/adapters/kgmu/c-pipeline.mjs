@@ -48,3 +48,34 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
     contextComplete: contextComplete(metadata, period),
   };
 }
+
+export async function publishStagedC({ queue, scheduleStore, review }) {
+  if (!review?.normalizedKey || review?.qa?.status !== "PASS") {
+    const error = new Error("Parser review is not publishable");
+    error.code = "REVIEW_NOT_PUBLISHABLE";
+    throw error;
+  }
+  const normalized = await queue.getNormalized(review.normalizedKey);
+  if (
+    !normalized ||
+    normalized.parserType !== "C" ||
+    normalized.sourceSha256 !== review.sourceSha256 ||
+    normalized.qa?.status !== "PASS"
+  ) {
+    const error = new Error("Normalized cyclic result does not match parser review");
+    error.code = "NORMALIZED_RESULT_INVALID";
+    throw error;
+  }
+  if (!Array.isArray(normalized.schedules) || normalized.schedules.length === 0) {
+    const error = new Error("Normalized cyclic result has no schedules");
+    error.code = "NORMALIZED_RESULT_INVALID";
+    throw error;
+  }
+
+  const published = await scheduleStore.putScheduleBundle(normalized.schedules.map((schedule) => ({
+    ...schedule,
+    parserReviewId: review.reviewId,
+    publishedAt: new Date().toISOString(),
+  })), { sourceSha256: review.sourceSha256 });
+  return published;
+}
