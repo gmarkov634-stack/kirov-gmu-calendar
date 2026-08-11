@@ -15,6 +15,7 @@
     "parse:kgmu:calendar": "python3 tools/kgmu-parse-calendar-grid-safe.py",
     "build:kgmu:schedules": "python3 tools/kgmu-build-schedules.py",
     "quality:kgmu": "node tools/kgmu-quality.mjs",
+    "publish:kgmu:plan": "node tools/kgmu-publish-plan.mjs",
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
