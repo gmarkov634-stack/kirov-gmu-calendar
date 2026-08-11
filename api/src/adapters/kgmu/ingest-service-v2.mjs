@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { classifyKgmuWorkbook } from "./classifier.mjs";
+import { publishStagedC, stageCWorkbook } from "./c-pipeline.mjs";
 import { deriveKgmuPeriod, periodMismatches } from "./period.mjs";
 import { publishStagedR, stageRWorkbook } from "./r-pipeline.mjs";
 import { readKgmuXlsxStructure } from "./xlsx-reader.mjs";
@@ -18,6 +19,12 @@ function metadata(input = {}) {
     academicYear: input.academicYear ? String(input.academicYear).slice(0, 20) : null,
     semester: [1, 2].includes(semester) ? semester : null,
   };
+}
+
+function parserFor(type) {
+  if (type === "R") return { stage: stageRWorkbook, publish: publishStagedR };
+  if (type === "C") return { stage: stageCWorkbook, publish: publishStagedC };
+  return null;
 }
 
 export class KgmuIngestServiceV2 {
@@ -57,6 +64,21 @@ export class KgmuIngestServiceV2 {
     };
   }
 
+  async #publishReady(review, publisher) {
+    const published = await publisher({
+      queue: this.queue,
+      scheduleStore: this.scheduleStore,
+      review,
+    });
+    return this.queue.updateReview(review.reviewId, {
+      status: "PUBLISHED",
+      reason: "QA_PASS_PUBLISHED",
+      publicationBlocked: false,
+      publishedAt: new Date().toISOString(),
+      published,
+    });
+  }
+
   async ingest(buffer, input = {}) {
     const sourceSha256 = sha256(buffer);
     const meta = metadata(input);
@@ -80,7 +102,8 @@ export class KgmuIngestServiceV2 {
       });
     }
 
-    if (classification.type !== "R") {
+    const parser = parserFor(classification.type);
+    if (!parser) {
       return this.#blocked({
         reason: classification.type === "UNKNOWN" ? "UNKNOWN_PATTERN" : `PARSER_${classification.type}_NOT_ENABLED`,
         sourceSha256,
@@ -91,19 +114,36 @@ export class KgmuIngestServiceV2 {
       });
     }
 
-    const staged = await stageRWorkbook({
-      workbook,
-      queue: this.queue,
-      sourceSha256,
-      sourceKey,
-      metadata: meta,
-      period: derivedPeriod,
-      classification,
-    });
+    let staged;
+    try {
+      staged = await parser.stage({
+        workbook,
+        queue: this.queue,
+        sourceSha256,
+        sourceKey,
+        metadata: meta,
+        period: derivedPeriod,
+        classification,
+      });
+    } catch (error) {
+      console.error(`KGMU ${classification.type} parser failed`, error);
+      return this.#blocked({
+        reason: `PARSER_${classification.type}_FAILED`,
+        sourceSha256,
+        sourceKey,
+        metadata: meta,
+        derivedPeriod,
+        classification,
+        parserError: {
+          code: error?.code || `KGMU_${classification.type}_FAILED`,
+          message: String(error?.message || error).slice(0, 500),
+        },
+      });
+    }
 
     if (staged.qa.status !== "PASS" || !staged.contextComplete) {
       return this.#blocked({
-        reason: staged.qa.status !== "PASS" ? "QA_FAILED" : "MISSING_PUBLICATION_CONTEXT",
+        reason: staged.qa.status !== "PASS" ? `PARSER_${classification.type}_QA_FAILED` : "MISSING_PUBLICATION_CONTEXT",
         sourceSha256,
         sourceKey,
         normalizedKey: staged.normalizedKey,
@@ -117,6 +157,7 @@ export class KgmuIngestServiceV2 {
     let review = await this.queue.createReview({
       status: "READY_TO_PUBLISH",
       reason: "QA_PASS_AWAITING_PUBLISH",
+      parserType: classification.type,
       sourceSha256,
       sourceKey,
       normalizedKey: staged.normalizedKey,
@@ -133,6 +174,7 @@ export class KgmuIngestServiceV2 {
         reviewId: review.reviewId,
         status: review.status,
         reason: review.reason,
+        parserType: review.parserType,
         sourceSha256,
         classification,
         derivedPeriod,
@@ -144,15 +186,19 @@ export class KgmuIngestServiceV2 {
     }
 
     try {
-      const published = await publishStagedR({ queue: this.queue, scheduleStore: this.scheduleStore, review });
-      review = await this.queue.updateReview(review.reviewId, {
-        status: "PUBLISHED",
-        reason: "QA_PASS_AUTO_PUBLISHED",
+      review = await this.#publishReady(review, parser.publish);
+      return {
+        reviewId: review.reviewId,
+        status: review.status,
+        reason: review.reason,
+        parserType: review.parserType,
+        sourceSha256,
+        classification,
+        derivedPeriod,
+        qa: staged.qa,
+        published: review.published,
         publicationBlocked: false,
-        publishedAt: new Date().toISOString(),
-        published,
-      });
-      return { reviewId: review.reviewId, status: review.status, reason: review.reason, sourceSha256, classification, derivedPeriod, qa: staged.qa, published, publicationBlocked: false };
+      };
     } catch (error) {
       console.error("KGMU automatic publication failed", error);
       review = await this.queue.updateReview(review.reviewId, {
@@ -162,12 +208,23 @@ export class KgmuIngestServiceV2 {
         publicationError: String(error?.message || error),
       });
       const notification = await this.#notify(review);
-      return { reviewId: review.reviewId, status: review.status, reason: review.reason, sourceSha256, classification, derivedPeriod, qa: staged.qa, notification, publicationBlocked: true };
+      return {
+        reviewId: review.reviewId,
+        status: review.status,
+        reason: review.reason,
+        parserType: review.parserType,
+        sourceSha256,
+        classification,
+        derivedPeriod,
+        qa: staged.qa,
+        notification,
+        publicationBlocked: true,
+      };
     }
   }
 
   async publishReview(reviewId) {
-    let review = await this.queue.getReview(reviewId);
+    const review = await this.queue.getReview(reviewId);
     if (!review) return null;
     if (review.status === "PUBLISHED") return review;
     if (review.status !== "READY_TO_PUBLISH") {
@@ -175,14 +232,12 @@ export class KgmuIngestServiceV2 {
       error.code = "REVIEW_NOT_PUBLISHABLE";
       throw error;
     }
-    const published = await publishStagedR({ queue: this.queue, scheduleStore: this.scheduleStore, review });
-    review = await this.queue.updateReview(review.reviewId, {
-      status: "PUBLISHED",
-      reason: "QA_PASS_MANUALLY_PUBLISHED",
-      publicationBlocked: false,
-      publishedAt: new Date().toISOString(),
-      published,
-    });
-    return review;
+    const parser = parserFor(review.parserType || review.classification?.type);
+    if (!parser) {
+      const error = new Error("Parser type is not publishable");
+      error.code = "REVIEW_NOT_PUBLISHABLE";
+      throw error;
+    }
+    return this.#publishReady(review, parser.publish);
   }
 }
