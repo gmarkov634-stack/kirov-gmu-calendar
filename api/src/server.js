@@ -6,6 +6,10 @@ import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
+import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
+import { TelegramReviewNotifier } from "./adapters/kgmu/telegram-notifier.mjs";
+import { KgmuIngestService } from "./adapters/kgmu/ingest-service.mjs";
+import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 
 const config = loadConfig();
 const store = new MultiUniversityStore(config);
@@ -14,6 +18,10 @@ const appHandler = createHandler({ store, config, payments });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
+const parserReviewQueue = new ParserReviewQueue(config);
+const parserNotifier = new TelegramReviewNotifier(config);
+const kgmuIngestService = new KgmuIngestService({ queue: parserReviewQueue, notifier: parserNotifier, config });
+const kgmuParserHandler = createKgmuParserHandler({ service: kgmuIngestService, queue: parserReviewQueue, config });
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, "http://localhost");
@@ -25,6 +33,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/kgmu/ingest" || url.pathname.startsWith("/api/v1/admin/parser-reviews")) {
+    return kgmuParserHandler(request, response);
   }
   return appHandler(request, response);
 });
