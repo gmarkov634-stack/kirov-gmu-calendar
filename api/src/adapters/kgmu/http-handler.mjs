@@ -63,6 +63,21 @@ export function createKgmuParserHandler({ service, queue, config }) {
       }
     }
 
+    const publishMatch = url.pathname.match(/^\/api\/v1\/admin\/parser-reviews\/([a-f0-9-]{36})\/publish$/);
+    if (request.method === "POST" && publishMatch) {
+      try {
+        const review = await service.publishReview(publishMatch[1]);
+        if (!review) return send(response, 404, { error: "parser_review_not_found" });
+        return send(response, 200, review);
+      } catch (error) {
+        if (["REVIEW_NOT_PUBLISHABLE", "NORMALIZED_RESULT_INVALID"].includes(error.code)) {
+          return send(response, 409, { error: String(error.code).toLowerCase() });
+        }
+        console.error("parser review publication failed", error);
+        return send(response, 503, { error: "parser_review_publish_unavailable" });
+      }
+    }
+
     if (request.method === "GET" && url.pathname === "/api/v1/admin/parser-reviews") {
       try {
         const reviews = await queue.listReviews({
