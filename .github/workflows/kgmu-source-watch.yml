@@ -1,0 +1,113 @@
+name: КГМУ source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */2 * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/**"
+      - "api/tools/kgmu-*.mjs"
+      - "api/test/kgmu-source-watch.test.mjs"
+      - "api/package.json"
+      - "universities/kgmu/source-watch.json"
+      - ".github/workflows/kgmu-source-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test KGMU source watch
+        run: node --test test/kgmu-source-watch.test.mjs
+
+      - name: Discover official KGMU XLSX sources
+        run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
+
+      - name: Detect 2026/27 autumn files
+        id: watch
+        run: |
+          set -euo pipefail
+          npm run watch:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --config=../universities/kgmu/source-watch.json \
+            --output=data/imports/kgmu-source-watch-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/kgmu-source-watch-report.json', 'utf8'));
+          console.log(`ready=${report.readyForIngest ? 'true' : 'false'}`);
+          console.log(`has_target=${report.hasTargetPeriodSources ? 'true' : 'false'}`);
+          console.log(`academic_year=${report.expectedAcademicYear}`);
+          console.log(`semester=${report.expectedSemester}`);
+          NODE
+
+      - name: Capture new official KGMU XLSX files
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run download:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --output=data/imports/kgmu-watched-xlsx \
+            --academic-year='${{ steps.watch.outputs.academic_year }}' \
+            --semester='${{ steps.watch.outputs.semester }}'
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const path = 'data/imports/kgmu-source-watch-report.json';
+          if (!fs.existsSync(path)) {
+            console.log('## КГМУ source watch\n\nReport was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          console.log('## КГМУ source watch');
+          console.log('');
+          console.log(`Expected: **${report.expectedAcademicYear} / semester ${report.expectedSemester}**`);
+          console.log(`Status: **${report.status}**`);
+          console.log(`Target XLSX files: **${report.targetSourceCount}**; groups: **${report.targetGroupCount}**`);
+          console.log('');
+          console.log('| Program | New files | Groups | Courses | Published files on page |');
+          console.log('|---|---:|---:|---|---:|');
+          for (const item of report.targetPrograms) {
+            console.log(`| ${item.label} | ${item.sourceCount} | ${item.groupCount} | ${item.courses.join(', ') || '—'} | ${item.allPublishedSourceCount} |`);
+          }
+          NODE
+
+      - name: Upload watch report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-source-watch
+          path: |
+            api/data/imports/kgmu-source-manifest.json
+            api/data/imports/kgmu-source-watch-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload newly published KGMU XLSX files
+        if: steps.watch.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-2026-27-autumn-xlsx
+          path: api/data/imports/kgmu-watched-xlsx
+          if-no-files-found: error
+          retention-days: 30
