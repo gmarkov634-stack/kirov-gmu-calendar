@@ -222,7 +222,7 @@ function makeEvent({ group, subject, occurrence, location, assessment, source, k
     : kind === "control" ? `ЗАЧЕТ С ОЦЕНКОЙ — ${subject.toUpperCase()}` : subject;
   const start = toDateTime(occurrence.date, occurrence.start); const end = toDateTime(occurrence.date, occurrence.end);
   const id = createHash("sha1").update([group, title, start, end, source].join("|")).digest("hex").slice(0, 18);
-  return { id: `kgmu-${group}-${id}`, title, start, end, location, assessment: assessment || null, sourceType: "kgmu-xlsx", source, sourceRange: source, subject, kind, dateMode: occurrence.mode };
+  return { id: `kgmu-${group}-${id}`, group, title, start, end, location, assessment: assessment || null, sourceType: "kgmu-xlsx", source, sourceRange: source, subject, kind, dateMode: occurrence.mode };
 }
 
 function parseHeaderPeriod(sheet) {
