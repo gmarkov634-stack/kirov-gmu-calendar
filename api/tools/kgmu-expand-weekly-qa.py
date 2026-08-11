@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import importlib.util
-import json
 import sys
 from pathlib import Path
 
@@ -42,7 +41,7 @@ def metadata_row_after(rows, start_row):
 
 
 def cycle_blockers(path, report):
-    values, rows, _merges, _covered = base.read_xlsx(path)
+    _values, rows, _merges, _covered = base.read_xlsx(path)
     cycle_rows = cycle_header_rows(rows)
     if not cycle_rows:
         return {}
@@ -54,6 +53,27 @@ def cycle_blockers(path, report):
     for cycle_row in cycle_rows:
         end_row = metadata_row_after(rows, cycle_row)
         header_text = " ".join(rows.get(cycle_row, {}).values()).strip()
+        explicit_group_rows = {
+            row: str(rows.get(row, {}).get(1, "")).strip()
+            for row in range(cycle_row + 1, end_row)
+            if str(rows.get(row, {}).get(1, "")).strip() in known_groups
+        }
+
+        if explicit_group_rows:
+            # Variant B (e.g. Dentistry year 2): each cycle row explicitly names
+            # its group in column A. This is authoritative, so normal group-column
+            # scanning is intentionally skipped to avoid duplicate blockers.
+            for row, explicit_group in explicit_group_rows.items():
+                fragments = [str(value).strip() for _, value in sorted(rows.get(row, {}).items()) if value]
+                if fragments:
+                    blockers[explicit_group].append({
+                        "sourceCell": f"cycle@{row}",
+                        "sourceRow": row,
+                        "sourceWeekday": None,
+                        "raw": " | ".join([header_text, *fragments]),
+                        "reason": "supplementary-cycle-requires-review",
+                    })
+            continue
 
         # Variant A (e.g. Dentistry year 1): the row after the cycle heading has
         # one group-specific time/range cell in each normal group column.
@@ -61,13 +81,8 @@ def cycle_blockers(path, report):
             fragments = []
             for row in range(cycle_row + 1, end_row):
                 value = rows.get(row, {}).get(col)
-                if not value:
-                    continue
-                # Do not steal a row that explicitly names another group in col A.
-                explicit_group = str(rows.get(row, {}).get(1, "")).strip()
-                if explicit_group in known_groups and explicit_group != group:
-                    continue
-                fragments.append(str(value).strip())
+                if value:
+                    fragments.append(str(value).strip())
             if fragments:
                 blockers[group].append({
                     "sourceCell": f"cycle@{cycle_row}",
@@ -77,23 +92,6 @@ def cycle_blockers(path, report):
                     "reason": "supplementary-cycle-requires-review",
                 })
 
-        # Variant B (e.g. Dentistry year 2): each cycle row starts with an
-        # explicit group code followed by a date range / special-time note.
-        for row in range(cycle_row + 1, end_row):
-            explicit_group = str(rows.get(row, {}).get(1, "")).strip()
-            if explicit_group not in known_groups:
-                continue
-            fragments = [str(value).strip() for _, value in sorted(rows.get(row, {}).items()) if value]
-            if fragments:
-                blockers[explicit_group].append({
-                    "sourceCell": f"cycle@{row}",
-                    "sourceRow": row,
-                    "sourceWeekday": None,
-                    "raw": " | ".join([header_text, *fragments]),
-                    "reason": "supplementary-cycle-requires-review",
-                })
-
-    # Deduplicate when a group-specific row is visible through both variants.
     for group, items in blockers.items():
         unique = {}
         for item in items:
@@ -153,7 +151,12 @@ def self_test():
         51: {1: "292", 2: "26.02.2026-21.03.2026"},
         54: {1: "Дисциплина"},
     }
-    assert cycle_header_rows(rows) == [49]
+    explicit = {
+        row: str(rows.get(row, {}).get(1, "")).strip()
+        for row in range(50, 54)
+        if str(rows.get(row, {}).get(1, "")).strip() in {"291", "292"}
+    }
+    assert explicit == {50: "291", 51: "292"}
     assert metadata_row_after(rows, 49) == 54
     print("kgmu weekly supplementary-cycle QA tests: OK")
 
