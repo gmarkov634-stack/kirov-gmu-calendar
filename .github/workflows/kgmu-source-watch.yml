@@ -49,6 +49,9 @@ jobs:
       - name: Test KGMU calendar-grid parser
         run: python3 tools/kgmu-parse-calendar-grid-safe.py --self-test
 
+      - name: Test KGMU normalized schedule builder
+        run: python3 tools/kgmu-build-schedules.py --self-test
+
       - name: Discover official KGMU XLSX sources
         run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
 
@@ -163,6 +166,29 @@ jobs:
           print(f"Status: **{report['status']}**")
           PY
 
+      - name: Build normalized archive schedules for QA
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run build:kgmu:schedules -- \
+            --weekly-report=data/imports/kgmu-weekly-event-report.json \
+            --calendar-report=data/imports/kgmu-calendar-grid-report.json \
+            --download-report=data/imports/kgmu-official-reference-xlsx/download-report.json \
+            --output-dir=data/imports/kgmu-normalized-archive-schedules \
+            --summary=data/imports/kgmu-normalized-archive-summary.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-normalized-archive-summary.json',encoding='utf-8'))
+          assert report['publishableGroupCount'] == 0, 'archive normalized schedule became publishable'
+          print('')
+          print('## КГМУ normalized schedules — ARCHIVE QA ONLY')
+          print('')
+          print(f"Schedules: **{report['scheduleCount']}**")
+          print(f"Resolved events: **{report['eventCount']}**")
+          print(f"Group QA passed: **{report['qaPassedGroupCount']}**")
+          print(f"Groups with blocking issues: **{report['blockedGroupCount']}**")
+          print(f"Publishable: **{report['publishableGroupCount']}**")
+          PY
+
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
         run: |
@@ -219,6 +245,30 @@ jobs:
           print('No S3 publication is performed by this workflow.')
           PY
 
+      - name: Build normalized 2026/27 schedules for QA
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run build:kgmu:schedules -- \
+            --weekly-report=data/imports/kgmu-2026-27-weekly-event-report.json \
+            --calendar-report=data/imports/kgmu-2026-27-calendar-grid-report.json \
+            --download-report=data/imports/kgmu-watched-xlsx/download-report.json \
+            --output-dir=data/imports/kgmu-normalized-2026-27-schedules \
+            --summary=data/imports/kgmu-normalized-2026-27-summary.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-normalized-2026-27-summary.json',encoding='utf-8'))
+          print('')
+          print('## КГМУ 2026/27 normalized schedule QA')
+          print('')
+          print(f"Schedules: **{report['scheduleCount']}**")
+          print(f"Resolved events: **{report['eventCount']}**")
+          print(f"Group QA passed: **{report['qaPassedGroupCount']}**")
+          print(f"Groups with blocking issues: **{report['blockedGroupCount']}**")
+          print(f"Parser-level publishable groups: **{report['publishableGroupCount']}**")
+          print('')
+          print('No S3 publication is performed by this workflow.')
+          PY
+
       - name: Write job summary
         if: always()
         run: |
@@ -231,7 +281,7 @@ jobs:
           }
           const report = JSON.parse(fs.readFileSync(path, 'utf8'));
           console.log('## КГМУ source watch');
-          console.log('');
+          console.log('')
           console.log(`Expected: **${report.expectedAcademicYear} / semester ${report.expectedSemester}**`);
           console.log(`Status: **${report.status}**`);
           console.log(`Target XLSX files: **${report.targetSourceCount}**; groups: **${report.targetGroupCount}**`);
@@ -265,6 +315,8 @@ jobs:
             api/data/imports/kgmu-weekly-event-report.json
             api/data/imports/kgmu-calendar-grid-report.json
             api/data/imports/kgmu-archive-quality-report.json
+            api/data/imports/kgmu-normalized-archive-schedules
+            api/data/imports/kgmu-normalized-archive-summary.json
           if-no-files-found: error
           retention-days: 7
 
@@ -278,5 +330,7 @@ jobs:
             api/data/imports/kgmu-2026-27-weekly-event-report.json
             api/data/imports/kgmu-2026-27-calendar-grid-report.json
             api/data/imports/kgmu-2026-27-quality-report.json
+            api/data/imports/kgmu-normalized-2026-27-schedules
+            api/data/imports/kgmu-normalized-2026-27-summary.json
           if-no-files-found: error
           retention-days: 30
