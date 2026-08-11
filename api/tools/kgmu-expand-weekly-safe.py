@@ -20,12 +20,18 @@ NOTE_DATE_TIME_RE = re.compile(
 )
 
 
-def _valid_clock_token(value):
+def _clock_parts(value):
     try:
         hour, minute = map(int, value.replace(":", ".").split("."))
     except (TypeError, ValueError):
-        return False
-    return 0 <= hour <= 23 and 0 <= minute <= 59
+        return None
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        return None
+    return hour, minute
+
+
+def _valid_clock_token(value):
+    return _clock_parts(value) is not None
 
 
 def _valid_time_run(value):
@@ -37,6 +43,23 @@ def _valid_time_run(value):
         _valid_clock_token(start) and _valid_clock_token(end)
         for start, end in pairs
     )
+
+
+def safe_time_bounds(value):
+    pairs = re.findall(
+        r"(\d{1,2}[.:]\d{2})\s*-\s*(\d{1,2}[.:]\d{2})",
+        value,
+    )
+    if not pairs:
+        return None
+    first = _clock_parts(pairs[0][0])
+    last = _clock_parts(pairs[-1][1])
+    if not first or not last:
+        return None
+    return f"{first[0]:02d}:{first[1]:02d}", f"{last[0]:02d}:{last[1]:02d}"
+
+
+base.time_bounds = safe_time_bounds
 
 
 def _same_cell_period(rows):
@@ -56,7 +79,7 @@ def _same_cell_period(rows):
                 candidates.append((row, start, end))
     if not candidates:
         return None
-    # Prefer the earliest explicit semester range in a single cell. This excludes
+    # Prefer an explicit semester range contained in one cell. This excludes
     # approval/signature dates that previously bled into the range search.
     _, start, end = min(candidates, key=lambda item: item[0])
     return start, end
@@ -101,17 +124,12 @@ def safe_find_time_spans(text, start, end):
         if any(base.overlap(span, other) for other in override_whole_spans):
             continue
         candidate = match.group(0)
-        # A plain DD.MM-DD.MM sequence inside the body is a date range, not a
-        # clock interval. Leading lesson time still wins because it starts at 0.
         date_range = re.fullmatch(
             rf"({base.DATE_TOKEN})\s*-\s*({base.DATE_TOKEN})",
             candidate,
         )
         if span[0] > 3 and date_range and base.looks_like_date_range(date_range, start, end):
             continue
-        # Invalid clock values such as 26.01 cannot be lesson times. This also
-        # prevents `26.01-11.05, 18.05-9.00` from swallowing a date range plus
-        # the beginning of a date-specific override.
         if not _valid_time_run(candidate):
             continue
         spans.append((span[0], span[1], candidate, "normal", None))
