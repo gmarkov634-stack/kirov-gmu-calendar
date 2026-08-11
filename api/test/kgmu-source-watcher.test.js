@@ -46,6 +46,7 @@ test("watcher filters target period and ingests only changed SHA", async () => {
   const config = {
     offerAcademicYear: "2026/27",
     offerSemester: 1,
+    kgmuWatchSemesters: [1],
     kgmuMedicineSchedulePage: pages.medicine,
     kgmuPediatricsSchedulePage: pages.pediatrics,
     kgmuDentistrySchedulePage: pages.dentistry,
@@ -54,6 +55,7 @@ test("watcher filters target period and ingests only changed SHA", async () => {
 
   const first = await watcher.run();
   assert.equal(first.targetCount, 1);
+  assert.deepEqual(first.expectedSemesters, [1]);
   assert.equal(first.ingestedCount, 1);
   assert.equal(calls.length, 1);
   assert.deepEqual(calls[0].metadata, {
@@ -73,4 +75,54 @@ test("watcher filters target period and ingests only changed SHA", async () => {
   const third = await watcher.run();
   assert.equal(third.ingestedCount, 1);
   assert.equal(calls.length, 2);
+});
+
+test("watcher can monitor both semesters of one academic year without changing semester offer", async () => {
+  const pages = {
+    medicine: "https://test.invalid/medicine",
+    pediatrics: "https://test.invalid/pediatrics",
+    dentistry: "https://test.invalid/dentistry",
+  };
+  const firstUrl = "https://test.invalid/files/medicine-fall.xlsx";
+  const secondUrl = "https://test.invalid/files/medicine-spring.xlsx";
+  const medicineHtml = [
+    `<a href="${firstUrl}">101-110 (первое полугодие 2026-2027 уч. г.)</a>`,
+    `<a href="${secondUrl}">101-110 (второе полугодие 2026-2027 уч. г.)</a>`,
+    `<a href="/files/old.xlsx">101-110 (второе полугодие 2025-2026 уч. г.)</a>`,
+  ].join("\n");
+  const fetchFn = async (url) => {
+    if (url === pages.medicine) return new Response(medicineHtml, { status: 200 });
+    if (url === pages.pediatrics || url === pages.dentistry) return new Response("<html></html>", { status: 200 });
+    if (url === firstUrl) return new Response(Buffer.from("PK-fall"), { status: 200 });
+    if (url === secondUrl) return new Response(Buffer.from("PK-spring"), { status: 200 });
+    throw new Error(`unexpected url ${url}`);
+  };
+  let state = { version: 1, university: "kgmu", slots: {} };
+  const stateStore = {
+    read: async () => structuredClone(state),
+    write: async (value) => { state = structuredClone(value); return state; },
+  };
+  const calls = [];
+  const ingestService = {
+    ingest: async (_buffer, metadata) => {
+      calls.push(metadata);
+      return { status: "READY_TO_PUBLISH", reviewId: `review-${calls.length}`, parserType: "R", classification: { type: "R" } };
+    },
+  };
+  const config = {
+    offerAcademicYear: "2026/27",
+    offerSemester: 1,
+    kgmuWatchSemesters: [1, 2],
+    kgmuMedicineSchedulePage: pages.medicine,
+    kgmuPediatricsSchedulePage: pages.pediatrics,
+    kgmuDentistrySchedulePage: pages.dentistry,
+  };
+  const watcher = new KgmuSourceWatcher({ config, ingestService, stateStore, fetchFn });
+  const result = await watcher.run();
+
+  assert.deepEqual(result.expectedSemesters, [1, 2]);
+  assert.equal(result.targetCount, 2);
+  assert.equal(result.ingestedCount, 2);
+  assert.deepEqual(calls.map((item) => item.semester).sort(), [1, 2]);
+  assert.equal(config.offerSemester, 1);
 });
