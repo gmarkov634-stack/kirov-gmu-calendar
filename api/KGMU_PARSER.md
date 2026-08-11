@@ -9,17 +9,19 @@
 ## Поток данных
 
 ```text
-XLSX КГМУ
+официальные страницы расписания КГМУ
+  -> watcher: фильтр учебного года/семестра + SHA-256
+  -> новый/изменённый XLSX
   -> structural XLSX reader (cells + native merged ranges)
   -> classifier R / C / S / UNKNOWN
   -> parser R / C / S
   -> normalized staging
   -> QA
-  -> PASS -> READY_TO_PUBLISH
+  -> PASS -> READY_TO_PUBLISH -> Telegram владельцу
        -> manual publish (default)
        -> automatic publish only when KGMU_AUTO_PUBLISH=true
   -> UNKNOWN / QA FAIL / parser error / period mismatch
-       -> REVIEW_REQUIRED -> parser-reviews/... + Telegram владельцу
+       -> REVIEW_REQUIRED -> Telegram владельцу
 ```
 
 ## Статус типов
@@ -83,6 +85,42 @@ XLSX КГМУ
 - группы: `291=208, 292=208, 293=207, 294=207`;
 - canonical digest `2144bbbef763a295688fd6781ffdd1908d33074fd9c9ba76216e0104eaebc44b`.
 
+## Мониторинг официального сайта
+
+Watcher читает три официальные страницы:
+
+```text
+Лечебный факультет      https://kirovgma.ru/lechebnyy-fakultet-raspisanie
+Педиатрический факультет https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet
+Стоматологический факультет https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet
+```
+
+Из текста XLSX-ссылки извлекаются программа, курс, диапазон групп, учебный год и семестр. Watcher обрабатывает **только** период `OFFER_ACADEMIC_YEAR + OFFER_SEMESTER`. Поэтому старые расписания не запускают ingest при включении мониторинга нового семестра.
+
+Для каждого логического слота `program/course/year/semester/group-range` хранится последний SHA-256 в:
+
+```text
+watch/kgmu/state.json
+```
+
+Если SHA не изменился, повторного ingest и повторного Telegram-сообщения нет. Если файл новый или изменился, он проходит обычный parser/QA pipeline.
+
+Watcher можно запустить вручную:
+
+```text
+POST /api/v1/admin/kgmu/watch
+X-Admin-Token: <ADMIN_TOKEN>
+```
+
+Или включить постоянную серверную проверку:
+
+```text
+KGMU_WATCH_ENABLED=true
+KGMU_WATCH_INTERVAL_MS=900000
+```
+
+Минимальный интервал в коде — 60 секунд; рекомендуемое начальное значение — 15 минут.
+
 ## Хранилище и граница публикации
 
 В том же S3/Object Storage используются отдельные зоны:
@@ -91,6 +129,7 @@ XLSX КГМУ
 parser-staging/kgmu/sources/<sha256>/<filename>.xlsx
 parser-staging/kgmu/normalized/<sha256>.json
 parser-reviews/kgmu/<review-id>.json
+watch/kgmu/state.json
 schedules/...                                      # опубликованные индивидуальные/legacy keys
 schedule-bundles/...                               # атомарные групповые версии
 ```
@@ -157,7 +196,12 @@ KGMU_XLSX_MAX_BYTES=26214400
 KGMU_AUTO_PUBLISH=false
 ```
 
-`KGMU_AUTO_PUBLISH` по умолчанию выключен. При `REVIEW_REQUIRED` Telegram получает review ID, файл, период, тип и причину. Если Telegram не настроен или временно недоступен, карточка review всё равно остаётся в Object Storage.
+Telegram используется в двух случаях:
+
+- `⚠️ REVIEW_REQUIRED` — неизвестный паттерн, ошибка парсера/QA или несовпадение периода; сообщение содержит review ID и явно сообщает, что текущая опубликованная версия сохранена;
+- `✅ READY_TO_PUBLISH` — новый XLSX успешно прошёл QA и ждёт ручной публикации.
+
+Если Telegram не настроен или временно недоступен, состояние и review всё равно сохраняются в Object Storage.
 
 ## Семестровая и годовая подписка
 
@@ -165,9 +209,12 @@ KGMU_AUTO_PUBLISH=false
 
 Годовая ссылка объединяет опубликованные `semester-1` и `semester-2` одного учебного года. Если на момент покупки опубликован только первый семестр, ссылка работает с ним; после публикации второго он автоматически появляется в той же ICS-ссылке при обновлении календаря — новый токен и повторный импорт не требуются.
 
-## Следующие этапы
+## Production-порядок
 
-1. Оставить `KGMU_AUTO_PUBLISH=false` на первом production-этапе и проверить ручной ingest/publish на сервере.
-2. Подключить мониторинг официального сайта КГМУ: новый или изменившийся XLSX по SHA-256 автоматически поступает в ingest.
-3. При `REVIEW_REQUIRED` отправлять Telegram владельцу с review ID и диагностикой; последнее опубликованное расписание остаётся активным.
-4. После накопления безопасной статистики решить, разрешать ли `KGMU_AUTO_PUBLISH=true` для известных R/C/S при `QA PASS`.
+1. Merge PR и собрать новый API image.
+2. Обновить ревизию Cloud.ru Container Apps этим образом.
+3. Оставить `KGMU_AUTO_PUBLISH=false`.
+4. Добавить `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `KGMU_WATCH_ENABLED=true`, `KGMU_WATCH_INTERVAL_MS=900000`.
+5. Проверить вручную `POST /api/v1/admin/kgmu/watch`.
+6. Первые реальные обновления публиковать вручную через review ID.
+7. Только после накопления безопасной статистики решать, нужен ли `KGMU_AUTO_PUBLISH=true`.
