@@ -27,9 +27,9 @@ test("classifies weekly KGMU workbook as R using real abbreviated headers", () =
   assert.equal(result.features.weekdays.length, 6);
 });
 
-test("recognizes foreign-student group suffixes and normalizes Latin i", () => {
+test("recognizes foreign-student group suffixes including source whitespace and normalizes Latin i", () => {
   const workbook = { sheets: [{ name: "1 ФИО", merges: [], cells: cells([
-    ["", "Группа 101и", "Группа 102i"],
+    ["", "Группа 101 и", "Группа 102 i"],
     ["ПН", "занятие", "занятие"],
     ["ВТ", "занятие", "занятие"],
     ["СР", "занятие", "занятие"],
