@@ -1,5 +1,5 @@
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
-import { parseForeignRWorkbook } from "./foreign-r-parser.mjs";
+import { parseForeignRWorkbookSafe } from "./foreign-r-safe.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -24,7 +24,7 @@ function canonicalizeSourceTrace(schedule) {
 }
 
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parse = metadata.program === "foreign" ? parseForeignRWorkbook : parseWeeklyRWorkbook;
+  const parse = metadata.program === "foreign" ? parseForeignRWorkbookSafe : parseWeeklyRWorkbook;
   const parsed = parse(workbook, {
     university: "kgmu",
     program: metadata.program || "medicine",
