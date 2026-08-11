@@ -9,6 +9,19 @@ function contextComplete(metadata, period) {
   );
 }
 
+function canonicalizeSourceTrace(schedule) {
+  return {
+    ...schedule,
+    events: (schedule.events || []).map((event) => ({
+      ...event,
+      // Vertical merges are layout only (R46). sourceCell is the canonical
+      // trace anchor; sourceRange remains useful diagnostics for true
+      // horizontal group-sharing merges.
+      source: event.sourceCell || event.source || null,
+    })),
+  };
+}
+
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
   const parsed = parseWeeklyRWorkbook(workbook, {
     university: "kgmu",
@@ -18,9 +31,14 @@ export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey,
     semester: period.semester || metadata.semester || 2,
   });
 
-  const schedules = parsed.schedules.map((schedule) => ({
+  const schedules = parsed.schedules.map((schedule) => canonicalizeSourceTrace({
     ...schedule,
-    sources: [{ type: "xlsx", filename: metadata.filename, sha256: sourceSha256 }],
+    sources: [{
+      type: "xlsx",
+      fileName: metadata.filename,
+      sha256: sourceSha256,
+      storageKey: sourceKey,
+    }],
     parser: { type: "R", sourceSha256, qaStatus: parsed.qa.status },
   }));
 
@@ -62,15 +80,23 @@ export async function publishStagedR({ queue, scheduleStore, review }) {
     error.code = "NORMALIZED_RESULT_INVALID";
     throw error;
   }
-
-  const published = [];
-  for (const schedule of normalized.schedules) {
-    const result = await scheduleStore.putSchedule({
-      ...schedule,
-      parserReviewId: review.reviewId,
-      publishedAt: new Date().toISOString(),
-    });
-    published.push({ group: schedule.group?.code, ...result });
+  if (typeof scheduleStore?.putScheduleBundle !== "function") {
+    const error = new Error("Atomic schedule bundle publication is unavailable");
+    error.code = "ATOMIC_PUBLICATION_UNAVAILABLE";
+    throw error;
   }
-  return published;
+
+  const publishedAt = new Date().toISOString();
+  const schedules = normalized.schedules.map((schedule) => ({
+    ...schedule,
+    parserReviewId: review.reviewId,
+    publishedAt,
+  }));
+  const result = await scheduleStore.putScheduleBundle(schedules, {
+    sourceSha256: review.sourceSha256,
+  });
+  return {
+    groups: schedules.map((schedule) => schedule.group?.code).filter(Boolean),
+    ...result,
+  };
 }
