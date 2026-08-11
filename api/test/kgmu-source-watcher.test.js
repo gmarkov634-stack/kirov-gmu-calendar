@@ -1,6 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { loadConfig } from "../src/config.js";
 import { discoverKgmuScheduleLinks, KgmuSourceWatcher } from "../src/adapters/kgmu/source-watcher.mjs";
+
+test("KGMU watcher defaults to both semesters independently of semester offer", () => {
+  const config = loadConfig({ OFFER_ACADEMIC_YEAR: "2026/27", OFFER_SEMESTER: "1" });
+  assert.equal(config.offerSemester, 1);
+  assert.deepEqual(config.kgmuWatchSemesters, [1, 2]);
+});
 
 test("discovers KGMU XLSX metadata from schedule link label", () => {
   const html = `<a href="/sites/default/files/files/2026/08/20/1200/1_lech.xlsx">101-110 (первое полугодие 2026-2027 уч. г.)</a>`;
