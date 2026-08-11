@@ -32,6 +32,9 @@ export function loadConfig(env = process.env) {
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     adminToken: env.ADMIN_TOKEN || "",
     suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
+    telegramBotToken: env.TELEGRAM_BOT_TOKEN || "",
+    telegramAdminChatId: env.TELEGRAM_ADMIN_CHAT_ID || "",
+    kgmuXlsxMaxBytes: Number(env.KGMU_XLSX_MAX_BYTES || 25 * 1024 * 1024),
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
     offers: {
