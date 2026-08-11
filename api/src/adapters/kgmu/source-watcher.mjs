@@ -55,14 +55,23 @@ function groupRange(label) {
   return { first: match[1], last: match[2], label: `${match[1]}-${match[2]}` };
 }
 
+function sameOriginUrl(href, pageUrl) {
+  try {
+    const page = new URL(pageUrl);
+    const target = new URL(href, page);
+    return target.origin === page.origin ? target.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function discoverKgmuScheduleLinks(html, page) {
   const result = [];
   for (const match of String(html || "").matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
     const href = attribute(match[1], "href");
     if (!href) continue;
-    let url;
-    try { url = new URL(href, page.url).toString(); } catch { continue; }
-    if (!/\.xlsx(?:$|[?#])/i.test(url)) continue;
+    const url = sameOriginUrl(href, page.url);
+    if (!url || !/\.xlsx(?:$|[?#])/i.test(url)) continue;
     const label = stripTags(match[2]);
     const range = groupRange(label);
     const academicYear = normalizeAcademicYear(label);
@@ -109,6 +118,11 @@ function targetPages(config) {
   ];
 }
 
+function responseSize(response) {
+  const value = Number(response.headers?.get?.("content-length"));
+  return Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 export class KgmuSourceWatcher {
   constructor({ config, ingestService, stateStore, fetchFn = fetch }) {
     this.config = config;
@@ -127,6 +141,8 @@ export class KgmuSourceWatcher {
   async #runOnce() {
     const expectedAcademicYear = this.config.offerAcademicYear;
     const expectedSemester = Number(this.config.offerSemester);
+    const parserRevision = String(this.config.kgmuParserRevision || "unknown");
+    const maxBytes = Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
     const state = await this.stateStore.read();
     const discovered = [];
     const errors = [];
@@ -152,12 +168,15 @@ export class KgmuSourceWatcher {
       try {
         const response = await this.fetch(source.url, { redirect: "follow", headers: { "User-Agent": "medical-calendar-api/1.0 KGMU schedule watcher" } });
         if (!response.ok) throw new Error(`XLSX HTTP ${response.status}`);
+        const declaredSize = responseSize(response);
+        if (declaredSize != null && declaredSize > maxBytes) throw new Error(`XLSX exceeds ${maxBytes} bytes`);
         const buffer = Buffer.from(await response.arrayBuffer());
+        if (buffer.length > maxBytes) throw new Error(`XLSX exceeds ${maxBytes} bytes`);
         const hash = sha256(buffer);
         const previous = state.slots[key];
-        if (previous?.sha256 === hash) {
+        if (previous?.sha256 === hash && previous?.parserRevision === parserRevision) {
           state.slots[key] = { ...previous, lastSeenAt: new Date().toISOString(), url: source.url, label: source.label };
-          results.push({ slot: key, status: "UNCHANGED", sha256: hash, url: source.url });
+          results.push({ slot: key, status: "UNCHANGED", sha256: hash, parserRevision, url: source.url });
           continue;
         }
 
@@ -170,6 +189,7 @@ export class KgmuSourceWatcher {
         });
         state.slots[key] = {
           sha256: hash,
+          parserRevision,
           url: source.url,
           label: source.label,
           program: source.program,
@@ -183,7 +203,7 @@ export class KgmuSourceWatcher {
           reviewId: ingest.reviewId || null,
           parserType: ingest.classification?.type || ingest.parserType || null,
         };
-        results.push({ slot: key, status: "INGESTED", sha256: hash, url: source.url, ingest });
+        results.push({ slot: key, status: "INGESTED", sha256: hash, parserRevision, url: source.url, ingest });
       } catch (error) {
         errors.push({ url: source.url, program: source.program, course: source.course, groupRange: source.groupRange, error: String(error?.message || error).slice(0, 300) });
       }
@@ -196,6 +216,7 @@ export class KgmuSourceWatcher {
       checkedAt: state.lastRunAt,
       expectedAcademicYear,
       expectedSemester,
+      parserRevision,
       discoveredCount: discovered.length,
       targetCount: targets.length,
       ingestedCount: results.filter((item) => item.status === "INGESTED").length,
