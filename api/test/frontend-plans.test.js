@@ -1,0 +1,50 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const require = createRequire(import.meta.url);
+const { findPurchasedOrder } = require("../../app-utils.js");
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, "../..");
+
+async function text(name) {
+  return fs.readFile(path.join(root, name), "utf8");
+}
+
+test("KGMU landing posts selected plan to the v2 payment endpoint", async () => {
+  const app = await text("app.js");
+  assert.match(app, /\/api\/v2\/payments/);
+  assert.match(app, /plan:\s*state\.plan/);
+  assert.match(app, /university:\s*data\.university/);
+  assert.doesNotMatch(app, /\/api\/v1\/payments/);
+});
+
+test("KGMU landing exposes semester 299 and year 499 plans", async () => {
+  const data = await text("data.js");
+  assert.match(data, /semester:[\s\S]*price:\s*"299 ₽"/);
+  assert.match(data, /year:[\s\S]*price:\s*"499 ₽"/);
+  assert.match(data, /badge:\s*"Выгоднее"/);
+});
+
+test("an existing year purchase prevents a narrower duplicate purchase", async () => {
+  const saved = [{ orderId: "a".repeat(32), accessToken: "b".repeat(43) }];
+  const existingYear = await findPurchasedOrder("132", saved, async () => ({
+    status: "succeeded",
+    group: "132",
+    plan: "year",
+  }), "semester");
+  assert.ok(existingYear);
+});
+
+test("an existing semester purchase does not block choosing the year plan", async () => {
+  const saved = [{ orderId: "a".repeat(32), accessToken: "b".repeat(43) }];
+  const existingYear = await findPurchasedOrder("132", saved, async () => ({
+    status: "succeeded",
+    group: "132",
+    plan: "semester",
+  }), "year");
+  assert.equal(existingYear, null);
+});

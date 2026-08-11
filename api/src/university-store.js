@@ -2,23 +2,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { ScheduleStore } from "./store.js";
-import { scheduleContext, scheduleStorageKey } from "./order-context.js";
+import {
+  normalizeAcademicYear,
+  scheduleContext,
+  scheduleFlatStorageKey,
+  scheduleStorageKey,
+} from "./order-context.js";
 
 function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
-}
-
-function normalizeAcademicYear(value) {
-  const match = String(value || "").match(/(\d{4})\D+(\d{2,4})/);
-  if (!match) return null;
-  const start = Number(match[1]);
-  let end = Number(match[2]);
-  if (match[2].length === 2) {
-    end = Math.floor(start / 100) * 100 + end;
-    if (end < start) end += 100;
-  }
-  if (!Number.isInteger(start) || !Number.isInteger(end) || end !== start + 1) return null;
-  return `${start}/${end}`;
 }
 
 function scheduleGroupFromFilename(filename) {
@@ -39,46 +31,138 @@ function scheduleGroupFromFilename(filename) {
   };
 }
 
+function legacyKgmuScheduleKey(context) {
+  if (
+    context.university !== "kgmu" ||
+    !/^[a-z][a-z0-9-]{1,63}$/.test(context.program || "") ||
+    !Number.isInteger(context.course) ||
+    context.course < 1 ||
+    !/^\d{3}$/.test(context.groupCode || "")
+  ) return null;
+  return `schedules/${context.program}/${context.course}/${context.groupCode}.json`;
+}
+
+function legacyKgmuGroup(program, course, filename) {
+  const match = String(filename || "").match(/^(\d{3})\.json$/);
+  if (!match) return null;
+  const groupCode = match[1];
+  return {
+    groupId: `kgmu:${program}:${course}:${groupCode}`,
+    groupCode,
+    displayName: `Группа ${groupCode}`,
+  };
+}
+
 function sortGroups(groups) {
   return groups.sort((a, b) =>
     a.groupCode.localeCompare(b.groupCode, "ru", { numeric: true, sensitivity: "base" }),
   );
 }
 
+function validSemester(value) {
+  const semester = Number(value);
+  return [1, 2].includes(semester) ? semester : null;
+}
+
+function requestedPeriods(input, config) {
+  const academicYear = normalizeAcademicYear(input?.academicYear || config.offerAcademicYear);
+  const semester = validSemester(input?.semester) || validSemester(config.offerSemester);
+  if (!academicYear) return [];
+  if (input?.plan === "year") {
+    return [
+      { academicYear, semester: 2 },
+      { academicYear, semester: 1 },
+    ];
+  }
+  return semester ? [{ academicYear, semester }] : [];
+}
+
+function samePeriod(schedule, period) {
+  const actual = scheduleContext(schedule);
+  return normalizeAcademicYear(actual.academicYear) === period.academicYear && actual.semester === period.semester;
+}
+
+function matchesAnyPeriod(schedule, periods) {
+  return periods.length === 0 || periods.some((period) => samePeriod(schedule, period));
+}
+
+function versionedKeyInfo(basePrefix, key) {
+  if (typeof key !== "string" || !key.startsWith(basePrefix)) return null;
+  const relative = key.slice(basePrefix.length);
+  const match = relative.match(/^(\d{4}-\d{4})\/semester-([12])\/([^/]+\.json)$/);
+  if (!match) return null;
+  return {
+    academicYear: normalizeAcademicYear(match[1]),
+    semester: Number(match[2]),
+    filename: match[3],
+  };
+}
+
 export class MultiUniversityStore extends ScheduleStore {
   async getSchedule(input) {
     const context = scheduleContext(input);
-    const key = scheduleStorageKey(context);
-    const cacheKey = `schedule:${key}`;
+    const flatKey = scheduleFlatStorageKey(context);
+    const periods = requestedPeriods(input, this.config);
+    const cachePeriod = periods.map((period) => `${period.academicYear}:${period.semester}`).join(",") || "any";
+    const cacheKey = `schedule:${flatKey}:${input?.plan || "semester"}:${cachePeriod}`;
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-    let value;
-    if (this.s3) {
-      try {
-        const response = await this.s3.send(new GetObjectCommand({
-          Bucket: this.config.bucket,
-          Key: key,
-        }));
-        value = JSON.parse(await response.Body.transformToString("utf8"));
-      } catch (error) {
-        if (isMissingObject(error)) return null;
-        throw error;
+    const candidates = [];
+    for (const period of periods) {
+      candidates.push({
+        key: scheduleStorageKey({
+          ...context,
+          academicYear: period.academicYear,
+          semester: period.semester,
+        }),
+        period,
+        strictPeriod: true,
+      });
+    }
+    candidates.push({ key: flatKey, strictPeriod: false });
+    const legacyKey = legacyKgmuScheduleKey(context);
+    if (legacyKey && legacyKey !== flatKey) candidates.push({ key: legacyKey, strictPeriod: false });
+
+    const seen = new Set();
+    for (const candidate of candidates) {
+      if (seen.has(candidate.key)) continue;
+      seen.add(candidate.key);
+
+      let value = null;
+      if (this.s3) {
+        try {
+          const response = await this.s3.send(new GetObjectCommand({
+            Bucket: this.config.bucket,
+            Key: candidate.key,
+          }));
+          value = JSON.parse(await response.Body.transformToString("utf8"));
+        } catch (error) {
+          if (isMissingObject(error)) continue;
+          throw error;
+        }
+      } else {
+        try {
+          value = JSON.parse(await fs.readFile(path.join(this.config.dataDir, candidate.key), "utf8"));
+        } catch (error) {
+          if (error.code === "ENOENT") continue;
+          throw error;
+        }
       }
-    } else {
-      try {
-        value = JSON.parse(await fs.readFile(path.join(this.config.dataDir, key), "utf8"));
-      } catch (error) {
-        if (error.code === "ENOENT") return null;
-        throw error;
+
+      if (candidate.strictPeriod && !samePeriod(value, candidate.period)) {
+        throw new Error(`Schedule period does not match storage key: ${candidate.key}`);
       }
+      if (!matchesAnyPeriod(value, periods)) continue;
+
+      this.cache.set(cacheKey, {
+        value,
+        expiresAt: Date.now() + this.config.cacheTtlMs,
+      });
+      return value;
     }
 
-    this.cache.set(cacheKey, {
-      value,
-      expiresAt: Date.now() + this.config.cacheTtlMs,
-    });
-    return value;
+    return null;
   }
 
   async listScheduleGroups(input) {
@@ -94,41 +178,89 @@ export class MultiUniversityStore extends ScheduleStore {
       throw new Error("Invalid academic year");
     }
 
-    const expectedSemester = input?.semester == null ? null : Number(input.semester);
-    if (input?.semester != null && ![1, 2].includes(expectedSemester)) {
+    const expectedSemester = input?.semester == null ? null : validSemester(input.semester);
+    if (input?.semester != null && !expectedSemester) {
       throw new Error("Invalid semester");
     }
 
-    const prefix = `schedules/${context.university}/${context.program}/${context.course}/`;
+    const basePrefix = `schedules/${context.university}/${context.program}/${context.course}/`;
+    const legacyPrefix = context.university === "kgmu"
+      ? `schedules/${context.program}/${context.course}/`
+      : null;
     const groups = new Map();
+
     const addKey = (key) => {
-      if (typeof key !== "string" || !key.startsWith(prefix)) return;
-      const filename = key.slice(prefix.length);
-      if (!filename || filename.includes("/")) return;
-      const group = scheduleGroupFromFilename(filename);
+      if (typeof key !== "string" || !key.startsWith(basePrefix)) return;
+      const relative = key.slice(basePrefix.length);
+      if (!relative) return;
+
+      if (!relative.includes("/")) {
+        const group = scheduleGroupFromFilename(relative);
+        if (group) groups.set(group.groupId, group);
+        return;
+      }
+
+      const versioned = versionedKeyInfo(basePrefix, key);
+      if (!versioned) return;
+      if (expectedAcademicYear && versioned.academicYear !== expectedAcademicYear) return;
+      if (expectedSemester && versioned.semester !== expectedSemester) return;
+      const group = scheduleGroupFromFilename(versioned.filename);
       if (group) groups.set(group.groupId, group);
     };
 
+    const addLegacyKey = (key) => {
+      if (!legacyPrefix || typeof key !== "string" || !key.startsWith(legacyPrefix)) return;
+      const filename = key.slice(legacyPrefix.length);
+      if (!filename || filename.includes("/")) return;
+      const group = legacyKgmuGroup(context.program, context.course, filename);
+      if (group && !groups.has(group.groupId)) groups.set(group.groupId, group);
+    };
+
     if (this.s3) {
-      let continuationToken;
-      do {
-        const response = await this.s3.send(new ListObjectsV2Command({
-          Bucket: this.config.bucket,
-          Prefix: prefix,
-          ContinuationToken: continuationToken,
-        }));
-        for (const object of response.Contents || []) addKey(object.Key || "");
-        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
-      } while (continuationToken);
+      const listPrefix = async (targetPrefix, add) => {
+        let continuationToken;
+        do {
+          const response = await this.s3.send(new ListObjectsV2Command({
+            Bucket: this.config.bucket,
+            Prefix: targetPrefix,
+            ContinuationToken: continuationToken,
+          }));
+          for (const object of response.Contents || []) add(object.Key || "");
+          continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+        } while (continuationToken);
+      };
+      await listPrefix(basePrefix, addKey);
+      if (legacyPrefix) await listPrefix(legacyPrefix, addLegacyKey);
     } else {
-      const directory = path.join(this.config.dataDir, prefix);
-      let names = [];
-      try {
-        names = await fs.readdir(directory);
-      } catch (error) {
-        if (error.code !== "ENOENT") throw error;
+      const walkDirectory = async (directory, relativePrefix = "") => {
+        let entries = [];
+        try {
+          entries = await fs.readdir(directory, { withFileTypes: true });
+        } catch (error) {
+          if (error.code === "ENOENT") return;
+          throw error;
+        }
+        for (const entry of entries) {
+          const relative = relativePrefix ? `${relativePrefix}/${entry.name}` : entry.name;
+          if (entry.isDirectory()) {
+            await walkDirectory(path.join(directory, entry.name), relative);
+          } else {
+            addKey(`${basePrefix}${relative}`);
+          }
+        }
+      };
+      await walkDirectory(path.join(this.config.dataDir, basePrefix));
+
+      if (legacyPrefix) {
+        const directory = path.join(this.config.dataDir, legacyPrefix);
+        let names = [];
+        try {
+          names = await fs.readdir(directory);
+        } catch (error) {
+          if (error.code !== "ENOENT") throw error;
+        }
+        for (const name of names) addLegacyKey(`${legacyPrefix}${name}`);
       }
-      for (const name of names) addKey(`${prefix}${name}`);
     }
 
     const candidates = sortGroups([...groups.values()]);
@@ -141,6 +273,8 @@ export class MultiUniversityStore extends ScheduleStore {
         course: context.course,
         groupId: group.groupId,
         groupCode: group.groupCode,
+        academicYear: expectedAcademicYear || undefined,
+        semester: expectedSemester || undefined,
       });
       if (!schedule) return null;
       const actual = scheduleContext(schedule);

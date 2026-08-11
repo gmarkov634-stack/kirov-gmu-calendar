@@ -2,9 +2,11 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
+import { effectiveSubscriptionEnd } from "./subscription-period.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const PLAN_IDS = new Set(["semester", "year"]);
 
 function send(response, status, body, type = "application/json; charset=utf-8", cacheControl) {
   const content = type.startsWith("application/json") ? JSON.stringify(body) : body;
@@ -63,10 +65,11 @@ function validateContext(value) {
 function validateSubscription(value) {
   const context = validateContext(value);
   const expiresAt = Date.parse(value?.expiresAt);
-  if (!value || value.version !== 2 || !context || !Number.isFinite(expiresAt)) {
+  const plan = value?.plan || "semester";
+  if (!value || value.version !== 2 || !context || !Number.isFinite(expiresAt) || !PLAN_IDS.has(plan)) {
     throw new Error("Invalid subscription record");
   }
-  return { ...value, ...context, expiresAt };
+  return { ...value, ...context, plan, expiresAt };
 }
 
 function emptySchedule(subscription) {
@@ -85,13 +88,14 @@ function emptySchedule(subscription) {
 
 function sameSchedule(schedule, subscription) {
   const actual = scheduleContext(schedule);
-  return actual.university === subscription.university &&
+  const sameContext = actual.university === subscription.university &&
     actual.program === subscription.program &&
     actual.course === subscription.course &&
     actual.stream === subscription.stream &&
     actual.groupId === subscription.groupId &&
-    actual.academicYear === subscription.academicYear &&
-    actual.semester === subscription.semester;
+    actual.academicYear === subscription.academicYear;
+  if (!sameContext) return false;
+  return subscription.plan === "year" || actual.semester === subscription.semester;
 }
 
 function safeFilename(value) {
@@ -102,6 +106,10 @@ function safeFilename(value) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
   return result || "calendar";
+}
+
+function siteUrl(config, university) {
+  return String(config.universitySiteUrls?.[university] || "").trim();
 }
 
 export function createHandler({ store, config, payments }) {
@@ -124,20 +132,23 @@ export function createHandler({ store, config, payments }) {
       if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
       try {
         const input = await readJson(request);
-        if (!validEmail(input.email)) return send(response, 400, { error: "invalid_checkout" });
+        const plan = input.plan || "semester";
+        if (!validEmail(input.email) || !PLAN_IDS.has(plan)) return send(response, 400, { error: "invalid_checkout" });
         const context = validateContext(input);
         if (!context) return send(response, 400, { error: "invalid_checkout" });
         const schedule = await store.getSchedule(context);
         if (!schedule || !sameSchedule(schedule, { ...context, academicYear: scheduleContext(schedule).academicYear, semester: scheduleContext(schedule).semester })) {
           return send(response, 400, { error: "offer_not_found" });
         }
-        if (Date.now() >= Date.parse(config.offerExpiresAt)) return send(response, 409, { error: "offer_expired" });
-        const payment = await payments.create({ email: input.email.trim().toLowerCase(), schedule });
+        const payment = await payments.create({ email: input.email.trim().toLowerCase(), schedule, plan });
         if (!payment.confirmationUrl) throw new Error("YooKassa did not return confirmation URL");
         return send(response, 201, payment, "application/json; charset=utf-8", "no-store");
       } catch (error) {
         console.error(error);
         if (["invalid_json", "request_too_large"].includes(error.message)) return send(response, 400, { error: error.message });
+        if (error.code === "invalid_plan") return send(response, 400, { error: "invalid_checkout" });
+        if (error.code === "semester_end_not_found") return send(response, 409, { error: "offer_not_ready" });
+        if (error.code === "offer_expired") return send(response, 409, { error: "offer_expired" });
         return send(response, 503, { error: "payment_unavailable" });
       }
     }
@@ -244,14 +255,22 @@ export function createHandler({ store, config, payments }) {
             console.error("subscription access monitoring failed", error);
           }
         }
-        const active = subscription.status === "active" && Date.now() < subscription.expiresAt;
-        const schedule = active ? await store.getSchedule(subscription) : emptySchedule(subscription);
-        if (!schedule) throw new Error("Subscription schedule is not published");
-        if (active && !sameSchedule(schedule, subscription)) throw new Error("Subscription does not match published schedule");
 
-        const calendar = buildCalendar(schedule, config.publicSiteUrl);
+        let publishedSchedule = null;
+        let effectiveExpiresAt = new Date(subscription.expiresAt).toISOString();
+        if (subscription.status === "active") {
+          publishedSchedule = await store.getSchedule(subscription);
+          if (!publishedSchedule) throw new Error("Subscription schedule is not published");
+          if (!sameSchedule(publishedSchedule, subscription)) throw new Error("Subscription does not match published schedule");
+          effectiveExpiresAt = effectiveSubscriptionEnd(subscription, publishedSchedule);
+        }
+        const active = subscription.status === "active" && Date.now() < Date.parse(effectiveExpiresAt);
+        const schedule = active ? publishedSchedule : emptySchedule(subscription);
+
+        const calendar = buildCalendar(schedule, siteUrl(config, subscription.university));
         response.setHeader("Content-Disposition", `inline; filename=${safeFilename(`${subscription.university}-${subscription.groupCode}`)}.ics`);
         response.setHeader("X-Subscription-Status", active ? "active" : subscription.status === "active" ? "expired" : "revoked");
+        response.setHeader("X-Subscription-Expires-At", effectiveExpiresAt);
         return send(response, 200, calendar, "text/calendar; charset=utf-8", "private, no-store");
       } catch (error) {
         console.error(error);
@@ -275,7 +294,7 @@ export function createHandler({ store, config, payments }) {
       if (!schedule) return send(response, 404, { error: "schedule_not_published" });
       if (publicMatch[5] === "calendar.ics") {
         response.setHeader("Content-Disposition", `inline; filename=${safeFilename(`${context.university}-${context.groupCode}`)}.ics`);
-        return send(response, 200, buildCalendar(schedule, config.publicSiteUrl), "text/calendar; charset=utf-8");
+        return send(response, 200, buildCalendar(schedule, siteUrl(config, context.university)), "text/calendar; charset=utf-8");
       }
       return send(response, 200, { ...schedule, disclaimer: DISCLAIMER });
     } catch (error) {

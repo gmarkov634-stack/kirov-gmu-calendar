@@ -7,7 +7,7 @@ const notice = document.querySelector("#notice");
 const savedOrders = document.querySelector("#saved-orders");
 const savedOrdersList = document.querySelector("#saved-orders-list");
 const { validOrderId, validAccessToken, orderPageUrl, findPurchasedOrder } = window.CALENDAR_APP_UTILS;
-const state = { step: "faculty", faculty: null, course: null, group: null };
+const state = { step: "faculty", faculty: null, course: null, group: null, plan: "year" };
 const stepOrder = ["faculty", "course", "group", "checkout"];
 const savedOrderKey = "kgmu-calendar-orders-v2";
 const legacySavedOrderKey = "kgmu-calendar-orders-v1";
@@ -42,6 +42,25 @@ function orderHeaders(accessToken) {
   return accessToken ? { "X-Order-Token": accessToken } : {};
 }
 
+function selectedPlan() {
+  return data.offer.plans[state.plan] || data.offer.plans.year || data.offer.plans.semester;
+}
+
+function planLabel(planId) {
+  return data.offer.plans[planId]?.label || (planId === "year" ? "Учебный год" : "Семестр");
+}
+
+function apiGroupContext() {
+  const groupCode = String(state.group);
+  return {
+    university: data.university || "kgmu",
+    program: state.faculty.id,
+    course: state.course,
+    groupCode,
+    groupId: `${data.university || "kgmu"}:${state.faculty.id}:${state.course}:${groupCode}`,
+  };
+}
+
 async function renderSavedOrders() {
   const saved = readSavedOrders();
   if (!saved.length) return;
@@ -53,7 +72,7 @@ async function renderSavedOrders() {
       });
       if (!response.ok) return null;
       const order = await response.json();
-      return order.status === "succeeded" ? { id: orderId, accessToken, group: order.group } : null;
+      return order.status === "succeeded" ? { id: orderId, accessToken, group: order.group, plan: order.plan || "semester" } : null;
     } catch {
       return null;
     }
@@ -64,7 +83,7 @@ async function renderSavedOrders() {
     const link = document.createElement("a");
     link.className = "saved-order-link";
     link.href = orderPageUrl(order.id, order.accessToken);
-    link.textContent = `Открыть группу ${order.group}`;
+    link.textContent = `Группа ${order.group} · ${planLabel(order.plan)}`;
     link.addEventListener("click", () => { scrollToReadyLink = true; });
     return link;
   }));
@@ -128,9 +147,9 @@ function renderGroups() {
     grid.append(makeCard({
       icon: "№",
       title: `Группа ${group}`,
-      subtitle: `Календарь на ${data.offer.semester} семестр`,
+      subtitle: "Доступ на семестр или учебный год",
       className: "group-card",
-      onClick: () => { state.group = group; setStep("checkout"); },
+      onClick: () => { state.group = group; state.plan = "year"; setStep("checkout"); },
     }));
   });
 }
@@ -145,69 +164,113 @@ async function loadSavedOrder(orderId, accessToken) {
 }
 
 function renderPurchasedGroup(wrapper, purchased) {
+  const orderPlan = purchased.order?.plan || "semester";
   title.textContent = `Группа ${state.group} уже куплена`;
+  wrapper.className = "checkout-card result-card";
   wrapper.innerHTML = `
     <div class="success-mark">✓</div>
-    <h3>Эта группа уже куплена</h3>
-    <p>Повторно оплачивать не нужно. Откройте сохранённый доступ к календарю.</p>
-    <a class="pay-button link-button" href="${orderPageUrl(purchased.orderId, purchased.accessToken)}">Открыть группу ${state.group}</a>`;
+    <h3>Доступ уже активен</h3>
+    <p>Для группы ${state.group} уже оплачен тариф «${planLabel(orderPlan)}». Повторно оплачивать не нужно.</p>
+    <a class="pay-button link-button" href="${orderPageUrl(purchased.orderId, purchased.accessToken)}">Открыть календарь</a>`;
   wrapper.querySelector("a").addEventListener("click", () => { scrollToReadyLink = true; });
 }
 
-async function renderCheckout() {
-  const selectedGroup = String(state.group);
+function planButton(plan) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "plan-option";
+  button.dataset.plan = plan.id;
+  button.setAttribute("aria-pressed", String(state.plan === plan.id));
+  button.innerHTML = `
+    <span class="plan-option-head">
+      <strong>${plan.label}</strong>
+      ${plan.badge ? `<span class="plan-badge">${plan.badge}</span>` : ""}
+    </span>
+    <span class="plan-price">${plan.price}</span>
+    <small>${plan.description}</small>`;
+  button.addEventListener("click", () => {
+    state.plan = plan.id;
+    updatePlanSelection(button.closest(".checkout-card"));
+  });
+  return button;
+}
+
+function updatePlanSelection(wrapper) {
+  const plan = selectedPlan();
+  wrapper.querySelectorAll(".plan-option").forEach((button) => {
+    const active = button.dataset.plan === state.plan;
+    button.classList.toggle("is-selected", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  wrapper.querySelector("[data-summary-plan]").textContent = plan.label;
+  wrapper.querySelector("[data-summary-price]").textContent = plan.price;
+  wrapper.querySelector("[data-summary-expiry]").textContent = `Доступ до ${plan.expires}`;
+  const payButton = wrapper.querySelector(".pay-button");
+  if (payButton && !payButton.disabled) {
+    payButton.textContent = `${data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате"} · ${plan.price}`;
+  }
+}
+
+function renderCheckout() {
   title.textContent = `Группа ${state.group}`;
   const wrapper = document.createElement("div");
-  wrapper.className = "checkout-card result-card";
-  wrapper.innerHTML = "<div class=\"loading-dot\"></div><p>Проверяем сохранённые покупки…</p>";
-  grid.append(wrapper);
-
-  const purchased = await findPurchasedOrder(selectedGroup, readSavedOrders(), loadSavedOrder);
-  if (state.step !== "checkout" || String(state.group) !== selectedGroup || !wrapper.isConnected) return;
-  if (purchased) {
-    renderPurchasedGroup(wrapper, purchased);
-    return;
-  }
-
   wrapper.className = "checkout-card";
   const testNote = data.offer.testMode ? `
-      <div class="test-payment-note">
-        <strong>Тестовая оплата — деньги не спишутся</strong>
-        <span>Карта 5555 5555 5555 4477 · срок 01/30 · CVC 123 · код 3-D Secure 123</span>
-      </div>` : "";
-  const payLabel = data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате";
+    <div class="test-payment-note">
+      <strong>Тестовая оплата — деньги не спишутся</strong>
+      <span>Карта 5555 5555 5555 4477 · срок 01/30 · CVC 123 · код 3-D Secure 123</span>
+    </div>` : "";
+  const plans = Object.values(data.offer.plans);
   wrapper.innerHTML = `
     <div class="order-summary">
-      <span>${state.faculty.short} · ${state.course} курс</span>
-      <strong>${data.offer.price}</strong>
-      <small>${data.offer.semester} семестр ${data.offer.academicYear} · доступ до ${data.offer.expires}</small>
+      <span>${state.faculty.short} · ${state.course} курс · группа ${state.group}</span>
+      <span class="summary-plan" data-summary-plan></span>
+      <strong data-summary-price></strong>
+      <small>${data.offer.academicYear} учебный год</small>
+      <small class="summary-note" data-summary-expiry></small>
     </div>
     <form id="checkout-form">
+      <div class="plan-section">
+        <span class="plan-section-label">Выберите тариф</span>
+        <div class="plan-options" role="group" aria-label="Тариф"></div>
+      </div>
       <label for="customer-email">Email покупателя</label>
       <input id="customer-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="student@example.com" />
       ${testNote}
-      <button class="pay-button" type="submit">${payLabel} · ${data.offer.price}</button>
-      <p class="form-hint">После оплаты вернитесь на эту страницу — персональная ссылка появится автоматически.</p>
+      <button class="pay-button" type="submit"></button>
+      <p class="form-hint">После оплаты персональная ссылка на календарь появится на этой странице.</p>
     </form>`;
+  const options = wrapper.querySelector(".plan-options");
+  options.replaceChildren(...plans.map(planButton));
   wrapper.querySelector("form").addEventListener("submit", startPayment);
+  grid.append(wrapper);
+  updatePlanSelection(wrapper);
 }
 
 async function startPayment(event) {
   event.preventDefault();
   const form = event.currentTarget;
-  const button = form.querySelector("button");
+  const wrapper = form.closest(".checkout-card");
+  const button = form.querySelector(".pay-button");
+  const plan = selectedPlan();
   button.disabled = true;
-  button.textContent = "Создаём платёж…";
+  button.textContent = "Проверяем покупку…";
   notice.hidden = true;
   try {
-    const response = await fetch(`${data.apiBase}/api/v1/payments`, {
+    const purchased = await findPurchasedOrder(String(state.group), readSavedOrders(), loadSavedOrder, state.plan);
+    if (purchased) {
+      renderPurchasedGroup(wrapper, purchased);
+      return;
+    }
+
+    button.textContent = "Создаём платёж…";
+    const response = await fetch(`${data.apiBase}/api/v2/payments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        faculty: state.faculty.id,
-        course: state.course,
-        group: state.group,
+        ...apiGroupContext(),
         email: new FormData(form).get("email"),
+        plan: state.plan,
       }),
     });
     const result = await response.json();
@@ -218,7 +281,7 @@ async function startPayment(event) {
     notice.hidden = false;
     notice.textContent = "Не удалось открыть оплату. Проверьте интернет и попробуйте ещё раз.";
     button.disabled = false;
-    button.textContent = `${data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате"} · ${data.offer.price}`;
+    button.textContent = `${data.offer.testMode ? "Провести тестовую оплату" : "Перейти к оплате"} · ${plan.price}`;
   }
 }
 
@@ -258,10 +321,11 @@ async function renderOrderResult(orderId, accessToken = "") {
         saveOrder(orderId, accessToken);
         title.textContent = order.testMode ? "Тестовая оплата прошла" : "Календарь оплачен";
         const webcalUrl = order.subscriptionUrl.replace(/^https:/, "webcal:");
+        const period = order.plan === "year" ? "Учебный год" : "Семестр";
         card.innerHTML = `
           <div class="success-mark">✓</div>
           <h3>Группа ${order.group}</h3>
-          <p>Персональная ссылка готова. Не пересылайте её другим людям.</p>
+          <p>${period} оплачен. Персональная ссылка готова — не пересылайте её другим людям.</p>
           <a class="pay-button link-button" href="${webcalUrl}">Подключить на iPhone</a>
           <button class="copy-button" type="button">Скопировать ссылку</button>
           <small>Для Google Календаря добавьте скопированную ссылку через «Другие календари → Добавить по URL».</small>`;
@@ -309,6 +373,7 @@ backButton.addEventListener("click", () => {
   else if (state.step === "group") setStep("course");
   else setStep("faculty");
 });
+
 function renderCurrentPage() {
   const pageParams = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
   const orderId = pageParams.get("order");

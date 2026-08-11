@@ -12,12 +12,14 @@
     return `#${params}`;
   }
 
-  async function findPurchasedOrder(group, savedOrders, loadOrder) {
+  async function findPurchasedOrder(group, savedOrders, loadOrder, requestedPlan = "semester") {
     const targetGroup = String(group);
     const matches = await Promise.all(savedOrders.map(async ({ orderId, accessToken = "" }) => {
       try {
         const order = await loadOrder(orderId, accessToken);
         if (order?.status !== "succeeded" || String(order.group) !== targetGroup) return null;
+        const orderPlan = order.plan || "semester";
+        if (orderPlan !== "year" && orderPlan !== requestedPlan) return null;
         return { orderId, accessToken, order };
       } catch {
         return null;

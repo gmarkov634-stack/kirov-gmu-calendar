@@ -1,20 +1,95 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { scheduleContext } from "./order-context.js";
+import { semesterEndFromSchedule } from "./subscription-period.js";
 
 const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const PLAN_IDS = new Set(["semester", "year"]);
+
+function normalizedHttpsBaseUrl(value) {
+  try {
+    const url = new URL(String(value || "").trim());
+    if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) return "";
+    return url.toString().replace(/\/+$/, "");
+  } catch {
+    return "";
+  }
+}
+
+function normalizeAcademicYear(value) {
+  const match = String(value || "").match(/(\d{4})\D+(\d{2,4})/);
+  if (!match) return "";
+  const start = Number(match[1]);
+  let end = Number(match[2]);
+  if (match[2].length === 2) {
+    end = Math.floor(start / 100) * 100 + end;
+    if (end < start) end += 100;
+  }
+  if (!Number.isInteger(start) || !Number.isInteger(end) || end !== start + 1) return "";
+  return `${start}/${end}`;
+}
+
+function assertSchedulePeriodForSale(config, context) {
+  const expectedYear = normalizeAcademicYear(config.offerAcademicYear);
+  const actualYear = normalizeAcademicYear(context.academicYear);
+  const expectedSemester = Number(config.offerSemester);
+  if (!expectedYear || ![1, 2].includes(expectedSemester)) {
+    const error = new Error("Sale period is not configured");
+    error.code = "offer_period_not_configured";
+    throw error;
+  }
+  if (actualYear !== expectedYear || context.semester !== expectedSemester) {
+    const error = new Error("Published schedule is not for the period currently on sale");
+    error.code = "schedule_period_not_for_sale";
+    throw error;
+  }
+}
 
 function universitySiteUrl(config, university) {
-  const value = String(config.publicSiteUrl || "").trim();
-  if (!value) throw new Error("PUBLIC_SITE_URL is not configured");
-  const root = value.endsWith("/") ? value : `${value}/`;
-  if (university === "kgmu") return root;
   if (!UNIVERSITY_ID.test(String(university || ""))) throw new Error("Invalid university id for return URL");
-  return new URL(`${university}/`, root).toString();
+  const value = normalizedHttpsBaseUrl(config.universitySiteUrls?.[university]);
+  if (!value) throw new Error(`Site URL is not configured for ${university}`);
+  return `${value}/`;
+}
+
+function publicApiBaseUrl(config) {
+  const value = normalizedHttpsBaseUrl(config.publicApiUrl);
+  if (!value) throw new Error("PUBLIC_API_URL is not configured");
+  return value;
+}
+
+function configuredOffer(config, plan) {
+  if (!PLAN_IDS.has(plan)) {
+    const error = new Error("Invalid subscription plan");
+    error.code = "invalid_plan";
+    throw error;
+  }
+  const offer = config.offers?.[plan];
+  if (!offer || !/^\d+\.\d{2}$/.test(String(offer.price || "")) || Number(offer.price) <= 0) {
+    const error = new Error(`Offer is not configured for ${plan}`);
+    error.code = "offer_not_configured";
+    throw error;
+  }
+  if (plan === "year") {
+    if (!Number.isFinite(Date.parse(offer.expiresAt))) {
+      const error = new Error("Year offer end is not configured");
+      error.code = "offer_not_configured";
+      throw error;
+    }
+    if (Date.now() >= Date.parse(offer.expiresAt)) {
+      const error = new Error("Year offer has expired");
+      error.code = "offer_expired";
+      throw error;
+    }
+  }
+  return { id: plan, price: String(offer.price), expiresAt: offer.expiresAt ? String(offer.expiresAt) : undefined };
 }
 
 function paymentDescription(order) {
-  return `Календарь ${order.universityName}: ${order.groupDisplayName}, семестр ${order.semester}`.slice(0, 128);
+  const period = order.plan === "year"
+    ? `учебный год ${order.academicYear}`
+    : `${order.semester} семестр`;
+  return `Календарь ${order.universityName}: ${order.groupDisplayName}, ${period}`.slice(0, 128);
 }
 
 function publicOrder(order) {
@@ -29,7 +104,11 @@ function publicOrder(order) {
     groupCode: order.groupCode,
     groupId: order.groupId,
     groupDisplayName: order.groupDisplayName,
+    academicYear: order.academicYear,
+    semester: order.semester,
+    plan: order.plan || "semester",
     amount: order.amount,
+    expiresAt: order.expiresAt,
     testMode: order.testMode === true,
     subscriptionUrl: order.status === "succeeded" ? order.subscriptionUrl : undefined,
   };
@@ -40,7 +119,7 @@ function accessTokenHash(token) {
 }
 
 function validAccessToken(token) {
-  return typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token);
+  return typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token || "");
 }
 
 function accessAllowed(order, token) {
@@ -74,8 +153,7 @@ export class YooKassaService {
       this.config.yookassaShopId &&
       this.config.yookassaSecretKey &&
       this.config.subscriptionSigningSecret?.length >= 32 &&
-      /^\d+\.\d{2}$/.test(this.config.offerPrice) &&
-      Number.isFinite(Date.parse(this.config.offerExpiresAt))
+      normalizedHttpsBaseUrl(this.config.publicApiUrl)
     );
   }
 
@@ -105,11 +183,20 @@ export class YooKassaService {
     }
   }
 
-  async create({ email, schedule }) {
+  async create({ email, schedule, plan = "semester" }) {
     if (!this.enabled) throw new Error("Payments are not configured");
+    const offer = configuredOffer(this.config, plan);
     const context = scheduleContext(schedule);
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
+    }
+    assertSchedulePeriodForSale(this.config, context);
+    const returnSiteUrl = universitySiteUrl(this.config, context.university);
+    const expiresAt = plan === "semester" ? semesterEndFromSchedule(schedule) : offer.expiresAt;
+    if (Date.now() >= Date.parse(expiresAt)) {
+      const error = new Error(`${plan} offer has expired`);
+      error.code = "offer_expired";
+      throw error;
     }
     const orderId = randomBytes(24).toString("base64url");
     const accessToken = randomBytes(32).toString("base64url");
@@ -119,8 +206,9 @@ export class YooKassaService {
       orderId,
       status: "creating",
       ...context,
-      expiresAt: this.config.offerExpiresAt,
-      amount: this.config.offerPrice,
+      plan: offer.id,
+      expiresAt,
+      amount: offer.price,
       currency: "RUB",
       testMode: this.config.yookassaTestMode,
       email,
@@ -135,10 +223,15 @@ export class YooKassaService {
       capture: true,
       confirmation: {
         type: "redirect",
-        return_url: `${universitySiteUrl(this.config, order.university)}#order=${orderId}&access=${accessToken}`,
+        return_url: `${returnSiteUrl}#order=${orderId}&access=${accessToken}`,
       },
       description: paymentDescription(order),
-      metadata: { order_id: orderId, university: order.university, group_id: order.groupId },
+      metadata: {
+        order_id: orderId,
+        university: order.university,
+        group_id: order.groupId,
+        plan: order.plan,
+      },
     };
     if (this.config.yookassaSendReceipt) {
       body.receipt = {
@@ -184,7 +277,7 @@ export class YooKassaService {
 
     if (order.status === "succeeded" && order.subscriptionUrl) return publicOrder(order);
     const token = subscriptionToken(this.config, orderId);
-    const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${token}/calendar.ics`;
+    const subscriptionUrl = `${publicApiBaseUrl(this.config)}/api/v1/subscriptions/${token}/calendar.ics`;
     const completedAt = new Date().toISOString();
     await this.store.putSubscription(token, {
       version: 2,
@@ -200,6 +293,7 @@ export class YooKassaService {
       timezone: order.timezone,
       academicYear: order.academicYear,
       semester: order.semester,
+      plan: order.plan || "semester",
       expiresAt: order.expiresAt,
       orderId,
       paymentId: payment.id,
@@ -269,7 +363,7 @@ export class YooKassaService {
 
     const generation = Number(order.subscriptionGeneration || 0) + 1;
     const nextToken = subscriptionToken(this.config, order.orderId, generation);
-    const subscriptionUrl = `${this.config.publicApiUrl}/api/v1/subscriptions/${nextToken}/calendar.ics`;
+    const subscriptionUrl = `${publicApiBaseUrl(this.config)}/api/v1/subscriptions/${nextToken}/calendar.ics`;
     await this.store.putSubscription(nextToken, {
       ...current,
       status: "active",
