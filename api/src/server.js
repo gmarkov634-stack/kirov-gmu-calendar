@@ -10,6 +10,8 @@ import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
 import { TelegramReviewNotifier } from "./adapters/kgmu/telegram-notifier.mjs";
 import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
+import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
+import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
 
 const config = loadConfig();
 const store = new YearAwareStore(config);
@@ -26,7 +28,18 @@ const kgmuIngestService = new KgmuIngestServiceV2({
   config,
   scheduleStore: store,
 });
-const kgmuParserHandler = createKgmuParserHandler({ service: kgmuIngestService, queue: parserReviewQueue, config });
+const kgmuWatchStore = new KgmuWatchStore(config);
+const kgmuWatcher = new KgmuSourceWatcher({
+  config,
+  ingestService: kgmuIngestService,
+  stateStore: kgmuWatchStore,
+});
+const kgmuParserHandler = createKgmuParserHandler({
+  service: kgmuIngestService,
+  queue: parserReviewQueue,
+  watcher: kgmuWatcher,
+  config,
+});
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, "http://localhost");
@@ -39,17 +52,45 @@ const server = http.createServer((request, response) => {
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
   }
-  if (url.pathname === "/api/v1/admin/kgmu/ingest" || url.pathname.startsWith("/api/v1/admin/parser-reviews")) {
+  if (
+    url.pathname === "/api/v1/admin/kgmu/ingest" ||
+    url.pathname === "/api/v1/admin/kgmu/watch" ||
+    url.pathname.startsWith("/api/v1/admin/parser-reviews")
+  ) {
     return kgmuParserHandler(request, response);
   }
   return appHandler(request, response);
 });
 
+let kgmuWatchTimer = null;
+
+async function runKgmuWatch(reason) {
+  try {
+    const result = await kgmuWatcher.run();
+    console.log("KGMU source watch", reason, JSON.stringify({
+      status: result.status,
+      targetCount: result.targetCount,
+      ingestedCount: result.ingestedCount,
+      unchangedCount: result.unchangedCount,
+      errorCount: result.errors?.length || 0,
+    }));
+  } catch (error) {
+    console.error("KGMU source watch failed", reason, error);
+  }
+}
+
 server.listen(config.port, "0.0.0.0", () => {
   console.log(`medical-calendar-api listening on :${config.port}`);
+  if (config.kgmuWatchEnabled) {
+    void runKgmuWatch("startup");
+    kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);
+    kgmuWatchTimer.unref();
+    console.log(`KGMU source watcher enabled: ${config.kgmuWatchIntervalMs} ms`);
+  }
 });
 
 function shutdown() {
+  if (kgmuWatchTimer) clearInterval(kgmuWatchTimer);
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 10000).unref();
 }
