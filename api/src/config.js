@@ -7,6 +7,10 @@ export function loadConfig(env = process.env) {
     .map((value) => value.trim())
     .filter(Boolean);
   const yearExpiresAt = env.OFFER_YEAR_EXPIRES_AT || "2027-08-31T23:59:59+03:00";
+  const archiveTestAccessHoursRaw = Number(env.KGMU_ARCHIVE_TEST_ACCESS_HOURS || 168);
+  const archiveTestAccessHours = Number.isFinite(archiveTestAccessHoursRaw) && archiveTestAccessHoursRaw > 0
+    ? Math.min(720, archiveTestAccessHoursRaw)
+    : 168;
 
   return {
     port: Number(env.PORT || 8080),
@@ -34,6 +38,12 @@ export function loadConfig(env = process.env) {
     suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
+    kgmuArchiveTest: {
+      enabled: env.KGMU_ARCHIVE_TEST_MODE === "true",
+      academicYear: env.KGMU_ARCHIVE_TEST_ACADEMIC_YEAR || "2025/2026",
+      semester: Number(env.KGMU_ARCHIVE_TEST_SEMESTER || 2),
+      accessHours: archiveTestAccessHours,
+    },
     offers: {
       semester: {
         id: "semester",
