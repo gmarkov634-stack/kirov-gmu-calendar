@@ -46,6 +46,16 @@ export class KgmuIngestServiceV2 {
     }
   }
 
+  async #notifyReady(review) {
+    if (typeof this.notifier?.notifyReadyToPublish !== "function") return { sent: false, reason: "ready_notification_unsupported" };
+    try {
+      return await this.notifier.notifyReadyToPublish(review);
+    } catch (error) {
+      console.error("parser ready notification failed", error);
+      return { sent: false, reason: error.code || "notification_failed" };
+    }
+  }
+
   async #blocked(payload) {
     const review = await this.queue.createReview({
       ...payload,
@@ -172,6 +182,7 @@ export class KgmuIngestServiceV2 {
     });
 
     if (!this.config.kgmuAutoPublish) {
+      const notification = await this.#notifyReady(review);
       return {
         reviewId: review.reviewId,
         status: review.status,
@@ -182,7 +193,7 @@ export class KgmuIngestServiceV2 {
         derivedPeriod,
         qa: staged.qa,
         normalizedKey: staged.normalizedKey,
-        notification: { sent: false, reason: "qa_pass_no_notification" },
+        notification,
         publicationBlocked: true,
       };
     }
