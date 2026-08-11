@@ -59,6 +59,15 @@ jobs:
           console.log(`semester=${report.expectedSemester}`);
           NODE
 
+      - name: Capture current official KGMU XLSX references
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run download:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --output=data/imports/kgmu-official-reference-xlsx \
+            --academic-year='2025/2026' \
+            --semester='2'
+
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
         run: |
@@ -102,6 +111,15 @@ jobs:
             api/data/imports/kgmu-source-watch-report.json
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload current official KGMU XLSX references
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-official-reference-xlsx
+          path: api/data/imports/kgmu-official-reference-xlsx
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload newly published KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
