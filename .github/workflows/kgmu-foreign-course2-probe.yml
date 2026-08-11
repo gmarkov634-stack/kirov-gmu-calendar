@@ -1,0 +1,32 @@
+name: KGMU foreign course 2 probe
+
+on:
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/foreign-r-parser.mjs"
+      - "api/src/adapters/kgmu/foreign-r-safe.mjs"
+      - "api/src/adapters/kgmu/foreign-r-reviewed.mjs"
+      - "api/src/adapters/kgmu/r-pipeline.mjs"
+      - "api/src/adapters/kgmu/classifier.mjs"
+      - "api/src/adapters/kgmu/xlsx-reader.mjs"
+      - "api/tools/kgmu-probe-foreign-r-course2.mjs"
+      - ".github/workflows/kgmu-foreign-course2-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe official FIO course 2 groups 201i-208i
+        run: node tools/kgmu-probe-foreign-r-course2.mjs
