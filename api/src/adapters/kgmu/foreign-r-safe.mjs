@@ -4,6 +4,7 @@ import { parseForeignRWorkbook } from "./foreign-r-parser.mjs";
 const DATE_TOKEN_RE = /(?<!\d)(\d{1,2})\.(\d{2})(?!\d)/g;
 const PERIOD_RE = /(\d{1,2})\.(\d{2})\.(20\d{2})\s*[-–]\s*(\d{1,2})\.(\d{2})(?:\.|-)(20\d{2})/g;
 const CURATOR_LIST_TIME_RE = /час\s+куратора\s*\(((?:\d{1,2}\.\d{2}\s*,\s*)+)(\d{1,2}\.\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\)/i;
+const ALT_TIME_RANGE_RE = /(?<!\d)(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})\.(\d{2})\s*[-–]\s*(\d{1,2})\.(\d{2})(?!\d)/g;
 
 function clean(value) {
   return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
@@ -23,6 +24,11 @@ function dateObj(year, month, day) {
   return date;
 }
 
+function weekdayIso(date) {
+  const day = date.getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
 function sourceCells(workbook) {
   const map = new Map();
   for (const sheet of workbook?.sheets || []) {
@@ -31,10 +37,12 @@ function sourceCells(workbook) {
   return map;
 }
 
-function academicYearFromSchedules(parsed) {
-  const label = parsed?.schedules?.[0]?.academicYear;
-  const match = String(label || "").match(/^(20\d{2})\/(\d{2})$/);
-  return match ? Number(match[1]) + 1 : null;
+function scheduleYear(schedule) {
+  const label = String(schedule?.academicYear || "");
+  const match = label.match(/^(20\d{2})\/(\d{2})$/);
+  if (match) return Number(match[1]) + (Number(schedule?.semester) === 1 ? 0 : 1);
+  const eventYear = String(schedule?.events?.[0]?.start || "").match(/^(20\d{2})-/)?.[1];
+  return eventYear ? Number(eventYear) : null;
 }
 
 function parseDateToken(raw, year) {
@@ -60,8 +68,7 @@ function curatorListOverride(text, year) {
   return { dates: new Set(dates), start, end };
 }
 
-function eventId(event, start, end) {
-  const date = event.start.slice(0, 10);
+function eventId(event, start, end, date = event.start.slice(0, 10)) {
   const title = event.title;
   const sourceCell = event.sourceCell || event.source || "";
   const sourceRange = event.sourceRange || sourceCell;
@@ -74,16 +81,19 @@ function eventId(event, start, end) {
 
 function applyCuratorListTimes(parsed, workbook) {
   const cells = sourceCells(workbook);
-  const year = academicYearFromSchedules(parsed) || 2026;
-  const overrides = new Map();
-  for (const [ref, text] of cells) {
-    const override = curatorListOverride(text, year);
-    if (override) overrides.set(ref, override);
-  }
-  if (!overrides.size) return 0;
-
+  const overridesByYear = new Map();
   let changed = 0;
   for (const schedule of parsed.schedules || []) {
+    const year = scheduleYear(schedule) || 2026;
+    if (!overridesByYear.has(year)) {
+      const overrides = new Map();
+      for (const [ref, text] of cells) {
+        const override = curatorListOverride(text, year);
+        if (override) overrides.set(ref, override);
+      }
+      overridesByYear.set(year, overrides);
+    }
+    const overrides = overridesByYear.get(year);
     schedule.events = (schedule.events || []).map((event) => {
       if (event.title !== "Час куратора") return event;
       const override = overrides.get(event.sourceCell);
@@ -95,7 +105,7 @@ function applyCuratorListTimes(parsed, workbook) {
       changed += 1;
       return {
         ...event,
-        id: eventId(event, override.start, override.end),
+        id: eventId(event, override.start, override.end, date),
         start: `${date}T${override.start}:00+03:00`,
         end: `${date}T${override.end}:00+03:00`,
         dateMode: "date",
@@ -104,6 +114,95 @@ function applyCuratorListTimes(parsed, workbook) {
     }).sort((a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
   }
   return changed;
+}
+
+function weekdayDates(startDate, endDate) {
+  const start = new Date(`${startDate}T12:00:00Z`);
+  const end = new Date(`${endDate}T12:00:00Z`);
+  const weekday = weekdayIso(start);
+  const dates = [];
+  for (let date = new Date(start); date <= end; date.setUTCDate(date.getUTCDate() + 1)) {
+    if (weekdayIso(date) === weekday) dates.push(iso(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()));
+  }
+  return dates;
+}
+
+function ambiguousAltTimeRanges(text, year) {
+  const repairs = [];
+  for (const match of clean(text).matchAll(ALT_TIME_RANGE_RE)) {
+    const startHour = Number(match[1]);
+    const startMinute = Number(match[2]);
+    const endHour = Number(match[3]);
+    const endMinute = Number(match[4]);
+    if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) continue;
+    const start = `${pad(startHour)}:${pad(startMinute)}`;
+    const end = `${pad(endHour)}:${pad(endMinute)}`;
+    if (start >= end) continue;
+    const first = dateObj(year, Number(match[6]), Number(match[5]));
+    const last = dateObj(year, Number(match[8]), Number(match[7]));
+    if (!first || !last || last < first || weekdayIso(first) !== weekdayIso(last)) continue;
+    const fakeDates = [];
+    const fakeFirst = dateObj(year, startMinute, startHour);
+    const fakeSecond = dateObj(year, endMinute, endHour);
+    if (fakeFirst) fakeDates.push(iso(year, startMinute, startHour));
+    if (fakeSecond) fakeDates.push(iso(year, endMinute, endHour));
+    repairs.push({
+      start,
+      end,
+      startDate: iso(year, Number(match[6]), Number(match[5])),
+      endDate: iso(year, Number(match[8]), Number(match[7])),
+      fakeDates,
+      raw: match[0],
+    });
+  }
+  return repairs;
+}
+
+function cloneAt(event, date, start, end) {
+  return {
+    ...event,
+    id: eventId(event, start, end, date),
+    start: `${date}T${start}:00+03:00`,
+    end: `${date}T${end}:00+03:00`,
+    dateMode: "range-alt-time",
+    note: event.note || "FIO: альтернативное время перед диапазоном дат",
+  };
+}
+
+function applyAmbiguousAltTimeRanges(parsed, workbook) {
+  const cells = sourceCells(workbook);
+  const stats = { added: 0, removed: 0, skipped: [] };
+  for (const schedule of parsed.schedules || []) {
+    const year = scheduleYear(schedule) || 2026;
+    let events = [...(schedule.events || [])];
+    for (const [sourceCell, text] of cells) {
+      const repairs = ambiguousAltTimeRanges(text, year);
+      if (!repairs.length) continue;
+      const sourceEvents = events.filter((event) => event.sourceCell === sourceCell);
+      if (!sourceEvents.length) continue;
+      const titles = [...new Set(sourceEvents.map((event) => event.title))];
+      const locations = [...new Set(sourceEvents.map((event) => event.location || ""))];
+      if (titles.length !== 1 || locations.length !== 1) {
+        stats.skipped.push({ group: schedule.group?.code, sourceCell, reason: "multi-subject-or-location", titles, locations });
+        continue;
+      }
+      const template = sourceEvents[0];
+      for (const repair of repairs) {
+        const correctDates = weekdayDates(repair.startDate, repair.endDate);
+        const removeDates = new Set([...correctDates, ...repair.fakeDates]);
+        const before = events.length;
+        events = events.filter((event) => !(event.sourceCell === sourceCell && event.title === template.title && removeDates.has(event.start.slice(0, 10))));
+        stats.removed += before - events.length;
+        for (const date of correctDates) {
+          events.push(cloneAt(template, date, repair.start, repair.end));
+          stats.added += 1;
+        }
+      }
+    }
+    schedule.events = events.sort((a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
+  }
+  stats.net = stats.added - stats.removed;
+  return stats;
 }
 
 function parsePeriodWindows(workbook) {
@@ -181,7 +280,7 @@ function sourceConflicts(parsed) {
   return conflicts;
 }
 
-function refreshQa(parsed, workbook, curatorFixups) {
+function refreshQa(parsed, workbook, curatorFixups, altRangeFixups) {
   const qa = parsed.qa || {};
   const conflicts = sourceConflicts(parsed);
   const outOfPeriodSources = boundaryIssues(parsed, workbook);
@@ -189,8 +288,12 @@ function refreshQa(parsed, workbook, curatorFixups) {
   qa.outOfPeriodSources = outOfPeriodSources;
   qa.eventCount = (parsed.schedules || []).reduce((sum, schedule) => sum + (schedule.events || []).length, 0);
   qa.eventCountsByGroup = Object.fromEntries((parsed.schedules || []).map((schedule) => [schedule.group?.code, schedule.events?.length || 0]));
-  qa.safetyFixups = { curatorListTimeEvents: curatorFixups, boundaryToleranceDays: 7 };
-  qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || conflicts.length || outOfPeriodSources.length)
+  qa.safetyFixups = {
+    curatorListTimeEvents: curatorFixups,
+    alternateTimeDateRanges: altRangeFixups,
+    boundaryToleranceDays: 7,
+  };
+  qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || conflicts.length || outOfPeriodSources.length || altRangeFixups.skipped.length)
     ? "REVIEW_REQUIRED"
     : "PASS";
   parsed.qa = qa;
@@ -200,5 +303,6 @@ function refreshQa(parsed, workbook, curatorFixups) {
 export function parseForeignRWorkbookSafe(workbook, options = {}) {
   const parsed = parseForeignRWorkbook(workbook, options);
   const curatorFixups = applyCuratorListTimes(parsed, workbook);
-  return refreshQa(parsed, workbook, curatorFixups);
+  const altRangeFixups = applyAmbiguousAltTimeRanges(parsed, workbook);
+  return refreshQa(parsed, workbook, curatorFixups, altRangeFixups);
 }
