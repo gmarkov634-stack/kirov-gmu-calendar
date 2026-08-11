@@ -36,6 +36,11 @@ export function loadConfig(env = process.env) {
     telegramAdminChatId: env.TELEGRAM_ADMIN_CHAT_ID || "",
     kgmuXlsxMaxBytes: Number(env.KGMU_XLSX_MAX_BYTES || 25 * 1024 * 1024),
     kgmuAutoPublish: env.KGMU_AUTO_PUBLISH === "true",
+    kgmuWatchEnabled: env.KGMU_WATCH_ENABLED === "true",
+    kgmuWatchIntervalMs: Math.max(60000, Number(env.KGMU_WATCH_INTERVAL_MS || 900000)),
+    kgmuMedicineSchedulePage: env.KGMU_MEDICINE_SCHEDULE_PAGE || "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+    kgmuPediatricsSchedulePage: env.KGMU_PEDIATRICS_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+    kgmuDentistrySchedulePage: env.KGMU_DENTISTRY_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
     offers: {
