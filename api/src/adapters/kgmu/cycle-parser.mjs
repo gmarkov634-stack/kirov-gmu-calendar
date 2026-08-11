@@ -8,6 +8,7 @@ const WEEKDAYS = new Map([
   ["пн", 1], ["понедельник", 1], ["вт", 2], ["вторник", 2], ["ср", 3], ["среда", 3],
   ["чт", 4], ["четверг", 4], ["пт", 5], ["пятница", 5], ["сб", 6], ["суббота", 6],
 ]);
+const VALID_MINUTES = new Set([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
 
 function clean(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -123,12 +124,22 @@ function dateColumns(sheet, rows, dateRow, year) {
 }
 
 function parseTime(value) {
-  const match = String(value || "").match(/(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/);
-  if (!match) return null;
-  return {
-    start: `${String(Number(match[1])).padStart(2, "0")}:${match[2]}`,
-    end: `${String(Number(match[3])).padStart(2, "0")}:${match[4]}`,
-  };
+  const pattern = /(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/g;
+  for (const match of String(value || "").matchAll(pattern)) {
+    const startHour = Number(match[1]);
+    const startMinute = Number(match[2]);
+    const endHour = Number(match[3]);
+    const endMinute = Number(match[4]);
+    if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) continue;
+    if (!VALID_MINUTES.has(startMinute) || !VALID_MINUTES.has(endMinute)) continue;
+    const duration = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+    if (duration <= 0 || duration > 360) continue;
+    return {
+      start: `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`,
+      end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
+    };
+  }
+  return null;
 }
 
 function footerColumns(sheet, rows) {
