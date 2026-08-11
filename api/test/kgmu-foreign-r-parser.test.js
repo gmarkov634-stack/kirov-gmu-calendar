@@ -10,8 +10,10 @@ import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 function loadFixture() {
-  const compressed = fs.readFileSync(path.join(here, "fixtures", "kgmu-foreign-course1-2025-26.json.gz"));
-  return JSON.parse(gunzipSync(compressed).toString("utf8"));
+  const encoded = [1, 2, 3, 4]
+    .map((index) => fs.readFileSync(path.join(here, "fixtures", `kgmu-foreign-course1-2025-26.part${index}.b64`), "utf8").trim())
+    .join("");
+  return JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"));
 }
 
 test("official foreign-student course 1 XLSX structure is classified as R", () => {
