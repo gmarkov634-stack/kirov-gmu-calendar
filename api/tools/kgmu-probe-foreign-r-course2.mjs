@@ -4,6 +4,7 @@ import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
 const SOURCE_URL = "https://kirovgma.ru/sites/default/files/files/2026/02/13/2037/2_lech._1_potok_fio-13-02-2026-10.xlsx";
 const EXPECTED_GROUPS = ["201и", "202и", "203и", "204и", "205и", "206и", "207и", "208и"];
+const PROBE_VERSION = 1;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -32,6 +33,7 @@ async function main() {
 
   const summary = {
     status: "PROBED",
+    probeVersion: PROBE_VERSION,
     source: SOURCE_URL,
     classification,
     groups,
