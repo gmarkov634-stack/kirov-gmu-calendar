@@ -58,8 +58,8 @@ function workbookFeatures(workbook) {
     dateHeaderRows,
     groupRows,
     wideHorizontalMerges,
-    hasPropedeuticDentistryCycle: /пропедевтическ\w*\s+стоматолог/i.test(allText),
-    hasCycleLanguage: /\bцикл\w*\b|начало учебных занятий|1\s*смена|2\s*смена/i.test(allText),
+    hasPropedeuticDentistryCycle: /пропедевтическ[а-яё]*\s+стоматолог/i.test(allText),
+    hasCycleLanguage: /цикл[а-яё]*|начало учебных занятий|1\s*смена|2\s*смена/i.test(allText),
   };
 }
 
