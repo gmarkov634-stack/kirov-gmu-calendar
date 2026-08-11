@@ -34,6 +34,11 @@ export function loadConfig(env = process.env) {
     suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
+    kgmuArchiveTest: {
+      enabled: env.KGMU_ARCHIVE_TEST_MODE === "true",
+      academicYear: env.KGMU_ARCHIVE_TEST_ACADEMIC_YEAR || "2025/2026",
+      semester: Number(env.KGMU_ARCHIVE_TEST_SEMESTER || 2),
+    },
     offers: {
       semester: {
         id: "semester",

@@ -1,15 +1,15 @@
 import http from "node:http";
 import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
-import { MultiUniversityStore } from "./university-store.js";
+import { ArchiveTestMultiUniversityStore } from "./archive-test-store.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
-import { YooKassaService } from "./yookassa.js";
+import { ArchiveTestYooKassaService } from "./archive-test-yookassa.js";
 
 const config = loadConfig();
-const store = new MultiUniversityStore(config);
-const payments = new YooKassaService({ store, config });
+const store = new ArchiveTestMultiUniversityStore(config);
+const payments = new ArchiveTestYooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();

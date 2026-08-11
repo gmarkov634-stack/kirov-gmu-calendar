@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/multi-university-subscriptions
+      - feature/kgmu-archive-test-mode
     paths:
       - "api/**"
       - ".github/workflows/publish-api-preview.yml"
