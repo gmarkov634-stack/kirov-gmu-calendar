@@ -11,23 +11,31 @@ function cells(rows) {
   })).filter((cell) => cell.value !== "" && cell.value != null));
 }
 
-test("classifies weekly KGMU workbook as R", () => {
-  const workbook = { sheets: [{ name: "Расписание", merges: [], cells: cells([
-    ["Понедельник", "131", "132"],
-    ["Вторник", "131", "132"],
-    ["Среда", "131", "132"],
-    ["Четверг", "131", "132"],
-    ["Пятница", "131", "132"],
+test("classifies weekly KGMU workbook as R using real abbreviated headers", () => {
+  const workbook = { sheets: [{ name: "1 леч1", merges: [], cells: cells([
+    ["", " группа 101 ", " группа 102"],
+    ["ПН", "занятие", "занятие"],
+    ["ВТ", "занятие", "занятие"],
+    ["СР", "занятие", "занятие"],
+    ["ЧТ", "занятие", "занятие"],
+    ["ПТ", "занятие", "занятие"],
+    ["СБ", "занятие", "занятие"],
   ]) }] };
-  assert.equal(classifyKgmuWorkbook(workbook).type, "R");
+  const result = classifyKgmuWorkbook(workbook);
+  assert.equal(result.type, "R");
+  assert.deepEqual(result.features.groupCodes, ["101", "102"]);
+  assert.equal(result.features.weekdays.length, 6);
 });
 
-test("classifies embedded dentistry cycle as S", () => {
-  const workbook = { sheets: [{ name: "Расписание", merges: [], cells: cells([
-    ["Понедельник", "291", "292"],
-    ["Вторник", "291", "292"],
-    ["Среда", "291", "292"],
-    ["Четверг", "291", "292"],
+test("classifies embedded dentistry cycle as S using real KGMU headers", () => {
+  const workbook = { sheets: [{ name: "2 стомат", merges: [], cells: cells([
+    ["", "Группа 291", "Группа 292"],
+    ["ПН", "занятие", "занятие"],
+    ["ВТ", "занятие", "занятие"],
+    ["СР", "занятие", "занятие"],
+    ["ЧТ", "занятие", "занятие"],
+    ["ПТ", "занятие", "занятие"],
+    ["СБ", "занятие", "занятие"],
     ["Пропедевтическая стоматология", "02.02-25.02"],
   ]) }] };
   assert.equal(classifyKgmuWorkbook(workbook).type, "S");
