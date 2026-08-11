@@ -1,4 +1,8 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { MultiUniversityStore } from "./university-store.js";
+import { scheduleContext, scheduleFlatStorageKey, scheduleStorageKey } from "./order-context.js";
 
 function uniqueBy(items, keyFn) {
   const seen = new Set();
@@ -43,5 +47,44 @@ export class YearAwareStore extends MultiUniversityStore {
       super.getSchedule({ ...input, plan: "semester", academicYear, semester: 2 }),
     ]);
     return mergeYearSchedules(semester1, semester2);
+  }
+
+  async putSchedule(schedule) {
+    const context = scheduleContext(schedule);
+    if (
+      !context.university ||
+      !context.program ||
+      !Number.isInteger(context.course) ||
+      context.course < 1 ||
+      !context.groupId ||
+      !context.academicYear ||
+      ![1, 2].includes(context.semester) ||
+      !Array.isArray(schedule?.events) ||
+      schedule.events.length === 0
+    ) {
+      const error = new Error("Schedule is incomplete and cannot be published");
+      error.code = "INVALID_PUBLISHED_SCHEDULE";
+      throw error;
+    }
+
+    const body = JSON.stringify(schedule);
+    const keys = [scheduleStorageKey(schedule), scheduleFlatStorageKey(schedule)];
+    for (const key of [...new Set(keys)]) {
+      if (this.s3) {
+        await this.s3.send(new PutObjectCommand({
+          Bucket: this.config.bucket,
+          Key: key,
+          Body: body,
+          ContentType: "application/json; charset=utf-8",
+          CacheControl: "no-store",
+        }));
+      } else {
+        const filename = path.join(this.config.dataDir, key);
+        await fs.mkdir(path.dirname(filename), { recursive: true });
+        await fs.writeFile(filename, body, { mode: 0o600 });
+      }
+    }
+    this.cache.clear();
+    return { versionedKey: keys[0], flatKey: keys[1] };
   }
 }
