@@ -1,7 +1,7 @@
 import http from "node:http";
 import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
-import { MultiUniversityStore } from "./university-store.js";
+import { YearAwareStore } from "./year-aware-store.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -12,7 +12,7 @@ import { KgmuIngestService } from "./adapters/kgmu/ingest-service.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 
 const config = loadConfig();
-const store = new MultiUniversityStore(config);
+const store = new YearAwareStore(config);
 const payments = new YooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
