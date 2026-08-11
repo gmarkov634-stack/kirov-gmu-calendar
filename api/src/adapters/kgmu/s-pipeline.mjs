@@ -1,4 +1,4 @@
-import { parseKgmuMixedWorkbook } from "./mixed-s-parser.mjs";
+import { parseKgmuMixedWorkbookSafe } from "./mixed-s-safe.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -10,7 +10,7 @@ function contextComplete(metadata, period) {
 }
 
 export async function stageSWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parsed = parseKgmuMixedWorkbook(workbook, {
+  const parsed = parseKgmuMixedWorkbookSafe(workbook, {
     program: metadata.program || "dentistry",
     course: metadata.course || 2,
     academicYear: period.academicYear || metadata.academicYear || "2025/26",
