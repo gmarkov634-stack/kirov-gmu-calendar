@@ -1,0 +1,29 @@
+name: KGMU cycle regression
+
+on:
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/cycle-parser.mjs"
+      - "api/src/adapters/kgmu/classifier.mjs"
+      - "api/src/adapters/kgmu/xlsx-reader.mjs"
+      - "api/tools/kgmu-verify-cycle.mjs"
+      - ".github/workflows/kgmu-cycle-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify official 401-420 XLSX against golden digest
+        run: node tools/kgmu-verify-cycle.mjs
