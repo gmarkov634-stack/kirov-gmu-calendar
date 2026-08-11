@@ -27,6 +27,20 @@ test("classifies weekly KGMU workbook as R using real abbreviated headers", () =
   assert.equal(result.features.weekdays.length, 6);
 });
 
+test("recognizes foreign-student group suffixes and normalizes Latin i", () => {
+  const workbook = { sheets: [{ name: "1 ФИО", merges: [], cells: cells([
+    ["", "Группа 101и", "Группа 102i"],
+    ["ПН", "занятие", "занятие"],
+    ["ВТ", "занятие", "занятие"],
+    ["СР", "занятие", "занятие"],
+    ["ЧТ", "занятие", "занятие"],
+    ["ПТ", "занятие", "занятие"],
+  ]) }] };
+  const result = classifyKgmuWorkbook(workbook);
+  assert.equal(result.type, "R");
+  assert.deepEqual(result.features.groupCodes, ["101и", "102и"]);
+});
+
 test("classifies embedded dentistry cycle as S using real KGMU headers", () => {
   const workbook = { sheets: [{ name: "2 стомат", merges: [], cells: cells([
     ["", "Группа 291", "Группа 292"],
