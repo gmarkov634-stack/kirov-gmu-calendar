@@ -33,9 +33,3 @@ export function isKgmuArchiveTestSchedule(config, context) {
   return normalizeAcademicYear(context.academicYear) === period.academicYear &&
     Number(context.semester) === period.semester;
 }
-
-export function archiveTestExpiry(config, now = Date.now()) {
-  const hours = Number(config?.kgmuArchiveTest?.accessHours || 168);
-  if (!Number.isFinite(hours) || hours <= 0) throw new Error("Invalid KGMU archive test access period");
-  return new Date(now + Math.min(720, hours) * 60 * 60 * 1000).toISOString();
-}
