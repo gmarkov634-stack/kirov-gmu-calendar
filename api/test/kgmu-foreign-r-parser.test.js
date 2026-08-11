@@ -43,4 +43,8 @@ test("foreign R production schedule QA matches verified source", () => {
     ["103и", "Физика, математика", 2, 1],
     ["103и", "Анатомия", 2, 1],
   ]);
+  assert.equal(result.qa.outOfPeriodSources.length, 1);
+  assert.equal(result.qa.outOfPeriodSources[0].group, "110и");
+  assert.equal(result.qa.outOfPeriodSources[0].title, "Медицинская информатика");
+  assert.deepEqual(result.qa.outOfPeriodSources[0].dates, ["2026-10-26"]);
 });
