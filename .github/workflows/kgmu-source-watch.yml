@@ -43,6 +43,9 @@ jobs:
       - name: Test KGMU XLSX structural parser
         run: python3 tools/kgmu-parse-xlsx.py --self-test
 
+      - name: Test KGMU weekly event parser
+        run: python3 tools/kgmu-expand-weekly.py --self-test
+
       - name: Discover official KGMU XLSX sources
         run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
 
@@ -91,6 +94,26 @@ jobs:
           print(f"Ambiguous weekly records flagged: **{report['ambiguousRecordCount']}**")
           PY
 
+      - name: Expand archive weekly grids into dated reference events
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run parse:kgmu:weekly -- \
+            data/imports/kgmu-official-reference-xlsx \
+            --output=data/imports/kgmu-weekly-event-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-weekly-event-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ weekly event parser — ARCHIVE QA ONLY')
+          print('')
+          print(f"Weekly files parsed: **{report['parsedWeeklyFileCount']}**")
+          print(f"Dated events: **{report['eventCount']}**")
+          print(f"Unresolved segments: **{report['unresolvedCount']}**")
+          print(f"Partial/review segments: **{report['partialCount']}**")
+          print(f"Archive/reference files: **{report['archiveReferenceOnlyFileCount']}**")
+          print(f"Publishable files: **{report['publishableFileCount']}** (must be 0 for 2025/26 archive)")
+          PY
+
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
         run: |
@@ -99,6 +122,27 @@ jobs:
             --output=data/imports/kgmu-watched-xlsx \
             --academic-year='${{ steps.watch.outputs.academic_year }}' \
             --semester='${{ steps.watch.outputs.semester }}'
+
+      - name: Expand newly published 2026/27 weekly grids for QA
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run parse:kgmu:weekly -- \
+            data/imports/kgmu-watched-xlsx \
+            --output=data/imports/kgmu-2026-27-weekly-event-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-2026-27-weekly-event-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ 2026/27 weekly event QA')
+          print('')
+          print(f"Weekly files parsed: **{report['parsedWeeklyFileCount']}**")
+          print(f"Dated events: **{report['eventCount']}**")
+          print(f"Unresolved segments: **{report['unresolvedCount']}**")
+          print(f"Partial/review segments: **{report['partialCount']}**")
+          print(f"Parser-QA publishable weekly files: **{report['publishableFileCount']}**")
+          print('')
+          print('No S3 publication is performed by this workflow.')
+          PY
 
       - name: Write job summary
         if: always()
@@ -135,7 +179,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload current official KGMU XLSX references and structure report
+      - name: Upload current official KGMU XLSX references and parser reports
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
@@ -143,14 +187,17 @@ jobs:
           path: |
             api/data/imports/kgmu-official-reference-xlsx
             api/data/imports/kgmu-xlsx-structure-report.json
+            api/data/imports/kgmu-weekly-event-report.json
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload newly published KGMU XLSX files
+      - name: Upload newly published KGMU XLSX files and QA report
         if: steps.watch.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: kgmu-2026-27-autumn-xlsx
-          path: api/data/imports/kgmu-watched-xlsx
+          path: |
+            api/data/imports/kgmu-watched-xlsx
+            api/data/imports/kgmu-2026-27-weekly-event-report.json
           if-no-files-found: error
           retention-days: 30
