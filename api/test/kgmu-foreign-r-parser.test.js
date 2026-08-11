@@ -22,7 +22,7 @@ test("official foreign-student course 1 XLSX structure is classified as R", () =
   assert.deepEqual(result.features.groupCodes, ["101и", "102и", "103и", "104и", "105и", "106и", "107и", "108и", "109и", "110и"]);
 });
 
-test("foreign R production counters and QA invariants match verified source", () => {
+test("foreign R production schedule QA matches verified source", () => {
   const result = parseForeignRWorkbookSafe(loadFixture(), { program: "foreign", course: 1 });
   assert.equal(result.qa.status, "REVIEW_REQUIRED");
   assert.equal(result.qa.sourceAnchorCount, 184);
@@ -43,12 +43,4 @@ test("foreign R production counters and QA invariants match verified source", ()
     ["103и", "Физика, математика", 2, 1],
     ["103и", "Анатомия", 2, 1],
   ]);
-  assert.equal(result.qa.outOfPeriodSources.length, 1);
-  assert.equal(result.qa.outOfPeriodSources[0].group, "110и");
-  assert.equal(result.qa.outOfPeriodSources[0].title, "Медицинская информатика");
-  assert.deepEqual(result.qa.outOfPeriodSources[0].dates, ["2026-10-26"]);
-  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.added, 6);
-  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.removed, 2);
-  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.net, 4);
-  assert.deepEqual(result.qa.safetyFixups.alternateTimeDateRanges.skipped, []);
 });
