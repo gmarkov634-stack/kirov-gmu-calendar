@@ -12,19 +12,31 @@ function numericDay(value) {
 }
 
 function groupCode(value) {
-  const text = String(value || "").trim();
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  const labeled = text.match(/^(?:группа|гр\.?)\s*(\d{3})$/i);
+  if (labeled) return labeled[1];
   if (!/^\d{3}$/.test(text)) return null;
-  if (["202", "205", "206"].includes(text)) return text;
   const number = Number(text);
   return number >= 100 && number <= 699 ? text : null;
+}
+
+function weekdayCode(value) {
+  const text = String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const aliases = new Map([
+    ["пн", "понедельник"], ["понедельник", "понедельник"],
+    ["вт", "вторник"], ["вторник", "вторник"],
+    ["ср", "среда"], ["среда", "среда"],
+    ["чт", "четверг"], ["четверг", "четверг"],
+    ["пт", "пятница"], ["пятница", "пятница"],
+    ["сб", "суббота"], ["суббота", "суббота"],
+  ]);
+  return aliases.get(text) || null;
 }
 
 function workbookFeatures(workbook) {
   const sheets = Array.isArray(workbook?.sheets) ? workbook.sheets : [];
   const allText = sheets.map(sheetText).join("\n");
-  const lower = allText.toLowerCase();
-  const weekdays = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
-    .filter((day) => lower.includes(day));
+  const weekdays = new Set();
   const groups = new Set();
   let dateHeaderRows = 0;
   let groupRows = 0;
@@ -37,6 +49,8 @@ function workbookFeatures(workbook) {
       byRow.get(cell.row).push(cell);
       const code = groupCode(cell.value);
       if (code) groups.add(code);
+      const weekday = weekdayCode(cell.value);
+      if (weekday) weekdays.add(weekday);
     }
     for (const row of byRow.values()) {
       const dayCount = row.filter((cell) => numericDay(cell.value)).length;
@@ -52,7 +66,7 @@ function workbookFeatures(workbook) {
   return {
     sheetCount: sheets.length,
     sheetNames: sheets.map((sheet) => sheet.name),
-    weekdays,
+    weekdays: [...weekdays],
     groupCodes: [...groups].sort(),
     groupCount: groups.size,
     dateHeaderRows,
