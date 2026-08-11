@@ -19,6 +19,10 @@ function validOfficialUrl(value) {
   }
 }
 
+function sourceProof(url, sha256) {
+  return `${url}\n${sha256.toLowerCase()}`;
+}
+
 function validateSourceFile(source) {
   const filename = requireString(source?.filename, "verified-import-source-filename-missing");
   const url = requireString(source?.url, "verified-import-source-url-missing");
@@ -53,13 +57,17 @@ function sourceRegistry(bundle) {
   if (!Array.isArray(bundle?.sourceFiles) || !bundle.sourceFiles.length) {
     throw new Error("verified-import-source-registry-missing");
   }
-  const registry = new Map();
+  const byFilename = new Map();
+  const byProof = new Map();
   for (const raw of bundle.sourceFiles) {
     const source = validateSourceFile(raw);
-    if (registry.has(source.filename)) throw new Error(`verified-import-duplicate-source:${source.filename}`);
-    registry.set(source.filename, source);
+    if (byFilename.has(source.filename)) throw new Error(`verified-import-duplicate-source:${source.filename}`);
+    const proof = sourceProof(source.url, source.sha256);
+    if (byProof.has(proof)) throw new Error(`verified-import-duplicate-source-proof:${source.filename}`);
+    byFilename.set(source.filename, source);
+    byProof.set(proof, source);
   }
-  return registry;
+  return { byFilename, byProof, size: byFilename.size };
 }
 
 function validateSchedule(schedule, { expectedAcademicYear, expectedSemester, registry, seenGroups }) {
@@ -85,14 +93,21 @@ function validateSchedule(schedule, { expectedAcademicYear, expectedSemester, re
   const sources = Array.isArray(schedule?.sources) ? schedule.sources : [];
   const official = sources.find((source) => source?.type === "official-xlsx");
   if (!official) throw new Error(`verified-import-official-source-missing:${groupCode}`);
-  const sourceFile = requireString(official?.sourceFile || official?.filename, `verified-import-source-file-missing:${groupCode}`);
-  const registered = registry.get(sourceFile);
-  if (!registered) throw new Error(`verified-import-source-not-registered:${groupCode}:${sourceFile}`);
-  if (String(official?.sha256 || "").toLowerCase() !== registered.sha256) {
-    throw new Error(`verified-import-source-hash-mismatch:${groupCode}:${sourceFile}`);
+  const officialUrl = requireString(official?.url, `verified-import-source-url-missing:${groupCode}`);
+  const officialHash = requireString(official?.sha256, `verified-import-source-hash-missing:${groupCode}`).toLowerCase();
+  if (!validOfficialUrl(officialUrl)) throw new Error(`verified-import-source-not-official:${groupCode}`);
+  if (!SHA256.test(officialHash)) throw new Error(`verified-import-source-hash-invalid:${groupCode}`);
+
+  const sourceFile = String(official?.sourceFile || official?.filename || "").trim();
+  const registered = sourceFile
+    ? registry.byFilename.get(sourceFile)
+    : registry.byProof.get(sourceProof(officialUrl, officialHash));
+  if (!registered) throw new Error(`verified-import-source-not-registered:${groupCode}`);
+  if (officialHash !== registered.sha256) {
+    throw new Error(`verified-import-source-hash-mismatch:${groupCode}:${registered.filename}`);
   }
-  if (String(official?.url || "") !== registered.url) {
-    throw new Error(`verified-import-source-url-mismatch:${groupCode}:${sourceFile}`);
+  if (officialUrl !== registered.url) {
+    throw new Error(`verified-import-source-url-mismatch:${groupCode}:${registered.filename}`);
   }
 
   if (!Array.isArray(schedule?.events) || !schedule.events.length) {
@@ -111,6 +126,8 @@ function validateSchedule(schedule, { expectedAcademicYear, expectedSemester, re
       commercialTargetPeriod: true,
       passed: true,
       verificationSource: "verified-import",
+      verifiedSourceFile: registered.filename,
+      verifiedSourceSha256: registered.sha256,
     },
     publishable: true,
   };
