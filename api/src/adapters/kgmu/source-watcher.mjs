@@ -4,6 +4,7 @@ const DEFAULT_PAGES = [
   { program: "medicine", url: "https://kirovgma.ru/lechebnyy-fakultet-raspisanie" },
   { program: "pediatrics", url: "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet" },
   { program: "dentistry", url: "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet" },
+  { program: "foreign", url: "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya" },
 ];
 
 function clean(value) {
@@ -44,15 +45,23 @@ function normalizeAcademicYear(label) {
 }
 
 function semesterFromLabel(label) {
-  if (/перв(?:ое|ый)\s+(?:полугодие|семестр)/i.test(label)) return 1;
-  if (/втор(?:ое|ой)\s+(?:полугодие|семестр)/i.test(label)) return 2;
+  if (/перв(?:ое|ый)\s+(?:полугодие|семестр)/i.test(label) || /\b(?:1|first)\s+(?:semester|term)\b/i.test(label)) return 1;
+  if (/втор(?:ое|ой)\s+(?:полугодие|семестр)/i.test(label) || /\b(?:2|second)\s+(?:semester|term)\b/i.test(label)) return 2;
   return null;
 }
 
 function groupRange(label) {
-  const match = String(label || "").match(/(?<!\d)(\d{3})\s*[-–]\s*(\d{3})(?!\d)/);
+  const match = String(label || "").match(/(?<!\d)(\d{3})([иi])?\s*[-–]\s*(\d{3})([иi])?(?!\d)/i);
   if (!match) return null;
-  return { first: match[1], last: match[2], label: `${match[1]}-${match[2]}` };
+  const suffixes = [match[2], match[4]].filter(Boolean);
+  const international = suffixes.length > 0;
+  const suffix = international ? "и" : "";
+  const locale = suffixes.some((value) => value === "и" || value === "И") ? "ru"
+    : suffixes.some((value) => String(value).toLowerCase() === "i") ? "en"
+      : null;
+  const first = `${match[1]}${suffix}`;
+  const last = `${match[3]}${suffix}`;
+  return { first, last, label: `${first}-${last}`, locale };
 }
 
 function sameOriginUrl(href, pageUrl) {
@@ -83,6 +92,7 @@ export function discoverKgmuScheduleLinks(html, page) {
       program: page.program,
       course,
       groupRange: range.label,
+      sourceLocale: range.locale,
       academicYear,
       semester,
       label,
@@ -95,6 +105,22 @@ export function discoverKgmuScheduleLinks(html, page) {
 
 function slotKey(source) {
   return [source.program, source.course, source.academicYear, source.semester, source.groupRange].join(":");
+}
+
+function sourcePreference(source) {
+  if (source.sourceLocale === "ru") return 3;
+  if (!source.sourceLocale) return 2;
+  return 1;
+}
+
+function canonicalSources(sources) {
+  const bySlot = new Map();
+  for (const source of sources) {
+    const key = slotKey(source);
+    const current = bySlot.get(key);
+    if (!current || sourcePreference(source) > sourcePreference(current)) bySlot.set(key, source);
+  }
+  return [...bySlot.values()];
 }
 
 function sha256(buffer) {
@@ -115,6 +141,7 @@ function targetPages(config) {
     { program: "medicine", url: config.kgmuMedicineSchedulePage || DEFAULT_PAGES[0].url },
     { program: "pediatrics", url: config.kgmuPediatricsSchedulePage || DEFAULT_PAGES[1].url },
     { program: "dentistry", url: config.kgmuDentistrySchedulePage || DEFAULT_PAGES[2].url },
+    { program: "foreign", url: config.kgmuForeignSchedulePage || DEFAULT_PAGES[3].url },
   ];
 }
 
@@ -168,9 +195,9 @@ export class KgmuSourceWatcher {
     }
 
     const expectedSemesterSet = new Set(expectedSemesters);
-    const targets = discovered.filter((source) =>
+    const targets = canonicalSources(discovered.filter((source) =>
       source.academicYear === expectedAcademicYear && expectedSemesterSet.has(source.semester),
-    );
+    ));
     const results = [];
 
     for (const source of targets) {
@@ -202,6 +229,7 @@ export class KgmuSourceWatcher {
           parserRevision,
           url: source.url,
           label: source.label,
+          sourceLocale: source.sourceLocale || null,
           program: source.program,
           course: source.course,
           groupRange: source.groupRange,

@@ -11,13 +11,18 @@ function numericDay(value) {
   return /^\d{1,2}$/.test(String(value || "").trim()) && Number(value) >= 1 && Number(value) <= 31;
 }
 
+function normalizeGroupCode(value) {
+  const match = String(value || "").replace(/\s+/g, " ").trim().match(/^(\d{3})([иi])?$/i);
+  if (!match) return null;
+  const number = Number(match[1]);
+  if (number < 100 || number > 699) return null;
+  return `${match[1]}${match[2] ? "и" : ""}`;
+}
+
 function groupCode(value) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
-  const labeled = text.match(/^(?:группа|гр\.?)\s*(\d{3})$/i);
-  if (labeled) return labeled[1];
-  if (!/^\d{3}$/.test(text)) return null;
-  const number = Number(text);
-  return number >= 100 && number <= 699 ? text : null;
+  const labeled = text.match(/^(?:группа|гр\.?)\s*(\d{3}[иi]?)$/i);
+  return normalizeGroupCode(labeled?.[1] || text);
 }
 
 function weekdayCode(value) {
