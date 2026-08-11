@@ -71,9 +71,10 @@ function workbookText(workbook) {
 function resolvePeriod(workbook, metadata = {}) {
   let academicYear = normalizedAcademicYear(metadata.academicYear);
   if (!academicYear) academicYear = normalizedAcademicYear(workbookText(workbook));
+  const text = workbookText(workbook);
   const semester = [1, 2].includes(Number(metadata.semester))
     ? Number(metadata.semester)
-    : /втор(?:ое|ой)\s+полугод/i.test(workbookText(workbook)) ? 2 : /перв(?:ое|ый)\s+полугод/i.test(workbookText(workbook)) ? 1 : null;
+    : /втор(?:ое|ой)\s+полугод/i.test(text) ? 2 : /перв(?:ое|ый)\s+полугод/i.test(text) ? 1 : null;
   if (!academicYear || !semester) {
     const error = new Error("Cannot resolve academic year/semester from KGMU workbook");
     error.code = "KGMU_PERIOD_UNKNOWN";
@@ -190,10 +191,10 @@ function mainSpec(text, footer) {
   const value = raw.replaceAll("*", "").trim();
   if (value === "М") {
     const row = findFooter(footer, (name) => name.startsWith("менеджмент в здравоохранении"));
-    return row && { key: "management", title: "ЗАЩИТА ПРОЕКТА — МЕНЕДЖМЕНТ В ЗДРАВООХРАНЕНИИ", discipline: "Менеджмент в здравоохранении", kind: "project_defense", starred: false, footer: row };
+    return row && { title: "ЗАЩИТА ПРОЕКТА — МЕНЕДЖМЕНТ В ЗДРАВООХРАНЕНИИ", discipline: "Менеджмент в здравоохранении", kind: "project_defense", starred: false, footer: row };
   }
   const specs = [
-    [/^факультетская терапия|^факультетская терапия/i, (name) => name.startsWith("факультетская терапия") && /практ/i.test(name), "Факультетская терапия, профессиональные болезни"],
+    [/^факультетская терапия/i, (name) => name.startsWith("факультетская терапия") && /практ/i.test(name), "Факультетская терапия, профессиональные болезни"],
     [/^менеджмент/i, (name) => name.startsWith("менеджмент в здравоохранении"), "Менеджмент в здравоохранении"],
     [/^педиатрия$/i, (name) => name === "педиатрия", "Педиатрия"],
     [/^урология/i, (name) => name.startsWith("урология"), "Урология (раздел)"],
@@ -207,14 +208,13 @@ function mainSpec(text, footer) {
   for (const [pattern, footerMatch, title] of specs) {
     if (!pattern.test(value)) continue;
     const row = findFooter(footer, footerMatch);
-    return row && { key: title, title, discipline: title, kind: "practice", starred, footer: row };
+    return row && { title, discipline: title, kind: "practice", starred, footer: row };
   }
   return null;
 }
 
 function timeFor(spec, shift) {
-  const raw = shift === 2 ? spec.footer.shift2 : spec.footer.shift1;
-  return parseTime(raw);
+  return parseTime(shift === 2 ? spec.footer.shift2 : spec.footer.shift1);
 }
 
 function stableId(group, date, start, title, origin) {
@@ -226,6 +226,7 @@ function event(group, date, time, spec, extra = {}) {
   const assessment = spec.footer?.assessment || null;
   return {
     id: stableId(group, date, time.start, spec.title, extra.origin || "main_grid"),
+    group,
     title: spec.title,
     discipline: spec.discipline,
     kind: spec.kind,
@@ -291,11 +292,10 @@ function addPhysicalEducation(events, footer, year, whitelist) {
   if (!row) return;
   const spec = { title: "Элективные дисциплины по физической культуре и спорту", discipline: "Элективные дисциплины по физической культуре и спорту", kind: "physical_education", footer: row };
   const location = `3 корпус, Физкультурно-оздоровительный комплекс, ${row.address}`;
-  const configs = [
+  for (const config of [
     { stream: 1, groups: [401, 410], text: row.shift1, weekday: 1 },
     { stream: 2, groups: [411, 420], text: row.shift2, weekday: 3 },
-  ];
-  for (const config of configs) {
+  ]) {
     const range = String(config.text).match(/(\d{2}\.\d{2})\s*-\s*(\d{2}\.\d{2})/);
     const time = parseTime(config.text);
     if (!range || !time) continue;
@@ -390,10 +390,7 @@ export function parseKgmuCycleWorkbook(workbook, metadata = {}) {
           unhandledBlocks.push({ group, cell: cell.ref, text, reason: `missing-shift-${shift}-time` });
           break;
         }
-        events.push({
-          ...event(group, date, time, spec, { origin: "main_grid", shift: spec.kind === "project_defense" ? null : shift, source: cell.ref }),
-          group,
-        });
+        events.push(event(group, date, time, spec, { origin: "main_grid", shift: spec.kind === "project_defense" ? null : shift, source: cell.ref }));
       }
     }
   }
@@ -402,7 +399,7 @@ export function parseKgmuCycleWorkbook(workbook, metadata = {}) {
   addPhysicalEducation(events, footer, period.eventYear, whitelist);
   const duplicates = duplicateReport(events);
   const overlaps = overlapReport(events);
-  const groupCounts = Object.fromEntries(groupRows.map(({ group }) => [String(group), events.filter((event) => event.group === group).length]));
+  const groupCounts = Object.fromEntries(groupRows.map(({ group }) => [String(group), events.filter((item) => item.group === group).length]));
   const qa = {
     passed: unhandledBlocks.length === 0 && duplicates.length === 0 && sourceBlocks > 0,
     sourceBlocks,
@@ -440,7 +437,7 @@ export function parseKgmuCycleWorkbook(workbook, metadata = {}) {
       displayName: `Группа ${group}`,
     },
     sources: metadata.sourceUrl ? [{ url: metadata.sourceUrl, sha256: metadata.sourceSha256 || null }] : [],
-    events: events.filter((event) => event.group === group).map(({ group: _group, ...item }) => item),
+    events: events.filter((item) => item.group === group).map(({ group: _group, ...item }) => item),
   }));
 
   return { type: "C", schedules, qa };
