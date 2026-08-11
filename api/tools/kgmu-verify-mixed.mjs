@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
-import { parseKgmuMixedWorkbook } from "../src/adapters/kgmu/mixed-s-parser.mjs";
+import { parseKgmuMixedWorkbookSafe } from "../src/adapters/kgmu/mixed-s-safe.mjs";
 import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
 const SOURCE_URL = "https://kirovgma.ru/sites/default/files/files/2026/05/07/1097/2_stomat-07-05-2026-15.xlsx";
@@ -34,7 +34,7 @@ async function main() {
   const workbook = await readKgmuXlsxStructure(Buffer.from(await response.arrayBuffer()));
   const classification = classifyKgmuWorkbook(workbook);
   equal(classification.type, "S", "classification");
-  const parsed = parseKgmuMixedWorkbook(workbook, { program: "dentistry", course: 2, academicYear: "2025/26", semester: 2 });
+  const parsed = parseKgmuMixedWorkbookSafe(workbook, { program: "dentistry", course: 2, academicYear: "2025/26", semester: 2 });
   if (!parsed.qa.passed) console.error("MIXED_QA", JSON.stringify(parsed.qa, null, 2));
   equal(parsed.qa.passed, true, "qa.passed");
   equal(parsed.qa.eventCount, EXPECTED.eventCount, "qa.eventCount");
