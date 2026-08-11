@@ -35,6 +35,7 @@ async function main() {
   const classification = classifyKgmuWorkbook(workbook);
   equal(classification.type, "S", "classification");
   const parsed = parseKgmuMixedWorkbook(workbook, { program: "dentistry", course: 2, academicYear: "2025/26", semester: 2 });
+  if (!parsed.qa.passed) console.error("MIXED_QA", JSON.stringify(parsed.qa, null, 2));
   equal(parsed.qa.passed, true, "qa.passed");
   equal(parsed.qa.eventCount, EXPECTED.eventCount, "qa.eventCount");
   equal(parsed.qa.sourceBlocks, EXPECTED.sourceBlocks, "qa.sourceBlocks");
