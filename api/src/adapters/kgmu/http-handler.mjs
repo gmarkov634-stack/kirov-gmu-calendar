@@ -43,7 +43,7 @@ function metadataFromUrl(url) {
   };
 }
 
-export function createKgmuParserHandler({ service, queue, config }) {
+export function createKgmuParserHandler({ service, queue, watcher, config }) {
   return async function kgmuParserHandler(request, response) {
     if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
@@ -60,6 +60,16 @@ export function createKgmuParserHandler({ service, queue, config }) {
         if (error.code === "request_too_large" || error.code === "XLSX_TOO_LARGE") return send(response, 413, { error: "xlsx_too_large" });
         if (error.code === "INVALID_XLSX") return send(response, 400, { error: "invalid_xlsx" });
         return send(response, 503, { error: "kgmu_ingest_unavailable" });
+      }
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/watch") {
+      if (!watcher) return send(response, 503, { error: "kgmu_watcher_unavailable" });
+      try {
+        return send(response, 200, await watcher.run());
+      } catch (error) {
+        console.error("KGMU source watcher failed", error);
+        return send(response, 503, { error: "kgmu_watch_unavailable" });
       }
     }
 
