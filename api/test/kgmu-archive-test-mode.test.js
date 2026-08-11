@@ -8,7 +8,6 @@ import { kgmuArchiveTestActive } from "../src/archive-test-mode.js";
 import { ArchiveTestMultiUniversityStore } from "../src/archive-test-store.js";
 import { ArchiveTestYooKassaService } from "../src/archive-test-yookassa.js";
 import { scheduleStorageKey } from "../src/order-context.js";
-import { effectiveSubscriptionEnd } from "../src/subscription-period.js";
 
 const archiveSchedule = {
   version: 1,
@@ -39,7 +38,6 @@ function archiveConfig(extra = {}) {
       enabled: true,
       academicYear: "2025/2026",
       semester: 2,
-      accessHours: 24,
     },
     offerAcademicYear: "2026/27",
     offerSemester: 1,
@@ -94,7 +92,7 @@ test("KGMU default schedule reads are redirected to archive 2025/26 only in test
   assert.equal(loaded.semester, 2);
 });
 
-test("archive semester can be purchased with YooKassa test payment and gets temporary future access", async () => {
+test("archive semester can be purchased in YooKassa test shop without extending subscription access", async () => {
   const orders = new Map();
   const subscriptions = new Map();
   const store = {
@@ -119,7 +117,6 @@ test("archive semester can be purchased with YooKassa test payment and gets temp
     };
   };
   const service = new ArchiveTestYooKassaService({ config: archiveConfig(), store, fetchFn });
-  const before = Date.now();
   const result = await service.create({
     email: "archive-test@example.com",
     schedule: archiveSchedule,
@@ -128,17 +125,10 @@ test("archive semester can be purchased with YooKassa test payment and gets temp
   const order = orders.get(result.orderId);
   assert.equal(result.confirmationUrl, "https://yookassa.test/confirm");
   assert.equal(requestedBody.amount.value, "299.00");
-  assert.equal(order.archiveTest, true);
   assert.equal(order.academicYear, "2025/2026");
   assert.equal(order.semester, 2);
-  assert.ok(Date.parse(order.expiresAt) > before + 23 * 60 * 60 * 1000);
-
-  const effective = effectiveSubscriptionEnd({
-    plan: "semester",
-    archiveTest: true,
-    expiresAt: order.expiresAt,
-  }, archiveSchedule);
-  assert.equal(effective, new Date(order.expiresAt).toISOString());
+  assert.equal(order.expiresAt, "2026-05-25T12:15:00.000Z");
+  assert.equal(order.archiveTest, undefined);
 });
 
 test("the same archive schedule is not saleable when YooKassa test mode is off", async () => {
