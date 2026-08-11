@@ -18,7 +18,7 @@ function schedule(group) {
   };
 }
 
-test("publishes only normalized QA PASS schedules matching review source", async () => {
+test("publishes only normalized QA PASS schedules as one atomic bundle", async () => {
   const normalizedKey = `parser-staging/kgmu/normalized/${"a".repeat(64)}.json`;
   const queue = {
     getNormalized: async (key) => {
@@ -26,11 +26,11 @@ test("publishes only normalized QA PASS schedules matching review source", async
       return { sourceSha256: "a".repeat(64), qa: { status: "PASS" }, schedules: [schedule("101"), schedule("102")] };
     },
   };
-  const written = [];
+  let written = null;
   const scheduleStore = {
-    putSchedule: async (value) => {
-      written.push(value);
-      return { versionedKey: `v/${value.group.code}`, flatKey: `f/${value.group.code}` };
+    putScheduleBundle: async (schedules, options) => {
+      written = { schedules, options };
+      return { bundleKey: "bundle-v1", manifestKey: "current.json", groupCount: schedules.length };
     },
   };
   const published = await publishStagedR({
@@ -38,9 +38,11 @@ test("publishes only normalized QA PASS schedules matching review source", async
     scheduleStore,
     review: { reviewId: "review-1", sourceSha256: "a".repeat(64), normalizedKey, qa: { status: "PASS" } },
   });
-  assert.equal(written.length, 2);
-  assert.deepEqual(published.map((item) => item.group), ["101", "102"]);
-  assert.ok(written.every((item) => item.parserReviewId === "review-1"));
+  assert.equal(written.schedules.length, 2);
+  assert.equal(written.options.sourceSha256, "a".repeat(64));
+  assert.ok(written.schedules.every((item) => item.parserReviewId === "review-1"));
+  assert.deepEqual(published.groups, ["101", "102"]);
+  assert.equal(published.groupCount, 2);
 });
 
 test("rejects review without QA PASS", async () => {
@@ -55,9 +57,21 @@ test("rejects normalized result from another source hash", async () => {
   await assert.rejects(
     publishStagedR({
       queue: { getNormalized: async () => ({ sourceSha256: "b".repeat(64), qa: { status: "PASS" }, schedules: [schedule("101")] }) },
-      scheduleStore: { putSchedule: async () => ({}) },
+      scheduleStore: { putScheduleBundle: async () => ({}) },
       review: { reviewId: "review-2", sourceSha256: "a".repeat(64), normalizedKey, qa: { status: "PASS" } },
     }),
     (error) => error.code === "NORMALIZED_RESULT_INVALID",
+  );
+});
+
+test("fails closed when atomic bundle publication is unavailable", async () => {
+  const normalizedKey = `parser-staging/kgmu/normalized/${"a".repeat(64)}.json`;
+  await assert.rejects(
+    publishStagedR({
+      queue: { getNormalized: async () => ({ sourceSha256: "a".repeat(64), qa: { status: "PASS" }, schedules: [schedule("101")] }) },
+      scheduleStore: {},
+      review: { reviewId: "review-3", sourceSha256: "a".repeat(64), normalizedKey, qa: { status: "PASS" } },
+    }),
+    (error) => error.code === "ATOMIC_PUBLICATION_UNAVAILABLE",
   );
 });
