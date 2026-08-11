@@ -62,13 +62,17 @@ function cellValue(attributes, body, strings) {
   return decoded;
 }
 
-function parseWorksheet(xml, strings, name) {
+export function parseWorksheetXml(xml, strings, name) {
   const cells = [];
-  for (const match of String(xml || "").matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)) {
+  // XLSX contains many empty self-closing cells (<c .../>). Matching only
+  // <c>...</c> can start at an empty cell and consume the next closing tag,
+  // shifting every subsequent value. This expression treats both forms as
+  // complete cell records before decoding the value.
+  for (const match of String(xml || "").matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
     const ref = attr(match[1], "r");
     const parts = refParts(ref);
     if (!parts) continue;
-    const value = cellValue(match[1], match[2], strings);
+    const value = cellValue(match[1], match[2] || "", strings);
     if (value === "" || value == null) continue;
     cells.push({ ...parts, value });
   }
@@ -159,7 +163,7 @@ export async function readKgmuXlsxStructure(buffer, { maxBytes = 25 * 1024 * 102
       if (!target) continue;
       const xml = await unzipText(filename, sheetEntry(target));
       if (!xml) continue;
-      sheets.push(parseWorksheet(xml, strings, sheet.name));
+      sheets.push(parseWorksheetXml(xml, strings, sheet.name));
     }
     if (!sheets.length) {
       const error = new Error("XLSX has no readable worksheets");
