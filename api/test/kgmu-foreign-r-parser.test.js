@@ -22,10 +22,33 @@ test("official foreign-student course 1 XLSX structure is classified as R", () =
   assert.deepEqual(result.features.groupCodes, ["101и", "102и", "103и", "104и", "105и", "106и", "107и", "108и", "109и", "110и"]);
 });
 
-test("foreign R production counters match verified source", () => {
+test("foreign R production counters and QA invariants match verified source", () => {
   const result = parseForeignRWorkbookSafe(loadFixture(), { program: "foreign", course: 1 });
+  assert.equal(result.qa.status, "REVIEW_REQUIRED");
   assert.equal(result.qa.sourceAnchorCount, 184);
   assert.equal(result.qa.coveredSourceAnchors, 184);
+  assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.eventCount, 2579);
   assert.equal(result.qa.sourceConflicts.length, 3);
+  assert.deepEqual(result.qa.eventCountsByGroup, {
+    "101и": 260, "102и": 255, "103и": 254, "104и": 260, "105и": 256,
+    "106и": 263, "107и": 258, "108и": 248, "109и": 262, "110и": 263,
+  });
+  assert.deepEqual(result.qa.inferredWeekdayRows.filter((item) => [22, 29].includes(item.row)), [
+    { row: 22, weekday: 2 },
+    { row: 29, weekday: 3 },
+  ]);
+  assert.equal(result.qa.extraLessonFailures.length, 2);
+  assert.deepEqual(result.qa.extraLessonFailures.map((item) => [item.group, item.subject, item.count, item.weekday]), [
+    ["103и", "Физика, математика", 2, 1],
+    ["103и", "Анатомия", 2, 1],
+  ]);
+  assert.equal(result.qa.outOfPeriodSources.length, 1);
+  assert.equal(result.qa.outOfPeriodSources[0].group, "110и");
+  assert.equal(result.qa.outOfPeriodSources[0].title, "Медицинская информатика");
+  assert.deepEqual(result.qa.outOfPeriodSources[0].dates, ["2026-10-26"]);
+  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.added, 6);
+  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.removed, 2);
+  assert.equal(result.qa.safetyFixups.alternateTimeDateRanges.net, 4);
+  assert.deepEqual(result.qa.safetyFixups.alternateTimeDateRanges.skipped, []);
 });
