@@ -9,7 +9,7 @@ on:
       - "api/src/adapters/kgmu/**"
       - "api/tools/kgmu-*.mjs"
       - "api/tools/kgmu-*.py"
-      - "api/test/kgmu-source-watch.test.mjs"
+      - "api/test/kgmu-*.test.mjs"
       - "api/package.json"
       - "universities/kgmu/source-watch.json"
       - ".github/workflows/kgmu-source-watch.yml"
@@ -37,8 +37,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test KGMU source watch
-        run: node --test test/kgmu-source-watch.test.mjs
+      - name: Test KGMU source watch and quality gate
+        run: node --test test/kgmu-source-watch.test.mjs test/kgmu-quality.test.mjs
 
       - name: Test KGMU XLSX structural parser
         run: python3 tools/kgmu-parse-xlsx.py --self-test
@@ -47,7 +47,7 @@ jobs:
         run: python3 tools/kgmu-expand-weekly-safe.py --self-test
 
       - name: Test KGMU calendar-grid parser
-        run: python3 tools/kgmu-parse-calendar-grid.py --self-test
+        run: python3 tools/kgmu-parse-calendar-grid-safe.py --self-test
 
       - name: Discover official KGMU XLSX sources
         run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
@@ -139,6 +139,30 @@ jobs:
           print(f"Publishable files: **{report['publishableFileCount']}** (must be 0 for 2025/26 archive)")
           PY
 
+      - name: Prove archive groups cannot enter the 2026/27 offer
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run quality:kgmu -- \
+            --weekly=data/imports/kgmu-weekly-event-report.json \
+            --calendar=data/imports/kgmu-calendar-grid-report.json \
+            --download=data/imports/kgmu-official-reference-xlsx/download-report.json \
+            --academic-year='2026/2027' \
+            --semester='1' \
+            --output=data/imports/kgmu-archive-quality-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-archive-quality-report.json',encoding='utf-8'))
+          assert report['targetGroupCount'] == 0, 'archive schedule leaked into target period'
+          assert report['readyGroupCount'] == 0, 'archive group became publishable'
+          print('')
+          print('## КГМУ archive publication boundary')
+          print('')
+          print(f"Archive/reference groups: **{report['archiveReferenceGroupCount']}**")
+          print(f"Target 2026/27 groups: **{report['targetGroupCount']}**")
+          print(f"Ready for publication: **{report['readyGroupCount']}**")
+          print(f"Status: **{report['status']}**")
+          PY
+
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
         run: |
@@ -161,15 +185,36 @@ jobs:
           npm run parse:kgmu:calendar -- \
             data/imports/kgmu-watched-xlsx \
             --output=data/imports/kgmu-2026-27-calendar-grid-report.json
+
+      - name: Build group-level QA for newly published 2026/27 files
+        id: quality
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run quality:kgmu -- \
+            --weekly=data/imports/kgmu-2026-27-weekly-event-report.json \
+            --calendar=data/imports/kgmu-2026-27-calendar-grid-report.json \
+            --download=data/imports/kgmu-watched-xlsx/download-report.json \
+            --academic-year='${{ steps.watch.outputs.academic_year }}' \
+            --semester='${{ steps.watch.outputs.semester }}' \
+            --output=data/imports/kgmu-2026-27-quality-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/kgmu-2026-27-quality-report.json', 'utf8'));
+          console.log(`ready=${report.readyForPublicationPlan ? 'true' : 'false'}`);
+          console.log(`status=${report.status}`);
+          console.log(`ready_groups=${report.readyGroupCount}`);
+          console.log(`blocked_groups=${report.blockedGroupCount}`);
+          NODE
           python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
-          weekly=json.load(open('data/imports/kgmu-2026-27-weekly-event-report.json',encoding='utf-8'))['summary']
-          calendar=json.load(open('data/imports/kgmu-2026-27-calendar-grid-report.json',encoding='utf-8'))['summary']
+          report=json.load(open('data/imports/kgmu-2026-27-quality-report.json',encoding='utf-8'))
           print('')
-          print('## КГМУ 2026/27 parser QA')
+          print('## КГМУ 2026/27 group-level QA')
           print('')
-          print(f"Weekly files: **{weekly['parsedWeeklyFileCount']}**, unresolved: **{weekly['unresolvedCount']}**, partial: **{weekly['partialCount']}**")
-          print(f"Calendar-grid files: **{calendar['parsedCalendarFileCount']}**, unresolved: **{calendar['unresolvedBlockCount']}**, partial: **{calendar['partialBlockCount']}**, review markers: **{calendar['reviewMarkerCount']}**")
+          print(f"Target groups: **{report['targetGroupCount']}**")
+          print(f"Ready groups: **{report['readyGroupCount']}**")
+          print(f"Blocked groups: **{report['blockedGroupCount']}**")
+          print(f"Status: **{report['status']}**")
           print('')
           print('No S3 publication is performed by this workflow.')
           PY
@@ -219,6 +264,7 @@ jobs:
             api/data/imports/kgmu-xlsx-structure-report.json
             api/data/imports/kgmu-weekly-event-report.json
             api/data/imports/kgmu-calendar-grid-report.json
+            api/data/imports/kgmu-archive-quality-report.json
           if-no-files-found: error
           retention-days: 7
 
@@ -231,5 +277,6 @@ jobs:
             api/data/imports/kgmu-watched-xlsx
             api/data/imports/kgmu-2026-27-weekly-event-report.json
             api/data/imports/kgmu-2026-27-calendar-grid-report.json
+            api/data/imports/kgmu-2026-27-quality-report.json
           if-no-files-found: error
           retention-days: 30
