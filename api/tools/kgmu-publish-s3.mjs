@@ -14,6 +14,7 @@ function isNotFound(error) {
 }
 
 const apply = process.argv.includes("--apply");
+const applyEnabled = process.env.KGMU_S3_APPLY_ENABLED === "true";
 const planPath = path.resolve(arg("plan", "data/imports/kgmu-2026-27-publication-plan.json"));
 const reportPath = path.resolve(arg("report", "data/imports/kgmu-s3-publication-report.json"));
 const academicYearArg = arg("academic-year");
@@ -29,14 +30,15 @@ const writeSet = buildKgmuS3WriteSet(plan, {
   semester: Number(semesterArg),
 });
 
-const bucket = process.env.S3_BUCKET || "kgmu-calendar-data-gmarkov634";
+const configuredBucket = String(process.env.S3_BUCKET || "").trim();
+const bucket = configuredBucket || "kgmu-calendar-data-gmarkov634";
 const endpoint = process.env.S3_ENDPOINT || "https://s3.cloud.ru";
 const region = process.env.S3_REGION || "ru-central-1";
 
 const report = {
   version: 1,
   university: "kgmu",
-  mode: apply ? "apply" : "dry-run",
+  mode: apply ? "apply-requested" : "dry-run",
   generatedAt: new Date().toISOString(),
   academicYear: writeSet.expectedAcademicYear,
   semester: writeSet.expectedSemester,
@@ -61,9 +63,19 @@ if (!apply) {
   console.log("KGMU S3 publication: DRY RUN ONLY");
   console.log(`Validated objects: ${writeSet.objects.length}`);
   console.log(`Blocked groups in source plan: ${writeSet.blockedCount}`);
-  console.log(`No S3 client was created and no network write was attempted.`);
+  console.log("No S3 client was created and no network write was attempted.");
   console.log(`Report: ${reportPath}`);
   process.exit(0);
+}
+
+// Real writes require two independent explicit opt-ins: the CLI --apply switch
+// and a dedicated environment gate. The gate is intentionally not configured
+// by the source-watch workflow, so a copied command cannot accidentally publish.
+if (!applyEnabled) {
+  throw new Error("KGMU_S3_APPLY_ENABLED=true is required together with --apply");
+}
+if (!configuredBucket) {
+  throw new Error("S3_BUCKET must be explicitly configured with --apply");
 }
 
 const accessKeyId = process.env.S3_ACCESS_KEY_ID || "";
@@ -72,6 +84,7 @@ if (!accessKeyId || !secretAccessKey) {
   throw new Error("S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are required with --apply");
 }
 
+report.mode = "apply";
 const s3 = new S3Client({
   endpoint,
   region,
@@ -122,5 +135,5 @@ for (const object of writeSet.objects) {
 
 await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`KGMU S3 publication applied: uploaded ${report.uploaded.length}, unchanged ${report.unchanged.length}`);
-console.log(`No blocked objects were deleted.`);
+console.log("No blocked objects were deleted.");
 console.log(`Report: ${reportPath}`);
