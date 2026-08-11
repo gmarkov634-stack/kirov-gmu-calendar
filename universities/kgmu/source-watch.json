@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "university": "kgmu",
+  "expectedAcademicYear": "2026/2027",
+  "expectedSemester": 1,
+  "targetPrograms": [
+    { "program": "medicine", "label": "Лечебное дело" },
+    { "program": "pediatrics", "label": "Педиатрия" },
+    { "program": "dentistry", "label": "Стоматология" }
+  ]
+}
