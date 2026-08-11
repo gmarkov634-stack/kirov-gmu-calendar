@@ -48,3 +48,30 @@ test("foreign R production schedule QA matches verified source", () => {
   assert.equal(result.qa.outOfPeriodSources[0].title, "Медицинская информатика");
   assert.deepEqual(result.qa.outOfPeriodSources[0].dates, ["2026-10-26"]);
 });
+
+test("foreign R parser preserves verified special-time semantics", () => {
+  const result = parseForeignRWorkbookSafe(loadFixture(), { program: "foreign", course: 1 });
+  const events = result.schedules.flatMap((schedule) => schedule.events);
+
+  const curator = events.filter((event) => event.group === "110и" && event.title === "Час куратора" && event.sourceCell === "K15");
+  assert.deepEqual(curator.map((event) => [event.start, event.end]), [
+    ["2026-03-30T16:40:00+03:00", "2026-03-30T17:40:00+03:00"],
+    ["2026-04-13T16:40:00+03:00", "2026-04-13T17:40:00+03:00"],
+    ["2026-04-27T16:40:00+03:00", "2026-04-27T17:40:00+03:00"],
+    ["2026-05-11T16:40:00+03:00", "2026-05-11T17:40:00+03:00"],
+  ]);
+
+  const autumnLatin = events.filter((event) => event.group === "104и" && event.sourceCell === "E13" && event.start >= "2026-09-01");
+  assert.deepEqual(autumnLatin.map((event) => [event.start, event.end]), [
+    ["2026-09-07T13:10:00+03:00", "2026-09-07T14:40:00+03:00"],
+    ["2026-09-14T13:10:00+03:00", "2026-09-14T14:40:00+03:00"],
+    ["2026-09-21T13:10:00+03:00", "2026-09-21T14:40:00+03:00"],
+    ["2026-09-28T13:10:00+03:00", "2026-09-28T14:40:00+03:00"],
+    ["2026-10-05T13:10:00+03:00", "2026-10-05T14:40:00+03:00"],
+    ["2026-10-12T13:10:00+03:00", "2026-10-12T14:40:00+03:00"],
+  ]);
+
+  const corrected = events.find((event) => event.group === "104и" && event.sourceCell === "E48" && event.start === "2026-04-04T15:30:00+03:00");
+  assert.equal(corrected?.end, "2026-04-04T17:55:00+03:00");
+  assert.match(corrected?.note || "", /G08/);
+});
