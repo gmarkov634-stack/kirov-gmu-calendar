@@ -21,6 +21,9 @@ export function kgmuArchiveTestActive(config) {
 export function scheduleRequestForActiveMode(context, config) {
   const period = kgmuArchiveTestPeriod(config);
   if (!period || context?.university !== "kgmu") return context;
+  const explicitAcademicYear = normalizeAcademicYear(context?.academicYear);
+  const explicitSemester = validSemester(context?.semester);
+  if (explicitAcademicYear || explicitSemester) return context;
   return { ...context, ...period };
 }
 
