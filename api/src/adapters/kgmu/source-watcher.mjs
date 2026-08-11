@@ -118,6 +118,15 @@ function targetPages(config) {
   ];
 }
 
+function watchedSemesters(config) {
+  const configured = Array.isArray(config.kgmuWatchSemesters)
+    ? config.kgmuWatchSemesters.filter((value) => value === 1 || value === 2)
+    : [];
+  if (configured.length) return [...new Set(configured)].sort();
+  const legacy = Number(config.offerSemester);
+  return legacy === 1 || legacy === 2 ? [legacy] : [1, 2];
+}
+
 function responseSize(response) {
   const value = Number(response.headers?.get?.("content-length"));
   return Number.isFinite(value) && value >= 0 ? value : null;
@@ -140,7 +149,7 @@ export class KgmuSourceWatcher {
 
   async #runOnce() {
     const expectedAcademicYear = this.config.offerAcademicYear;
-    const expectedSemester = Number(this.config.offerSemester);
+    const expectedSemesters = watchedSemesters(this.config);
     const parserRevision = String(this.config.kgmuParserRevision || "unknown");
     const maxBytes = Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
     const state = await this.stateStore.read();
@@ -158,8 +167,9 @@ export class KgmuSourceWatcher {
       }
     }
 
+    const expectedSemesterSet = new Set(expectedSemesters);
     const targets = discovered.filter((source) =>
-      source.academicYear === expectedAcademicYear && source.semester === expectedSemester,
+      source.academicYear === expectedAcademicYear && expectedSemesterSet.has(source.semester),
     );
     const results = [];
 
@@ -215,7 +225,7 @@ export class KgmuSourceWatcher {
       status: errors.length ? "PARTIAL" : "OK",
       checkedAt: state.lastRunAt,
       expectedAcademicYear,
-      expectedSemester,
+      expectedSemesters,
       parserRevision,
       discoveredCount: discovered.length,
       targetCount: targets.length,
