@@ -3,6 +3,7 @@ import { classifyKgmuWorkbook } from "./classifier.mjs";
 import { publishStagedC, stageCWorkbook } from "./c-pipeline.mjs";
 import { deriveKgmuPeriod, periodMismatches } from "./period.mjs";
 import { publishStagedR, stageRWorkbook } from "./r-pipeline.mjs";
+import { publishStagedS, stageSWorkbook } from "./s-pipeline.mjs";
 import { readKgmuXlsxStructure } from "./xlsx-reader.mjs";
 
 function sha256(buffer) {
@@ -24,6 +25,7 @@ function metadata(input = {}) {
 function parserFor(type) {
   if (type === "R") return { stage: stageRWorkbook, publish: publishStagedR };
   if (type === "C") return { stage: stageCWorkbook, publish: publishStagedC };
+  if (type === "S") return { stage: stageSWorkbook, publish: publishStagedS };
   return null;
 }
 
