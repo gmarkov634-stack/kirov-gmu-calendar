@@ -8,7 +8,7 @@ import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
 import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
 import { TelegramReviewNotifier } from "./adapters/kgmu/telegram-notifier.mjs";
-import { KgmuIngestService } from "./adapters/kgmu/ingest-service.mjs";
+import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 
 const config = loadConfig();
@@ -20,11 +20,11 @@ const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
 const parserReviewQueue = new ParserReviewQueue(config);
 const parserNotifier = new TelegramReviewNotifier(config);
-const kgmuIngestService = new KgmuIngestService({
+const kgmuIngestService = new KgmuIngestServiceV2({
   queue: parserReviewQueue,
   notifier: parserNotifier,
   config,
-  store,
+  scheduleStore: store,
 });
 const kgmuParserHandler = createKgmuParserHandler({ service: kgmuIngestService, queue: parserReviewQueue, config });
 
