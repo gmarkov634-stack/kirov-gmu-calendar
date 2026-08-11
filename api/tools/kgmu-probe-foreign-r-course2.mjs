@@ -2,16 +2,25 @@ import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
 import { parseForeignRWorkbookReviewed } from "../src/adapters/kgmu/foreign-r-reviewed.mjs";
 import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
+const SOURCE_PAGE = "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya";
 const SOURCE_URL = "https://kirovgma.ru/sites/default/files/files/2026/02/13/2037/2_lech._1_potok_fio-13-02-2026-10.xlsx";
 const EXPECTED_GROUPS = ["201и", "202и", "203и", "204и", "205и", "206и", "207и", "208и"];
-const PROBE_VERSION = 1;
+const PROBE_VERSION = 2;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
 async function main() {
-  const response = await fetch(SOURCE_URL, { redirect: "follow" });
+  const response = await fetch(SOURCE_URL, {
+    redirect: "follow",
+    headers: {
+      "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+      referer: SOURCE_PAGE,
+      accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/octet-stream,*/*",
+      "accept-language": "ru-RU,ru;q=0.9,en;q=0.8",
+    },
+  });
   if (!response.ok) throw new Error(`KGMU source download failed: ${response.status}`);
   const buffer = Buffer.from(await response.arrayBuffer());
   const workbook = await readKgmuXlsxStructure(buffer);
