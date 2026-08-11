@@ -20,7 +20,12 @@ const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
 const parserReviewQueue = new ParserReviewQueue(config);
 const parserNotifier = new TelegramReviewNotifier(config);
-const kgmuIngestService = new KgmuIngestService({ queue: parserReviewQueue, notifier: parserNotifier, config });
+const kgmuIngestService = new KgmuIngestService({
+  queue: parserReviewQueue,
+  notifier: parserNotifier,
+  config,
+  store,
+});
 const kgmuParserHandler = createKgmuParserHandler({ service: kgmuIngestService, queue: parserReviewQueue, config });
 
 const server = http.createServer((request, response) => {
