@@ -1,7 +1,7 @@
 import { scheduleContext } from "./order-context.js";
+import { semesterEndFromSchedule } from "./subscription-period.js";
 import { YooKassaService } from "./yookassa.js";
 import {
-  archiveTestExpiry,
   isKgmuArchiveTestSchedule,
   kgmuArchiveTestPeriod,
 } from "./archive-test-mode.js";
@@ -11,28 +11,19 @@ function subscriptionTokenFromUrl(value) {
 }
 
 export class ArchiveTestYooKassaService extends YooKassaService {
-  async markArchiveTest(orderId, expiresAt) {
+  async restoreHistoricalSemesterEnd(orderId, expiresAt) {
     const order = await this.store.getOrder(orderId);
     if (!order) throw new Error("Archive test order disappeared after creation");
-    const updated = {
-      ...order,
-      archiveTest: true,
-      expiresAt,
-    };
+    const updated = { ...order, expiresAt };
     await this.store.putOrder(orderId, updated);
 
     const token = subscriptionTokenFromUrl(updated.subscriptionUrl);
     if (token) {
       const subscription = await this.store.getSubscription(token);
       if (subscription) {
-        await this.store.putSubscription(token, {
-          ...subscription,
-          archiveTest: true,
-          expiresAt,
-        });
+        await this.store.putSubscription(token, { ...subscription, expiresAt });
       }
     }
-    return updated;
   }
 
   async create({ email, schedule, plan = "semester" }) {
@@ -48,54 +39,43 @@ export class ArchiveTestYooKassaService extends YooKassaService {
       throw error;
     }
 
-    const expiresAt = archiveTestExpiry(this.config);
     const temporaryConfig = {
       ...this.config,
       offerAcademicYear: period.academicYear,
       offerSemester: period.semester,
     };
-    const temporarySchedule = {
-      ...schedule,
-      events: [
-        ...(Array.isArray(schedule?.events) ? schedule.events : []),
-        {
-          id: "kgmu-archive-test-access-boundary",
-          title: "Техническая граница тестового доступа",
-          start: new Date(Date.parse(expiresAt) - 60_000).toISOString(),
-          end: expiresAt,
-        },
-      ],
-    };
 
-    // Use an isolated service instance so the live shared service config is never
-    // mutated while an async YooKassa request is in flight.
+    let checkoutSchedule = schedule;
+    let historicalSemesterEnd = null;
+    if (plan === "semester") {
+      historicalSemesterEnd = semesterEndFromSchedule(schedule);
+      const temporaryEnd = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+      const temporaryStart = new Date(Date.parse(temporaryEnd) - 60_000).toISOString();
+      checkoutSchedule = {
+        ...schedule,
+        events: [
+          ...(Array.isArray(schedule?.events) ? schedule.events : []),
+          {
+            id: "kgmu-archive-test-checkout-only",
+            title: "Техническая запись тестового checkout",
+            start: temporaryStart,
+            end: temporaryEnd,
+          },
+        ],
+      };
+    }
+
+    // The isolated service only bypasses the historical end-date check long enough
+    // to create a YooKassa TEST payment. The technical event is never published.
     const temporaryService = new YooKassaService({
       config: temporaryConfig,
       store: this.store,
       fetchFn: this.fetch,
     });
-    const result = await temporaryService.create({ email, schedule: temporarySchedule, plan });
-    await this.markArchiveTest(result.orderId, expiresAt);
-    return result;
-  }
+    const result = await temporaryService.create({ email, schedule: checkoutSchedule, plan });
 
-  async fulfill(payment) {
-    const orderId = payment?.metadata?.order_id;
-    const before = orderId ? await this.store.getOrder(orderId) : null;
-    const result = await super.fulfill(payment);
-    if (!result || before?.archiveTest !== true) return result;
-
-    const completed = await this.store.getOrder(orderId);
-    const token = subscriptionTokenFromUrl(completed?.subscriptionUrl);
-    if (token) {
-      const subscription = await this.store.getSubscription(token);
-      if (subscription) {
-        await this.store.putSubscription(token, {
-          ...subscription,
-          archiveTest: true,
-          expiresAt: before.expiresAt,
-        });
-      }
+    if (historicalSemesterEnd) {
+      await this.restoreHistoricalSemesterEnd(result.orderId, historicalSemesterEnd);
     }
     return result;
   }
