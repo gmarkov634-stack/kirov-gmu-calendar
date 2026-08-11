@@ -8,6 +8,7 @@ on:
     paths:
       - "api/src/adapters/kgmu/**"
       - "api/tools/kgmu-*.mjs"
+      - "api/tools/kgmu-*.py"
       - "api/test/kgmu-source-watch.test.mjs"
       - "api/package.json"
       - "universities/kgmu/source-watch.json"
@@ -39,6 +40,9 @@ jobs:
       - name: Test KGMU source watch
         run: node --test test/kgmu-source-watch.test.mjs
 
+      - name: Test KGMU XLSX structural parser
+        run: python3 tools/kgmu-parse-xlsx.py --self-test
+
       - name: Discover official KGMU XLSX sources
         run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
 
@@ -67,6 +71,25 @@ jobs:
             --output=data/imports/kgmu-official-reference-xlsx \
             --academic-year='2025/2026' \
             --semester='2'
+
+      - name: Parse current official KGMU XLSX structure
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run parse:kgmu:xlsx -- \
+            data/imports/kgmu-official-reference-xlsx \
+            --output=data/imports/kgmu-xlsx-structure-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-xlsx-structure-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ XLSX structure')
+          print('')
+          print(f"Files: **{report['fileCount']}**")
+          print(f"Weekly-grid: **{report['layouts']['weekly-grid']}**")
+          print(f"Calendar-grid: **{report['layouts']['calendar-grid']}**")
+          print(f"Weekly records captured: **{report['recordCount']}**")
+          print(f"Ambiguous weekly records flagged: **{report['ambiguousRecordCount']}**")
+          PY
 
       - name: Capture new official KGMU XLSX files
         if: steps.watch.outputs.ready == 'true'
@@ -112,12 +135,14 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload current official KGMU XLSX references
+      - name: Upload current official KGMU XLSX references and structure report
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: kgmu-official-reference-xlsx
-          path: api/data/imports/kgmu-official-reference-xlsx
+          path: |
+            api/data/imports/kgmu-official-reference-xlsx
+            api/data/imports/kgmu-xlsx-structure-report.json
           if-no-files-found: error
           retention-days: 7
 
