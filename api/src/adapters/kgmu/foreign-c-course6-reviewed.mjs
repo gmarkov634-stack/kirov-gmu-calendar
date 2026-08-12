@@ -1,5 +1,6 @@
 import { parseKgmuForeignCourse6Workbook as parseRawCourse6 } from "./foreign-c-course6-parser.mjs";
 import { applyConfirmedCourse6Rules } from "./foreign-c-course6-confirmed.mjs";
+import { applySharedGiaRule } from "./foreign-c-course6-shared-gia.mjs";
 
 function normalizeCell(cell) {
   if (typeof cell?.value !== "string") return cell;
@@ -29,5 +30,6 @@ function normalizedWorkbook(workbook) {
 export function parseKgmuForeignCourse6Workbook(workbook, metadata = {}) {
   const normalized = normalizedWorkbook(workbook);
   const parsed = parseRawCourse6(normalized, metadata);
-  return applyConfirmedCourse6Rules(normalized, parsed);
+  const confirmed = applyConfirmedCourse6Rules(normalized, parsed);
+  return applySharedGiaRule(normalized, confirmed);
 }
