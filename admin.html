@@ -4,24 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>Контроль ссылок · Календарь КГМУ</title>
+    <title>Администрирование · Календарь КГМУ</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      .admin-dashboard{display:grid;gap:26px;margin-top:24px}.admin-toolbar{display:flex;justify-content:flex-end}.admin-toolbar button{min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-700);cursor:pointer;font-weight:700}.admin-section{padding-top:22px;border-top:1px solid var(--line)}.admin-section h2{font-size:24px}.review-record{position:relative}.review-record.is-review-required{border-color:#e5ad45}.review-record.is-ready{border-color:#78c7a1}.review-record.is-published{opacity:.78}.review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.review-head>div{min-width:0}.review-head strong,.review-head small{display:block}.review-head small{margin-top:5px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.review-status{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#eef2f7;color:#526071;font-size:11px;font-weight:800}.is-review-required .review-status{background:#fff3d7;color:#8a5a00}.is-ready .review-status{background:#dff6ea;color:#217a53}.review-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin:14px 0;color:var(--muted);font-size:12px}.review-meta b{color:var(--ink)}.review-details{margin-top:12px}.review-details summary{cursor:pointer;color:var(--blue-700);font-size:12px;font-weight:700}.review-details pre{max-height:360px;margin:10px 0 0;padding:12px;overflow:auto;border-radius:10px;background:#f5f7fb;color:#334155;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}.admin-actions .publish-review{border-color:#217a53;background:#217a53;color:#fff}.admin-actions .download-review{color:var(--blue-700)}@media(max-width:760px){.review-head{flex-direction:column}.review-meta{grid-template-columns:1fr}}
+    </style>
   </head>
   <body>
     <main class="admin-page">
       <section class="selector admin-panel">
         <p class="section-kicker">Календарь КГМУ</p>
-        <h1>Контроль персональных ссылок</h1>
+        <h1>Управление сервисом</h1>
         <form id="admin-login" class="admin-login">
           <label for="admin-token">Ключ администратора</label>
           <div><input id="admin-token" type="password" autocomplete="current-password" required /><button class="pay-button" type="submit">Открыть</button></div>
         </form>
         <div id="admin-message" class="notice" hidden></div>
-        <div id="admin-summary" class="admin-summary" hidden></div>
-        <div id="admin-list" class="admin-list"></div>
+
+        <div id="admin-dashboard" class="admin-dashboard" hidden>
+          <div class="admin-toolbar"><button id="admin-refresh" type="button">Обновить</button></div>
+
+          <section class="admin-section" aria-labelledby="reviews-title">
+            <p class="section-kicker">Расписание КГМУ</p>
+            <h2 id="reviews-title">Расписания на проверке</h2>
+            <div id="review-summary" class="admin-summary"></div>
+            <div id="review-list" class="admin-list"></div>
+          </section>
+
+          <section class="admin-section" aria-labelledby="subscriptions-title">
+            <p class="section-kicker">Подписки</p>
+            <h2 id="subscriptions-title">Персональные ссылки</h2>
+            <div id="admin-summary" class="admin-summary"></div>
+            <div id="admin-list" class="admin-list"></div>
+          </section>
+        </div>
       </section>
     </main>
     <script src="data.js"></script>
-    <script src="admin.js?v=issued-subscriptions"></script>
+    <script src="admin.js?v=parser-reviews-1"></script>
   </body>
 </html>
