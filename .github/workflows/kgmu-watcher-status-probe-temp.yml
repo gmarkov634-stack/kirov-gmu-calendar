@@ -1,0 +1,19 @@
+name: TEMP KGMU watcher status probe
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/kgmu-watcher-status-probe-temp.yml
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe production watcher status
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl --fail --silent --show-error --max-time 20 https://kgmu-calendar-api.containerapps.ru/api/v2/status/kgmu-watcher)"
+          printf '%s\n' "$status"
+          python3 -c 'import json,sys; d=json.load(sys.stdin); assert d.get("university")=="kgmu"; assert d.get("enabled") is True; assert d.get("intervalMs")==900000; assert d.get("lastRun") is not None' <<<"$status"
