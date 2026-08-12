@@ -15,6 +15,10 @@ function normalizedKeyAllowed(key) {
   return /^parser-staging\/kgmu\/normalized\/[a-f0-9]{64}\.json$/.test(String(key || ""));
 }
 
+function sourceKeyAllowed(key) {
+  return /^parser-staging\/kgmu\/sources\/[a-f0-9]{64}\/[A-Za-z0-9._-]{1,120}$/.test(String(key || ""));
+}
+
 export class ParserReviewQueue {
   constructor(config) {
     this.config = config;
@@ -36,6 +40,26 @@ export class ParserReviewQueue {
     const key = `parser-staging/kgmu/sources/${sha256}/${safeName}`;
     await this.#writeRaw(key, buffer, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     return key;
+  }
+
+  async getSource(key) {
+    if (!sourceKeyAllowed(key)) return null;
+    if (this.s3) {
+      try {
+        const response = await this.s3.send(new GetObjectCommand({ Bucket: this.config.bucket, Key: key }));
+        const bytes = await response.Body.transformToByteArray();
+        return Buffer.from(bytes);
+      } catch (error) {
+        if (missing(error)) return null;
+        throw error;
+      }
+    }
+    try {
+      return await fs.readFile(path.join(this.config.dataDir, key));
+    } catch (error) {
+      if (error.code === "ENOENT") return null;
+      throw error;
+    }
   }
 
   async storeNormalized(sourceSha256, value) {
