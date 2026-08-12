@@ -80,6 +80,43 @@ test("R-MED3 parses exact unseen time overrides, adjacent times and week parity 
   assert.ok(!titles.includes("Биология"));
 });
 
+test("R-MED3 keeps date-time-time attached to the subject that owns the triple", () => {
+  const workbook = workbookWithRows([
+    cell("A4", 4, 1, "ПН"),
+    cell("B4", 4, 2, "13.30-15.55 Общая хирургия 18.05, 25.05-13.30-15.00 13.30-16.40 Лучевая диагностика и терапия 11.05"),
+    cell("C4", 4, 3, "10.00-11.30 Фармакология 18.05"),
+  ], 5);
+
+  const result = parseMedicineCourse3RWorkbookReviewed(workbook, {
+    university: "kgmu",
+    program: "medicine",
+    course: 3,
+    academicYear: "2025/26",
+    semester: 2,
+  });
+
+  const group311 = eventsFor(result, "311");
+  assert.ok(group311.some((event) =>
+    event.title === "Общая хирургия" &&
+    event.start === "2026-05-18T13:30:00+03:00" &&
+    event.end === "2026-05-18T15:55:00+03:00"
+  ));
+  assert.ok(group311.some((event) =>
+    event.title === "Общая хирургия" &&
+    event.start === "2026-05-25T13:30:00+03:00" &&
+    event.end === "2026-05-25T15:00:00+03:00"
+  ));
+  assert.ok(group311.some((event) =>
+    event.title === "Лучевая диагностика и терапия" &&
+    event.start === "2026-05-11T13:30:00+03:00" &&
+    event.end === "2026-05-11T16:40:00+03:00"
+  ));
+  assert.ok(!group311.some((event) =>
+    event.title === "Лучевая диагностика и терапия" &&
+    event.start.startsWith("2026-05-25T")
+  ));
+});
+
 test("R-MED3 keeps count-only extra lessons fail-closed when their dates are absent", () => {
   const workbook = workbookWithRows([
     cell("A4", 4, 1, "ПН"),
