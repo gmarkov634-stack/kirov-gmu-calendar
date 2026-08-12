@@ -1,0 +1,114 @@
+from datetime import date, datetime, timedelta
+import json, re, hashlib, itertools, collections, os, math
+
+GROUPS=[str(i) for i in range(231,239)]
+HOLIDAYS={date(2026,2,23),date(2026,3,9),date(2026,5,1),date(2026,5,9),date(2026,6,12)}
+WEEKDAY={"ПН":0,"ВТ":1,"СР":2,"ЧТ":3,"ПТ":4,"СБ":5}
+
+attestation = {
+    "Философия":"экзамен",
+    "Нормальная физиология":"экзамен",
+    "Биохимия":"экзамен",
+    "Основы формирования здоровья детей":"зачет",
+    "Элективные дисциплины по физической культуре и спорту":"зачет",
+}
+locations = {
+    "Философия":"1 корпус, ул. Владимирская, 137",
+    "Нормальная физиология":"3 корпус, ул. Владимирская, 112",
+    "Биохимия":"1 корпус, ул. Владимирская, 137",
+    "Иммунология":"3 корпус, ул. Владимирская, 112",
+    "Микробиология, вирусология":"3 корпус, ул. Владимирская, 112",
+    "Пропедевтика внутренних болезней":'КОГКБУЗ "Больница скорой медицинской помощи", Октябрьский проспект, 47',
+    "Основы формирования здоровья детей":"Кировский клиническо-диагностический центр, ул. Красноармейская, 43",
+    "Элективные дисциплины по физической культуре и спорту":"ФОК, ул. Владимирская, 112",
+    "Физическая культура и спорт":"ФОК, ул. Владимирская, 112",
+    "Общая хирургия":'Клиническая больница "РЖД Медицина" города Киров, Октябрьский пр-т., 151',
+    "Гигиена":"3 корпус, ул. Владимирская, 112",
+}
+events={g:[] for g in GROUPS}
+
+def dparse(s):
+    # dd.mm or yyyy-mm-dd
+    if isinstance(s,date): return s
+    if re.match(r"\d{4}-\d{2}-\d{2}$",s):
+        return datetime.strptime(s,"%Y-%m-%d").date()
+    return datetime.strptime(s+".2026","%d.%m.%Y").date()
+
+def weekly(start,end,weekday):
+    s,e=dparse(start),dparse(end)
+    out=[]
+    cur=s
+    while cur.weekday()!=weekday:
+        cur+=timedelta(days=1)
+    while cur<=e:
+        if cur not in HOLIDAYS:
+            out.append(cur)
+        cur+=timedelta(days=7)
+    return out
+
+def explicit(ds):
+    return [dparse(x) for x in ds]
+
+def norm_time(t):
+    h,m = map(int,t.split(":"))
+    return f"{h:02d}:{m:02d}"
+
+def event_desc(title, segments, extra=None):
+    parts=[]
+    if len(segments)>1:
+        breaks=[]
+        for (_,end1),(start2,_) in zip(segments,segments[1:]):
+            if end1!=start2:
+                breaks.append(f"{norm_time(end1)}–{norm_time(start2)}")
+        if breaks:
+            parts.append("Перерыв: "+", ".join(breaks)+".")
+    if title in attestation:
+        parts.append(f"Форма промежуточной аттестации: {attestation[title]}.")
+    if extra:
+        parts.append(extra.strip())
+    return " ".join(parts)
+
+def add(gs,title,dates,segments,location=None,kind="lesson",sourceCell=None,sourceRange=None,extra_desc=None):
+    if isinstance(gs,str): gs=[gs]
+    if isinstance(dates,date): dates=[dates]
+    if isinstance(dates,str): dates=[dparse(dates)]
+    segs=[tuple(x) for x in segments]
+    st=norm_time(segs[0][0]); en=norm_time(segs[-1][1])
+    loc = location if location is not None else locations.get(title,"")
+    desc=event_desc(title,segs,extra_desc)
+    for g in gs:
+        for dt in dates:
+            events[g].append({
+                "title": title,
+                "start": f"{dt.isoformat()}T{st}:00+03:00",
+                "end": f"{dt.isoformat()}T{en}:00+03:00",
+                "location": loc,
+                "kind": kind,
+                **({"description":desc} if desc else {}),
+                **({"sourceCell":sourceCell} if sourceCell else {}),
+                **({"sourceRange":sourceRange} if sourceRange else {}),
+            })
+
+ALL=GROUPS
+
+# Monday common lectures B8:I8
+add(ALL,"ЛЕКЦ. ГИГИЕНА",weekly("02.02","04.05",0),[("08:30","10:00")],
+    "3 корпус, аудитория 803, ул. Владимирская, 112","lecture","B8","B8:I8")
+add(ALL,"ЛЕКЦ. ОСНОВЫ ФОРМИРОВАНИЯ ЗДОРОВЬЯ ДЕТЕЙ",explicit(["11.05","18.05"]),[("08:30","10:00")],
+    "3 корпус, аудитория 803, ул. Владимирская, 112","lecture","B8","B8:I8")
+
+# Monday group rows 9-10/11
+add("231","Основы формирования здоровья детей",weekly("02.02","01.06",0),[("10:30","12:00"),("12:10","12:55")],sourceCell="B9")
+add("231","Микробиология, вирусология",weekly("02.02","01.06",0),[("13:30","15:00"),("15:10","15:55")],sourceCell="B10",sourceRange="B10:B11")
+add("232","Гигиена",weekly("02.02","01.06",0),[("10:30","12:00"),("12:10","12:55")],sourceCell="C9")
+add("232","Физическая культура и спорт",explicit(["02.02","09.02","16.02","02.03"]),[("13:40","15:10"),("15:20","16:50")],
+    "ФОК, ул. Владимирская, 112",sourceCell="C10",sourceRange="C10:C11")
+add("233","Общая хирургия",weekly("02.02","01.06",0),[("10:40","12:10"),("12:20","13:05")],sourceCell="D9")
+add("233","Нормальная физиология",weekly("02.02","01.06",0),[("13:30","15:00"),("15:10","15:55")],sourceCell="D10",sourceRange="D10:D11")
+add("234","Общая хирургия",weekly("02.02","01.06",0),[("10:40","12:10"),("12:20","13:05")],sourceCell="E9")
+add("234","Гигиена",weekly("02.02","01.06",0),[("13:50","15:20"),("15:30","16:15")],sourceCell="E10",sourceRange="E10:E11")
+add("235","Нормальная физиология",weekly("02.02","01.06",0),[("10:30","12:00"),("12:10","12:55")],sourceCell="F9")
+add(["235","236"],"Философия",weekly("02.02","25.05",0),[("13:20","14:50")],
+    "1 корпус, аудитория 318, ул. Владимирская, 137",sourceCell="F10",sourceRange="F10:G11")
+add(["235","236"],"Философия",explicit(["01.06"]),[("13:00","16:10")],
+    "1 корпус, аудитория 318, ул. Владимирск
