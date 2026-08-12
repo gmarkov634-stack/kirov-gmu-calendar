@@ -72,7 +72,7 @@ function metadataFromUrl(url) {
   };
 }
 
-export function createKgmuParserHandler({ service, queue, watcher, config }) {
+export function createKgmuParserHandler({ service, queue, watcher, notifier, config }) {
   return async function kgmuParserHandler(request, response) {
     applyCors(request, response, config);
     if (request.method === "OPTIONS") return sendEmpty(response);
@@ -101,6 +101,18 @@ export function createKgmuParserHandler({ service, queue, watcher, config }) {
       } catch (error) {
         console.error("KGMU source watcher failed", error);
         return send(response, 503, { error: "kgmu_watch_unavailable" });
+      }
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/telegram-test") {
+      if (typeof notifier?.notifySystemTest !== "function") return send(response, 503, { error: "telegram_notifier_unavailable" });
+      try {
+        const result = await notifier.notifySystemTest();
+        if (!result?.sent) return send(response, 503, { error: result?.reason || "telegram_not_configured" });
+        return send(response, 200, { sent: true });
+      } catch (error) {
+        console.error("KGMU Telegram test failed", error);
+        return send(response, 503, { error: "telegram_test_failed" });
       }
     }
 
