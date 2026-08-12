@@ -40,13 +40,34 @@ function validDateParts(day, month) {
   return Number(day) >= 1 && Number(day) <= 31 && Number(month) >= 1 && Number(month) <= 12;
 }
 
-function normalizeReverseTimeDate(text) {
-  const triple = /(?<!\d)(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})\.(\d{2})(?!\d)/g;
-  return String(text || '').replace(triple, (whole, firstA, firstB, secondA, secondB, dateDay, dateMonth) => {
-    const firstCouldBeDate = validDateParts(firstA, firstB);
-    const lastIsDate = validDateParts(dateDay, dateMonth);
-    if (firstCouldBeDate || !lastIsDate) return whole;
-    return `${dateDay}.${dateMonth}-${firstA}.${firstB}-${secondA}.${secondB}`;
+function validClockParts(hour, minute) {
+  return Number(hour) >= 0 && Number(hour) <= 23 && Number(minute) >= 0 && Number(minute) <= 59;
+}
+
+function clockMinutes(hour, minute) {
+  return Number(hour) * 60 + Number(minute);
+}
+
+function normalizeLinkedDateTimeTriple(text) {
+  const triple = /(?<!\d)(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})(?!\d)/g;
+  return String(text || '').replace(triple, (whole, firstA, firstB, secondA, secondB, thirdA, thirdB) => {
+    const firstIsDate = validDateParts(firstA, firstB);
+    const thirdIsDate = validDateParts(thirdA, thirdB);
+    const firstIsTime = validClockParts(firstA, firstB);
+    const secondIsTime = validClockParts(secondA, secondB);
+    const thirdIsTime = validClockParts(thirdA, thirdB);
+
+    const dateTimeTime = firstIsDate && secondIsTime && thirdIsTime
+      && clockMinutes(secondA, secondB) < clockMinutes(thirdA, thirdB);
+    const timeTimeDate = thirdIsDate && firstIsTime && secondIsTime
+      && clockMinutes(firstA, firstB) < clockMinutes(secondA, secondB);
+
+    // The whole three-part token is atomic: the interval belongs only to its date.
+    // Canonicalize an unambiguous time-time-date form to date-time-time for the reviewed R parser.
+    if (timeTimeDate && !dateTimeTime) {
+      return `${thirdA}.${thirdB}-${firstA}.${firstB}-${secondA}.${secondB}`;
+    }
+    return whole;
   });
 }
 
@@ -68,7 +89,7 @@ function normalizeMedicineCourse3Workbook(workbook) {
     for (const cell of sheet.cells || []) {
       if (typeof cell.value !== 'string') continue;
       let text = normalizeAdjacentTimes(cell.value);
-      text = normalizeReverseTimeDate(text);
+      text = normalizeLinkedDateTimeTriple(text);
       text = moveExplicitDateAfterSubject(text);
       cell.value = text;
     }
