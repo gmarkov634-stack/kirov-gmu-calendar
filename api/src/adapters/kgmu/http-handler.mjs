@@ -72,6 +72,12 @@ function metadataFromUrl(url) {
   };
 }
 
+function xlsxError(response, error, fallback) {
+  if (error.code === "request_too_large" || error.code === "XLSX_TOO_LARGE") return send(response, 413, { error: "xlsx_too_large" });
+  if (error.code === "INVALID_XLSX") return send(response, 400, { error: "invalid_xlsx" });
+  return send(response, 503, { error: fallback });
+}
+
 export function createKgmuParserHandler({ service, queue, watcher, notifier, config }) {
   return async function kgmuParserHandler(request, response) {
     applyCors(request, response, config);
@@ -79,6 +85,18 @@ export function createKgmuParserHandler({ service, queue, watcher, notifier, con
     if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
     const url = new URL(request.url, "http://localhost");
+
+    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/dry-run") {
+      if (typeof service?.dryRun !== "function") return send(response, 503, { error: "kgmu_dry_run_unavailable" });
+      try {
+        const limit = Number(config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
+        const buffer = await readBuffer(request, limit);
+        return send(response, 200, await service.dryRun(buffer, metadataFromUrl(url)));
+      } catch (error) {
+        console.error("KGMU dry run failed", error);
+        return xlsxError(response, error, "kgmu_dry_run_unavailable");
+      }
+    }
 
     if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/ingest") {
       try {
@@ -88,9 +106,7 @@ export function createKgmuParserHandler({ service, queue, watcher, notifier, con
         return send(response, 202, result);
       } catch (error) {
         console.error("KGMU ingest failed", error);
-        if (error.code === "request_too_large" || error.code === "XLSX_TOO_LARGE") return send(response, 413, { error: "xlsx_too_large" });
-        if (error.code === "INVALID_XLSX") return send(response, 400, { error: "invalid_xlsx" });
-        return send(response, 503, { error: "kgmu_ingest_unavailable" });
+        return xlsxError(response, error, "kgmu_ingest_unavailable");
       }
     }
 
