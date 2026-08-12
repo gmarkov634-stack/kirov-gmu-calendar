@@ -41,6 +41,28 @@ function dryRunSummary(staged) {
   };
 }
 
+function xlsxReadFailureReason(error) {
+  if (error?.code === "INVALID_XLSX") return "INVALID_XLSX";
+  if (error?.code === "XLSX_TOO_LARGE") return "XLSX_TOO_LARGE";
+  return "XLSX_READ_FAILED";
+}
+
+function xlsxReadFailureClassification(error) {
+  return {
+    type: "UNKNOWN",
+    confidence: "low",
+    reason: error?.code === "INVALID_XLSX" ? "invalid-xlsx-container" : "xlsx-read-failed",
+    features: {},
+  };
+}
+
+function xlsxReadFailureDetails(error) {
+  return {
+    code: error?.code || "XLSX_READ_FAILED",
+    message: String(error?.message || error).slice(0, 500),
+  };
+}
+
 export class KgmuIngestServiceV2 {
   constructor({ queue, notifier, config, scheduleStore }) {
     this.queue = queue;
@@ -114,9 +136,25 @@ export class KgmuIngestServiceV2 {
   async dryRun(buffer, input = {}) {
     const sourceSha256 = sha256(buffer);
     const meta = metadata(input);
-    const workbook = await readKgmuXlsxStructure(buffer, {
-      maxBytes: Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024),
-    });
+    let workbook;
+    try {
+      workbook = await readKgmuXlsxStructure(buffer, {
+        maxBytes: Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024),
+      });
+    } catch (error) {
+      return {
+        dryRun: true,
+        sourceSha256,
+        metadata: meta,
+        classification: xlsxReadFailureClassification(error),
+        derivedPeriod: null,
+        status: "REVIEW_REQUIRED",
+        reason: xlsxReadFailureReason(error),
+        parserError: xlsxReadFailureDetails(error),
+        publicationBlocked: true,
+      };
+    }
+
     const classification = classifyKgmuWorkbook(workbook);
     const derivedPeriod = deriveKgmuPeriod(workbook);
     const mismatches = periodMismatches(meta, derivedPeriod);
@@ -190,9 +228,24 @@ export class KgmuIngestServiceV2 {
     const sourceSha256 = sha256(buffer);
     const meta = metadata(input);
     const sourceKey = await this.queue.storeSource(buffer, sourceSha256, meta.filename);
-    const workbook = await readKgmuXlsxStructure(buffer, {
-      maxBytes: Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024),
-    });
+    let workbook;
+    try {
+      workbook = await readKgmuXlsxStructure(buffer, {
+        maxBytes: Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024),
+      });
+    } catch (error) {
+      console.error("KGMU XLSX read failed", error);
+      return this.#blocked({
+        reason: xlsxReadFailureReason(error),
+        sourceSha256,
+        sourceKey,
+        metadata: meta,
+        derivedPeriod: null,
+        classification: xlsxReadFailureClassification(error),
+        parserError: xlsxReadFailureDetails(error),
+      });
+    }
+
     const classification = classifyKgmuWorkbook(workbook);
     const derivedPeriod = deriveKgmuPeriod(workbook);
     const mismatches = periodMismatches(meta, derivedPeriod);
