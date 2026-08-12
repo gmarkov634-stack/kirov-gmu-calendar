@@ -2,6 +2,7 @@ import http from "node:http";
 import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
 import { YearAwareStore } from "./year-aware-store.js";
+import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -17,6 +18,7 @@ const config = loadConfig();
 const store = new YearAwareStore(config);
 const payments = new YooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
+const offerCatalogHandler = createOfferCatalogHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
@@ -51,6 +53,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
+  }
+  if (url.pathname.startsWith("/api/v2/catalog/")) {
+    return offerCatalogHandler(request, response);
   }
   if (
     url.pathname === "/api/v1/admin/kgmu/ingest" ||

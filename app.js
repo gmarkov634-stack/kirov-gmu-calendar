@@ -11,6 +11,7 @@ const state = { step: "faculty", faculty: null, course: null, group: null, plan:
 const stepOrder = ["faculty", "course", "group", "checkout"];
 const savedOrderKey = "kgmu-calendar-orders-v2";
 const legacySavedOrderKey = "kgmu-calendar-orders-v1";
+const groupCatalog = new Map();
 let scrollToReadyLink = false;
 
 function readSavedOrders() {
@@ -59,6 +60,76 @@ function apiGroupContext() {
     groupCode,
     groupId: `${data.university || "kgmu"}:${state.faculty.id}:${state.course}:${groupCode}`,
   };
+}
+
+function normalizeAcademicYear(value) {
+  const match = String(value || "").trim().match(/^(\d{4})[/-](\d{2}|\d{4})$/);
+  if (!match) return "";
+  const start = Number(match[1]);
+  const rawEnd = Number(match[2]);
+  const end = match[2].length === 2 ? Math.floor(start / 100) * 100 + rawEnd : rawEnd;
+  if (end !== start + 1) return "";
+  return `${start}/${String(end).slice(-2)}`;
+}
+
+function catalogKey(faculty, course) {
+  return `${faculty.id}:${course}`;
+}
+
+function catalogEntry(faculty, course) {
+  const key = catalogKey(faculty, course);
+  if (!groupCatalog.has(key)) {
+    groupCatalog.set(key, { status: "idle", groups: [], promise: null });
+  }
+  return groupCatalog.get(key);
+}
+
+async function ensureOfferGroups(faculty, course) {
+  const entry = catalogEntry(faculty, course);
+  if (entry.status === "loaded") return entry.groups;
+  if (entry.status === "loading" && entry.promise) return entry.promise;
+
+  entry.status = "loading";
+  entry.promise = (async () => {
+    const university = encodeURIComponent(data.university || "kgmu");
+    const program = encodeURIComponent(faculty.id);
+    const response = await fetch(`${data.apiBase}/api/v2/catalog/${university}/${program}/${course}/groups`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("catalog_unavailable");
+    const body = await response.json();
+    const sameYear = normalizeAcademicYear(body.academicYear) === normalizeAcademicYear(data.offer.academicYear);
+    const sameSemester = Number(body.semester) === Number(data.offer.semester);
+    if (!sameYear || !sameSemester || !Array.isArray(body.groups)) throw new Error("catalog_period_mismatch");
+
+    entry.groups = [...new Set(body.groups
+      .map((item) => typeof item?.groupCode === "string" ? item.groupCode.trim() : "")
+      .filter(Boolean))];
+    faculty.groups[course] = entry.groups;
+    entry.status = "loaded";
+    return entry.groups;
+  })().catch((error) => {
+    entry.groups = [];
+    entry.status = "error";
+    throw error;
+  }).finally(() => {
+    entry.promise = null;
+  });
+
+  return entry.promise;
+}
+
+async function selectCourse(faculty, course) {
+  state.course = course;
+  state.group = null;
+  const loading = ensureOfferGroups(faculty, course);
+  setStep("group");
+  try {
+    await loading;
+  } catch {
+    // renderGroups shows a fail-closed retry state.
+  }
+  if (state.step === "group" && state.faculty === faculty && state.course === course) render();
 }
 
 async function renderSavedOrders() {
@@ -118,32 +189,47 @@ function renderFaculties() {
     icon: faculty.icon,
     title: faculty.name,
     subtitle: `${faculty.short} · ${faculty.courses} курсов`,
-    onClick: () => { state.faculty = faculty; state.course = null; setStep("course"); },
+    onClick: () => { state.faculty = faculty; state.course = null; state.group = null; setStep("course"); },
   })));
 }
 
 function renderCourses() {
   title.textContent = state.faculty.name;
   for (let course = 1; course <= state.faculty.courses; course += 1) {
-    const groups = state.faculty.groups[course] || [];
+    const entry = catalogEntry(state.faculty, course);
+    const subtitle = entry.status === "loaded"
+      ? (entry.groups.length ? `${entry.groups.length} групп доступно` : "Расписание ещё не опубликовано")
+      : entry.status === "error"
+        ? "Проверить ещё раз"
+        : "Проверить доступность";
     grid.append(makeCard({
       icon: course,
       title: `${course} курс`,
-      subtitle: groups.length ? `${groups.length} групп доступно` : "Раздел подготовлен",
-      onClick: () => { state.course = course; setStep("group"); },
+      subtitle,
+      onClick: () => { void selectCourse(state.faculty, course); },
     }));
   }
 }
 
 function renderGroups() {
   title.textContent = `${state.faculty.short} · ${state.course} курс`;
-  const groups = state.faculty.groups[state.course] || [];
-  if (!groups.length) {
+  const entry = catalogEntry(state.faculty, state.course);
+  if (entry.status === "loading" || entry.status === "idle") {
     notice.hidden = false;
-    notice.textContent = "Группы этого курса будут добавлены после загрузки соответствующего расписания.";
+    notice.textContent = `Проверяем опубликованные группы ${data.offer.academicYear}…`;
     return;
   }
-  groups.forEach((group) => {
+  if (entry.status === "error") {
+    notice.hidden = false;
+    notice.textContent = "Не удалось проверить опубликованные группы. Вернитесь к выбору курса и попробуйте ещё раз.";
+    return;
+  }
+  if (!entry.groups.length) {
+    notice.hidden = false;
+    notice.textContent = `Для этого курса проверенное расписание ${data.offer.academicYear} пока не опубликовано.`;
+    return;
+  }
+  entry.groups.forEach((group) => {
     grid.append(makeCard({
       icon: "№",
       title: `Группа ${group}`,

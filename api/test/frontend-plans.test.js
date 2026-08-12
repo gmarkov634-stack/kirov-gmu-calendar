@@ -37,6 +37,16 @@ test("KGMU landing keeps the 2026/27 offer closed until a verified schedule is a
   assert.doesNotMatch(data, /groups:\s*\{\s*1:\s*\[/);
 });
 
+test("KGMU landing loads groups from the server-scoped current-offer catalog", async () => {
+  const app = await text("app.js");
+  assert.match(app, /\/api\/v2\/catalog\/\$\{university\}\/\$\{program\}\/\$\{course\}\/groups/);
+  assert.match(app, /body\.groups/);
+  assert.match(app, /normalizeAcademicYear\(body\.academicYear\)\s*===\s*normalizeAcademicYear\(data\.offer\.academicYear\)/);
+  assert.match(app, /Number\(body\.semester\)\s*===\s*Number\(data\.offer\.semester\)/);
+  assert.doesNotMatch(app, /\/api\/v2\/catalog\/[^`\n]*\?(?:academicYear|semester)=/);
+  assert.match(app, /Не удалось проверить опубликованные группы/);
+});
+
 test("an existing year purchase prevents a narrower duplicate purchase", async () => {
   const saved = [{ orderId: "a".repeat(32), accessToken: "b".repeat(43) }];
   const existingYear = await findPurchasedOrder("132", saved, async () => ({
