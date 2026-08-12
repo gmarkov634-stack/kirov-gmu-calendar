@@ -159,6 +159,10 @@ function responseSize(response) {
   return Number.isFinite(value) && value >= 0 ? value : null;
 }
 
+function notificationPending(ingest) {
+  return Boolean(ingest?.reviewId && ingest?.notification && ingest.notification.sent === false);
+}
+
 export class KgmuSourceWatcher {
   constructor({ config, ingestService, stateStore, fetchFn = fetch }) {
     this.config = config;
@@ -212,8 +216,21 @@ export class KgmuSourceWatcher {
         const hash = sha256(buffer);
         const previous = state.slots[key];
         if (previous?.sha256 === hash && previous?.parserRevision === parserRevision) {
-          state.slots[key] = { ...previous, lastSeenAt: new Date().toISOString(), url: source.url, label: source.label };
-          results.push({ slot: key, status: "UNCHANGED", sha256: hash, parserRevision, url: source.url });
+          let notificationRetry = null;
+          let pending = Boolean(previous.notificationPending);
+          if (pending && previous.reviewId && typeof this.ingestService?.retryNotification === "function") {
+            notificationRetry = await this.ingestService.retryNotification(previous.reviewId);
+            pending = !notificationRetry?.sent && !notificationRetry?.terminal;
+          }
+          state.slots[key] = {
+            ...previous,
+            lastSeenAt: new Date().toISOString(),
+            url: source.url,
+            label: source.label,
+            notificationPending: pending,
+            lastNotificationAttemptAt: notificationRetry ? new Date().toISOString() : previous.lastNotificationAttemptAt || null,
+          };
+          results.push({ slot: key, status: "UNCHANGED", sha256: hash, parserRevision, url: source.url, notificationRetry });
           continue;
         }
 
@@ -224,6 +241,7 @@ export class KgmuSourceWatcher {
           academicYear: source.academicYear,
           semester: source.semester,
         });
+        const pending = notificationPending(ingest);
         state.slots[key] = {
           sha256: hash,
           parserRevision,
@@ -240,6 +258,8 @@ export class KgmuSourceWatcher {
           ingestStatus: ingest.status,
           reviewId: ingest.reviewId || null,
           parserType: ingest.classification?.type || ingest.parserType || null,
+          notificationPending: pending,
+          lastNotificationAttemptAt: ingest.notification ? new Date().toISOString() : null,
         };
         results.push({ slot: key, status: "INGESTED", sha256: hash, parserRevision, url: source.url, ingest });
       } catch (error) {
@@ -257,6 +277,8 @@ export class KgmuSourceWatcher {
       targetCount: targets.length,
       ingestedCount: results.filter((item) => item.status === "INGESTED").length,
       unchangedCount: results.filter((item) => item.status === "UNCHANGED").length,
+      notificationRetryCount: results.filter((item) => item.notificationRetry).length,
+      pendingNotificationCount: Object.values(state.slots || {}).filter((item) => item?.notificationPending).length,
       errorCount: errors.length,
     };
     state.lastRunAt = summary.checkedAt;
