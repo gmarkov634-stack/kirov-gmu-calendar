@@ -1,0 +1,50 @@
+name: KGMU production preflight
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/kgmu-production-preflight.yml"
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Pages and production API
+        shell: bash
+        run: |
+          set -euo pipefail
+          SITE="https://gmarkov634-stack.github.io/kirov-gmu-calendar"
+          ORIGIN="https://gmarkov634-stack.github.io"
+          API="https://kgmu-calendar-api.containerapps.ru"
+
+          echo "== Pages config =="
+          curl -fsSL --retry 3 --retry-delay 2 "$SITE/data.js" -o /tmp/data.js
+          grep -F "apiBase: \"$API\"" /tmp/data.js
+          grep -F 'academicYear: "2026/27"' /tmp/data.js
+          grep -F 'semester: 1' /tmp/data.js
+
+          echo "== Health =="
+          curl -fsSL --retry 3 --retry-delay 2 "$API/health" -o /tmp/health.json
+          cat /tmp/health.json
+          jq -e '.status == "ok" and .service == "medical-calendar-api"' /tmp/health.json
+
+          echo "== Current-offer catalog + CORS =="
+          status=$(curl -sS -o /tmp/catalog.json -D /tmp/catalog.headers -w '%{http_code}' \
+            -H "Origin: $ORIGIN" \
+            "$API/api/v2/catalog/kgmu/foreign/6/groups?academicYear=2025/26&semester=2")
+          test "$status" = "200"
+          cat /tmp/catalog.json
+          grep -iFx "access-control-allow-origin: $ORIGIN" <(tr -d '\r' < /tmp/catalog.headers)
+          jq -e '.university == "kgmu" and .program == "foreign" and .course == 6 and .academicYear == "2026/27" and .semester == 1 and (.groups | type == "array")' /tmp/catalog.json
+
+          echo "== Payment fail-closed guard =="
+          payment_status=$(curl -sS -o /tmp/payment.json -w '%{http_code}' \
+            -X POST "$API/api/v2/payments" \
+            -H 'Content-Type: application/json' \
+            -H "Origin: $ORIGIN" \
+            --data '{"university":"kgmu","program":"foreign","course":6,"groupCode":"999и","groupId":"kgmu:foreign:6:999и","email":"preflight@example.com","plan":"semester"}')
+          cat /tmp/payment.json
+          test "$payment_status" = "400"
+          jq -e '.error == "offer_not_found"' /tmp/payment.json
+
+          echo "KGMU production preflight PASS"
