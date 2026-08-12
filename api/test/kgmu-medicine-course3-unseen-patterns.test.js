@@ -137,3 +137,26 @@ test("R-MED3 keeps count-only extra lessons fail-closed when their dates are abs
     failure.group === "311" && Number(failure.count) === 2 && failure.actual === 0
   ));
 });
+
+test("R-MED3 keeps new unconfirmed explicit overlaps fail-closed", () => {
+  const workbook = workbookWithRows([
+    cell("A4", 4, 1, "ПН"),
+    cell("B4", 4, 2, "8.00-10.00 Фармакология 02.02"),
+    cell("C4", 4, 3, "8.00-9.00 Фармакология 02.02"),
+    cell("A5", 5, 1, "ПН"),
+    cell("B5", 5, 2, "9.00-11.00 Общая хирургия 02.02"),
+    cell("C5", 5, 3, "10.00-11.00 Фармакология 02.02"),
+  ], 6);
+
+  const result = parseMedicineCourse3RWorkbookReviewed(workbook, {
+    university: "kgmu",
+    program: "medicine",
+    course: 3,
+    academicYear: "2025/26",
+    semester: 2,
+  });
+
+  assert.equal(result.qa.status, "REVIEW_REQUIRED");
+  assert.ok((result.qa.remainingOverlaps || []).length > 0);
+  assert.equal((result.qa.confirmedOverlaps || []).length, 0);
+});
