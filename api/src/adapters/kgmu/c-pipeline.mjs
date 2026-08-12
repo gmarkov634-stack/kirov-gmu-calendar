@@ -1,5 +1,5 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
-import { isForeignCycleWorkbook, parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
+import { parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -10,11 +10,16 @@ function contextComplete(metadata, period) {
   );
 }
 
+function isForeignCycleProfile(metadata, classification) {
+  const groups = classification?.features?.groupCodes || [];
+  return metadata?.program === "foreign" && Number(metadata?.course) === 4 && groups.some((code) => /^4\d{2}и$/i.test(String(code)));
+}
+
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const foreignCycle = isForeignCycleWorkbook(workbook);
-  const parser = foreignCycle ? parseKgmuForeignCycleWorkbook : parseKgmuCycleWorkbook;
-  const parsed = parser(workbook, {
-    program: metadata.program || (foreignCycle ? "foreign" : "medicine"),
+  const foreignCycle = isForeignCycleProfile(metadata, classification);
+  const parse = foreignCycle ? parseKgmuForeignCycleWorkbook : parseKgmuCycleWorkbook;
+  const parsed = parse(workbook, {
+    program: metadata.program || "medicine",
     course: metadata.course || 4,
     academicYear: period.academicYear || metadata.academicYear || null,
     semester: period.semester || metadata.semester || 2,
