@@ -5,8 +5,7 @@ import { parseKgmuForeignCourse5Workbook } from "../src/adapters/kgmu/foreign-c-
 import { stageCWorkbook } from "../src/adapters/kgmu/c-pipeline.mjs";
 
 // Structural regression distilled from the verified official 501и–506и C-FIO source.
-// The full official-source golden QA is checked by the live verification used during parser review;
-// this fixture stays self-contained so routine API tests do not depend on KGMU network availability.
+// Routine API tests stay self-contained and do not depend on KGMU network availability.
 function letters(n) {
   let value = "";
   while (n > 0) {
