@@ -7,6 +7,7 @@ on:
     paths:
       - "reviewed/kgmu/recipes/*.py"
       - "reviewed/kgmu/recipes/**/*.py"
+      - "reviewed/kgmu/recipes/**/*.txt"
   workflow_dispatch:
 
 permissions:
