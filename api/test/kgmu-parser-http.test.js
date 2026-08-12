@@ -52,6 +52,44 @@ test("parser admin CORS preflight is allowed before admin authentication", () =>
   },
 ));
 
+test("KGMU dry run is admin-only and forwards XLSX metadata without ingest side effects", () => withServer(
+  handler({
+    dryRun: async (buffer, metadata) => ({
+      dryRun: true,
+      bytes: buffer.length,
+      metadata,
+      status: "READY_TO_PUBLISH",
+      publicationBlocked: true,
+    }),
+  }),
+  async (base) => {
+    const url = `${base}/api/v1/admin/kgmu/dry-run?filename=test.xlsx&program=pediatrics&course=1&academicYear=2025%2F26&semester=2`;
+    const forbidden = await fetch(url, { method: "POST", body: Buffer.from("PK") });
+    assert.equal(forbidden.status, 403);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "x-admin-token": adminToken, Origin: allowedOrigin },
+      body: Buffer.from("PK-test"),
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("access-control-allow-origin"), allowedOrigin);
+    assert.deepEqual(await response.json(), {
+      dryRun: true,
+      bytes: 7,
+      metadata: {
+        filename: "test.xlsx",
+        program: "pediatrics",
+        course: "1",
+        academicYear: "2025/26",
+        semester: "2",
+      },
+      status: "READY_TO_PUBLISH",
+      publicationBlocked: true,
+    });
+  },
+));
+
 test("Email admin test endpoint uses the configured parser notifier", () => withServer(
   handler(
     { publishReview: async () => ({}) },
