@@ -29,6 +29,18 @@ function parserFor(type) {
   return null;
 }
 
+function dryRunSummary(staged) {
+  const schedules = Array.isArray(staged?.schedules) ? staged.schedules : [];
+  const groups = [...new Set(schedules.map((schedule) => schedule?.group?.code).filter(Boolean))];
+  return {
+    qa: staged?.qa || null,
+    contextComplete: Boolean(staged?.contextComplete),
+    scheduleCount: schedules.length,
+    eventCount: schedules.reduce((sum, schedule) => sum + (Array.isArray(schedule?.events) ? schedule.events.length : 0), 0),
+    groups,
+  };
+}
+
 export class KgmuIngestServiceV2 {
   constructor({ queue, notifier, config, scheduleStore }) {
     this.queue = queue;
@@ -97,6 +109,81 @@ export class KgmuIngestServiceV2 {
       publishedAt: new Date().toISOString(),
       published,
     });
+  }
+
+  async dryRun(buffer, input = {}) {
+    const sourceSha256 = sha256(buffer);
+    const meta = metadata(input);
+    const workbook = await readKgmuXlsxStructure(buffer, {
+      maxBytes: Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024),
+    });
+    const classification = classifyKgmuWorkbook(workbook);
+    const derivedPeriod = deriveKgmuPeriod(workbook);
+    const mismatches = periodMismatches(meta, derivedPeriod);
+    const base = {
+      dryRun: true,
+      sourceSha256,
+      metadata: meta,
+      classification,
+      derivedPeriod,
+      publicationBlocked: true,
+    };
+
+    if (mismatches.length) {
+      return {
+        ...base,
+        status: "REVIEW_REQUIRED",
+        reason: "PERIOD_MISMATCH",
+        periodMismatches: mismatches,
+      };
+    }
+
+    const parser = parserFor(classification.type);
+    if (!parser) {
+      return {
+        ...base,
+        status: "REVIEW_REQUIRED",
+        reason: classification.type === "UNKNOWN" ? "UNKNOWN_PATTERN" : `PARSER_${classification.type}_NOT_ENABLED`,
+      };
+    }
+
+    let staged;
+    try {
+      staged = await parser.stage({
+        workbook,
+        queue: { storeNormalized: async () => null },
+        sourceSha256,
+        sourceKey: null,
+        metadata: meta,
+        period: derivedPeriod,
+        classification,
+      });
+    } catch (error) {
+      return {
+        ...base,
+        status: "REVIEW_REQUIRED",
+        reason: `PARSER_${classification.type}_FAILED`,
+        parserType: classification.type,
+        parserError: {
+          code: error?.code || `KGMU_${classification.type}_FAILED`,
+          message: String(error?.message || error).slice(0, 500),
+        },
+      };
+    }
+
+    const summary = dryRunSummary(staged);
+    const passed = staged.qa.status === "PASS" && staged.contextComplete;
+    return {
+      ...base,
+      ...summary,
+      parserType: classification.type,
+      status: passed ? "READY_TO_PUBLISH" : "REVIEW_REQUIRED",
+      reason: passed
+        ? "QA_PASS_AWAITING_PUBLISH"
+        : staged.qa.status !== "PASS"
+          ? `PARSER_${classification.type}_QA_FAILED`
+          : "MISSING_PUBLICATION_CONTEXT",
+    };
   }
 
   async ingest(buffer, input = {}) {
