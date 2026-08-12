@@ -72,3 +72,5 @@ jobs:
             exit 1
           fi
           echo "KGMU production preflight PASS"
+
+# rerun after exact immutable image revision
