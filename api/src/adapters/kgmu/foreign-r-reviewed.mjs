@@ -76,6 +76,62 @@ function augmentEmbeddedExtraLessonQa(parsed, workbook) {
   return parsed;
 }
 
+function sourceRange(sheet, cell) {
+  const merge = (sheet.merges || []).find((item) => (
+    item.startRow <= cell.row && cell.row <= item.endRow &&
+    item.startCol <= cell.col && cell.col <= item.endCol
+  ));
+  return merge?.ref || cell.ref;
+}
+
+function detectAmbiguousLectureTimeCounts(workbook) {
+  const issues = [];
+  for (const sheet of workbook?.sheets || []) {
+    for (const cell of sheet.cells || []) {
+      const text = String(cell.value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      for (const match of text.matchAll(/\((\d+)\s+лекци(?:я|и|й)\s+(\d{1,2})[.:](\d{2})\s*\)/gi)) {
+        issues.push({
+          source: sourceRange(sheet, cell),
+          sourceCell: cell.ref,
+          count: Number(match[1]),
+          time: `${String(Number(match[2])).padStart(2, "0")}:${match[3]}`,
+          raw: match[0],
+          reason: "lecture-time-count-without-dates",
+          text,
+        });
+      }
+    }
+  }
+  return issues;
+}
+
+function detectChoiceDisciplineAmbiguities(workbook) {
+  const issues = [];
+  for (const sheet of workbook?.sheets || []) {
+    for (const cell of sheet.cells || []) {
+      const text = String(cell.value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      if (!text) continue;
+      const departmentMentions = (text.match(/\(каф\.[^)]*\)/gi) || []).length;
+      let reason = null;
+      if (/дисциплина\s+по\s+выбору/i.test(text) && departmentMentions >= 2) {
+        reason = "choice-lecture-variants-not-separated";
+      } else if (departmentMentions >= 2 && /пр\.\s*занят/i.test(text)) {
+        reason = "choice-practical-variants-not-separated";
+      }
+      if (reason) {
+        issues.push({
+          source: sourceRange(sheet, cell),
+          sourceCell: cell.ref,
+          reason,
+          departmentMentions,
+          text,
+        });
+      }
+    }
+  }
+  return issues;
+}
+
 function classifySourceConflicts(parsed) {
   const events = eventIndex(parsed);
   const allowed = [];
@@ -102,12 +158,14 @@ function classifySourceConflicts(parsed) {
   return { allowed, blocking };
 }
 
-function refreshReviewedQa(parsed) {
+function refreshReviewedQa(parsed, workbook) {
   const qa = parsed.qa || {};
   const conflicts = classifySourceConflicts(parsed);
   qa.allowedOverlaps = conflicts.allowed;
   qa.remainingOverlaps = conflicts.blocking;
   qa.sourcePeriodExceptions = qa.sourcePeriodExceptions || qa.outOfPeriodSources || [];
+  qa.ambiguousLectureTimeCounts = detectAmbiguousLectureTimeCounts(workbook);
+  qa.choiceDisciplineAmbiguities = detectChoiceDisciplineAmbiguities(workbook);
   delete qa.sourceConflicts;
   delete qa.outOfPeriodSources;
 
@@ -116,6 +174,8 @@ function refreshReviewedQa(parsed) {
     qa.uncovered?.length ||
     qa.extraLessonFailures?.length ||
     qa.remainingOverlaps?.length ||
+    qa.ambiguousLectureTimeCounts.length ||
+    qa.choiceDisciplineAmbiguities.length ||
     skippedSafetyFixups
   ) ? "REVIEW_REQUIRED" : "PASS";
   parsed.qa = qa;
@@ -130,5 +190,5 @@ function shouldUseGeneric(legacy) {
 export function parseForeignRWorkbookReviewed(workbook, options = {}) {
   const legacy = parseForeignRWorkbookSafe(workbook, options);
   const parsed = shouldUseGeneric(legacy) ? parseForeignRWorkbookGeneric(workbook, options) : legacy;
-  return refreshReviewedQa(augmentEmbeddedExtraLessonQa(parsed, workbook));
+  return refreshReviewedQa(augmentEmbeddedExtraLessonQa(parsed, workbook), workbook);
 }
