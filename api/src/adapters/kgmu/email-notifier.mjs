@@ -58,16 +58,13 @@ function headerSafe(value) {
   return String(value || "").replace(/[\r\n]+/g, " ").trim();
 }
 
-function encodedSubject(value) {
+function encodedHeader(value) {
   return `=?UTF-8?B?${Buffer.from(headerSafe(value), "utf8").toString("base64")}?=`;
 }
 
-function normalizeText(value) {
-  return String(value || "").replace(/\r?\n/g, "\r\n");
-}
-
-function dotStuff(value) {
-  return normalizeText(value).replace(/^\./gm, "..");
+function base64Body(value) {
+  const encoded = Buffer.from(String(value || "").replace(/\r?\n/g, "\r\n"), "utf8").toString("base64");
+  return encoded.match(/.{1,76}/g)?.join("\r\n") || "";
 }
 
 function readResponse(socket) {
@@ -157,16 +154,16 @@ export async function sendSmtpMail(config, message) {
     await command(socket, "DATA", [354]);
 
     const payload = [
-      `From: ${headerSafe(config.fromName || "Календарь КГМУ")} <${config.from}>`,
+      `From: ${encodedHeader(config.fromName || "Календарь КГМУ")} <${config.from}>`,
       `To: ${config.to}`,
-      `Subject: ${encodedSubject(message.subject)}`,
+      `Subject: ${encodedHeader(message.subject)}`,
       `Date: ${new Date().toUTCString()}`,
       `Message-ID: <${randomUUID()}@kgmu-calendar>`,
       "MIME-Version: 1.0",
       "Content-Type: text/plain; charset=UTF-8",
-      "Content-Transfer-Encoding: 8bit",
+      "Content-Transfer-Encoding: base64",
       "",
-      dotStuff(message.text),
+      base64Body(message.text),
     ].join("\r\n");
     socket.write(`${payload}\r\n.\r\n`);
     const sent = await readResponse(socket);
