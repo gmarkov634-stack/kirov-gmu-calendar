@@ -1,4 +1,5 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
+import { parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -9,8 +10,15 @@ function contextComplete(metadata, period) {
   );
 }
 
+function isForeignCycleProfile(metadata, classification) {
+  const groups = classification?.features?.groupCodes || [];
+  return metadata?.program === "foreign" && Number(metadata?.course) === 4 && groups.some((code) => /^4\d{2}и$/i.test(String(code)));
+}
+
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parsed = parseKgmuCycleWorkbook(workbook, {
+  const foreignCycle = isForeignCycleProfile(metadata, classification);
+  const parse = foreignCycle ? parseKgmuForeignCycleWorkbook : parseKgmuCycleWorkbook;
+  const parsed = parse(workbook, {
     program: metadata.program || "medicine",
     course: metadata.course || 4,
     academicYear: period.academicYear || metadata.academicYear || null,
@@ -19,19 +27,21 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
   });
 
   const qa = {
-    status: parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED",
+    status: parsed.qa?.status || (parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED"),
     ...parsed.qa,
   };
+  const parserProfile = parsed.profile || (foreignCycle ? "C-FIO" : "C");
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
     sources: [{ type: "xlsx", filename: metadata.filename, sha256: sourceSha256 }],
-    parser: { type: "C", sourceSha256, qaStatus: qa.status },
+    parser: { type: "C", profile: parserProfile, sourceSha256, qaStatus: qa.status },
   }));
 
   const normalizedKey = await queue.storeNormalized(sourceSha256, {
     version: 1,
     university: "kgmu",
     parserType: "C",
+    parserProfile,
     sourceSha256,
     sourceKey,
     metadata,
@@ -45,6 +55,7 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
     qa,
     schedules,
     normalizedKey,
+    parserProfile,
     contextComplete: contextComplete(metadata, period),
   };
 }

@@ -62,8 +62,18 @@ function cellValue(attributes, body, strings) {
   return decoded;
 }
 
-export function parseWorksheetXml(xml, strings, name) {
+export function parseStylesXml(xml) {
+  const source = String(xml || "");
+  const cellXfsBody = source.match(/<cellXfs\b[^>]*>([\s\S]*?)<\/cellXfs>/)?.[1] || "";
+  return [...cellXfsBody.matchAll(/<xf\b([^>]*?)(?:\/>|>[\s\S]*?<\/xf>)/g)].map((match, styleId) => ({
+    styleId,
+    fillId: Number(attr(match[1], "fillId") || 0),
+  }));
+}
+
+export function parseWorksheetXml(xml, strings, name, styles = []) {
   const cells = [];
+  const styledCells = [];
   // XLSX contains many empty self-closing cells (<c .../>). Matching only
   // <c>...</c> can start at an empty cell and consume the next closing tag,
   // shifting every subsequent value. This expression treats both forms as
@@ -73,6 +83,12 @@ export function parseWorksheetXml(xml, strings, name) {
     const parts = refParts(ref);
     if (!parts) continue;
     const value = cellValue(match[1], match[2] || "", strings);
+    const rawStyleId = attr(match[1], "s");
+    const styleId = rawStyleId == null ? null : Number(rawStyleId);
+    const style = Number.isInteger(styleId) ? styles[styleId] : null;
+    if (Number.isInteger(styleId) && styleId > 0 && Number(style?.fillId || 0) > 0) {
+      styledCells.push({ ...parts, value, styleId, fillId: Number(style.fillId) });
+    }
     if (value === "" || value == null) continue;
     cells.push({ ...parts, value });
   }
@@ -91,7 +107,7 @@ export function parseWorksheetXml(xml, strings, name) {
       endCol: end.col,
     });
   }
-  return { name, cells, merges };
+  return { name, cells, merges, styledCells };
 }
 
 async function unzipText(filename, entry, { maxBuffer = 32 * 1024 * 1024 } = {}) {
@@ -156,6 +172,7 @@ export async function readKgmuXlsxStructure(buffer, { maxBytes = 25 * 1024 * 102
       throw error;
     }
     const strings = sharedStrings(await unzipText(filename, "xl/sharedStrings.xml"));
+    const styles = parseStylesXml(await unzipText(filename, "xl/styles.xml"));
     const rels = workbookRelationships(relsXml);
     const sheets = [];
     for (const sheet of workbookSheetRefs(workbookXml)) {
@@ -163,7 +180,7 @@ export async function readKgmuXlsxStructure(buffer, { maxBytes = 25 * 1024 * 102
       if (!target) continue;
       const xml = await unzipText(filename, sheetEntry(target));
       if (!xml) continue;
-      sheets.push(parseWorksheetXml(xml, strings, sheet.name));
+      sheets.push(parseWorksheetXml(xml, strings, sheet.name, styles));
     }
     if (!sheets.length) {
       const error = new Error("XLSX has no readable worksheets");

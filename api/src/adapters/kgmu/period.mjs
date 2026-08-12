@@ -29,8 +29,8 @@ export function deriveKgmuPeriod(workbook) {
 
   const lower = text.toLowerCase();
   let semester = null;
-  if (/перв(?:ое|ый)\s+(?:полугодие|семестр)/i.test(lower)) semester = 1;
-  if (/втор(?:ое|ой)\s+(?:полугодие|семестр)/i.test(lower)) semester = 2;
+  if (/перв(?:ое|ый)\s+(?:полугодие|семестр)/i.test(lower) || /\b(?:1st|first)\s+(?:semester|term)\b/i.test(lower)) semester = 1;
+  if (/втор(?:ое|ой)\s+(?:полугодие|семестр)/i.test(lower) || /\b(?:2nd|second)\s+(?:semester|term)\b/i.test(lower)) semester = 2;
 
   return { academicYear, semester };
 }

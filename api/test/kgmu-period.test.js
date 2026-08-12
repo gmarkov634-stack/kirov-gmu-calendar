@@ -16,6 +16,11 @@ test("derives first semester wording", () => {
   assert.deepEqual(result, { academicYear: "2026/27", semester: 1 });
 });
 
+test("derives English ordinal semester wording", () => {
+  const result = deriveKgmuPeriod(workbook("2ND SEMESTER OF 2025-2026 ACADEMIC YEAR"));
+  assert.deepEqual(result, { academicYear: "2025/26", semester: 2 });
+});
+
 test("blocks ingest metadata that disagrees with source period", () => {
   const mismatches = periodMismatches(
     { academicYear: "2026/27", semester: 1 },
