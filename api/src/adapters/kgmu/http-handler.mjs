@@ -78,7 +78,18 @@ function xlsxError(response, error, fallback) {
   return send(response, 503, { error: fallback });
 }
 
-export function createKgmuParserHandler({ service, queue, watcher, notifier, config }) {
+function reviewedError(response, error) {
+  const code = String(error?.code || "REVIEWED_BUNDLE_INVALID");
+  const body = { error: code.toLowerCase(), message: String(error?.message || error).slice(0, 500) };
+  if (error?.details) body.details = error.details;
+  if (code === "request_too_large") return send(response, 413, body);
+  if (["REVIEWED_SOURCE_SHA_MISMATCH", "REVIEWED_BUNDLE_GROUPS_INVALID", "REVIEWED_BUNDLE_PERIOD_INVALID", "REVIEWED_BUNDLE_DUPLICATE_EVENT"].includes(code)) return send(response, 409, body);
+  if (["REVIEWED_SOURCE_UNAVAILABLE", "REVIEWED_SOURCE_TOO_LARGE"].includes(code)) return send(response, 503, body);
+  if (code === "ATOMIC_PUBLICATION_UNAVAILABLE") return send(response, 503, body);
+  return send(response, 400, body);
+}
+
+export function createKgmuParserHandler({ service, reviewedService, queue, watcher, notifier, config }) {
   return async function kgmuParserHandler(request, response) {
     applyCors(request, response, config);
     if (request.method === "OPTIONS") return sendEmpty(response);
@@ -86,7 +97,29 @@ export function createKgmuParserHandler({ service, queue, watcher, notifier, con
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
     const url = new URL(request.url, "http://localhost");
 
+    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/reviewed-bundle") {
+      if (typeof reviewedService?.submit !== "function") return send(response, 503, { error: "reviewed_bundle_unavailable" });
+      try {
+        const buffer = await readBuffer(request, 20 * 1024 * 1024);
+        let bundle;
+        try {
+          bundle = JSON.parse(buffer.toString("utf8"));
+        } catch {
+          const error = new Error("Request body is not valid JSON");
+          error.code = "REVIEWED_BUNDLE_INVALID";
+          throw error;
+        }
+        const publish = url.searchParams.get("publish") === "true";
+        const result = await reviewedService.submit(bundle, { publish });
+        return send(response, publish ? 200 : 202, result);
+      } catch (error) {
+        console.error("KGMU reviewed bundle failed", error);
+        return reviewedError(response, error);
+      }
+    }
+
     if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/dry-run") {
+      if (config.kgmuXlsxParserEnabled === false) return send(response, 410, { error: "xlsx_parser_retired", normalization: "reviewed_json" });
       if (typeof service?.dryRun !== "function") return send(response, 503, { error: "kgmu_dry_run_unavailable" });
       try {
         const limit = Number(config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
@@ -99,6 +132,7 @@ export function createKgmuParserHandler({ service, queue, watcher, notifier, con
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/ingest") {
+      if (config.kgmuXlsxParserEnabled === false) return send(response, 410, { error: "xlsx_parser_retired", normalization: "reviewed_json" });
       try {
         const limit = Number(config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
         const buffer = await readBuffer(request, limit);
@@ -135,8 +169,10 @@ export function createKgmuParserHandler({ service, queue, watcher, notifier, con
     const publishMatch = url.pathname.match(/^\/api\/v1\/admin\/parser-reviews\/([a-f0-9-]{36})\/publish$/);
     if (request.method === "POST" && publishMatch) {
       try {
-        const review = await service.publishReview(publishMatch[1]);
-        if (!review) return send(response, 404, { error: "parser_review_not_found" });
+        const current = await queue.getReview(publishMatch[1]);
+        if (!current) return send(response, 404, { error: "parser_review_not_found" });
+        const publisher = current.parserType === "REVIEWED_JSON" ? reviewedService : service;
+        const review = await publisher.publishReview(publishMatch[1]);
         return send(response, 200, review);
       } catch (error) {
         if (["REVIEW_NOT_PUBLISHABLE", "NORMALIZED_RESULT_INVALID"].includes(error.code)) {
