@@ -1,0 +1,37 @@
+name: KGMU live API probe
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/kgmu-live-api-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe production KGMU API
+        run: |
+          set -euo pipefail
+          API="https://kgmu-calendar-api.containerapps.ru"
+          echo "HEALTH"
+          curl --fail --silent --show-error --max-time 20 "$API/health"
+          echo
+          echo "CATALOG"
+          status="$(curl --silent --show-error --max-time 20 -o /tmp/catalog.json -w '%{http_code}' "$API/api/v2/catalog/kgmu/foreign/6/groups")"
+          echo "HTTP_STATUS=$status"
+          cat /tmp/catalog.json
+          echo
+          if [ "$status" != "200" ]; then
+            echo "Catalog endpoint is not live" >&2
+            exit 2
+          fi
+          node - <<'NODE'
+          const fs = require('fs');
+          const body = JSON.parse(fs.readFileSync('/tmp/catalog.json', 'utf8'));
+          console.log(`OFFER=${body.academicYear}|${body.semester}`);
+          console.log(`GROUP_COUNT=${Array.isArray(body.groups) ? body.groups.length : 'invalid'}`);
+          if (!Array.isArray(body.groups)) process.exit(3);
+          NODE
