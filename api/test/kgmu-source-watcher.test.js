@@ -216,3 +216,74 @@ test("watcher can monitor both semesters of one academic year without changing s
   assert.deepEqual(calls.map((item) => item.semester).sort(), [1, 2]);
   assert.equal(config.offerSemester, 1);
 });
+
+test("watcher retries a failed review notification without creating a duplicate review", async () => {
+  const pages = {
+    medicine: "https://test.invalid/medicine",
+    pediatrics: "https://test.invalid/pediatrics",
+    dentistry: "https://test.invalid/dentistry",
+    foreign: "https://test.invalid/foreign",
+  };
+  const xlsxUrl = "https://test.invalid/files/new-pattern.xlsx";
+  const medicineHtml = `<a href="${xlsxUrl}">101-110 (первое полугодие 2026-2027 уч. г.)</a>`;
+  const fetchFn = async (url) => {
+    if (url === pages.medicine) return new Response(medicineHtml, { status: 200 });
+    if ([pages.pediatrics, pages.dentistry, pages.foreign].includes(url)) return new Response("<html></html>", { status: 200 });
+    if (url === xlsxUrl) return new Response(Buffer.from("PK-unknown-pattern"), { status: 200 });
+    throw new Error(`unexpected url ${url}`);
+  };
+  let state = { version: 1, university: "kgmu", slots: {} };
+  const stateStore = {
+    read: async () => structuredClone(state),
+    write: async (value) => { state = structuredClone(value); return state; },
+  };
+  let ingestCalls = 0;
+  let retryCalls = 0;
+  const ingestService = {
+    ingest: async () => {
+      ingestCalls += 1;
+      return {
+        status: "REVIEW_REQUIRED",
+        reviewId: "11111111-1111-1111-1111-111111111111",
+        classification: { type: "UNKNOWN" },
+        notification: { sent: false, reason: "TELEGRAM_NOTIFY_FAILED" },
+      };
+    },
+    retryNotification: async (reviewId) => {
+      retryCalls += 1;
+      assert.equal(reviewId, "11111111-1111-1111-1111-111111111111");
+      return { sent: true };
+    },
+  };
+  const watcher = new KgmuSourceWatcher({
+    config: {
+      offerAcademicYear: "2026/27",
+      kgmuWatchSemesters: [1],
+      kgmuMedicineSchedulePage: pages.medicine,
+      kgmuPediatricsSchedulePage: pages.pediatrics,
+      kgmuDentistrySchedulePage: pages.dentistry,
+      kgmuForeignSchedulePage: pages.foreign,
+      kgmuParserRevision: "retry-test",
+    },
+    ingestService,
+    stateStore,
+    fetchFn,
+  });
+
+  const first = await watcher.run();
+  assert.equal(ingestCalls, 1);
+  assert.equal(retryCalls, 0);
+  assert.equal(first.pendingNotificationCount, 1);
+
+  const second = await watcher.run();
+  assert.equal(ingestCalls, 1);
+  assert.equal(retryCalls, 1);
+  assert.equal(second.notificationRetryCount, 1);
+  assert.equal(second.pendingNotificationCount, 0);
+
+  const third = await watcher.run();
+  assert.equal(ingestCalls, 1);
+  assert.equal(retryCalls, 1);
+  assert.equal(third.notificationRetryCount, 0);
+  assert.equal(third.pendingNotificationCount, 0);
+});
