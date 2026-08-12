@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Предпросмотр подписки КГМУ</title>
+  <style>
+    :root { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#10233f; background:#f5f8fc; }
+    body { margin:0; padding:24px; }
+    .card { max-width:720px; margin:0 auto; background:#fff; border:1px solid #dbe5f1; border-radius:18px; padding:24px; box-shadow:0 12px 32px rgba(30,64,110,.08); }
+    h1 { margin:0 0 8px; font-size:26px; }
+    p { color:#51657e; line-height:1.45; }
+    label { display:block; margin:14px 0 6px; font-weight:600; }
+    input,select,button { width:100%; box-sizing:border-box; border-radius:11px; border:1px solid #cbd8e8; padding:12px 14px; font:inherit; background:#fff; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    button { margin-top:18px; background:#1769e0; color:#fff; border:none; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.55; cursor:wait; }
+    .result { display:none; margin-top:20px; padding:16px; background:#f2f7ff; border-radius:12px; overflow-wrap:anywhere; }
+    .result a { color:#0c59c7; font-weight:700; }
+    .error { color:#a32020; margin-top:14px; white-space:pre-wrap; }
+    small { color:#6d7f94; }
+    @media (max-width:600px){ .grid{grid-template-columns:1fr;} body{padding:12px;} .card{padding:18px;} }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Предпросмотр продаваемой подписки</h1>
+    <p>Создаёт временную персональную ссылку <code>calendar.ics</code> на уже опубликованное расписание. Это тот же формат, который получает покупатель после успешной оплаты, но без создания заказа и платежа.</p>
+
+    <label for="token">ADMIN_TOKEN</label>
+    <input id="token" type="password" autocomplete="off" placeholder="Вставьте токен из Cloud.ru">
+    <small>Токен отправляется только API КГМУ и не сохраняется на странице.</small>
+
+    <div class="grid">
+      <div>
+        <label for="program">Факультет</label>
+        <select id="program">
+          <option value="pediatrics" selected>Педиатрия</option>
+          <option value="medicine">Лечебное дело</option>
+          <option value="dentistry">Стоматология</option>
+          <option value="foreign">Иностранные обучающиеся</option>
+        </select>
+      </div>
+      <div>
+        <label for="course">Курс</label>
+        <input id="course" type="number" min="1" max="6" value="2">
+      </div>
+      <div>
+        <label for="group">Группа</label>
+        <input id="group" value="231">
+      </div>
+      <div>
+        <label for="year">Учебный год</label>
+        <input id="year" value="2025/26">
+      </div>
+      <div>
+        <label for="semester">Семестр</label>
+        <select id="semester"><option value="1">1</option><option value="2" selected>2</option></select>
+      </div>
+      <div>
+        <label for="days">Срок preview, дней</label>
+        <input id="days" type="number" min="1" max="30" value="7">
+      </div>
+    </div>
+
+    <button id="create">Создать ссылку подписки</button>
+    <div id="error" class="error"></div>
+    <div id="result" class="result">
+      <div><strong>Ссылка подписки:</strong></div>
+      <p><a id="httpsLink" href="#"></a></p>
+      <p><a id="webcalLink" href="#">Открыть как webcal:// подписку</a></p>
+      <small id="expiry"></small>
+    </div>
+  </main>
+<script>
+const API='https://kgmu-calendar-api.containerapps.ru';
+const $=id=>document.getElementById(id);
+$('create').addEventListener('click', async()=>{
+  const button=$('create'); const error=$('error'); const result=$('result');
+  error.textContent=''; result.style.display='none';
+  const token=$('token').value.trim();
+  if(!token){ error.textContent='Введите ADMIN_TOKEN.'; return; }
+  button.disabled=true;
+  try{
+    const response=await fetch(`${API}/api/v1/admin/subscriptions/preview`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      body:JSON.stringify({
+        university:'kgmu', program:$('program').value, course:Number($('course').value),
+        groupCode:$('group').value.trim(), academicYear:$('year').value.trim(),
+        semester:Number($('semester').value), days:Number($('days').value)
+      })
+    });
+    const body=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+    const url=body.subscriptionUrl;
+    $('httpsLink').href=url; $('httpsLink').textContent=url;
+    $('webcalLink').href=url.replace(/^https:/,'webcal:');
+    $('expiry').textContent=`Preview действует до ${new Date(body.expiresAt).toLocaleString('ru-RU')}.`;
+    result.style.display='block';
+  }catch(e){ error.textContent=`Не удалось создать ссылку: ${e.message}`; }
+  finally{ button.disabled=false; }
+});
+</script>
+</body>
+</html>
