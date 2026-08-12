@@ -17,7 +17,7 @@ function loadFixture() {
   return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
-test("R-PED parser safely covers pediatrics course 1 weekly source with inline exceptions", () => {
+test("R-PED parser covers pediatrics course 1 source and fails closed on the official 05.06 overlap", () => {
   const workbook = loadFixture();
   const classification = classifyKgmuWorkbook(workbook);
   assert.equal(classification.type, "R");
@@ -30,10 +30,15 @@ test("R-PED parser safely covers pediatrics course 1 weekly source with inline e
     semester: 2,
   });
 
-  assert.equal(result.qa.status, "PASS", JSON.stringify(result.qa, null, 2));
+  assert.equal(result.qa.status, "REVIEW_REQUIRED", JSON.stringify(result.qa, null, 2));
   assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.extraLessonFailures.length, 0);
-  assert.equal(result.qa.remainingOverlaps.length, 0);
+  assert.equal(result.qa.remainingOverlaps.length, 1);
+  assert.equal(result.qa.remainingOverlaps[0].group, "132");
+  assert.equal(result.qa.remainingOverlaps[0].start1, "2026-06-05T10:55:00+03:00");
+  assert.equal(result.qa.remainingOverlaps[0].end1, "2026-06-05T13:20:00+03:00");
+  assert.equal(result.qa.remainingOverlaps[0].start2, "2026-06-05T11:00:00+03:00");
+  assert.equal(result.qa.remainingOverlaps[0].end2, "2026-06-05T12:30:00+03:00");
   assert.equal(result.schedules.length, 9);
 
   const events = result.schedules.flatMap((schedule) => schedule.events);
