@@ -9,6 +9,12 @@ on:
       - "reviewed/kgmu/**/*.json"
       - "api/tools/validate-reviewed-kgmu.mjs"
       - "api/src/adapters/kgmu/reviewed-bundle.mjs"
+      - ".github/workflows/publish-reviewed-kgmu.yml"
+  workflow_run:
+    workflows:
+      - "Materialize reviewed KGMU bundle"
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       bundle_path:
@@ -28,30 +34,66 @@ env:
 
 jobs:
   validate-and-publish:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          ref: main
+          fetch-depth: 30
 
       - name: Resolve bundle files
         id: files
         shell: bash
         run: |
           set -euo pipefail
+          : > /tmp/kgmu-reviewed-files.txt
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             printf '%s\n' "${{ inputs.bundle_path }}" > /tmp/kgmu-reviewed-files.txt
+
+          elif [ "${{ github.event_name }}" = "workflow_run" ]; then
+            trigger_sha="${{ github.event.workflow_run.head_sha }}"
+            materialized_commit=""
+            while IFS= read -r commit; do
+              parent="$(git rev-parse "${commit}^" 2>/dev/null || true)"
+              if [ "$parent" = "$trigger_sha" ]; then
+                materialized_commit="$commit"
+                break
+              fi
+            done < <(git log --format='%H' --grep='^Materialize reviewed KGMU bundle$' -n 30 main)
+
+            if [ -z "$materialized_commit" ]; then
+              echo "No materialized JSON commit found for workflow head $trigger_sha."
+            else
+              git diff --name-only "${materialized_commit}^" "$materialized_commit" -- reviewed/kgmu \
+                | grep -E '^reviewed/kgmu/.+\.json$' \
+                | while IFS= read -r file; do [ -f "$file" ] && printf '%s\n' "$file"; done \
+                > /tmp/kgmu-reviewed-files.txt || true
+            fi
+
           else
-            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- reviewed/kgmu \
+            before="${{ github.event.before }}"
+            after="${{ github.sha }}"
+            git diff --name-only "$before" "$after" -- reviewed/kgmu \
               | grep -E '^reviewed/kgmu/.+\.json$' \
               | while IFS= read -r file; do [ -f "$file" ] && printf '%s\n' "$file"; done \
               > /tmp/kgmu-reviewed-files.txt || true
+
+            if [ ! -s /tmp/kgmu-reviewed-files.txt ]; then
+              changed="$(git diff --name-only "$before" "$after" || true)"
+              if printf '%s\n' "$changed" | grep -Eq '^(api/tools/validate-reviewed-kgmu\.mjs|api/src/adapters/kgmu/reviewed-bundle\.mjs|\.github/workflows/publish-reviewed-kgmu\.yml)$'; then
+                find reviewed/kgmu -type f -name '*.json' -print | sort > /tmp/kgmu-reviewed-files.txt
+              fi
+            fi
           fi
+
           if [ ! -s /tmp/kgmu-reviewed-files.txt ]; then
             echo "No reviewed JSON bundles to publish."
             echo "has_files=false" >> "$GITHUB_OUTPUT"
           else
+            sort -u -o /tmp/kgmu-reviewed-files.txt /tmp/kgmu-reviewed-files.txt
             cat /tmp/kgmu-reviewed-files.txt
             echo "has_files=true" >> "$GITHUB_OUTPUT"
           fi
