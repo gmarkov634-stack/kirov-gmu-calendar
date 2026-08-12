@@ -9,6 +9,7 @@ import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
 import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
+import { MaxReviewNotifier } from "./adapters/kgmu/max-notifier.mjs";
 import { TelegramReviewNotifier } from "./adapters/kgmu/telegram-notifier.mjs";
 import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
@@ -24,7 +25,9 @@ const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
 const parserReviewQueue = new ParserReviewQueue(config);
-const parserNotifier = new TelegramReviewNotifier(config);
+const maxNotifier = new MaxReviewNotifier(config);
+const telegramNotifier = new TelegramReviewNotifier(config);
+const parserNotifier = maxNotifier.enabled ? maxNotifier : telegramNotifier;
 const kgmuIngestService = new KgmuIngestServiceV2({
   queue: parserReviewQueue,
   notifier: parserNotifier,
@@ -43,6 +46,8 @@ const kgmuParserHandler = createKgmuParserHandler({
   queue: parserReviewQueue,
   watcher: kgmuWatcher,
   notifier: parserNotifier,
+  maxNotifier,
+  telegramNotifier,
   config,
 });
 
@@ -66,6 +71,8 @@ const server = http.createServer((request, response) => {
   if (
     url.pathname === "/api/v1/admin/kgmu/ingest" ||
     url.pathname === "/api/v1/admin/kgmu/watch" ||
+    url.pathname === "/api/v1/admin/kgmu/max-test" ||
+    url.pathname === "/api/v1/admin/kgmu/max-discover" ||
     url.pathname === "/api/v1/admin/kgmu/telegram-test" ||
     url.pathname.startsWith("/api/v1/admin/parser-reviews")
   ) {
@@ -93,6 +100,9 @@ async function runKgmuWatch(reason) {
 
 server.listen(config.port, "0.0.0.0", () => {
   console.log(`medical-calendar-api listening on :${config.port}`);
+  if (maxNotifier.enabled) console.log("KGMU parser notifications: MAX");
+  else if (telegramNotifier.enabled) console.log("KGMU parser notifications: Telegram fallback");
+  else console.log("KGMU parser notifications are not configured");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
     kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);
