@@ -35,7 +35,7 @@ function fixture() {
     if (d.getUTCDay() !== 0) dates.push(new Date(d));
   }
   assert.equal(dates.length, 14);
-  const monthBlocks = [[3,6],[7,10],[11,14],[15,16]];
+  const monthBlocks = [[3,5],[6,8],[9,11],[12,16]];
   for (const [start, end] of monthBlocks) {
     add(10, start, "Февраль");
     merge(10, start, 10, end);
