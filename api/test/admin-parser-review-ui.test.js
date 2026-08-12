@@ -15,6 +15,7 @@ test("admin parser review dashboard is wired to protected review endpoints", () 
   assert.match(js, /\/api\/v1\/admin\/parser-reviews\?limit=100/);
   assert.match(js, /\/parser-reviews\/\$\{review\.reviewId\}\/source/);
   assert.match(js, /\/parser-reviews\/\$\{review\.reviewId\}\/publish/);
+  assert.match(js, /\/api\/v1\/admin\/kgmu\/telegram-test/);
   assert.match(js, /review\.status === "READY_TO_PUBLISH"/);
   assert.match(js, /X-Admin-Token/);
   assert.doesNotThrow(() => new Function(js));
