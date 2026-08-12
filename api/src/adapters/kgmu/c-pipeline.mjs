@@ -1,6 +1,6 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
 import { parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
-import { parseKgmuForeignCourse5Workbook } from "./foreign-c-course5-parser.mjs";
+import { parseKgmuForeignCourse5Workbook } from "./foreign-c-course5-reviewed.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
