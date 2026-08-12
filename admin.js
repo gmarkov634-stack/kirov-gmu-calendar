@@ -9,6 +9,14 @@ const summary = document.querySelector("#admin-summary");
 const list = document.querySelector("#admin-list");
 const reviewSummary = document.querySelector("#review-summary");
 const reviewList = document.querySelector("#review-list");
+const dryRunForm = document.querySelector("#dry-run-form");
+const dryRunFile = document.querySelector("#dry-run-file");
+const dryRunProgram = document.querySelector("#dry-run-program");
+const dryRunCourse = document.querySelector("#dry-run-course");
+const dryRunYear = document.querySelector("#dry-run-year");
+const dryRunSemester = document.querySelector("#dry-run-semester");
+const dryRunSubmit = document.querySelector("#dry-run-submit");
+const dryRunResult = document.querySelector("#dry-run-result");
 
 const statusLabels = {
   REVIEW_REQUIRED: "Требуется разбор",
@@ -176,6 +184,82 @@ async function testEmail() {
   }
 }
 
+function renderDryRun(data) {
+  dryRunResult.className = `dry-run-result is-visible ${data.status === "READY_TO_PUBLISH" ? "is-ready" : "is-review"}`;
+  dryRunResult.replaceChildren();
+
+  const title = document.createElement("h3");
+  title.textContent = statusLabels[data.status] || data.status || "Результат проверки";
+  const meta = document.createElement("div");
+  meta.className = "review-meta";
+  appendMeta(meta, "Парсер", data.parserType || data.classification?.type || "UNKNOWN");
+  appendMeta(meta, "Причина", reasonLabels[data.reason] || data.reason || "—");
+  appendMeta(meta, "Период в XLSX", `${data.derivedPeriod?.academicYear || "не определён"}, семестр ${data.derivedPeriod?.semester || "не определён"}`);
+  appendMeta(meta, "QA", data.qa?.status || "—");
+  if (Array.isArray(data.groups) && data.groups.length) appendMeta(meta, "Группы", data.groups.join(", "));
+  if (data.scheduleCount != null) appendMeta(meta, "Групповых календарей", data.scheduleCount);
+  if (data.eventCount != null) appendMeta(meta, "Событий", data.eventCount);
+  if (Array.isArray(data.periodMismatches) && data.periodMismatches.length) {
+    const mismatch = data.periodMismatches.map((item) => `${item.field}: задано ${item.supplied ?? "—"}, в XLSX ${item.derived ?? "—"}`).join("; ");
+    appendMeta(meta, "Несовпадение", mismatch);
+  }
+
+  const details = document.createElement("details");
+  const summaryNode = document.createElement("summary");
+  summaryNode.textContent = "Технические детали dry-run";
+  const pre = document.createElement("pre");
+  pre.textContent = JSON.stringify(data, null, 2);
+  details.append(summaryNode, pre);
+  dryRunResult.append(title, meta, details);
+}
+
+async function runDryRun(event) {
+  event.preventDefault();
+  const file = dryRunFile.files?.[0];
+  if (!file) {
+    showMessage("Выберите XLSX для проверки.");
+    return;
+  }
+  if (!/\.xlsx$/i.test(file.name)) {
+    showMessage("Для dry-run нужен файл XLSX.");
+    return;
+  }
+
+  const query = new URLSearchParams({
+    filename: file.name,
+    program: dryRunProgram.value,
+    course: dryRunCourse.value,
+    academicYear: dryRunYear.value.trim(),
+    semester: dryRunSemester.value,
+  });
+  dryRunSubmit.disabled = true;
+  dryRunResult.className = "dry-run-result";
+  dryRunResult.replaceChildren();
+  showMessage("Проверяю XLSX без сохранения и публикации…");
+  try {
+    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/dry-run?${query}`, {
+      method: "POST",
+      headers: headers(),
+      body: file,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      if (response.status === 403) showMessage("Неверный ключ администратора.");
+      else if (data.error === "invalid_xlsx") showMessage("Файл не распознан как корректный XLSX.");
+      else if (data.error === "xlsx_too_large") showMessage("XLSX превышает допустимый размер.");
+      else showMessage("Dry-run не выполнен. Проверьте логи kgmu-calendar-api.");
+      return;
+    }
+    showMessage("Dry-run завершён. Ничего не опубликовано и письмо не отправлялось.");
+    renderDryRun(data);
+  } catch (error) {
+    console.error("KGMU dry run request failed", error);
+    showMessage("Не удалось связаться с API для dry-run.");
+  } finally {
+    dryRunSubmit.disabled = false;
+  }
+}
+
 function renderReview(review) {
   const card = document.createElement("article");
   const statusClass = review.status === "READY_TO_PUBLISH"
@@ -297,9 +381,14 @@ async function load() {
   dashboard.hidden = false;
 }
 
+const offer = window.CALENDAR_DATA.offer || {};
+dryRunYear.value = offer.academicYear || "2026/27";
+dryRunSemester.value = String(offer.semester || 1);
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   load();
 });
 refreshButton.addEventListener("click", load);
 emailTestButton.addEventListener("click", testEmail);
+dryRunForm.addEventListener("submit", runDryRun);
