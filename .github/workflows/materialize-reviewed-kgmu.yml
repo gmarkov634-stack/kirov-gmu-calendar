@@ -1,0 +1,70 @@
+name: Materialize reviewed KGMU bundle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "reviewed/kgmu/recipes/*.py"
+      - "reviewed/kgmu/recipes/**/*.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-reviewed-kgmu
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Materialize reviewed bundles
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' recipes < <(find reviewed/kgmu/recipes -type f -name '*.py' -print0 | sort -z)
+          if [ "${#recipes[@]}" -eq 0 ]; then
+            echo "No reviewed KGMU recipes found."
+            exit 0
+          fi
+          for recipe in "${recipes[@]}"; do
+            echo "Running $recipe"
+            python "$recipe"
+          done
+
+      - name: Validate materialized JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' bundles < <(find reviewed/kgmu -type f -name '*.json' -print0 | sort -z)
+          if [ "${#bundles[@]}" -eq 0 ]; then
+            echo "No materialized reviewed JSON bundles found."
+            exit 1
+          fi
+          node api/tools/validate-reviewed-kgmu.mjs "${bundles[@]}"
+
+      - name: Commit materialized JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add reviewed/kgmu
+          if git diff --cached --quiet; then
+            echo "Reviewed JSON is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Materialize reviewed KGMU bundle"
+          git push
