@@ -46,3 +46,12 @@ jobs:
           assert isinstance(body.get("groups"), list), body
           print(json.dumps(body, ensure_ascii=False))
           PY
+
+          admin_status="$(curl --silent --show-error --output /tmp/admin.json --write-out '%{http_code}' --request POST "$base/api/v1/admin/kgmu/watch")"
+          test "$admin_status" = "403"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/admin.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body == {"error": "admin_forbidden"}, body
+          PY
