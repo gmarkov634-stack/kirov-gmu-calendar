@@ -51,7 +51,7 @@ test("KGMU landing loads groups from the server-scoped current-offer catalog", a
 test("KGMU direction cards load one live current-offer program summary", async () => {
   const html = await text("index.html");
   const status = await text("program-status.js");
-  assert.match(html, /program-status\.js\?v=landing-1/);
+  assert.match(html, /program-status\.js\?v=landing-2/);
   assert.match(status, /\/api\/v2\/catalog\/\$\{university\}\/programs/);
   assert.match(status, /badge\.textContent\s*=\s*available\s*\?\s*"Доступно"\s*:\s*"Ожидаем расписание"/);
   assert.match(status, /normalizeAcademicYear\(body\.academicYear\)[\s\S]*normalizeAcademicYear\(data\.offer\.academicYear\)/);
