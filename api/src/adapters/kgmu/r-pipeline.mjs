@@ -1,5 +1,6 @@
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
 import { parseForeignRWorkbookReviewed } from "./foreign-r-reviewed.mjs";
+import { parsePediatricsRWorkbookReviewed } from "./pediatrics-r-reviewed.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -23,8 +24,21 @@ function canonicalizeSourceTrace(schedule) {
   };
 }
 
+function parserForProgram(program) {
+  if (program === "foreign") return parseForeignRWorkbookReviewed;
+  if (program === "pediatrics") return parsePediatricsRWorkbookReviewed;
+  return parseWeeklyRWorkbook;
+}
+
+function parserProfile(program) {
+  if (program === "foreign") return "R-FIO";
+  if (program === "pediatrics") return "R-PED";
+  return "R";
+}
+
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parse = metadata.program === "foreign" ? parseForeignRWorkbookReviewed : parseWeeklyRWorkbook;
+  const parse = parserForProgram(metadata.program);
+  const profile = parserProfile(metadata.program);
   const parsed = parse(workbook, {
     university: "kgmu",
     program: metadata.program || "medicine",
@@ -43,7 +57,7 @@ export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey,
     }],
     parser: {
       type: "R",
-      profile: metadata.program === "foreign" ? "R-FIO" : "R",
+      profile,
       sourceSha256,
       qaStatus: parsed.qa.status,
     },
@@ -53,7 +67,7 @@ export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey,
     version: 1,
     university: "kgmu",
     parserType: "R",
-    parserProfile: metadata.program === "foreign" ? "R-FIO" : "R",
+    parserProfile: profile,
     sourceSha256,
     sourceKey,
     metadata,
