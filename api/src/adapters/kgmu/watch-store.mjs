@@ -6,6 +6,25 @@ function missing(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
 }
 
+function normalizeSummary(summary) {
+  if (!summary || typeof summary !== "object") return null;
+  const expectedSemesters = Array.isArray(summary.expectedSemesters)
+    ? summary.expectedSemesters.map(Number).filter((value) => value === 1 || value === 2)
+    : [];
+  return {
+    status: summary.status === "PARTIAL" ? "PARTIAL" : "OK",
+    checkedAt: summary.checkedAt || null,
+    expectedAcademicYear: summary.expectedAcademicYear || null,
+    expectedSemesters,
+    parserRevision: summary.parserRevision || null,
+    discoveredCount: Math.max(0, Number(summary.discoveredCount) || 0),
+    targetCount: Math.max(0, Number(summary.targetCount) || 0),
+    ingestedCount: Math.max(0, Number(summary.ingestedCount) || 0),
+    unchangedCount: Math.max(0, Number(summary.unchangedCount) || 0),
+    errorCount: Math.max(0, Number(summary.errorCount) || 0),
+  };
+}
+
 export class KgmuWatchStore {
   constructor(config) {
     this.config = config;
@@ -67,6 +86,7 @@ export class KgmuWatchStore {
       university: "kgmu",
       updatedAt: state?.updatedAt || null,
       lastRunAt: state?.lastRunAt || null,
+      lastRunSummary: normalizeSummary(state?.lastRunSummary),
       slots: state?.slots && typeof state.slots === "object" ? state.slots : {},
     };
   }
