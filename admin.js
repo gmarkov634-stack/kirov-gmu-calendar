@@ -4,6 +4,7 @@ const tokenInput = document.querySelector("#admin-token");
 const message = document.querySelector("#admin-message");
 const dashboard = document.querySelector("#admin-dashboard");
 const refreshButton = document.querySelector("#admin-refresh");
+const telegramTestButton = document.querySelector("#telegram-test");
 const summary = document.querySelector("#admin-summary");
 const list = document.querySelector("#admin-list");
 const reviewSummary = document.querySelector("#review-summary");
@@ -148,6 +149,24 @@ async function publishReview(review) {
   await load();
 }
 
+async function testTelegram() {
+  telegramTestButton.disabled = true;
+  showMessage("Отправляю тестовое сообщение в Telegram…");
+  try {
+    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/telegram-test`, {
+      method: "POST",
+      headers: headers(),
+    });
+    if (!response.ok) {
+      showMessage("Тест Telegram не прошёл. Проверьте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_CHAT_ID.");
+      return;
+    }
+    showMessage("Тестовое сообщение отправлено в Telegram.");
+  } finally {
+    telegramTestButton.disabled = false;
+  }
+}
+
 function renderReview(review) {
   const card = document.createElement("article");
   const statusClass = review.status === "READY_TO_PUBLISH"
@@ -274,3 +293,4 @@ form.addEventListener("submit", (event) => {
   load();
 });
 refreshButton.addEventListener("click", load);
+telegramTestButton.addEventListener("click", testTelegram);
