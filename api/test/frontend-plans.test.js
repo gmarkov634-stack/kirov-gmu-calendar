@@ -47,6 +47,16 @@ test("KGMU landing loads groups from the server-scoped current-offer catalog", a
   assert.match(app, /Не удалось проверить опубликованные группы/);
 });
 
+test("KGMU landing and Pages artifact use the same production API base", async () => {
+  const data = await text("data.js");
+  const workflow = await text(".github/workflows/omgmu-pages.yml");
+  assert.match(data, /apiBase:\s*"https:\/\/kgmu-calendar-api\.containerapps\.ru"/);
+  assert.doesNotMatch(data, /student-calendar-api\.containerapps\.ru/);
+  assert.match(workflow, /DEFAULT_API_URL:\s*https:\/\/kgmu-calendar-api\.containerapps\.ru/);
+  assert.match(workflow, /path:\s*'dist\/site\/data\.js'/);
+  assert.match(workflow, /replacement:\s*`apiBase: "\$\{apiUrl\}"`/);
+});
+
 test("an existing year purchase prevents a narrower duplicate purchase", async () => {
   const saved = [{ orderId: "a".repeat(32), accessToken: "b".repeat(43) }];
   const existingYear = await findPurchasedOrder("132", saved, async () => ({
