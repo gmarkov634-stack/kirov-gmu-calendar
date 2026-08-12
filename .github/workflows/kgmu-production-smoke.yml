@@ -1,0 +1,48 @@
+name: KGMU production smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-production-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production API
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://kgmu-calendar-api.containerapps.ru"
+
+          health="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$base/health")"
+          python3 - "$health" <<'PY'
+          import json, sys
+          body = json.loads(sys.argv[1])
+          assert body == {"status": "ok", "service": "medical-calendar-api"}, body
+          PY
+
+          programs="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$base/api/v2/catalog/kgmu/programs")"
+          python3 - "$programs" <<'PY'
+          import json, sys
+          body = json.loads(sys.argv[1])
+          assert body.get("university") == "kgmu", body
+          assert body.get("academicYear") == "2026/27", body
+          assert body.get("semester") == 1, body
+          assert isinstance(body.get("programs"), list), body
+          print(json.dumps(body, ensure_ascii=False))
+          PY
+
+          groups="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$base/api/v2/catalog/kgmu/medicine/1/groups")"
+          python3 - "$groups" <<'PY'
+          import json, sys
+          body = json.loads(sys.argv[1])
+          assert body.get("university") == "kgmu", body
+          assert body.get("program") == "medicine", body
+          assert body.get("course") == 1, body
+          assert body.get("academicYear") == "2026/27", body
+          assert body.get("semester") == 1, body
+          assert isinstance(body.get("groups"), list), body
+          print(json.dumps(body, ensure_ascii=False))
+          PY
