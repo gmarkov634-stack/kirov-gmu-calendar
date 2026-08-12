@@ -1,7 +1,9 @@
 import { parseForeignRWorkbookSafe } from "./foreign-r-safe.mjs";
+import { parseForeignRWorkbookGeneric } from "./foreign-r-generic.mjs";
 
 function explicitMode(value) {
-  return String(value || "").startsWith("explicit");
+  const mode = String(value || "");
+  return mode === "date" || mode.startsWith("explicit");
 }
 
 function eventIndex(parsed) {
@@ -43,7 +45,7 @@ function refreshReviewedQa(parsed) {
   const conflicts = classifySourceConflicts(parsed);
   qa.allowedOverlaps = conflicts.allowed;
   qa.remainingOverlaps = conflicts.blocking;
-  qa.sourcePeriodExceptions = qa.outOfPeriodSources || [];
+  qa.sourcePeriodExceptions = qa.sourcePeriodExceptions || qa.outOfPeriodSources || [];
   delete qa.sourceConflicts;
   delete qa.outOfPeriodSources;
 
@@ -58,6 +60,13 @@ function refreshReviewedQa(parsed) {
   return parsed;
 }
 
+function shouldUseGeneric(legacy) {
+  const uncovered = legacy?.qa?.uncovered || [];
+  return uncovered.some((item) => ["segments-not-found", "no-events", "no-dates", "weekday-not-found"].includes(item?.reason));
+}
+
 export function parseForeignRWorkbookReviewed(workbook, options = {}) {
-  return refreshReviewedQa(parseForeignRWorkbookSafe(workbook, options));
+  const legacy = parseForeignRWorkbookSafe(workbook, options);
+  if (!shouldUseGeneric(legacy)) return refreshReviewedQa(legacy);
+  return refreshReviewedQa(parseForeignRWorkbookGeneric(workbook, options));
 }
