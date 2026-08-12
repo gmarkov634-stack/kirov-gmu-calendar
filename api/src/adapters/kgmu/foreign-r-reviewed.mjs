@@ -1,5 +1,6 @@
 import { parseForeignRWorkbookSafe } from "./foreign-r-safe.mjs";
 import { parseForeignRWorkbookGeneric } from "./foreign-r-generic.mjs";
+import { parseForeignRWorkbookGeneric as parseForeignRWorkbookGenericV2 } from "./foreign-r-generic-v2.mjs";
 
 const WEEKDAYS = new Map([["пн", 1], ["вт", 2], ["ср", 3], ["чт", 4], ["пт", 5], ["сб", 6]]);
 const EXTRA_LESSON_RE = /\((\d+)\s+занят(?:ие|ия)\s+(?:в(?:о)?\s*)?(пн|вт|ср|чт|пт|сб)\.?(?=\s*[,;)])/gi;
@@ -187,6 +188,14 @@ function refreshReviewedQa(parsed, workbook) {
   return parsed;
 }
 
+function shouldUseGenericV2(workbook) {
+  return (workbook?.sheets || []).some((sheet) =>
+    (sheet.cells || []).some((cell) =>
+      /[12]\s+недел[яи]\s+по\s+\d{1,2}\.\d{2}/i.test(String(cell.value || ""))
+    )
+  );
+}
+
 function shouldUseGeneric(legacy) {
   const uncovered = legacy?.qa?.uncovered || [];
   return uncovered.some((item) => ["segments-not-found", "no-events", "no-dates", "weekday-not-found"].includes(item?.reason));
@@ -194,6 +203,10 @@ function shouldUseGeneric(legacy) {
 
 export function parseForeignRWorkbookReviewed(workbook, options = {}) {
   const legacy = parseForeignRWorkbookSafe(workbook, options);
-  const parsed = shouldUseGeneric(legacy) ? parseForeignRWorkbookGeneric(workbook, options) : legacy;
+  const parsed = shouldUseGenericV2(workbook)
+    ? parseForeignRWorkbookGenericV2(workbook, options)
+    : shouldUseGeneric(legacy)
+      ? parseForeignRWorkbookGeneric(workbook, options)
+      : legacy;
   return refreshReviewedQa(augmentEmbeddedExtraLessonQa(parsed, workbook), workbook);
 }
