@@ -11,6 +11,7 @@ import { YooKassaService } from "./yookassa.js";
 import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
 import { EmailReviewNotifier } from "./adapters/kgmu/email-notifier.mjs";
 import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
+import { KgmuReviewedService } from "./adapters/kgmu/reviewed-service.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
@@ -31,15 +32,23 @@ const kgmuIngestService = new KgmuIngestServiceV2({
   config,
   scheduleStore: store,
 });
+const kgmuReviewedService = new KgmuReviewedService({
+  queue: parserReviewQueue,
+  notifier: parserNotifier,
+  config,
+  scheduleStore: store,
+});
 const kgmuWatchStore = new KgmuWatchStore(config);
 const kgmuWatcher = new KgmuSourceWatcher({
   config,
   ingestService: kgmuIngestService,
+  sourceObserver: kgmuReviewedService,
   stateStore: kgmuWatchStore,
 });
 const kgmuWatchStatusHandler = createKgmuWatchStatusHandler({ stateStore: kgmuWatchStore, config });
 const kgmuParserHandler = createKgmuParserHandler({
   service: kgmuIngestService,
+  reviewedService: kgmuReviewedService,
   queue: parserReviewQueue,
   watcher: kgmuWatcher,
   notifier: parserNotifier,
@@ -64,6 +73,7 @@ const server = http.createServer((request, response) => {
     return offerCatalogHandler(request, response);
   }
   if (
+    url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
     url.pathname === "/api/v1/admin/kgmu/dry-run" ||
     url.pathname === "/api/v1/admin/kgmu/ingest" ||
     url.pathname === "/api/v1/admin/kgmu/watch" ||
@@ -82,7 +92,9 @@ async function runKgmuWatch(reason) {
     const result = await kgmuWatcher.run();
     console.log("KGMU source watch", reason, JSON.stringify({
       status: result.status,
+      mode: result.mode,
       targetCount: result.targetCount,
+      observedCount: result.observedCount,
       ingestedCount: result.ingestedCount,
       unchangedCount: result.unchangedCount,
       errorCount: result.errorCount,
@@ -95,8 +107,11 @@ async function runKgmuWatch(reason) {
 server.listen(config.port, "0.0.0.0", () => {
   console.log(`medical-calendar-api listening on :${config.port}`);
   console.log(parserNotifier.enabled
-    ? "KGMU parser notifications: Email"
-    : "KGMU parser email notifications are not configured");
+    ? "KGMU schedule notifications: Email"
+    : "KGMU schedule email notifications are not configured");
+  console.log(config.kgmuManualNormalization
+    ? "KGMU normalization mode: reviewed JSON (server XLSX parsing disabled)"
+    : "KGMU normalization mode: legacy server parser");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
     kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);
