@@ -9,115 +9,96 @@ const SOURCES = [
 ];
 const UA = "Mozilla/5.0 (compatible; KGMU-calendar-source-probe/1.0; +https://github.com/gmarkov634-stack/kirov-gmu-calendar)";
 
-function clean(value) {
-  return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-}
-
+function clean(value) { return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim(); }
 function groupCode(value) {
   const match = clean(value).match(/^(\d{3})\s*-?\s*([иi])$/i);
   return match ? `${match[1]}и` : null;
 }
-
-function inspect(workbook) {
-  const sheet = workbook.sheets?.[0];
-  if (!sheet) return {};
+function rowsOf(sheet) {
   const rows = new Map();
   for (const cell of sheet.cells || []) {
     if (!rows.has(cell.row)) rows.set(cell.row, []);
     rows.get(cell.row).push(cell);
   }
+  return rows;
+}
+function compactInspection(workbook) {
+  const sheet = workbook.sheets?.[0];
+  const rows = rowsOf(sheet);
   const dateRow = [...rows.entries()].find(([, cells]) => cells.filter((cell) => {
     const n = Number(cell.value);
     return Number.isInteger(n) && n >= 1 && n <= 31;
   }).length >= 10)?.[0] || null;
-  const groups = [];
   const groupRows = [];
   for (const [row, cells] of rows) {
-    for (const cell of cells) {
-      const group = groupCode(cell.value);
-      if (group && !groups.includes(group)) {
-        groups.push(group);
-        groupRows.push({ row, group, cell: cell.ref });
-      }
-    }
+    const hit = cells.map((cell) => ({ cell, group: groupCode(cell.value) })).find((item) => item.group);
+    if (hit) groupRows.push({ row, group: hit.group, cell: hit.cell.ref });
   }
   const groupRowSet = new Set(groupRows.map((item) => item.row));
-  const anchors = [];
-  for (const cell of sheet.cells || []) {
-    if (!groupRowSet.has(cell.row) || !clean(cell.value) || groupCode(cell.value)) continue;
-    anchors.push({ row: cell.row, cell: cell.ref, text: clean(cell.value), styleId: cell.styleId ?? null, fillId: cell.fillId ?? null });
-  }
+  const uniqueAnchors = [...new Set((sheet.cells || [])
+    .filter((cell) => groupRowSet.has(cell.row) && !groupCode(cell.value))
+    .map((cell) => clean(cell.value)).filter(Boolean))].sort();
   const footerHeader = [...rows.entries()].find(([, cells]) => cells.some((cell) => /^(?:дисциплина|academic\s+discipline)$/i.test(clean(cell.value))))?.[0] || null;
-  const footer = footerHeader ? [...rows.entries()]
-    .filter(([row]) => row >= footerHeader && row <= footerHeader + 25)
-    .map(([row, cells]) => ({ row, values: cells.map((cell) => ({ cell: cell.ref, value: clean(cell.value) })).filter((item) => item.value) }))
-    .filter((item) => item.values.length) : [];
+  const footerRows = [];
+  if (footerHeader) {
+    for (let row = footerHeader + 2; row <= footerHeader + 25; row += 1) {
+      const values = (rows.get(row) || []).map((cell) => ({ ref: cell.ref, col: cell.col, value: clean(cell.value) })).filter((item) => item.value);
+      if (!values.length) continue;
+      const discipline = values.find((item) => item.col >= 3 && item.col < 20)?.value || null;
+      if (!discipline || /лекц|lecture/i.test(discipline)) continue;
+      footerRows.push({ row, values: values.map((item) => `${item.ref}=${item.value}`) });
+    }
+  }
+  const maxGroupRow = Math.max(...groupRows.map((item) => item.row));
   const notes = [...rows.entries()]
-    .filter(([row]) => groupRows.length && row > Math.max(...groupRows.map((item) => item.row)) && (!footerHeader || row < footerHeader))
-    .map(([row, cells]) => ({ row, values: cells.map((cell) => clean(cell.value)).filter(Boolean) }))
-    .filter((item) => item.values.length);
-  return {
-    sheet: sheet.name,
-    dateRow,
-    groups,
-    groupRows,
-    anchors,
-    footerHeader,
-    footer,
-    notes,
-    mergeCount: (sheet.merges || []).length,
-    styledCellCount: (sheet.styledCells || []).length,
-  };
+    .filter(([row]) => row > maxGroupRow && (!footerHeader || row < footerHeader))
+    .flatMap(([row, cells]) => cells.map((cell) => ({ row, ref: cell.ref, value: clean(cell.value) })))
+    .filter((item) => item.value);
+  return { sheet: sheet.name, dateRow, groupRows, uniqueAnchors, footerHeader, footerRows, notes, mergeCount: (sheet.merges || []).length, styledCellCount: (sheet.styledCells || []).length };
 }
-
-function attempt(label, fn) {
+function compactAttempt(label, fn) {
   try {
     const parsed = fn();
     return {
-      label,
-      ok: true,
-      type: parsed.type,
-      profile: parsed.profile,
+      label, ok: true, type: parsed.type, profile: parsed.profile,
       groups: parsed.schedules?.map((item) => item.group.code),
-      qa: parsed.qa,
+      qa: {
+        status: parsed.qa?.status,
+        eventCount: parsed.qa?.eventCount,
+        groupCounts: parsed.qa?.groupCounts,
+        mainGridSubjectDays: parsed.qa?.mainGridSubjectDays,
+        physicalEducationEvents: parsed.qa?.physicalEducationEvents,
+        starApplications: parsed.qa?.starApplications?.length,
+        unhandledCount: parsed.qa?.unhandledBlocks?.length,
+        unhandled: parsed.qa?.unhandledBlocks?.slice(0, 30),
+        missingTimesCount: parsed.qa?.missingTimes?.length,
+        missingTimes: parsed.qa?.missingTimes?.slice(0, 20),
+        allowedOverlaps: parsed.qa?.allowedOverlaps?.length,
+        remainingOverlaps: parsed.qa?.remainingOverlaps?.length,
+      },
     };
   } catch (error) {
     return { label, ok: false, code: error?.code || null, message: error?.message || String(error) };
   }
 }
-
 async function probe(source) {
   const response = await fetch(source.url, { headers: { "user-agent": UA, referer: "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya" } });
   const buffer = Buffer.from(await response.arrayBuffer());
   if (!response.ok || buffer[0] !== 0x50 || buffer[1] !== 0x4b) throw new Error(`${source.language} source is not XLSX: HTTP ${response.status}`);
   const workbook = await readKgmuXlsxStructure(buffer);
   const classification = classifyKgmuWorkbook(workbook);
-  const inspection = inspect(workbook);
-  const metadata = {
-    program: "foreign",
-    course: 6,
-    academicYear: "2025/26",
-    semester: 2,
-    sourceUrl: source.url,
-  };
+  const metadata = { program: "foreign", course: 6, academicYear: "2025/26", semester: 2, sourceUrl: source.url };
   return {
     source: { ...source, status: response.status, bytes: buffer.length, signature: buffer.subarray(0, 4).toString("hex") },
     classification,
-    inspection,
+    inspection: compactInspection(workbook),
     attempts: [
-      attempt("course5-parser-as-course6", () => parseKgmuForeignCourse5Workbook(workbook, metadata)),
-      attempt("course4-parser-as-course6", () => parseKgmuForeignCycleWorkbook(workbook, metadata)),
+      compactAttempt("course5-parser", () => parseKgmuForeignCourse5Workbook(workbook, metadata)),
+      compactAttempt("course4-parser", () => parseKgmuForeignCycleWorkbook(workbook, metadata)),
     ],
   };
 }
 
-async function main() {
-  const results = [];
-  for (const source of SOURCES) results.push(await probe(source));
-  console.log(JSON.stringify(results, null, 2));
-}
-
-main().catch((error) => {
-  console.error(error?.stack || String(error));
-  process.exitCode = 1;
-});
+const results = [];
+for (const source of SOURCES) results.push(await probe(source));
+console.log(JSON.stringify(results, null, 2));
