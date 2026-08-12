@@ -1,5 +1,5 @@
 import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
-import { parseKgmuForeignCourse5Workbook } from "../src/adapters/kgmu/foreign-c-course5-parser.mjs";
+import { parseKgmuForeignCourse5Workbook } from "../src/adapters/kgmu/foreign-c-course5-reviewed.mjs";
 import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
 const PAGE_URL = "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya";
@@ -48,7 +48,13 @@ async function main() {
 
   if (!parsed.qa.passed) throw new Error(`Russian course 5 C-FIO QA=${parsed.qa.status}`);
   if (parsed.qa.sourceLanguage !== "ru") throw new Error(`Expected Russian source, got ${parsed.qa.sourceLanguage}`);
+  if (parsed.qa.mainGridSubjectDays !== 636) throw new Error(`Expected 636 main-grid events, got ${parsed.qa.mainGridSubjectDays}`);
+  if (parsed.qa.physicalEducationEvents !== 96) throw new Error(`Expected 96 PE events, got ${parsed.qa.physicalEducationEvents}`);
+  if (parsed.qa.eventCount !== 732) throw new Error(`Expected 732 events, got ${parsed.qa.eventCount}`);
   if (parsed.qa.starApplications.length !== 5) throw new Error(`Expected 5 starred first-shift applications, got ${parsed.qa.starApplications.length}`);
+  if (parsed.qa.allowedOverlaps.length !== 1 || parsed.qa.remainingOverlaps.length !== 0) {
+    throw new Error(`Expected one allowed overlap and no blocking overlaps`);
+  }
 }
 
 main().catch((error) => {
