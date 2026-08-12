@@ -17,7 +17,7 @@ const adminToken = "x".repeat(40);
 const reviewId = "123e4567-e89b-12d3-a456-426614174000";
 const allowedOrigin = "https://gmarkov634-stack.github.io";
 
-function handler(service, queue = {}, options = {}) {
+function handler(service, queue = {}, notifier = null) {
   return createKgmuParserHandler({
     service,
     queue: {
@@ -26,9 +26,7 @@ function handler(service, queue = {}, options = {}) {
       getSource: async () => null,
       ...queue,
     },
-    notifier: options.notifier || null,
-    maxNotifier: options.maxNotifier || null,
-    telegramNotifier: options.telegramNotifier || null,
+    notifier,
     config: {
       adminToken,
       kgmuXlsxMaxBytes: 1024,
@@ -54,14 +52,14 @@ test("parser admin CORS preflight is allowed before admin authentication", () =>
   },
 ));
 
-test("MAX admin test endpoint uses the MAX notifier", () => withServer(
+test("Email admin test endpoint uses the configured parser notifier", () => withServer(
   handler(
     { publishReview: async () => ({}) },
     {},
-    { maxNotifier: { notifySystemTest: async () => ({ sent: true }) } },
+    { notifySystemTest: async () => ({ sent: true }) },
   ),
   async (base) => {
-    const response = await fetch(`${base}/api/v1/admin/kgmu/max-test`, {
+    const response = await fetch(`${base}/api/v1/admin/kgmu/email-test`, {
       method: "POST",
       headers: {
         "x-admin-token": adminToken,
@@ -74,49 +72,19 @@ test("MAX admin test endpoint uses the MAX notifier", () => withServer(
   },
 ));
 
-test("MAX recipient discovery is admin-only and returns safe recipient metadata", () => withServer(
+test("Email admin test fails closed when email is not configured", () => withServer(
   handler(
     { publishReview: async () => ({}) },
     {},
-    {
-      maxNotifier: {
-        discoverRecipients: async () => ({
-          configured: true,
-          recipients: [{ userId: "501", firstName: "Григорий", username: "gm", chatId: "7001" }],
-          marker: 12,
-        }),
-      },
-    },
+    { notifySystemTest: async () => ({ sent: false, reason: "email_not_configured" }) },
   ),
   async (base) => {
-    const forbidden = await fetch(`${base}/api/v1/admin/kgmu/max-discover`);
-    assert.equal(forbidden.status, 403);
-
-    const response = await fetch(`${base}/api/v1/admin/kgmu/max-discover`, {
-      headers: { "x-admin-token": adminToken },
-    });
-    assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), {
-      configured: true,
-      recipients: [{ userId: "501", firstName: "Григорий", username: "gm", chatId: "7001" }],
-      marker: 12,
-    });
-  },
-));
-
-test("Telegram admin test endpoint can still use the fallback Telegram notifier", () => withServer(
-  handler(
-    { publishReview: async () => ({}) },
-    {},
-    { telegramNotifier: { notifySystemTest: async () => ({ sent: true }) } },
-  ),
-  async (base) => {
-    const response = await fetch(`${base}/api/v1/admin/kgmu/telegram-test`, {
+    const response = await fetch(`${base}/api/v1/admin/kgmu/email-test`, {
       method: "POST",
       headers: { "x-admin-token": adminToken },
     });
-    assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { sent: true });
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: "email_not_configured" });
   },
 ));
 
