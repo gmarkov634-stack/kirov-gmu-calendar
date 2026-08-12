@@ -42,6 +42,7 @@ const kgmuParserHandler = createKgmuParserHandler({
   service: kgmuIngestService,
   queue: parserReviewQueue,
   watcher: kgmuWatcher,
+  notifier: parserNotifier,
   config,
 });
 
@@ -65,6 +66,7 @@ const server = http.createServer((request, response) => {
   if (
     url.pathname === "/api/v1/admin/kgmu/ingest" ||
     url.pathname === "/api/v1/admin/kgmu/watch" ||
+    url.pathname === "/api/v1/admin/kgmu/telegram-test" ||
     url.pathname.startsWith("/api/v1/admin/parser-reviews")
   ) {
     return kgmuParserHandler(request, response);
