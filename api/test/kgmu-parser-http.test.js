@@ -17,7 +17,7 @@ const adminToken = "x".repeat(40);
 const reviewId = "123e4567-e89b-12d3-a456-426614174000";
 const allowedOrigin = "https://gmarkov634-stack.github.io";
 
-function handler(service, queue = {}) {
+function handler(service, queue = {}, notifier = null) {
   return createKgmuParserHandler({
     service,
     queue: {
@@ -26,6 +26,7 @@ function handler(service, queue = {}) {
       getSource: async () => null,
       ...queue,
     },
+    notifier,
     config: {
       adminToken,
       kgmuXlsxMaxBytes: 1024,
@@ -48,6 +49,22 @@ test("parser admin CORS preflight is allowed before admin authentication", () =>
     assert.equal(response.status, 204);
     assert.equal(response.headers.get("access-control-allow-origin"), allowedOrigin);
     assert.match(response.headers.get("access-control-allow-headers"), /X-Admin-Token/i);
+  },
+));
+
+test("Telegram admin test endpoint uses the configured review notifier", () => withServer(
+  handler(
+    { publishReview: async () => ({}) },
+    {},
+    { notifySystemTest: async () => ({ sent: true }) },
+  ),
+  async (base) => {
+    const response = await fetch(`${base}/api/v1/admin/kgmu/telegram-test`, {
+      method: "POST",
+      headers: { "x-admin-token": adminToken },
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { sent: true });
   },
 ));
 
