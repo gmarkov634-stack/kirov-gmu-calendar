@@ -29,6 +29,14 @@ test("KGMU landing exposes semester 299 and year 499 plans", async () => {
   assert.match(data, /badge:\s*"Выгоднее"/);
 });
 
+test("KGMU landing keeps the 2026/27 offer closed until a verified schedule is available", async () => {
+  const html = await text("index.html");
+  const data = await text("data.js");
+  assert.match(html, /Продажа открывается только после проверки расписания/);
+  assert.match(html, /Архивные расписания прошлых семестров используются только для проверки парсера/);
+  assert.doesNotMatch(data, /groups:\s*\{\s*1:\s*\[/);
+});
+
 test("an existing year purchase prevents a narrower duplicate purchase", async () => {
   const saved = [{ orderId: "a".repeat(32), accessToken: "b".repeat(43) }];
   const existingYear = await findPurchasedOrder("132", saved, async () => ({
