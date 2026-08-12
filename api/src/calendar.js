@@ -29,6 +29,12 @@ function zonedStamp(value, timezone) {
   return `${values.year}${values.month}${values.day}T${values.hour}${values.minute}${values.second}`;
 }
 
+function dateStamp(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) throw new Error("Invalid all-day calendar event date");
+  return `${match[1]}${match[2]}${match[3]}`;
+}
+
 function foldLine(line) {
   const chunks = [];
   let rest = line;
@@ -83,12 +89,19 @@ export function buildCalendar(schedule, publicBaseUrl = "") {
       "Составлено по официальному расписанию. Переносы, согласованные группой с преподавателем, не отображаются.",
       publicBaseUrl && `Расписание: ${publicBaseUrl}`,
     ].filter(Boolean).join("\n\n");
+    const allDay = event.allDay === true || (/^\d{4}-\d{2}-\d{2}$/.test(String(event.start || "")) && /^\d{4}-\d{2}-\d{2}$/.test(String(event.end || "")));
+    const startLine = allDay
+      ? `DTSTART;VALUE=DATE:${dateStamp(event.start)}`
+      : `DTSTART:${zonedStamp(event.start, identity.timezone)}`;
+    const endLine = allDay
+      ? `DTEND;VALUE=DATE:${dateStamp(event.end)}`
+      : `DTEND:${zonedStamp(event.end, identity.timezone)}`;
     lines.push(
       "BEGIN:VEVENT",
       `UID:${escapeIcs(event.id)}@${identity.university}-calendar`,
       `DTSTAMP:${generatedAt}`,
-      `DTSTART:${zonedStamp(event.start, identity.timezone)}`,
-      `DTEND:${zonedStamp(event.end, identity.timezone)}`,
+      startLine,
+      endLine,
       `SUMMARY:${escapeIcs(event.title)}`,
       `LOCATION:${escapeIcs(event.location || "")}`,
       `DESCRIPTION:${escapeIcs(description)}`,
