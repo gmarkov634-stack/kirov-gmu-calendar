@@ -5,9 +5,6 @@ const ELECTIVE_PE_SENTINEL = "__KGMU_ELECTIVE_PE__";
 const ELECTIVE_PE_CANONICAL = "Элективные дисциплины (модули) по физической культуре и спорту";
 const ELECTIVE_PE_PATTERN = /элективные\s+дисциплины(?:\s*\(модули\))?\s+по\s+физической\s+культуре\s+и\s+спорту/gi;
 
-// R-PED uses parser-known subjects as internal surrogates only. Restoration is
-// keyed by both the surrogate title and the original source cell, so two
-// different subjects in one cell cannot collapse into one title.
 const SUBJECT_EXTENSIONS = [
   { canonical: "Биоэтика", placeholder: "Философия", pattern: /биоэтика/i },
   { canonical: "Психология и педагогика", placeholder: "Правоведение", pattern: /психология\s+и\s+педагогика/i },
@@ -40,6 +37,10 @@ function patternTest(pattern, value) {
   return new RegExp(pattern.source, pattern.flags.replace(/g/g, "")).test(clean(value));
 }
 
+function sameSubject(a, b) {
+  return clean(a).toLocaleLowerCase("ru") === clean(b).toLocaleLowerCase("ru");
+}
+
 function refTextMap(workbook) {
   return new Map((workbook?.sheets?.[0]?.cells || []).map((cell) => [cell.ref, String(cell.value ?? "")]));
 }
@@ -59,9 +60,6 @@ function replaceExtendedSubjects(value) {
     text = text.replace(globalPattern(subject.pattern), subject.placeholder);
   }
   text = text.replaceAll(ELECTIVE_PE_SENTINEL, ELECTIVE_PE_CANONICAL);
-  // Source files sometimes put a harmless space before the closing parenthesis:
-  // "(1 занятие во вт. )". Normalize only that whitespace so generic R QA can
-  // recognize the already-existing note without changing its meaning.
   return text.replace(/(\b(?:пн|вт|ср|чт|пт|сб)\.?)\s+\)/gi, "$1)");
 }
 
@@ -80,12 +78,10 @@ function productionWorkbook(workbook) {
 function inferredScheduleEndRow(workbook) {
   const sheet = workbook?.sheets?.[0];
   if (!sheet?.cells?.length) return null;
-
   const boundary = sheet.cells
     .filter((cell) => cell.col === 1 && /^(?:факультативы|дисциплина)$/i.test(clean(cell.value)))
     .sort((a, b) => a.row - b.row)[0];
   if (boundary?.row > 1) return boundary.row - 1;
-
   const maxRow = Math.max(...sheet.cells.map((cell) => cell.row));
   const lastDay = sheet.cells.find((cell) => cell.row === maxRow && cell.col === 1);
   return /^(?:пн|вт|ср|чт|пт|сб|понедельник|вторник|среда|четверг|пятница|суббота)$/i.test(clean(lastDay?.value))
@@ -103,7 +99,7 @@ function parserSubjectFromEvent(event) {
 function subjectFromEventSource(event, raw) {
   const placeholder = parserSubjectFromEvent(event);
   return SUBJECT_EXTENSIONS.find((subject) => (
-    subject.placeholder === placeholder && patternTest(subject.pattern, raw)
+    sameSubject(subject.placeholder, placeholder) && patternTest(subject.pattern, raw)
   ))?.canonical || null;
 }
 
@@ -111,7 +107,7 @@ function subjectFromQaSource(placeholder, source, originals) {
   const sourceCell = sourceCellFromRange(source);
   const raw = sourceCell ? originals.get(sourceCell) || "" : "";
   return SUBJECT_EXTENSIONS.find((subject) => (
-    subject.placeholder === placeholder && patternTest(subject.pattern, raw)
+    sameSubject(subject.placeholder, placeholder) && patternTest(subject.pattern, raw)
   ))?.canonical || placeholder;
 }
 
@@ -239,15 +235,7 @@ function findOverlaps(events) {
         if (sorted[j].start.slice(0, 10) !== sorted[i].start.slice(0, 10)) break;
         if (sorted[j].start >= sorted[i].end) break;
         if (overlaps(sorted[i], sorted[j])) {
-          result.push({
-            group,
-            event1: sorted[i].id,
-            event2: sorted[j].id,
-            start1: sorted[i].start,
-            end1: sorted[i].end,
-            start2: sorted[j].start,
-            end2: sorted[j].end,
-          });
+          result.push({ group, event1: sorted[i].id, event2: sorted[j].id, start1: sorted[i].start, end1: sorted[i].end, start2: sorted[j].start, end2: sorted[j].end });
         }
       }
     }
@@ -259,9 +247,7 @@ function restoreQaEntry(entry, originals, idMap = null) {
   return {
     ...entry,
     subject: subjectFromQaSource(entry.subject, entry.source, originals),
-    ...(Array.isArray(entry.eventIds) && idMap ? {
-      eventIds: entry.eventIds.map((id) => idMap.get(id) || id),
-    } : {}),
+    ...(Array.isArray(entry.eventIds) && idMap ? { eventIds: entry.eventIds.map((id) => idMap.get(id) || id) } : {}),
   };
 }
 
@@ -285,18 +271,14 @@ export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
   }));
   const events = schedules.flatMap((schedule) => schedule.events);
   const remainingOverlaps = findOverlaps(events);
-  const extraLessonExpectations = (parsed.qa.extraLessonExpectations || [])
-    .map((entry) => restoreQaEntry(entry, originals));
-  const extraLessonFailures = (parsed.qa.extraLessonFailures || [])
-    .map((entry) => restoreQaEntry(entry, originals, idMap));
+  const extraLessonExpectations = (parsed.qa.extraLessonExpectations || []).map((entry) => restoreQaEntry(entry, originals));
+  const extraLessonFailures = (parsed.qa.extraLessonFailures || []).map((entry) => restoreQaEntry(entry, originals, idMap));
   const qa = {
     ...parsed.qa,
     extraLessonExpectations,
     extraLessonFailures,
     remainingOverlaps,
-    status: parsed.qa.uncovered.length || extraLessonFailures.length || remainingOverlaps.length
-      ? "REVIEW_REQUIRED"
-      : "PASS",
+    status: parsed.qa.uncovered.length || extraLessonFailures.length || remainingOverlaps.length ? "REVIEW_REQUIRED" : "PASS",
     eventCount: events.length,
     eventCountsByGroup: Object.fromEntries(schedules.map((schedule) => [schedule.group.code, schedule.events.length])),
     reviewedProfile: "R-PED-REVIEWED",
