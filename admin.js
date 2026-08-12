@@ -4,7 +4,8 @@ const tokenInput = document.querySelector("#admin-token");
 const message = document.querySelector("#admin-message");
 const dashboard = document.querySelector("#admin-dashboard");
 const refreshButton = document.querySelector("#admin-refresh");
-const telegramTestButton = document.querySelector("#telegram-test");
+const maxDiscoverButton = document.querySelector("#max-discover");
+const maxTestButton = document.querySelector("#max-test");
 const summary = document.querySelector("#admin-summary");
 const list = document.querySelector("#admin-list");
 const reviewSummary = document.querySelector("#review-summary");
@@ -70,6 +71,10 @@ function appendMeta(container, label, value) {
   container.append(item);
 }
 
+function subscriptionGroup(record) {
+  return record.groupCode || record.groupDisplayName || record.group || record.groupId || "—";
+}
+
 async function subscriptionAction(record, operation) {
   const label = operation === "revoke"
     ? "Заблокировать ссылку? Календарь станет пустым."
@@ -90,7 +95,7 @@ function renderSubscription(record) {
   const card = document.createElement("article");
   card.className = `admin-record${record.suspicious ? " is-suspicious" : ""}`;
   const lastSeen = record.lastSeenAt ? new Date(record.lastSeenAt).toLocaleString("ru-RU") : "Ещё не запрашивался";
-  card.innerHTML = `<div><strong>Группа ${record.group}</strong><span>${record.suspicious ? "Подозрительная активность" : "Обычная активность"}</span></div><dl><dt>Источников</dt><dd>${record.sourceCount}</dd><dt>Запросов</dt><dd>${record.totalRequests}</dd><dt>Последний</dt><dd>${lastSeen}</dd><dt>Статус</dt><dd>${record.status}</dd></dl><div class="admin-actions"></div>`;
+  card.innerHTML = `<div><strong>Группа ${subscriptionGroup(record)}</strong><span>${record.suspicious ? "Подозрительная активность" : "Обычная активность"}</span></div><dl><dt>Источников</dt><dd>${record.sourceCount}</dd><dt>Запросов</dt><dd>${record.totalRequests}</dd><dt>Последний</dt><dd>${lastSeen}</dd><dt>Статус</dt><dd>${record.status}</dd></dl><div class="admin-actions"></div>`;
   const actions = card.querySelector(".admin-actions");
   if (record.status === "active") {
     const revoke = document.createElement("button");
@@ -149,21 +154,62 @@ async function publishReview(review) {
   await load();
 }
 
-async function testTelegram() {
-  telegramTestButton.disabled = true;
-  showMessage("Отправляю тестовое сообщение в Telegram…");
+function maxRecipientLabel(item) {
+  const name = [item.firstName, item.lastName].filter(Boolean).join(" ") || item.username || "пользователь";
+  const username = item.username ? ` @${item.username}` : "";
+  return `${name}${username}: ${item.userId}`;
+}
+
+async function discoverMax() {
+  maxDiscoverButton.disabled = true;
+  showMessage("Ищу пользователей, которые уже запустили бота в MAX…");
   try {
-    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/telegram-test`, {
+    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/max-discover`, {
+      cache: "no-store",
+      headers: headers(),
+    });
+    if (!response.ok) {
+      showMessage("Не удалось получить события MAX. Проверьте MAX_BOT_TOKEN и доступ сервера к platform-api2.max.ru.");
+      return;
+    }
+    const data = await response.json();
+    if (!data.configured) {
+      showMessage("MAX пока не настроен: сначала добавьте секрет MAX_BOT_TOKEN в kgmu-calendar-api.");
+      return;
+    }
+    if (!Array.isArray(data.recipients) || !data.recipients.length) {
+      showMessage("Пользователи MAX пока не найдены. Откройте созданного бота в MAX, нажмите «Начать», затем повторите поиск.");
+      return;
+    }
+    const recipients = data.recipients.slice(0, 5).map(maxRecipientLabel).join("; ");
+    showMessage(`Найдены MAX ID: ${recipients}. Нужный ID добавьте в kgmu-calendar-api как MAX_ADMIN_USER_ID.`);
+  } finally {
+    maxDiscoverButton.disabled = false;
+  }
+}
+
+async function testMax() {
+  maxTestButton.disabled = true;
+  showMessage("Отправляю тестовое сообщение в MAX…");
+  try {
+    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/max-test`, {
       method: "POST",
       headers: headers(),
     });
     if (!response.ok) {
-      showMessage("Тест Telegram не прошёл. Проверьте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_CHAT_ID.");
+      const data = await response.json().catch(() => ({}));
+      if (data.error === "max_admin_user_not_configured") {
+        showMessage("MAX_BOT_TOKEN принят, но не задан MAX_ADMIN_USER_ID. Сначала нажмите «Найти MAX ID».");
+      } else if (data.error === "max_not_configured") {
+        showMessage("MAX_BOT_TOKEN ещё не настроен.");
+      } else {
+        showMessage("Тест MAX не прошёл. Проверьте MAX_BOT_TOKEN, MAX_ADMIN_USER_ID и доступ к platform-api2.max.ru.");
+      }
       return;
     }
-    showMessage("Тестовое сообщение отправлено в Telegram.");
+    showMessage("Тестовое сообщение отправлено в MAX.");
   } finally {
-    telegramTestButton.disabled = false;
+    maxTestButton.disabled = false;
   }
 }
 
@@ -293,4 +339,5 @@ form.addEventListener("submit", (event) => {
   load();
 });
 refreshButton.addEventListener("click", load);
-telegramTestButton.addEventListener("click", testTelegram);
+maxDiscoverButton.addEventListener("click", discoverMax);
+maxTestButton.addEventListener("click", testMax);
