@@ -9,18 +9,16 @@ const root = path.resolve(here, "../..");
 const html = fs.readFileSync(path.join(root, "admin.html"), "utf8");
 const js = fs.readFileSync(path.join(root, "admin.js"), "utf8");
 
-test("admin parser review dashboard is wired to protected review and MAX endpoints", () => {
+test("admin parser review dashboard is wired to protected review and email endpoints", () => {
   assert.match(html, /Расписания на проверке/);
   assert.match(html, /id="review-list"/);
-  assert.match(html, /id="max-discover"/);
-  assert.match(html, /id="max-test"/);
-  assert.doesNotMatch(html, /id="telegram-test"/);
+  assert.match(html, /id="email-test"/);
+  assert.doesNotMatch(html, /id="max-discover"|id="max-test"|id="telegram-test"/);
   assert.match(js, /\/api\/v1\/admin\/parser-reviews\?limit=100/);
   assert.match(js, /\/parser-reviews\/\$\{review\.reviewId\}\/source/);
   assert.match(js, /\/parser-reviews\/\$\{review\.reviewId\}\/publish/);
-  assert.match(js, /\/api\/v1\/admin\/kgmu\/max-discover/);
-  assert.match(js, /\/api\/v1\/admin\/kgmu\/max-test/);
-  assert.match(js, /MAX_ADMIN_USER_ID/);
+  assert.match(js, /\/api\/v1\/admin\/kgmu\/email-test/);
+  assert.doesNotMatch(js, /MAX_ADMIN_USER_ID|\/kgmu\/max-|\/kgmu\/telegram-test/);
   assert.match(js, /record\.groupCode \|\| record\.groupDisplayName/);
   assert.match(js, /review\.status === "READY_TO_PUBLISH"/);
   assert.match(js, /X-Admin-Token/);
