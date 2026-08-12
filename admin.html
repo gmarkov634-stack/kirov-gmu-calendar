@@ -7,7 +7,9 @@
     <title>Администрирование · Календарь КГМУ</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      .admin-dashboard{display:grid;gap:26px;margin-top:24px}.admin-toolbar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.admin-toolbar button{min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-700);cursor:pointer;font-weight:700}.admin-section{padding-top:22px;border-top:1px solid var(--line)}.admin-section h2{font-size:24px}.review-record{position:relative}.review-record.is-review-required{border-color:#e5ad45}.review-record.is-ready{border-color:#78c7a1}.review-record.is-published{opacity:.78}.review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.review-head>div{min-width:0}.review-head strong,.review-head small{display:block}.review-head small{margin-top:5px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.review-status{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#eef2f7;color:#526071;font-size:11px;font-weight:800}.is-review-required .review-status{background:#fff3d7;color:#8a5a00}.is-ready .review-status{background:#dff6ea;color:#217a53}.review-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin:14px 0;color:var(--muted);font-size:12px}.review-meta b{color:var(--ink)}.review-details{margin-top:12px}.review-details summary{cursor:pointer;color:var(--blue-700);font-size:12px;font-weight:700}.review-details pre{max-height:360px;margin:10px 0 0;padding:12px;overflow:auto;border-radius:10px;background:#f5f7fb;color:#334155;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}.admin-actions .publish-review{border-color:#217a53;background:#217a53;color:#fff}.admin-actions .download-review{color:var(--blue-700)}@media(max-width:760px){.review-head{flex-direction:column}.review-meta{grid-template-columns:1fr}}
+      .admin-dashboard{display:grid;gap:26px;margin-top:24px}.admin-toolbar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.admin-toolbar button{min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-700);cursor:pointer;font-weight:700}.admin-section{padding-top:22px;border-top:1px solid var(--line)}.admin-section h2{font-size:24px}.review-record{position:relative}.review-record.is-review-required{border-color:#e5ad45}.review-record.is-ready{border-color:#78c7a1}.review-record.is-published{opacity:.78}.review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.review-head>div{min-width:0}.review-head strong,.review-head small{display:block}.review-head small{margin-top:5px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.review-status{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#eef2f7;color:#526071;font-size:11px;font-weight:800}.is-review-required .review-status{background:#fff3d7;color:#8a5a00}.is-ready .review-status{background:#dff6ea;color:#217a53}.review-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin:14px 0;color:var(--muted);font-size:12px}.review-meta b{color:var(--ink)}.review-details{margin-top:12px}.review-details summary{cursor:pointer;color:var(--blue-700);font-size:12px;font-weight:700}.review-details pre{max-height:360px;margin:10px 0 0;padding:12px;overflow:auto;border-radius:10px;background:#f5f7fb;color:#334155;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}.admin-actions .publish-review{border-color:#217a53;background:#217a53;color:#fff}.admin-actions .download-review{color:var(--blue-700)}
+      .dry-run-note{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.5}.dry-run-form{display:grid;grid-template-columns:minmax(180px,2fr) repeat(4,minmax(110px,1fr));gap:10px;align-items:end}.dry-run-field{display:grid;gap:6px}.dry-run-field label{font-size:12px;font-weight:700;color:var(--ink)}.dry-run-field input,.dry-run-field select{width:100%;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}.dry-run-file{grid-column:1/-1}.dry-run-submit{min-height:42px;border:0;border-radius:10px;background:var(--blue-700);color:#fff;font-weight:800;cursor:pointer}.dry-run-submit:disabled{opacity:.55;cursor:wait}.dry-run-result{display:none;margin-top:16px;padding:15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.dry-run-result.is-visible{display:block}.dry-run-result.is-ready{border-color:#78c7a1;background:#f1fbf6}.dry-run-result.is-review{border-color:#e5ad45;background:#fffaf0}.dry-run-result h3{margin:0 0 10px;font-size:18px}.dry-run-result .review-meta{margin:0}.dry-run-result details{margin-top:12px}.dry-run-result pre{max-height:320px;overflow:auto;padding:10px;border-radius:8px;background:#fff;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}
+      @media(max-width:760px){.review-head{flex-direction:column}.review-meta{grid-template-columns:1fr}.dry-run-form{grid-template-columns:1fr 1fr}.dry-run-file{grid-column:1/-1}.dry-run-submit{grid-column:1/-1}}
     </style>
   </head>
   <body>
@@ -27,6 +29,44 @@
             <button id="admin-refresh" type="button">Обновить</button>
           </div>
 
+          <section class="admin-section" aria-labelledby="dry-run-title">
+            <p class="section-kicker">Безопасная проверка</p>
+            <h2 id="dry-run-title">Проверить XLSX без публикации</h2>
+            <p class="dry-run-note">Файл только разбирается и проходит QA. Review, письмо и публикация не создаются, опубликованные календари не изменяются.</p>
+            <form id="dry-run-form" class="dry-run-form">
+              <div class="dry-run-field dry-run-file">
+                <label for="dry-run-file">Файл XLSX</label>
+                <input id="dry-run-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
+              </div>
+              <div class="dry-run-field">
+                <label for="dry-run-program">Факультет</label>
+                <select id="dry-run-program" required>
+                  <option value="medicine">Лечебное дело</option>
+                  <option value="pediatrics">Педиатрия</option>
+                  <option value="dentistry">Стоматология</option>
+                  <option value="foreign">Иностранные обучающиеся</option>
+                </select>
+              </div>
+              <div class="dry-run-field">
+                <label for="dry-run-course">Курс</label>
+                <select id="dry-run-course" required>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                </select>
+              </div>
+              <div class="dry-run-field">
+                <label for="dry-run-year">Учебный год</label>
+                <input id="dry-run-year" type="text" inputmode="numeric" placeholder="2026/27" required />
+              </div>
+              <div class="dry-run-field">
+                <label for="dry-run-semester">Семестр</label>
+                <select id="dry-run-semester" required><option value="1">1</option><option value="2">2</option></select>
+              </div>
+              <button id="dry-run-submit" class="dry-run-submit" type="submit">Проверить без публикации</button>
+            </form>
+            <div id="dry-run-result" class="dry-run-result" aria-live="polite"></div>
+          </section>
+
           <section class="admin-section" aria-labelledby="reviews-title">
             <p class="section-kicker">Расписание КГМУ</p>
             <h2 id="reviews-title">Расписания на проверке</h2>
@@ -44,6 +84,6 @@
       </section>
     </main>
     <script src="data.js"></script>
-    <script src="admin.js?v=email-notifications-1"></script>
+    <script src="admin.js?v=dry-run-1"></script>
   </body>
 </html>
