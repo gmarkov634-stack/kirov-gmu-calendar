@@ -56,7 +56,7 @@ export function loadConfig(env = process.env) {
     kgmuWatchEnabled: env.KGMU_WATCH_ENABLED === "true",
     kgmuWatchIntervalMs: Math.max(60000, Number(env.KGMU_WATCH_INTERVAL_MS || 900000)),
     kgmuWatchSemesters: parseWatchSemesters(env.KGMU_WATCH_SEMESTERS),
-    kgmuParserRevision: env.KGMU_PARSER_REVISION || "g20-r69-c13-s07-v1",
+    kgmuParserRevision: env.KGMU_PARSER_REVISION || "g20-r69-rped2-v1",
     kgmuMedicineSchedulePage: env.KGMU_MEDICINE_SCHEDULE_PAGE || "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
     kgmuPediatricsSchedulePage: env.KGMU_PEDIATRICS_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
     kgmuDentistrySchedulePage: env.KGMU_DENTISTRY_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
