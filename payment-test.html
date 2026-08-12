@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Тест покупки · Календарь КГМУ</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}.test-field{display:grid;gap:6px}.test-field label{font-size:12px;font-weight:700}.test-field input,.test-field select{min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}.test-wide{grid-column:1/-1}.test-note{color:var(--muted);font-size:13px;line-height:1.5}.test-result{margin-top:14px}.test-button{min-height:44px;border:0;border-radius:10px;background:var(--blue-700);color:#fff;font-weight:800;cursor:pointer}.test-button:disabled{opacity:.55;cursor:wait}@media(max-width:640px){.test-grid{grid-template-columns:1fr}.test-wide{grid-column:auto}}
+    </style>
+  </head>
+  <body>
+    <main class="admin-page">
+      <section class="selector admin-panel">
+        <p class="section-kicker">Календарь КГМУ</p>
+        <h1>Тест покупки через ЮKassa</h1>
+        <p class="test-note">Служебная страница для сквозного теста оплаты на архивном расписании. Она работает только с ключом администратора и только когда сервер подключён к тестовому магазину ЮKassa. Публичная продажа архивных календарей при этом не открывается.</p>
+        <form id="archive-payment-form" class="test-grid">
+          <div class="test-field test-wide">
+            <label for="admin-token">Ключ администратора</label>
+            <input id="admin-token" type="password" autocomplete="current-password" required />
+          </div>
+          <div class="test-field test-wide">
+            <label for="email">Email для заказа</label>
+            <input id="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="test-field">
+            <label for="program">Факультет</label>
+            <select id="program" required>
+              <option value="medicine">Лечебное дело</option>
+              <option value="pediatrics">Педиатрия</option>
+              <option value="dentistry">Стоматология</option>
+              <option value="foreign">Иностранные обучающиеся</option>
+            </select>
+          </div>
+          <div class="test-field">
+            <label for="course">Курс</label>
+            <select id="course" required>
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+          <div class="test-field">
+            <label for="academic-year">Учебный год</label>
+            <input id="academic-year" value="2025/26" required />
+          </div>
+          <div class="test-field">
+            <label for="semester">Семестр</label>
+            <select id="semester" required><option value="1">1</option><option value="2" selected>2</option></select>
+          </div>
+          <div class="test-field test-wide">
+            <label for="group-code">Группа</label>
+            <input id="group-code" inputmode="text" placeholder="Например, 132" required />
+          </div>
+          <button id="submit" class="test-button test-wide" type="submit">Перейти к тестовой оплате</button>
+        </form>
+        <div id="result" class="notice test-result" hidden></div>
+      </section>
+    </main>
+    <script src="data.js"></script>
+    <script>
+      const form = document.querySelector('#archive-payment-form');
+      const result = document.querySelector('#result');
+      const submit = document.querySelector('#submit');
+      function message(text) { result.textContent = text; result.hidden = !text; }
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        submit.disabled = true;
+        message('Создаю тестовый заказ…');
+        try {
+          const response = await fetch(`${window.CALENDAR_DATA.apiBase}/api/v1/admin/payments/test-archive`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Admin-Token': document.querySelector('#admin-token').value,
+            },
+            body: JSON.stringify({
+              email: document.querySelector('#email').value.trim(),
+              program: document.querySelector('#program').value,
+              course: Number(document.querySelector('#course').value),
+              academicYear: document.querySelector('#academic-year').value.trim(),
+              semester: Number(document.querySelector('#semester').value),
+              groupCode: document.querySelector('#group-code').value.trim(),
+            }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const labels = {
+              admin_forbidden: 'Неверный ключ администратора.',
+              yookassa_test_mode_required: 'На сервере сейчас не включён тестовый режим ЮKassa.',
+              payments_not_configured: 'ЮKassa на сервере не настроена.',
+              archive_schedule_not_found: 'Для этих параметров архивное расписание на сервере не найдено.',
+              archive_schedule_context_mismatch: 'Архивное расписание найдено, но его параметры не совпали с выбранными.',
+              current_offer_not_archive: 'Для текущего продаваемого периода используйте обычную страницу покупки.',
+            };
+            message(labels[data.error] || `Заказ не создан: ${data.error || response.status}`);
+            return;
+          }
+          if (!data.confirmationUrl) {
+            message('ЮKassa не вернула ссылку на оплату.');
+            return;
+          }
+          message('Заказ создан. Перехожу на тестовую страницу ЮKassa…');
+          window.location.assign(data.confirmationUrl);
+        } catch (error) {
+          console.error(error);
+          message('Не удалось связаться с API.');
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
