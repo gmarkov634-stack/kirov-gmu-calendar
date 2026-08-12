@@ -3,6 +3,7 @@ import { createHandler } from "./app.js";
 import { loadConfig } from "./config.js";
 import { YearAwareStore } from "./year-aware-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
+import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -36,6 +37,7 @@ const kgmuWatcher = new KgmuSourceWatcher({
   ingestService: kgmuIngestService,
   stateStore: kgmuWatchStore,
 });
+const kgmuWatchStatusHandler = createKgmuWatchStatusHandler({ stateStore: kgmuWatchStore, config });
 const kgmuParserHandler = createKgmuParserHandler({
   service: kgmuIngestService,
   queue: parserReviewQueue,
@@ -53,6 +55,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/status/kgmu-watcher") {
+    return kgmuWatchStatusHandler(request, response);
   }
   if (url.pathname.startsWith("/api/v2/catalog/")) {
     return offerCatalogHandler(request, response);
@@ -77,7 +82,7 @@ async function runKgmuWatch(reason) {
       targetCount: result.targetCount,
       ingestedCount: result.ingestedCount,
       unchangedCount: result.unchangedCount,
-      errorCount: result.errors?.length || 0,
+      errorCount: result.errorCount,
     }));
   } catch (error) {
     console.error("KGMU source watch failed", reason, error);
