@@ -87,4 +87,12 @@ export class TelegramReviewNotifier {
   async notifyReadyToPublish(review) {
     return this.#send(readyMessage(review));
   }
+
+  async notifySystemTest() {
+    return this.#send([
+      "✅ КГМУ: тест уведомлений успешен",
+      "",
+      "Этот Telegram-чат будет получать сообщения о новых расписаниях, которые требуют проверки или готовы к публикации.",
+    ].join("\n"));
+  }
 }
