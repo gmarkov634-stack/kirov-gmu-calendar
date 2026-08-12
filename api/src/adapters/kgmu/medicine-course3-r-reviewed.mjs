@@ -36,6 +36,20 @@ function normalizeAdjacentTimes(text) {
   return String(text || '').replace(adjacent, '$1, $2');
 }
 
+function validDateParts(day, month) {
+  return Number(day) >= 1 && Number(day) <= 31 && Number(month) >= 1 && Number(month) <= 12;
+}
+
+function normalizeReverseTimeDate(text) {
+  const triple = /(?<!\d)(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})\.(\d{2})(?!\d)/g;
+  return String(text || '').replace(triple, (whole, firstA, firstB, secondA, secondB, dateDay, dateMonth) => {
+    const firstCouldBeDate = validDateParts(firstA, firstB);
+    const lastIsDate = validDateParts(dateDay, dateMonth);
+    if (firstCouldBeDate || !lastIsDate) return whole;
+    return `${dateDay}.${dateMonth}-${firstA}.${firstB}-${secondA}.${secondB}`;
+  });
+}
+
 function moveExplicitDateAfterSubject(text) {
   let result = String(text || '');
   for (const subject of SUBJECT_PATTERNS) {
@@ -54,6 +68,7 @@ function normalizeMedicineCourse3Workbook(workbook) {
     for (const cell of sheet.cells || []) {
       if (typeof cell.value !== 'string') continue;
       let text = normalizeAdjacentTimes(cell.value);
+      text = normalizeReverseTimeDate(text);
       text = moveExplicitDateAfterSubject(text);
       cell.value = text;
     }
