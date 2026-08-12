@@ -72,12 +72,11 @@ test("shared merged GIA block creates one multi-day all-day event for every visi
   assert.deepEqual(result.qa.groupCounts, { "601и": 1, "602и": 1, "603и": 1, "604и": 1, "605и": 1 });
   for (const schedule of result.schedules) {
     assert.equal(schedule.events.length, 1);
-    assert.deepEqual(schedule.events[0], assert.matching({
-      title: "ГИА",
-      kind: "state_exam",
-      allDay: true,
-      start: "2026-06-01",
-      end: "2026-06-04",
-    }));
+    const event = schedule.events[0];
+    assert.equal(event.title, "ГИА");
+    assert.equal(event.kind, "state_exam");
+    assert.equal(event.allDay, true);
+    assert.equal(event.start, "2026-06-01");
+    assert.equal(event.end, "2026-06-04");
   }
 });
