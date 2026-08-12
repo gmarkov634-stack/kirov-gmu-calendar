@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
-import { parseWeeklyRWorkbook } from "../src/adapters/kgmu/weekly-r-parser.mjs";
+import { parsePediatricsRWorkbookReviewed } from "../src/adapters/kgmu/pediatrics-r-reviewed.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,13 +17,13 @@ function loadFixture() {
   return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
-test("R parser safely covers pediatrics course 1 weekly source with inline exceptions", () => {
+test("R-PED parser safely covers pediatrics course 1 weekly source with inline exceptions", () => {
   const workbook = loadFixture();
   const classification = classifyKgmuWorkbook(workbook);
   assert.equal(classification.type, "R");
   assert.deepEqual(classification.features.groupCodes, ["131","132","133","134","135","136","137","138","139"]);
 
-  const result = parseWeeklyRWorkbook(workbook, {
+  const result = parsePediatricsRWorkbookReviewed(workbook, {
     program: "pediatrics",
     course: 1,
     academicYear: "2025/26",
