@@ -1,4 +1,5 @@
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
+import { parseWeeklyRWorkbookReviewed } from "./weekly-r-reviewed.mjs";
 import { parseForeignRWorkbookReviewed } from "./foreign-r-reviewed.mjs";
 import { parsePediatricsRWorkbookReviewed } from "./pediatrics-r-reviewed.mjs";
 
@@ -24,21 +25,23 @@ function canonicalizeSourceTrace(schedule) {
   };
 }
 
-function parserForProgram(program) {
+function parserForContext(program, course) {
   if (program === "foreign") return parseForeignRWorkbookReviewed;
   if (program === "pediatrics") return parsePediatricsRWorkbookReviewed;
+  if (program === "medicine" && Number(course) === 3) return parseWeeklyRWorkbookReviewed;
   return parseWeeklyRWorkbook;
 }
 
-function parserProfile(program) {
+function parserProfile(program, course) {
   if (program === "foreign") return "R-FIO";
   if (program === "pediatrics") return "R-PED";
+  if (program === "medicine" && Number(course) === 3) return "R-MED3";
   return "R";
 }
 
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parse = parserForProgram(metadata.program);
-  const profile = parserProfile(metadata.program);
+  const parse = parserForContext(metadata.program, metadata.course);
+  const profile = parserProfile(metadata.program, metadata.course);
   const parsed = parse(workbook, {
     university: "kgmu",
     program: metadata.program || "medicine",
