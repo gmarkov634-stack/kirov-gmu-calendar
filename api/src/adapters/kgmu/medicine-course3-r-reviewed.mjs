@@ -32,8 +32,16 @@ function cloneWorkbook(workbook) {
 }
 
 function normalizeAdjacentTimes(text) {
+  const source = String(text || '');
   const adjacent = new RegExp(String.raw`(${TIME})\s+(${TIME})(?=\s+[А-ЯЁ])`, 'g');
-  return String(text || '').replace(adjacent, '$1, $2');
+  return source.replace(adjacent, (whole, first, second, offset, original) => {
+    const prefix = original.slice(Math.max(0, offset - 16), offset);
+    // R68: if the first interval is linked to a date on its left, it belongs to
+    // that atomic date-time-time triple. Do not join the following independent
+    // interval to it, otherwise the date can leak into the next subject segment.
+    if (/\d{1,2}\.\d{2}\s*[-–]\s*$/.test(prefix)) return whole;
+    return `${first}, ${second}`;
+  });
 }
 
 function validDateParts(day, month) {
