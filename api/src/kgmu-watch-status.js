@@ -18,6 +18,8 @@ function safeSummary(summary) {
     targetCount: Math.max(0, Number(summary.targetCount) || 0),
     ingestedCount: Math.max(0, Number(summary.ingestedCount) || 0),
     unchangedCount: Math.max(0, Number(summary.unchangedCount) || 0),
+    notificationRetryCount: Math.max(0, Number(summary.notificationRetryCount) || 0),
+    pendingNotificationCount: Math.max(0, Number(summary.pendingNotificationCount) || 0),
     errorCount: Math.max(0, Number(summary.errorCount) || 0),
   };
 }
