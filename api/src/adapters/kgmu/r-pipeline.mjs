@@ -1,4 +1,5 @@
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
+import { parseForeignRWorkbookReviewed } from "./foreign-r-reviewed.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -23,7 +24,8 @@ function canonicalizeSourceTrace(schedule) {
 }
 
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parsed = parseWeeklyRWorkbook(workbook, {
+  const parse = metadata.program === "foreign" ? parseForeignRWorkbookReviewed : parseWeeklyRWorkbook;
+  const parsed = parse(workbook, {
     university: "kgmu",
     program: metadata.program || "medicine",
     course: metadata.course || 1,
@@ -39,13 +41,19 @@ export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey,
       sha256: sourceSha256,
       storageKey: sourceKey,
     }],
-    parser: { type: "R", sourceSha256, qaStatus: parsed.qa.status },
+    parser: {
+      type: "R",
+      profile: metadata.program === "foreign" ? "R-FIO" : "R",
+      sourceSha256,
+      qaStatus: parsed.qa.status,
+    },
   }));
 
   const normalizedKey = await queue.storeNormalized(sourceSha256, {
     version: 1,
     university: "kgmu",
     parserType: "R",
+    parserProfile: metadata.program === "foreign" ? "R-FIO" : "R",
     sourceSha256,
     sourceKey,
     metadata,
