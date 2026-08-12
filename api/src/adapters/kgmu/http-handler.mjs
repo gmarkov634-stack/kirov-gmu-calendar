@@ -8,6 +8,35 @@ function send(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
+function sendEmpty(response, status = 204) {
+  response.writeHead(status, { "Cache-Control": "no-store" });
+  response.end();
+}
+
+function sendXlsx(response, body, filename = "schedule.xlsx") {
+  const safe = String(filename || "schedule.xlsx").replace(/[\r\n]/g, " ").slice(0, 180) || "schedule.xlsx";
+  response.writeHead(200, {
+    "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "Content-Disposition": `attachment; filename="schedule.xlsx"; filename*=UTF-8''${encodeURIComponent(safe)}`,
+    "Content-Length": body.length,
+    "Cache-Control": "no-store",
+  });
+  response.end(body);
+}
+
+function applyCors(request, response, config) {
+  const origin = request.headers.origin;
+  const allowedOrigins = Array.isArray(config.allowedOrigins)
+    ? config.allowedOrigins
+    : [config.allowedOrigin].filter(Boolean);
+  if (origin && allowedOrigins.includes(origin)) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Vary", "Origin");
+  }
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token");
+}
+
 function adminAllowed(request, config) {
   const actual = request.headers["x-admin-token"];
   const expected = config.adminToken;
@@ -45,6 +74,8 @@ function metadataFromUrl(url) {
 
 export function createKgmuParserHandler({ service, queue, watcher, config }) {
   return async function kgmuParserHandler(request, response) {
+    applyCors(request, response, config);
+    if (request.method === "OPTIONS") return sendEmpty(response);
     if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
     const url = new URL(request.url, "http://localhost");
@@ -85,6 +116,20 @@ export function createKgmuParserHandler({ service, queue, watcher, config }) {
         }
         console.error("parser review publication failed", error);
         return send(response, 503, { error: "parser_review_publish_unavailable" });
+      }
+    }
+
+    const sourceMatch = url.pathname.match(/^\/api\/v1\/admin\/parser-reviews\/([a-f0-9-]{36})\/source$/);
+    if (request.method === "GET" && sourceMatch) {
+      try {
+        const review = await queue.getReview(sourceMatch[1]);
+        if (!review) return send(response, 404, { error: "parser_review_not_found" });
+        const source = await queue.getSource(review.sourceKey);
+        if (!source) return send(response, 404, { error: "parser_review_source_not_found" });
+        return sendXlsx(response, source, review.metadata?.filename || "schedule.xlsx");
+      } catch (error) {
+        console.error("parser review source read failed", error);
+        return send(response, 503, { error: "parser_review_source_unavailable" });
       }
     }
 
