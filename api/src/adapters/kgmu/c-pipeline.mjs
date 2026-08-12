@@ -1,5 +1,6 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
 import { parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
+import { parseKgmuForeignCourse5Workbook } from "./foreign-c-course5-parser.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -10,16 +11,24 @@ function contextComplete(metadata, period) {
   );
 }
 
-function isForeignCycleProfile(metadata, classification) {
+function foreignCycleCourse(metadata, classification) {
+  if (metadata?.program !== "foreign") return null;
+  const course = Number(metadata?.course);
+  if (![4, 5].includes(course)) return null;
   const groups = classification?.features?.groupCodes || [];
-  return metadata?.program === "foreign" && Number(metadata?.course) === 4 && groups.some((code) => /^4\d{2}и$/i.test(String(code)));
+  const expected = new RegExp(`^${course}\\d{2}и$`, "i");
+  return groups.length >= 4 && groups.every((code) => expected.test(String(code))) ? course : null;
 }
 
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const foreignCycle = isForeignCycleProfile(metadata, classification);
-  const parse = foreignCycle ? parseKgmuForeignCycleWorkbook : parseKgmuCycleWorkbook;
+  const foreignCourse = foreignCycleCourse(metadata, classification);
+  const parse = foreignCourse === 5
+    ? parseKgmuForeignCourse5Workbook
+    : foreignCourse === 4
+      ? parseKgmuForeignCycleWorkbook
+      : parseKgmuCycleWorkbook;
   const parsed = parse(workbook, {
-    program: metadata.program || "medicine",
+    program: metadata.program || (foreignCourse ? "foreign" : "medicine"),
     course: metadata.course || 4,
     academicYear: period.academicYear || metadata.academicYear || null,
     semester: period.semester || metadata.semester || 2,
@@ -30,7 +39,7 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
     status: parsed.qa?.status || (parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED"),
     ...parsed.qa,
   };
-  const parserProfile = parsed.profile || (foreignCycle ? "C-FIO" : "C");
+  const parserProfile = parsed.profile || (foreignCourse ? "C-FIO" : "C");
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
     sources: [{ type: "xlsx", filename: metadata.filename, sha256: sourceSha256 }],
