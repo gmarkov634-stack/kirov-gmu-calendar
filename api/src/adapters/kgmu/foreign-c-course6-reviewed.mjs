@@ -2,9 +2,11 @@ import { parseKgmuForeignCourse6Workbook as parseRawCourse6 } from "./foreign-c-
 
 function normalizeCell(cell) {
   if (typeof cell?.value !== "string") return cell;
-  const value = cell.value
-    .replace(/[’`´]/g, "'")
-    .replace(/^Клин\.\s*иммунлогия и аллергология$/i, "Клиническая иммунология и аллергология");
+  let value = cell.value.replace(/[’`´]/g, "'");
+  const compact = value.replace(/\s+/g, " ").trim();
+  if (/^Клин\./i.test(compact) && /иммун/i.test(compact) && /аллерголог/i.test(compact)) {
+    value = "Клиническая иммунология и аллергология";
+  }
   return value === cell.value ? cell : { ...cell, value };
 }
 
