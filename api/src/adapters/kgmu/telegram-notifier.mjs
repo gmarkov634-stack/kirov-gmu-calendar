@@ -1,3 +1,9 @@
+import { setDefaultResultOrder } from "node:dns";
+
+// Cloud runtimes can return IPv6 before IPv4 even when the IPv6 route is unusable.
+// Telegram notifications are operationally critical, so prefer IPv4 for Node/undici lookups.
+setDefaultResultOrder("ipv4first");
+
 function compact(value, max = 600) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
   return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
