@@ -45,7 +45,11 @@ test("R-PED recognizes course 2 subjects, preserves multiple subjects in one cel
 
   assert.deepEqual(result.qa.uncovered, []);
   assert.equal(result.qa.reviewedProfile, "R-PED-REVIEWED");
-  assert.equal(result.qa.extraLessonFailures.length, 1);
+  assert.equal(result.qa.extraLessonFailures.length, 1, JSON.stringify({
+    expectations: result.qa.extraLessonExpectations,
+    failures: result.qa.extraLessonFailures,
+    uncovered: result.qa.uncovered,
+  }));
   assert.equal(result.qa.extraLessonFailures[0].group, "231");
   assert.equal(result.qa.extraLessonFailures[0].subject, "Основы формирования здоровья детей");
   assert.equal(result.qa.extraLessonFailures[0].count, 1);
