@@ -74,6 +74,8 @@ test("watcher persists a safe summary even when the target offer is not publishe
     targetCount: 0,
     ingestedCount: 0,
     unchangedCount: 0,
+    notificationRetryCount: 0,
+    pendingNotificationCount: 0,
     errorCount: 0,
   });
 });
@@ -89,9 +91,11 @@ test("public watcher status exposes only aggregate health data", async () => {
         expectedSemesters: [1, 2],
         parserRevision: "test-revision",
         discoveredCount: 20,
-        targetCount: 0,
-        ingestedCount: 0,
+        targetCount: 1,
+        ingestedCount: 1,
         unchangedCount: 0,
+        notificationRetryCount: 1,
+        pendingNotificationCount: 1,
         errorCount: 0,
       },
       slots: {
@@ -116,7 +120,9 @@ test("public watcher status exposes only aggregate health data", async () => {
   assert.equal(body.university, "kgmu");
   assert.equal(body.enabled, true);
   assert.equal(body.intervalMs, 900000);
-  assert.equal(body.lastRun.targetCount, 0);
+  assert.equal(body.lastRun.targetCount, 1);
+  assert.equal(body.lastRun.notificationRetryCount, 1);
+  assert.equal(body.lastRun.pendingNotificationCount, 1);
   assert.equal(body.lastRun.errorCount, 0);
   assert.equal("slots" in body, false);
   assert.equal(JSON.stringify(body).includes("secret.xlsx"), false);
