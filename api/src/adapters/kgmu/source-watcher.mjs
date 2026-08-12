@@ -241,15 +241,16 @@ export class KgmuSourceWatcher {
           continue;
         }
 
-        const context = {
+        const baseContext = {
           filename: filenameFromUrl(source.url),
           program: source.program,
           course: source.course,
           academicYear: source.academicYear,
           semester: source.semester,
-          groupRange: source.groupRange,
-          sourceUrl: source.url,
         };
+        const context = manualNormalization
+          ? { ...baseContext, groupRange: source.groupRange, sourceUrl: source.url }
+          : baseContext;
         const processed = manualNormalization
           ? await processor.observeSource(buffer, context)
           : await processor.ingest(buffer, context);
@@ -294,10 +295,10 @@ export class KgmuSourceWatcher {
       expectedAcademicYear,
       expectedSemesters,
       parserRevision,
-      mode: manualNormalization ? "MANUAL_NORMALIZATION" : "SERVER_PARSER",
+      ...(manualNormalization ? { mode: "MANUAL_NORMALIZATION" } : {}),
       discoveredCount: discovered.length,
       targetCount: targets.length,
-      observedCount,
+      ...(manualNormalization ? { observedCount } : {}),
       ingestedCount,
       unchangedCount: results.filter((item) => item.status === "UNCHANGED").length,
       notificationRetryCount: results.filter((item) => item.notificationRetry).length,
