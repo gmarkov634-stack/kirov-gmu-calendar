@@ -1,5 +1,5 @@
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
-import { parseWeeklyRWorkbookReviewed } from "./weekly-r-reviewed.mjs";
+import { parseMedicineCourse3RWorkbookReviewed } from "./medicine-course3-r-reviewed.mjs";
 import { parseForeignRWorkbookReviewed } from "./foreign-r-reviewed.mjs";
 import { parsePediatricsRWorkbookReviewed } from "./pediatrics-r-reviewed.mjs";
 
@@ -28,7 +28,7 @@ function canonicalizeSourceTrace(schedule) {
 function parserForContext(program, course) {
   if (program === "foreign") return parseForeignRWorkbookReviewed;
   if (program === "pediatrics") return parsePediatricsRWorkbookReviewed;
-  if (program === "medicine" && Number(course) === 3) return parseWeeklyRWorkbookReviewed;
+  if (program === "medicine" && Number(course) === 3) return parseMedicineCourse3RWorkbookReviewed;
   return parseWeeklyRWorkbook;
 }
 
