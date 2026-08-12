@@ -247,11 +247,9 @@ export class KgmuSourceWatcher {
       }
     }
 
-    state.lastRunAt = new Date().toISOString();
-    await this.stateStore.write(state);
-    return {
+    const summary = {
       status: errors.length ? "PARTIAL" : "OK",
-      checkedAt: state.lastRunAt,
+      checkedAt: new Date().toISOString(),
       expectedAcademicYear,
       expectedSemesters,
       parserRevision,
@@ -259,6 +257,13 @@ export class KgmuSourceWatcher {
       targetCount: targets.length,
       ingestedCount: results.filter((item) => item.status === "INGESTED").length,
       unchangedCount: results.filter((item) => item.status === "UNCHANGED").length,
+      errorCount: errors.length,
+    };
+    state.lastRunAt = summary.checkedAt;
+    state.lastRunSummary = summary;
+    await this.stateStore.write(state);
+    return {
+      ...summary,
       results,
       errors,
     };
