@@ -19,7 +19,7 @@ function memoryStore(schedule) {
   return {
     orders,
     subscriptions,
-    getSchedule: async (context) => context.groupCode === schedule.group.code && context.academicYear === "2025/26" && context.semester === 2
+    getSchedule: async (context) => context.groupCode === schedule.group.code && context.academicYear === "2025/2026" && context.semester === 2
       ? structuredClone(schedule)
       : null,
     putOrder: async (id, value) => orders.set(id, structuredClone(value)),
@@ -118,7 +118,7 @@ test("archived YooKassa test checkout is admin-only and creates a test year orde
     const result = await response.json();
     assert.equal(result.testMode, true);
     assert.equal(result.confirmationUrl, "https://yookassa.test/archive");
-    assert.equal(result.archive.academicYear, "2025/26");
+    assert.equal(result.archive.academicYear, "2025/2026");
     const order = store.orders.get(result.orderId);
     assert.equal(order.academicYear, "2025/26");
     assert.equal(order.semester, 2);
