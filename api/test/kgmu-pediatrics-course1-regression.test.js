@@ -3,22 +3,22 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
 import { parseWeeklyRWorkbook } from "../src/adapters/kgmu/weekly-r-parser.mjs";
-import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-function loadFixtureBuffer() {
+function loadFixture() {
   const parts = [1, 2, 3].map((part) => fs.readFileSync(
-    path.join(here, "fixtures", `kgmu-pediatrics-course1-2025-26.part${part}.b64`),
+    path.join(here, "fixtures", `kgmu-pediatrics-course1-2025-26.structure.part${part}.b64`),
     "utf8",
   ).trim());
-  return Buffer.from(parts.join(""), "base64");
+  return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
-test("R parser safely covers pediatrics course 1 weekly source with inline exceptions", async () => {
-  const workbook = await readKgmuXlsxStructure(loadFixtureBuffer());
+test("R parser safely covers pediatrics course 1 weekly source with inline exceptions", () => {
+  const workbook = loadFixture();
   const classification = classifyKgmuWorkbook(workbook);
   assert.equal(classification.type, "R");
   assert.deepEqual(classification.features.groupCodes, ["131","132","133","134","135","136","137","138","139"]);
@@ -30,7 +30,7 @@ test("R parser safely covers pediatrics course 1 weekly source with inline excep
     semester: 2,
   });
 
-  assert.equal(result.qa.status, "PASS");
+  assert.equal(result.qa.status, "PASS", JSON.stringify(result.qa, null, 2));
   assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.extraLessonFailures.length, 0);
   assert.equal(result.qa.remainingOverlaps.length, 0);
