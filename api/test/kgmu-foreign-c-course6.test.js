@@ -22,6 +22,11 @@ function fixture({ english = false, include606 = false } = {}) {
   const style = (row, col, fillId, value = "") => styledCells.push({ row, col, ref: ref(col,row), fillId, styleId: fillId + 100, value });
 
   add(7, 1, english ? "2ND SEMESTER OF 2025-2026 ACADEMIC YEAR" : "ВТОРОЕ ПОЛУГОДИЕ 2025-2026 УЧЕБНОГО ГОДА");
+  // Real C workbooks contain several wide horizontal merged bands. Keep the
+  // synthetic fixture structurally equivalent so the global classifier sees C.
+  merge(5, 1, 5, 4);
+  merge(6, 1, 6, 4);
+  merge(8, 1, 8, 4);
   add(10, 3, english ? "February" : "Февраль"); merge(10, 3, 10, 16);
   for (let index = 0; index < 14; index += 1) {
     add(11, 3 + index, 2 + index);
