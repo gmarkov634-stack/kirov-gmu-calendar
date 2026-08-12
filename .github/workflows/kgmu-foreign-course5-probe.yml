@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'api/tools/kgmu-probe-foreign-c-course5.mjs'
+      - 'api/tools/kgmu-probe-foreign-c-course5-ru.mjs'
       - 'api/src/adapters/kgmu/**'
       - '.github/workflows/kgmu-foreign-course5-probe.yml'
 
@@ -12,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  probe:
+  probe-russian:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -20,5 +21,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Probe official 5 course FIO XLSX
+      - name: Inspect official Russian 5 course FIO XLSX
+        run: node api/tools/kgmu-probe-foreign-c-course5-ru.mjs
+
+  probe-english:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe official English 5 course FIO XLSX
         run: node api/tools/kgmu-probe-foreign-c-course5.mjs
