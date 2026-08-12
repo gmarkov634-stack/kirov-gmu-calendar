@@ -10,7 +10,11 @@ function loadFixture() {
 }
 
 test("full previously unseen medicine course 3 stream 2 workbook is fully covered but remains fail-closed on source ambiguities", () => {
-  const result = parseMedicineCourse3RWorkbookReviewed(loadFixture(), {
+  const workbook = loadFixture();
+  const sourceE10 = workbook.sheets?.[0]?.cells?.find((cell) => cell.ref === "E10");
+  console.log("KGMU MED3 original E10", JSON.stringify(sourceE10?.value || null));
+
+  const result = parseMedicineCourse3RWorkbookReviewed(workbook, {
     university: "kgmu",
     program: "medicine",
     course: 3,
