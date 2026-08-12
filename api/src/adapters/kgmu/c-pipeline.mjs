@@ -1,4 +1,5 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
+import { isForeignCycleWorkbook, parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -10,8 +11,10 @@ function contextComplete(metadata, period) {
 }
 
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
-  const parsed = parseKgmuCycleWorkbook(workbook, {
-    program: metadata.program || "medicine",
+  const foreignCycle = isForeignCycleWorkbook(workbook);
+  const parser = foreignCycle ? parseKgmuForeignCycleWorkbook : parseKgmuCycleWorkbook;
+  const parsed = parser(workbook, {
+    program: metadata.program || (foreignCycle ? "foreign" : "medicine"),
     course: metadata.course || 4,
     academicYear: period.academicYear || metadata.academicYear || null,
     semester: period.semester || metadata.semester || 2,
@@ -19,19 +22,21 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
   });
 
   const qa = {
-    status: parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED",
+    status: parsed.qa?.status || (parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED"),
     ...parsed.qa,
   };
+  const parserProfile = parsed.profile || (foreignCycle ? "C-FIO" : "C");
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
     sources: [{ type: "xlsx", filename: metadata.filename, sha256: sourceSha256 }],
-    parser: { type: "C", sourceSha256, qaStatus: qa.status },
+    parser: { type: "C", profile: parserProfile, sourceSha256, qaStatus: qa.status },
   }));
 
   const normalizedKey = await queue.storeNormalized(sourceSha256, {
     version: 1,
     university: "kgmu",
     parserType: "C",
+    parserProfile,
     sourceSha256,
     sourceKey,
     metadata,
@@ -45,6 +50,7 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
     qa,
     schedules,
     normalizedKey,
+    parserProfile,
     contextComplete: contextComplete(metadata, period),
   };
 }
