@@ -56,6 +56,14 @@ export class KgmuIngestServiceV2 {
     }
   }
 
+  async retryNotification(reviewId) {
+    const review = await this.queue.getReview(reviewId);
+    if (!review) return { sent: false, terminal: true, reason: "review_not_found" };
+    if (review.status === "PUBLISHED") return { sent: true, skipped: true, reason: "review_already_published" };
+    if (review.status === "READY_TO_PUBLISH") return this.#notifyReady(review);
+    return this.#notify(review);
+  }
+
   async #blocked(payload) {
     const review = await this.queue.createReview({
       ...payload,
