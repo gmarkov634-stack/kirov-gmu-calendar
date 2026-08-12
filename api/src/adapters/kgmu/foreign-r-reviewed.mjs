@@ -1,17 +1,79 @@
 import { parseForeignRWorkbookSafe } from "./foreign-r-safe.mjs";
 import { parseForeignRWorkbookGeneric } from "./foreign-r-generic.mjs";
 
+const WEEKDAYS = new Map([["пн", 1], ["вт", 2], ["ср", 3], ["чт", 4], ["пт", 5], ["сб", 6]]);
+const EXTRA_LESSON_RE = /\((\d+)\s+занят(?:ие|ия)\s+(?:в(?:о)?\s*)?(пн|вт|ср|чт|пт|сб)\.?(?=\s*[,;)])/gi;
+
 function explicitMode(value) {
   const mode = String(value || "");
   return mode === "date" || mode.startsWith("explicit");
 }
 
+function weekdayIso(date) {
+  const day = date.getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+function allEvents(parsed) {
+  return (parsed?.schedules || []).flatMap((schedule) => schedule.events || []);
+}
+
 function eventIndex(parsed) {
   const result = new Map();
-  for (const schedule of parsed?.schedules || []) {
-    for (const event of schedule.events || []) result.set(event.id, event);
-  }
+  for (const event of allEvents(parsed)) result.set(event.id, event);
   return result;
+}
+
+function augmentEmbeddedExtraLessonQa(parsed, workbook) {
+  const qa = parsed.qa || (parsed.qa = {});
+  qa.extraLessonExpectations ||= [];
+  qa.extraLessonFailures ||= [];
+  const events = allEvents(parsed);
+  const existing = new Set(qa.extraLessonExpectations.map((item) => [
+    item.group, item.subject, item.count, item.weekday, item.sourceCell,
+  ].join("|")));
+
+  for (const sheet of workbook?.sheets || []) {
+    for (const cell of sheet.cells || []) {
+      const text = String(cell.value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      if (!text) continue;
+      for (const match of text.matchAll(new RegExp(EXTRA_LESSON_RE.source, "gi"))) {
+        const count = Number(match[1]);
+        const weekday = WEEKDAYS.get(match[2].toLowerCase());
+        const sourceEvents = events.filter((event) => event.sourceCell === cell.ref && event.kind === "practical" && event.subject);
+        const subjects = [...new Set(sourceEvents.map((event) => event.subject))];
+        if (subjects.length !== 1) continue;
+        const subject = subjects[0];
+        const groups = [...new Set(sourceEvents.filter((event) => event.subject === subject).map((event) => event.group))];
+        for (const group of groups) {
+          const key = [group, subject, count, weekday, cell.ref].join("|");
+          if (existing.has(key)) continue;
+          existing.add(key);
+          const matches = events.filter((event) => (
+            event.group === group &&
+            event.subject === subject &&
+            event.kind === "practical" &&
+            explicitMode(event.dateMode) &&
+            weekdayIso(new Date(`${event.start.slice(0, 10)}T12:00:00Z`)) === weekday &&
+            event.sourceCell !== cell.ref
+          ));
+          const expectation = {
+            group,
+            subject,
+            count,
+            weekday,
+            sourceCell: cell.ref,
+            raw: match[0],
+            actual: matches.length,
+            eventIds: matches.map((event) => event.id),
+          };
+          qa.extraLessonExpectations.push(expectation);
+          if (matches.length !== count) qa.extraLessonFailures.push(expectation);
+        }
+      }
+    }
+  }
+  return parsed;
 }
 
 function classifySourceConflicts(parsed) {
@@ -67,6 +129,6 @@ function shouldUseGeneric(legacy) {
 
 export function parseForeignRWorkbookReviewed(workbook, options = {}) {
   const legacy = parseForeignRWorkbookSafe(workbook, options);
-  if (!shouldUseGeneric(legacy)) return refreshReviewedQa(legacy);
-  return refreshReviewedQa(parseForeignRWorkbookGeneric(workbook, options));
+  const parsed = shouldUseGeneric(legacy) ? parseForeignRWorkbookGeneric(workbook, options) : legacy;
+  return refreshReviewedQa(augmentEmbeddedExtraLessonQa(parsed, workbook));
 }
