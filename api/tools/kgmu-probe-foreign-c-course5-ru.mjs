@@ -40,14 +40,22 @@ async function main() {
   const groupRows = [...rows.entries()].filter(([, cells]) => cells.some((cell) => /^50[1-6]\s*[иi]$/i.test(clean(cell.value))));
   const anchors = [];
   for (const [row, cells] of groupRows) {
+    const group = clean(cells.find((cell) => /^50[1-6]\s*[иi]$/i.test(clean(cell.value)))?.value);
     for (const cell of cells) {
       if (cell.col <= 2) continue;
       const text = clean(cell.value);
       if (!text || /^\d+$/.test(text) || /^экзамены?$/i.test(text)) continue;
-      anchors.push({ row, cell: cell.ref, text });
+      anchors.push({ group, row, cell: cell.ref, text });
     }
   }
-  console.log(JSON.stringify({ stage: "ru-inspection", sheet: sheet.name, footerHeader, footer, distinctAnchors: [...new Map(anchors.map((x)=>[x.text,x])).values()] }, null, 2));
+  console.log(JSON.stringify({
+    stage: "ru-inspection",
+    sheet: sheet.name,
+    footerHeader,
+    footer,
+    distinctAnchors: [...new Map(anchors.map((x)=>[x.text,x])).values()],
+    starAnchors: anchors.filter((x) => x.text.includes("*")),
+  }, null, 2));
 }
 
 main().catch((error) => { console.error(error?.stack || String(error)); process.exitCode = 1; });
