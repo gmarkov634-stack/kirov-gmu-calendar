@@ -2,8 +2,17 @@ function cellText(cell) {
   return String(cell?.value ?? "").replace(/\s+/g, " ").trim();
 }
 
+function hiddenRows(sheet) {
+  return new Set((sheet?.hiddenRows || []).map(Number).filter((row) => Number.isInteger(row) && row > 0));
+}
+
+function visibleCells(sheet) {
+  const hidden = hiddenRows(sheet);
+  return (sheet?.cells || []).filter((cell) => !hidden.has(Number(cell.row)));
+}
+
 function sheetText(sheet) {
-  return (sheet?.cells || []).map(cellText).filter(Boolean).join("\n");
+  return visibleCells(sheet).map(cellText).filter(Boolean).join("\n");
 }
 
 function numericDay(value) {
@@ -48,8 +57,9 @@ function workbookFeatures(workbook) {
   let wideHorizontalMerges = 0;
 
   for (const sheet of sheets) {
+    const hidden = hiddenRows(sheet);
     const byRow = new Map();
-    for (const cell of sheet.cells || []) {
+    for (const cell of visibleCells(sheet)) {
       if (!byRow.has(cell.row)) byRow.set(cell.row, []);
       byRow.get(cell.row).push(cell);
       const code = groupCode(cell.value);
@@ -64,6 +74,7 @@ function workbookFeatures(workbook) {
       if (earlyGroup) groupRows += 1;
     }
     for (const merge of sheet.merges || []) {
+      if (hidden.has(Number(merge.startRow))) continue;
       if (merge.startRow === merge.endRow && merge.endCol - merge.startCol >= 2) wideHorizontalMerges += 1;
     }
   }

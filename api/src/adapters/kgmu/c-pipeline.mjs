@@ -1,6 +1,7 @@
 import { parseKgmuCycleWorkbook } from "./cycle-parser.mjs";
 import { parseKgmuForeignCycleWorkbook } from "./foreign-c-parser.mjs";
 import { parseKgmuForeignCourse5Workbook } from "./foreign-c-course5-reviewed.mjs";
+import { parseKgmuForeignCourse6Workbook } from "./foreign-c-course6-reviewed.mjs";
 
 function contextComplete(metadata, period) {
   return Boolean(
@@ -14,7 +15,7 @@ function contextComplete(metadata, period) {
 function foreignCycleCourse(metadata, classification) {
   if (metadata?.program !== "foreign") return null;
   const course = Number(metadata?.course);
-  if (![4, 5].includes(course)) return null;
+  if (![4, 5, 6].includes(course)) return null;
   const groups = classification?.features?.groupCodes || [];
   const expected = new RegExp(`^${course}\\d{2}и$`, "i");
   return groups.length >= 4 && groups.every((code) => expected.test(String(code))) ? course : null;
@@ -22,11 +23,13 @@ function foreignCycleCourse(metadata, classification) {
 
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
   const foreignCourse = foreignCycleCourse(metadata, classification);
-  const parse = foreignCourse === 5
-    ? parseKgmuForeignCourse5Workbook
-    : foreignCourse === 4
-      ? parseKgmuForeignCycleWorkbook
-      : parseKgmuCycleWorkbook;
+  const parse = foreignCourse === 6
+    ? parseKgmuForeignCourse6Workbook
+    : foreignCourse === 5
+      ? parseKgmuForeignCourse5Workbook
+      : foreignCourse === 4
+        ? parseKgmuForeignCycleWorkbook
+        : parseKgmuCycleWorkbook;
   const parsed = parse(workbook, {
     program: metadata.program || (foreignCourse ? "foreign" : "medicine"),
     course: metadata.course || 4,
