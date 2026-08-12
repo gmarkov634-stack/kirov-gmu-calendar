@@ -144,13 +144,27 @@ jobs:
 
           API_URL="$CLOUD_RU_API_URL" node - <<'NODE'
           const fs = require('fs');
-          const path = 'dist/site/omgmu/config.js';
           const apiUrl = process.env.API_URL;
-          const source = fs.readFileSync(path, 'utf8');
-          const pattern = /apiBaseUrl:\s*"https:\/\/[^\"]+"/;
-          if (!pattern.test(source)) throw new Error('apiBaseUrl setting missing');
-          fs.writeFileSync(path, source.replace(pattern, `apiBaseUrl: "${apiUrl}"`));
+          const targets = [
+            {
+              path: 'dist/site/data.js',
+              pattern: /apiBase:\s*"https:\/\/[^\"]+"/,
+              replacement: `apiBase: "${apiUrl}"`,
+            },
+            {
+              path: 'dist/site/omgmu/config.js',
+              pattern: /apiBaseUrl:\s*"https:\/\/[^\"]+"/,
+              replacement: `apiBaseUrl: "${apiUrl}"`,
+            },
+          ];
+          for (const target of targets) {
+            const source = fs.readFileSync(target.path, 'utf8');
+            if (!target.pattern.test(source)) throw new Error(`API base setting missing: ${target.path}`);
+            fs.writeFileSync(target.path, source.replace(target.pattern, target.replacement));
+          }
           NODE
+          grep -q "apiBase: \"$CLOUD_RU_API_URL\"" dist/site/data.js
+          grep -q "apiBaseUrl: \"$CLOUD_RU_API_URL\"" dist/site/omgmu/config.js
           ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'

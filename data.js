@@ -1,6 +1,6 @@
 window.CALENDAR_DATA = {
   university: "kgmu",
-  apiBase: "https://student-calendar-api.containerapps.ru",
+  apiBase: "https://kgmu-calendar-api.containerapps.ru",
   offer: {
     academicYear: "2026/27",
     semester: 1,
