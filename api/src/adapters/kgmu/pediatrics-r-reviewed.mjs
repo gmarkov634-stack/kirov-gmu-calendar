@@ -1,9 +1,25 @@
 import { createHash } from "node:crypto";
 import { parseWeeklyRWorkbook } from "./weekly-r-parser.mjs";
 
+const ELECTIVE_PE_SENTINEL = "__KGMU_ELECTIVE_PE__";
+const ELECTIVE_PE_CANONICAL = "Элективные дисциплины (модули) по физической культуре и спорту";
+const ELECTIVE_PE_PATTERN = /элективные\s+дисциплины(?:\s*\(модули\))?\s+по\s+физической\s+культуре\s+и\s+спорту/gi;
+
+// R-PED uses parser-known subjects as internal surrogates only. Restoration is
+// keyed by both the surrogate title and the original source cell, so two
+// different subjects in one cell cannot collapse into one title.
 const SUBJECT_EXTENSIONS = [
-  { canonical: "Биоэтика", placeholder: "Философия", pattern: /биоэтика/gi },
-  { canonical: "Психология и педагогика", placeholder: "Правоведение", pattern: /психология\s+и\s+педагогика/gi },
+  { canonical: "Биоэтика", placeholder: "Философия", pattern: /биоэтика/i },
+  { canonical: "Психология и педагогика", placeholder: "Правоведение", pattern: /психология\s+и\s+педагогика/i },
+  { canonical: "Гигиена", placeholder: "Фармакология", pattern: /(?<!микробиология\s*,\s*вирусология\s*,\s*)гигиена/i },
+  { canonical: "Основы формирования здоровья детей", placeholder: "История России", pattern: /основы\s+формирования\s+здоровья\s+детей/i },
+  { canonical: "Общая хирургия", placeholder: "История медицины", pattern: /общая\s+хирургия/i },
+  { canonical: "Нормальная физиология", placeholder: "Медицинская информатика", pattern: /нормальная\s+физиология/i },
+  { canonical: "Физическая культура и спорт", placeholder: "Безопасность жизнедеятельности", pattern: /физическая\s+культура\s+и\s+спорт/i },
+  { canonical: "Микробиология, вирусология", placeholder: "Латинский язык", pattern: /микробиология\s*,\s*вирусология(?!\s*[-–]\s*микробиология\s+полости\s+рта)/i },
+  { canonical: "Биохимия", placeholder: "Иностранный язык", pattern: /биохимия/i },
+  { canonical: "Пропедевтика внутренних болезней", placeholder: "Общая и биоорганическая химия", pattern: /пропедевтика\s+внутренних\s+болезней/i },
+  { canonical: "Иммунология", placeholder: "Биология", pattern: /иммунология(?!\s*[-–]\s*клиническая\s+иммунология)/i },
 ];
 
 const BUILDINGS = {
@@ -16,14 +32,37 @@ function clean(value) {
   return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function globalPattern(pattern) {
+  return new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`);
+}
+
+function patternTest(pattern, value) {
+  return new RegExp(pattern.source, pattern.flags.replace(/g/g, "")).test(clean(value));
+}
+
 function refTextMap(workbook) {
   return new Map((workbook?.sheets?.[0]?.cells || []).map((cell) => [cell.ref, String(cell.value ?? "")]));
 }
 
+function sourceCellFromRange(source) {
+  return clean(source).split(":")[0] || null;
+}
+
 function replaceExtendedSubjects(value) {
   let text = String(value ?? "");
-  for (const subject of SUBJECT_EXTENSIONS) text = text.replace(subject.pattern, subject.placeholder);
-  return text;
+  const shouldTransform = /\d{1,2}[.:]\d{2}/.test(text)
+    || SUBJECT_EXTENSIONS.some((subject) => patternTest(subject.pattern, text) && clean(text).length < 120);
+  if (!shouldTransform) return text;
+
+  text = text.replace(ELECTIVE_PE_PATTERN, ELECTIVE_PE_SENTINEL);
+  for (const subject of SUBJECT_EXTENSIONS) {
+    text = text.replace(globalPattern(subject.pattern), subject.placeholder);
+  }
+  text = text.replaceAll(ELECTIVE_PE_SENTINEL, ELECTIVE_PE_CANONICAL);
+  // Source files sometimes put a harmless space before the closing parenthesis:
+  // "(1 занятие во вт. )". Normalize only that whitespace so generic R QA can
+  // recognize the already-existing note without changing its meaning.
+  return text.replace(/(\b(?:пн|вт|ср|чт|пт|сб)\.?)\s+\)/gi, "$1)");
 }
 
 function productionWorkbook(workbook) {
@@ -41,7 +80,12 @@ function productionWorkbook(workbook) {
 function inferredScheduleEndRow(workbook) {
   const sheet = workbook?.sheets?.[0];
   if (!sheet?.cells?.length) return null;
-  if (sheet.cells.some((cell) => cell.col === 1 && /^(?:факультативы|дисциплина)$/i.test(clean(cell.value)))) return null;
+
+  const boundary = sheet.cells
+    .filter((cell) => cell.col === 1 && /^(?:факультативы|дисциплина)$/i.test(clean(cell.value)))
+    .sort((a, b) => a.row - b.row)[0];
+  if (boundary?.row > 1) return boundary.row - 1;
+
   const maxRow = Math.max(...sheet.cells.map((cell) => cell.row));
   const lastDay = sheet.cells.find((cell) => cell.row === maxRow && cell.col === 1);
   return /^(?:пн|вт|ср|чт|пт|сб|понедельник|вторник|среда|четверг|пятница|суббота)$/i.test(clean(lastDay?.value))
@@ -49,17 +93,26 @@ function inferredScheduleEndRow(workbook) {
     : null;
 }
 
-function subjectFromSource(raw) {
-  const text = clean(raw);
-  for (const subject of SUBJECT_EXTENSIONS) {
-    subject.pattern.lastIndex = 0;
-    if (subject.pattern.test(text)) {
-      subject.pattern.lastIndex = 0;
-      return subject.canonical;
-    }
-    subject.pattern.lastIndex = 0;
-  }
-  return null;
+function parserSubjectFromEvent(event) {
+  const title = clean(event?.title);
+  if (event?.kind === "lecture") return title.replace(/^ЛЕКЦ\.\s*/i, "");
+  if (event?.kind === "control") return title.replace(/^ЗАЧЕТ\s+С\s+ОЦЕНКОЙ\s*[—-]\s*/i, "");
+  return title;
+}
+
+function subjectFromEventSource(event, raw) {
+  const placeholder = parserSubjectFromEvent(event);
+  return SUBJECT_EXTENSIONS.find((subject) => (
+    subject.placeholder === placeholder && patternTest(subject.pattern, raw)
+  ))?.canonical || null;
+}
+
+function subjectFromQaSource(placeholder, source, originals) {
+  const sourceCell = sourceCellFromRange(source);
+  const raw = sourceCell ? originals.get(sourceCell) || "" : "";
+  return SUBJECT_EXTENSIONS.find((subject) => (
+    subject.placeholder === placeholder && patternTest(subject.pattern, raw)
+  ))?.canonical || placeholder;
 }
 
 function restoredTitle(event, subject) {
@@ -143,7 +196,7 @@ function eventId(event) {
 
 function repairEvent(event, originals) {
   const raw = originals.get(event.sourceCell) || "";
-  const subject = subjectFromSource(raw);
+  const subject = subjectFromEventSource(event, raw);
   let next = {
     ...event,
     title: restoredTitle(event, subject),
@@ -202,6 +255,16 @@ function findOverlaps(events) {
   return result;
 }
 
+function restoreQaEntry(entry, originals, idMap = null) {
+  return {
+    ...entry,
+    subject: subjectFromQaSource(entry.subject, entry.source, originals),
+    ...(Array.isArray(entry.eventIds) && idMap ? {
+      eventIds: entry.eventIds.map((id) => idMap.get(id) || id),
+    } : {}),
+  };
+}
+
 export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
   const originals = refTextMap(workbook);
   const transformed = productionWorkbook(workbook);
@@ -211,21 +274,32 @@ export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
     ...(inferredEnd ? { scheduleEndRow: inferredEnd } : {}),
   });
 
+  const idMap = new Map();
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
-    events: schedule.events.map((event) => repairEvent(event, originals))
-      .sort((a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title)),
+    events: schedule.events.map((event) => {
+      const repaired = repairEvent(event, originals);
+      idMap.set(event.id, repaired.id);
+      return repaired;
+    }).sort((a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title)),
   }));
   const events = schedules.flatMap((schedule) => schedule.events);
   const remainingOverlaps = findOverlaps(events);
+  const extraLessonExpectations = (parsed.qa.extraLessonExpectations || [])
+    .map((entry) => restoreQaEntry(entry, originals));
+  const extraLessonFailures = (parsed.qa.extraLessonFailures || [])
+    .map((entry) => restoreQaEntry(entry, originals, idMap));
   const qa = {
     ...parsed.qa,
+    extraLessonExpectations,
+    extraLessonFailures,
     remainingOverlaps,
-    status: parsed.qa.uncovered.length || parsed.qa.extraLessonFailures.length || remainingOverlaps.length
+    status: parsed.qa.uncovered.length || extraLessonFailures.length || remainingOverlaps.length
       ? "REVIEW_REQUIRED"
       : "PASS",
     eventCount: events.length,
     eventCountsByGroup: Object.fromEntries(schedules.map((schedule) => [schedule.group.code, schedule.events.length])),
+    reviewedProfile: "R-PED-REVIEWED",
   };
   return { schedules, qa };
 }
