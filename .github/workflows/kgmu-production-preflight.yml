@@ -23,11 +23,24 @@ jobs:
           grep -F "apiBase: \"$API\"" /tmp/data.js || failed=1
           grep -F 'academicYear: "2026/27"' /tmp/data.js || failed=1
           grep -F 'semester: 1' /tmp/data.js || failed=1
+          curl -fsSL --retry 3 --retry-delay 2 "$SITE/program-status.js" -o /tmp/program-status.js || failed=1
+          grep -F '/api/v2/catalog/${university}/programs' /tmp/program-status.js || failed=1
 
           echo "== Health =="
           curl -fsSL --retry 3 --retry-delay 2 "$API/health" -o /tmp/health.json || failed=1
           cat /tmp/health.json || true
           jq -e '.status == "ok" and .service == "medical-calendar-api"' /tmp/health.json || failed=1
+
+          echo "== Program availability + CORS =="
+          program_status=$(curl -sS -o /tmp/programs.json -D /tmp/programs.headers -w '%{http_code}' \
+            -H "Origin: $ORIGIN" \
+            "$API/api/v2/catalog/kgmu/programs")
+          echo "program_status=$program_status"
+          cat /tmp/programs.json || true
+          echo
+          test "$program_status" = "200" || failed=1
+          grep -iFx "access-control-allow-origin: $ORIGIN" <(tr -d '\r' < /tmp/programs.headers) || failed=1
+          jq -e '.university == "kgmu" and .academicYear == "2026/27" and .semester == 1 and (.programs | type == "array")' /tmp/programs.json || failed=1
 
           echo "== Current-offer catalog + CORS =="
           status=$(curl -sS -o /tmp/catalog.json -D /tmp/catalog.headers -w '%{http_code}' \
