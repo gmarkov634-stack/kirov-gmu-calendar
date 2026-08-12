@@ -71,6 +71,18 @@ export function parseStylesXml(xml) {
   }));
 }
 
+function hiddenWorksheetRows(xml) {
+  const result = [];
+  for (const match of String(xml || "").matchAll(/<row\b([^>]*)>/g)) {
+    const row = Number(attr(match[1], "r"));
+    if (!Number.isInteger(row) || row < 1) continue;
+    const hidden = attr(match[1], "hidden") === "1";
+    const zeroHeight = attr(match[1], "zeroHeight") === "1";
+    if (hidden || zeroHeight) result.push(row);
+  }
+  return [...new Set(result)].sort((a, b) => a - b);
+}
+
 export function parseWorksheetXml(xml, strings, name, styles = []) {
   const cells = [];
   const styledCells = [];
@@ -107,7 +119,7 @@ export function parseWorksheetXml(xml, strings, name, styles = []) {
       endCol: end.col,
     });
   }
-  return { name, cells, merges, styledCells };
+  return { name, cells, merges, styledCells, hiddenRows: hiddenWorksheetRows(xml) };
 }
 
 async function unzipText(filename, entry, { maxBuffer = 32 * 1024 * 1024 } = {}) {
