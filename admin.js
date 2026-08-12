@@ -4,8 +4,7 @@ const tokenInput = document.querySelector("#admin-token");
 const message = document.querySelector("#admin-message");
 const dashboard = document.querySelector("#admin-dashboard");
 const refreshButton = document.querySelector("#admin-refresh");
-const maxDiscoverButton = document.querySelector("#max-discover");
-const maxTestButton = document.querySelector("#max-test");
+const emailTestButton = document.querySelector("#email-test");
 const summary = document.querySelector("#admin-summary");
 const list = document.querySelector("#admin-list");
 const reviewSummary = document.querySelector("#review-summary");
@@ -154,62 +153,26 @@ async function publishReview(review) {
   await load();
 }
 
-function maxRecipientLabel(item) {
-  const name = [item.firstName, item.lastName].filter(Boolean).join(" ") || item.username || "пользователь";
-  const username = item.username ? ` @${item.username}` : "";
-  return `${name}${username}: ${item.userId}`;
-}
-
-async function discoverMax() {
-  maxDiscoverButton.disabled = true;
-  showMessage("Ищу пользователей, которые уже запустили бота в MAX…");
+async function testEmail() {
+  emailTestButton.disabled = true;
+  showMessage("Отправляю тестовое письмо…");
   try {
-    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/max-discover`, {
-      cache: "no-store",
-      headers: headers(),
-    });
-    if (!response.ok) {
-      showMessage("Не удалось получить события MAX. Проверьте MAX_BOT_TOKEN и доступ сервера к platform-api2.max.ru.");
-      return;
-    }
-    const data = await response.json();
-    if (!data.configured) {
-      showMessage("MAX пока не настроен: сначала добавьте секрет MAX_BOT_TOKEN в kgmu-calendar-api.");
-      return;
-    }
-    if (!Array.isArray(data.recipients) || !data.recipients.length) {
-      showMessage("Пользователи MAX пока не найдены. Откройте созданного бота в MAX, нажмите «Начать», затем повторите поиск.");
-      return;
-    }
-    const recipients = data.recipients.slice(0, 5).map(maxRecipientLabel).join("; ");
-    showMessage(`Найдены MAX ID: ${recipients}. Нужный ID добавьте в kgmu-calendar-api как MAX_ADMIN_USER_ID.`);
-  } finally {
-    maxDiscoverButton.disabled = false;
-  }
-}
-
-async function testMax() {
-  maxTestButton.disabled = true;
-  showMessage("Отправляю тестовое сообщение в MAX…");
-  try {
-    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/max-test`, {
+    const response = await fetch(`${apiBase}/api/v1/admin/kgmu/email-test`, {
       method: "POST",
       headers: headers(),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      if (data.error === "max_admin_user_not_configured") {
-        showMessage("MAX_BOT_TOKEN принят, но не задан MAX_ADMIN_USER_ID. Сначала нажмите «Найти MAX ID».");
-      } else if (data.error === "max_not_configured") {
-        showMessage("MAX_BOT_TOKEN ещё не настроен.");
+      if (data.error === "email_not_configured") {
+        showMessage("Email-уведомления ещё не настроены. Добавьте SMTP-параметры и EMAIL_TO в kgmu-calendar-api.");
       } else {
-        showMessage("Тест MAX не прошёл. Проверьте MAX_BOT_TOKEN, MAX_ADMIN_USER_ID и доступ к platform-api2.max.ru.");
+        showMessage("Тест Email не прошёл. Проверьте SMTP-параметры и логи kgmu-calendar-api.");
       }
       return;
     }
-    showMessage("Тестовое сообщение отправлено в MAX.");
+    showMessage("Тестовое письмо отправлено.");
   } finally {
-    maxTestButton.disabled = false;
+    emailTestButton.disabled = false;
   }
 }
 
@@ -339,5 +302,4 @@ form.addEventListener("submit", (event) => {
   load();
 });
 refreshButton.addEventListener("click", load);
-maxDiscoverButton.addEventListener("click", discoverMax);
-maxTestButton.addEventListener("click", testMax);
+emailTestButton.addEventListener("click", testEmail);
