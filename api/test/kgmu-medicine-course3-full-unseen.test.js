@@ -51,5 +51,6 @@ test("full previously unseen medicine course 3 stream 2 workbook is fully covere
     event.start.startsWith("2026-05-25T")
   ));
 
-  assert.ok((result.qa.remainingOverlaps?.length || 0) > 0);
+  assert.equal(result.qa.confirmedOverlaps?.length, 7);
+  assert.deepEqual(result.qa.remainingOverlaps, []);
 });
