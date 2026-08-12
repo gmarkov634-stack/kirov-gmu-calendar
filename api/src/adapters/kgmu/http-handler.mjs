@@ -72,15 +72,7 @@ function metadataFromUrl(url) {
   };
 }
 
-export function createKgmuParserHandler({
-  service,
-  queue,
-  watcher,
-  notifier,
-  maxNotifier,
-  telegramNotifier,
-  config,
-}) {
+export function createKgmuParserHandler({ service, queue, watcher, notifier, config }) {
   return async function kgmuParserHandler(request, response) {
     applyCors(request, response, config);
     if (request.method === "OPTIONS") return sendEmpty(response);
@@ -112,38 +104,15 @@ export function createKgmuParserHandler({
       }
     }
 
-    if (request.method === "GET" && url.pathname === "/api/v1/admin/kgmu/max-discover") {
-      if (typeof maxNotifier?.discoverRecipients !== "function") return send(response, 503, { error: "max_notifier_unavailable" });
+    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/email-test") {
+      if (typeof notifier?.notifySystemTest !== "function") return send(response, 503, { error: "email_notifier_unavailable" });
       try {
-        return send(response, 200, await maxNotifier.discoverRecipients());
-      } catch (error) {
-        console.error("KGMU MAX recipient discovery failed", error);
-        return send(response, 503, { error: "max_discovery_failed" });
-      }
-    }
-
-    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/max-test") {
-      if (typeof maxNotifier?.notifySystemTest !== "function") return send(response, 503, { error: "max_notifier_unavailable" });
-      try {
-        const result = await maxNotifier.notifySystemTest();
-        if (!result?.sent) return send(response, 503, { error: result?.reason || "max_not_configured" });
+        const result = await notifier.notifySystemTest();
+        if (!result?.sent) return send(response, 503, { error: result?.reason || "email_not_configured" });
         return send(response, 200, { sent: true });
       } catch (error) {
-        console.error("KGMU MAX test failed", error);
-        return send(response, 503, { error: "max_test_failed" });
-      }
-    }
-
-    if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/telegram-test") {
-      const telegram = telegramNotifier || notifier;
-      if (typeof telegram?.notifySystemTest !== "function") return send(response, 503, { error: "telegram_notifier_unavailable" });
-      try {
-        const result = await telegram.notifySystemTest();
-        if (!result?.sent) return send(response, 503, { error: result?.reason || "telegram_not_configured" });
-        return send(response, 200, { sent: true });
-      } catch (error) {
-        console.error("KGMU Telegram test failed", error);
-        return send(response, 503, { error: "telegram_test_failed" });
+        console.error("KGMU Email test failed", error);
+        return send(response, 503, { error: "email_test_failed" });
       }
     }
 
