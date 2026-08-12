@@ -64,6 +64,7 @@ const server = http.createServer((request, response) => {
     return offerCatalogHandler(request, response);
   }
   if (
+    url.pathname === "/api/v1/admin/kgmu/dry-run" ||
     url.pathname === "/api/v1/admin/kgmu/ingest" ||
     url.pathname === "/api/v1/admin/kgmu/watch" ||
     url.pathname === "/api/v1/admin/kgmu/email-test" ||
