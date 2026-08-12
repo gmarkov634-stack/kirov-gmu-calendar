@@ -18,6 +18,18 @@ const SUBJECT_PATTERNS = [
   String.raw`элективн(?:ая|ые)\s+дисциплин(?:а|ы)(?:\s*\(модули\))?\s+по\s+физической\s+культуре\s+и\s+спорту`,
 ];
 
+// R69: these exact source-backed overlaps were manually confirmed against
+// 3_lech._2_potok-12-02-2026-11.xlsx. New overlaps remain fail-closed.
+const CONFIRMED_OVERLAPS_2025_26 = [
+  { group: '311', date: '2026-05-25', a: ['B7', '08:00', '11:10'], b: ['B8:J8', '11:00', '12:30'] },
+  { group: '311', date: '2026-05-25', a: ['B7', '08:00', '11:10'], b: ['B11', '11:00', '12:30'] },
+  { group: '311', date: '2026-05-25', a: ['B8:J8', '11:00', '12:30'], b: ['B11', '11:00', '12:30'] },
+  { group: '312', date: '2026-05-20', a: ['C17', '10:40', '13:50'], b: ['C18', '13:00', '16:10'] },
+  { group: '313', date: '2026-05-25', a: ['D7', '08:00', '11:10'], b: ['B8:J8', '11:00', '12:30'] },
+  { group: '319', date: '2026-05-18', a: ['J7', '08:00', '11:10'], b: ['B8:J8', '11:00', '12:30'] },
+  { group: '319', date: '2026-05-25', a: ['J7', '08:00', '11:10'], b: ['B8:J8', '11:00', '12:30'] },
+];
+
 function cloneWorkbook(workbook) {
   return {
     ...workbook,
@@ -105,6 +117,59 @@ function normalizeMedicineCourse3Workbook(workbook) {
   return normalized;
 }
 
+function confirmedPeriod(options) {
+  const academicYear = String(options?.academicYear || '').replace('-', '/');
+  return Number(options?.course) === 3
+    && options?.program === 'medicine'
+    && Number(options?.semester) === 2
+    && /^(?:2025\/26|2025\/2026)$/.test(academicYear);
+}
+
+function matchesEvent(event, group, date, spec) {
+  if (!event) return false;
+  const [sourceRange, start, end] = spec;
+  return event.group === group
+    && event.sourceRange === sourceRange
+    && event.start === `${date}T${start}:00+03:00`
+    && event.end === `${date}T${end}:00+03:00`;
+}
+
+function isConfirmedOverlap(first, second) {
+  return CONFIRMED_OVERLAPS_2025_26.some((rule) =>
+    (matchesEvent(first, rule.group, rule.date, rule.a) && matchesEvent(second, rule.group, rule.date, rule.b))
+    || (matchesEvent(first, rule.group, rule.date, rule.b) && matchesEvent(second, rule.group, rule.date, rule.a))
+  );
+}
+
+function applyConfirmedOverlapRules(result, options) {
+  if (!confirmedPeriod(options) || !(result?.qa?.remainingOverlaps || []).length) return result;
+  const eventById = new Map(
+    (result.schedules || []).flatMap((schedule) => schedule.events || []).map((event) => [event.id, event]),
+  );
+  const confirmedOverlaps = [];
+  const remainingOverlaps = [];
+  for (const overlap of result.qa.remainingOverlaps || []) {
+    const first = eventById.get(overlap.event1);
+    const second = eventById.get(overlap.event2);
+    if (isConfirmedOverlap(first, second)) confirmedOverlaps.push(overlap);
+    else remainingOverlaps.push(overlap);
+  }
+  const qa = {
+    ...result.qa,
+    confirmedOverlaps,
+    remainingOverlaps,
+  };
+  const hasBlockingIssue = Boolean(
+    (qa.uncovered || []).length
+    || (qa.extraLessonFailures || []).length
+    || (qa.normalizationFailures || []).length
+    || remainingOverlaps.length,
+  );
+  qa.status = hasBlockingIssue ? 'REVIEW_REQUIRED' : 'PASS';
+  return { ...result, qa };
+}
+
 export function parseMedicineCourse3RWorkbookReviewed(workbook, options = {}) {
-  return parseWeeklyRWorkbookReviewed(normalizeMedicineCourse3Workbook(workbook), options);
+  const result = parseWeeklyRWorkbookReviewed(normalizeMedicineCourse3Workbook(workbook), options);
+  return applyConfirmedOverlapRules(result, options);
 }
