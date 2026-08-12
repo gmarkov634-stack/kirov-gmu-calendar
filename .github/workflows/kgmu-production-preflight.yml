@@ -12,39 +12,50 @@ jobs:
       - name: Check Pages and production API
         shell: bash
         run: |
-          set -euo pipefail
+          set -u -o pipefail
+          failed=0
           SITE="https://gmarkov634-stack.github.io/kirov-gmu-calendar"
           ORIGIN="https://gmarkov634-stack.github.io"
           API="https://kgmu-calendar-api.containerapps.ru"
 
           echo "== Pages config =="
-          curl -fsSL --retry 3 --retry-delay 2 "$SITE/data.js" -o /tmp/data.js
-          grep -F "apiBase: \"$API\"" /tmp/data.js
-          grep -F 'academicYear: "2026/27"' /tmp/data.js
-          grep -F 'semester: 1' /tmp/data.js
+          curl -fsSL --retry 3 --retry-delay 2 "$SITE/data.js" -o /tmp/data.js || failed=1
+          grep -F "apiBase: \"$API\"" /tmp/data.js || failed=1
+          grep -F 'academicYear: "2026/27"' /tmp/data.js || failed=1
+          grep -F 'semester: 1' /tmp/data.js || failed=1
 
           echo "== Health =="
-          curl -fsSL --retry 3 --retry-delay 2 "$API/health" -o /tmp/health.json
-          cat /tmp/health.json
-          jq -e '.status == "ok" and .service == "medical-calendar-api"' /tmp/health.json
+          curl -fsSL --retry 3 --retry-delay 2 "$API/health" -o /tmp/health.json || failed=1
+          cat /tmp/health.json || true
+          jq -e '.status == "ok" and .service == "medical-calendar-api"' /tmp/health.json || failed=1
 
           echo "== Current-offer catalog + CORS =="
           status=$(curl -sS -o /tmp/catalog.json -D /tmp/catalog.headers -w '%{http_code}' \
             -H "Origin: $ORIGIN" \
             "$API/api/v2/catalog/kgmu/foreign/6/groups?academicYear=2025/26&semester=2")
-          test "$status" = "200"
-          cat /tmp/catalog.json
-          grep -iFx "access-control-allow-origin: $ORIGIN" <(tr -d '\r' < /tmp/catalog.headers)
-          jq -e '.university == "kgmu" and .program == "foreign" and .course == 6 and .academicYear == "2026/27" and .semester == 1 and (.groups | type == "array")' /tmp/catalog.json
+          echo "catalog_status=$status"
+          cat /tmp/catalog.json || true
+          echo
+          grep -i '^access-control-allow-origin:' <(tr -d '\r' < /tmp/catalog.headers) || true
+          test "$status" = "200" || failed=1
+          grep -iFx "access-control-allow-origin: $ORIGIN" <(tr -d '\r' < /tmp/catalog.headers) || failed=1
+          jq -e '.university == "kgmu" and .program == "foreign" and .course == 6 and .academicYear == "2026/27" and .semester == 1 and (.groups | type == "array")' /tmp/catalog.json || failed=1
 
           echo "== Payment fail-closed guard =="
-          payment_status=$(curl -sS -o /tmp/payment.json -w '%{http_code}' \
+          payment_status=$(curl -sS -o /tmp/payment.json -D /tmp/payment.headers -w '%{http_code}' \
             -X POST "$API/api/v2/payments" \
             -H 'Content-Type: application/json' \
             -H "Origin: $ORIGIN" \
             --data '{"university":"kgmu","program":"foreign","course":6,"groupCode":"999и","groupId":"kgmu:foreign:6:999и","email":"preflight@example.com","plan":"semester"}')
-          cat /tmp/payment.json
-          test "$payment_status" = "400"
-          jq -e '.error == "offer_not_found"' /tmp/payment.json
+          echo "payment_status=$payment_status"
+          cat /tmp/payment.json || true
+          echo
+          grep -i '^access-control-allow-origin:' <(tr -d '\r' < /tmp/payment.headers) || true
+          test "$payment_status" = "400" || failed=1
+          jq -e '.error == "offer_not_found"' /tmp/payment.json || failed=1
 
+          if [ "$failed" -ne 0 ]; then
+            echo "KGMU production preflight FAIL"
+            exit 1
+          fi
           echo "KGMU production preflight PASS"
