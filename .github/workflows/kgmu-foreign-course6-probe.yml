@@ -1,0 +1,24 @@
+name: KGMU foreign course 6 probe
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'api/tools/kgmu-probe-foreign-c-course6.mjs'
+      - 'api/src/adapters/kgmu/**'
+      - '.github/workflows/kgmu-foreign-course6-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe official 6 course FIO XLSX sources
+        run: node api/tools/kgmu-probe-foreign-c-course6.mjs
