@@ -30,6 +30,6 @@ jobs:
           rm -f api/src/adapters/kgmu/.course3-v2.part01.b64
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add api/src/adapters/kgmu/foreign-r-generic-v2.mjs api/src/adapters/kgmu/.course3-v2.mjs.gz.b64 api/src/adapters/kgmu/.course3-v2.part01.b64
+          git add -A api/src/adapters/kgmu
           git commit -m "Add course 3 R-FIO generic parser v2"
           git push origin HEAD:agent/kgmu-foreign-r-course3
