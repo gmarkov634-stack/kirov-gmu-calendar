@@ -9,6 +9,7 @@ const SOURCES = [
 ];
 const EXPECTED_GROUPS = ["601и", "602и", "603и", "604и", "605и"];
 const UA = "Mozilla/5.0 (compatible; KGMU-calendar-source-probe/1.0; +https://github.com/gmarkov634-stack/kirov-gmu-calendar)";
+const isGia = (value) => /^(?:ГИА|Final State Examination)$/i.test(String(value || "").trim());
 
 for (const source of SOURCES) {
   const response = await fetch(source.url, {
@@ -23,6 +24,17 @@ for (const source of SOURCES) {
   const classification = classifyKgmuWorkbook(workbook);
   assert.equal(classification.type, "C", `${source.language}: classification`);
   assert.deepEqual(classification.features.groupCodes, EXPECTED_GROUPS, `${source.language}: visible group classification`);
+
+  const giaGeometry = workbook.sheets.flatMap((sheet) => (sheet.cells || [])
+    .filter((cell) => isGia(cell.value))
+    .map((cell) => ({
+      sheet: sheet.name,
+      cell: cell.ref,
+      row: cell.row,
+      col: cell.col,
+      hidden: (sheet.hiddenRows || []).includes(cell.row),
+      merge: (sheet.merges || []).find((merge) => merge.startRow <= cell.row && cell.row <= merge.endRow && merge.startCol <= cell.col && cell.col <= merge.endCol) || null,
+    })));
 
   const parsed = parseKgmuForeignCourse6Workbook(workbook, {
     program: "foreign",
@@ -48,6 +60,7 @@ for (const source of SOURCES) {
     bytes: buffer.length,
     hiddenRows: workbook.sheets.map((sheet) => sheet.hiddenRows || []),
     classificationGroups: classification.features.groupCodes,
+    giaGeometry,
     qa: {
       status: parsed.qa.status,
       deterministicMainGridEvents: parsed.qa.deterministicMainGridEvents,
