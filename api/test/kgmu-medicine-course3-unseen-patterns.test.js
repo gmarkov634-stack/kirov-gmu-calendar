@@ -6,7 +6,7 @@ function cell(ref, row, col, value) {
   return { ref, row, col, value };
 }
 
-function workbookWithRows(scheduleRows, footerRow = 7, extraCells = []) {
+function workbookWithRows(scheduleRows, footerRow = 8, extraCells = []) {
   const cells = [
     cell("B1", 1, 2, "РАСПИСАНИЕ ЗАНЯТИЙ ДЛЯ СТУДЕНТОВ 3 КУРСА ЛЕЧЕБНОГО ФАКУЛЬТЕТА НА ВТОРОЕ ПОЛУГОДИЕ 2025-2026 учебного года (2 поток)"),
     cell("B2", 2, 2, "02.02.2026 (2 неделя) - 27.05.2026"),
@@ -24,16 +24,19 @@ function eventsFor(result, group) {
   return result.schedules.find((schedule) => schedule.group.code === group)?.events || [];
 }
 
-test("R-MED3 normalizes reversed date/time, double hyphen, adjacent times and week parity without leaking surrogate subjects", () => {
+test("R-MED3 parses exact unseen time overrides, adjacent times and week parity without leaking surrogate subjects", () => {
   const workbook = workbookWithRows([
     cell("A4", 4, 1, "ПН"),
-    cell("B4", 4, 2, "15.40-17.10-11.05 Лучевая диагностика и терапия"),
-    cell("C4", 4, 3, "18.05--9.40-10.25 Патологическая анатомия, клиническая патологическая анатомия. Патологическая анатомия (модуль)"),
+    cell("B4", 4, 2, "8.00-9.30, 9.40-10.25 Патофизиология, клиническая патофизиология. Патофизиология (модуль) 02.02-18.05, 25.05-8.00-11.10"),
+    cell("C4", 4, 3, "8.00-9.30, 9.40-10.25 Фармакология 02.02-25.05"),
     cell("A5", 5, 1, "ВТ"),
-    cell("B5", 5, 2, "8.00-9.30 Общественное здоровье и здравоохранение, экономика здравоохранения 1 неделя по 16.05"),
-    cell("C5", 5, 3, "10.50-12.20 12.30-14.00 Общая хирургия 12.05"),
-  ], 7, [
-    cell("A6", 6, 1, "1 неделя - 11.05-16.05 2 неделя - 18.05-23.05 Праздничные неучебные дни:"),
+    cell("B5", 5, 2, "15.20-16.50, 17.00-17.45 Организация сестринской помощи (дисциплина по выбору) (пр. занятие) 10.02-28.04 гр.№5 15.40-18.05 Общая хирургия 05.05, 15.40-17.10-12.05"),
+    cell("C5", 5, 3, "14.20-15.50, 16.00-16.45 Фармакология 03.02-19.05"),
+    cell("A6", 6, 1, "СР"),
+    cell("B6", 6, 2, "10.50-12.20 12.30-14.00 Лучевая диагностика и терапия 1 неделя по 20.05"),
+    cell("C6", 6, 3, "12.00-13.30, 13.40-15.30 Общественное здоровье и здравоохранение, экономика здравоохранения 1 неделя по 20.05"),
+  ], 8, [
+    cell("A7", 7, 1, "1 неделя-11.05-16.05 2 неделя-18.05-23.05 Праздничные неучебные дни-09.05"),
   ]);
 
   const result = parseMedicineCourse3RWorkbookReviewed(workbook, {
@@ -51,23 +54,23 @@ test("R-MED3 normalizes reversed date/time, double hyphen, adjacent times and we
   const group312 = eventsFor(result, "312");
 
   assert.ok(group311.some((event) =>
-    event.title === "Лучевая диагностика и терапия" &&
-    event.start === "2026-05-11T15:40:00+03:00" &&
-    event.end === "2026-05-11T17:10:00+03:00"
-  ));
-  assert.ok(group312.some((event) =>
-    event.title === "Патологическая анатомия, клиническая патологическая анатомия. Патологическая анатомия (модуль)" &&
-    event.start === "2026-05-18T09:40:00+03:00" &&
-    event.end === "2026-05-18T10:25:00+03:00"
+    event.title === "Патофизиология, клиническая патофизиология. Патофизиология (модуль)" &&
+    event.start === "2026-05-25T08:00:00+03:00" &&
+    event.end === "2026-05-25T11:10:00+03:00"
   ));
   assert.ok(group311.some((event) =>
-    event.title === "Общественное здоровье и здравоохранение, экономика здравоохранения" &&
-    event.start === "2026-05-12T08:00:00+03:00"
+    event.title === "Общая хирургия" &&
+    event.start === "2026-05-12T15:40:00+03:00" &&
+    event.end === "2026-05-12T17:10:00+03:00"
+  ));
+  assert.ok(group311.some((event) =>
+    event.title === "Лучевая диагностика и терапия" &&
+    event.start === "2026-05-13T10:50:00+03:00" &&
+    event.end === "2026-05-13T14:00:00+03:00"
   ));
   assert.ok(group312.some((event) =>
-    event.title === "Общая хирургия" &&
-    event.start === "2026-05-12T10:50:00+03:00" &&
-    event.end === "2026-05-12T14:00:00+03:00"
+    event.title === "Общественное здоровье и здравоохранение, экономика здравоохранения" &&
+    event.start === "2026-05-13T12:00:00+03:00"
   ));
 
   const titles = [...group311, ...group312].map((event) => event.title);
