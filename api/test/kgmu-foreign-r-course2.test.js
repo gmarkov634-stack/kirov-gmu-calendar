@@ -32,8 +32,14 @@ test("R-FIO parses independent course 2 stream 2 source without new hardcoded su
     "209и":258,"210и":258,"211и":256,"212и":258,
     "213и":258,"214и":258,"215и":259,"216и":256,
   });
-  assert.equal(result.qa.extraLessonExpectations.length, 11);
+  assert.equal(result.qa.extraLessonExpectations.length, 12);
   assert.equal(result.qa.extraLessonFailures.length, 0);
+  const embeddedBiochemistry = result.qa.extraLessonExpectations.find((item) => (
+    item.group === "212и" && item.subject === "Биохимия" && item.sourceCell === "E9"
+  ));
+  assert.equal(embeddedBiochemistry?.count, 1);
+  assert.equal(embeddedBiochemistry?.weekday, 5);
+  assert.equal(embeddedBiochemistry?.actual, 1);
   assert.deepEqual(result.qa.serviceRows, ["B40:I40"]);
   assert.deepEqual(result.qa.holidayDates, ["2026-02-23","2026-03-09","2026-05-01","2026-05-09","2026-06-12"]);
   assert.equal(result.qa.allowedOverlaps.length, 1);
