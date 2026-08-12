@@ -27,11 +27,11 @@ function eventIndex(parsed) {
 function augmentEmbeddedExtraLessonQa(parsed, workbook) {
   const qa = parsed.qa || (parsed.qa = {});
   qa.extraLessonExpectations ||= [];
-  qa.extraLessonFailures ||= [];
   const events = allEvents(parsed);
-  const existing = new Set(qa.extraLessonExpectations.map((item) => [
+  const keyOf = (item) => [
     item.group, item.subject, item.count, item.weekday, item.sourceCell,
-  ].join("|")));
+  ].join("|");
+  const existing = new Set(qa.extraLessonExpectations.map(keyOf));
 
   for (const sheet of workbook?.sheets || []) {
     for (const cell of sheet.cells || []) {
@@ -46,17 +46,6 @@ function augmentEmbeddedExtraLessonQa(parsed, workbook) {
         const subject = subjects[0];
         const groups = [...new Set(sourceEvents.filter((event) => event.subject === subject).map((event) => event.group))];
         for (const group of groups) {
-          const key = [group, subject, count, weekday, cell.ref].join("|");
-          if (existing.has(key)) continue;
-          existing.add(key);
-          const matches = events.filter((event) => (
-            event.group === group &&
-            event.subject === subject &&
-            event.kind === "practical" &&
-            explicitMode(event.dateMode) &&
-            weekdayIso(new Date(`${event.start.slice(0, 10)}T12:00:00Z`)) === weekday &&
-            event.sourceCell !== cell.ref
-          ));
           const expectation = {
             group,
             subject,
@@ -64,15 +53,31 @@ function augmentEmbeddedExtraLessonQa(parsed, workbook) {
             weekday,
             sourceCell: cell.ref,
             raw: match[0],
-            actual: matches.length,
-            eventIds: matches.map((event) => event.id),
           };
+          const key = keyOf(expectation);
+          if (existing.has(key)) continue;
+          existing.add(key);
           qa.extraLessonExpectations.push(expectation);
-          if (matches.length !== count) qa.extraLessonFailures.push(expectation);
         }
       }
     }
   }
+
+  qa.extraLessonExpectations = qa.extraLessonExpectations.map((expectation) => {
+    const matches = events.filter((event) => (
+      event.group === expectation.group &&
+      event.subject === expectation.subject &&
+      event.kind === "practical" &&
+      explicitMode(event.dateMode) &&
+      weekdayIso(new Date(`${event.start.slice(0, 10)}T12:00:00Z`)) === expectation.weekday
+    ));
+    return {
+      ...expectation,
+      actual: matches.length,
+      eventIds: matches.map((event) => event.id),
+    };
+  });
+  qa.extraLessonFailures = qa.extraLessonExpectations.filter((item) => item.actual !== item.count);
   return parsed;
 }
 
