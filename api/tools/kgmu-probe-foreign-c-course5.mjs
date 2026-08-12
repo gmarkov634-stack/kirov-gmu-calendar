@@ -5,6 +5,10 @@ import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 const PAGE_URL = "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya";
 const USER_AGENT = "Mozilla/5.0 (compatible; KGMU-calendar-source-probe/1.0; +https://github.com/gmarkov634-stack/kirov-gmu-calendar)";
 
+function clean(value) {
+  return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function decodeHtml(value) {
   return String(value || "")
     .replace(/&nbsp;/gi, " ")
@@ -50,6 +54,93 @@ async function fetchBuffer(url) {
     contentType: response.headers.get("content-type") || "",
     finalUrl: response.url,
     buffer,
+  };
+}
+
+function groupCode(value) {
+  const match = clean(value).match(/^(\d{3})\s*([иi])$/i);
+  return match ? `${match[1]}и` : null;
+}
+
+function rowsOf(sheet) {
+  const rows = new Map();
+  for (const cell of sheet?.cells || []) {
+    if (!rows.has(cell.row)) rows.set(cell.row, []);
+    rows.get(cell.row).push(cell);
+  }
+  for (const cells of rows.values()) cells.sort((a, b) => a.col - b.col);
+  return rows;
+}
+
+function inspectWorkbook(workbook) {
+  const sheet = workbook?.sheets?.[0];
+  if (!sheet) return { error: "no-sheet" };
+  const rows = rowsOf(sheet);
+  const styled = new Map((sheet.styledCells || []).map((cell) => [cell.ref, cell]));
+  const dateRow = [...rows.entries()].find(([, cells]) => cells.filter((cell) => {
+    const n = Number(cell.value);
+    return Number.isInteger(n) && n >= 1 && n <= 31;
+  }).length >= 10)?.[0] || null;
+  const groupRows = [...rows.entries()].flatMap(([row, cells]) => {
+    const groupCell = cells.find((cell) => groupCode(cell.value));
+    return groupCell ? [{ row, group: groupCode(groupCell.value), groupCell: groupCell.ref }] : [];
+  });
+  const footerHeaderRow = [...rows.entries()].find(([, cells]) => cells.some((cell) => /^(?:academic\s+discipline|discipline|дисциплина)$/i.test(clean(cell.value))))?.[0] || null;
+
+  const anchorRows = [];
+  for (const { row, group } of groupRows) {
+    for (const cell of rows.get(row) || []) {
+      if (cell.col <= 2) continue;
+      const text = clean(cell.value);
+      if (!text || /^\d{1,2}$/.test(text)) continue;
+      const style = styled.get(cell.ref);
+      anchorRows.push({ group, cell: cell.ref, text, fillId: style?.fillId || null, styleId: style?.styleId ?? null });
+    }
+  }
+
+  const distinctAnchors = [];
+  const seenAnchors = new Set();
+  for (const item of anchorRows) {
+    const key = `${item.text}|${item.fillId ?? ""}`;
+    if (seenAnchors.has(key)) continue;
+    seenAnchors.add(key);
+    distinctAnchors.push(item);
+  }
+
+  const footerRows = [];
+  if (footerHeaderRow) {
+    const maxRow = Math.max(...rows.keys());
+    for (let row = footerHeaderRow; row <= Math.min(maxRow, footerHeaderRow + 40); row += 1) {
+      const values = (rows.get(row) || []).map((cell) => ({ cell: cell.ref, value: clean(cell.value) })).filter((item) => item.value);
+      if (values.length) footerRows.push({ row, values });
+    }
+  }
+
+  const fillCounts = {};
+  for (const { row, group } of groupRows) {
+    for (const cell of sheet.styledCells || []) {
+      if (cell.row !== row || !cell.fillId) continue;
+      const key = `${group}|fill:${cell.fillId}`;
+      fillCounts[key] = (fillCounts[key] || 0) + 1;
+    }
+  }
+
+  const starAnchors = anchorRows.filter((item) => item.text.includes("*"));
+  const outsideGridText = (sheet.cells || [])
+    .filter((cell) => !groupRows.some((item) => item.row === cell.row) && (!footerHeaderRow || cell.row < footerHeaderRow))
+    .map((cell) => ({ cell: cell.ref, value: clean(cell.value) }))
+    .filter((item) => item.value && !/^\d{1,2}$/.test(item.value));
+
+  return {
+    sheet: sheet.name,
+    dateRow,
+    groupRows,
+    footerHeaderRow,
+    distinctAnchors,
+    starAnchors,
+    fillCounts,
+    footerRows,
+    outsideGridText,
   };
 }
 
@@ -106,6 +197,7 @@ async function main() {
   }
   const classification = classifyKgmuWorkbook(workbook);
   console.log(JSON.stringify({ stage: "classification", classification }, null, 2));
+  console.log(JSON.stringify({ stage: "structure-inspection", inspection: inspectWorkbook(workbook) }, null, 2));
   if (classification.type !== "C") {
     fail("Course 5 source is not classified as C", { classification });
     return;
