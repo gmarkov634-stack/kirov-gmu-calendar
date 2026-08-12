@@ -159,14 +159,15 @@ function responseSize(response) {
   return Number.isFinite(value) && value >= 0 ? value : null;
 }
 
-function notificationPending(ingest) {
-  return Boolean(ingest?.reviewId && ingest?.notification && ingest.notification.sent === false);
+function notificationPending(result) {
+  return Boolean(result?.reviewId && result?.notification && result.notification.sent === false);
 }
 
 export class KgmuSourceWatcher {
-  constructor({ config, ingestService, stateStore, fetchFn = fetch }) {
+  constructor({ config, ingestService, sourceObserver = null, stateStore, fetchFn = fetch }) {
     this.config = config;
     this.ingestService = ingestService;
+    this.sourceObserver = sourceObserver;
     this.stateStore = stateStore;
     this.fetch = fetchFn;
     this.running = null;
@@ -183,9 +184,15 @@ export class KgmuSourceWatcher {
     const expectedSemesters = watchedSemesters(this.config);
     const parserRevision = String(this.config.kgmuParserRevision || "unknown");
     const maxBytes = Number(this.config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
+    const manualNormalization = this.config.kgmuManualNormalization === true;
+    const processor = manualNormalization ? this.sourceObserver : this.ingestService;
     const state = await this.stateStore.read();
     const discovered = [];
     const errors = [];
+
+    if (manualNormalization && typeof processor?.observeSource !== "function") {
+      throw new Error("KGMU manual source observer is unavailable");
+    }
 
     for (const page of targetPages(this.config)) {
       try {
@@ -218,8 +225,8 @@ export class KgmuSourceWatcher {
         if (previous?.sha256 === hash && previous?.parserRevision === parserRevision) {
           let notificationRetry = null;
           let pending = Boolean(previous.notificationPending);
-          if (pending && previous.reviewId && typeof this.ingestService?.retryNotification === "function") {
-            notificationRetry = await this.ingestService.retryNotification(previous.reviewId);
+          if (pending && previous.reviewId && typeof processor?.retryNotification === "function") {
+            notificationRetry = await processor.retryNotification(previous.reviewId);
             pending = !notificationRetry?.sent && !notificationRetry?.terminal;
           }
           state.slots[key] = {
@@ -234,14 +241,19 @@ export class KgmuSourceWatcher {
           continue;
         }
 
-        const ingest = await this.ingestService.ingest(buffer, {
+        const context = {
           filename: filenameFromUrl(source.url),
           program: source.program,
           course: source.course,
           academicYear: source.academicYear,
           semester: source.semester,
-        });
-        const pending = notificationPending(ingest);
+          groupRange: source.groupRange,
+          sourceUrl: source.url,
+        };
+        const processed = manualNormalization
+          ? await processor.observeSource(buffer, context)
+          : await processor.ingest(buffer, context);
+        const pending = notificationPending(processed);
         state.slots[key] = {
           sha256: hash,
           parserRevision,
@@ -255,27 +267,38 @@ export class KgmuSourceWatcher {
           semester: source.semester,
           lastSeenAt: new Date().toISOString(),
           lastIngestedAt: new Date().toISOString(),
-          ingestStatus: ingest.status,
-          reviewId: ingest.reviewId || null,
-          parserType: ingest.classification?.type || ingest.parserType || null,
+          ingestStatus: processed.status,
+          reviewId: processed.reviewId || null,
+          parserType: processed.classification?.type || processed.parserType || null,
           notificationPending: pending,
-          lastNotificationAttemptAt: ingest.notification ? new Date().toISOString() : null,
+          lastNotificationAttemptAt: processed.notification ? new Date().toISOString() : null,
         };
-        results.push({ slot: key, status: "INGESTED", sha256: hash, parserRevision, url: source.url, ingest });
+        results.push({
+          slot: key,
+          status: manualNormalization ? "OBSERVED" : "INGESTED",
+          sha256: hash,
+          parserRevision,
+          url: source.url,
+          ...(manualNormalization ? { observation: processed } : { ingest: processed }),
+        });
       } catch (error) {
         errors.push({ url: source.url, program: source.program, course: source.course, groupRange: source.groupRange, error: String(error?.message || error).slice(0, 300) });
       }
     }
 
+    const observedCount = results.filter((item) => item.status === "OBSERVED").length;
+    const ingestedCount = results.filter((item) => item.status === "INGESTED").length;
     const summary = {
       status: errors.length ? "PARTIAL" : "OK",
       checkedAt: new Date().toISOString(),
       expectedAcademicYear,
       expectedSemesters,
       parserRevision,
+      mode: manualNormalization ? "MANUAL_NORMALIZATION" : "SERVER_PARSER",
       discoveredCount: discovered.length,
       targetCount: targets.length,
-      ingestedCount: results.filter((item) => item.status === "INGESTED").length,
+      observedCount,
+      ingestedCount,
       unchangedCount: results.filter((item) => item.status === "UNCHANGED").length,
       notificationRetryCount: results.filter((item) => item.notificationRetry).length,
       pendingNotificationCount: Object.values(state.slots || {}).filter((item) => item?.notificationPending).length,
@@ -284,10 +307,6 @@ export class KgmuSourceWatcher {
     state.lastRunAt = summary.checkedAt;
     state.lastRunSummary = summary;
     await this.stateStore.write(state);
-    return {
-      ...summary,
-      results,
-      errors,
-    };
+    return { ...summary, results, errors };
   }
 }
