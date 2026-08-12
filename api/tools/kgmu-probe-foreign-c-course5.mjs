@@ -1,5 +1,5 @@
 import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
-import { parseKgmuForeignCourse5Workbook } from "../src/adapters/kgmu/foreign-c-course5-parser.mjs";
+import { parseKgmuForeignCourse5Workbook } from "../src/adapters/kgmu/foreign-c-course5-reviewed.mjs";
 import { readKgmuXlsxStructure } from "../src/adapters/kgmu/xlsx-reader.mjs";
 
 const PAGE_URL = "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya";
@@ -49,6 +49,9 @@ async function main() {
   if (parsed.qa.sourceLanguage !== "en") throw new Error(`Expected English source, got ${parsed.qa.sourceLanguage}`);
   if (parsed.qa.status !== "REVIEW_REQUIRED") throw new Error(`English mirror must fail closed, got ${parsed.qa.status}`);
   if (!parsed.qa.mirrorSemanticRisks.length) throw new Error("English mirror risk was not detected");
+  if (parsed.qa.mainGridSubjectDays !== 636 || parsed.qa.physicalEducationEvents !== 96 || parsed.qa.eventCount !== 732) {
+    throw new Error("English mirror did not structurally cover the full 732-event schedule");
+  }
   if (parsed.qa.unhandledBlocks.length || parsed.qa.missingTimes.length || parsed.qa.remainingOverlaps.length) {
     throw new Error("English mirror has parser errors beyond the expected semantic-risk gate");
   }
