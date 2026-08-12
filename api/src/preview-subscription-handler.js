@@ -46,8 +46,26 @@ function publicApiBaseUrl(config) {
   }
 }
 
+function applyCors(request, response, config) {
+  const origin = request.headers.origin;
+  const allowedOrigins = Array.isArray(config.allowedOrigins)
+    ? config.allowedOrigins
+    : [config.allowedOrigin].filter(Boolean);
+  if (origin && allowedOrigins.includes(origin)) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Vary", "Origin");
+  }
+  response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token");
+}
+
 export function createPreviewSubscriptionHandler({ store, config }) {
   return async function previewSubscriptionHandler(request, response) {
+    applyCors(request, response, config);
+    if (request.method === "OPTIONS") {
+      response.writeHead(204, { "Cache-Control": "no-store" });
+      return response.end();
+    }
     if (request.method !== "POST") return send(response, 405, { error: "method_not_allowed" });
     if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
