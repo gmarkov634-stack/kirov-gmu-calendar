@@ -73,4 +73,4 @@ jobs:
           fi
           echo "KGMU production preflight PASS"
 
-# rerun after exact immutable image revision
+# delayed recheck after exact immutable image revision
