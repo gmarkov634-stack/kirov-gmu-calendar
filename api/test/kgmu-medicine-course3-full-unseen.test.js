@@ -31,6 +31,23 @@ test("full previously unseen medicine course 3 stream 2 workbook is fully covere
   };
   console.log("KGMU MED3 full unseen QA", JSON.stringify(summary));
 
+  const group314RadiologyMondays = result.schedules
+    .find((schedule) => schedule.group.code === "314")
+    ?.events.filter((event) =>
+      event.title === "Лучевая диагностика и терапия" &&
+      event.kind === "practical" &&
+      event.dateMode === "explicit" &&
+      ["2026-05-11", "2026-05-25"].includes(event.start.slice(0, 10))
+    )
+    .map((event) => ({
+      id: event.id,
+      start: event.start,
+      end: event.end,
+      sourceCell: event.sourceCell,
+      sourceRange: event.sourceRange,
+    })) || [];
+  console.log("KGMU MED3 group314 radiology Monday ownership", JSON.stringify(group314RadiologyMondays));
+
   assert.deepEqual(result.schedules.map((schedule) => schedule.group.code), ["311", "312", "313", "314", "315", "316", "317", "318", "319"]);
   assert.equal(result.qa.sourceAnchorCount, 107);
   assert.equal(result.qa.coveredSourceAnchors, 107);
