@@ -1,3 +1,5 @@
+import { listOfferProgramAvailability } from "./offer-availability.js";
+
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PROGRAM_ID = /^[a-z][a-z0-9-]{1,31}$/;
 
@@ -29,25 +31,48 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
-export function createOfferCatalogHandler({ store, config }) {
+export function createOfferCatalogHandler({ store, config, listProgramAvailability = listOfferProgramAvailability }) {
   return async function offerCatalogHandler(request, response) {
     allowCors(request, response, config);
     if (request.method === "OPTIONS") return send(response, 204, {});
     if (request.method !== "GET") return send(response, 405, { error: "method_not_allowed" });
 
     const url = new URL(request.url, "http://localhost");
-    const match = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/([^/]+)\/(\d+)\/groups$/);
-    if (!match) return send(response, 404, { error: "not_found" });
-
-    const university = decodeURIComponent(match[1]);
-    const program = decodeURIComponent(match[2]);
-    const course = Number(match[3]);
-    if (!UNIVERSITY_ID.test(university) || !PROGRAM_ID.test(program) || !Number.isInteger(course) || course < 1 || course > 9) {
-      return send(response, 400, { error: "invalid_catalog_context" });
-    }
+    const programSummaryMatch = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/programs$/);
+    const groupMatch = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/([^/]+)\/(\d+)\/groups$/);
+    if (!programSummaryMatch && !groupMatch) return send(response, 404, { error: "not_found" });
 
     const period = validOfferPeriod(config);
     if (!period) return send(response, 503, { error: "offer_not_configured" });
+
+    if (programSummaryMatch) {
+      const university = decodeURIComponent(programSummaryMatch[1]);
+      if (!UNIVERSITY_ID.test(university)) return send(response, 400, { error: "invalid_catalog_context" });
+      try {
+        const programs = await listProgramAvailability({
+          store,
+          university,
+          academicYear: period.academicYear,
+          semester: period.semester,
+        });
+        return send(response, 200, {
+          university,
+          academicYear: period.academicYear,
+          semester: period.semester,
+          programs,
+        }, "public, max-age=60");
+      } catch (error) {
+        console.error("offer availability unavailable", error);
+        return send(response, 503, { error: "catalog_unavailable" });
+      }
+    }
+
+    const university = decodeURIComponent(groupMatch[1]);
+    const program = decodeURIComponent(groupMatch[2]);
+    const course = Number(groupMatch[3]);
+    if (!UNIVERSITY_ID.test(university) || !PROGRAM_ID.test(program) || !Number.isInteger(course) || course < 1 || course > 9) {
+      return send(response, 400, { error: "invalid_catalog_context" });
+    }
 
     try {
       const groups = await store.listScheduleGroups({
