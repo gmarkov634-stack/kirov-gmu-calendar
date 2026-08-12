@@ -9,8 +9,11 @@ import { classifyKgmuWorkbook } from "../src/adapters/kgmu/classifier.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 function loadFixture() {
-  const b64 = fs.readFileSync(path.join(here, "fixtures", "kgmu-foreign-course2-stream2-2025-26.b64"), "utf8").trim();
-  return JSON.parse(gunzipSync(Buffer.from(b64, "base64")).toString("utf8"));
+  const parts = [1, 2, 3].map((part) => fs.readFileSync(
+    path.join(here, "fixtures", `kgmu-foreign-course2-stream2-2025-26.part${part}.b64`),
+    "utf8",
+  ).trim());
+  return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
 test("R-FIO parses independent course 2 stream 2 source without new hardcoded subjects", () => {
