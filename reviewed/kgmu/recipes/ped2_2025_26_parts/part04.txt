@@ -69,3 +69,8 @@ os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 with open(OUTPUT_PATH, "w", encoding="utf-8") as _f:
     json.dump(bundle, _f, ensure_ascii=False, indent=2)
 print(f"Wrote {OUTPUT_PATH}: {sum(len(events[g]) for g in GROUPS)} events")
+
+_manifest = os.environ.get("KGMU_MATERIALIZED_FILE_LIST")
+if _manifest:
+    with open(_manifest, "a", encoding="utf-8") as _mf:
+        _mf.write(OUTPUT_PATH + "\n")
