@@ -189,10 +189,17 @@ export class YearAwareStore extends MultiUniversityStore {
   }
 
   async #getPeriodSchedule(input) {
-    const context = scheduleContext(input);
+    const academicYear = input?.academicYear || this.config.offerAcademicYear;
+    const semester = Number(input?.semester || this.config.offerSemester);
+    const resolvedInput = {
+      ...input,
+      ...(academicYear ? { academicYear } : {}),
+      ...([1, 2].includes(semester) ? { semester } : {}),
+    };
+    const context = scheduleContext(resolvedInput);
     const bundle = await this.#currentBundle(context);
     if (bundle) {
-      const requested = scheduleContext(input);
+      const requested = scheduleContext(resolvedInput);
       const schedule = (bundle.schedules || []).find((candidate) => {
         const actual = scheduleContext(candidate);
         return (requested.groupId && actual.groupId === requested.groupId) ||
@@ -200,7 +207,7 @@ export class YearAwareStore extends MultiUniversityStore {
       });
       if (schedule) return schedule;
     }
-    return super.getSchedule(input);
+    return super.getSchedule(resolvedInput);
   }
 
   async #currentBundle(context) {
