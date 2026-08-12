@@ -19,6 +19,23 @@ const SUBJECT_EXTENSIONS = [
   { canonical: "Иммунология", placeholder: "Биология", pattern: /иммунология(?!\s*[-–]\s*клиническая\s+иммунология)/i },
 ];
 
+const SOURCE_SUBJECTS = [
+  ...SUBJECT_EXTENSIONS.map(({ canonical, pattern }) => ({ canonical, pattern })),
+  { canonical: "Философия", pattern: /философия/i },
+  { canonical: "Экономика", pattern: /(?<!здравоохранения\s*,\s*)экономика(?!\s+здравоохранения)/i },
+  { canonical: ELECTIVE_PE_CANONICAL, pattern: /элективные\s+дисциплины(?:\s*\(модули\))?\s+по\s+физической\s+культуре\s+и\s+спорту/i },
+  { canonical: "Фармакология", pattern: /фармакология/i },
+  { canonical: "История России", pattern: /история\s+россии/i },
+  { canonical: "История медицины", pattern: /история\s+медицины/i },
+  { canonical: "Медицинская информатика", pattern: /медицинская\s+информатика/i },
+  { canonical: "Безопасность жизнедеятельности", pattern: /безопасность\s+жизнедеятельности/i },
+  { canonical: "Иностранный язык", pattern: /иностранный\s+язык/i },
+  { canonical: "Латинский язык", pattern: /латинский\s+язык/i },
+  { canonical: "Биология", pattern: /(?<!микро)биология/i },
+];
+
+const WEEKDAY_NUMBERS = { пн: 1, вт: 2, ср: 3, чт: 4, пт: 5, сб: 6 };
+
 const BUILDINGS = {
   "1": { building: "1 корпус", address: "ул. Владимирская, 137" },
   "2": { building: "2 корпус", address: "ул. Пролетарская, 38" },
@@ -251,6 +268,91 @@ function restoreQaEntry(entry, originals, idMap = null) {
   };
 }
 
+function groupColumns(sheet) {
+  const result = new Map();
+  for (const cell of sheet?.cells || []) {
+    const match = clean(cell.value).match(/^группа\s+(\d{3}[а-яa-z]?)$/i);
+    if (match) result.set(cell.col, match[1]);
+  }
+  return result;
+}
+
+function sourceRangeForCell(sheet, cell) {
+  const merge = (sheet?.merges || []).find((item) => item.startRef === cell.ref);
+  return merge?.ref || cell.ref;
+}
+
+function groupsForCell(sheet, cell, columns) {
+  const merge = (sheet?.merges || []).find((item) => item.startRef === cell.ref);
+  const startCol = merge?.startCol ?? cell.col;
+  const endCol = merge?.endCol ?? cell.col;
+  return [...columns.entries()]
+    .filter(([col]) => col >= startCol && col <= endCol)
+    .sort((a, b) => a[0] - b[0])
+    .map(([, group]) => group);
+}
+
+function subjectBefore(text, index) {
+  let best = null;
+  for (const subject of SOURCE_SUBJECTS) {
+    const re = globalPattern(subject.pattern);
+    for (const match of String(text || "").matchAll(re)) {
+      if (match.index >= index) continue;
+      if (!best || match.index > best.index || (match.index === best.index && match[0].length > best.length)) {
+        best = { index: match.index, length: match[0].length, subject: subject.canonical };
+      }
+    }
+  }
+  return best?.subject || null;
+}
+
+function r67SupplementalExpectations(workbook, scheduleEndRow) {
+  const sheet = workbook?.sheets?.[0];
+  if (!sheet) return [];
+  const columns = groupColumns(sheet);
+  if (!columns.size) return [];
+  const groupHeaderRow = Math.min(...(sheet.cells || [])
+    .filter((cell) => columns.has(cell.col) && /^группа\s+/i.test(clean(cell.value)))
+    .map((cell) => cell.row));
+  const endRow = Number(scheduleEndRow) || Math.max(...(sheet.cells || []).map((cell) => cell.row));
+  const note = /\((\d+)\s+(занят(?:ие|ия|ий)|лекц(?:ия|ии|ий))\s+в(?:о)?\s+(пн|вт|ср|чт|пт|сб)\.?\s*([^)]*)\)/gi;
+  const result = [];
+
+  for (const cell of sheet.cells || []) {
+    if (cell.row <= groupHeaderRow || cell.row > endRow) continue;
+    const groups = groupsForCell(sheet, cell, columns);
+    if (!groups.length) continue;
+    const raw = String(cell.value || "");
+    for (const match of raw.matchAll(note)) {
+      // R67 is supplemental only for count/day notes that do not themselves
+      // contain concrete dates. Explicit dates stay under R07-R09/R28.
+      if (/\b\d{1,2}\.\d{2}\b/.test(match[4] || "")) continue;
+      const subject = subjectBefore(raw, match.index);
+      if (!subject) continue;
+      const count = Number(match[1]);
+      const weekday = WEEKDAY_NUMBERS[String(match[3] || "").toLowerCase()];
+      if (!Number.isInteger(count) || count < 1 || !weekday) continue;
+      const source = sourceRangeForCell(sheet, cell);
+      for (const group of groups) {
+        result.push({
+          group,
+          subject,
+          count,
+          weekday,
+          source,
+          supplementalR67: true,
+          lessonKind: /^лекц/i.test(match[2]) ? "lecture" : "lesson",
+        });
+      }
+    }
+  }
+  return result;
+}
+
+function qaExpectationKey(entry) {
+  return [entry.group, clean(entry.subject).toLocaleLowerCase("ru"), Number(entry.count), Number(entry.weekday), entry.source].join("|");
+}
+
 export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
   const originals = refTextMap(workbook);
   const transformed = productionWorkbook(workbook);
@@ -271,8 +373,20 @@ export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
   }));
   const events = schedules.flatMap((schedule) => schedule.events);
   const remainingOverlaps = findOverlaps(events);
-  const extraLessonExpectations = (parsed.qa.extraLessonExpectations || []).map((entry) => restoreQaEntry(entry, originals));
-  const extraLessonFailures = (parsed.qa.extraLessonFailures || []).map((entry) => restoreQaEntry(entry, originals, idMap));
+
+  const coreExpectations = (parsed.qa.extraLessonExpectations || []).map((entry) => restoreQaEntry(entry, originals));
+  const coreFailures = (parsed.qa.extraLessonFailures || []).map((entry) => restoreQaEntry(entry, originals, idMap));
+  const knownExpectationKeys = new Set(coreExpectations.map(qaExpectationKey));
+  const supplemental = r67SupplementalExpectations(workbook, inferredEnd)
+    .filter((entry) => !knownExpectationKeys.has(qaExpectationKey(entry)));
+  const supplementalFailures = supplemental.map((entry) => ({
+    ...entry,
+    actual: 0,
+    eventIds: [],
+  }));
+
+  const extraLessonExpectations = [...coreExpectations, ...supplemental];
+  const extraLessonFailures = [...coreFailures, ...supplementalFailures];
   const qa = {
     ...parsed.qa,
     extraLessonExpectations,
