@@ -1,6 +1,7 @@
 import http from "node:http";
 import { createHandler } from "./app.js";
 import { createArchivePaymentTestHandler } from "./archive-payment-test-handler.js";
+import { createPreviewSubscriptionHandler } from "./preview-subscription-handler.js";
 import { loadConfig } from "./config.js";
 import { YearAwareStore } from "./year-aware-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
@@ -22,6 +23,7 @@ const store = new YearAwareStore(config);
 const payments = new YooKassaService({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const archivePaymentTestHandler = createArchivePaymentTestHandler({ store, config, payments });
+const previewSubscriptionHandler = createPreviewSubscriptionHandler({ store, config });
 const offerCatalogHandler = createOfferCatalogHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
@@ -76,6 +78,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/admin/payments/test-archive") {
     return archivePaymentTestHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/subscriptions/preview") {
+    return previewSubscriptionHandler(request, response);
   }
   if (
     url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
