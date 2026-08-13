@@ -28,18 +28,16 @@ jobs:
           one.source.groupRange = '401-401';
           one.groups = { '401': source.groups['401'] };
           fs.writeFileSync('/tmp/reviewed-401.json', JSON.stringify(one));
+          console.log(JSON.stringify({url:one.source.url,sha256:one.source.sha256,events:one.groups['401'].events.length}));
           NODE
 
-      - name: Download exact reviewed XLSX
-        env:
-          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+      - name: Download exact official XLSX
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$KGMU_ADMIN_TOKEN"
-          curl --fail-with-body --silent --show-error \
-            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
-            'https://kgmu-calendar-api.containerapps.ru/api/v1/admin/parser-reviews/2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb/source' \
+          curl --fail-with-body --silent --show-error --location \
+            -A 'medical-calendar-e2e/1.0' \
+            'https://kirovgma.ru/sites/default/files/files/2026/02/02/1078/4_kurs_lechebnyy_fakultet-02-02-2026-14.xlsx' \
             -o /tmp/source.xlsx
           actual="$(sha256sum /tmp/source.xlsx | awk '{print $1}')"
           expected='146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae'
@@ -55,62 +53,48 @@ jobs:
           from datetime import datetime, timedelta
           from xml.etree import ElementTree as ET
 
-          path = '/tmp/source.xlsx'
           NS = {'m':'http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'pr':'http://schemas.openxmlformats.org/package/2006/relationships'}
-          with zipfile.ZipFile(path) as z:
+          with zipfile.ZipFile('/tmp/source.xlsx') as z:
               shared = []
               if 'xl/sharedStrings.xml' in z.namelist():
                   root = ET.fromstring(z.read('xl/sharedStrings.xml'))
                   for si in root.findall('m:si', NS):
                       shared.append(''.join(t.text or '' for t in si.iter('{%s}t' % NS['m'])))
-
               custom = {}
               date_style_ids = set()
-              if 'xl/styles.xml' in z.namelist():
-                  root = ET.fromstring(z.read('xl/styles.xml'))
-                  numfmts = root.find('m:numFmts', NS)
-                  if numfmts is not None:
-                      for n in numfmts.findall('m:numFmt', NS):
-                          custom[int(n.attrib['numFmtId'])] = n.attrib.get('formatCode','')
-                  cellxfs = root.find('m:cellXfs', NS)
-                  built_in_dates = set(range(14,23)) | set(range(27,37)) | set(range(45,48)) | set(range(50,59))
-                  if cellxfs is not None:
-                      for i, xf in enumerate(cellxfs.findall('m:xf', NS)):
-                          num_id = int(xf.attrib.get('numFmtId','0'))
-                          fmt = custom.get(num_id,'').lower()
-                          fmt_clean = re.sub(r'"[^"]*"|\\.|\[[^\]]*\]', '', fmt)
-                          if num_id in built_in_dates or (('d' in fmt_clean or 'm' in fmt_clean) and ('y' in fmt_clean)):
-                              date_style_ids.add(i)
-
+              root = ET.fromstring(z.read('xl/styles.xml'))
+              numfmts = root.find('m:numFmts', NS)
+              if numfmts is not None:
+                  for n in numfmts.findall('m:numFmt', NS):
+                      custom[int(n.attrib['numFmtId'])] = n.attrib.get('formatCode','')
+              cellxfs = root.find('m:cellXfs', NS)
+              built_in_dates = set(range(14,23)) | set(range(27,37)) | set(range(45,48)) | set(range(50,59))
+              if cellxfs is not None:
+                  for i, xf in enumerate(cellxfs.findall('m:xf', NS)):
+                      num_id = int(xf.attrib.get('numFmtId','0'))
+                      fmt = custom.get(num_id,'').lower()
+                      fmt_clean = re.sub(r'"[^"]*"|\\.|\[[^\]]*\]', '', fmt)
+                      if num_id in built_in_dates or (('d' in fmt_clean or 'm' in fmt_clean) and 'y' in fmt_clean):
+                          date_style_ids.add(i)
               wb = ET.fromstring(z.read('xl/workbook.xml'))
               rels = ET.fromstring(z.read('xl/_rels/workbook.xml.rels'))
               relmap = {r.attrib['Id']: r.attrib['Target'] for r in rels.findall('pr:Relationship', NS)}
               sheets = []
               for sh in wb.find('m:sheets', NS).findall('m:sheet', NS):
                   target = relmap[sh.attrib['{%s}id' % NS['r']]]
-                  if target.startswith('/'):
-                      sheet_path = target.lstrip('/')
-                  else:
-                      sheet_path = 'xl/' + target.lstrip('/')
-                  sheets.append((sh.attrib['name'], sheet_path))
-
-              date_cells = []
-              text_hits = []
+                  sheets.append((sh.attrib['name'], target.lstrip('/') if target.startswith('/') else 'xl/' + target.lstrip('/')))
+              date_cells, text_hits = [], []
               for sheet_name, sheet_path in sheets:
                   root = ET.fromstring(z.read(sheet_path))
                   for c in root.findall('.//m:c', NS):
-                      ref = c.attrib.get('r')
-                      t = c.attrib.get('t')
-                      s = int(c.attrib.get('s','0'))
+                      ref, t, s = c.attrib.get('r'), c.attrib.get('t'), int(c.attrib.get('s','0'))
                       v = c.find('m:v', NS)
                       text = None
                       if t == 's' and v is not None:
-                          idx = int(v.text)
-                          text = shared[idx] if 0 <= idx < len(shared) else ''
+                          idx = int(v.text); text = shared[idx] if 0 <= idx < len(shared) else ''
                       elif t == 'inlineStr':
-                          isel = c.find('m:is', NS)
-                          text = ''.join(x.text or '' for x in isel.iter('{%s}t' % NS['m'])) if isel is not None else ''
-                      elif t in ('str','b') and v is not None:
+                          isel = c.find('m:is', NS); text = ''.join(x.text or '' for x in isel.iter('{%s}t' % NS['m'])) if isel is not None else ''
+                      elif t == 'str' and v is not None:
                           text = v.text or ''
                       if text:
                           cleaned = ' '.join(text.split())
@@ -118,23 +102,20 @@ jobs:
                               text_hits.append({'sheet':sheet_name,'cell':ref,'text':cleaned[:500]})
                       if v is not None and s in date_style_ids and t not in ('s','inlineStr','str'):
                           try:
-                              serial = float(v.text)
-                              dt = datetime(1899,12,30) + timedelta(days=serial)
+                              dt = datetime(1899,12,30) + timedelta(days=float(v.text))
                               if datetime(2025,1,1) <= dt <= datetime(2027,12,31):
-                                  date_cells.append({'sheet':sheet_name,'cell':ref,'date':dt.date().isoformat(),'serial':serial})
+                                  date_cells.append({'sheet':sheet_name,'cell':ref,'date':dt.date().isoformat()})
                           except Exception:
                               pass
-
           dates = sorted(date_cells, key=lambda x:(x['date'],x['sheet'],x['cell']))
-          near_start = [x for x in dates if '2026-01-15' <= x['date'] <= '2026-02-15']
           explicit = sorted(set(x['date'] for x in dates))
           result = {
               'source_sha256':'146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae',
               'sheets':[name for name,_ in sheets],
-              'earliest_date_cells':dates[:30],
-              'near_start_date_cells':near_start[:100],
-              'text_hits':text_hits[:100],
-              'explicit_dates_first_30':explicit[:30],
+              'earliest_date_cells':dates[:40],
+              'near_start_date_cells':[x for x in dates if '2026-01-15' <= x['date'] <= '2026-02-15'][:120],
+              'text_hits':text_hits[:120],
+              'explicit_dates_first_40':explicit[:40],
               'week1_start_date':'2026-02-02',
               'week1_confirmed_in_workbook':'2026-02-02' in explicit or any('02.02' in h['text'] for h in text_hits),
           }
