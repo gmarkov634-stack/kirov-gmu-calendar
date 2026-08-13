@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check production API
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -54,4 +56,47 @@ jobs:
           with open('/tmp/admin.json', encoding='utf-8') as fh:
               body = json.load(fh)
           assert body == {"error": "admin_forbidden"}, body
+          PY
+
+          control_status="$(curl --silent --show-error --output /tmp/schedule-control.json --write-out '%{http_code}' \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --data '{}' \
+            "$base/api/v1/schedule-review/control")"
+          test "$control_status" = "401"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/schedule-control.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body == {"error": "unauthorized"}, body
+          PY
+
+          test -n "$KGMU_ADMIN_TOKEN"
+          reviews="$(curl --fail-with-body --silent --show-error \
+            --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/parser-reviews?limit=20")"
+          python3 - "$reviews" <<'PY'
+          import json, sys
+          body = json.loads(sys.argv[1])
+          reviews = body.get("reviews")
+          assert isinstance(reviews, list), body
+          safe = []
+          for item in reviews:
+              meta = item.get("metadata") or {}
+              safe.append({
+                  "reviewId": item.get("reviewId"),
+                  "status": item.get("status"),
+                  "reason": item.get("reason"),
+                  "parserType": item.get("parserType"),
+                  "sourceSha256": item.get("sourceSha256"),
+                  "filename": meta.get("filename"),
+                  "program": meta.get("program"),
+                  "course": meta.get("course"),
+                  "academicYear": meta.get("academicYear"),
+                  "semester": meta.get("semester"),
+                  "groupRange": meta.get("groupRange"),
+              })
+          print("PARSER_REVIEWS_SAFE_BEGIN")
+          print(json.dumps(safe, ensure_ascii=False, indent=2))
+          print("PARSER_REVIEWS_SAFE_END")
           PY
