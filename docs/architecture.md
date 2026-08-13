@@ -82,8 +82,34 @@ Regression: `api/test/schedule-ics.test.js`, `api/test/schedule-versioning.test.
 Regression: `api/test/schedule-pipeline.test.js`, `api/test/canonical-subscription.test.js`, `api/test/subscription-period-canonical.test.js`, `api/test/order-context.test.js`.
 Спецификация: `docs/schedule-publication.md`.
 
-Полный GitHub Actions workflow `.github/workflows/api-tests.yml` на актуальном коде завершился успешно. Перед зелёным прогоном был обнаружен и исправлен ложный assertion в ICS folding regression: проверка логического TEXT теперь выполняется после unfolding, а физическое ограничение 75 UTF-8 октетов остаётся отдельной проверкой.
+### Шаг 8 — ChatGPT review → canonical publication
+Статус: **завершён в коде**.
+
+Реализованы:
+- новый envelope `canonical-reviewed/v1`, содержащий полноценные `schedule-batch/v1` по группам;
+- результат ChatGPT привязывается к **существующему** parser review конкретного официального XLSX, а не создаёт независимую публикацию;
+- authoritative привязка к `review.sourceSha256` и точному имени исходного файла;
+- проверка факультета/программы, курса, учебного года и семестра против metadata review;
+- строгая проверка полного диапазона групп файла;
+- `validateScheduleBatch()` до staging;
+- перевод той же карточки `REVIEW_REQUIRED → READY_TO_PUBLISH`;
+- совместимость с существующим review-dashboard через `parserType=REVIEWED_JSON` и `normalizer.format=canonical-reviewed/v1`;
+- перед первой записью все группы проходят полный canonical preflight: QA → versioning/diff → postprocessing → QA → ICS;
+- публикация групп идёт через Step 7 `YearAwareStore.putSchedule()`, поэтому существующие подписные URL автоматически получают новые версии;
+- storage failure посередине много-групповой записи не скрывается и переводит review в `CANONICAL_PUBLICATION_PARTIAL`;
+- admin endpoint `POST /api/v1/admin/parser-reviews/{reviewId}/canonical` с optional `?publish=true`;
+- OIDC endpoint `POST /api/v1/schedule-review/control` для безопасной автоматизации без admin-token;
+- GitHub workflow `.github/workflows/schedule-review-control.yml`, принимающий команды только из PR владельца исходного репозитория;
+- команды `review.submit`, `review.submit_publish`, `review.publish`;
+- таким образом, подключённый GitHub ChatGPT может передать подтверждённый canonical результат в backend через служебную PR-команду без ручного копирования JSON пользователем.
+
+Код: `api/src/adapters/kgmu/canonical-reviewed.mjs`, `api/src/adapters/kgmu/reviewed-service.mjs`, `api/src/adapters/kgmu/http-handler.mjs`, `api/src/schedule-review-control.js`, `api/src/server.js`.
+Workflow: `.github/workflows/schedule-review-control.yml`.
+Regression: `api/test/kgmu-canonical-review.test.js`, `api/test/kgmu-reviewed-http.test.js`, `api/test/schedule-review-control.test.js`.
+Спецификация: `docs/canonical-review-flow.md`.
+
+Полные GitHub Actions `API tests` после canonical review, HTTP endpoint и OIDC control plane завершились успешно.
 
 ### Следующий этап
 
-Шаг 8 — связать подтверждённый результат ручного/ChatGPT-разбора расписания с каноническим publication pipeline: из approved review получать `schedule-batch/v1`, публиковать его без ручного POST JSON, сохранять diff/QA для администратора и провести end-to-end тест `исходник → review → publish → существующая подписка → обновлённый ICS`.
+Шаг 9 — **production activation и реальный end-to-end**: дождаться/использовать опубликованный API image с этим кодом, перевести рабочий `medical-calendar-api` на новую ревизию и провести контролируемый сценарий на одном реальном parser review: `официальный XLSX → review → ChatGPT canonical package → GitHub OIDC command → PUBLISHED → чтение той же персональной ICS-ссылки → изменение source/version → автоматическое обновление существующей подписки`.
