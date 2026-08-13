@@ -26,7 +26,7 @@ ChatGPT выполняет смысловой разбор исходных XLSX
 ### Шаг 4 — серверная валидация
 Статус: **завершён**.
 
-Реализованы JSON Schema validation, смысловые проверки, блокировка needs_review, дубликаты, пересечения, R69, подгруппы, проверка derived/calendar и QA-отчёт publishable.
+Реализованы JSON Schema validation, смысловые проверки метаданных/времени/периода/аудитории, блокировка `needs_review`, дубликаты, проверка derived/calendar и QA-отчёт publishable. Валидатор намеренно **не проверяет пересечения занятий** и **не блокирует `lesson.type.code = unknown` сам по себе**.
 
 Код: `api/src/schedule/json-schema-validator.js`, `api/src/schedule/validate.js`.
 Спецификация: `docs/schedule-validation.md`.
