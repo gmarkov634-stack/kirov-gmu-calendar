@@ -128,6 +128,7 @@ function matchEvents(previousEvents, incomingEvents) {
   const pairs = [];
 
   pairByExistingId(previousEvents, incomingEvents, oldOpen, newOpen, pairs);
+  pairUnique(previousEvents, incomingEvents, oldOpen, newOpen, eventFingerprint, pairs, "exact_fingerprint");
   pairUnique(previousEvents, incomingEvents, oldOpen, newOpen, occurrenceAnchor, pairs, "occurrence_anchor");
   pairUnique(previousEvents, incomingEvents, oldOpen, newOpen, sourceAnchor, pairs, "source_anchor");
   pairUnique(previousEvents, incomingEvents, oldOpen, newOpen, semanticClass, pairs, "single_semantic_pair");
