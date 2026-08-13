@@ -1,0 +1,60 @@
+name: KGMU legacy bundle inspect
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-legacy-bundle-inspect.yml"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Summarize reviewed bundle
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
+          const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const all = [];
+          for (const [group, entry] of Object.entries(data.groups || {})) {
+            for (const event of entry.events || []) all.push({ group, ...event });
+          }
+          const countBy = (keyFn) => Object.fromEntries([...all.reduce((m,e)=>m.set(keyFn(e),(m.get(keyFn(e))||0)+1),new Map())].sort((a,b)=>b[1]-a[1]));
+          const keySets = [...new Set(all.map(e => Object.keys(e).sort().join(',')))];
+          const titlePrefix = (title='') => {
+            const t = String(title).trim();
+            if (/^ЛЕКЦ\.?\s*/iu.test(t)) return 'ЛЕКЦ.';
+            if (/экзам/iu.test(t)) return 'exam-like';
+            if (/зач[её]т/iu.test(t)) return 'credit-like';
+            if (/консульт/iu.test(t)) return 'consultation-like';
+            if (/физ/iu.test(t)) return 'physical-like';
+            return 'other';
+          };
+          const samples = {};
+          for (const bucket of ['ЛЕКЦ.','exam-like','credit-like','consultation-like','physical-like','other']) {
+            samples[bucket] = all.filter(e => titlePrefix(e.title) === bucket).slice(0, 12).map(e => ({
+              group:e.group,title:e.title,kind:e.kind ?? null,start:e.start,end:e.end,location:e.location ?? null,
+              description:e.description ?? null,source:e.source ?? null,sourceCell:e.sourceCell ?? null,sourceRange:e.sourceRange ?? null,
+            }));
+          }
+          const summary = {
+            topLevelKeys: Object.keys(data).sort(),
+            source: data.source,
+            normalizer: data.normalizer,
+            groupCount: Object.keys(data.groups || {}).length,
+            eventCount: all.length,
+            eventKeySets: keySets,
+            kindCounts: countBy(e => String(e.kind ?? '(missing)')),
+            titlePrefixCounts: countBy(e => titlePrefix(e.title)),
+            allDayCounts: countBy(e => String(Boolean(e.allDay))),
+            distinctDescriptions: [...new Set(all.map(e=>e.description).filter(Boolean))].slice(0,50),
+            distinctSources: [...new Set(all.map(e=>e.source).filter(Boolean))].slice(0,50),
+            sampleByBucket: samples,
+          };
+          console.log('LEGACY_BUNDLE_SUMMARY_BEGIN');
+          console.log(JSON.stringify(summary, null, 2));
+          console.log('LEGACY_BUNDLE_SUMMARY_END');
+          NODE
