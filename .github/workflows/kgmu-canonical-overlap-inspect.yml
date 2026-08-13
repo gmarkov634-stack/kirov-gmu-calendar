@@ -28,38 +28,24 @@ jobs:
           test "$actual" = "$expected"
           echo "SOURCE_SHA_OK=$actual"
 
-      - name: Inspect management headers and complete source rows
+      - name: Find management, asterisk and 12:00-15:05 references
         shell: bash
         run: |
           python3 -m pip install --quiet openpyxl
           python3 - <<'PY'
-          import json
+          import json,re
           from openpyxl import load_workbook
-          from openpyxl.utils import column_index_from_string
           wb=load_workbook('/tmp/source.xlsx',data_only=False,read_only=False)
-          def nonempty(ws,min_col,max_col,min_row,max_row):
-              a=column_index_from_string(min_col); b=column_index_from_string(max_col)
-              out=[]
-              for r in range(min_row,max_row+1):
-                  vals=[]
-                  for c in range(a,b+1):
-                      cell=ws.cell(r,c)
-                      if cell.value not in (None,'') and str(cell.value).strip():
-                          vals.append({'cell':cell.coordinate,'value':str(cell.value)})
-                  if vals: out.append({'row':r,'values':vals})
-              return out
-          out=[]
+          hits=[]
           for ws in wb.worksheets:
-              if ws['AQ20'].value in (None,''): continue
-              covering=[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=20<=rng.max_row and rng.min_col<=43<=rng.max_col]
-              out.append({
-                  'sheet':ws.title,
-                  'headerAboveAQAX':nonempty(ws,'AL','BC',1,13),
-                  'leftOfRows19_20':nonempty(ws,'A','AK',17,21),
-                  'wholeRows19_20':nonempty(ws,'A','BK',19,20),
-                  'coveringAQ20':covering,
-              })
-          print('SOURCE_ROW_CONTEXT_BEGIN')
-          print(json.dumps(out,ensure_ascii=False,indent=2))
-          print('SOURCE_ROW_CONTEXT_END')
+              for row in ws.iter_rows():
+                  for cell in row:
+                      if cell.value in (None,''): continue
+                      text=str(cell.value).replace('\n',' | ')
+                      compact=re.sub(r'\s+','',text).replace('.',':')
+                      if re.search(r'менеджмент',text,re.I) or '12:00-15:05' in compact or '12:00–15:05' in compact or ('*' in text and len(text)<500):
+                          hits.append({'sheet':ws.title,'cell':cell.coordinate,'value':text[:800]})
+          print('SOURCE_TIME_RULE_HITS_BEGIN')
+          print(json.dumps(hits,ensure_ascii=False,indent=2))
+          print('SOURCE_TIME_RULE_HITS_END')
           PY
