@@ -138,7 +138,7 @@ test("R-MED3 keeps count-only extra lessons fail-closed when their dates are abs
   ));
 });
 
-test("R-MED3 keeps new unconfirmed explicit overlaps fail-closed", () => {
+test("R-MED3 keeps new explicit overlaps as non-blocking diagnostics under R69", () => {
   const workbook = workbookWithRows([
     cell("A4", 4, 1, "ПН"),
     cell("B4", 4, 2, "8.00-10.00 Фармакология 02.02"),
@@ -156,7 +156,10 @@ test("R-MED3 keeps new unconfirmed explicit overlaps fail-closed", () => {
     semester: 2,
   });
 
-  assert.equal(result.qa.status, "REVIEW_REQUIRED");
+  assert.equal(result.qa.status, "PASS");
+  assert.deepEqual(result.qa.uncovered, []);
+  assert.deepEqual(result.qa.normalizationFailures, []);
+  assert.deepEqual(result.qa.extraLessonFailures, []);
   assert.ok((result.qa.remainingOverlaps || []).length > 0);
   assert.equal((result.qa.confirmedOverlaps || []).length, 0);
 });
