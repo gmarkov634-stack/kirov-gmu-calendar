@@ -41,10 +41,13 @@ function makeBatch(events) {
 
 let counter = 0;
 const idFactory = () => `evt_test_${++counter}`;
+let versionCounter = 0;
+const versionFactory = () => `ver_test_${++versionCounter}`;
 
 test("first import assigns event IDs, fingerprints and one version ID", () => {
   counter = 0;
-  const { batch, diff } = versionSchedule(null, makeBatch([makeEvent(), makeEvent({ date: "2026-09-08" })]), { eventIdFactory: idFactory });
+  versionCounter = 0;
+  const { batch, diff } = versionSchedule(null, makeBatch([makeEvent(), makeEvent({ date: "2026-09-08" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(batch.events[0].system.event_id, "evt_test_1");
   assert.equal(batch.events[1].system.event_id, "evt_test_2");
   assert.match(batch.events[0].system.fingerprint, /^sha256:/);
@@ -55,35 +58,40 @@ test("first import assigns event IDs, fingerprints and one version ID", () => {
 
 test("same event with changed time preserves event_id and is changed", () => {
   counter = 0;
-  const first = versionSchedule(null, makeBatch([makeEvent()]), { eventIdFactory: idFactory }).batch;
-  const second = versionSchedule(first, makeBatch([makeEvent({ start: "10:40", end: "12:10" })]), { eventIdFactory: idFactory });
+  versionCounter = 0;
+  const first = versionSchedule(null, makeBatch([makeEvent()]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const second = versionSchedule(first, makeBatch([makeEvent({ start: "10:40", end: "12:10" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.batch.events[0].system.event_id, first.events[0].system.event_id);
   assert.equal(second.diff.counts.changed, 1);
   assert.equal(second.diff.changed[0].matched_by, "occurrence_anchor");
   assert.ok(second.diff.changed[0].changes.some((item) => item.path === "/timing/start_time"));
 });
 
-test("identical re-import is unchanged and gets deterministic same content version", () => {
+test("identical re-import remains on the current revision", () => {
   counter = 0;
-  const first = versionSchedule(null, makeBatch([makeEvent()]), { eventIdFactory: idFactory }).batch;
-  const second = versionSchedule(first, makeBatch([makeEvent()]), { eventIdFactory: idFactory });
+  versionCounter = 0;
+  const first = versionSchedule(null, makeBatch([makeEvent()]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const second = versionSchedule(first, makeBatch([makeEvent()]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.diff.counts.unchanged, 1);
   assert.equal(second.diff.same_content, true);
   assert.equal(second.batch.schedule.schedule_version_id, first.schedule.schedule_version_id);
+  assert.equal(second.batch.schedule.previous_schedule_version_id, first.schedule.previous_schedule_version_id);
 });
 
 test("source anchor preserves id when date changes", () => {
   counter = 0;
-  const first = versionSchedule(null, makeBatch([makeEvent({ date: "2026-09-01", sourceRange: "D18:H18" })]), { eventIdFactory: idFactory }).batch;
-  const second = versionSchedule(first, makeBatch([makeEvent({ date: "2026-09-02", sourceRange: "D18:H18" })]), { eventIdFactory: idFactory });
+  versionCounter = 0;
+  const first = versionSchedule(null, makeBatch([makeEvent({ date: "2026-09-01", sourceRange: "D18:H18" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const second = versionSchedule(first, makeBatch([makeEvent({ date: "2026-09-02", sourceRange: "D18:H18" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.batch.events[0].system.event_id, first.events[0].system.event_id);
   assert.equal(second.diff.changed[0].matched_by, "source_anchor");
 });
 
 test("added and removed events are classified separately", () => {
   counter = 0;
-  const first = versionSchedule(null, makeBatch([makeEvent({ discipline: "Педиатрия" }), makeEvent({ discipline: "Биохимия", sourceRange: "I18:L18" })]), { eventIdFactory: idFactory }).batch;
-  const second = versionSchedule(first, makeBatch([makeEvent({ discipline: "Педиатрия" }), makeEvent({ discipline: "Фармакология", sourceRange: "M18:P18" })]), { eventIdFactory: idFactory });
+  versionCounter = 0;
+  const first = versionSchedule(null, makeBatch([makeEvent({ discipline: "Педиатрия" }), makeEvent({ discipline: "Биохимия", sourceRange: "I18:L18" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const second = versionSchedule(first, makeBatch([makeEvent({ discipline: "Педиатрия" }), makeEvent({ discipline: "Фармакология", sourceRange: "M18:P18" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.diff.counts.added, 1);
   assert.equal(second.diff.counts.removed, 1);
   assert.equal(second.diff.added[0].discipline, "Фармакология");
@@ -92,15 +100,16 @@ test("added and removed events are classified separately", () => {
 
 test("recurring ambiguous events are not fuzzily cross-matched", () => {
   counter = 0;
+  versionCounter = 0;
   const first = versionSchedule(null, makeBatch([
     makeEvent({ date: "2026-09-01", sourceRange: "D18" }),
     makeEvent({ date: "2026-09-08", sourceRange: "D19" }),
-  ]), { eventIdFactory: idFactory }).batch;
+  ]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
   const incoming = makeBatch([
     makeEvent({ date: "2026-09-02", sourceRange: "X1" }),
     makeEvent({ date: "2026-09-09", sourceRange: "X2" }),
   ]);
-  const second = versionSchedule(first, incoming, { eventIdFactory: idFactory });
+  const second = versionSchedule(first, incoming, { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.diff.counts.added, 2);
   assert.equal(second.diff.counts.removed, 2);
   assert.equal(second.diff.counts.changed, 0);
@@ -119,10 +128,22 @@ test("event fingerprint ignores source and rendered calendar but reacts to core 
 
 test("incoming existing event_id has highest matching priority", () => {
   counter = 0;
-  const first = versionSchedule(null, makeBatch([makeEvent({ eventId: "evt_fixed" })]), { eventIdFactory: idFactory }).batch;
+  versionCounter = 0;
+  const first = versionSchedule(null, makeBatch([makeEvent({ eventId: "evt_fixed" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
   const incoming = makeEvent({ date: "2026-10-01", sourceRange: "Z99", eventId: "evt_fixed" });
-  const second = versionSchedule(first, makeBatch([incoming]), { eventIdFactory: idFactory });
+  const second = versionSchedule(first, makeBatch([incoming]), { eventIdFactory: idFactory, versionIdFactory: versionFactory });
   assert.equal(second.diff.counts.changed, 1);
   assert.equal(second.diff.changed[0].matched_by, "event_id");
   assert.equal(second.batch.events[0].system.event_id, "evt_fixed");
+});
+
+test("A to B to A creates a new revision instead of reusing the old version id", () => {
+  counter = 0;
+  versionCounter = 0;
+  const a1 = versionSchedule(null, makeBatch([makeEvent({ start: "09:00" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const b = versionSchedule(a1, makeBatch([makeEvent({ start: "10:40" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  const a2 = versionSchedule(b, makeBatch([makeEvent({ start: "09:00" })]), { eventIdFactory: idFactory, versionIdFactory: versionFactory }).batch;
+  assert.notEqual(a2.schedule.schedule_version_id, a1.schedule.schedule_version_id);
+  assert.equal(a2.schedule.previous_schedule_version_id, b.schedule.schedule_version_id);
+  assert.equal(a2.schedule.content_fingerprint, a1.schedule.content_fingerprint);
 });
