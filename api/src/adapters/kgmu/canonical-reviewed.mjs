@@ -172,7 +172,8 @@ async function previousFor(scheduleStore, batch) {
 }
 
 export async function publishStagedCanonicalReview({ queue, scheduleStore, review, now }) {
-  if (!review?.normalizedKey || review?.qa?.status !== "PASS" || review?.parserType !== PARSER_TYPE) {
+  const canonicalReview = review?.normalizer?.format === FORMAT || review?.parserType === PARSER_TYPE;
+  if (!review?.normalizedKey || review?.qa?.status !== "PASS" || !canonicalReview) {
     fail("Canonical parser review is not publishable", "REVIEW_NOT_PUBLISHABLE");
   }
   if (typeof queue?.getNormalized !== "function") fail("Normalized staging read is unavailable", "CANONICAL_PUBLICATION_UNAVAILABLE");
@@ -188,8 +189,6 @@ export async function publishStagedCanonicalReview({ queue, scheduleStore, revie
   }
   if (typeof scheduleStore?.putSchedule !== "function") fail("Canonical schedule publication is unavailable", "CANONICAL_PUBLICATION_UNAVAILABLE");
 
-  // Fail closed before the first write: every group completes input QA,
-  // versioning, postprocessing, output QA and ICS preflight first.
   const prepared = [];
   for (const batch of normalized.batches) {
     const previous = await previousFor(scheduleStore, batch);
