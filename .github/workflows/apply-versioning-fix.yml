@@ -1,0 +1,32 @@
+name: Prepare versioning identity fix
+on:
+  push:
+    paths: ['.github/workflows/apply-versioning-fix.yml']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin e2e/subscription-stable-url-20260813
+          git show origin/e2e/subscription-stable-url-20260813:api/test/schedule-versioning-exact-fingerprint.test.js > api/test/schedule-versioning-exact-fingerprint.test.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('api/src/schedule/versioning.js'); s=p.read_text()
+          needle='  pairByExistingId(previousEvents, incomingEvents, oldOpen, newOpen, pairs);\n'
+          line='  pairUnique(previousEvents, incomingEvents, oldOpen, newOpen, eventFingerprint, pairs, "exact_fingerprint");\n'
+          if line not in s: s=s.replace(needle, needle+line, 1)
+          p.write_text(s)
+          PY
+          branch="fix/versioning-exact-fingerprint-${GITHUB_RUN_ID}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          git add api/src/schedule/versioning.js api/test/schedule-versioning-exact-fingerprint.test.js
+          git commit -m 'fix: preserve exact event identity before fuzzy matching'
+          git push origin "$branch"
+          echo "FIX_BRANCH=$branch"
