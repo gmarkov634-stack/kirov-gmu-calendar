@@ -28,3 +28,11 @@ test("schedule cache stays disabled even if an old CACHE_TTL_MS value remains in
   const config = loadConfig({ CACHE_TTL_MS: "300000" });
   assert.equal(config.cacheTtlMs, 0);
 });
+
+test("commercial sales gate is fail closed unless explicitly true", () => {
+  assert.equal(loadConfig({}).commercialSalesEnabled, false);
+  assert.equal(loadConfig({ COMMERCIAL_SALES_ENABLED: "false" }).commercialSalesEnabled, false);
+  assert.equal(loadConfig({ COMMERCIAL_SALES_ENABLED: "TRUE" }).commercialSalesEnabled, false);
+  assert.equal(loadConfig({ COMMERCIAL_SALES_ENABLED: "1" }).commercialSalesEnabled, false);
+  assert.equal(loadConfig({ COMMERCIAL_SALES_ENABLED: "true" }).commercialSalesEnabled, true);
+});
