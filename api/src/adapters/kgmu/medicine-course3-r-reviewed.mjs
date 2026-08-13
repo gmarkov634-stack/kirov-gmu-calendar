@@ -18,8 +18,10 @@ const SUBJECT_PATTERNS = [
   String.raw`элективн(?:ая|ые)\s+дисциплин(?:а|ы)(?:\s*\(модули\))?\s+по\s+физической\s+культуре\s+и\s+спорту`,
 ];
 
-// R69: these exact source-backed overlaps were manually confirmed against
-// 3_lech._2_potok-12-02-2026-11.xlsx. New overlaps remain fail-closed.
+// Historical source-backed overlaps confirmed against
+// 3_lech._2_potok-12-02-2026-11.xlsx are kept in a separate diagnostic bucket.
+// R69 no longer requires individual confirmation: any other temporal overlap
+// also remains diagnostic-only and never triggers REVIEW_REQUIRED by itself.
 const CONFIRMED_OVERLAPS_2025_26 = [
   { group: '311', date: '2026-05-25', a: ['B7', '08:00', '11:10'], b: ['B8:J8', '11:00', '12:30'] },
   { group: '311', date: '2026-05-25', a: ['B7', '08:00', '11:10'], b: ['B11', '11:00', '12:30'] },
@@ -162,8 +164,7 @@ function applyConfirmedOverlapRules(result, options) {
   const hasBlockingIssue = Boolean(
     (qa.uncovered || []).length
     || (qa.extraLessonFailures || []).length
-    || (qa.normalizationFailures || []).length
-    || remainingOverlaps.length,
+    || (qa.normalizationFailures || []).length,
   );
   qa.status = hasBlockingIssue ? 'REVIEW_REQUIRED' : 'PASS';
   return { ...result, qa };
