@@ -99,7 +99,8 @@ test("TEXT escaping and UTF-8 folding comply with physical line limit", () => {
   const longName = "Очень длинное название дисциплины, раздел; с символами и продолжением для проверки корректного UTF-8 folding календарной строки";
   const current = ready(null, batch([event({ discipline: longName })]), T1);
   const ics = buildScheduleIcs(current);
-  assert.match(ics, /SUMMARY:Очень длинное название дисциплины\\, раздел\\; с символами/);
+  const unfolded = ics.replace(/\r\n[ \t]/g, "");
+  assert.match(unfolded, /SUMMARY:Очень длинное название дисциплины\\, раздел\\; с символами/);
   for (const line of ics.split("\r\n")) {
     assert.ok(Buffer.byteLength(line, "utf8") <= 75, `line exceeds 75 bytes: ${line}`);
   }
