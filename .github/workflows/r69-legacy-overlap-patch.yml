@@ -1,0 +1,109 @@
+name: Patch remaining R69 overlap gates
+
+on:
+  push:
+    branches:
+      - fix/r69-legacy-overlap-gates
+    paths:
+      - ".github/workflows/r69-legacy-overlap-patch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/r69-legacy-overlap-gates
+          fetch-depth: 0
+      - name: Make temporal overlap diagnostics non-blocking
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+            'api/src/adapters/kgmu/weekly-r-parser.mjs': [
+              ("const qa={status:uncovered.length||extraLessonFailures.length||remainingOverlaps.length?'REVIEW_REQUIRED':'PASS',eventCount:events.length,eventCountsByGroup:Object.fromEntries(schedules.map((s)=>[s.group.code,s.events.length])),sourceBlocks:sourceBlocks.length,coveredSourceBlocks:sourceBlocks.length-uncovered.length,uncovered,extraLessonExpectations,extraLessonFailures,remainingOverlaps};",
+               "const qa={status:uncovered.length||extraLessonFailures.length?'REVIEW_REQUIRED':'PASS',eventCount:events.length,eventCountsByGroup:Object.fromEntries(schedules.map((s)=>[s.group.code,s.events.length])),sourceBlocks:sourceBlocks.length,coveredSourceBlocks:sourceBlocks.length-uncovered.length,uncovered,extraLessonExpectations,extraLessonFailures,remainingOverlaps};"),
+            ],
+            'api/src/adapters/kgmu/foreign-r-safe.mjs': [
+              ("qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || conflicts.length || outOfPeriodSources.length || altRangeFixups.skipped.length)",
+               "qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || outOfPeriodSources.length || altRangeFixups.skipped.length)"),
+            ],
+            'api/src/adapters/kgmu/foreign-r-reviewed.mjs': [
+              ("    qa.remainingOverlaps?.length ||\n", ""),
+            ],
+            'api/src/adapters/kgmu/foreign-c-course5-reviewed.mjs': [
+              ("    (qa.remainingOverlaps || []).length ||\n", ""),
+            ],
+            'api/src/adapters/kgmu/foreign-c-course6-confirmed.mjs': [
+              ("    || duplicates.length\n    || overlaps.blocking.length;", "    || duplicates.length;"),
+            ],
+            'api/src/adapters/kgmu/mixed-s-parser.mjs': [
+              ("passed: uncovered.length === 0 && expectationFailures.length === 0 && overlapCheck.unexpected.length === 0 && duplicateCount === 0,",
+               "passed: uncovered.length === 0 && expectationFailures.length === 0 && duplicateCount === 0,"),
+            ],
+          }
+
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text()
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'target not found in {filename}: {old[:100]}')
+                  text = text.replace(old, new, 1)
+              path.write_text(text)
+
+          test_path = Path('api/test/kgmu-r69-legacy-overlap-contract.test.js')
+          test_path.write_text(r'''import fs from "node:fs";
+          import test from "node:test";
+          import assert from "node:assert/strict";
+
+          const root = new URL("../src/adapters/kgmu/", import.meta.url);
+          function source(name) {
+            return fs.readFileSync(new URL(name, root), "utf8");
+          }
+
+          test("R69: legacy parser QA keeps overlap diagnostics out of blocking predicates", () => {
+            const weekly = source("weekly-r-parser.mjs");
+            assert.match(weekly, /status:uncovered\.length\|\|extraLessonFailures\.length\?'REVIEW_REQUIRED':'PASS'/);
+            assert.doesNotMatch(weekly, /extraLessonFailures\.length\|\|remainingOverlaps\.length/);
+
+            const foreignSafe = source("foreign-r-safe.mjs");
+            assert.doesNotMatch(foreignSafe, /qa\.extraLessonFailures\?\.length \|\| conflicts\.length/);
+            assert.match(foreignSafe, /qa\.sourceConflicts = conflicts/);
+
+            const foreignReviewed = source("foreign-r-reviewed.mjs");
+            assert.doesNotMatch(foreignReviewed, /qa\.remainingOverlaps\?\.length \|\|/);
+            assert.match(foreignReviewed, /remainingOverlaps,/);
+
+            const course5 = source("foreign-c-course5-reviewed.mjs");
+            assert.doesNotMatch(course5, /\(qa\.remainingOverlaps \|\| \[\]\)\.length \|\|/);
+
+            const course6 = source("foreign-c-course6-confirmed.mjs");
+            assert.doesNotMatch(course6, /duplicates\.length\s*\|\| overlaps\.blocking\.length/);
+            assert.match(course6, /remainingOverlaps: overlaps\.blocking/);
+
+            const mixed = source("mixed-s-parser.mjs");
+            assert.doesNotMatch(mixed, /expectationFailures\.length === 0 && overlapCheck\.unexpected\.length === 0/);
+            assert.match(mixed, /unexpectedOverlaps: overlapCheck\.unexpected/);
+          });
+          ''')
+      - name: Commit source and regression changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/src/adapters/kgmu/weekly-r-parser.mjs \
+                  api/src/adapters/kgmu/foreign-r-safe.mjs \
+                  api/src/adapters/kgmu/foreign-r-reviewed.mjs \
+                  api/src/adapters/kgmu/foreign-c-course5-reviewed.mjs \
+                  api/src/adapters/kgmu/foreign-c-course6-confirmed.mjs \
+                  api/src/adapters/kgmu/mixed-s-parser.mjs \
+                  api/test/kgmu-r69-legacy-overlap-contract.test.js
+          git rm .github/workflows/r69-legacy-overlap-patch.yml
+          git commit -m 'fix: apply R69 across remaining legacy parser profiles'
+          git push origin HEAD:fix/r69-legacy-overlap-gates
