@@ -17,6 +17,7 @@ import { KgmuReviewedService } from "./adapters/kgmu/reviewed-service.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
+import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
 const store = new YearAwareStore(config);
@@ -28,6 +29,7 @@ const offerCatalogHandler = createOfferCatalogHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
+const schedulePublishHandler = createSchedulePublishHandler({ store, config });
 const parserReviewQueue = new ParserReviewQueue(config);
 const parserNotifier = new EmailReviewNotifier(config);
 const kgmuIngestService = new KgmuIngestServiceV2({
@@ -81,6 +83,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/admin/subscriptions/preview") {
     return previewSubscriptionHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/schedules/publish") {
+    return schedulePublishHandler(request, response);
   }
   if (
     url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
