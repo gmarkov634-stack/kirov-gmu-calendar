@@ -1,0 +1,43 @@
+name: KGMU canonical stage diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-stage-diagnostic.yml"
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build canonical package
+        shell: bash
+        run: |
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json \
+            --group 401 \
+            --week1-start 2026-02-02 \
+            --output /tmp/canonical-401.json
+
+      - name: Stage package through production admin endpoint
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          review='2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb'
+          base='https://kgmu-calendar-api.containerapps.ru'
+          status="$(curl --silent --show-error \
+            --output /tmp/body.json \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/canonical-401.json \
+            "$base/api/v1/admin/parser-reviews/$review/canonical?publish=false")"
+          echo "CANONICAL_STAGE_HTTP_STATUS=$status"
+          echo 'CANONICAL_STAGE_BODY_BEGIN'
+          cat /tmp/body.json | python3 -m json.tool
+          echo 'CANONICAL_STAGE_BODY_END'
