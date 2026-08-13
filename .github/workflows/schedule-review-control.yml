@@ -28,7 +28,7 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import path from 'node:path';
-          import { legacyReviewedGroupToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
+          import { legacyReviewedBundleToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
 
           const commandPath = 'ops/schedule-review/command.json';
           const stat = fs.statSync(commandPath);
@@ -60,12 +60,21 @@ jobs:
               const resolved = path.resolve(sourceFile);
               const root = `${path.resolve('reviewed/kgmu')}${path.sep}`;
               if (!resolved.startsWith(root)) throw new Error('Migration source is outside reviewed/kgmu');
-              const group = String(migration.group || '');
-              if (!/^\d{3}(?:и)?$/u.test(group)) throw new Error('Invalid migration group');
+
+              let groups = migration.groups ?? migration.group;
+              if (groups === 'all' || groups === '*') groups = 'all';
+              else if (Array.isArray(groups)) {
+                if (!groups.length || groups.length > 50 || groups.some((group) => !/^\d{3}(?:и)?$/u.test(String(group)))) throw new Error('Invalid migration groups');
+                groups = groups.map(String);
+              } else {
+                groups = String(groups || '');
+                if (!groups || groups.split(',').some((group) => !/^\d{3}(?:и)?$/u.test(group.trim()))) throw new Error('Invalid migration groups');
+              }
+
               const week1StartDate = String(migration.week1StartDate || '');
               if (!/^20\d{2}-\d{2}-\d{2}$/.test(week1StartDate)) throw new Error('Invalid migration week1StartDate');
               const legacy = JSON.parse(fs.readFileSync(resolved, 'utf8'));
-              request.package = legacyReviewedGroupToCanonicalPackage(legacy, { group, week1StartDate });
+              request.package = legacyReviewedBundleToCanonicalPackage(legacy, { groups, week1StartDate });
             }
           }
 
