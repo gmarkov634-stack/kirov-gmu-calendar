@@ -11,20 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Read source metadata
+      - name: Download verified official XLSX
         shell: bash
         run: |
+          set -euo pipefail
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const path='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
           const legacy=JSON.parse(fs.readFileSync(path,'utf8'));
           fs.writeFileSync('/tmp/source-meta.json',JSON.stringify(legacy.source));
           NODE
-
-      - name: Download exact official XLSX and verify SHA
-        shell: bash
-        run: |
-          set -euo pipefail
           url="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/source-meta.json','utf8')).url")"
           expected="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/source-meta.json','utf8')).sha256")"
           curl --fail-with-body --silent --show-error --location "$url" -o /tmp/source.xlsx
@@ -32,7 +28,7 @@ jobs:
           test "$actual" = "$expected"
           echo "SOURCE_SHA_OK=$actual"
 
-      - name: Inspect source rectangles around management and lecture
+      - name: Inspect management headers and complete source rows
         shell: bash
         run: |
           python3 -m pip install --quiet openpyxl
@@ -41,28 +37,29 @@ jobs:
           from openpyxl import load_workbook
           from openpyxl.utils import column_index_from_string
           wb=load_workbook('/tmp/source.xlsx',data_only=False,read_only=False)
-          def rect(ws, min_col, max_col, min_row, max_row):
+          def nonempty(ws,min_col,max_col,min_row,max_row):
               a=column_index_from_string(min_col); b=column_index_from_string(max_col)
               out=[]
               for r in range(min_row,max_row+1):
                   vals=[]
                   for c in range(a,b+1):
                       cell=ws.cell(r,c)
-                      if cell.value not in (None,''):
+                      if cell.value not in (None,'') and str(cell.value).strip():
                           vals.append({'cell':cell.coordinate,'value':str(cell.value)})
                   if vals: out.append({'row':r,'values':vals})
               return out
           out=[]
           for ws in wb.worksheets:
-              if ws['AQ20'].value in (None,'') and ws['BX41'].value in (None,''): continue
+              if ws['AQ20'].value in (None,''): continue
+              covering=[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=20<=rng.max_row and rng.min_col<=43<=rng.max_col]
               out.append({
                   'sheet':ws.title,
-                  'managementContext':rect(ws,'AL','BC',14,25),
-                  'lectureContext':rect(ws,'BS','CG',36,45),
-                  'mergesNearManagement':[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=25 and rng.max_row>=14 and rng.min_col<=55 and rng.max_col>=38],
-                  'mergesNearLecture':[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=45 and rng.max_row>=36 and rng.min_col<=85 and rng.max_col>=71],
+                  'headerAboveAQAX':nonempty(ws,'AL','BC',1,13),
+                  'leftOfRows19_20':nonempty(ws,'A','AK',17,21),
+                  'wholeRows19_20':nonempty(ws,'A','BK',19,20),
+                  'coveringAQ20':covering,
               })
-          print('SOURCE_CONTEXT_BEGIN')
+          print('SOURCE_ROW_CONTEXT_BEGIN')
           print(json.dumps(out,ensure_ascii=False,indent=2))
-          print('SOURCE_CONTEXT_END')
+          print('SOURCE_ROW_CONTEXT_END')
           PY
