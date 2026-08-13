@@ -13,6 +13,19 @@ const TYPE_LABELS = {
   unknown: "Занятие",
 };
 
+const DAILY_TYPE_LABELS = {
+  lecture: "лекция",
+  practice: "практика",
+  seminar: "семинар",
+  laboratory: "лабораторное",
+  consultation: "консультация",
+  exam: "экзамен",
+  credit: "зачёт",
+  physical_education: "физкультура",
+  other: null,
+  unknown: null,
+};
+
 const MONTHS_GENITIVE = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
@@ -336,7 +349,8 @@ function buildDescription(event, schedule, options) {
     lines.push("");
     lines.push(`Занятие сегодня · ${day.index} из ${day.total}`);
     if (day.next_event) {
-      lines.push(`Следующее занятие сегодня: ${day.next_event.start_time || "время не указано"} — ${day.next_event.discipline}`);
+      const nextType = DAILY_TYPE_LABELS[day.next_event.type_code] || null;
+      lines.push(`Следующее занятие сегодня: ${day.next_event.start_time || "время не указано"} — ${day.next_event.discipline}${nextType ? `, ${nextType}` : ""}`);
       if (day.overlaps_next) {
         lines.push("Перерыв отсутствует: занятия перекрываются");
       } else if (day.gap_minutes !== null) {
