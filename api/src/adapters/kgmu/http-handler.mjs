@@ -80,6 +80,8 @@ function metadataFromUrl(url) {
     course: url.searchParams.get("course"),
     academicYear: url.searchParams.get("academicYear"),
     semester: url.searchParams.get("semester"),
+    groupRange: url.searchParams.get("groupRange"),
+    sourceUrl: url.searchParams.get("sourceUrl"),
   };
 }
 
@@ -167,11 +169,17 @@ export function createKgmuParserHandler({ service, reviewedService, queue, watch
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/ingest") {
-      if (config.kgmuXlsxParserEnabled === false) return send(response, 410, { error: "xlsx_parser_retired", normalization: "reviewed_json" });
       try {
         const limit = Number(config.kgmuXlsxMaxBytes || 25 * 1024 * 1024);
         const buffer = await readBuffer(request, limit);
-        const result = await service.ingest(buffer, metadataFromUrl(url));
+        const metadata = metadataFromUrl(url);
+        if (config.kgmuXlsxParserEnabled === false) {
+          if (typeof reviewedService?.observeSource !== "function") return send(response, 503, { error: "reviewed_source_ingest_unavailable" });
+          const result = await reviewedService.observeSource(buffer, metadata);
+          return send(response, 202, result);
+        }
+        if (typeof service?.ingest !== "function") return send(response, 503, { error: "kgmu_ingest_unavailable" });
+        const result = await service.ingest(buffer, metadata);
         return send(response, 202, result);
       } catch (error) {
         console.error("KGMU ingest failed", error);
