@@ -84,6 +84,28 @@ Regression: `api/test/schedule-postprocess.test.js`.
 Regression: `api/test/schedule-validation.test.js`.
 Спецификация: `docs/schedule-validation.md`.
 
+### Шаг 5 — versioning и diff
+
+Статус: **завершён**.
+
+Реализованы:
+- стабильный `event_id` для однозначно сопоставленных занятий;
+- новый `event_id` только для действительно новых событий;
+- SHA-256 `system.fingerprint` по semantic core события;
+- SHA-256 `schedule.content_fingerprint` по смысловому содержимому группы;
+- уникальный `schedule_version_id` для каждой новой фактической редакции;
+- `previous_schedule_version_id` для цепочки ревизий;
+- идемпотентный повторный импорт без создания лишней версии;
+- корректная история `A → B → A` без повторного использования старого version ID;
+- консервативное сопоставление по `event_id`, occurrence-anchor, source-anchor и одиночной semantic pair;
+- запрет рискованного fuzzy-match неоднозначных повторяющихся занятий;
+- diff `added / changed / removed / unchanged`;
+- список точных изменённых полей `before / after` для `changed`.
+
+Код: `api/src/schedule/versioning.js`.
+Regression: `api/test/schedule-versioning.test.js` — 9/9.
+Спецификация: `docs/versioning.md`.
+
 ### Следующий этап
 
-Шаг 5 — versioning и сопоставление событий между версиями расписания: назначение стабильных `event_id`, `schedule_version_id`, `fingerprint`, определение `added / changed / removed / unchanged` и подготовка безопасного обновления уже подписанных календарей без создания дублей.
+Шаг 6 — генерация итогового ICS из прошедшего validation → versioning → postprocessing пакета: floating-время, стабильный UID на базе `event_id`, корректное удаление исчезнувших событий при обновлении подписки, escaping/folding строк и отдельные промо-события.
