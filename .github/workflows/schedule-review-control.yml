@@ -23,23 +23,63 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Validate command
+      - name: Validate and materialize command
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const path = 'ops/schedule-review/command.json';
-          const stat = fs.statSync(path);
+          import path from 'node:path';
+          import { legacyReviewedGroupToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
+
+          const commandPath = 'ops/schedule-review/command.json';
+          const stat = fs.statSync(commandPath);
           if (stat.size > 20 * 1024 * 1024) throw new Error('Schedule review command is too large');
-          const command = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const command = JSON.parse(fs.readFileSync(commandPath, 'utf8'));
           if (!command || typeof command !== 'object' || Array.isArray(command)) throw new Error('Invalid command');
           if (typeof command.id !== 'string' || !command.id) throw new Error('Missing command id');
           if (!['review.submit', 'review.submit_publish', 'review.publish'].includes(command.action)) throw new Error('Unsupported command action');
           if (typeof command.reviewId !== 'string' || !/^[a-f0-9-]{36}$/.test(command.reviewId)) throw new Error('Invalid review id');
           if (!Number.isFinite(Date.parse(command.createdAt))) throw new Error('Invalid createdAt');
+
+          const request = {
+            id: command.id,
+            action: command.action,
+            reviewId: command.reviewId,
+            createdAt: command.createdAt,
+          };
+
           if (command.action !== 'review.publish') {
-            if (!command.package || command.package.format !== 'canonical-reviewed/v1') throw new Error('Missing canonical review package');
-            if (!Array.isArray(command.package.batches) || !command.package.batches.length) throw new Error('Canonical review package has no batches');
+            if (command.package) {
+              if (command.package.format !== 'canonical-reviewed/v1') throw new Error('Invalid canonical review package');
+              if (!Array.isArray(command.package.batches) || !command.package.batches.length) throw new Error('Canonical review package has no batches');
+              request.package = command.package;
+            } else {
+              const migration = command.migration;
+              if (!migration || migration.type !== 'legacy-reviewed/v1') throw new Error('Missing canonical review package or supported migration');
+              const sourceFile = String(migration.sourceFile || '');
+              if (!/^reviewed\/kgmu\/[A-Za-z0-9_./-]+\.json$/.test(sourceFile) || sourceFile.includes('..')) throw new Error('Invalid migration source file');
+              const resolved = path.resolve(sourceFile);
+              const root = `${path.resolve('reviewed/kgmu')}${path.sep}`;
+              if (!resolved.startsWith(root)) throw new Error('Migration source is outside reviewed/kgmu');
+              const group = String(migration.group || '');
+              if (!/^\d{3}(?:и)?$/u.test(group)) throw new Error('Invalid migration group');
+              const week1StartDate = String(migration.week1StartDate || '');
+              if (!/^20\d{2}-\d{2}-\d{2}$/.test(week1StartDate)) throw new Error('Invalid migration week1StartDate');
+              const legacy = JSON.parse(fs.readFileSync(resolved, 'utf8'));
+              request.package = legacyReviewedGroupToCanonicalPackage(legacy, { group, week1StartDate });
+            }
           }
+
+          const encoded = JSON.stringify(request);
+          if (Buffer.byteLength(encoded) > 20 * 1024 * 1024) throw new Error('Materialized schedule review command is too large');
+          fs.writeFileSync('/tmp/schedule-review-command.json', `${encoded}\n`);
+          console.log(JSON.stringify({
+            id: request.id,
+            action: request.action,
+            reviewId: request.reviewId,
+            materializedFormat: request.package?.format || null,
+            groups: request.package?.batches?.map((batch) => batch.schedule?.group) || [],
+            events: request.package?.batches?.reduce((sum, batch) => sum + (batch.events?.length || 0), 0) || 0,
+          }));
           NODE
 
       - name: Execute schedule review command
@@ -56,14 +96,14 @@ jobs:
             -X POST \
             -H "Authorization: Bearer ${oidc_token}" \
             -H "Content-Type: application/json" \
-            --data-binary @ops/schedule-review/command.json \
+            --data-binary @/tmp/schedule-review-command.json \
             "$SCHEDULE_REVIEW_CONTROL_URL")"
 
           echo "SCHEDULE_REVIEW_RESULT_BEGIN"
           printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(JSON.stringify(JSON.parse(s),null,2)));'
           echo "SCHEDULE_REVIEW_RESULT_END"
 
-          ACTION="$(node -p "JSON.parse(require('fs').readFileSync('ops/schedule-review/command.json','utf8')).action")"
+          ACTION="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/schedule-review-command.json','utf8')).action")"
           RESULT_STATUS="$(printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>process.stdout.write(String(JSON.parse(s)?.result?.status||"")));')"
           case "$ACTION" in
             review.submit)
