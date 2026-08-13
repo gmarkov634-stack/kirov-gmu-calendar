@@ -5,6 +5,19 @@ const KIND_MAP = new Map([
   ["project_defense", "other"],
 ]);
 
+const CONFIRMED_OVERLAP_PATTERNS = Object.freeze([
+  Object.freeze({
+    ruleId: "R69",
+    sourceSha256: "146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae",
+    group: "408",
+    date: "2026-03-23",
+    occurrences: Object.freeze([
+      Object.freeze({ sourceRange: "AQ20:AX20", start: "12:00", end: "15:05" }),
+      Object.freeze({ sourceRange: "BX41", start: "14:45", end: "16:15" }),
+    ]),
+  }),
+]);
+
 function fail(message, code = "LEGACY_CANONICAL_MIGRATION_INVALID") {
   const error = new Error(message);
   error.code = code;
@@ -60,6 +73,25 @@ function location(raw) {
 function references(event) {
   const range = clean(event.sourceRange || event.sourceCell);
   return range ? [{ role: "lesson", range }] : [];
+}
+
+function confirmedRuleIds(event, context, start, end) {
+  const sourceRange = clean(event.sourceRange || event.sourceCell);
+  const ids = [];
+  for (const pattern of CONFIRMED_OVERLAP_PATTERNS) {
+    if (
+      clean(context.source?.sha256).toLowerCase() !== pattern.sourceSha256 ||
+      context.group !== pattern.group ||
+      start.date !== pattern.date
+    ) continue;
+    const occurrence = pattern.occurrences.find((candidate) =>
+      candidate.sourceRange === sourceRange &&
+      candidate.start === start.time &&
+      candidate.end === end.time
+    );
+    if (occurrence) ids.push(pattern.ruleId);
+  }
+  return ids;
 }
 
 function emptyDerived() {
@@ -129,7 +161,7 @@ function convertEvent(event, context) {
     },
     parse: {
       status: "ok",
-      rule_ids: ["legacy-reviewed-migration-v1"],
+      rule_ids: ["legacy-reviewed-migration-v1", ...confirmedRuleIds(event, context, start, end)],
       warnings: [],
     },
     derived: emptyDerived(),
@@ -224,3 +256,4 @@ export function legacyReviewedGroupToCanonicalPackage(input, { group, week1Start
 }
 
 export const LEGACY_KIND_MAP = Object.freeze(Object.fromEntries(KIND_MAP));
+export const LEGACY_CONFIRMED_OVERLAP_PATTERNS = CONFIRMED_OVERLAP_PATTERNS;
