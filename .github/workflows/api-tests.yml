@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - test/r69-med3-parser-ci
     paths:
       - "api/**"
       - ".github/workflows/api-tests.yml"
