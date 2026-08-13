@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect group 408 on 2026-03-23
+      - name: Inspect normalized group 408 overlap
         shell: bash
         run: |
           node --input-type=module <<'NODE'
@@ -21,19 +21,48 @@ jobs:
           const path='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
           const legacy=JSON.parse(fs.readFileSync(path,'utf8'));
           const sourceEvents=legacy.groups?.['408']?.events || [];
-          const relevant=sourceEvents.map((event,index)=>({index,...event})).filter(({event,index,...rest})=>String(rest.start||'').startsWith('2026-03-23'));
-          const pkg=legacyReviewedGroupToCanonicalPackage(legacy,{group:'408',week1StartDate:'2026-02-02'});
-          const batch=pkg.batches[0];
-          const canonical=batch.events.map((event,index)=>({index,event})).filter(({event})=>event.timing.date==='2026-03-23');
+          const relevant=sourceEvents.map((event,index)=>({index,...event})).filter((event)=>String(event.start||'').startsWith('2026-03-23'));
+          const batch=legacyReviewedGroupToCanonicalPackage(legacy,{group:'408',week1StartDate:'2026-02-02'}).batches[0];
           const qa=validateScheduleBatch(batch);
-          console.log('OVERLAP_INSPECT_BEGIN');
-          console.log(JSON.stringify({
-            legacyRelevant: relevant,
-            legacyWindow: sourceEvents.slice(47,55).map((event,index)=>({index:index+47,...event})),
-            canonicalRelevant: canonical,
-            qaErrors: qa.errors.filter(e=>e.code==='UNCONFIRMED_OVERLAP'),
-            sourceMeta: legacy.source,
-            normalizer: legacy.normalizer,
-          },null,2));
-          console.log('OVERLAP_INSPECT_END');
+          console.log('NORMALIZED_OVERLAP_BEGIN');
+          console.log(JSON.stringify({relevant,qaErrors:qa.errors.filter(e=>e.code==='UNCONFIRMED_OVERLAP')},null,2));
+          console.log('NORMALIZED_OVERLAP_END');
+          fs.writeFileSync('/tmp/source-meta.json',JSON.stringify(legacy.source));
           NODE
+
+      - name: Download exact official XLSX and verify SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/source-meta.json','utf8')).url")"
+          expected="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/source-meta.json','utf8')).sha256")"
+          curl --fail-with-body --silent --show-error --location "$url" -o /tmp/source.xlsx
+          actual="$(sha256sum /tmp/source.xlsx | cut -d' ' -f1)"
+          test "$actual" = "$expected"
+          echo "SOURCE_SHA_OK=$actual"
+
+      - name: Inspect exact source cells and merges
+        shell: bash
+        run: |
+          python3 -m pip install --quiet openpyxl
+          python3 - <<'PY'
+          import json
+          from openpyxl import load_workbook
+          wb=load_workbook('/tmp/source.xlsx',data_only=False,read_only=False)
+          out=[]
+          for ws in wb.worksheets:
+              targets=[]
+              for coord in ['AQ20','AR20','AS20','AT20','AU20','AV20','AW20','AX20','BX41']:
+                  c=ws[coord]
+                  if c.value not in (None,''):
+                      targets.append({'cell':coord,'value':str(c.value)})
+              merges=[str(rng) for rng in ws.merged_cells.ranges if (
+                  (rng.min_row <= 20 <= rng.max_row and not (rng.max_col < 43 or rng.min_col > 50)) or
+                  (rng.min_row <= 41 <= rng.max_row and not (rng.max_col < 76 or rng.min_col > 76))
+              )]
+              if targets or merges:
+                  out.append({'sheet':ws.title,'targets':targets,'merges':merges})
+          print('SOURCE_XLSX_INSPECT_BEGIN')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          print('SOURCE_XLSX_INSPECT_END')
+          PY
