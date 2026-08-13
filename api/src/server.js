@@ -6,6 +6,7 @@ import { loadConfig } from "./config.js";
 import { YearAwareStore } from "./year-aware-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
+import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -44,6 +45,7 @@ const kgmuReviewedService = new KgmuReviewedService({
   config,
   scheduleStore: store,
 });
+const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: kgmuReviewedService });
 const kgmuWatchStore = new KgmuWatchStore(config);
 const kgmuWatcher = new KgmuSourceWatcher({
   config,
@@ -71,6 +73,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/schedule-review/control") {
+    return scheduleReviewControlHandler(request, response);
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
