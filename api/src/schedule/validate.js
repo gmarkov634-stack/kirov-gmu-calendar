@@ -11,8 +11,8 @@ let cachedSchemas = null;
 function loadSchemas() {
   if (!cachedSchemas) {
     cachedSchemas = {
-      batch: readJson(new URL("../../../schemas/schedule-batch.schema.json", import.meta.url)),
-      event: readJson(new URL("../../../schemas/schedule-event.schema.json", import.meta.url)),
+      batch: readJson(new URL("../../schemas/schedule-batch.schema.json", import.meta.url)),
+      event: readJson(new URL("../../schemas/schedule-event.schema.json", import.meta.url)),
     };
   }
   return cachedSchemas;
