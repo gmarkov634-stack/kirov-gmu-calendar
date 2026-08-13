@@ -60,8 +60,30 @@ ChatGPT выполняет смысловой разбор исходных XLSX
 Regression: `api/test/schedule-ics.test.js`, `api/test/schedule-versioning.test.js`.
 Спецификация: `docs/ics-generation.md`.
 
-Точечная Node-проверка нового ICS-модуля подтвердила корректные UID/DTSTART/SEQUENCE и максимальную длину folded physical line 75 UTF-8 октетов. Отдельный GitHub Actions test workflow пока не подключён; текущая автоматизация репозитория выполняет Pages deployment.
+### Шаг 7 — хранение и публикация
+Статус: **завершён**.
+
+Реализованы:
+- единый pipeline `input validation → versioning/diff → postprocessing → output validation → ICS preflight → publish`;
+- чтение текущей канонической редакции перед versioning;
+- immutable version object для каждой фактической редакции группы;
+- отдельный `current.json` как единственная атомарная граница переключения подписчиков;
+- защита от повторного использования `schedule_version_id` с другим содержимым;
+- идемпотентная повторная публикация без лишней версии;
+- compatibility fallback к ранее существовавшим bundle/legacy schedule storage;
+- поддержка canonical `schedule-batch` в `scheduleContext`;
+- canonical semester expiry с учётом floating wall-clock;
+- объединение двух canonical семестров для годовой подписки;
+- защищённый `POST /api/v1/admin/schedules/publish`;
+- сохранение существующего персонального `GET /api/v1/subscriptions/{token}/calendar.ics` без смены пользовательской ссылки;
+- существующий subscription URL автоматически начинает отдавать текущую canonical редакцию после переключения pointer.
+
+Код: `api/src/schedule/pipeline.js`, `api/src/schedule/publish-handler.js`, `api/src/year-aware-store.js`, `api/src/order-context.js`, `api/src/subscription-period.js`.
+Regression: `api/test/schedule-pipeline.test.js`, `api/test/canonical-subscription.test.js`, `api/test/subscription-period-canonical.test.js`, `api/test/order-context.test.js`.
+Спецификация: `docs/schedule-publication.md`.
+
+Полный GitHub Actions workflow `.github/workflows/api-tests.yml` на актуальном коде завершился успешно. Перед зелёным прогоном был обнаружен и исправлен ложный assertion в ICS folding regression: проверка логического TEXT теперь выполняется после unfolding, а физическое ограничение 75 UTF-8 октетов остаётся отдельной проверкой.
 
 ### Следующий этап
 
-Шаг 7 — хранение и публикация версий расписания: единый pipeline `validate → version → postprocess → validate → ICS → publish`, хранение текущей и предыдущих версий группы и стабильная серверная точка выдачи подписного ICS.
+Шаг 8 — связать подтверждённый результат ручного/ChatGPT-разбора расписания с каноническим publication pipeline: из approved review получать `schedule-batch/v1`, публиковать его без ручного POST JSON, сохранять diff/QA для администратора и провести end-to-end тест `исходник → review → publish → существующая подписка → обновлённый ICS`.
