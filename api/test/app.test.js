@@ -17,6 +17,7 @@ const config = {
   allowedOrigin: "https://example.test",
   publicSiteUrl: "https://example.test/",
   enablePublicEndpoints: false,
+  commercialSalesEnabled: true,
 };
 
 test("health endpoint identifies the shared service", () => withServer(
