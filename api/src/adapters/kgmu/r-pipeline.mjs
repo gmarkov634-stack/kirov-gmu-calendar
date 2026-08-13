@@ -39,7 +39,7 @@ function parserProfile(program, course) {
   return "R";
 }
 
-function applyProfileQaPolicy(profile, qa) {
+export function applyProfileQaPolicy(profile, qa) {
   if (profile !== "R" && profile !== "R-MED3" && profile !== "R-FIO") return qa;
   const normalized = { ...qa };
   const skippedSafetyFixups = normalized.safetyFixups?.alternateTimeDateRanges?.skipped?.length || 0;
