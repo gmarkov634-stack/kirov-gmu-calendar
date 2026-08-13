@@ -1,4 +1,4 @@
-name: KGMU pediatrics course 3 source fetch
+name: KGMU pediatrics course 4 source fetch
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Resolve and download official pediatrics course 3 XLSX
+      - name: Resolve and download official pediatrics course 4 XLSX
         shell: bash
         run: |
           set -euo pipefail
@@ -36,14 +36,14 @@ jobs:
                       self.links.append((self.href, ''.join(self.text).strip()))
                       self.href=None; self.text=[]
           p=P(); p.feed(open('/tmp/page.html', encoding='utf-8').read())
-          matches=[urljoin('https://kirovgma.ru/', h) for h,t in p.links if '331-338' in t and '.xlsx' in h.lower()]
+          matches=[urljoin('https://kirovgma.ru/', h) for h,t in p.links if '431-439' in t and '.xlsx' in h.lower()]
           if len(matches) != 1:
-              raise SystemExit(f'expected one 331-338 XLSX link, found {matches!r}')
+              raise SystemExit(f'expected one 431-439 XLSX link, found {matches!r}')
           print(matches[0])
           PY
           src=$(cat /tmp/source_url.txt)
           echo "SOURCE_URL=$src"
-          file='/tmp/kgmu-pediatrics-course3.xlsx'
+          file='/tmp/kgmu-pediatrics-course4.xlsx'
           curl --fail --location --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$src" -o "$file"
           test -s "$file"
           sha256sum "$file"
@@ -51,7 +51,7 @@ jobs:
       - name: Upload exact official XLSX
         uses: actions/upload-artifact@v4
         with:
-          name: kgmu-pediatrics-course3-2025-26
-          path: /tmp/kgmu-pediatrics-course3.xlsx
+          name: kgmu-pediatrics-course4-2025-26
+          path: /tmp/kgmu-pediatrics-course4.xlsx
           if-no-files-found: error
           retention-days: 7
