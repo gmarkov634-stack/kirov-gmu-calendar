@@ -83,6 +83,8 @@ test("KGMU dry run is admin-only and forwards XLSX metadata without ingest side 
         course: "1",
         academicYear: "2025/26",
         semester: "2",
+        groupRange: null,
+        sourceUrl: null,
       },
       status: "READY_TO_PUBLISH",
       publicationBlocked: true,
