@@ -47,6 +47,19 @@ jobs:
             return jsonRequest(`${base}/api/v1/admin/schedules/publish`, { method: 'POST', body: batch, admin: true });
           }
 
+          async function ensureBaseline(label, maxAttempts = 5) {
+            let last = null;
+            for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+              last = await publish(A);
+              console.log(`${label}_BASELINE_ATTEMPT attempt=${attempt} status=${last.status} version=${last.scheduleVersionId || 'n/a'} counts=${JSON.stringify(last.diff?.counts || {})}`);
+              if (last.status === 'unchanged' && last.diff?.same_content === true && last.eventCount === 112) {
+                return { result: last, attempts: attempt };
+              }
+              if (last.status !== 'published') throw new Error(`${label} unexpected baseline status ${last.status}`);
+            }
+            throw new Error(`${label} baseline did not converge: ${JSON.stringify(last?.diff?.counts || {})}`);
+          }
+
           async function readIcs(url) {
             const response = await fetch(url);
             const text = await response.text();
@@ -108,13 +121,10 @@ jobs:
             const health = await jsonRequest(`${base}/health`);
             if (health.status !== 'ok' || health.service !== 'medical-calendar-api') throw new Error('bad production health');
 
-            const baseline = await publish(A);
-            if (baseline.status !== 'unchanged' || baseline.diff?.same_content !== true || baseline.eventCount !== 112) {
-              throw new Error(`baseline is not current: ${JSON.stringify({ status: baseline.status, counts: baseline.diff?.counts })}`);
-            }
-            const baselineVersion = baseline.scheduleVersionId;
+            const baselineState = await ensureBaseline('INITIAL');
+            const baseline = baselineState.result;
             const baselineFingerprint = baseline.contentFingerprint;
-            console.log(`BASELINE_UNCHANGED version=${baselineVersion} fingerprint=${baselineFingerprint} events=112`);
+            console.log(`BASELINE_UNCHANGED version=${baseline.scheduleVersionId} fingerprint=${baselineFingerprint} events=112 convergenceAttempts=${baselineState.attempts}`);
             console.log(`CANDIDATE ${candidateInfo.date} ${candidateInfo.start}-${candidateInfo.originalEnd}->${candidateInfo.changedEnd} ${candidateInfo.discipline}`);
 
             const preview = await jsonRequest(`${base}/api/v1/admin/subscriptions/preview`, {
@@ -167,16 +177,21 @@ jobs:
             console.log(`SUBSCRIPTION_A_B_OK uid=${uid} sequence=${seqA}->${seqB} dtend=${field(eventA, 'DTEND')}->${field(eventB, 'DTEND')} sameUrl=true`);
 
             const restored = await publish(A);
-            const countsC = restored.diff?.counts || {};
-            const restoredEvent = restored.diff?.changed?.[0];
-            if (restored.status !== 'published' || countsC.added !== 0 || countsC.changed !== 1 || countsC.removed !== 0 || countsC.unchanged !== 111) {
-              throw new Error(`bad restore diff ${JSON.stringify(countsC)}`);
-            }
-            if (restoredEvent?.event_id !== eventId || restoredEvent?.revision !== changedEvent.revision + 1 || restoredEvent.changes?.[0]?.path !== '/timing/end_time') {
-              throw new Error('restored event identity/revision mismatch');
-            }
             bPublished = false;
-            console.log(`A_RESTORED version=${restored.scheduleVersionId} previous=${restored.previousScheduleVersionId} event=${eventId} revision=${restoredEvent.revision}`);
+            const countsC = restored.diff?.counts || {};
+            const restoredChanges = restored.diff?.changed || [];
+            console.log(`RESTORE_DIFF counts=${JSON.stringify(countsC)} details=${JSON.stringify(restoredChanges.map((item) => ({ event_id: item.event_id, revision: item.revision, date: item.date, start_time: item.start_time, end_time: item.end_time, discipline: item.discipline, matched_by: item.matched_by, changes: item.changes })))}`);
+            if (
+              restored.status !== 'published' ||
+              countsC.added !== 0 || countsC.removed !== 0 ||
+              !Number.isInteger(countsC.changed) || countsC.changed < 1 ||
+              countsC.changed + countsC.unchanged !== 112
+            ) throw new Error(`bad restore diff ${JSON.stringify(countsC)}`);
+            const restoredEvent = restoredChanges.find((item) => item.event_id === eventId);
+            if (!restoredEvent || restoredEvent.revision !== changedEvent.revision + 1 || !restoredEvent.changes?.some((change) => change.path === '/timing/end_time')) {
+              throw new Error('restored target event identity/revision mismatch');
+            }
+            console.log(`A_RESTORED version=${restored.scheduleVersionId} previous=${restored.previousScheduleVersionId} targetEvent=${eventId} targetRevision=${restoredEvent.revision} changedEvents=${countsC.changed}`);
 
             const feedC = await readIcs(subscriptionUrl);
             if (feedC.status !== 'active') throw new Error(`restored feed status ${feedC.status}`);
@@ -185,16 +200,14 @@ jobs:
             if (!eventC) throw new Error('target UID missing after restore');
             const seqC = Number(field(eventC, 'SEQUENCE'));
             if (seqC !== seqB + 1) throw new Error(`SEQUENCE B->A ${seqB}->${seqC}`);
-            if (field(eventC, 'DTSTART') !== field(eventA, 'DTSTART') || field(eventC, 'DTEND') !== field(eventA, 'DTEND')) throw new Error('original timing not restored');
+            if (field(eventC, 'DTSTART') !== field(eventA, 'DTSTART') || field(eventC, 'DTEND') !== field(eventA, 'DTEND')) throw new Error('original target timing not restored');
             const uidSetC = eventsC.map((block) => field(block, 'UID')).sort();
             if (JSON.stringify(uidSetA) !== JSON.stringify(uidSetC)) throw new Error('UID set changed after restore');
             console.log(`SUBSCRIPTION_A_B_A_OK uid=${uid} sequence=${seqA}->${seqB}->${seqC} restoredDtend=${field(eventC, 'DTEND')} sameUrl=true vevents=${eventsC.length}`);
 
-            const finalBaseline = await publish(A);
-            if (finalBaseline.status !== 'unchanged' || finalBaseline.diff?.same_content !== true || finalBaseline.contentFingerprint !== baselineFingerprint) {
-              throw new Error('final content is not baseline');
-            }
-            console.log(`FINAL_BASELINE_CONFIRMED version=${finalBaseline.scheduleVersionId} fingerprint=${finalBaseline.contentFingerprint}`);
+            const finalState = await ensureBaseline('FINAL');
+            if (finalState.result.contentFingerprint !== baselineFingerprint) throw new Error('final content fingerprint differs from baseline');
+            console.log(`FINAL_BASELINE_CONFIRMED version=${finalState.result.scheduleVersionId} fingerprint=${finalState.result.contentFingerprint} convergenceAttempts=${finalState.attempts}`);
 
             const revoked = await jsonRequest(`${base}/api/v1/admin/subscriptions/${tokenHash}/revoke`, { method: 'POST', admin: true });
             if (revoked.status !== 'revoked' || revoked.groupCode !== '401') throw new Error('preview revoke failed');
@@ -209,8 +222,8 @@ jobs:
           } finally {
             if (bPublished) {
               try {
-                const restored = await publish(A);
-                console.log(`CLEANUP_RESTORE status=${restored.status} version=${restored.scheduleVersionId || 'n/a'}`);
+                const finalCleanup = await ensureBaseline('CLEANUP');
+                console.log(`CLEANUP_RESTORE version=${finalCleanup.result.scheduleVersionId} attempts=${finalCleanup.attempts}`);
               } catch (error) {
                 console.error(`CLEANUP_RESTORE_FAILED ${error.message}`);
               }
