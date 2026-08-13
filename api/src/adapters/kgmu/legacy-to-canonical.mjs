@@ -137,12 +137,29 @@ function convertEvent(event, context) {
   };
 }
 
-export function legacyReviewedGroupToCanonicalPackage(input, { group, week1StartDate }) {
+function naturalGroups(values) {
+  return [...values].sort((a, b) => String(a).localeCompare(String(b), "ru", { numeric: true, sensitivity: "base" }));
+}
+
+function selectedGroups(input, groups) {
+  const available = naturalGroups(Object.keys(input.groups || {}));
+  if (!available.length) fail("Legacy reviewed bundle has no groups");
+  let requested;
+  if (groups == null || groups === "all" || groups === "*") requested = available;
+  else if (Array.isArray(groups)) requested = groups.map(clean).filter(Boolean);
+  else requested = clean(groups).split(",").map(clean).filter(Boolean);
+  requested = naturalGroups(new Set(requested));
+  if (!requested.length) fail("No groups selected for canonical migration");
+  if (requested.length > 50) fail("Canonical migration accepts at most 50 groups");
+  for (const group of requested) {
+    if (!Object.hasOwn(input.groups || {}, group)) fail(`Legacy group ${group} is missing`);
+  }
+  return requested;
+}
+
+function migrationContext(input, week1StartDate) {
   if (!input || typeof input !== "object") fail("Legacy reviewed bundle is required");
   if (input.university !== "kgmu") fail("Only KGMU legacy reviewed bundles are supported");
-  const groupCode = clean(group);
-  const entry = input.groups?.[groupCode];
-  if (!entry || !Array.isArray(entry.events) || entry.events.length === 0) fail(`Legacy group ${groupCode} is missing`);
   const week1 = dateFromLegacy(week1StartDate);
   if (week1.time) fail("week1StartDate must be a date");
   const normalizedYear = academicYear(input.academicYear);
@@ -150,44 +167,60 @@ export function legacyReviewedGroupToCanonicalPackage(input, { group, week1Start
   const course = Number(input.course);
   const program = clean(input.program);
   const source = input.source || {};
+  if (!Number.isInteger(course) || course < 1) fail("Legacy course must be a positive integer");
+  if (!program) fail("Legacy program is required");
   if (!clean(source.filename) || !/^[a-f0-9]{64}$/i.test(clean(source.sha256))) fail("Legacy source metadata is incomplete");
+  return { week1, normalizedYear, normalizedSemester, course, program, source };
+}
 
+function groupBatch(input, groupCode, shared) {
+  const entry = input.groups?.[groupCode];
+  if (!entry || !Array.isArray(entry.events) || entry.events.length === 0) fail(`Legacy group ${groupCode} has no events`);
   const context = {
     group: groupCode,
-    academicYear: normalizedYear,
-    semester: normalizedSemester,
-    course,
-    program,
-    source,
+    academicYear: shared.normalizedYear,
+    semester: shared.normalizedSemester,
+    course: shared.course,
+    program: shared.program,
+    source: shared.source,
   };
   const events = entry.events.map((event) => convertEvent(event, context));
   const dates = events.map((event) => event.timing.date).sort();
-  if (week1.date > dates[0]) fail("week1StartDate cannot be after the first event");
+  if (shared.week1.date > dates[0]) fail(`week1StartDate cannot be after the first event of group ${groupCode}`);
+  return {
+    schema_version: "1.0",
+    schedule: {
+      university_code: "kgmu",
+      academic_year: shared.normalizedYear,
+      semester: shared.normalizedSemester,
+      faculty_code: shared.program,
+      course: shared.course,
+      group: groupCode,
+      period: {
+        start_date: dates[0],
+        end_date: dates.at(-1),
+        week1_start_date: shared.week1.date,
+      },
+      source_files: [clean(shared.source.filename)],
+      generated_at: null,
+      parser: "legacy-reviewed-migration-v1",
+    },
+    events,
+  };
+}
 
+export function legacyReviewedBundleToCanonicalPackage(input, { groups = "all", week1StartDate }) {
+  const shared = migrationContext(input, week1StartDate);
+  const groupCodes = selectedGroups(input, groups);
   return {
     format: "canonical-reviewed/v1",
     rules_revision: `${clean(input.normalizer?.rulesRevision) || "legacy"}+canonical-migration-v1`,
-    batches: [{
-      schema_version: "1.0",
-      schedule: {
-        university_code: "kgmu",
-        academic_year: normalizedYear,
-        semester: normalizedSemester,
-        faculty_code: program,
-        course,
-        group: groupCode,
-        period: {
-          start_date: dates[0],
-          end_date: dates.at(-1),
-          week1_start_date: week1.date,
-        },
-        source_files: [clean(source.filename)],
-        generated_at: null,
-        parser: "legacy-reviewed-migration-v1",
-      },
-      events,
-    }],
+    batches: groupCodes.map((groupCode) => groupBatch(input, groupCode, shared)),
   };
+}
+
+export function legacyReviewedGroupToCanonicalPackage(input, { group, week1StartDate }) {
+  return legacyReviewedBundleToCanonicalPackage(input, { groups: [clean(group)], week1StartDate });
 }
 
 export const LEGACY_KIND_MAP = Object.freeze(Object.fromEntries(KIND_MAP));
