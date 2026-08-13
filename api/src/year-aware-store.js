@@ -224,6 +224,8 @@ export class YearAwareStore extends MultiUniversityStore {
         publishedAt: current.publishedAt,
         scheduleVersionId: versionId,
         unchanged: true,
+        compatibilityKeys: current.compatibilityKeys || [],
+        compatibilityWarnings: [],
       };
     }
 
@@ -237,12 +239,10 @@ export class YearAwareStore extends MultiUniversityStore {
     const body = JSON.stringify(schedule);
     if (!existingVersion) await this.#writeRawJson(versionKey, body);
 
-    // Compatibility mirrors are written before the atomic pointer switch.
-    // Current subscribers in this service read the pointer first, while older tooling can still read schedules/.
-    const compatibilityKeys = [...new Set([scheduleStorageKey(schedule), scheduleFlatStorageKey(schedule)])];
-    for (const key of compatibilityKeys) await this.#writeRawJson(key, body);
-
+    // Atomic publication boundary: only current.json makes the new immutable
+    // version visible to subscribers. If this write fails, old current remains.
     const publishedAt = new Date().toISOString();
+    const compatibilityKeys = [...new Set([scheduleStorageKey(schedule), scheduleFlatStorageKey(schedule)])];
     await this.#writeRawJson(manifestKey, JSON.stringify({
       version: 1,
       format: "schedule-batch/v1",
@@ -252,14 +252,28 @@ export class YearAwareStore extends MultiUniversityStore {
       contentFingerprint,
       publishedAt,
       eventCount: schedule.events.length,
+      compatibilityKeys,
     }));
     this.cache.clear();
+
+    // Compatibility mirrors are best-effort and are deliberately written only
+    // after the pointer switch. They are not part of the subscriber read path.
+    const compatibilityWarnings = [];
+    for (const key of compatibilityKeys) {
+      try {
+        await this.#writeRawJson(key, body);
+      } catch (error) {
+        compatibilityWarnings.push({ key, message: String(error?.message || error) });
+      }
+    }
+
     return {
       versionKey,
       manifestKey,
       publishedAt,
       scheduleVersionId: versionId,
       compatibilityKeys,
+      compatibilityWarnings,
       unchanged: false,
     };
   }
