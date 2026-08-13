@@ -71,6 +71,15 @@ test("needs_review blocks publication", () => {
   assert.ok(report.errors.some((entry) => entry.code === "NEEDS_REVIEW"));
 });
 
+test("unknown lesson type does not block publication by itself", () => {
+  const item = event();
+  item.lesson.type = { raw: "неопознанный тип", code: "unknown" };
+  item.parse.status = "ok";
+  const report = noSchema(batch([item]));
+  assert.equal(report.publishable, true);
+  assert.equal(report.errors.length, 0);
+});
+
 test("batch metadata mismatch is blocking", () => {
   const item = event();
   item.audience.group = "402";
@@ -94,31 +103,18 @@ test("duplicate events are detected", () => {
   assert.ok(report.errors.some((entry) => entry.code === "DUPLICATE_EVENT"));
 });
 
-test("unconfirmed overlap blocks but R69-confirmed overlap is preserved", () => {
+test("overlapping events do not block publication or create validator warnings", () => {
   const first = event();
   const second = event();
   second.timing.start_time = "10:00";
   second.timing.end_time = "11:30";
   second.lesson.discipline = { raw: "БИОХИМИЯ", normalized: "Биохимия" };
-  let report = noSchema(batch([first, second]));
-  assert.ok(report.errors.some((entry) => entry.code === "UNCONFIRMED_OVERLAP"));
-
-  first.parse.rule_ids = ["R69"];
-  second.parse.rule_ids = ["R69"];
-  report = noSchema(batch([first, second]));
-  assert.equal(report.publishable, true);
-  assert.ok(report.warnings.some((entry) => entry.code === "CONFIRMED_OVERLAP"));
-});
-
-test("different subgroups may overlap", () => {
-  const first = event();
-  first.audience = { group: "401", scope: "subgroups", subgroups: ["1"], stream: null };
-  const second = event();
-  second.audience = { group: "401", scope: "subgroups", subgroups: ["2"], stream: null };
-  second.lesson.discipline = { raw: "АНГЛИЙСКИЙ ЯЗЫК", normalized: "Английский язык" };
   const report = noSchema(batch([first, second]));
   assert.equal(report.publishable, true);
-  assert.equal(report.stats.overlaps, 0);
+  assert.equal(report.errors.length, 0);
+  assert.equal(report.warnings.length, 0);
+  assert.equal(Object.hasOwn(report.stats, "overlaps"), false);
+  assert.equal(Object.hasOwn(report.stats, "confirmed_overlaps"), false);
 });
 
 test("postprocessed derived invariants are checked", () => {
