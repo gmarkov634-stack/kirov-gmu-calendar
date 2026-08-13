@@ -1,0 +1,18 @@
+name: KGMU canonical idempotency probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-idempotency-probe.yml"
+      - "api/tools/kgmu-canonical-idempotency-probe.mjs"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe current group 401 canonical idempotency
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        run: node api/tools/kgmu-canonical-idempotency-probe.mjs
