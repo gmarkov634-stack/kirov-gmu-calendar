@@ -1,0 +1,93 @@
+name: KGMU canonical E2E seed
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-e2e-seed.yml"
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare real reviewed group 401
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const sourcePath = 'reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
+          const source = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+          if (!source.groups?.['401']) throw new Error('group 401 missing');
+          const one = structuredClone(source);
+          one.source.groupRange = '401-401';
+          one.groups = { '401': source.groups['401'] };
+          fs.writeFileSync('/tmp/reviewed-401.json', JSON.stringify(one));
+          console.log(JSON.stringify({
+            filename: one.source.filename,
+            sha256: one.source.sha256,
+            groupRange: one.source.groupRange,
+            events: one.groups['401'].events.length,
+          }));
+          NODE
+
+      - name: Create fresh non-published review
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KGMU_ADMIN_TOKEN"
+          response="$(curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/reviewed-401.json \
+            'https://kgmu-calendar-api.containerapps.ru/api/v1/admin/kgmu/reviewed-bundle?publish=false')"
+          node - "$response" <<'NODE'
+          const body = JSON.parse(process.argv[2]);
+          if (!body.reviewId || body.status !== 'READY_TO_PUBLISH' || body.publicationBlocked !== true) {
+            throw new Error(`unexpected seed response: ${JSON.stringify(body)}`);
+          }
+          console.log('CANONICAL_E2E_REVIEW_BEGIN');
+          console.log(JSON.stringify({
+            reviewId: body.reviewId,
+            status: body.status,
+            reason: body.reason,
+            parserType: body.parserType,
+            sourceSha256: body.sourceSha256,
+            qa: body.qa,
+            publicationBlocked: body.publicationBlocked,
+          }, null, 2));
+          console.log('CANONICAL_E2E_REVIEW_END');
+          NODE
+
+      - name: Generate and validate canonical package locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input /tmp/reviewed-401.json \
+            --group 401 \
+            --week1-start 2026-02-02 \
+            --output /tmp/canonical-401.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { validateScheduleBatch } from './api/src/schedule/validate.js';
+          const pkg = JSON.parse(fs.readFileSync('/tmp/canonical-401.json', 'utf8'));
+          const qa = validateScheduleBatch(pkg.batches[0]);
+          if (!qa.publishable) throw new Error(JSON.stringify(qa.errors));
+          console.log('CANONICAL_E2E_LOCAL_QA_BEGIN');
+          console.log(JSON.stringify({
+            format: pkg.format,
+            rulesRevision: pkg.rules_revision,
+            group: pkg.batches[0].schedule.group,
+            eventCount: pkg.batches[0].events.length,
+            period: pkg.batches[0].schedule.period,
+            qa: { status: 'PASS', warnings: qa.warnings, stats: qa.stats },
+          }, null, 2));
+          console.log('CANONICAL_E2E_LOCAL_QA_END');
+          NODE
