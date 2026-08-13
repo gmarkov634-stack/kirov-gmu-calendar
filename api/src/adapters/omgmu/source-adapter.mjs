@@ -29,7 +29,9 @@ export async function runOmgmuSourceAdapter({
     };
   }
 
-  if (manifest.validation?.status !== "ok") {
+  if (manifest.validation?.status !== "ok" || manifest.sourceCount === 0) {
+    const errors = [...(manifest.validation?.errors || [])];
+    if (manifest.sourceCount === 0) errors.push("no schedule sources discovered");
     return {
       version: 1,
       university: "omgmu",
@@ -37,7 +39,7 @@ export async function runOmgmuSourceAdapter({
       sourcePage: sourceUrl,
       publishable: false,
       publicationAction: "none",
-      diagnostics: (manifest.validation?.errors || []).map((error) => ({ stage: "discover", error })),
+      diagnostics: errors.map((error) => ({ stage: "discover", error })),
       manifest,
       downloadReport: null,
       snapshot: null,
