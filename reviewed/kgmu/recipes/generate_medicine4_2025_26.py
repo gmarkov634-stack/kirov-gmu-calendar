@@ -29,6 +29,7 @@ BLOCKS: list[dict] = []
 with (DATA_DIR / "blocks.txt").open(encoding="utf-8") as source:
     reader = csv.DictReader(source, delimiter="\t")
     for row in reader:
+        raw_title = row["rawTitle"].replace("\\r", " ").replace("\\n", " ")
         BLOCKS.append({
             "group": row["group"],
             "row": int(row["row"]),
@@ -36,7 +37,7 @@ with (DATA_DIR / "blocks.txt").open(encoding="utf-8") as source:
             "endCol": int(row["endCol"]),
             "startRef": row["startRef"],
             "sourceRange": row["sourceRange"],
-            "rawTitle": json.loads(row["rawTitle"]),
+            "rawTitle": raw_title,
         })
 
 DISCIPLINES = {
@@ -239,7 +240,6 @@ add_shared(
     "16:45", "18:15", pe_location,
     kind="lesson", source_cell="BX51", description=pe_description,
 )
-# The two Tuesday additions have their own explicit time in the same source cell.
 for group in stream1:
     for event in events[group]:
         if event.get("sourceCell") == "BX51" and event["start"][:10] in {"2026-04-07", "2026-04-14"}:
