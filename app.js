@@ -390,7 +390,7 @@ async function renderOrderResult(orderId, accessToken = "") {
     title.textContent = "Платёж не завершён";
     card.innerHTML = "<p>Доступ не выдан. Если вы отменили оплату, вернитесь к выбору. Если уже оплатили, обновите страницу через минуту — повторно оплачивать не нужно.</p><a class=\"copy-button link-button\" href=\"./\">Вернуться к выбору</a>";
   };
-  const fallbackTimer = window.setTimeout(showIncompletePayment, 20000);
+  const fallbackTimer = window.setTimeout(showIncompletePayment, 35000);
 
   for (let attempt = 0; attempt < 15; attempt += 1) {
     try {
