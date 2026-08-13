@@ -28,7 +28,9 @@ export function loadConfig(env = process.env) {
     accessKeyId: env.S3_ACCESS_KEY_ID || "",
     secretAccessKey: env.S3_SECRET_ACCESS_KEY || "",
     dataDir: env.DATA_DIR || path.resolve("data"),
-    cacheTtlMs: Number(env.CACHE_TTL_MS || 300000),
+    // current.json is shared mutable state. Replica-local caching can make
+    // publication diff/versioning and tokenized ICS reads observe old pointers.
+    cacheTtlMs: 0,
     universitySiteUrls: {
       kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
