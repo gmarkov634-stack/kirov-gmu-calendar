@@ -6,7 +6,7 @@ on:
       - ".github/workflows/kgmu-canonical-e2e-package.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -44,88 +44,36 @@ jobs:
           test "$actual" = "$expected"
           echo "SOURCE_SHA256=$actual"
 
-      - name: Inspect workbook date and week anchors
+      - name: Confirm semester start in workbook
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import json, re, zipfile
-          from datetime import datetime, timedelta
           from xml.etree import ElementTree as ET
-
-          NS = {'m':'http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'pr':'http://schemas.openxmlformats.org/package/2006/relationships'}
+          NS = {'m':'http://schemas.openxmlformats.org/spreadsheetml/2006/main','r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships','pr':'http://schemas.openxmlformats.org/package/2006/relationships'}
           with zipfile.ZipFile('/tmp/source.xlsx') as z:
-              shared = []
-              if 'xl/sharedStrings.xml' in z.namelist():
-                  root = ET.fromstring(z.read('xl/sharedStrings.xml'))
-                  for si in root.findall('m:si', NS):
-                      shared.append(''.join(t.text or '' for t in si.iter('{%s}t' % NS['m'])))
-              custom = {}
-              date_style_ids = set()
-              root = ET.fromstring(z.read('xl/styles.xml'))
-              numfmts = root.find('m:numFmts', NS)
-              if numfmts is not None:
-                  for n in numfmts.findall('m:numFmt', NS):
-                      custom[int(n.attrib['numFmtId'])] = n.attrib.get('formatCode','')
-              cellxfs = root.find('m:cellXfs', NS)
-              built_in_dates = set(range(14,23)) | set(range(27,37)) | set(range(45,48)) | set(range(50,59))
-              if cellxfs is not None:
-                  for i, xf in enumerate(cellxfs.findall('m:xf', NS)):
-                      num_id = int(xf.attrib.get('numFmtId','0'))
-                      fmt = custom.get(num_id,'').lower()
-                      fmt_clean = re.sub(r'"[^"]*"|\\.|\[[^\]]*\]', '', fmt)
-                      if num_id in built_in_dates or (('d' in fmt_clean or 'm' in fmt_clean) and 'y' in fmt_clean):
-                          date_style_ids.add(i)
-              wb = ET.fromstring(z.read('xl/workbook.xml'))
-              rels = ET.fromstring(z.read('xl/_rels/workbook.xml.rels'))
-              relmap = {r.attrib['Id']: r.attrib['Target'] for r in rels.findall('pr:Relationship', NS)}
-              sheets = []
-              for sh in wb.find('m:sheets', NS).findall('m:sheet', NS):
-                  target = relmap[sh.attrib['{%s}id' % NS['r']]]
-                  sheets.append((sh.attrib['name'], target.lstrip('/') if target.startswith('/') else 'xl/' + target.lstrip('/')))
-              date_cells, text_hits = [], []
-              for sheet_name, sheet_path in sheets:
-                  root = ET.fromstring(z.read(sheet_path))
-                  for c in root.findall('.//m:c', NS):
-                      ref, t, s = c.attrib.get('r'), c.attrib.get('t'), int(c.attrib.get('s','0'))
-                      v = c.find('m:v', NS)
-                      text = None
-                      if t == 's' and v is not None:
-                          idx = int(v.text); text = shared[idx] if 0 <= idx < len(shared) else ''
-                      elif t == 'inlineStr':
-                          isel = c.find('m:is', NS); text = ''.join(x.text or '' for x in isel.iter('{%s}t' % NS['m'])) if isel is not None else ''
-                      elif t == 'str' and v is not None:
-                          text = v.text or ''
-                      if text:
-                          cleaned = ' '.join(text.split())
-                          if re.search(r'недел|02[.\-/]02|2026', cleaned, re.I):
-                              text_hits.append({'sheet':sheet_name,'cell':ref,'text':cleaned[:500]})
-                      if v is not None and s in date_style_ids and t not in ('s','inlineStr','str'):
-                          try:
-                              dt = datetime(1899,12,30) + timedelta(days=float(v.text))
-                              if datetime(2025,1,1) <= dt <= datetime(2027,12,31):
-                                  date_cells.append({'sheet':sheet_name,'cell':ref,'date':dt.date().isoformat()})
-                          except Exception:
-                              pass
-          dates = sorted(date_cells, key=lambda x:(x['date'],x['sheet'],x['cell']))
-          explicit = sorted(set(x['date'] for x in dates))
-          result = {
-              'source_sha256':'146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae',
-              'sheets':[name for name,_ in sheets],
-              'earliest_date_cells':dates[:40],
-              'near_start_date_cells':[x for x in dates if '2026-01-15' <= x['date'] <= '2026-02-15'][:120],
-              'text_hits':text_hits[:120],
-              'explicit_dates_first_40':explicit[:40],
-              'week1_start_date':'2026-02-02',
-              'week1_confirmed_in_workbook':'2026-02-02' in explicit or any('02.02' in h['text'] for h in text_hits),
-          }
-          if not result['week1_confirmed_in_workbook']:
-              raise SystemExit('2026-02-02 is not explicitly represented in source workbook')
-          with open('/tmp/source-inspection.json','w',encoding='utf8') as f:
-              json.dump(result,f,ensure_ascii=False,indent=2)
-          print('SOURCE_INSPECTION_BEGIN')
-          print(json.dumps(result,ensure_ascii=False,indent=2))
-          print('SOURCE_INSPECTION_END')
+              shared=[]
+              root=ET.fromstring(z.read('xl/sharedStrings.xml'))
+              for si in root.findall('m:si',NS): shared.append(''.join(t.text or '' for t in si.iter('{%s}t'%NS['m'])))
+              wb=ET.fromstring(z.read('xl/workbook.xml'))
+              rels=ET.fromstring(z.read('xl/_rels/workbook.xml.rels'))
+              relmap={r.attrib['Id']:r.attrib['Target'] for r in rels.findall('pr:Relationship',NS)}
+              hits=[]
+              for sh in wb.find('m:sheets',NS).findall('m:sheet',NS):
+                  target=relmap[sh.attrib['{%s}id'%NS['r']]]
+                  sheet_path=target.lstrip('/') if target.startswith('/') else 'xl/'+target.lstrip('/')
+                  root=ET.fromstring(z.read(sheet_path))
+                  for c in root.findall('.//m:c',NS):
+                      v=c.find('m:v',NS)
+                      if c.attrib.get('t')=='s' and v is not None:
+                          text=' '.join(shared[int(v.text)].split())
+                          if re.search(r'02 февраля 2026|с 02\.02',text,re.I): hits.append({'sheet':sh.attrib['name'],'cell':c.attrib.get('r'),'text':text})
+          exact=next((h for h in hits if 'Начало учебных занятий - 02 февраля 2026 г.' in h['text']),None)
+          if not exact: raise SystemExit('semester start text not found')
+          result={'source_sha256':'146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae','week1_start_date':'2026-02-02','anchor':exact,'supporting_hits':hits[:20]}
+          open('/tmp/source-inspection.json','w',encoding='utf8').write(json.dumps(result,ensure_ascii=False,indent=2))
+          print('SOURCE_INSPECTION_BEGIN'); print(json.dumps(result,ensure_ascii=False,indent=2)); print('SOURCE_INSPECTION_END')
           PY
 
       - name: Build canonical review command
@@ -155,6 +103,22 @@ jobs:
           fs.copyFileSync('/tmp/source-inspection.json','/tmp/artifact/source-inspection.json');
           console.log(JSON.stringify({reviewId:command.reviewId,action:command.action,events:pkg.batches[0].events.length,qa:qa.stats}));
           NODE
+
+      - name: Push command branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="ops/kgmu-e2e-401-${GITHUB_RUN_ID}"
+          mkdir -p ops/schedule-review
+          cp /tmp/artifact/command.json ops/schedule-review/command.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          git add ops/schedule-review/command.json
+          git commit -m 'ops: canonical publish group 401 e2e'
+          git push origin "$branch"
+          printf '%s' "$branch" > /tmp/artifact/branch.txt
+          echo "COMMAND_BRANCH=$branch"
 
       - name: Upload command artifact
         uses: actions/upload-artifact@v4
