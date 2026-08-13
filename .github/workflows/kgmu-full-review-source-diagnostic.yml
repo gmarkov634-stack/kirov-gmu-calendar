@@ -1,0 +1,41 @@
+name: KGMU full review source diagnostic
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-full-review-source-diagnostic.yml"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect matching production reviews and cached source
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kgmu-calendar-api.containerapps.ru'
+          sha='146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae'
+          reviews="$(curl --fail-with-body --silent --show-error -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" "$base/api/v1/admin/parser-reviews?limit=500")"
+          printf '%s' "$reviews" > /tmp/reviews.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const body=JSON.parse(fs.readFileSync('/tmp/reviews.json','utf8'));
+          const sha='146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae';
+          const matches=(body.reviews||[]).filter(r=>r.sourceSha256===sha && r.metadata?.groupRange==='401-420');
+          console.log('MATCHING_FULL_REVIEWS_BEGIN');
+          console.log(JSON.stringify(matches.map(r=>({reviewId:r.reviewId,status:r.status,reason:r.reason,sourceKey:r.sourceKey||null,normalizer:r.normalizer||null,createdAt:r.createdAt,updatedAt:r.updatedAt})),null,2));
+          console.log('MATCHING_FULL_REVIEWS_END');
+          fs.writeFileSync('/tmp/ids',matches.map(r=>r.reviewId).join('\n'));
+          if (!matches.length) throw new Error('no matching full review');
+          NODE
+          while IFS= read -r id; do
+            test -n "$id" || continue
+            status="$(curl --silent --show-error --output "/tmp/source-$id.xlsx" --write-out '%{http_code}' -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" "$base/api/v1/admin/parser-reviews/$id/source")"
+            bytes="$(wc -c < "/tmp/source-$id.xlsx")"
+            printf 'SOURCE_PROBE review=%s status=%s bytes=%s\n' "$id" "$status" "$bytes"
+            if test "$status" = '200'; then
+              printf 'SOURCE_SHA review=%s sha256=%s\n' "$id" "$(sha256sum "/tmp/source-$id.xlsx" | cut -d' ' -f1)"
+            fi
+          done < /tmp/ids
