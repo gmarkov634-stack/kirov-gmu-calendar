@@ -1,0 +1,128 @@
+name: KGMU verify full canonical publication
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-full-canonical-verify.yml"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify source, persisted review and all canonical fingerprints
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KGMU_ADMIN_TOKEN"
+          base='https://kgmu-calendar-api.containerapps.ru'
+          review='afe5e5ea-38e6-420b-8f3f-3f191b0865a7'
+          expected_sha='146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae'
+          source_json='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json'
+
+          curl --fail-with-body --silent --show-error \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/parser-reviews/$review" \
+            -o /tmp/review.json
+
+          curl --fail-with-body --silent --show-error \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/parser-reviews/$review/source" \
+            -o /tmp/source.xlsx
+
+          actual_sha="$(sha256sum /tmp/source.xlsx | cut -d' ' -f1)"
+          test "$actual_sha" = "$expected_sha"
+          echo "PERSISTED_SOURCE_SHA_OK=$actual_sha"
+
+          python3 - <<'PY'
+          import zipfile
+          if not zipfile.is_zipfile('/tmp/source.xlsx'):
+              raise SystemExit('persisted source is not an XLSX ZIP')
+          PY
+
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input "$source_json" \
+            --groups all \
+            --week1-start 2026-02-02 \
+            --output /tmp/canonical.json
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { prepareSchedulePublication } from './api/src/schedule/pipeline.js';
+          import { validateScheduleBatch } from './api/src/schedule/validate.js';
+
+          const review = JSON.parse(fs.readFileSync('/tmp/review.json','utf8'));
+          const pkg = JSON.parse(fs.readFileSync('/tmp/canonical.json','utf8'));
+          const expectedSha = '146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae';
+          const expectedGroups = Array.from({length:20},(_,i)=>String(401+i));
+
+          if (review.reviewId !== 'afe5e5ea-38e6-420b-8f3f-3f191b0865a7') throw new Error('persisted review id mismatch');
+          if (review.status !== 'PUBLISHED') throw new Error(`persisted status ${review.status}`);
+          if (review.reason !== 'CANONICAL_REVIEWED_JSON_PUBLISHED') throw new Error(`persisted reason ${review.reason}`);
+          if (review.publicationBlocked !== false) throw new Error('persisted review is still blocked');
+          if (review.sourceSha256 !== expectedSha) throw new Error(`persisted source SHA mismatch ${review.sourceSha256}`);
+          if (!review.sourceKey?.includes(`/sources/${expectedSha}/`)) throw new Error(`bad persisted sourceKey ${review.sourceKey}`);
+          if (review.metadata?.groupRange !== '401-420') throw new Error(`bad persisted group range ${review.metadata?.groupRange}`);
+          if (review.qa?.status !== 'PASS' || review.qa?.groupCount !== 20 || review.qa?.eventCount !== 2230) throw new Error(`bad persisted QA ${JSON.stringify(review.qa)}`);
+          if (review.published?.groupCount !== 20 || review.published?.eventCount !== 2230) throw new Error(`bad persisted publication counts ${JSON.stringify(review.published)}`);
+          if (JSON.stringify(review.published.groups) !== JSON.stringify(expectedGroups)) throw new Error(`bad persisted groups ${JSON.stringify(review.published.groups)}`);
+
+          if (pkg.format !== 'canonical-reviewed/v1') throw new Error(`bad canonical format ${pkg.format}`);
+          if (pkg.batches.length !== 20) throw new Error(`canonical batch count ${pkg.batches.length}`);
+          const canonicalGroups = pkg.batches.map(b=>b.schedule.group);
+          if (JSON.stringify(canonicalGroups) !== JSON.stringify(expectedGroups)) throw new Error(`bad canonical groups ${JSON.stringify(canonicalGroups)}`);
+          const eventCount = pkg.batches.reduce((n,b)=>n+b.events.length,0);
+          if (eventCount !== 2230) throw new Error(`canonical event count ${eventCount}`);
+
+          const expectedFingerprints = {};
+          for (const batch of pkg.batches) {
+            const inputQa = validateScheduleBatch(batch);
+            if (!inputQa.publishable || inputQa.errors.length) throw new Error(`local QA failed for ${batch.schedule.group}`);
+            const prepared = prepareSchedulePublication(batch, { now: '2026-08-13T13:55:00.000Z' });
+            expectedFingerprints[batch.schedule.group] = prepared.batch.schedule.content_fingerprint;
+          }
+
+          const pubs = review.published.publications || [];
+          if (pubs.length !== 20) throw new Error(`persisted publication row count ${pubs.length}`);
+          for (const p of pubs) {
+            if (!expectedGroups.includes(p.group)) throw new Error(`unexpected published group ${p.group}`);
+            if (!/^ver_[a-f0-9]{32}$/.test(String(p.scheduleVersionId||''))) throw new Error(`bad version id for ${p.group}: ${p.scheduleVersionId}`);
+            if (p.contentFingerprint !== expectedFingerprints[p.group]) {
+              throw new Error(`content fingerprint mismatch for ${p.group}: ${p.contentFingerprint} != ${expectedFingerprints[p.group]}`);
+            }
+          }
+
+          const g408Batch = pkg.batches.find(b=>b.schedule.group==='408');
+          const overlap = g408Batch.events
+            .filter(e=>e.timing.date==='2026-03-23' && ['12:00','14:45'].includes(e.timing.start_time))
+            .sort((a,b)=>a.timing.start_time.localeCompare(b.timing.start_time));
+          if (overlap.length !== 2) throw new Error(`group 408 overlap count ${overlap.length}`);
+          if (overlap[0].timing.start_time !== '12:00' || overlap[0].timing.end_time !== '15:05' || overlap[0].lesson.discipline.normalized !== 'Менеджмент в здравоохранении') throw new Error('group 408 first overlap event mismatch');
+          if (overlap[1].timing.start_time !== '14:45' || overlap[1].timing.end_time !== '16:15' || overlap[1].lesson.discipline.normalized !== 'ФАКУЛЬТЕТСКАЯ ТЕРАПИЯ, ПРОФЕССИОНАЛЬНЫЕ БОЛЕЗНИ') throw new Error('group 408 second overlap event mismatch');
+
+          const g408 = pubs.find(p=>p.group==='408');
+          if (g408.scheduleVersionId !== 'ver_08f5298a1cdc46daa48662d009edc81b') throw new Error(`group 408 version mismatch ${g408.scheduleVersionId}`);
+          if (g408.contentFingerprint !== expectedFingerprints['408']) throw new Error('group 408 fingerprint mismatch');
+
+          console.log('PERSISTED_CANONICAL_PUBLICATION_VERIFIED');
+          console.log(JSON.stringify({
+            reviewId: review.reviewId,
+            sourceSha256: review.sourceSha256,
+            groupCount: review.published.groupCount,
+            eventCount: review.published.eventCount,
+            group408: {
+              scheduleVersionId: g408.scheduleVersionId,
+              contentFingerprint: g408.contentFingerprint,
+              overlap: overlap.map(e=>({
+                start:e.timing.start_time,
+                end:e.timing.end_time,
+                discipline:e.lesson.discipline.normalized,
+              })),
+            },
+            versions: pubs.map(p=>({group:p.group,scheduleVersionId:p.scheduleVersionId,contentFingerprint:p.contentFingerprint})),
+          },null,2));
+          NODE
