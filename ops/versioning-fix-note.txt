@@ -1,0 +1,1 @@
+production regression: exact semantic fingerprints must be paired before broader anchors to prevent event UID drift across repeated schedule updates.
