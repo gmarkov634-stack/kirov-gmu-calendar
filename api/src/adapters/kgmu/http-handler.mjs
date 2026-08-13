@@ -62,6 +62,17 @@ async function readBuffer(request, limit) {
   return Buffer.concat(chunks);
 }
 
+async function readJson(request, limit = 20 * 1024 * 1024) {
+  const buffer = await readBuffer(request, limit);
+  try {
+    return JSON.parse(buffer.toString("utf8"));
+  } catch {
+    const error = new Error("Request body is not valid JSON");
+    error.code = "REVIEWED_BUNDLE_INVALID";
+    throw error;
+  }
+}
+
 function metadataFromUrl(url) {
   return {
     filename: url.searchParams.get("filename") || "schedule.xlsx",
@@ -83,9 +94,26 @@ function reviewedError(response, error) {
   const body = { error: code.toLowerCase(), message: String(error?.message || error).slice(0, 500) };
   if (error?.details) body.details = error.details;
   if (code === "request_too_large") return send(response, 413, body);
-  if (["REVIEWED_SOURCE_SHA_MISMATCH", "REVIEWED_BUNDLE_GROUPS_INVALID", "REVIEWED_BUNDLE_PERIOD_INVALID", "REVIEWED_BUNDLE_DUPLICATE_EVENT"].includes(code)) return send(response, 409, body);
-  if (["REVIEWED_SOURCE_UNAVAILABLE", "REVIEWED_SOURCE_TOO_LARGE"].includes(code)) return send(response, 503, body);
-  if (code === "ATOMIC_PUBLICATION_UNAVAILABLE") return send(response, 503, body);
+  if (code === "PARSER_REVIEW_NOT_FOUND") return send(response, 404, body);
+  if ([
+    "REVIEWED_SOURCE_SHA_MISMATCH",
+    "REVIEWED_BUNDLE_GROUPS_INVALID",
+    "REVIEWED_BUNDLE_PERIOD_INVALID",
+    "REVIEWED_BUNDLE_DUPLICATE_EVENT",
+    "REVIEW_ALREADY_PUBLISHED",
+    "CANONICAL_REVIEW_SOURCE_MISMATCH",
+    "CANONICAL_REVIEW_CONTEXT_MISMATCH",
+    "CANONICAL_REVIEW_GROUPS_INVALID",
+    "CANONICAL_REVIEW_QA_FAILED",
+    "CANONICAL_PUBLICATION_PARTIAL",
+  ].includes(code)) return send(response, 409, body);
+  if ([
+    "REVIEWED_SOURCE_UNAVAILABLE",
+    "REVIEWED_SOURCE_TOO_LARGE",
+    "ATOMIC_PUBLICATION_UNAVAILABLE",
+    "CANONICAL_REVIEW_STAGING_UNAVAILABLE",
+    "CANONICAL_PUBLICATION_UNAVAILABLE",
+  ].includes(code)) return send(response, 503, body);
   return send(response, 400, body);
 }
 
@@ -100,20 +128,27 @@ export function createKgmuParserHandler({ service, reviewedService, queue, watch
     if (request.method === "POST" && url.pathname === "/api/v1/admin/kgmu/reviewed-bundle") {
       if (typeof reviewedService?.submit !== "function") return send(response, 503, { error: "reviewed_bundle_unavailable" });
       try {
-        const buffer = await readBuffer(request, 20 * 1024 * 1024);
-        let bundle;
-        try {
-          bundle = JSON.parse(buffer.toString("utf8"));
-        } catch {
-          const error = new Error("Request body is not valid JSON");
-          error.code = "REVIEWED_BUNDLE_INVALID";
-          throw error;
-        }
+        const bundle = await readJson(request);
         const publish = url.searchParams.get("publish") === "true";
         const result = await reviewedService.submit(bundle, { publish });
         return send(response, publish ? 200 : 202, result);
       } catch (error) {
         console.error("KGMU reviewed bundle failed", error);
+        return reviewedError(response, error);
+      }
+    }
+
+    const canonicalMatch = url.pathname.match(/^\/api\/v1\/admin\/parser-reviews\/([a-f0-9-]{36})\/canonical$/);
+    if (request.method === "POST" && canonicalMatch) {
+      if (typeof reviewedService?.submitCanonical !== "function") return send(response, 503, { error: "canonical_review_unavailable" });
+      try {
+        const input = await readJson(request);
+        const publish = url.searchParams.get("publish") === "true";
+        const result = await reviewedService.submitCanonical(canonicalMatch[1], input, { publish });
+        if (!result) return send(response, 404, { error: "parser_review_not_found" });
+        return send(response, publish ? 200 : 202, result);
+      } catch (error) {
+        console.error("KGMU canonical review failed", error);
         return reviewedError(response, error);
       }
     }
