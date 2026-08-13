@@ -23,3 +23,8 @@ test("unconfigured university landings stay empty instead of falling back to KGM
   const config = loadConfig({ PUBLIC_API_URL: "https://api.example.test" });
   assert.deepEqual(config.universitySiteUrls, { kgmu: "", omgmu: "", pgmu: "" });
 });
+
+test("schedule cache stays disabled even if an old CACHE_TTL_MS value remains in deployment env", () => {
+  const config = loadConfig({ CACHE_TTL_MS: "300000" });
+  assert.equal(config.cacheTtlMs, 0);
+});
