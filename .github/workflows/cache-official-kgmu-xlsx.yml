@@ -97,16 +97,24 @@ jobs:
           }
           fs.writeFileSync(`${base}/blocks.tsv`, blockLines.join('\n') + '\n');
           NODE
-      - name: Commit source cache
+      - name: Preserve reviewed transcription data
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest='reviewed/kgmu/recipes/medicine4_2025_26_data'
+          mkdir -p "$dest"
+          cp source-cache/kgmu/2025-26/2/medicine/4/blocks.tsv "$dest/blocks.txt"
+          cp source-cache/kgmu/2025-26/2/medicine/4/date-map.tsv "$dest/date-map.txt"
+      - name: Commit source cache and reviewed transcription
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add source-cache/kgmu/2025-26/2/medicine/4
+          git add source-cache/kgmu/2025-26/2/medicine/4 reviewed/kgmu/recipes/medicine4_2025_26_data
           if git diff --cached --quiet; then
-            echo 'Source already cached.'
+            echo 'Source and transcription already cached.'
             exit 0
           fi
-          git commit -m 'Extract KGMU medicine course 4 reviewed block transcription'
+          git commit -m 'Preserve KGMU medicine course 4 reviewed transcription'
           git push origin HEAD:main
