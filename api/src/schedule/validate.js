@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs";
 import { validateJsonSchema } from "./json-schema-validator.js";
 
-const DEFAULT_CONFIRMED_OVERLAP_RULE_IDS = new Set(["R69"]);
-
 function readJson(url) {
   return JSON.parse(readFileSync(url, "utf8"));
 }
@@ -41,19 +39,6 @@ function normalized(value) {
 
 function sameValue(a, b) {
   return (a ?? null) === (b ?? null);
-}
-
-function hasConfirmedOverlap(event, ruleIds) {
-  const applied = new Set(event?.parse?.rule_ids || []);
-  return [...ruleIds].some((ruleId) => applied.has(ruleId));
-}
-
-function subgroupsDisjoint(a, b) {
-  if (a?.audience?.scope !== "subgroups" || b?.audience?.scope !== "subgroups") return false;
-  const left = new Set(a.audience.subgroups || []);
-  const right = new Set(b.audience.subgroups || []);
-  if (!left.size || !right.size) return false;
-  return [...left].every((value) => !right.has(value));
 }
 
 function locationKey(event) {
@@ -123,9 +108,6 @@ function validateCoreEvent(event, index, batch, errors) {
     errors.push(issue("SUBGROUP_SCOPE_EMPTY", "subgroups scope requires at least one subgroup", `/events/${index}/audience/subgroups`, meta));
   }
 
-  if (event?.lesson?.type?.code === "unknown" && event?.parse?.status !== "needs_review") {
-    errors.push(issue("UNKNOWN_TYPE_NOT_REVIEWED", "unknown lesson type requires parse.status = needs_review", `/events/${index}/parse/status`, meta));
-  }
   if (event?.parse?.status === "needs_review") {
     errors.push(issue("NEEDS_REVIEW", "Event requires manual review and blocks publication", `/events/${index}/parse/status`, meta));
   }
@@ -218,46 +200,6 @@ function validateDuplicates(events, errors, stats) {
   }
 }
 
-function validateOverlaps(events, errors, warnings, stats, confirmedRuleIds) {
-  const byDate = new Map();
-  for (const [index, event] of events.entries()) {
-    if (event?.timing?.all_day === true) continue;
-    const start = timeMinutes(event?.timing?.start_time);
-    const end = timeMinutes(event?.timing?.end_time);
-    if (start === null || end === null || start >= end) continue;
-    const date = event?.timing?.date;
-    if (!byDate.has(date)) byDate.set(date, []);
-    byDate.get(date).push({ index, event, start, end });
-  }
-
-  for (const items of byDate.values()) {
-    items.sort((a, b) => a.start - b.start || a.end - b.end || a.index - b.index);
-    for (let left = 0; left < items.length; left += 1) {
-      for (let right = left + 1; right < items.length; right += 1) {
-        const a = items[left];
-        const b = items[right];
-        if (b.start >= a.end) break;
-        if (subgroupsDisjoint(a.event, b.event)) continue;
-        if (duplicateKey(a.event) === duplicateKey(b.event)) continue;
-
-        stats.overlaps += 1;
-        const confirmed = hasConfirmedOverlap(a.event, confirmedRuleIds) && hasConfirmedOverlap(b.event, confirmedRuleIds);
-        const details = {
-          event_indexes: [a.index, b.index],
-          event_ids: [a.event?.system?.event_id ?? null, b.event?.system?.event_id ?? null],
-          date: a.event?.timing?.date,
-        };
-        if (confirmed) {
-          stats.confirmed_overlaps += 1;
-          warnings.push(issue("CONFIRMED_OVERLAP", "Confirmed source overlap preserved", `/events/${a.index}`, details));
-        } else {
-          errors.push(issue("UNCONFIRMED_OVERLAP", "Overlapping events require explicit source confirmation", `/events/${a.index}`, details));
-        }
-      }
-    }
-  }
-}
-
 export function validateScheduleBatch(batch, options = {}) {
   const stage = options.stage === "postprocessed" ? "postprocessed" : "input";
   const errors = [];
@@ -266,8 +208,6 @@ export function validateScheduleBatch(batch, options = {}) {
     events: Array.isArray(batch?.events) ? batch.events.length : 0,
     needs_review: 0,
     duplicates: 0,
-    overlaps: 0,
-    confirmed_overlaps: 0,
   };
 
   if (options.schemaValidation !== false) {
@@ -297,9 +237,6 @@ export function validateScheduleBatch(batch, options = {}) {
     validateDerived(event, index, stage, errors);
   }
   validateDuplicates(batch.events, errors, stats);
-
-  const confirmedRuleIds = new Set(options.confirmedOverlapRuleIds || DEFAULT_CONFIRMED_OVERLAP_RULE_IDS);
-  validateOverlaps(batch.events, errors, warnings, stats, confirmedRuleIds);
 
   return {
     stage,
