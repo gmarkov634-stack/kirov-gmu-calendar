@@ -10,7 +10,7 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect parser review
+      - name: Verify production and persisted parser review
         env:
           KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
         shell: bash
@@ -18,22 +18,53 @@ jobs:
           set -euo pipefail
           base='https://kgmu-calendar-api.containerapps.ru'
           review='2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb'
+          expected_version='ver_cf65d49f70ef46c5ac95ec5742bdb019'
+
+          health="$(curl --fail-with-body --silent --show-error "$base/health")"
+          node - "$health" <<'NODE'
+          const h=JSON.parse(process.argv[2]);
+          if (h.status !== 'ok' || h.service !== 'medical-calendar-api') throw new Error(`bad health: ${JSON.stringify(h)}`);
+          console.log(`HEALTH_OK ${h.service}`);
+          NODE
+
           body="$(curl --fail-with-body --silent --show-error \
             -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
             "$base/api/v1/admin/parser-reviews/$review")"
-          node - "$body" <<'NODE'
+          node - "$body" "$expected_version" <<'NODE'
           const r=JSON.parse(process.argv[2]);
+          const expectedVersion=process.argv[3];
+          const publication=r.published?.publications?.find((item)=>item.group === '401');
+          const checks = [
+            [r.status === 'PUBLISHED', 'status'],
+            [r.reason === 'CANONICAL_REVIEWED_JSON_PUBLISHED', 'reason'],
+            [r.publicationBlocked === false, 'publicationBlocked'],
+            [r.qa?.status === 'PASS', 'qa.status'],
+            [r.qa?.groupCount === 1, 'qa.groupCount'],
+            [r.qa?.eventCount === 112, 'qa.eventCount'],
+            [r.published?.groupCount === 1, 'published.groupCount'],
+            [r.published?.eventCount === 112, 'published.eventCount'],
+            [publication?.scheduleVersionId === expectedVersion, 'scheduleVersionId'],
+          ];
+          const failed=checks.filter(([ok])=>!ok).map(([,name])=>name);
+          if (failed.length) throw new Error(`persisted publication verification failed: ${failed.join(', ')}`);
           const safe={
-            reviewId:r.reviewId,status:r.status,reason:r.reason,parserType:r.parserType,
-            sourceSha256:r.sourceSha256,normalizedKey:r.normalizedKey,qa:r.qa,
-            normalizer:r.normalizer,classification:r.classification,
+            reviewId:r.reviewId,status:r.status,reason:r.reason,
+            sourceSha256:r.sourceSha256,qa:r.qa,
             publicationBlocked:r.publicationBlocked,
-            currentPublishedSchedulePreserved:r.currentPublishedSchedulePreserved,
-            publicationError:r.publicationError,
-            publicationErrorDetails:r.publicationErrorDetails,
-            published:r.published,
+            published:{
+              groupCount:r.published.groupCount,
+              eventCount:r.published.eventCount,
+              groups:r.published.groups,
+              publication:{
+                group:publication.group,
+                scheduleVersionId:publication.scheduleVersionId,
+                previousScheduleVersionId:publication.previousScheduleVersionId,
+                contentFingerprint:publication.contentFingerprint,
+                diffCounts:publication.diff?.counts,
+              },
+            },
           };
-          console.log('E2E_REVIEW_STATE_BEGIN');
+          console.log('E2E_PERSISTED_STATE_BEGIN');
           console.log(JSON.stringify(safe,null,2));
-          console.log('E2E_REVIEW_STATE_END');
+          console.log('E2E_PERSISTED_STATE_END');
           NODE
