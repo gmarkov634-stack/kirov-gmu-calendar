@@ -16,6 +16,7 @@
         <p class="section-kicker">Календарь КГМУ</p>
         <h1>Тест покупки через ЮKassa</h1>
         <p class="test-note">Служебная страница для сквозного теста оплаты на архивном расписании. Она работает только с ключом администратора и только когда сервер подключён к тестовому магазину ЮKassa. Публичная продажа архивных календарей при этом не открывается.</p>
+        <p class="test-note"><strong>Подготовлен реальный E2E-кейс:</strong> лечебный факультет, 4 курс, группа 401, 2025/26, 2 семестр. На странице ЮKassa используйте тестовую карту 5555 5555 5555 4477, срок 01/30, CVC 123, код 3-D Secure 123.</p>
         <form id="archive-payment-form" class="test-grid">
           <div class="test-field test-wide">
             <label for="admin-token">Ключ администратора</label>
@@ -28,7 +29,7 @@
           <div class="test-field">
             <label for="program">Факультет</label>
             <select id="program" required>
-              <option value="medicine">Лечебное дело</option>
+              <option value="medicine" selected>Лечебное дело</option>
               <option value="pediatrics">Педиатрия</option>
               <option value="dentistry">Стоматология</option>
               <option value="foreign">Иностранные обучающиеся</option>
@@ -38,7 +39,7 @@
             <label for="course">Курс</label>
             <select id="course" required>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+              <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
             </select>
           </div>
           <div class="test-field">
@@ -51,7 +52,7 @@
           </div>
           <div class="test-field test-wide">
             <label for="group-code">Группа</label>
-            <input id="group-code" inputmode="text" placeholder="Например, 132" required />
+            <input id="group-code" inputmode="text" value="401" required />
           </div>
           <button id="submit" class="test-button test-wide" type="submit">Перейти к тестовой оплате</button>
         </form>
