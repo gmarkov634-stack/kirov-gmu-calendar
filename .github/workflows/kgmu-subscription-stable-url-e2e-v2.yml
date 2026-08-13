@@ -1,0 +1,18 @@
+name: KGMU stable subscription URL E2E v2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-subscription-stable-url-e2e-v2.yml"
+      - "api/tools/kgmu-subscription-stable-url-e2e.mjs"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run production stable URL E2E
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        run: node api/tools/kgmu-subscription-stable-url-e2e.mjs
