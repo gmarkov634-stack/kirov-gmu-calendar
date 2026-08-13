@@ -165,7 +165,7 @@ for block in BLOCKS:
         meta = DISCIPLINES["Менеджмент в здравоохранении"]
         events[group].append(timed_event(
             title=title, iso_date=iso_date, start=meta["start"], end=meta["end"],
-            location=meta["location"], source_cell=block["startRef"],
+            location=meta["location"], kind="project_defense", source_cell=block["startRef"],
             source_range=block["sourceRange"], description=description_for(title, marker="M"),
         ))
         continue
@@ -183,7 +183,7 @@ for block in BLOCKS:
             start, end = meta["start"], meta["end"]
         events[group].append(timed_event(
             title=title, iso_date=iso_date, start=start, end=end,
-            location=meta["location"], source_cell=block["startRef"],
+            location=meta["location"], kind="practice", source_cell=block["startRef"],
             source_range=block["sourceRange"], description=description_for(title),
         ))
 
@@ -238,7 +238,7 @@ add_shared(
     "Элективные дисциплины по физической культуре и спорту",
     stream1_pe_dates,
     "16:45", "18:15", pe_location,
-    kind="lesson", source_cell="BX51", description=pe_description,
+    kind="physical_education", source_cell="BX51", description=pe_description,
 )
 for group in stream1:
     for event in events[group]:
@@ -252,7 +252,7 @@ add_shared(
     "Элективные дисциплины по физической культуре и спорту",
     grid_dates("2026-02-04", "2026-05-20", 2),
     "16:30", "18:00", pe_location,
-    kind="lesson", source_cell="CD51", description=pe_description,
+    kind="physical_education", source_cell="CD51", description=pe_description,
 )
 
 # Sort and exact-deduplicate. Explicit overlaps are deliberately preserved (C13).
@@ -276,6 +276,16 @@ assert sum(1 for block in BLOCKS if "*" in clean_raw_title(block["rawTitle"]) an
 assert sum(1 for block in BLOCKS if clean_raw_title(block["rawTitle"]) == "**") == 1
 assert any(event["title"].startswith("ЛЕКЦ.") for event in events["401"])
 assert any(event["title"] == "Элективные дисциплины по физической культуре и спорту" for event in events["420"])
+canonical_kinds = {"practice", "lecture", "physical_education", "project_defense"}
+actual_kinds = {event["kind"] for group in GROUPS for event in events[group]}
+assert actual_kinds == canonical_kinds, f"Unexpected lesson kinds: {sorted(actual_kinds)}"
+assert all(event["kind"] != "lesson" for group in GROUPS for event in events[group])
+assert all(
+    event["kind"] == "project_defense"
+    for group in GROUPS
+    for event in events[group]
+    if event["title"].startswith("ЗАЩИТА ПРОЕКТА")
+)
 
 # Report overlaps for QA without modifying source-explicit events.
 overlap_count = 0
