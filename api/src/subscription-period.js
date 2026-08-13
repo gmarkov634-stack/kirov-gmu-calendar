@@ -1,4 +1,32 @@
+function canonicalSemesterEnd(schedule) {
+  if (schedule?.schema_version !== "1.0" || !schedule?.schedule || !Array.isArray(schedule?.events)) return null;
+  let latestDate = null;
+  let latestTime = null;
+  for (const event of schedule.events) {
+    const date = event?.timing?.date;
+    if (!/^20\d{2}-\d{2}-\d{2}$/.test(String(date || ""))) continue;
+    const time = event?.timing?.all_day === true ? "23:59" : event?.timing?.end_time;
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(time || ""))) continue;
+    if (latestDate === null || `${date}T${time}` > `${latestDate}T${latestTime}`) {
+      latestDate = date;
+      latestTime = time;
+    }
+  }
+  if (!latestDate) {
+    const periodEnd = schedule.schedule?.period?.end_date;
+    if (/^20\d{2}-\d{2}-\d{2}$/.test(String(periodEnd || ""))) {
+      latestDate = periodEnd;
+      latestTime = "23:59";
+    }
+  }
+  if (!latestDate) return null;
+  return `${latestDate}T${latestTime}:00.000Z`;
+}
+
 export function semesterEndFromSchedule(schedule) {
+  const canonical = canonicalSemesterEnd(schedule);
+  if (canonical) return canonical;
+
   let latest = Number.NEGATIVE_INFINITY;
   for (const event of schedule?.events || []) {
     const end = Date.parse(event?.end);
