@@ -1,0 +1,183 @@
+name: KGMU canonical E2E package
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-e2e-package.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare reviewed group 401
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const sourcePath = 'reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
+          const source = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+          if (!source.groups?.['401']) throw new Error('group 401 missing');
+          const one = structuredClone(source);
+          one.source.groupRange = '401-401';
+          one.groups = { '401': source.groups['401'] };
+          fs.writeFileSync('/tmp/reviewed-401.json', JSON.stringify(one));
+          NODE
+
+      - name: Download exact reviewed XLSX
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KGMU_ADMIN_TOKEN"
+          curl --fail-with-body --silent --show-error \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            'https://kgmu-calendar-api.containerapps.ru/api/v1/admin/parser-reviews/2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb/source' \
+            -o /tmp/source.xlsx
+          actual="$(sha256sum /tmp/source.xlsx | awk '{print $1}')"
+          expected='146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae'
+          test "$actual" = "$expected"
+          echo "SOURCE_SHA256=$actual"
+
+      - name: Inspect workbook date and week anchors
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, re, zipfile
+          from datetime import datetime, timedelta
+          from xml.etree import ElementTree as ET
+
+          path = '/tmp/source.xlsx'
+          NS = {'m':'http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'pr':'http://schemas.openxmlformats.org/package/2006/relationships'}
+          with zipfile.ZipFile(path) as z:
+              shared = []
+              if 'xl/sharedStrings.xml' in z.namelist():
+                  root = ET.fromstring(z.read('xl/sharedStrings.xml'))
+                  for si in root.findall('m:si', NS):
+                      shared.append(''.join(t.text or '' for t in si.iter('{%s}t' % NS['m'])))
+
+              custom = {}
+              date_style_ids = set()
+              if 'xl/styles.xml' in z.namelist():
+                  root = ET.fromstring(z.read('xl/styles.xml'))
+                  numfmts = root.find('m:numFmts', NS)
+                  if numfmts is not None:
+                      for n in numfmts.findall('m:numFmt', NS):
+                          custom[int(n.attrib['numFmtId'])] = n.attrib.get('formatCode','')
+                  cellxfs = root.find('m:cellXfs', NS)
+                  built_in_dates = set(range(14,23)) | set(range(27,37)) | set(range(45,48)) | set(range(50,59))
+                  if cellxfs is not None:
+                      for i, xf in enumerate(cellxfs.findall('m:xf', NS)):
+                          num_id = int(xf.attrib.get('numFmtId','0'))
+                          fmt = custom.get(num_id,'').lower()
+                          fmt_clean = re.sub(r'"[^"]*"|\\.|\[[^\]]*\]', '', fmt)
+                          if num_id in built_in_dates or (('d' in fmt_clean or 'm' in fmt_clean) and ('y' in fmt_clean)):
+                              date_style_ids.add(i)
+
+              wb = ET.fromstring(z.read('xl/workbook.xml'))
+              rels = ET.fromstring(z.read('xl/_rels/workbook.xml.rels'))
+              relmap = {r.attrib['Id']: r.attrib['Target'] for r in rels.findall('pr:Relationship', NS)}
+              sheets = []
+              for sh in wb.find('m:sheets', NS).findall('m:sheet', NS):
+                  target = relmap[sh.attrib['{%s}id' % NS['r']]]
+                  if target.startswith('/'):
+                      sheet_path = target.lstrip('/')
+                  else:
+                      sheet_path = 'xl/' + target.lstrip('/')
+                  sheets.append((sh.attrib['name'], sheet_path))
+
+              date_cells = []
+              text_hits = []
+              for sheet_name, sheet_path in sheets:
+                  root = ET.fromstring(z.read(sheet_path))
+                  for c in root.findall('.//m:c', NS):
+                      ref = c.attrib.get('r')
+                      t = c.attrib.get('t')
+                      s = int(c.attrib.get('s','0'))
+                      v = c.find('m:v', NS)
+                      text = None
+                      if t == 's' and v is not None:
+                          idx = int(v.text)
+                          text = shared[idx] if 0 <= idx < len(shared) else ''
+                      elif t == 'inlineStr':
+                          isel = c.find('m:is', NS)
+                          text = ''.join(x.text or '' for x in isel.iter('{%s}t' % NS['m'])) if isel is not None else ''
+                      elif t in ('str','b') and v is not None:
+                          text = v.text or ''
+                      if text:
+                          cleaned = ' '.join(text.split())
+                          if re.search(r'недел|02[.\-/]02|2026', cleaned, re.I):
+                              text_hits.append({'sheet':sheet_name,'cell':ref,'text':cleaned[:500]})
+                      if v is not None and s in date_style_ids and t not in ('s','inlineStr','str'):
+                          try:
+                              serial = float(v.text)
+                              dt = datetime(1899,12,30) + timedelta(days=serial)
+                              if datetime(2025,1,1) <= dt <= datetime(2027,12,31):
+                                  date_cells.append({'sheet':sheet_name,'cell':ref,'date':dt.date().isoformat(),'serial':serial})
+                          except Exception:
+                              pass
+
+          dates = sorted(date_cells, key=lambda x:(x['date'],x['sheet'],x['cell']))
+          near_start = [x for x in dates if '2026-01-15' <= x['date'] <= '2026-02-15']
+          explicit = sorted(set(x['date'] for x in dates))
+          result = {
+              'source_sha256':'146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae',
+              'sheets':[name for name,_ in sheets],
+              'earliest_date_cells':dates[:30],
+              'near_start_date_cells':near_start[:100],
+              'text_hits':text_hits[:100],
+              'explicit_dates_first_30':explicit[:30],
+              'week1_start_date':'2026-02-02',
+              'week1_confirmed_in_workbook':'2026-02-02' in explicit or any('02.02' in h['text'] for h in text_hits),
+          }
+          if not result['week1_confirmed_in_workbook']:
+              raise SystemExit('2026-02-02 is not explicitly represented in source workbook')
+          with open('/tmp/source-inspection.json','w',encoding='utf8') as f:
+              json.dump(result,f,ensure_ascii=False,indent=2)
+          print('SOURCE_INSPECTION_BEGIN')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          print('SOURCE_INSPECTION_END')
+          PY
+
+      - name: Build canonical review command
+        shell: bash
+        run: |
+          set -euo pipefail
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input /tmp/reviewed-401.json \
+            --group 401 \
+            --week1-start 2026-02-02 \
+            --output /tmp/canonical-401.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { validateScheduleBatch } from './api/src/schedule/validate.js';
+          const pkg = JSON.parse(fs.readFileSync('/tmp/canonical-401.json','utf8'));
+          const qa = validateScheduleBatch(pkg.batches[0]);
+          if (!qa.publishable || qa.errors.length || qa.warnings.length) throw new Error(JSON.stringify(qa));
+          const command = {
+            id: `kgmu-e2e-401-${process.env.GITHUB_RUN_ID}`,
+            action: 'review.submit_publish',
+            reviewId: '2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb',
+            createdAt: new Date().toISOString(),
+            package: pkg,
+          };
+          fs.mkdirSync('/tmp/artifact',{recursive:true});
+          fs.writeFileSync('/tmp/artifact/command.json', JSON.stringify(command,null,2));
+          fs.copyFileSync('/tmp/source-inspection.json','/tmp/artifact/source-inspection.json');
+          console.log(JSON.stringify({reviewId:command.reviewId,action:command.action,events:pkg.batches[0].events.length,qa:qa.stats}));
+          NODE
+
+      - name: Upload command artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-canonical-e2e-401
+          path: /tmp/artifact
+          retention-days: 1
