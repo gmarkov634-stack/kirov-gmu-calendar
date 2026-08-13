@@ -1,0 +1,12 @@
+{
+  "id": "kgmu-canonical-e2e-401-20260813",
+  "action": "review.submit_publish",
+  "createdAt": "2026-08-13T10:59:00.000Z",
+  "reviewId": "2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb",
+  "migration": {
+    "type": "legacy-reviewed/v1",
+    "sourceFile": "reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json",
+    "group": "401",
+    "week1StartDate": "2026-02-02"
+  }
+}
