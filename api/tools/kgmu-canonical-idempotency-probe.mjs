@@ -13,4 +13,24 @@ const response=await fetch(`${base}/api/v1/admin/schedules/publish`,{method:'POS
 const body=await response.json();
 if (!response.ok) throw new Error(`HTTP ${response.status} ${JSON.stringify(body)}`);
 console.log('IDEMPOTENCY_PROBE_RESULT');
-console.log(JSON.stringify({status:body.status,scheduleVersionId:body.scheduleVersionId,previousScheduleVersionId:body.previousScheduleVersionId,contentFingerprint:body.contentFingerprint,diffSameContent:body.diff?.same_content,diffCounts:body.diff?.counts,publicationUnchanged:body.publication?.unchanged,publicationVersion:body.publication?.scheduleVersionId},null,2));
+console.log(JSON.stringify({
+  status:body.status,
+  scheduleVersionId:body.scheduleVersionId,
+  previousScheduleVersionId:body.previousScheduleVersionId,
+  contentFingerprint:body.contentFingerprint,
+  diffSameContent:body.diff?.same_content,
+  diffCounts:body.diff?.counts,
+  changed:body.diff?.changed?.map((event)=>({
+    event_id:event.event_id,
+    revision:event.revision,
+    date:event.date,
+    start_time:event.start_time,
+    end_time:event.end_time,
+    discipline:event.discipline,
+    type_code:event.type_code,
+    matched_by:event.matched_by,
+    changes:event.changes,
+  })),
+  publicationUnchanged:body.publication?.unchanged,
+  publicationVersion:body.publication?.scheduleVersionId,
+},null,2));
