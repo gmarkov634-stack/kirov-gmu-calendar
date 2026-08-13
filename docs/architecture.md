@@ -4,108 +4,64 @@
 
 ChatGPT выполняет смысловой разбор исходных XLSX/PDF по подтверждённым правилам и формирует нормализованный `schedule-batch`.
 
-Сервер:
-- валидирует JSON Schema;
-- выполняет смысловые проверки;
-- назначает идентификаторы и версии;
-- выполняет постобработку;
-- сравнивает версии;
-- генерирует ICS;
-- публикует обновления подписчикам.
-
-Неизвестный паттерн не интерпретируется молча: он получает `needs_review` и блокирует автоматическую публикацию.
+Сервер валидирует данные, назначает идентификаторы и версии, выполняет постобработку, сравнивает версии, генерирует ICS и публикует обновления. Неизвестный паттерн получает `needs_review` и блокирует автоматическую публикацию.
 
 ## Статус этапов
 
 ### Шаг 2 — единый JSON-формат события
-
 Статус: **завершён**.
 
-Утверждены:
-- `schedule-event/v1`;
-- `schedule-batch/v1`;
-- `schema_version = 1.0`;
-- представление одного фактического занятия одним объектом `event`;
-- floating-время;
-- разделение `source / core / derived / calendar`;
-- правила `parse.status`;
-- базовые enum;
-- принцип серверного versioning;
-- смысловая серверная валидация.
+Утверждены `schedule-event/v1`, `schedule-batch/v1`, floating-время, разделение source/core/derived/calendar, статусы парсинга и серверный versioning.
 
 Подробности: `docs/schedule-data-contract.md`.
 
 ### Шаг 3 — общая постобработка
-
 Статус: **завершён**.
 
-Реализованы:
-- отдельные последовательности по нормализованной дисциплине и точному типу занятия;
-- `X из N`;
-- учебная неделя;
-- следующее одноимённое занятие;
-- отметка последнего занятия;
-- прогресс циклового расписания при наличии `cycle_id`;
-- связь с явно опубликованной формой контроля;
-- позиция занятия в течение дня (`3 из 4`);
-- следующее занятие текущего дня;
-- интервал от окончания текущего занятия до начала следующего;
-- явная обработка перекрытий;
-- число занятий, оставшихся сегодня;
-- оформление лекций, форм контроля и подгрупп;
-- `calendar.location` из подтверждённых мест;
-- компактная подпись сервиса;
-- отдельные нейтральные промо-события с ограничением 1–2 на семестр.
+Реализованы X из N, учебная неделя, следующее/последнее занятие, циклы, формы контроля, дневной прогресс, интервалы, подгруппы, location, подпись сервиса и промо-события.
 
 Код: `api/src/schedule/postprocess.js`.
-Regression: `api/test/schedule-postprocess.test.js`.
 Спецификация: `docs/postprocessing.md`.
 
 ### Шаг 4 — серверная валидация
-
 Статус: **завершён**.
 
-Реализованы:
-- проверка `schedule-batch.schema.json` и `schedule-event.schema.json`;
-- встроенный JSON Schema validator для используемого проектом подмножества JSON Schema 2020-12;
-- совпадение метаданных каждого события с пакетом группы;
-- проверка времени, учебного периода и областей `whole_group / subgroups`;
-- обязательная блокировка любого `needs_review`;
-- правило `unknown → needs_review`;
-- детектор подозрительных дубликатов;
-- детектор пересечений событий;
-- сохранение подтверждённых пересечений R69 как warning;
-- разрешение параллельных занятий непересекающихся подгрупп;
-- проверка `sequence`, `day`, `cycle`, `next_same_event` и `calendar` после постобработки;
-- единый QA-отчёт `errors / warnings / stats / publishable`;
-- `assertSchedulePublishable()` для жёсткой блокировки серверного pipeline.
+Реализованы JSON Schema validation, смысловые проверки, блокировка needs_review, дубликаты, пересечения, R69, подгруппы, проверка derived/calendar и QA-отчёт publishable.
 
 Код: `api/src/schedule/json-schema-validator.js`, `api/src/schedule/validate.js`.
-Regression: `api/test/schedule-validation.test.js`.
 Спецификация: `docs/schedule-validation.md`.
 
 ### Шаг 5 — versioning и diff
+Статус: **завершён**.
 
+Реализованы стабильный `event_id`, fingerprints, уникальные версии расписания, цепочка предыдущих версий, `system.revision`, `created_at`, `updated_at`, идемпотентный повторный импорт, история A → B → A и diff `added / changed / removed / unchanged`.
+
+Код: `api/src/schedule/versioning.js`.
+Спецификация: `docs/versioning.md`.
+
+### Шаг 6 — генерация ICS
 Статус: **завершён**.
 
 Реализованы:
-- стабильный `event_id` для однозначно сопоставленных занятий;
-- новый `event_id` только для действительно новых событий;
-- SHA-256 `system.fingerprint` по semantic core события;
-- SHA-256 `schedule.content_fingerprint` по смысловому содержимому группы;
-- уникальный `schedule_version_id` для каждой новой фактической редакции;
-- `previous_schedule_version_id` для цепочки ревизий;
-- идемпотентный повторный импорт без создания лишней версии;
-- корректная история `A → B → A` без повторного использования старого version ID;
-- консервативное сопоставление по `event_id`, occurrence-anchor, source-anchor и одиночной semantic pair;
-- запрет рискованного fuzzy-match неоднозначных повторяющихся занятий;
-- diff `added / changed / removed / unchanged`;
-- список точных изменённых полей `before / after` для `changed`.
+- канонический `schedule-batch → ICS`;
+- стабильный `UID` на базе `event_id`;
+- `SEQUENCE = revision - 1`;
+- стабильные `CREATED`, `DTSTAMP`, `LAST-MODIFIED`;
+- floating `DTSTART/DTEND` без `TZID`, `VTIMEZONE` и UTC-конвертации;
+- корректный all-day;
+- escaping и UTF-8 folding до 75 октетов;
+- детерминированная выдача одной версии;
+- version metadata и refresh hints;
+- удалённые события отсутствуют в актуальном snapshot-feed;
+- отказ от генерации неversioned/неpostprocessed событий;
+- совместимость через существующий `buildCalendar()`.
 
-Код: `api/src/schedule/versioning.js`.
-Regression: `api/test/schedule-versioning.test.js` — 9/9.
-Спецификация: `docs/versioning.md`.
+Код: `api/src/schedule/ics.js`, adapter `api/src/calendar.js`.
+Regression: `api/test/schedule-ics.test.js`, `api/test/schedule-versioning.test.js`.
+Спецификация: `docs/ics-generation.md`.
+
+Точечная Node-проверка нового ICS-модуля подтвердила корректные UID/DTSTART/SEQUENCE и максимальную длину folded physical line 75 UTF-8 октетов. Отдельный GitHub Actions test workflow пока не подключён; текущая автоматизация репозитория выполняет Pages deployment.
 
 ### Следующий этап
 
-Шаг 6 — генерация итогового ICS из прошедшего validation → versioning → postprocessing пакета: floating-время, стабильный UID на базе `event_id`, корректное удаление исчезнувших событий при обновлении подписки, escaping/folding строк и отдельные промо-события.
+Шаг 7 — хранение и публикация версий расписания: единый pipeline `validate → version → postprocess → validate → ICS → publish`, хранение текущей и предыдущих версий группы и стабильная серверная точка выдачи подписного ICS.
