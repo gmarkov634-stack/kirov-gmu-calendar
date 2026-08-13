@@ -35,6 +35,32 @@ jobs:
           printf '%s\n' "$url" > "$base/current.url"
           base64 -w 0 /tmp/source.xlsx > /tmp/source.b64
           split -b 3500 -d -a 3 --additional-suffix=.txt /tmp/source.b64 "$base/parts/part"
+      - name: Dump workbook cells and merges
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { readKgmuXlsxStructure } from './api/src/adapters/kgmu/xlsx-reader.mjs';
+          const base = 'source-cache/kgmu/2025-26/2/medicine/4';
+          const source = fs.readFileSync('/tmp/source.xlsx');
+          const structure = await readKgmuXlsxStructure(source);
+          const lines = [];
+          for (const sheet of structure.sheets) {
+            lines.push(['SHEET', sheet.name].join('\t'));
+            for (const cell of sheet.cells) {
+              lines.push(['CELL', cell.ref, cell.row, cell.col, JSON.stringify(cell.value)].join('\t'));
+            }
+            for (const merge of sheet.merges) {
+              lines.push(['MERGE', merge.ref, merge.startRow, merge.endRow, merge.startCol, merge.endCol].join('\t'));
+            }
+            for (const row of sheet.hiddenRows || []) lines.push(['HIDDEN_ROW', row].join('\t'));
+            for (const cell of sheet.styledCells || []) {
+              lines.push(['STYLE', cell.ref, cell.styleId, cell.fillId, JSON.stringify(cell.value)].join('\t'));
+            }
+          }
+          fs.writeFileSync(`${base}/structure.tsv`, lines.join('\n') + '\n');
+          NODE
       - name: Commit source cache
         shell: bash
         run: |
@@ -46,5 +72,5 @@ jobs:
             echo 'Source already cached.'
             exit 0
           fi
-          git commit -m 'Split official KGMU medicine course 4 XLSX cache'
+          git commit -m 'Dump official KGMU medicine course 4 XLSX structure'
           git push origin HEAD:main
