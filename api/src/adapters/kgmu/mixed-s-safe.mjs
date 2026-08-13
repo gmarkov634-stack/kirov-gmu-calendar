@@ -4,6 +4,18 @@ function clean(value) {
   return String(value ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function hasItems(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+export function applyR69ToMixedQa(input) {
+  const qa = { ...(input || {}) };
+  const blocked = hasItems(qa.uncovered)
+    || hasItems(qa.expectationFailures)
+    || Number(qa.duplicateCount || 0) > 0;
+  return { ...qa, passed: !blocked };
+}
+
 function sourceSemesterRange(workbook) {
   const sheet = workbook?.sheets?.[0];
   if (!sheet) return null;
@@ -42,9 +54,9 @@ export function parseKgmuMixedWorkbookSafe(workbook, options = {}) {
   const result = parseKgmuMixedWorkbook(prepared.workbook, options);
   return {
     ...result,
-    qa: {
+    qa: applyR69ToMixedQa({
       ...result.qa,
       sourceSemesterRange: prepared.range,
-    },
+    }),
   };
 }
