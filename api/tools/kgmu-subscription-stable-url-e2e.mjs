@@ -108,6 +108,30 @@ function targetFromIcs(text, uid) {
   return { events, target };
 }
 
+function publicationSummary(result) {
+  return {
+    status: result?.status,
+    scheduleVersionId: result?.scheduleVersionId,
+    previousScheduleVersionId: result?.previousScheduleVersionId,
+    contentFingerprint: result?.contentFingerprint,
+    diffSameContent: result?.diff?.same_content,
+    diffCounts: result?.diff?.counts,
+    changed: result?.diff?.changed?.map((event) => ({
+      event_id: event.event_id,
+      revision: event.revision,
+      date: event.date,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      discipline: event.discipline,
+      type_code: event.type_code,
+      matched_by: event.matched_by,
+      changes: event.changes,
+    })) || [],
+    publicationUnchanged: result?.publication?.unchanged,
+    publicationVersion: result?.publication?.scheduleVersionId,
+  };
+}
+
 execFileSync(process.execPath, [
   'api/tools/kgmu-legacy-reviewed-to-canonical.mjs',
   '--input', source,
@@ -127,7 +151,8 @@ console.log(`CANDIDATE ${candidate.timing.date} ${candidate.timing.start_time}-$
 
 let subscriptionUrl = null;
 let subscriptionHash = null;
-let needsRestore = false;
+let scheduleTouched = false;
+let finalBaselineConfirmed = false;
 
 try {
   const health = (await jsonRequest('/health')).body;
@@ -135,7 +160,8 @@ try {
   console.log('HEALTH_OK');
 
   const baseline = await publish(a);
-  assert(baseline.status === 'unchanged' && baseline.diff?.same_content === true, `baseline is not current ${JSON.stringify({status: baseline.status, diff: baseline.diff?.counts})}`);
+  console.log(`BASELINE_RESULT ${JSON.stringify(publicationSummary(baseline))}`);
+  assert(baseline.status === 'unchanged' && baseline.diff?.same_content === true, `baseline is not current ${JSON.stringify(publicationSummary(baseline))}`);
   assert(baseline.eventCount === 112, `baseline event count ${baseline.eventCount}`);
   console.log(`BASELINE_UNCHANGED version=${baseline.scheduleVersionId} fingerprint=${baseline.contentFingerprint} events=${baseline.eventCount}`);
 
@@ -156,7 +182,7 @@ try {
   assert(feedA.status === 'active', `A subscription status ${feedA.status}`);
 
   const publishedB = await publish(b);
-  needsRestore = true;
+  scheduleTouched = true;
   const changedB = assertDiffOneChanged(publishedB);
   console.log(`B_PUBLISHED version=${publishedB.scheduleVersionId} previous=${publishedB.previousScheduleVersionId} event=${changedB.event_id} revision=${changedB.revision} matchedBy=${changedB.matched_by}`);
   console.log(`B_DIFF ${JSON.stringify(publishedB.diff.counts)}`);
@@ -181,7 +207,6 @@ try {
   const changedC = assertDiffOneChanged(restored);
   assert(changedC.event_id === changedB.event_id, 'event_id changed on restore');
   assert(changedC.revision === changedB.revision + 1, `revision did not increment ${changedB.revision}->${changedC.revision}`);
-  needsRestore = false;
   console.log(`A_RESTORED version=${restored.scheduleVersionId} previous=${restored.previousScheduleVersionId} event=${changedC.event_id} revision=${changedC.revision}`);
 
   const feedC = await fetchIcs(subscriptionUrl);
@@ -196,7 +221,10 @@ try {
   console.log(`SUBSCRIPTION_A_B_A_OK uid=${uid} sequence=${seqA}->${seqB}->${seqC} restoredDtend=${field(cIcs.target, 'DTEND')} sameUrl=true vevents=${cIcs.events.length}`);
 
   const finalBaseline = await publish(a);
-  assert(finalBaseline.status === 'unchanged' && finalBaseline.diff?.same_content === true, 'final production state is not baseline');
+  console.log(`FINAL_BASELINE_RESULT ${JSON.stringify(publicationSummary(finalBaseline))}`);
+  assert(finalBaseline.status === 'unchanged' && finalBaseline.diff?.same_content === true,
+    `final production state is not baseline ${JSON.stringify(publicationSummary(finalBaseline))}`);
+  finalBaselineConfirmed = true;
   console.log(`FINAL_BASELINE_CONFIRMED version=${finalBaseline.scheduleVersionId} fingerprint=${finalBaseline.contentFingerprint}`);
 
   const revoke = (await jsonRequest(`/api/v1/admin/subscriptions/${subscriptionHash}/revoke`, { method: 'POST', admin: true })).body;
@@ -210,10 +238,10 @@ try {
   console.log('REVOKED_FEED_EMPTY_OK');
   console.log('STABLE_SUBSCRIPTION_URL_E2E_SUCCESS');
 } finally {
-  if (needsRestore) {
+  if (scheduleTouched && !finalBaselineConfirmed) {
     try {
       const restored = await publish(a);
-      console.log(`CLEANUP_RESTORE status=${restored.status} version=${restored.scheduleVersionId || 'n/a'}`);
+      console.log(`CLEANUP_RESTORE ${JSON.stringify(publicationSummary(restored))}`);
     } catch (error) {
       console.error(`CLEANUP_RESTORE_FAILED ${error.message}`);
     }
