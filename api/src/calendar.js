@@ -1,3 +1,5 @@
+import { buildScheduleIcs } from "./schedule/ics.js";
+
 function escapeIcs(value = "") {
   return String(value)
     .replaceAll("\\", "\\\\")
@@ -70,6 +72,10 @@ function calendarIdentity(schedule) {
 }
 
 export function buildCalendar(schedule, publicBaseUrl = "") {
+  if (schedule?.schema_version === "1.0" && schedule?.schedule && Array.isArray(schedule.events)) {
+    return buildScheduleIcs(schedule, { publicBaseUrl });
+  }
+
   const generatedAt = utcStamp(new Date());
   const identity = calendarIdentity(schedule);
   const lines = [
