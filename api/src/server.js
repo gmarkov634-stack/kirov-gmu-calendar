@@ -18,6 +18,7 @@ import { KgmuReviewedService } from "./adapters/kgmu/reviewed-service.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
+import { createOmgmuSourceProbeHandler } from "./adapters/omgmu/source-probe.mjs";
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
@@ -30,6 +31,7 @@ const offerCatalogHandler = createOfferCatalogHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
+const omgmuSourceProbeHandler = createOmgmuSourceProbeHandler();
 const schedulePublishHandler = createSchedulePublishHandler({ store, config });
 const parserReviewQueue = new ParserReviewQueue(config);
 const parserNotifier = new EmailReviewNotifier(config);
@@ -76,6 +78,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/schedule-review/control") {
     return scheduleReviewControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/omgmu/source-probe") {
+    return omgmuSourceProbeHandler(request, response);
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
