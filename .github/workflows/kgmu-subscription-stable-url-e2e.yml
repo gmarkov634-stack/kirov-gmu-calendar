@@ -1,0 +1,305 @@
+name: KGMU stable subscription URL E2E
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-subscription-stable-url-e2e.yml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify A -> B -> A through the same subscription URL
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KGMU_ADMIN_TOKEN"
+          base='https://kgmu-calendar-api.containerapps.ru'
+          source='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json'
+
+          cleanup() {
+            rc=$?
+            set +e
+            if [ -f /tmp/b-published ]; then
+              curl --silent --show-error \
+                -X POST \
+                -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+                -H 'Content-Type: application/json' \
+                --data-binary @/tmp/a.json \
+                "$base/api/v1/admin/schedules/publish" \
+                -o /tmp/cleanup-restore.json
+              node --input-type=module <<'NODE'
+              import fs from 'node:fs';
+              try {
+                const r=JSON.parse(fs.readFileSync('/tmp/cleanup-restore.json','utf8'));
+                console.log(`CLEANUP_RESTORE status=${r.status} version=${r.scheduleVersionId || 'n/a'}`);
+              } catch { console.log('CLEANUP_RESTORE response_unreadable'); }
+              NODE
+            fi
+            if [ -f /tmp/sub-token-hash ]; then
+              hash="$(cat /tmp/sub-token-hash)"
+              curl --silent --show-error \
+                -X POST \
+                -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+                "$base/api/v1/admin/subscriptions/$hash/revoke" \
+                -o /tmp/cleanup-revoke.json
+              node --input-type=module <<'NODE'
+              import fs from 'node:fs';
+              try {
+                const r=JSON.parse(fs.readFileSync('/tmp/cleanup-revoke.json','utf8'));
+                console.log(`CLEANUP_REVOKE status=${r.status || r.error || 'unknown'}`);
+              } catch { console.log('CLEANUP_REVOKE response_unreadable'); }
+              NODE
+            fi
+            trap - EXIT
+            exit "$rc"
+          }
+          trap cleanup EXIT
+
+          curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "$base/health" -o /tmp/health.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const h=JSON.parse(fs.readFileSync('/tmp/health.json','utf8'));
+          if (h.status !== 'ok' || h.service !== 'medical-calendar-api') throw new Error(`bad health ${JSON.stringify(h)}`);
+          console.log('HEALTH_OK');
+          NODE
+
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input "$source" \
+            --groups all \
+            --week1-start 2026-02-02 \
+            --output /tmp/all.json
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const pkg=JSON.parse(fs.readFileSync('/tmp/all.json','utf8'));
+          const a=pkg.batches.find(b=>b.schedule.group==='401');
+          if (!a || a.events.length !== 112) throw new Error(`bad group 401 baseline: ${a?.events?.length}`);
+          fs.writeFileSync('/tmp/a.json', JSON.stringify(a));
+
+          const b=structuredClone(a);
+          const byDate=new Map();
+          for (const e of b.events) {
+            if (e.timing?.all_day === true) continue;
+            if (!/^\d{2}:\d{2}$/.test(e.timing?.start_time || '') || !/^\d{2}:\d{2}$/.test(e.timing?.end_time || '')) continue;
+            const list=byDate.get(e.timing.date) || [];
+            list.push(e); byDate.set(e.timing.date,list);
+          }
+          let candidate=null;
+          for (const [date,list] of [...byDate.entries()].sort()) {
+            if (list.length !== 1) continue;
+            const e=list[0];
+            const [sh,sm]=e.timing.start_time.split(':').map(Number);
+            const [eh,em]=e.timing.end_time.split(':').map(Number);
+            const start=sh*60+sm, end=eh*60+em;
+            if (end-start > 10) { candidate=e; break; }
+          }
+          if (!candidate) throw new Error('no safe single-event day candidate');
+          const originalEnd=candidate.timing.end_time;
+          const [eh,em]=originalEnd.split(':').map(Number);
+          const endMinutes=eh*60+em-1;
+          candidate.timing.end_time=`${String(Math.floor(endMinutes/60)).padStart(2,'0')}:${String(endMinutes%60).padStart(2,'0')}`;
+          fs.writeFileSync('/tmp/b.json', JSON.stringify(b));
+          fs.writeFileSync('/tmp/candidate.json', JSON.stringify({
+            date:candidate.timing.date,
+            start:candidate.timing.start_time,
+            originalEnd,
+            changedEnd:candidate.timing.end_time,
+            discipline:candidate.lesson?.discipline?.normalized,
+          }));
+          console.log(`CANDIDATE ${candidate.timing.date} ${candidate.timing.start_time}-${originalEnd} -> ${candidate.timing.end_time} ${candidate.lesson?.discipline?.normalized}`);
+          NODE
+
+          curl --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/a.json \
+            "$base/api/v1/admin/schedules/publish" \
+            -o /tmp/baseline.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/baseline.json','utf8'));
+          if (r.status !== 'unchanged' || r.diff?.same_content !== true) throw new Error(`baseline is not current: ${JSON.stringify(r)}`);
+          if (r.eventCount !== 112) throw new Error(`baseline event count ${r.eventCount}`);
+          fs.writeFileSync('/tmp/a-version', r.scheduleVersionId);
+          fs.writeFileSync('/tmp/a-fingerprint', r.contentFingerprint);
+          console.log(`BASELINE_UNCHANGED version=${r.scheduleVersionId} fingerprint=${r.contentFingerprint} events=${r.eventCount}`);
+          NODE
+
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data '{"university":"kgmu","program":"medicine","course":4,"groupCode":"401","academicYear":"2025/2026","semester":2,"days":1}' \
+            "$base/api/v1/admin/subscriptions/preview" \
+            -o /tmp/preview.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { createHash } from 'node:crypto';
+          const r=JSON.parse(fs.readFileSync('/tmp/preview.json','utf8'));
+          if (r.status !== 'active' || r.preview !== true || r.groupCode !== '401') throw new Error(`bad preview response: ${JSON.stringify({...r,subscriptionUrl:'[redacted]'})}`);
+          const u=new URL(r.subscriptionUrl);
+          const m=u.pathname.match(/^\/api\/v1\/subscriptions\/([A-Za-z0-9_-]{43})\/calendar\.ics$/);
+          if (!m) throw new Error('bad subscription URL shape');
+          const token=m[1];
+          fs.writeFileSync('/tmp/sub-url', r.subscriptionUrl);
+          fs.writeFileSync('/tmp/sub-token', token);
+          fs.writeFileSync('/tmp/sub-token-hash', createHash('sha256').update(token).digest('hex'));
+          console.log(`PREVIEW_CREATED group=${r.groupCode} expiresAt=${r.expiresAt}`);
+          NODE
+          token="$(cat /tmp/sub-token)"
+          echo "::add-mask::$token"
+          rm /tmp/sub-token
+
+          curl --fail-with-body --silent --show-error -D /tmp/a.headers -o /tmp/a.ics "$(cat /tmp/sub-url)"
+          grep -qi '^X-Subscription-Status: active' /tmp/a.headers
+
+          curl --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/b.json \
+            "$base/api/v1/admin/schedules/publish" \
+            -o /tmp/publish-b.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/publish-b.json','utf8'));
+          const c=r.diff?.counts || {};
+          if (r.status !== 'published' || c.added !== 0 || c.changed !== 1 || c.removed !== 0 || c.unchanged !== 111) {
+            throw new Error(`unexpected B diff: ${JSON.stringify({status:r.status,counts:c})}`);
+          }
+          const changed=r.diff.changed?.[0];
+          if (!changed?.event_id || changed.changes?.length !== 1 || changed.changes[0].path !== '/timing/end_time') {
+            throw new Error(`unexpected changed event: ${JSON.stringify(changed)}`);
+          }
+          fs.writeFileSync('/tmp/target-event-id', changed.event_id);
+          fs.writeFileSync('/tmp/b-revision', String(changed.revision));
+          fs.writeFileSync('/tmp/b-version', r.scheduleVersionId);
+          console.log(`B_PUBLISHED version=${r.scheduleVersionId} previous=${r.previousScheduleVersionId} event=${changed.event_id} revision=${changed.revision} matchedBy=${changed.matched_by}`);
+          console.log(`B_DIFF ${JSON.stringify(c)}`);
+          NODE
+          touch /tmp/b-published
+
+          curl --fail-with-body --silent --show-error -D /tmp/b.headers -o /tmp/b.ics "$(cat /tmp/sub-url)"
+          grep -qi '^X-Subscription-Status: active' /tmp/b.headers
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          function unfold(s){return s.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);}
+          function events(path){
+            const lines=unfold(fs.readFileSync(path,'utf8')); const out=[]; let cur=null;
+            for(const line of lines){
+              if(line==='BEGIN:VEVENT'){cur=[];continue;}
+              if(line==='END:VEVENT'){if(cur)out.push(cur);cur=null;continue;}
+              if(cur)cur.push(line);
+            }
+            return out;
+          }
+          function field(block,name){const p=`${name}:`; const line=block.find(x=>x.startsWith(p)); return line?.slice(p.length) ?? null;}
+          const id=fs.readFileSync('/tmp/target-event-id','utf8').trim();
+          const uid=`${id}@kgmu-calendar`;
+          const a=events('/tmp/a.ics'), b=events('/tmp/b.ics');
+          if (a.length !== b.length || a.length < 100) throw new Error(`VEVENT count mismatch A=${a.length} B=${b.length}`);
+          const ea=a.find(x=>field(x,'UID')===uid), eb=b.find(x=>field(x,'UID')===uid);
+          if (!ea || !eb) throw new Error(`target UID missing ${uid}`);
+          const sa=Number(field(ea,'SEQUENCE')), sb=Number(field(eb,'SEQUENCE'));
+          if (!Number.isInteger(sa) || sb !== sa+1) throw new Error(`SEQUENCE did not increment ${sa} -> ${sb}`);
+          if (field(ea,'DTSTART') !== field(eb,'DTSTART')) throw new Error('DTSTART changed unexpectedly');
+          if (field(ea,'DTEND') === field(eb,'DTEND')) throw new Error('DTEND did not change');
+          const uidsA=a.map(x=>field(x,'UID')).sort(), uidsB=b.map(x=>field(x,'UID')).sort();
+          if (JSON.stringify(uidsA)!==JSON.stringify(uidsB)) throw new Error('UID set changed A -> B');
+          fs.writeFileSync('/tmp/a-sequence', String(sa));
+          fs.writeFileSync('/tmp/b-sequence', String(sb));
+          fs.writeFileSync('/tmp/a-dtend', field(ea,'DTEND'));
+          fs.writeFileSync('/tmp/b-dtend', field(eb,'DTEND'));
+          console.log(`SUBSCRIPTION_A_B_OK uid=${uid} sequence=${sa}->${sb} dtend=${field(ea,'DTEND')}->${field(eb,'DTEND')} vevents=${a.length}`);
+          NODE
+
+          curl --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/a.json \
+            "$base/api/v1/admin/schedules/publish" \
+            -o /tmp/restore-a.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/restore-a.json','utf8'));
+          const c=r.diff?.counts || {};
+          const changed=r.diff?.changed?.[0];
+          const target=fs.readFileSync('/tmp/target-event-id','utf8').trim();
+          const bRevision=Number(fs.readFileSync('/tmp/b-revision','utf8'));
+          if (r.status !== 'published' || c.added !== 0 || c.changed !== 1 || c.removed !== 0 || c.unchanged !== 111) throw new Error(`bad restore diff ${JSON.stringify({status:r.status,counts:c})}`);
+          if (changed?.event_id !== target || changed?.revision !== bRevision+1 || changed.changes?.[0]?.path !== '/timing/end_time') throw new Error(`bad restore event ${JSON.stringify(changed)}`);
+          fs.writeFileSync('/tmp/c-version', r.scheduleVersionId);
+          console.log(`A_RESTORED version=${r.scheduleVersionId} previous=${r.previousScheduleVersionId} event=${changed.event_id} revision=${changed.revision}`);
+          NODE
+          rm /tmp/b-published
+
+          curl --fail-with-body --silent --show-error -D /tmp/c.headers -o /tmp/c.ics "$(cat /tmp/sub-url)"
+          grep -qi '^X-Subscription-Status: active' /tmp/c.headers
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          function unfold(s){return s.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);}
+          function events(path){const lines=unfold(fs.readFileSync(path,'utf8'));const out=[];let cur=null;for(const line of lines){if(line==='BEGIN:VEVENT'){cur=[];continue;}if(line==='END:VEVENT'){if(cur)out.push(cur);cur=null;continue;}if(cur)cur.push(line);}return out;}
+          function field(block,name){const p=`${name}:`;const line=block.find(x=>x.startsWith(p));return line?.slice(p.length)??null;}
+          const id=fs.readFileSync('/tmp/target-event-id','utf8').trim(), uid=`${id}@kgmu-calendar`;
+          const a=events('/tmp/a.ics'), b=events('/tmp/b.ics'), c=events('/tmp/c.ics');
+          const ea=a.find(x=>field(x,'UID')===uid), eb=b.find(x=>field(x,'UID')===uid), ec=c.find(x=>field(x,'UID')===uid);
+          if (!ea||!eb||!ec) throw new Error('target event missing after restore');
+          const sa=Number(field(ea,'SEQUENCE')), sb=Number(field(eb,'SEQUENCE')), sc=Number(field(ec,'SEQUENCE'));
+          if (sb !== sa+1 || sc !== sb+1) throw new Error(`bad sequence chain ${sa}->${sb}->${sc}`);
+          if (field(ec,'DTEND') !== field(ea,'DTEND')) throw new Error(`DTEND not restored ${field(ea,'DTEND')} vs ${field(ec,'DTEND')}`);
+          if (field(ec,'DTSTART') !== field(ea,'DTSTART')) throw new Error('DTSTART not restored');
+          const sets=[a,b,c].map(es=>es.map(x=>field(x,'UID')).sort());
+          if (JSON.stringify(sets[0])!==JSON.stringify(sets[1]) || JSON.stringify(sets[0])!==JSON.stringify(sets[2])) throw new Error('UID set changed across A/B/C');
+          console.log(`SUBSCRIPTION_A_B_A_OK uid=${uid} sequence=${sa}->${sb}->${sc} restoredDtend=${field(ec,'DTEND')} sameUrl=true vevents=${a.length}`);
+          NODE
+
+          curl --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/a.json \
+            "$base/api/v1/admin/schedules/publish" \
+            -o /tmp/final-baseline.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/final-baseline.json','utf8'));
+          if (r.status !== 'unchanged' || r.diff?.same_content !== true) throw new Error(`final state not baseline ${JSON.stringify(r)}`);
+          console.log(`FINAL_BASELINE_CONFIRMED version=${r.scheduleVersionId} fingerprint=${r.contentFingerprint}`);
+          NODE
+
+          hash="$(cat /tmp/sub-token-hash)"
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/subscriptions/$hash/revoke" \
+            -o /tmp/revoke.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/revoke.json','utf8'));
+          if (r.status !== 'revoked' || r.groupCode !== '401') throw new Error(`preview revoke failed ${JSON.stringify(r)}`);
+          console.log('PREVIEW_REVOKED');
+          NODE
+          rm /tmp/sub-token-hash
+
+          curl --fail-with-body --silent --show-error -D /tmp/revoked.headers -o /tmp/revoked.ics "$(cat /tmp/sub-url)"
+          grep -qi '^X-Subscription-Status: revoked' /tmp/revoked.headers
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const body=fs.readFileSync('/tmp/revoked.ics','utf8');
+          const count=(body.match(/BEGIN:VEVENT/g)||[]).length;
+          if (count !== 0) throw new Error(`revoked preview still exposes ${count} events`);
+          console.log('REVOKED_FEED_EMPTY_OK');
+          NODE
+
+          trap - EXIT
+          echo 'STABLE_SUBSCRIPTION_URL_E2E_SUCCESS'
