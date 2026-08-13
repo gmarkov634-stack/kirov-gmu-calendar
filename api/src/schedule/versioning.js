@@ -182,8 +182,8 @@ function scheduleContentFingerprint(schedule, events) {
   return `sha256:${sha256({ schedule: scheduleIdentity, events: fingerprints })}`;
 }
 
-function versionIdFromFingerprint(fingerprint) {
-  return `ver_${fingerprint.replace(/^sha256:/, "").slice(0, 24)}`;
+function versionIdFactory() {
+  return `ver_${randomUUID().replaceAll("-", "")}`;
 }
 
 function summarizeEvent(event) {
@@ -228,17 +228,26 @@ export function versionSchedule(previousBatch, incomingBatch, options = {}) {
   }
 
   const contentFingerprint = scheduleContentFingerprint(result.schedule, incomingEvents);
-  const versionId = options.versionIdFactory
-    ? options.versionIdFactory({ contentFingerprint, previousBatch, incomingBatch: result })
-    : versionIdFromFingerprint(contentFingerprint);
   const previousVersionId = previousBatch?.schedule?.schedule_version_id
     || previousBatch?.events?.find((event) => event?.system?.schedule_version_id)?.system?.schedule_version_id
     || null;
+  const previousContentFingerprint = previousBatch
+    ? (previousBatch.schedule?.content_fingerprint || scheduleContentFingerprint(previousBatch.schedule, previousEvents))
+    : null;
+  const sameContent = Boolean(previousBatch && previousContentFingerprint === contentFingerprint);
+  const versionId = sameContent && previousVersionId
+    ? previousVersionId
+    : (options.versionIdFactory
+        ? options.versionIdFactory({ contentFingerprint, previousBatch, incomingBatch: result })
+        : versionIdFactory());
+  const parentVersionId = sameContent
+    ? (previousBatch?.schedule?.previous_schedule_version_id ?? null)
+    : previousVersionId;
 
   result.schedule = {
     ...result.schedule,
     schedule_version_id: versionId,
-    previous_schedule_version_id: previousVersionId,
+    previous_schedule_version_id: parentVersionId,
     content_fingerprint: contentFingerprint,
   };
   for (const event of incomingEvents) event.system.schedule_version_id = versionId;
@@ -274,14 +283,11 @@ export function versionSchedule(previousBatch, incomingBatch, options = {}) {
     }
   }
 
-  const sameContent = previousBatch?.schedule?.content_fingerprint === contentFingerprint
-    || (previousBatch && scheduleContentFingerprint(previousBatch.schedule, previousEvents) === contentFingerprint);
-
   const diff = {
     previous_version_id: previousVersionId,
     version_id: versionId,
     content_fingerprint: contentFingerprint,
-    same_content: Boolean(sameContent),
+    same_content: sameContent,
     counts: {
       added: added.length,
       changed: changed.length,
