@@ -1,5 +1,10 @@
 import { createHash } from "node:crypto";
 import { publishStagedReviewedBundle, stageReviewedBundle } from "./reviewed-bundle.mjs";
+import {
+  CANONICAL_REVIEW_PARSER_TYPE,
+  publishStagedCanonicalReview,
+  stageCanonicalReviewPackage,
+} from "./canonical-reviewed.mjs";
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
@@ -97,18 +102,107 @@ export class KgmuReviewedService {
   }
 
   async #publishReady(review) {
-    const published = await publishStagedReviewedBundle({
-      queue: this.queue,
-      scheduleStore: this.scheduleStore,
-      review,
-    });
+    const canonical = review?.parserType === CANONICAL_REVIEW_PARSER_TYPE;
+    const published = canonical
+      ? await publishStagedCanonicalReview({
+          queue: this.queue,
+          scheduleStore: this.scheduleStore,
+          review,
+        })
+      : await publishStagedReviewedBundle({
+          queue: this.queue,
+          scheduleStore: this.scheduleStore,
+          review,
+        });
     return this.queue.updateReview(review.reviewId, {
       status: "PUBLISHED",
-      reason: "REVIEWED_JSON_PUBLISHED",
+      reason: canonical ? "CANONICAL_REVIEWED_JSON_PUBLISHED" : "REVIEWED_JSON_PUBLISHED",
       publicationBlocked: false,
+      currentPublishedSchedulePreserved: false,
       publishedAt: new Date().toISOString(),
       published,
     });
+  }
+
+  async submitCanonical(reviewId, input, { publish = false } = {}) {
+    const current = await this.queue.getReview(reviewId);
+    if (!current) return null;
+    const staged = await stageCanonicalReviewPackage({
+      input,
+      review: current,
+      queue: this.queue,
+    });
+    let review = await this.queue.updateReview(reviewId, {
+      status: "READY_TO_PUBLISH",
+      reason: "CANONICAL_REVIEWED_JSON_QA_PASS",
+      parserType: CANONICAL_REVIEW_PARSER_TYPE,
+      normalizedKey: staged.normalizedKey,
+      qa: staged.qa,
+      normalizer: {
+        type: "chatgpt-reviewed",
+        rulesRevision: staged.rulesRevision,
+        format: staged.format,
+      },
+      classification: {
+        type: "CANONICAL_REVIEWED_JSON",
+        confidence: "high",
+        reason: "chatgpt-canonical-schedule-batch",
+        features: { groups: staged.qa.groups },
+      },
+      publicationBlocked: true,
+      currentPublishedSchedulePreserved: true,
+    });
+
+    if (!publish) {
+      const notification = await this.#notifyReady(review);
+      return {
+        reviewId: review.reviewId,
+        status: review.status,
+        reason: review.reason,
+        parserType: review.parserType,
+        sourceSha256: review.sourceSha256,
+        qa: review.qa,
+        normalizedKey: review.normalizedKey,
+        notification,
+        publicationBlocked: true,
+      };
+    }
+
+    try {
+      review = await this.#publishReady(review);
+      return {
+        reviewId: review.reviewId,
+        status: review.status,
+        reason: review.reason,
+        parserType: review.parserType,
+        sourceSha256: review.sourceSha256,
+        qa: review.qa,
+        published: review.published,
+        publicationBlocked: false,
+      };
+    } catch (error) {
+      console.error("canonical reviewed JSON publication failed", error);
+      const partial = error?.code === "CANONICAL_PUBLICATION_PARTIAL";
+      review = await this.queue.updateReview(review.reviewId, {
+        status: "REVIEW_REQUIRED",
+        reason: partial ? "CANONICAL_PUBLICATION_PARTIAL" : "PUBLICATION_FAILED",
+        publicationBlocked: true,
+        currentPublishedSchedulePreserved: !partial,
+        publicationError: String(error?.message || error).slice(0, 1000),
+        ...(error?.details ? { publicationErrorDetails: error.details } : {}),
+      });
+      const notification = await this.#notifyReview(review);
+      return {
+        reviewId: review.reviewId,
+        status: review.status,
+        reason: review.reason,
+        parserType: review.parserType,
+        sourceSha256: review.sourceSha256,
+        qa: review.qa,
+        notification,
+        publicationBlocked: true,
+      };
+    }
   }
 
   async submit(bundle, { publish = false } = {}) {
@@ -200,7 +294,10 @@ export class KgmuReviewedService {
     const review = await this.queue.getReview(reviewId);
     if (!review) return null;
     if (review.status === "PUBLISHED") return review;
-    if (review.status !== "READY_TO_PUBLISH" || review.parserType !== "REVIEWED_JSON") {
+    if (
+      review.status !== "READY_TO_PUBLISH" ||
+      !["REVIEWED_JSON", CANONICAL_REVIEW_PARSER_TYPE].includes(review.parserType)
+    ) {
       const error = new Error("Reviewed JSON review is not ready to publish");
       error.code = "REVIEW_NOT_PUBLISHABLE";
       throw error;
