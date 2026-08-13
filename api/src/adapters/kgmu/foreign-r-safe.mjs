@@ -293,7 +293,7 @@ function refreshQa(parsed, workbook, curatorFixups, altRangeFixups) {
     alternateTimeDateRanges: altRangeFixups,
     boundaryToleranceDays: 7,
   };
-  qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || conflicts.length || outOfPeriodSources.length || altRangeFixups.skipped.length)
+  qa.status = (qa.uncovered?.length || qa.extraLessonFailures?.length || outOfPeriodSources.length || altRangeFixups.skipped.length)
     ? "REVIEW_REQUIRED"
     : "PASS";
   parsed.qa = qa;

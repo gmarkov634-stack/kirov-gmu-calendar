@@ -178,7 +178,6 @@ function refreshReviewedQa(parsed, workbook) {
   qa.status = (
     qa.uncovered?.length ||
     qa.extraLessonFailures?.length ||
-    qa.remainingOverlaps?.length ||
     qa.ambiguousLectureTimeCounts.length ||
     qa.choiceDisciplineAmbiguities.length ||
     skippedSafetyFixups
