@@ -11,22 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect normalized group 408 overlap
+      - name: Read source metadata
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          import { legacyReviewedGroupToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
-          import { validateScheduleBatch } from './api/src/schedule/validate.js';
           const path='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
           const legacy=JSON.parse(fs.readFileSync(path,'utf8'));
-          const sourceEvents=legacy.groups?.['408']?.events || [];
-          const relevant=sourceEvents.map((event,index)=>({index,...event})).filter((event)=>String(event.start||'').startsWith('2026-03-23'));
-          const batch=legacyReviewedGroupToCanonicalPackage(legacy,{group:'408',week1StartDate:'2026-02-02'}).batches[0];
-          const qa=validateScheduleBatch(batch);
-          console.log('NORMALIZED_OVERLAP_BEGIN');
-          console.log(JSON.stringify({relevant,qaErrors:qa.errors.filter(e=>e.code==='UNCONFIRMED_OVERLAP')},null,2));
-          console.log('NORMALIZED_OVERLAP_END');
           fs.writeFileSync('/tmp/source-meta.json',JSON.stringify(legacy.source));
           NODE
 
@@ -41,28 +32,37 @@ jobs:
           test "$actual" = "$expected"
           echo "SOURCE_SHA_OK=$actual"
 
-      - name: Inspect exact source cells and merges
+      - name: Inspect source rectangles around management and lecture
         shell: bash
         run: |
           python3 -m pip install --quiet openpyxl
           python3 - <<'PY'
           import json
           from openpyxl import load_workbook
+          from openpyxl.utils import column_index_from_string
           wb=load_workbook('/tmp/source.xlsx',data_only=False,read_only=False)
+          def rect(ws, min_col, max_col, min_row, max_row):
+              a=column_index_from_string(min_col); b=column_index_from_string(max_col)
+              out=[]
+              for r in range(min_row,max_row+1):
+                  vals=[]
+                  for c in range(a,b+1):
+                      cell=ws.cell(r,c)
+                      if cell.value not in (None,''):
+                          vals.append({'cell':cell.coordinate,'value':str(cell.value)})
+                  if vals: out.append({'row':r,'values':vals})
+              return out
           out=[]
           for ws in wb.worksheets:
-              targets=[]
-              for coord in ['AQ20','AR20','AS20','AT20','AU20','AV20','AW20','AX20','BX41']:
-                  c=ws[coord]
-                  if c.value not in (None,''):
-                      targets.append({'cell':coord,'value':str(c.value)})
-              merges=[str(rng) for rng in ws.merged_cells.ranges if (
-                  (rng.min_row <= 20 <= rng.max_row and not (rng.max_col < 43 or rng.min_col > 50)) or
-                  (rng.min_row <= 41 <= rng.max_row and not (rng.max_col < 76 or rng.min_col > 76))
-              )]
-              if targets or merges:
-                  out.append({'sheet':ws.title,'targets':targets,'merges':merges})
-          print('SOURCE_XLSX_INSPECT_BEGIN')
+              if ws['AQ20'].value in (None,'') and ws['BX41'].value in (None,''): continue
+              out.append({
+                  'sheet':ws.title,
+                  'managementContext':rect(ws,'AL','BC',14,25),
+                  'lectureContext':rect(ws,'BS','CG',36,45),
+                  'mergesNearManagement':[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=25 and rng.max_row>=14 and rng.min_col<=55 and rng.max_col>=38],
+                  'mergesNearLecture':[str(rng) for rng in ws.merged_cells.ranges if rng.min_row<=45 and rng.max_row>=36 and rng.min_col<=85 and rng.max_col>=71],
+              })
+          print('SOURCE_CONTEXT_BEGIN')
           print(json.dumps(out,ensure_ascii=False,indent=2))
-          print('SOURCE_XLSX_INSPECT_END')
+          print('SOURCE_CONTEXT_END')
           PY
