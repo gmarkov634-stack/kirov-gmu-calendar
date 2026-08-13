@@ -60,7 +60,7 @@ test("whole real reviewed file 401-420 migrates as 20 independently valid canoni
   assert.equal(pkg.batches.reduce((sum, batch) => sum + batch.events.length, 0), 2230);
   for (const batch of pkg.batches) {
     assert.equal(batch.schedule.period.week1_start_date, "2026-02-02");
-    assert.equal(batch.schedule.source_files[0], "1_lech-12-01-2026-15.xlsx");
+    assert.equal(batch.schedule.source_files[0], "4_kurs_lechebnyy_fakultet-02-02-2026-14.xlsx");
     const qa = validateScheduleBatch(batch);
     assert.equal(qa.publishable, true, `${batch.schedule.group}: ${JSON.stringify(qa.errors)}`);
     assert.equal(qa.errors.length, 0);
