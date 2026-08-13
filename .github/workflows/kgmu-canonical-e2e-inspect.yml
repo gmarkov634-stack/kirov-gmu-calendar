@@ -1,0 +1,39 @@
+name: KGMU canonical E2E inspect
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-e2e-inspect.yml"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect parser review
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kgmu-calendar-api.containerapps.ru'
+          review='2bd45e02-0ffe-49ee-95d5-5f5fcfc361eb'
+          body="$(curl --fail-with-body --silent --show-error \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/parser-reviews/$review")"
+          node - "$body" <<'NODE'
+          const r=JSON.parse(process.argv[2]);
+          const safe={
+            reviewId:r.reviewId,status:r.status,reason:r.reason,parserType:r.parserType,
+            sourceSha256:r.sourceSha256,normalizedKey:r.normalizedKey,qa:r.qa,
+            normalizer:r.normalizer,classification:r.classification,
+            publicationBlocked:r.publicationBlocked,
+            currentPublishedSchedulePreserved:r.currentPublishedSchedulePreserved,
+            publicationError:r.publicationError,
+            publicationErrorDetails:r.publicationErrorDetails,
+            published:r.published,
+          };
+          console.log('E2E_REVIEW_STATE_BEGIN');
+          console.log(JSON.stringify(safe,null,2));
+          console.log('E2E_REVIEW_STATE_END');
+          NODE
