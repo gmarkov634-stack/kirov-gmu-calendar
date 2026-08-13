@@ -58,6 +58,62 @@ test("reviewed bundle endpoint forwards JSON to reviewed service and can publish
   });
 });
 
+test("manual-normalization ingest stores the exact uploaded XLSX through reviewed source observation", () => {
+  let observed = null;
+  return withServer(handler({
+    config: { kgmuXlsxParserEnabled: false },
+    service: { ingest: async () => { throw new Error("legacy parser must not run"); } },
+    reviewedService: {
+      observeSource: async (buffer, metadata) => {
+        observed = { bytes: Buffer.from(buffer), metadata };
+        return {
+          reviewId: "123e4567-e89b-12d3-a456-426614174000",
+          status: "REVIEW_REQUIRED",
+          reason: "MANUAL_NORMALIZATION_REQUIRED",
+          sourceSha256: "a".repeat(64),
+          publicationBlocked: true,
+        };
+      },
+    },
+  }), async (base) => {
+    const sourceUrl = "https://kirovgma.ru/sites/default/files/files/2026/02/02/1078/4_kurs.xlsx";
+    const url = new URL(`${base}/api/v1/admin/kgmu/ingest`);
+    url.searchParams.set("filename", "4_kurs.xlsx");
+    url.searchParams.set("program", "medicine");
+    url.searchParams.set("course", "4");
+    url.searchParams.set("academicYear", "2025/26");
+    url.searchParams.set("semester", "2");
+    url.searchParams.set("groupRange", "401-420");
+    url.searchParams.set("sourceUrl", sourceUrl);
+    const body = Buffer.from("PK-reviewed-xlsx");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "x-admin-token": adminToken, "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+      body,
+    });
+    assert.equal(response.status, 202);
+    assert.deepEqual(await response.json(), {
+      reviewId: "123e4567-e89b-12d3-a456-426614174000",
+      status: "REVIEW_REQUIRED",
+      reason: "MANUAL_NORMALIZATION_REQUIRED",
+      sourceSha256: "a".repeat(64),
+      publicationBlocked: true,
+    });
+    assert.deepEqual(observed, {
+      bytes: body,
+      metadata: {
+        filename: "4_kurs.xlsx",
+        program: "medicine",
+        course: "4",
+        academicYear: "2025/26",
+        semester: "2",
+        groupRange: "401-420",
+        sourceUrl,
+      },
+    });
+  });
+});
+
 test("canonical parser-review endpoint submits schedule-batch package against the existing review id", () => {
   let submitted = null;
   return withServer(handler({
