@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { generateKeyPairSync, sign } from "node:crypto";
 import test from "node:test";
 import {
@@ -196,4 +197,13 @@ test("schedule review control requires OIDC and rejects stale commands", async (
   }), stale);
   assert.equal(stale.statusCode, 400);
   assert.deepEqual(parse(stale), { error: "invalid_command" });
+});
+
+test("schedule review workflow is pinned to the canonical command file, OIDC audience and production endpoint", () => {
+  const workflow = fs.readFileSync("../.github/workflows/schedule-review-control.yml", "utf8");
+  assert.match(workflow, /ops\/schedule-review\/command\.json/);
+  assert.match(workflow, /audience=kgmu-schedule-review/);
+  assert.match(workflow, /https:\/\/kgmu-calendar-api\.containerapps\.ru\/api\/v1\/schedule-review\/control/);
+  assert.match(workflow, /github\.actor == 'gmarkov634-stack'/);
+  assert.match(workflow, /github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
 });
