@@ -1,4 +1,4 @@
-name: KGMU medicine course 6 source fetch
+name: KGMU pediatrics course 3 source fetch
 
 on:
   push:
@@ -13,12 +13,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Download official medicine course 6 XLSX
+      - name: Resolve and download official pediatrics course 3 XLSX
         shell: bash
         run: |
           set -euo pipefail
-          src='https://kirovgma.ru/sites/default/files/files/2026/01/13/1078/6_kurs_lechebnyy_fakultet-13-01-2026-08.xlsx'
-          file='/tmp/6_kurs_lechebnyy_fakultet-13-01-2026-08.xlsx'
+          page='https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet'
+          curl --fail --location --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$page" -o /tmp/page.html
+          python3 - <<'PY' >/tmp/source_url.txt
+          from html.parser import HTMLParser
+          from urllib.parse import urljoin
+
+          class P(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.href=None; self.text=[]; self.links=[]
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'a':
+                      self.href = dict(attrs).get('href'); self.text=[]
+              def handle_data(self, data):
+                  if self.href is not None: self.text.append(data)
+              def handle_endtag(self, tag):
+                  if tag == 'a' and self.href is not None:
+                      self.links.append((self.href, ''.join(self.text).strip()))
+                      self.href=None; self.text=[]
+          p=P(); p.feed(open('/tmp/page.html', encoding='utf-8').read())
+          matches=[urljoin('https://kirovgma.ru/', h) for h,t in p.links if '331-338' in t and '.xlsx' in h.lower()]
+          if len(matches) != 1:
+              raise SystemExit(f'expected one 331-338 XLSX link, found {matches!r}')
+          print(matches[0])
+          PY
+          src=$(cat /tmp/source_url.txt)
+          echo "SOURCE_URL=$src"
+          file='/tmp/kgmu-pediatrics-course3.xlsx'
           curl --fail --location --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$src" -o "$file"
           test -s "$file"
           sha256sum "$file"
@@ -26,7 +51,7 @@ jobs:
       - name: Upload exact official XLSX
         uses: actions/upload-artifact@v4
         with:
-          name: kgmu-medicine-course6-2025-26
-          path: /tmp/6_kurs_lechebnyy_fakultet-13-01-2026-08.xlsx
+          name: kgmu-pediatrics-course3-2025-26
+          path: /tmp/kgmu-pediatrics-course3.xlsx
           if-no-files-found: error
           retention-days: 7
