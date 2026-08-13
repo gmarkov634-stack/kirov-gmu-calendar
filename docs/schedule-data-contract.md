@@ -28,6 +28,16 @@
 
 Это означает: время отображается ровно как в опубликованном расписании и не пересчитывается из-за смены часового пояса устройства.
 
+## Период расписания
+
+`schedule.period` обязателен и содержит:
+
+- `start_date`;
+- `end_date`;
+- `week1_start_date`.
+
+`week1_start_date` используется как точка отсчёта для `derived.academic_week`.
+
 ## Типы занятий
 
 `lesson.type.code`:
@@ -44,6 +54,13 @@
 - `unknown`
 
 `unknown` не подменяется автоматически другим типом и требует проверки.
+
+## Дополнительный нормализованный контекст
+
+- `lesson.cycle_id` — идентификатор подтверждённого цикла либо `null`;
+- `lesson.joint_groups` — явно указанные в исходнике группы совместного проведения.
+
+Эти поля не должны заполняться догадками.
 
 ## Статусы парсинга
 
@@ -62,16 +79,16 @@
 
 ## Производные поля
 
-`derived` заполняется только после полного разбора группы.
+`derived` заполняется только после полного разбора группы и server-side versioning.
 
 В него входят:
 
-- `academic_week`
-- `sequence.index`
-- `sequence.total`
-- `sequence.bucket`
-- `next_same_event`
-- `is_last_same_event`
+- `academic_week`;
+- `sequence.index`, `sequence.total`, `sequence.bucket`;
+- `next_same_event` и `is_last_same_event`;
+- `day.index`, `day.total`, `day.remaining`, `day.next_event`, `day.gap_minutes`, `day.overlaps_next`;
+- `cycle` при наличии подтверждённого `cycle_id`;
+- `assessment` при наличии конкретной опубликованной формы контроля.
 
 `sequence.bucket`:
 
@@ -79,6 +96,18 @@
 - `class`
 - `assessment`
 - `other`
+
+`next_same_event.gap_days` хранит календарный интервал до следующего события той же дисциплины и типа.
+
+## Calendar layer
+
+`calendar` содержит:
+
+- `title`;
+- `description`;
+- `location`.
+
+Эти значения являются производными и могут быть пересозданы без повторного парсинга исходного файла.
 
 ## Идентификаторы
 
@@ -104,8 +133,12 @@
 6. Любой `needs_review` запрещает автоматическую публикацию пакета.
 7. `sequence.index <= sequence.total`.
 8. Последнее одноимённое занятие имеет `next_same_event = null` и `is_last_same_event = true`.
-9. Проверяются подозрительные дубликаты и необъяснимые пересечения.
-10. Все события пакета соответствуют метаданным группы, курса, семестра и учебного года в `schedule`.
+9. `day.index <= day.total`, `day.remaining = day.total - day.index`.
+10. Для последнего события дня `day.next_event = null`, `day.remaining = 0`.
+11. При `day.overlaps_next = true` значение `gap_minutes` отрицательное.
+12. Проверяются подозрительные дубликаты и необъяснимые пересечения.
+13. Все события пакета соответствуют метаданным группы, курса, семестра и учебного года в `schedule`.
+14. Даты событий лежат в пределах `schedule.period`, кроме явно допустимых исключений, подтверждённых источником.
 
 ## Файлы
 
@@ -113,5 +146,6 @@
 - `schemas/schedule-batch.schema.json`
 - `examples/schedule-event.example.json`
 - `examples/schedule-batch.example.json`
+- `docs/postprocessing.md`
 
 Версия контракта: `1.0`.
