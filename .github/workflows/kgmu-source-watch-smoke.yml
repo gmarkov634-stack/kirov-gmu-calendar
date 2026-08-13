@@ -1,0 +1,45 @@
+name: KGMU source watch smoke
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-source-watch-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check official pages and production watcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { discoverKgmuScheduleLinks } from './api/src/adapters/kgmu/source-watcher.mjs';
+          const pages=[
+            ['medicine','https://kirovgma.ru/lechebnyy-fakultet-raspisanie'],
+            ['pediatrics','https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet'],
+            ['dentistry','https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet'],
+            ['foreign','https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya'],
+          ];
+          let targetCount=0;
+          for (const [program,url] of pages) {
+            const r=await fetch(url,{redirect:'follow',headers:{'User-Agent':'kgmu-calendar-source-watch-smoke/1.0'}});
+            if (!r.ok) throw new Error(`${program}: HTTP ${r.status}`);
+            const links=discoverKgmuScheduleLinks(await r.text(),{program,url});
+            const targets=links.filter(x=>x.academicYear==='2026/27' && x.semester===1);
+            targetCount+=targets.length;
+            console.log(`PAGE_OK program=${program} links=${links.length} targets_2026_27_autumn=${targets.length}`);
+          }
+          console.log(`KGMU_2026_27_AUTUMN_TARGET_COUNT=${targetCount}`);
+          NODE
+
+          status="$(curl --silent --show-error --output /tmp/watcher.json --write-out '%{http_code}' \
+            https://kgmu-calendar-api.containerapps.ru/api/v2/status/kgmu-watcher)"
+          echo "PRODUCTION_WATCHER_HTTP=$status"
+          test "$status" = '200'
+          jq '{enabled,intervalMs,lastRunAt,lastRun}' /tmp/watcher.json
