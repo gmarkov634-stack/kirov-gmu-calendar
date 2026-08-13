@@ -68,7 +68,6 @@ export function loadConfig(env = process.env) {
     kgmuForeignSchedulePage: env.KGMU_FOREIGN_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya",
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
-    offerSalesEnabled: env.OFFER_SALES_ENABLED === "true",
     offers: {
       semester: {
         id: "semester",
