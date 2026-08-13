@@ -39,16 +39,33 @@ function parserProfile(program, course) {
   return "R";
 }
 
+function applyProfileQaPolicy(profile, qa) {
+  if (profile !== "R-MED3") return qa;
+  const normalized = { ...qa };
+  // R69: temporal overlaps stay in remainingOverlaps for diagnostics but do
+  // not affect review/publishability. Genuine unresolved parsing issues do.
+  normalized.status = Boolean(
+    (normalized.uncovered || []).length
+    || (normalized.extraLessonFailures || []).length
+    || (normalized.normalizationFailures || []).length
+  ) ? "REVIEW_REQUIRED" : "PASS";
+  return normalized;
+}
+
 export async function stageRWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
   const parse = parserForContext(metadata.program, metadata.course);
   const profile = parserProfile(metadata.program, metadata.course);
-  const parsed = parse(workbook, {
+  const parsedResult = parse(workbook, {
     university: "kgmu",
     program: metadata.program || "medicine",
     course: metadata.course || 1,
     academicYear: period.academicYear || metadata.academicYear || null,
     semester: period.semester || metadata.semester || 2,
   });
+  const parsed = {
+    ...parsedResult,
+    qa: applyProfileQaPolicy(profile, parsedResult.qa),
+  };
 
   const schedules = parsed.schedules.map((schedule) => canonicalizeSourceTrace({
     ...schedule,
