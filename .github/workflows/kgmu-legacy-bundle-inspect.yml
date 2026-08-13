@@ -18,43 +18,51 @@ jobs:
           import fs from 'node:fs';
           const path = 'reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
           const data = JSON.parse(fs.readFileSync(path, 'utf8'));
-          const all = [];
-          for (const [group, entry] of Object.entries(data.groups || {})) {
-            for (const event of entry.events || []) all.push({ group, ...event });
-          }
-          const countBy = (keyFn) => Object.fromEntries([...all.reduce((m,e)=>m.set(keyFn(e),(m.get(keyFn(e))||0)+1),new Map())].sort((a,b)=>b[1]-a[1]));
-          const keySets = [...new Set(all.map(e => Object.keys(e).sort().join(',')))];
-          const titlePrefix = (title='') => {
-            const t = String(title).trim();
-            if (/^ЛЕКЦ\.?\s*/iu.test(t)) return 'ЛЕКЦ.';
-            if (/экзам/iu.test(t)) return 'exam-like';
-            if (/зач[её]т/iu.test(t)) return 'credit-like';
-            if (/консульт/iu.test(t)) return 'consultation-like';
-            if (/физ/iu.test(t)) return 'physical-like';
-            return 'other';
-          };
-          const samples = {};
-          for (const bucket of ['ЛЕКЦ.','exam-like','credit-like','consultation-like','physical-like','other']) {
-            samples[bucket] = all.filter(e => titlePrefix(e.title) === bucket).slice(0, 12).map(e => ({
-              group:e.group,title:e.title,kind:e.kind ?? null,start:e.start,end:e.end,location:e.location ?? null,
-              description:e.description ?? null,source:e.source ?? null,sourceCell:e.sourceCell ?? null,sourceRange:e.sourceRange ?? null,
-            }));
-          }
-          const summary = {
-            topLevelKeys: Object.keys(data).sort(),
+          const events401 = data.groups?.['401']?.events || [];
+          const countBy = (items, keyFn) => Object.fromEntries([...items.reduce((m,e)=>m.set(keyFn(e),(m.get(keyFn(e))||0)+1),new Map())]);
+          const sorted401 = [...events401].sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+          console.log('LEGACY_BUNDLE_SUMMARY_BEGIN');
+          console.log(JSON.stringify({
             source: data.source,
             normalizer: data.normalizer,
             groupCount: Object.keys(data.groups || {}).length,
-            eventCount: all.length,
-            eventKeySets: keySets,
-            kindCounts: countBy(e => String(e.kind ?? '(missing)')),
-            titlePrefixCounts: countBy(e => titlePrefix(e.title)),
-            allDayCounts: countBy(e => String(Boolean(e.allDay))),
-            distinctDescriptions: [...new Set(all.map(e=>e.description).filter(Boolean))].slice(0,50),
-            distinctSources: [...new Set(all.map(e=>e.source).filter(Boolean))].slice(0,50),
-            sampleByBucket: samples,
-          };
-          console.log('LEGACY_BUNDLE_SUMMARY_BEGIN');
-          console.log(JSON.stringify(summary, null, 2));
+            eventCount: Object.values(data.groups || {}).reduce((n,g)=>n+(g.events?.length||0),0),
+            eventKeySets: [...new Set(Object.values(data.groups || {}).flatMap(g=>g.events||[]).map(e => Object.keys(e).sort().join(',')))],
+            kindCounts: countBy(Object.values(data.groups || {}).flatMap(g=>g.events||[]), e => String(e.kind ?? '(missing)')),
+            projectDefenseSamples: Object.entries(data.groups || {}).flatMap(([group,g])=>(g.events||[]).map(e=>({group,...e}))).filter(e => e.kind === 'project_defense').slice(0,5),
+            group401: {
+              eventCount: events401.length,
+              firstStart: sorted401[0]?.start || null,
+              lastStart: sorted401.at(-1)?.start || null,
+              kindCounts: countBy(events401, e => String(e.kind ?? '(missing)')),
+            },
+          }, null, 2));
           console.log('LEGACY_BUNDLE_SUMMARY_END');
           NODE
+
+      - name: Inspect source week markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          path='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json'
+          source_url="$(node -e "const d=require('./$path');process.stdout.write(d.source.url)")"
+          expected_sha="$(node -e "const d=require('./$path');process.stdout.write(d.source.sha256)")"
+          curl --fail-with-body --silent --show-error --location "$source_url" -o /tmp/source.xlsx
+          actual_sha="$(sha256sum /tmp/source.xlsx | cut -d' ' -f1)"
+          test "$actual_sha" = "$expected_sha"
+          python3 -m pip install --quiet openpyxl
+          python3 - <<'PY'
+          import json, re
+          from openpyxl import load_workbook
+          wb = load_workbook('/tmp/source.xlsx', data_only=False, read_only=True)
+          hits=[]
+          for ws in wb.worksheets:
+              for row in ws.iter_rows():
+                  for c in row:
+                      v=c.value
+                      if isinstance(v,str) and re.search(r'недел|семестр|учебн',v,re.I):
+                          hits.append({'sheet':ws.title,'cell':c.coordinate,'value':' '.join(v.split())[:500]})
+          print('SOURCE_WEEK_MARKERS_BEGIN')
+          print(json.dumps(hits[:100], ensure_ascii=False, indent=2))
+          print('SOURCE_WEEK_MARKERS_END')
+          PY
