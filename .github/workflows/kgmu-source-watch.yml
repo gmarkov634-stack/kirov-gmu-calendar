@@ -1,0 +1,136 @@
+name: КГМУ source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/source-watcher.mjs"
+      - ".github/workflows/kgmu-source-watch.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover official 2026/27 autumn XLSX
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/kgmu-new-sources
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import path from 'node:path';
+          import { discoverKgmuScheduleLinks } from './api/src/adapters/kgmu/source-watcher.mjs';
+
+          const pages=[
+            ['medicine','https://kirovgma.ru/lechebnyy-fakultet-raspisanie'],
+            ['pediatrics','https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet'],
+            ['dentistry','https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet'],
+            ['foreign','https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya'],
+          ];
+          const all=[];
+          const pageStatus=[];
+          for (const [program,url] of pages) {
+            try {
+              const r=await fetch(url,{redirect:'follow',headers:{'User-Agent':'kgmu-calendar-source-watch/1.0'}});
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              const links=discoverKgmuScheduleLinks(await r.text(),{program,url});
+              all.push(...links);
+              pageStatus.push({program,url,status:'OK',links:links.length});
+            } catch (e) {
+              pageStatus.push({program,url,status:'ERROR',error:String(e?.message||e).slice(0,200)});
+            }
+          }
+          const targets=all.filter(x=>x.academicYear==='2026/27' && x.semester===1);
+          const unique=[...new Map(targets.map(x=>[[x.program,x.course,x.groupRange].join('|'),x])).values()];
+          const captured=[];
+          for (const source of unique) {
+            const r=await fetch(source.url,{redirect:'follow',headers:{'User-Agent':'kgmu-calendar-source-watch/1.0'}});
+            if (!r.ok) throw new Error(`XLSX ${r.status}: ${source.url}`);
+            const body=Buffer.from(await r.arrayBuffer());
+            if (body.length>25*1024*1024) throw new Error(`XLSX too large: ${source.url}`);
+            const sha256=crypto.createHash('sha256').update(body).digest('hex');
+            const original=decodeURIComponent(new URL(source.url).pathname.split('/').at(-1)||'schedule.xlsx');
+            const filename=`${source.program}-${source.course}-${source.groupRange}-${sha256.slice(0,12)}.xlsx`.replace(/[^A-Za-z0-9._-]/g,'_');
+            fs.writeFileSync(path.join('/tmp/kgmu-new-sources',filename),body);
+            captured.push({...source,sha256,bytes:body.length,artifactFilename:filename,originalFilename:original});
+          }
+          const report={checkedAt:new Date().toISOString(),expectedAcademicYear:'2026/27',expectedSemester:1,pages:pageStatus,targets:captured};
+          fs.writeFileSync('/tmp/kgmu-new-sources/manifest.json',JSON.stringify(report,null,2));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`count=${captured.length}\n`);
+          console.log(JSON.stringify(report,null,2));
+          NODE
+
+      - name: Create deduplicated review issues
+        if: steps.discover.outputs.count != '0' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r item; do
+            sha="$(jq -r '.sha256' <<<"$item")"
+            short="${sha:0:12}"
+            program="$(jq -r '.program' <<<"$item")"
+            course="$(jq -r '.course' <<<"$item")"
+            range="$(jq -r '.groupRange' <<<"$item")"
+            url="$(jq -r '.url' <<<"$item")"
+            existing="$(gh issue list --state all --limit 100 --search "KGMU-SOURCE-$short in:title" --json number --jq 'length')"
+            if [ "$existing" -gt 0 ]; then
+              echo "Known source: $program course=$course groups=$range sha=$sha"
+              continue
+            fi
+            title="KGMU-SOURCE-$short: новое расписание $program, ${course} курс, $range"
+            body="$(cat <<EOF
+          Обнаружен новый официальный XLSX Кировского ГМУ для 2026/27, 1 семестр.
+
+          - Program: $program
+          - Course: $course
+          - Groups: $range
+          - SHA-256: $sha
+          - Official URL: $url
+          - Watch run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Файл сохранён в artifact этого run. Публикация автоматически НЕ выполнялась. Следующий этап: source-bound ChatGPT review → canonical QA → OIDC publication.
+          EOF
+          )"
+            gh issue create --title "$title" --body "$body"
+          done < <(jq -c '.targets[]' /tmp/kgmu-new-sources/manifest.json)
+
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f /tmp/kgmu-new-sources/manifest.json ]; then exit 0; fi
+          count="$(jq '.targets|length' /tmp/kgmu-new-sources/manifest.json)"
+          {
+            echo '## КГМУ source watch'
+            echo
+            echo 'Expected: **2026/27, autumn semester**'
+            echo "Matching official XLSX: **$count**"
+            echo
+            jq -r '.pages[] | "- \(.program): \(.status), links discovered: \(.links // 0)"' /tmp/kgmu-new-sources/manifest.json
+            if [ "$count" = '0' ]; then
+              echo
+              echo 'Осеннее расписание 2026/27 ещё не опубликовано. Продажа остаётся закрытой.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload captured official sources
+        if: steps.discover.outputs.count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-official-sources-2026-27-autumn
+          path: /tmp/kgmu-new-sources
+          if-no-files-found: error
+          retention-days: 30
