@@ -35,7 +35,7 @@ jobs:
           printf '%s\n' "$url" > "$base/current.url"
           base64 -w 0 /tmp/source.xlsx > /tmp/source.b64
           split -b 3500 -d -a 3 --additional-suffix=.txt /tmp/source.b64 "$base/parts/part"
-      - name: Dump workbook cells and merges
+      - name: Dump workbook cells and reviewed block transcription
         shell: bash
         run: |
           set -euo pipefail
@@ -48,18 +48,54 @@ jobs:
           const lines = [];
           for (const sheet of structure.sheets) {
             lines.push(['SHEET', sheet.name].join('\t'));
-            for (const cell of sheet.cells) {
-              lines.push(['CELL', cell.ref, cell.row, cell.col, JSON.stringify(cell.value)].join('\t'));
-            }
-            for (const merge of sheet.merges) {
-              lines.push(['MERGE', merge.ref, merge.startRow, merge.endRow, merge.startCol, merge.endCol].join('\t'));
-            }
+            for (const cell of sheet.cells) lines.push(['CELL', cell.ref, cell.row, cell.col, JSON.stringify(cell.value)].join('\t'));
+            for (const merge of sheet.merges) lines.push(['MERGE', merge.ref, merge.startRow, merge.endRow, merge.startCol, merge.endCol].join('\t'));
             for (const row of sheet.hiddenRows || []) lines.push(['HIDDEN_ROW', row].join('\t'));
-            for (const cell of sheet.styledCells || []) {
-              lines.push(['STYLE', cell.ref, cell.styleId, cell.fillId, JSON.stringify(cell.value)].join('\t'));
-            }
+            for (const cell of sheet.styledCells || []) lines.push(['STYLE', cell.ref, cell.styleId, cell.fillId, JSON.stringify(cell.value)].join('\t'));
           }
           fs.writeFileSync(`${base}/structure.tsv`, lines.join('\n') + '\n');
+
+          const sheet = structure.sheets[0];
+          const cellsByRef = new Map(sheet.cells.map((cell) => [cell.ref, cell]));
+          const mergeByStart = new Map(sheet.merges.map((merge) => [merge.startRef, merge]));
+          const monthStarts = [
+            { col: 3, month: 2 }, { col: 26, month: 3 }, { col: 51, month: 4 },
+            { col: 77, month: 5 }, { col: 101, month: 6 },
+          ];
+          function monthForCol(col) {
+            let month = null;
+            for (const item of monthStarts) if (col >= item.col) month = item.month;
+            return month;
+          }
+          function colLetters(n) {
+            let s = '';
+            while (n > 0) { n -= 1; s = String.fromCharCode(65 + (n % 26)) + s; n = Math.floor(n / 26); }
+            return s;
+          }
+          const dateLines = [];
+          for (let col = 3; col <= 106; col += 1) {
+            const ref = `${colLetters(col)}11`;
+            const day = cellsByRef.get(ref)?.value;
+            if (!Number.isInteger(day)) continue;
+            const month = monthForCol(col);
+            const iso = `2026-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            dateLines.push([col, colLetters(col), iso].join('\t'));
+          }
+          fs.writeFileSync(`${base}/date-map.tsv`, dateLines.join('\n') + '\n');
+
+          const blockLines = ['group\trow\tstartCol\tendCol\tstartRef\tsourceRange\trawTitle'];
+          for (let row = 13; row <= 32; row += 1) {
+            const group = cellsByRef.get(`B${row}`)?.value;
+            if (!Number.isInteger(group)) throw new Error(`Missing group at row ${row}`);
+            const starts = sheet.cells.filter((cell) => cell.row === row && cell.col >= 3 && cell.col <= 106);
+            for (const cell of starts) {
+              const merge = mergeByStart.get(cell.ref);
+              const endCol = merge?.endCol || cell.col;
+              const sourceRange = merge?.ref || cell.ref;
+              blockLines.push([group, row, cell.col, endCol, cell.ref, sourceRange, JSON.stringify(String(cell.value))].join('\t'));
+            }
+          }
+          fs.writeFileSync(`${base}/blocks.tsv`, blockLines.join('\n') + '\n');
           NODE
       - name: Commit source cache
         shell: bash
@@ -72,5 +108,5 @@ jobs:
             echo 'Source already cached.'
             exit 0
           fi
-          git commit -m 'Dump official KGMU medicine course 4 XLSX structure'
+          git commit -m 'Extract KGMU medicine course 4 reviewed block transcription'
           git push origin HEAD:main
