@@ -1,0 +1,150 @@
+name: KGMU canonical full publish
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-full-publish.yml"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and validate canonical package
+        shell: bash
+        run: |
+          set -euo pipefail
+          source='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json'
+          node api/tools/kgmu-legacy-reviewed-to-canonical.mjs \
+            --input "$source" \
+            --groups all \
+            --week1-start 2026-02-02 \
+            --output /tmp/canonical.json
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { validateScheduleBatch } from './api/src/schedule/validate.js';
+          const pkg = JSON.parse(fs.readFileSync('/tmp/canonical.json','utf8'));
+          if (pkg.format !== 'canonical-reviewed/v1') throw new Error(`bad format ${pkg.format}`);
+          if (pkg.batches.length !== 20) throw new Error(`expected 20 groups, got ${pkg.batches.length}`);
+          const groups = pkg.batches.map(b => b.schedule.group);
+          const expected = Array.from({length:20},(_,i)=>String(401+i));
+          if (JSON.stringify(groups) !== JSON.stringify(expected)) throw new Error(`bad groups ${JSON.stringify(groups)}`);
+          const eventCount = pkg.batches.reduce((n,b)=>n+b.events.length,0);
+          if (eventCount !== 2230) throw new Error(`expected 2230 events, got ${eventCount}`);
+          const reports = pkg.batches.map(batch => ({ group: batch.schedule.group, report: validateScheduleBatch(batch) }));
+          const failed = reports.filter(x => !x.report.publishable || x.report.errors.length);
+          if (failed.length) throw new Error(`local canonical QA failed: ${JSON.stringify(failed)}`);
+          const warnings = reports.reduce((n,x)=>n+x.report.warnings.length,0);
+          if (warnings !== 0) throw new Error(`expected no validator warnings, got ${warnings}`);
+          const g408 = pkg.batches.find(b => b.schedule.group === '408');
+          const overlap = g408.events.filter(e => e.timing.date === '2026-03-23' && ['12:00','14:45'].includes(e.timing.start_time));
+          if (overlap.length !== 2) throw new Error(`group 408 official overlap was not preserved: ${overlap.length}`);
+          console.log('LOCAL_QA_OK');
+          console.log(JSON.stringify({groupCount:pkg.batches.length,eventCount,warnings,group408Overlap:overlap.map(e=>({start:e.timing.start_time,end:e.timing.end_time,discipline:e.lesson.discipline.normalized}))},null,2));
+          NODE
+
+      - name: Create fresh full-file parser review
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KGMU_ADMIN_TOKEN"
+          base='https://kgmu-calendar-api.containerapps.ru'
+          source='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json'
+          health="$(curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "$base/health")"
+          node - "$health" <<'NODE'
+          const h=JSON.parse(process.argv[2]);
+          if (h.status !== 'ok' || h.service !== 'medical-calendar-api') throw new Error(`bad health: ${JSON.stringify(h)}`);
+          NODE
+
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @"$source" \
+            "$base/api/v1/admin/kgmu/reviewed-bundle?publish=false" \
+            -o /tmp/seed.json
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/seed.json','utf8'));
+          if (!r.reviewId || r.status !== 'READY_TO_PUBLISH' || r.publicationBlocked !== true) {
+            throw new Error(`bad seed response: ${JSON.stringify(r)}`);
+          }
+          fs.writeFileSync('/tmp/review-id', r.reviewId);
+          console.log(`FULL_REVIEW_ID=${r.reviewId}`);
+          console.log(JSON.stringify({reviewId:r.reviewId,status:r.status,sourceSha256:r.sourceSha256,qa:r.qa},null,2));
+          NODE
+
+      - name: Publish all canonical groups to production
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kgmu-calendar-api.containerapps.ru'
+          review="$(cat /tmp/review-id)"
+          status="$(curl --silent --show-error \
+            --output /tmp/publish.json \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/canonical.json \
+            "$base/api/v1/admin/parser-reviews/$review/canonical?publish=true")"
+          echo "PUBLISH_HTTP_STATUS=$status"
+          cat /tmp/publish.json | python3 -m json.tool
+          test "$status" = '200'
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/publish.json','utf8'));
+          if (r.status !== 'PUBLISHED') throw new Error(`not published: ${JSON.stringify(r)}`);
+          if (r.reason !== 'CANONICAL_REVIEWED_JSON_PUBLISHED') throw new Error(`bad reason ${r.reason}`);
+          if (r.publicationBlocked !== false) throw new Error('publication still blocked');
+          if (r.qa?.status !== 'PASS' || r.qa?.groupCount !== 20 || r.qa?.eventCount !== 2230) throw new Error(`bad QA: ${JSON.stringify(r.qa)}`);
+          if (r.published?.groupCount !== 20 || r.published?.eventCount !== 2230) throw new Error(`bad published counts: ${JSON.stringify(r.published)}`);
+          const groups = r.published.groups || [];
+          const expected = Array.from({length:20},(_,i)=>String(401+i));
+          if (JSON.stringify(groups) !== JSON.stringify(expected)) throw new Error(`bad published groups ${JSON.stringify(groups)}`);
+          const pubs = r.published.publications || [];
+          const g408 = pubs.find(p=>p.group==='408');
+          if (!g408?.scheduleVersionId) throw new Error('group 408 has no schedule version');
+          const summary = pubs.map(p=>({
+            group:p.group,
+            scheduleVersionId:p.scheduleVersionId,
+            previousScheduleVersionId:p.previousScheduleVersionId,
+            diff:p.diff?.counts || null,
+          }));
+          console.log('FULL_PUBLICATION_SUMMARY_BEGIN');
+          console.log(JSON.stringify(summary,null,2));
+          console.log('FULL_PUBLICATION_SUMMARY_END');
+          NODE
+
+      - name: Verify persisted review after publication
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kgmu-calendar-api.containerapps.ru'
+          review="$(cat /tmp/review-id)"
+          curl --fail-with-body --silent --show-error \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            "$base/api/v1/admin/parser-reviews/$review" \
+            -o /tmp/persisted.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const r=JSON.parse(fs.readFileSync('/tmp/persisted.json','utf8'));
+          if (r.status !== 'PUBLISHED' || r.publicationBlocked !== false) throw new Error(`persisted status failed: ${JSON.stringify(r)}`);
+          if (r.qa?.groupCount !== 20 || r.qa?.eventCount !== 2230) throw new Error('persisted QA counts mismatch');
+          if (r.published?.groupCount !== 20 || r.published?.eventCount !== 2230) throw new Error('persisted published counts mismatch');
+          const g408=(r.published.publications||[]).find(p=>p.group==='408');
+          if (!g408?.scheduleVersionId) throw new Error('persisted 408 publication missing');
+          console.log('PERSISTED_FULL_PUBLICATION_OK');
+          console.log(JSON.stringify({reviewId:r.reviewId,status:r.status,groupCount:r.published.groupCount,eventCount:r.published.eventCount,group408Version:g408.scheduleVersionId,group408Diff:g408.diff?.counts||null},null,2));
+          NODE
