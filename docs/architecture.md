@@ -61,6 +61,29 @@ ChatGPT выполняет смысловой разбор исходных XLSX
 Regression: `api/test/schedule-postprocess.test.js`.
 Спецификация: `docs/postprocessing.md`.
 
+### Шаг 4 — серверная валидация
+
+Статус: **завершён**.
+
+Реализованы:
+- проверка `schedule-batch.schema.json` и `schedule-event.schema.json`;
+- встроенный JSON Schema validator для используемого проектом подмножества JSON Schema 2020-12;
+- совпадение метаданных каждого события с пакетом группы;
+- проверка времени, учебного периода и областей `whole_group / subgroups`;
+- обязательная блокировка любого `needs_review`;
+- правило `unknown → needs_review`;
+- детектор подозрительных дубликатов;
+- детектор пересечений событий;
+- сохранение подтверждённых пересечений R69 как warning;
+- разрешение параллельных занятий непересекающихся подгрупп;
+- проверка `sequence`, `day`, `cycle`, `next_same_event` и `calendar` после постобработки;
+- единый QA-отчёт `errors / warnings / stats / publishable`;
+- `assertSchedulePublishable()` для жёсткой блокировки серверного pipeline.
+
+Код: `api/src/schedule/json-schema-validator.js`, `api/src/schedule/validate.js`.
+Regression: `api/test/schedule-validation.test.js`.
+Спецификация: `docs/schedule-validation.md`.
+
 ### Следующий этап
 
-Шаг 4 — серверная валидация входного `schedule-batch` и результата постобработки: JSON Schema validation, смысловые проверки, блокировка `needs_review`, дубликаты, конфликты времени и отчёт о качестве перед публикацией.
+Шаг 5 — versioning и сопоставление событий между версиями расписания: назначение стабильных `event_id`, `schedule_version_id`, `fingerprint`, определение `added / changed / removed / unchanged` и подготовка безопасного обновления уже подписанных календарей без создания дублей.
