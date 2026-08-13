@@ -33,3 +33,28 @@ test("creates a university-scoped storage key", () => {
   assert.match(key, /^schedules\/pgmu\/pediatrics\/4\//);
   assert.match(key, /pgmu%3Apediatrics%3A4%3A/);
 });
+
+test("reads publication context from canonical schedule-batch v1", () => {
+  const batch = {
+    schema_version: "1.0",
+    schedule: {
+      university_code: "kgmu",
+      academic_year: "2026/2027",
+      semester: "autumn",
+      faculty_code: "pediatrics",
+      course: 4,
+      group: "401",
+    },
+    events: [],
+  };
+  const context = scheduleContext(batch);
+  assert.equal(context.university, "kgmu");
+  assert.equal(context.program, "pediatrics");
+  assert.equal(context.course, 4);
+  assert.equal(context.groupCode, "401");
+  assert.equal(context.groupId, "kgmu:pediatrics:4:401");
+  assert.equal(context.academicYear, "2026/2027");
+  assert.equal(context.semester, 1);
+  assert.equal(context.timezone, "Europe/Moscow");
+  assert.match(scheduleStorageKey(batch), /2026-2027\/semester-1\/kgmu%3Apediatrics%3A4%3A401\.json$/);
+});
