@@ -17,7 +17,7 @@ function loadFixture() {
   return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
-test("R-PED parser covers pediatrics course 1 source and fails closed on the official 05.06 overlap", () => {
+test("R-PED parser covers pediatrics course 1 source and keeps the official 05.06 overlap as non-blocking diagnostics", () => {
   const workbook = loadFixture();
   const classification = classifyKgmuWorkbook(workbook);
   assert.equal(classification.type, "R");
@@ -30,7 +30,7 @@ test("R-PED parser covers pediatrics course 1 source and fails closed on the off
     semester: 2,
   });
 
-  assert.equal(result.qa.status, "REVIEW_REQUIRED", JSON.stringify(result.qa, null, 2));
+  assert.equal(result.qa.status, "PASS", JSON.stringify(result.qa, null, 2));
   assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.extraLessonFailures.length, 0);
   assert.equal(result.qa.remainingOverlaps.length, 1);
