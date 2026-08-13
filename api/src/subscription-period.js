@@ -1,3 +1,9 @@
+const UNIVERSITY_OFFSETS = {
+  kgmu: "+03:00",
+  omgmu: "+06:00",
+  pgmu: "+05:00",
+};
+
 function canonicalSemesterEnd(schedule) {
   if (schedule?.schema_version !== "1.0" || !schedule?.schedule || !Array.isArray(schedule?.events)) return null;
   let latestDate = null;
@@ -20,7 +26,8 @@ function canonicalSemesterEnd(schedule) {
     }
   }
   if (!latestDate) return null;
-  return `${latestDate}T${latestTime}:00.000Z`;
+  const offset = UNIVERSITY_OFFSETS[schedule.schedule?.university_code] || "+00:00";
+  return new Date(`${latestDate}T${latestTime}:00${offset}`).toISOString();
 }
 
 export function semesterEndFromSchedule(schedule) {
