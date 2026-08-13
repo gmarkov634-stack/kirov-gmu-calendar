@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - fix/r69-med3
     paths:
       - "api/**"
       - ".github/workflows/api-tests.yml"
