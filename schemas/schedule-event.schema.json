@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/schemas/schedule-event.schema.json",
+  "title": "Schedule Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "system", "university", "academic", "audience", "timing", "lesson", "source", "parse", "derived", "calendar"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "schedule_version_id", "fingerprint"],
+      "properties": {
+        "event_id": {"type": ["string", "null"], "minLength": 1},
+        "schedule_version_id": {"type": ["string", "null"], "minLength": 1},
+        "fingerprint": {"type": ["string", "null"], "minLength": 1}
+      }
+    },
+    "university": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
+        "name": {"type": "string", "minLength": 1}
+      }
+    },
+    "academic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["academic_year", "semester", "faculty_code", "faculty_name", "course"],
+      "properties": {
+        "academic_year": {"type": "string", "pattern": "^20\\d{2}/20\\d{2}$"},
+        "semester": {"enum": ["autumn", "spring", "summer", "other"]},
+        "faculty_code": {"type": ["string", "null"]},
+        "faculty_name": {"type": ["string", "null"]},
+        "course": {"type": ["integer", "null"], "minimum": 1, "maximum": 10}
+      }
+    },
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "scope", "subgroups", "stream"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1},
+        "scope": {"enum": ["whole_group", "subgroups", "stream", "individual", "unknown"]},
+        "subgroups": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "stream": {"type": ["string", "null"]}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "start_time", "end_time", "all_day", "time_mode"],
+      "properties": {
+        "date": {"type": "string", "format": "date"},
+        "start_time": {"anyOf": [{"type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"}, {"type": "null"}]},
+        "end_time": {"anyOf": [{"type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"}, {"type": "null"}]},
+        "all_day": {"type": "boolean"},
+        "time_mode": {"enum": ["floating"]}
+      }
+    },
+    "lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discipline", "type", "teachers", "locations", "source_note"],
+      "properties": {
+        "discipline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["raw", "normalized"],
+          "properties": {
+            "raw": {"type": "string", "minLength": 1},
+            "normalized": {"type": "string", "minLength": 1}
+          }
+        },
+        "type": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["raw", "code"],
+          "properties": {
+            "raw": {"type": ["string", "null"]},
+            "code": {"enum": ["lecture", "practice", "seminar", "laboratory", "consultation", "exam", "credit", "physical_education", "other", "unknown"]}
+          }
+        },
+        "teachers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["raw", "normalized"],
+            "properties": {
+              "raw": {"type": "string", "minLength": 1},
+              "normalized": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["raw", "building", "room", "address"],
+            "properties": {
+              "raw": {"type": "string", "minLength": 1},
+              "building": {"type": ["string", "null"]},
+              "room": {"type": ["string", "null"]},
+              "address": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "source_note": {"type": ["string", "null"]}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_name", "file_hash", "sheet", "references", "raw_text"],
+      "properties": {
+        "file_name": {"type": "string", "minLength": 1},
+        "file_hash": {"type": ["string", "null"]},
+        "sheet": {"type": ["string", "null"]},
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "range"],
+            "properties": {
+              "role": {"enum": ["date", "time", "lesson", "teacher", "location", "subgroup", "note", "week", "other"]},
+              "range": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "raw_text": {"type": ["string", "null"]}
+      }
+    },
+    "parse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rule_ids", "warnings"],
+      "properties": {
+        "status": {"enum": ["ok", "warning", "needs_review"]},
+        "rule_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "warnings": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "derived": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["academic_week", "sequence", "next_same_event", "is_last_same_event"],
+      "properties": {
+        "academic_week": {"type": ["integer", "null"], "minimum": 1, "maximum": 60},
+        "sequence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["index", "total", "bucket"],
+          "properties": {
+            "index": {"type": ["integer", "null"], "minimum": 1},
+            "total": {"type": ["integer", "null"], "minimum": 1},
+            "bucket": {"anyOf": [{"enum": ["lecture", "class", "assessment", "other"]}, {"type": "null"}]}
+          }
+        },
+        "next_same_event": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["event_id", "date", "start_time"],
+              "properties": {
+                "event_id": {"type": ["string", "null"]},
+                "date": {"type": "string", "format": "date"},
+                "start_time": {"anyOf": [{"type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"}, {"type": "null"}]}
+              }
+            }
+          ]
+        },
+        "is_last_same_event": {"type": "boolean"}
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "description"],
+      "properties": {
+        "title": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
