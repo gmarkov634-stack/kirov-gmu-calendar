@@ -61,13 +61,17 @@ jobs:
           if (h.status !== 'ok' || h.service !== 'medical-calendar-api') throw new Error(`bad health: ${JSON.stringify(h)}`);
           NODE
 
-          curl --fail-with-body --silent --show-error \
+          seed_status="$(curl --silent --show-error \
+            --output /tmp/seed.json \
+            --write-out '%{http_code}' \
             -X POST \
             -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
             -H 'Content-Type: application/json' \
             --data-binary @"$source" \
-            "$base/api/v1/admin/kgmu/reviewed-bundle?publish=false" \
-            -o /tmp/seed.json
+            "$base/api/v1/admin/kgmu/reviewed-bundle?publish=false")"
+          echo "SEED_HTTP_STATUS=$seed_status"
+          cat /tmp/seed.json | python3 -m json.tool
+          test "$seed_status" = '202'
 
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -114,12 +118,7 @@ jobs:
           const pubs = r.published.publications || [];
           const g408 = pubs.find(p=>p.group==='408');
           if (!g408?.scheduleVersionId) throw new Error('group 408 has no schedule version');
-          const summary = pubs.map(p=>({
-            group:p.group,
-            scheduleVersionId:p.scheduleVersionId,
-            previousScheduleVersionId:p.previousScheduleVersionId,
-            diff:p.diff?.counts || null,
-          }));
+          const summary = pubs.map(p=>({group:p.group,scheduleVersionId:p.scheduleVersionId,previousScheduleVersionId:p.previousScheduleVersionId,diff:p.diff?.counts||null}));
           console.log('FULL_PUBLICATION_SUMMARY_BEGIN');
           console.log(JSON.stringify(summary,null,2));
           console.log('FULL_PUBLICATION_SUMMARY_END');
@@ -133,10 +132,7 @@ jobs:
           set -euo pipefail
           base='https://kgmu-calendar-api.containerapps.ru'
           review="$(cat /tmp/review-id)"
-          curl --fail-with-body --silent --show-error \
-            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
-            "$base/api/v1/admin/parser-reviews/$review" \
-            -o /tmp/persisted.json
+          curl --fail-with-body --silent --show-error -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" "$base/api/v1/admin/parser-reviews/$review" -o /tmp/persisted.json
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const r=JSON.parse(fs.readFileSync('/tmp/persisted.json','utf8'));
