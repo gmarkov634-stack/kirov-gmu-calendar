@@ -1,0 +1,228 @@
+name: KGMU subscription update E2E
+
+on:
+  push:
+    paths:
+      - ".github/workflows/kgmu-subscription-update-e2e.yml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify same subscription URL across A -> B -> A
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { legacyReviewedGroupToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
+
+          const base = 'https://kgmu-calendar-api.containerapps.ru';
+          const adminToken = process.env.KGMU_ADMIN_TOKEN;
+          if (!adminToken || adminToken.length < 32) throw new Error('KGMU_ADMIN_TOKEN missing');
+          const sourcePath = 'reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
+          const legacy = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+          const pkg = legacyReviewedGroupToCanonicalPackage(legacy, { group: '401', week1StartDate: '2026-02-02' });
+          const A = pkg.batches[0];
+          if (A.events.length !== 112) throw new Error(`baseline event count ${A.events.length}`);
+
+          async function jsonRequest(url, { method = 'GET', body, admin = false } = {}) {
+            const headers = {};
+            if (admin) headers['X-Admin-Token'] = adminToken;
+            if (body !== undefined) headers['Content-Type'] = 'application/json';
+            const response = await fetch(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+            const text = await response.text();
+            let parsed;
+            try { parsed = JSON.parse(text); } catch { parsed = { error: 'non_json_response', status: response.status }; }
+            if (!response.ok) throw new Error(`HTTP ${response.status}: ${JSON.stringify(parsed)}`);
+            return parsed;
+          }
+
+          async function publish(batch) {
+            return jsonRequest(`${base}/api/v1/admin/schedules/publish`, { method: 'POST', body: batch, admin: true });
+          }
+
+          async function readIcs(url) {
+            const response = await fetch(url);
+            const text = await response.text();
+            if (!response.ok) throw new Error(`ICS HTTP ${response.status}`);
+            return { text, status: response.headers.get('x-subscription-status') };
+          }
+
+          function vevents(text) {
+            const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+            const out = []; let current = null;
+            for (const line of lines) {
+              if (line === 'BEGIN:VEVENT') { current = []; continue; }
+              if (line === 'END:VEVENT') { if (current) out.push(current); current = null; continue; }
+              if (current) current.push(line);
+            }
+            return out;
+          }
+
+          function field(block, name) {
+            const prefix = `${name}:`;
+            const line = block.find((item) => item.startsWith(prefix));
+            return line?.slice(prefix.length) ?? null;
+          }
+
+          const B = structuredClone(A);
+          const byDate = new Map();
+          for (const event of B.events) {
+            if (event.timing?.all_day === true) continue;
+            const list = byDate.get(event.timing.date) || [];
+            list.push(event); byDate.set(event.timing.date, list);
+          }
+          let candidate = null;
+          for (const [, events] of [...byDate.entries()].sort()) {
+            if (events.length !== 1) continue;
+            const event = events[0];
+            if (!/^\d{2}:\d{2}$/.test(event.timing.start_time || '') || !/^\d{2}:\d{2}$/.test(event.timing.end_time || '')) continue;
+            const [sh, sm] = event.timing.start_time.split(':').map(Number);
+            const [eh, em] = event.timing.end_time.split(':').map(Number);
+            if ((eh * 60 + em) - (sh * 60 + sm) > 10) { candidate = event; break; }
+          }
+          if (!candidate) throw new Error('safe candidate not found');
+          const originalEnd = candidate.timing.end_time;
+          const [eh, em] = originalEnd.split(':').map(Number);
+          const changedMinutes = eh * 60 + em - 1;
+          candidate.timing.end_time = `${String(Math.floor(changedMinutes / 60)).padStart(2, '0')}:${String(changedMinutes % 60).padStart(2, '0')}`;
+          const candidateInfo = {
+            date: candidate.timing.date,
+            start: candidate.timing.start_time,
+            originalEnd,
+            changedEnd: candidate.timing.end_time,
+            discipline: candidate.lesson?.discipline?.normalized,
+          };
+
+          let subscriptionUrl = null;
+          let tokenHash = null;
+          let bPublished = false;
+          let normalCompletion = false;
+          try {
+            const health = await jsonRequest(`${base}/health`);
+            if (health.status !== 'ok' || health.service !== 'medical-calendar-api') throw new Error('bad production health');
+
+            const baseline = await publish(A);
+            if (baseline.status !== 'unchanged' || baseline.diff?.same_content !== true || baseline.eventCount !== 112) {
+              throw new Error(`baseline is not current: ${JSON.stringify({ status: baseline.status, counts: baseline.diff?.counts })}`);
+            }
+            const baselineVersion = baseline.scheduleVersionId;
+            const baselineFingerprint = baseline.contentFingerprint;
+            console.log(`BASELINE_UNCHANGED version=${baselineVersion} fingerprint=${baselineFingerprint} events=112`);
+            console.log(`CANDIDATE ${candidateInfo.date} ${candidateInfo.start}-${candidateInfo.originalEnd}->${candidateInfo.changedEnd} ${candidateInfo.discipline}`);
+
+            const preview = await jsonRequest(`${base}/api/v1/admin/subscriptions/preview`, {
+              method: 'POST', admin: true,
+              body: { university: 'kgmu', program: 'medicine', course: 4, groupCode: '401', academicYear: '2025/2026', semester: 2, days: 1 },
+            });
+            if (preview.status !== 'active' || preview.preview !== true || preview.groupCode !== '401') throw new Error('preview creation failed');
+            subscriptionUrl = preview.subscriptionUrl;
+            const match = new URL(subscriptionUrl).pathname.match(/^\/api\/v1\/subscriptions\/([A-Za-z0-9_-]{43})\/calendar\.ics$/);
+            if (!match) throw new Error('bad preview subscription URL');
+            console.log(`::add-mask::${match[1]}`);
+            tokenHash = createHash('sha256').update(match[1]).digest('hex');
+            console.log(`PREVIEW_CREATED expiresAt=${preview.expiresAt}`);
+
+            const feedA = await readIcs(subscriptionUrl);
+            if (feedA.status !== 'active') throw new Error(`baseline feed status ${feedA.status}`);
+            const eventsA = vevents(feedA.text);
+            if (eventsA.length !== 112) throw new Error(`baseline ICS events ${eventsA.length}`);
+
+            const changed = await publish(B);
+            const countsB = changed.diff?.counts || {};
+            if (changed.status !== 'published' || countsB.added !== 0 || countsB.changed !== 1 || countsB.removed !== 0 || countsB.unchanged !== 111) {
+              throw new Error(`bad B diff ${JSON.stringify(countsB)}`);
+            }
+            bPublished = true;
+            const changedEvent = changed.diff.changed?.[0];
+            if (!changedEvent?.event_id || changedEvent.changes?.length !== 1 || changedEvent.changes[0].path !== '/timing/end_time') {
+              throw new Error('B changed event mismatch');
+            }
+            const eventId = changedEvent.event_id;
+            const uid = `${eventId}@kgmu-calendar`;
+            console.log(`B_PUBLISHED version=${changed.scheduleVersionId} previous=${changed.previousScheduleVersionId} event=${eventId} revision=${changedEvent.revision}`);
+            console.log(`B_DIFF ${JSON.stringify(countsB)}`);
+
+            const feedB = await readIcs(subscriptionUrl);
+            if (feedB.status !== 'active') throw new Error(`B feed status ${feedB.status}`);
+            const eventsB = vevents(feedB.text);
+            if (eventsB.length !== 112) throw new Error(`B ICS events ${eventsB.length}`);
+            const eventA = eventsA.find((block) => field(block, 'UID') === uid);
+            const eventB = eventsB.find((block) => field(block, 'UID') === uid);
+            if (!eventA || !eventB) throw new Error('target UID missing from A/B feeds');
+            const seqA = Number(field(eventA, 'SEQUENCE'));
+            const seqB = Number(field(eventB, 'SEQUENCE'));
+            if (!Number.isInteger(seqA) || seqB !== seqA + 1) throw new Error(`SEQUENCE A->B ${seqA}->${seqB}`);
+            if (field(eventA, 'DTSTART') !== field(eventB, 'DTSTART')) throw new Error('DTSTART unexpectedly changed');
+            if (field(eventA, 'DTEND') === field(eventB, 'DTEND')) throw new Error('DTEND did not change');
+            const uidSetA = eventsA.map((block) => field(block, 'UID')).sort();
+            const uidSetB = eventsB.map((block) => field(block, 'UID')).sort();
+            if (JSON.stringify(uidSetA) !== JSON.stringify(uidSetB)) throw new Error('UID set changed A->B');
+            console.log(`SUBSCRIPTION_A_B_OK uid=${uid} sequence=${seqA}->${seqB} dtend=${field(eventA, 'DTEND')}->${field(eventB, 'DTEND')} sameUrl=true`);
+
+            const restored = await publish(A);
+            const countsC = restored.diff?.counts || {};
+            const restoredEvent = restored.diff?.changed?.[0];
+            if (restored.status !== 'published' || countsC.added !== 0 || countsC.changed !== 1 || countsC.removed !== 0 || countsC.unchanged !== 111) {
+              throw new Error(`bad restore diff ${JSON.stringify(countsC)}`);
+            }
+            if (restoredEvent?.event_id !== eventId || restoredEvent?.revision !== changedEvent.revision + 1 || restoredEvent.changes?.[0]?.path !== '/timing/end_time') {
+              throw new Error('restored event identity/revision mismatch');
+            }
+            bPublished = false;
+            console.log(`A_RESTORED version=${restored.scheduleVersionId} previous=${restored.previousScheduleVersionId} event=${eventId} revision=${restoredEvent.revision}`);
+
+            const feedC = await readIcs(subscriptionUrl);
+            if (feedC.status !== 'active') throw new Error(`restored feed status ${feedC.status}`);
+            const eventsC = vevents(feedC.text);
+            const eventC = eventsC.find((block) => field(block, 'UID') === uid);
+            if (!eventC) throw new Error('target UID missing after restore');
+            const seqC = Number(field(eventC, 'SEQUENCE'));
+            if (seqC !== seqB + 1) throw new Error(`SEQUENCE B->A ${seqB}->${seqC}`);
+            if (field(eventC, 'DTSTART') !== field(eventA, 'DTSTART') || field(eventC, 'DTEND') !== field(eventA, 'DTEND')) throw new Error('original timing not restored');
+            const uidSetC = eventsC.map((block) => field(block, 'UID')).sort();
+            if (JSON.stringify(uidSetA) !== JSON.stringify(uidSetC)) throw new Error('UID set changed after restore');
+            console.log(`SUBSCRIPTION_A_B_A_OK uid=${uid} sequence=${seqA}->${seqB}->${seqC} restoredDtend=${field(eventC, 'DTEND')} sameUrl=true vevents=${eventsC.length}`);
+
+            const finalBaseline = await publish(A);
+            if (finalBaseline.status !== 'unchanged' || finalBaseline.diff?.same_content !== true || finalBaseline.contentFingerprint !== baselineFingerprint) {
+              throw new Error('final content is not baseline');
+            }
+            console.log(`FINAL_BASELINE_CONFIRMED version=${finalBaseline.scheduleVersionId} fingerprint=${finalBaseline.contentFingerprint}`);
+
+            const revoked = await jsonRequest(`${base}/api/v1/admin/subscriptions/${tokenHash}/revoke`, { method: 'POST', admin: true });
+            if (revoked.status !== 'revoked' || revoked.groupCode !== '401') throw new Error('preview revoke failed');
+            tokenHash = null;
+            console.log('PREVIEW_REVOKED');
+
+            const revokedFeed = await readIcs(subscriptionUrl);
+            if (revokedFeed.status !== 'revoked' || vevents(revokedFeed.text).length !== 0) throw new Error('revoked feed still exposes events');
+            console.log('REVOKED_FEED_EMPTY_OK');
+            normalCompletion = true;
+            console.log('STABLE_SUBSCRIPTION_URL_E2E_SUCCESS');
+          } finally {
+            if (bPublished) {
+              try {
+                const restored = await publish(A);
+                console.log(`CLEANUP_RESTORE status=${restored.status} version=${restored.scheduleVersionId || 'n/a'}`);
+              } catch (error) {
+                console.error(`CLEANUP_RESTORE_FAILED ${error.message}`);
+              }
+            }
+            if (tokenHash) {
+              try {
+                const revoked = await jsonRequest(`${base}/api/v1/admin/subscriptions/${tokenHash}/revoke`, { method: 'POST', admin: true });
+                console.log(`CLEANUP_REVOKE status=${revoked.status || 'unknown'}`);
+              } catch (error) {
+                console.error(`CLEANUP_REVOKE_FAILED ${error.message}`);
+              }
+            }
+            if (!normalCompletion) console.log('E2E_ABORTED_AFTER_CLEANUP');
+          }
+          NODE
