@@ -40,14 +40,16 @@ function parserProfile(program, course) {
 }
 
 function applyProfileQaPolicy(profile, qa) {
-  if (profile !== "R-MED3") return qa;
+  if (profile !== "R-MED3" && profile !== "R-FIO") return qa;
   const normalized = { ...qa };
-  // R69: temporal overlaps stay in remainingOverlaps for diagnostics but do
-  // not affect review/publishability. Genuine unresolved parsing issues do.
+  const skippedSafetyFixups = normalized.safetyFixups?.alternateTimeDateRanges?.skipped?.length || 0;
   normalized.status = Boolean(
     (normalized.uncovered || []).length
     || (normalized.extraLessonFailures || []).length
     || (normalized.normalizationFailures || []).length
+    || (normalized.ambiguousLectureTimeCounts || []).length
+    || (normalized.choiceDisciplineAmbiguities || []).length
+    || skippedSafetyFixups
   ) ? "REVIEW_REQUIRED" : "PASS";
   return normalized;
 }
