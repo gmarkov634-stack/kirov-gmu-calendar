@@ -21,6 +21,41 @@ function foreignCycleCourse(metadata, classification) {
   return groups.length >= 4 && groups.every((code) => expected.test(String(code))) ? course : null;
 }
 
+function hasItems(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+export function applyR69ToForeignCycleQa(input, course) {
+  const qa = { ...(input || {}) };
+  if (![4, 5, 6].includes(Number(course))) return qa;
+
+  let blocked = false;
+  if (Number(course) === 4) {
+    blocked = hasItems(qa.unhandledBlocks)
+      || hasItems(qa.missingTimes)
+      || hasItems(qa.duplicates)
+      || !qa.mainGridSubjectDays;
+  } else if (Number(course) === 5) {
+    blocked = hasItems(qa.unhandledBlocks)
+      || hasItems(qa.missingTimes)
+      || hasItems(qa.mirrorSemanticRisks)
+      || hasItems(qa.duplicates)
+      || !qa.mainGridSubjectDays;
+  } else {
+    blocked = hasItems(qa.unhandledBlocks)
+      || hasItems(qa.missingTimes)
+      || hasItems(qa.mirrorSemanticRisks)
+      || hasItems(qa.unresolvedConfirmedRules)
+      || hasItems(qa.duplicates);
+  }
+
+  return {
+    ...qa,
+    status: blocked ? "REVIEW_REQUIRED" : "PASS",
+    passed: !blocked,
+  };
+}
+
 export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
   const foreignCourse = foreignCycleCourse(metadata, classification);
   const parse = foreignCourse === 6
@@ -38,10 +73,11 @@ export async function stageCWorkbook({ workbook, queue, sourceSha256, sourceKey,
     sourceSha256,
   });
 
-  const qa = {
+  const rawQa = {
     status: parsed.qa?.status || (parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED"),
     ...parsed.qa,
   };
+  const qa = foreignCourse ? applyR69ToForeignCycleQa(rawQa, foreignCourse) : rawQa;
   const parserProfile = parsed.profile || (foreignCourse ? "C-FIO" : "C");
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
