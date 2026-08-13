@@ -69,6 +69,7 @@ test("daily position, next lesson and remaining count are computed by start time
   assert.equal(firstChronological.derived.day.total, 3);
   assert.equal(firstChronological.derived.day.remaining, 2);
   assert.equal(firstChronological.derived.day.next_event.discipline, "Биохимия");
+  assert.match(firstChronological.calendar.description, /Следующее занятие сегодня: 11:50 — Биохимия, практика/);
   assert.equal(firstChronological.derived.day.gap_minutes, 80);
   assert.match(firstChronological.calendar.description, /Занятие сегодня · 1 из 3/);
   assert.match(firstChronological.calendar.description, /До начала следующего занятия: 1 ч 20 мин/);
