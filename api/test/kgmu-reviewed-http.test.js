@@ -58,6 +58,63 @@ test("reviewed bundle endpoint forwards JSON to reviewed service and can publish
   });
 });
 
+test("canonical parser-review endpoint submits schedule-batch package against the existing review id", () => {
+  let submitted = null;
+  return withServer(handler({
+    reviewedService: {
+      submitCanonical: async (reviewId, input, options) => {
+        submitted = { reviewId, input, options };
+        return { reviewId, status: "READY_TO_PUBLISH", parserType: "REVIEWED_JSON", publicationBlocked: true };
+      },
+    },
+  }), async (base) => {
+    const reviewId = "123e4567-e89b-12d3-a456-426614174000";
+    const body = { format: "canonical-reviewed/v1", rules_revision: "R69", batches: [{ schema_version: "1.0" }] };
+    const response = await fetch(`${base}/api/v1/admin/parser-reviews/${reviewId}/canonical`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-admin-token": adminToken },
+      body: JSON.stringify(body),
+    });
+    assert.equal(response.status, 202);
+    assert.deepEqual(await response.json(), {
+      reviewId,
+      status: "READY_TO_PUBLISH",
+      parserType: "REVIEWED_JSON",
+      publicationBlocked: true,
+    });
+    assert.deepEqual(submitted, { reviewId, input: body, options: { publish: false } });
+  });
+});
+
+test("canonical parser-review endpoint can publish in the same request", () => {
+  return withServer(handler({
+    reviewedService: {
+      submitCanonical: async (reviewId, input, options) => ({
+        reviewId,
+        format: input.format,
+        publish: options.publish,
+        status: "PUBLISHED",
+        publicationBlocked: false,
+      }),
+    },
+  }), async (base) => {
+    const reviewId = "123e4567-e89b-12d3-a456-426614174000";
+    const response = await fetch(`${base}/api/v1/admin/parser-reviews/${reviewId}/canonical?publish=true`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-admin-token": adminToken },
+      body: JSON.stringify({ format: "canonical-reviewed/v1", rules_revision: "R69", batches: [] }),
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      reviewId,
+      format: "canonical-reviewed/v1",
+      publish: true,
+      status: "PUBLISHED",
+      publicationBlocked: false,
+    });
+  });
+});
+
 test("retired XLSX dry-run returns 410 without invoking legacy parser", () => {
   let called = false;
   return withServer(handler({
