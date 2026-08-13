@@ -1,0 +1,48 @@
+name: Cache official KGMU XLSX
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cache-official-kgmu-xlsx.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download official 4th-year medicine XLSX
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://kirovgma.ru/sites/default/files/files/2026/02/02/1078/4_kurs_lechebnyy_fakultet-02-02-2026-14.xlsx'
+          mkdir -p source-cache/kgmu/2025-26/2/medicine/4
+          curl --fail-with-body --location --silent --show-error \
+            --user-agent 'kgmu-calendar-source-cache/1.0' \
+            "$url" \
+            --output /tmp/source.xlsx
+          sha="$(sha256sum /tmp/source.xlsx | awk '{print $1}')"
+          file="source-cache/kgmu/2025-26/2/medicine/4/${sha}.xlsx"
+          cp /tmp/source.xlsx "$file"
+          printf '%s\n' "$sha" > source-cache/kgmu/2025-26/2/medicine/4/current.sha256
+          printf '%s\n' "$url" > source-cache/kgmu/2025-26/2/medicine/4/current.url
+          echo "SOURCE_FILE=$file" >> "$GITHUB_ENV"
+          echo "SOURCE_SHA=$sha" >> "$GITHUB_ENV"
+      - name: Commit source cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add source-cache/kgmu/2025-26/2/medicine/4
+          if git diff --cached --quiet; then
+            echo 'Source already cached.'
+            exit 0
+          fi
+          git commit -m 'Cache official KGMU medicine course 4 XLSX'
+          git push origin HEAD:main
