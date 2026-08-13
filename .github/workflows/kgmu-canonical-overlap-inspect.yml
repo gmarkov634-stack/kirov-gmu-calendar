@@ -1,0 +1,39 @@
+name: KGMU canonical overlap inspect
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kgmu-canonical-overlap-inspect.yml"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect group 408 on 2026-03-23
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { legacyReviewedGroupToCanonicalPackage } from './api/src/adapters/kgmu/legacy-to-canonical.mjs';
+          import { validateScheduleBatch } from './api/src/schedule/validate.js';
+          const path='reviewed/kgmu/2025-26/2/medicine/4/146876a71f1ad8503593aeb82fcc72fef76022896b85d7f7dc61ca7ec97c0dae.json';
+          const legacy=JSON.parse(fs.readFileSync(path,'utf8'));
+          const sourceEvents=legacy.groups?.['408']?.events || [];
+          const relevant=sourceEvents.map((event,index)=>({index,...event})).filter(({event,index,...rest})=>String(rest.start||'').startsWith('2026-03-23'));
+          const pkg=legacyReviewedGroupToCanonicalPackage(legacy,{group:'408',week1StartDate:'2026-02-02'});
+          const batch=pkg.batches[0];
+          const canonical=batch.events.map((event,index)=>({index,event})).filter(({event})=>event.timing.date==='2026-03-23');
+          const qa=validateScheduleBatch(batch);
+          console.log('OVERLAP_INSPECT_BEGIN');
+          console.log(JSON.stringify({
+            legacyRelevant: relevant,
+            legacyWindow: sourceEvents.slice(47,55).map((event,index)=>({index:index+47,...event})),
+            canonicalRelevant: canonical,
+            qaErrors: qa.errors.filter(e=>e.code==='UNCONFIRMED_OVERLAP'),
+            sourceMeta: legacy.source,
+            normalizer: legacy.normalizer,
+          },null,2));
+          console.log('OVERLAP_INSPECT_END');
+          NODE
