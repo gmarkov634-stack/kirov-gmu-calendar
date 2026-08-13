@@ -112,6 +112,14 @@ function siteUrl(config, university) {
   return String(config.universitySiteUrls?.[university] || "").trim();
 }
 
+function salesState(config) {
+  return config?.commercialSalesEnabled === true ? "open" : "closed";
+}
+
+function paymentMode(config) {
+  return config?.yookassaTestMode === true ? "test" : "live";
+}
+
 export function createHandler({ store, config, payments }) {
   return async function handler(request, response) {
     const origin = request.headers.origin;
@@ -129,6 +137,9 @@ export function createHandler({ store, config, payments }) {
     const url = new URL(request.url, "http://localhost");
 
     if (request.method === "POST" && url.pathname === "/api/v2/payments") {
+      if (salesState(config) !== "open") {
+        return send(response, 409, { error: "sales_not_open" }, "application/json; charset=utf-8", "no-store");
+      }
       if (!payments?.enabled) return send(response, 503, { error: "payments_not_configured" });
       try {
         const input = await readJson(request);
@@ -209,7 +220,13 @@ export function createHandler({ store, config, payments }) {
 
     if (url.pathname === "/health") return send(response, 200, { status: "ok", service: "medical-calendar-api" });
     if (url.pathname === "/api/v2/meta") {
-      return send(response, 200, { service: "Календари медицинских вузов", version: 2, disclaimer: DISCLAIMER });
+      return send(response, 200, {
+        service: "Календари медицинских вузов",
+        version: 2,
+        disclaimer: DISCLAIMER,
+        sales: salesState(config),
+        paymentMode: paymentMode(config),
+      }, "application/json; charset=utf-8", "no-store");
     }
 
     if (url.pathname === "/api/v1/admin/subscriptions") {

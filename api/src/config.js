@@ -41,6 +41,7 @@ export function loadConfig(env = process.env) {
     yookassaShopId: env.YOOKASSA_SHOP_ID || "",
     yookassaSecretKey: env.YOOKASSA_SECRET_KEY || "",
     yookassaTestMode: env.YOOKASSA_TEST_MODE === "true",
+    commercialSalesEnabled: env.COMMERCIAL_SALES_ENABLED === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     adminToken: env.ADMIN_TOKEN || "",
     suspiciousSourceThreshold: Number(env.SUSPICIOUS_SOURCE_THRESHOLD || 8),
