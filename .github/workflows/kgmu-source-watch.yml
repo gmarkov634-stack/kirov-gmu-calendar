@@ -1,0 +1,378 @@
+name: КГМУ source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */2 * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/kgmu/**"
+      - "api/tools/kgmu-*.mjs"
+      - "api/tools/kgmu-*.py"
+      - "api/test/kgmu-*.test.mjs"
+      - "api/package.json"
+      - "universities/kgmu/source-watch.json"
+      - ".github/workflows/kgmu-source-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test KGMU source watch, quality gate and publication gate
+        run: node --test test/kgmu-source-watch.test.mjs test/kgmu-quality.test.mjs test/kgmu-publish.test.mjs
+
+      - name: Test KGMU XLSX structural parser
+        run: python3 tools/kgmu-parse-xlsx.py --self-test
+
+      - name: Test KGMU weekly event parser
+        run: python3 tools/kgmu-expand-weekly-safe.py --self-test
+
+      - name: Test KGMU calendar-grid parser
+        run: python3 tools/kgmu-parse-calendar-grid-safe.py --self-test
+
+      - name: Test KGMU normalized schedule builder
+        run: python3 tools/kgmu-build-schedules.py --self-test
+
+      - name: Discover official KGMU XLSX sources
+        run: npm run discover:kgmu -- --output=data/imports/kgmu-source-manifest.json
+
+      - name: Detect 2026/27 autumn files
+        id: watch
+        run: |
+          set -euo pipefail
+          npm run watch:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --config=../universities/kgmu/source-watch.json \
+            --output=data/imports/kgmu-source-watch-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/kgmu-source-watch-report.json', 'utf8'));
+          console.log(`ready=${report.readyForIngest ? 'true' : 'false'}`);
+          console.log(`has_target=${report.hasTargetPeriodSources ? 'true' : 'false'}`);
+          console.log(`academic_year=${report.expectedAcademicYear}`);
+          console.log(`semester=${report.expectedSemester}`);
+          NODE
+
+      - name: Capture current official KGMU XLSX references
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run download:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --output=data/imports/kgmu-official-reference-xlsx \
+            --academic-year='2025/2026' \
+            --semester='2'
+
+      - name: Parse current official KGMU XLSX structure
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run parse:kgmu:xlsx -- \
+            data/imports/kgmu-official-reference-xlsx \
+            --output=data/imports/kgmu-xlsx-structure-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-xlsx-structure-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ XLSX structure')
+          print('')
+          print(f"Files: **{report['fileCount']}**")
+          print(f"Weekly-grid: **{report['layouts']['weekly-grid']}**")
+          print(f"Calendar-grid: **{report['layouts']['calendar-grid']}**")
+          print(f"Weekly records captured: **{report['recordCount']}**")
+          print(f"Ambiguous weekly records flagged: **{report['ambiguousRecordCount']}**")
+          PY
+
+      - name: Expand archive weekly grids into dated reference events
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run parse:kgmu:weekly -- \
+            data/imports/kgmu-official-reference-xlsx \
+            --output=data/imports/kgmu-weekly-event-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-weekly-event-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ weekly event parser — ARCHIVE QA ONLY')
+          print('')
+          print(f"Weekly files parsed: **{report['parsedWeeklyFileCount']}**")
+          print(f"Dated events: **{report['eventCount']}**")
+          print(f"Unresolved segments: **{report['unresolvedCount']}**")
+          print(f"Partial/review segments: **{report['partialCount']}**")
+          print(f"Archive/reference files: **{report['archiveReferenceOnlyFileCount']}**")
+          print(f"Publishable files: **{report['publishableFileCount']}** (must be 0 for 2025/26 archive)")
+          PY
+
+      - name: Parse archive calendar grids into rotation blocks
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run parse:kgmu:calendar -- \
+            data/imports/kgmu-official-reference-xlsx \
+            --output=data/imports/kgmu-calendar-grid-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-calendar-grid-report.json',encoding='utf-8'))['summary']
+          print('')
+          print('## КГМУ calendar-grid parser — ARCHIVE QA ONLY')
+          print('')
+          print(f"Calendar-grid files parsed: **{report['parsedCalendarFileCount']}**")
+          print(f"Groups: **{report['groupCount']}**")
+          print(f"Rotation/marker blocks: **{report['blockCount']}**")
+          print(f"Unresolved discipline blocks: **{report['unresolvedBlockCount']}**")
+          print(f"Complex-time blocks: **{report['partialBlockCount']}**")
+          print(f"Review markers: **{report['reviewMarkerCount']}**")
+          print(f"Archive/reference files: **{report['archiveReferenceOnlyFileCount']}**")
+          print(f"Publishable files: **{report['publishableFileCount']}** (must be 0 for 2025/26 archive)")
+          PY
+
+      - name: Prove archive groups cannot enter the 2026/27 offer
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run quality:kgmu -- \
+            --weekly=data/imports/kgmu-weekly-event-report.json \
+            --calendar=data/imports/kgmu-calendar-grid-report.json \
+            --download=data/imports/kgmu-official-reference-xlsx/download-report.json \
+            --academic-year='2026/2027' \
+            --semester='1' \
+            --output=data/imports/kgmu-archive-quality-report.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-archive-quality-report.json',encoding='utf-8'))
+          assert report['targetGroupCount'] == 0, 'archive schedule leaked into target period'
+          assert report['readyGroupCount'] == 0, 'archive group became publishable'
+          print('')
+          print('## КГМУ archive publication boundary')
+          print('')
+          print(f"Archive/reference groups: **{report['archiveReferenceGroupCount']}**")
+          print(f"Target 2026/27 groups: **{report['targetGroupCount']}**")
+          print(f"Ready for publication: **{report['readyGroupCount']}**")
+          print(f"Status: **{report['status']}**")
+          PY
+
+      - name: Build normalized archive schedules for QA
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run build:kgmu:schedules -- \
+            --weekly-report=data/imports/kgmu-weekly-event-report.json \
+            --calendar-report=data/imports/kgmu-calendar-grid-report.json \
+            --download-report=data/imports/kgmu-official-reference-xlsx/download-report.json \
+            --output-dir=data/imports/kgmu-normalized-archive-schedules \
+            --summary=data/imports/kgmu-normalized-archive-summary.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-normalized-archive-summary.json',encoding='utf-8'))
+          assert report['publishableGroupCount'] == 0, 'archive normalized schedule became publishable'
+          print('')
+          print('## КГМУ normalized schedules — ARCHIVE QA ONLY')
+          print('')
+          print(f"Schedules: **{report['scheduleCount']}**")
+          print(f"Resolved events: **{report['eventCount']}**")
+          print(f"Group QA passed: **{report['qaPassedGroupCount']}**")
+          print(f"Groups with blocking issues: **{report['blockedGroupCount']}**")
+          print(f"Publishable: **{report['publishableGroupCount']}**")
+          PY
+
+      - name: Dry-run archive publication gate
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run publish:kgmu:plan -- \
+            --schedules=data/imports/kgmu-normalized-archive-schedules \
+            --output=data/imports/kgmu-archive-publication-plan.json
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const plan = JSON.parse(fs.readFileSync('data/imports/kgmu-archive-publication-plan.json', 'utf8'));
+          if (plan.publishable.length !== 0) throw new Error('archive schedule received a publication key');
+          if (!plan.blocked.length) throw new Error('archive dry-run did not inspect any schedules');
+          if (!plan.blocked.every((entry) => entry.reason === 'archive-reference')) {
+            throw new Error('archive dry-run produced a non-archive publication decision');
+          }
+          console.log('');
+          console.log('## КГМУ archive dry-run publication gate');
+          console.log('');
+          console.log(`Publishable groups: **${plan.publishable.length}**`);
+          console.log(`Blocked as archive/reference: **${plan.blocked.length}**`);
+          console.log('No S3 write is available in this workflow.');
+          NODE
+
+      - name: Capture new official KGMU XLSX files
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run download:kgmu -- \
+            --manifest=data/imports/kgmu-source-manifest.json \
+            --output=data/imports/kgmu-watched-xlsx \
+            --academic-year='${{ steps.watch.outputs.academic_year }}' \
+            --semester='${{ steps.watch.outputs.semester }}'
+
+      - name: Expand newly published 2026/27 weekly grids for QA
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run parse:kgmu:weekly -- \
+            data/imports/kgmu-watched-xlsx \
+            --output=data/imports/kgmu-2026-27-weekly-event-report.json
+
+      - name: Parse newly published 2026/27 calendar grids for QA
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run parse:kgmu:calendar -- \
+            data/imports/kgmu-watched-xlsx \
+            --output=data/imports/kgmu-2026-27-calendar-grid-report.json
+
+      - name: Build group-level QA for newly published 2026/27 files
+        id: quality
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run quality:kgmu -- \
+            --weekly=data/imports/kgmu-2026-27-weekly-event-report.json \
+            --calendar=data/imports/kgmu-2026-27-calendar-grid-report.json \
+            --download=data/imports/kgmu-watched-xlsx/download-report.json \
+            --academic-year='${{ steps.watch.outputs.academic_year }}' \
+            --semester='${{ steps.watch.outputs.semester }}' \
+            --output=data/imports/kgmu-2026-27-quality-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/kgmu-2026-27-quality-report.json', 'utf8'));
+          console.log(`ready=${report.readyForPublicationPlan ? 'true' : 'false'}`);
+          console.log(`status=${report.status}`);
+          console.log(`ready_groups=${report.readyGroupCount}`);
+          console.log(`blocked_groups=${report.blockedGroupCount}`);
+          NODE
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-2026-27-quality-report.json',encoding='utf-8'))
+          print('')
+          print('## КГМУ 2026/27 group-level QA')
+          print('')
+          print(f"Target groups: **{report['targetGroupCount']}**")
+          print(f"Ready groups: **{report['readyGroupCount']}**")
+          print(f"Blocked groups: **{report['blockedGroupCount']}**")
+          print(f"Status: **{report['status']}**")
+          print('')
+          print('No S3 publication is performed by this workflow.')
+          PY
+
+      - name: Build normalized 2026/27 schedules for QA
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run build:kgmu:schedules -- \
+            --weekly-report=data/imports/kgmu-2026-27-weekly-event-report.json \
+            --calendar-report=data/imports/kgmu-2026-27-calendar-grid-report.json \
+            --download-report=data/imports/kgmu-watched-xlsx/download-report.json \
+            --output-dir=data/imports/kgmu-normalized-2026-27-schedules \
+            --summary=data/imports/kgmu-normalized-2026-27-summary.json
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report=json.load(open('data/imports/kgmu-normalized-2026-27-summary.json',encoding='utf-8'))
+          print('')
+          print('## КГМУ 2026/27 normalized schedule QA')
+          print('')
+          print(f"Schedules: **{report['scheduleCount']}**")
+          print(f"Resolved events: **{report['eventCount']}**")
+          print(f"Group QA passed: **{report['qaPassedGroupCount']}**")
+          print(f"Groups with blocking issues: **{report['blockedGroupCount']}**")
+          print(f"Parser-level publishable groups: **{report['publishableGroupCount']}**")
+          print('')
+          print('No S3 publication is performed by this workflow.')
+          PY
+
+      - name: Build dry-run publication plan for 2026/27
+        if: steps.watch.outputs.ready == 'true'
+        run: |
+          npm run publish:kgmu:plan -- \
+            --schedules=data/imports/kgmu-normalized-2026-27-schedules \
+            --output=data/imports/kgmu-2026-27-publication-plan.json
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const plan = JSON.parse(fs.readFileSync('data/imports/kgmu-2026-27-publication-plan.json', 'utf8'));
+          console.log('');
+          console.log('## КГМУ 2026/27 dry-run publication plan');
+          console.log('');
+          console.log(`Publishable groups: **${plan.publishable.length}**`);
+          console.log(`Blocked groups: **${plan.blocked.length}**`);
+          console.log('');
+          console.log('This is a dry run. No S3 write is available in this workflow.');
+          NODE
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const path = 'data/imports/kgmu-source-watch-report.json';
+          if (!fs.existsSync(path)) {
+            console.log('## КГМУ source watch\n\nReport was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          console.log('## КГМУ source watch');
+          console.log('');
+          console.log(`Expected: **${report.expectedAcademicYear} / semester ${report.expectedSemester}**`);
+          console.log(`Status: **${report.status}**`);
+          console.log(`Target XLSX files: **${report.targetSourceCount}**; groups: **${report.targetGroupCount}**`);
+          console.log('');
+          console.log('| Program | New files | Groups | Courses | Published files on page |');
+          console.log('|---|---:|---:|---|---:|');
+          for (const item of report.targetPrograms) {
+            console.log(`| ${item.label} | ${item.sourceCount} | ${item.groupCount} | ${item.courses.join(', ') || '—'} | ${item.allPublishedSourceCount} |`);
+          }
+          NODE
+
+      - name: Upload watch report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-source-watch
+          path: |
+            api/data/imports/kgmu-source-manifest.json
+            api/data/imports/kgmu-source-watch-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload current official KGMU XLSX references and parser reports
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-official-reference-xlsx
+          path: |
+            api/data/imports/kgmu-official-reference-xlsx
+            api/data/imports/kgmu-xlsx-structure-report.json
+            api/data/imports/kgmu-weekly-event-report.json
+            api/data/imports/kgmu-calendar-grid-report.json
+            api/data/imports/kgmu-archive-quality-report.json
+            api/data/imports/kgmu-normalized-archive-schedules
+            api/data/imports/kgmu-normalized-archive-summary.json
+            api/data/imports/kgmu-archive-publication-plan.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload newly published KGMU XLSX files and QA reports
+        if: steps.watch.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-2026-27-autumn-xlsx
+          path: |
+            api/data/imports/kgmu-watched-xlsx
+            api/data/imports/kgmu-2026-27-weekly-event-report.json
+            api/data/imports/kgmu-2026-27-calendar-grid-report.json
+            api/data/imports/kgmu-2026-27-quality-report.json
+            api/data/imports/kgmu-normalized-2026-27-schedules
+            api/data/imports/kgmu-normalized-2026-27-summary.json
+            api/data/imports/kgmu-2026-27-publication-plan.json
+          if-no-files-found: error
+          retention-days: 30

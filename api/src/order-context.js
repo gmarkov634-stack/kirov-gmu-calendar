@@ -36,6 +36,7 @@ export function scheduleContext(schedule = {}, requestedUniversity) {
     .filter(Boolean)
     .join(":");
   const groupDisplayName = stringOrNull(schedule.group?.displayName) || (groupCode ? `Группа ${groupCode}` : null);
+  const rawAcademicYear = stringOrNull(schedule.academicYear);
 
   return {
     university,
@@ -47,7 +48,7 @@ export function scheduleContext(schedule = {}, requestedUniversity) {
     groupId,
     groupDisplayName,
     timezone: stringOrNull(schedule.timezone) || defaults.timezone || "UTC",
-    academicYear: stringOrNull(schedule.academicYear),
+    academicYear: normalizeAcademicYear(rawAcademicYear) || rawAcademicYear,
     semester: Number(schedule.semester),
   };
 }
