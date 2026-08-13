@@ -1,4 +1,4 @@
-name: KGMU medicine course 1 source bridge
+name: KGMU medicine course 1 stream 2 source bridge
 
 on:
   push:
@@ -13,24 +13,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Download official medicine course 1 XLSX and ingest through production API
+      - name: Download official medicine course 1 stream 2 XLSX and ingest through production API
         env:
           KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          src='https://kirovgma.ru/sites/default/files/files/2026/03/16/1078/1_lech._1potok-16-03-2026-13.xlsx'
+          src='https://kirovgma.ru/sites/default/files/files/2026/03/24/1078/1_lech._2_potok-24-03-2026-10.xlsx'
           base='https://kgmu-calendar-api.containerapps.ru'
-          file='/tmp/1_lech._1potok-16-03-2026-13.xlsx'
+          file='/tmp/1_lech._2_potok-24-03-2026-10.xlsx'
           curl --fail --location --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 \
-            -A 'medical-calendar-api/1.0 KGMU medicine course1 bridge' "$src" -o "$file"
+            -A 'medical-calendar-api/1.0 KGMU medicine course1 stream2 bridge' "$src" -o "$file"
           test -s "$file"
           sha256sum "$file"
           status=$(curl --silent --show-error --output /tmp/ingest.json --write-out '%{http_code}' \
             --request POST \
             --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
             --data-binary @"$file" \
-            "$base/api/v1/admin/kgmu/ingest?filename=1_lech._1potok-16-03-2026-13.xlsx&program=medicine&course=1&academicYear=2025%2F26&semester=2&groupRange=101-110&sourceUrl=$(python3 -c 'import urllib.parse; print(urllib.parse.quote("'"$src"'", safe=""))')")
+            "$base/api/v1/admin/kgmu/ingest?filename=1_lech._2_potok-24-03-2026-10.xlsx&program=medicine&course=1&academicYear=2025%2F26&semester=2&groupRange=111-120&sourceUrl=$(python3 -c 'import urllib.parse; print(urllib.parse.quote("'"$src"'", safe=""))')")
           echo "HTTP $status"
           cat /tmp/ingest.json
           test "$status" = '202'
@@ -38,7 +38,7 @@ jobs:
       - name: Upload exact official XLSX
         uses: actions/upload-artifact@v4
         with:
-          name: kgmu-medicine-course1-2025-26
-          path: /tmp/1_lech._1potok-16-03-2026-13.xlsx
+          name: kgmu-medicine-course1-stream2-2025-26
+          path: /tmp/1_lech._2_potok-24-03-2026-10.xlsx
           if-no-files-found: error
           retention-days: 7
