@@ -205,7 +205,6 @@ export class YearAwareStore extends MultiUniversityStore {
     if (
       !base ||
       !Array.isArray(schedule?.events) ||
-      schedule.events.length === 0 ||
       !/^ver_[A-Za-z0-9_-]+$/.test(String(versionId || "")) ||
       !/^sha256:[0-9a-f]{64}$/.test(String(contentFingerprint || ""))
     ) {
@@ -239,8 +238,6 @@ export class YearAwareStore extends MultiUniversityStore {
     const body = JSON.stringify(schedule);
     if (!existingVersion) await this.#writeRawJson(versionKey, body);
 
-    // Atomic publication boundary: only current.json makes the new immutable
-    // version visible to subscribers. If this write fails, old current remains.
     const publishedAt = new Date().toISOString();
     const compatibilityKeys = [...new Set([scheduleStorageKey(schedule), scheduleFlatStorageKey(schedule)])];
     await this.#writeRawJson(manifestKey, JSON.stringify({
@@ -256,8 +253,6 @@ export class YearAwareStore extends MultiUniversityStore {
     }));
     this.cache.clear();
 
-    // Compatibility mirrors are best-effort and are deliberately written only
-    // after the pointer switch. They are not part of the subscriber read path.
     const compatibilityWarnings = [];
     for (const key of compatibilityKeys) {
       try {
@@ -320,8 +315,6 @@ export class YearAwareStore extends MultiUniversityStore {
       schedules,
     };
 
-    // Atomic publication boundary: the full immutable bundle is written first.
-    // Subscribers see it only after the small current.json pointer is replaced.
     await this.#writeRawJson(bundleKey, JSON.stringify(bundle));
     await this.#writeRawJson(manifestKey, JSON.stringify({
       version: 1,
