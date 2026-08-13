@@ -21,6 +21,7 @@
 - `parse` — статус разбора, применённые правила и предупреждения.
 - `derived` — вычисляемые после полного разбора группы данные.
 - `calendar` — производное пользовательское представление для ICS.
+- `system` — серверные идентификаторы, fingerprints и метаданные ревизии.
 
 ## Время
 
@@ -44,11 +45,12 @@
 
 - `schedule.schedule_version_id` — уникальный идентификатор фактической ревизии;
 - `schedule.previous_schedule_version_id` — непосредственная предыдущая ревизия либо `null`;
-- `schedule.content_fingerprint` — SHA-256 fingerprint смыслового содержимого группы.
+- `schedule.content_fingerprint` — SHA-256 fingerprint смыслового содержимого группы;
+- `schedule.version_created_at` — момент создания конкретной редакции расписания.
 
 На входе от парсера эти поля могут отсутствовать или быть `null`.
 
-Идентичный повторный импорт не создаёт новую ревизию. Если содержимое вернулось к старому состоянию после промежуточной редакции, создаётся новая ревизия с новым `schedule_version_id`, но прежним `content_fingerprint`.
+Идентичный повторный импорт не создаёт новую ревизию и не меняет `version_created_at`. Если содержимое вернулось к старому состоянию после промежуточной редакции, создаётся новая ревизия с новым `schedule_version_id`, но прежним `content_fingerprint`.
 
 ## Типы занятий
 
@@ -121,21 +123,31 @@
 
 Эти значения являются производными и могут быть пересозданы без повторного парсинга исходного файла.
 
-## Идентификаторы события
+## System layer и идентификаторы события
 
-При первичном разборе:
+При первичном разборе серверные поля могут быть `null`:
 
-- `event_id = null`
-- `system.schedule_version_id = null`
-- `fingerprint = null`
+- `system.event_id`;
+- `system.schedule_version_id`;
+- `system.fingerprint`;
+- `system.revision`;
+- `system.created_at`;
+- `system.updated_at`.
 
-Сервер назначает значения при импорте и сопоставлении с предыдущей версией.
+После versioning:
 
-`event_id` сохраняется при однозначном сопоставлении логического занятия между редакциями. `system.fingerprint` вычисляется по semantic core события и не зависит от `source`, `derived` или `calendar`.
+- `event_id` идентифицирует логическое занятие между редакциями;
+- `system.schedule_version_id` указывает редакцию расписания, в которую входит событие;
+- `system.fingerprint` вычисляется по semantic core и не зависит от `source`, `derived` или `calendar`;
+- `system.revision` начинается с 1 и увеличивается только при фактическом изменении события;
+- `system.created_at` фиксирует создание логического события;
+- `system.updated_at` изменяется только при semantic change.
 
 Если у существующего занятия изменилось время или другой редактируемый атрибут, сервер по возможности сохраняет `event_id`, чтобы изменение отражалось как `changed`, а не как `removed + added`.
 
-Подробности: `docs/versioning.md`.
+ICS использует стабильный `event_id` как основу `UID`, а `system.revision` как основу `SEQUENCE = revision - 1`.
+
+Подробности: `docs/versioning.md` и `docs/ics-generation.md`.
 
 ## Смысловая валидация поверх JSON Schema
 
@@ -155,6 +167,7 @@
 12. Проверяются подозрительные дубликаты и необъяснимые пересечения.
 13. Все события пакета соответствуют метаданным группы, курса, семестра и учебного года в `schedule`.
 14. Даты событий лежат в пределах `schedule.period`, кроме явно допустимых исключений, подтверждённых источником.
+15. Перед ICS generation обязательны `schedule_version_id`, `version_created_at`, `event_id`, положительный `revision`, `created_at`, `updated_at` и заполненный `calendar.title`.
 
 ## Файлы
 
@@ -165,5 +178,6 @@
 - `docs/postprocessing.md`
 - `docs/schedule-validation.md`
 - `docs/versioning.md`
+- `docs/ics-generation.md`
 
 Версия контракта: `1.0`.
