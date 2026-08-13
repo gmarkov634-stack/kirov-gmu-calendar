@@ -1,0 +1,58 @@
+name: YooKassa live mode diagnostic
+
+on:
+  push:
+    paths:
+      - ".github/workflows/yookassa-live-mode-diagnostic.yml"
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compare public OMGmu intent with KGMU archive test
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kgmu-calendar-api.containerapps.ru'
+
+          echo '== OMGmu current-offer payment intent =='
+          omg_status="$(curl --silent --show-error --output /tmp/omg.json --write-out '%{http_code}' \
+            -X POST "$base/api/v2/payments" \
+            -H 'Content-Type: application/json' \
+            --data '{"email":"yookassa-diagnostic@example.com","university":"omgmu","program":"medicine-international","course":1,"stream":"1","groupCode":"1101","groupId":"omgmu:medicine-international:1:stream-1:1101","timezone":"Asia/Omsk","plan":"semester"}')"
+          echo "OMG_PAYMENT_HTTP=$omg_status"
+          if [ "$omg_status" = '201' ]; then
+            access="$(jq -r '.accessToken // empty' /tmp/omg.json)"
+            order="$(jq -r '.orderId // empty' /tmp/omg.json)"
+            test -n "$access" && echo "::add-mask::$access"
+            if [ -n "$order" ] && [ -n "$access" ]; then
+              order_status="$(curl --silent --show-error --output /tmp/omg-order.json --write-out '%{http_code}' \
+                -H "X-Order-Token: $access" "$base/api/v1/orders/$order")"
+              echo "OMG_ORDER_HTTP=$order_status"
+              jq '{status,testMode,university,groupCode,amount}' /tmp/omg-order.json
+            fi
+          else
+            jq '{error}' /tmp/omg.json || cat /tmp/omg.json
+          fi
+
+          echo '== KGMU archive payment intent =='
+          kgmu_status="$(curl --silent --show-error --output /tmp/kgmu.json --write-out '%{http_code}' \
+            -X POST "$base/api/v1/admin/payments/test-archive" \
+            -H "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data '{"program":"medicine","course":4,"groupCode":"401","academicYear":"2025/2026","semester":2,"email":"yookassa-diagnostic@example.com"}')"
+          echo "KGMU_ARCHIVE_HTTP=$kgmu_status"
+          jq '{error,testMode,archive}' /tmp/kgmu.json || cat /tmp/kgmu.json
+
+          if [ "$omg_status" = '201' ] && [ "$kgmu_status" = '503' ]; then
+            echo 'DIAGNOSIS_SCOPE=kgmu_specific'
+            exit 0
+          fi
+          if [ "$omg_status" != '201' ] && [ "$kgmu_status" = '503' ]; then
+            echo 'DIAGNOSIS_SCOPE=yookassa_global_or_offer'
+            exit 0
+          fi
+          echo 'DIAGNOSIS_SCOPE=unexpected'
