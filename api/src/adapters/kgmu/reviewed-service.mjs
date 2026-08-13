@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { publishStagedReviewedBundle, stageReviewedBundle } from "./reviewed-bundle.mjs";
 import {
+  CANONICAL_REVIEW_FORMAT,
   CANONICAL_REVIEW_PARSER_TYPE,
   publishStagedCanonicalReview,
   stageCanonicalReviewPackage,
@@ -102,7 +103,7 @@ export class KgmuReviewedService {
   }
 
   async #publishReady(review) {
-    const canonical = review?.parserType === CANONICAL_REVIEW_PARSER_TYPE;
+    const canonical = review?.normalizer?.format === CANONICAL_REVIEW_FORMAT || review?.parserType === CANONICAL_REVIEW_PARSER_TYPE;
     const published = canonical
       ? await publishStagedCanonicalReview({
           queue: this.queue,
@@ -135,7 +136,7 @@ export class KgmuReviewedService {
     let review = await this.queue.updateReview(reviewId, {
       status: "READY_TO_PUBLISH",
       reason: "CANONICAL_REVIEWED_JSON_QA_PASS",
-      parserType: CANONICAL_REVIEW_PARSER_TYPE,
+      parserType: "REVIEWED_JSON",
       normalizedKey: staged.normalizedKey,
       qa: staged.qa,
       normalizer: {
