@@ -21,18 +21,20 @@ jobs:
         run: |
           set -euo pipefail
           url='https://kirovgma.ru/sites/default/files/files/2026/02/02/1078/4_kurs_lechebnyy_fakultet-02-02-2026-14.xlsx'
-          mkdir -p source-cache/kgmu/2025-26/2/medicine/4
+          base='source-cache/kgmu/2025-26/2/medicine/4'
+          mkdir -p "$base/parts"
+          rm -f "$base"/parts/part*.txt
           curl --fail-with-body --location --silent --show-error \
             --user-agent 'kgmu-calendar-source-cache/1.0' \
             "$url" \
             --output /tmp/source.xlsx
           sha="$(sha256sum /tmp/source.xlsx | awk '{print $1}')"
-          file="source-cache/kgmu/2025-26/2/medicine/4/${sha}.xlsx"
+          file="$base/${sha}.xlsx"
           cp /tmp/source.xlsx "$file"
-          printf '%s\n' "$sha" > source-cache/kgmu/2025-26/2/medicine/4/current.sha256
-          printf '%s\n' "$url" > source-cache/kgmu/2025-26/2/medicine/4/current.url
-          echo "SOURCE_FILE=$file" >> "$GITHUB_ENV"
-          echo "SOURCE_SHA=$sha" >> "$GITHUB_ENV"
+          printf '%s\n' "$sha" > "$base/current.sha256"
+          printf '%s\n' "$url" > "$base/current.url"
+          base64 -w 0 /tmp/source.xlsx > /tmp/source.b64
+          split -b 3500 -d -a 3 --additional-suffix=.txt /tmp/source.b64 "$base/parts/part"
       - name: Commit source cache
         shell: bash
         run: |
@@ -44,5 +46,5 @@ jobs:
             echo 'Source already cached.'
             exit 0
           fi
-          git commit -m 'Cache official KGMU medicine course 4 XLSX'
+          git commit -m 'Split official KGMU medicine course 4 XLSX cache'
           git push origin HEAD:main
