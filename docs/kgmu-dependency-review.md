@@ -4,12 +4,12 @@ Scope: medicine, pediatrics, dentistry, foreign students.
 
 ## Result
 
-Steps 2-7 stay unchanged. The existing event schema, QA, versioning and ICS are sufficient for all confirmed parser rules. C22 remains a normal `needs_review` case and requires no new downstream model.
+Steps 2-12 stay unchanged. The existing event schema, QA, versioning, postprocessing, ICS and publication flow are sufficient for all confirmed parser rules.
 
-C15 requires one targeted extension in steps 8-12. A student's elective cannot be chosen at group level because students in the same group may have different choices.
+C22 remains a normal `needs_review` case and requires no downstream model change.
 
-Decision: keep the base group schedule universal and add a separate source-bound `schedule-choice-manifest/v1`. Each required choice set contains stable option IDs and a versioned overlay schedule-batch for every allowed option. Overlay events remain ordinary `schedule-event/v1` events and use the existing validation, versioning and postprocessing pipeline.
+C15 is represented neutrally. For each date covered by an `Электив`, `ДВ.4`, `ДВ.5` or equivalent grid block, the normalized calendar keeps an event named `Дисциплина по выбору`; no concrete elective is inferred.
 
-Publication must bind the base schedule and the matching immutable choice-manifest version to one current group revision. Checkout must require all mandatory selections before payment. The order and subscription persist selected option IDs. The personal feed is built from the base schedule plus the selected overlays and then postprocessed again. Subscription URL rotation preserves the selections. If a saved option disappears in a later revision, the feed fails closed rather than selecting another option automatically.
+Only values common to all listed variants may be used. When no common time exists, the canonical event is date-only/all-day with `start_time=null` and `end_time=null`. When no common location exists, location remains empty. The event carries C15 in `rule_ids` and a warning that exact time/place depend on the selected discipline.
 
-Step 8 adds optional source-bound choice manifests to canonical review. Step 9 stores and publishes them with the base group revision. Steps 10-11 add selection to checkout/order/subscription and personal feed composition. Step 12 must not sell a group whose required choice manifest is incomplete. The existing four-faculty source watcher does not change.
+The unknown concrete elective is not `needs_review` by itself. No separate choice manifest or personalized elective layer is used. Canonical review is the authoritative path for these complex C sources.
