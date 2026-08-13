@@ -17,7 +17,7 @@ function loadFixture() {
   return JSON.parse(gunzipSync(Buffer.from(parts.join(""), "base64")).toString("utf8"));
 }
 
-test("R pipeline routes pediatrics through the reviewed R-PED profile and preserves fail-closed QA", async () => {
+test("R pipeline routes pediatrics through R-PED and treats source overlaps as non-blocking diagnostics under R69", async () => {
   const workbook = loadFixture();
   const classification = classifyKgmuWorkbook(workbook);
   let staged = null;
@@ -46,7 +46,7 @@ test("R pipeline routes pediatrics through the reviewed R-PED profile and preser
 
   assert.equal(result.contextComplete, true);
   assert.equal(result.schedules.length, 9);
-  assert.equal(result.qa.status, "REVIEW_REQUIRED");
+  assert.equal(result.qa.status, "PASS");
   assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.extraLessonFailures.length, 0);
   assert.equal(result.qa.remainingOverlaps.length, 1);
@@ -55,7 +55,7 @@ test("R pipeline routes pediatrics through the reviewed R-PED profile and preser
   assert.equal(staged.sourceSha256, "a".repeat(64));
   assert.equal(staged.normalized.parserType, "R");
   assert.equal(staged.normalized.parserProfile, "R-PED");
-  assert.equal(staged.normalized.qa.status, "REVIEW_REQUIRED");
+  assert.equal(staged.normalized.qa.status, "PASS");
   assert.equal(staged.normalized.schedules.length, 9);
   assert.ok(staged.normalized.schedules.every((schedule) => schedule.parser?.profile === "R-PED"));
 });

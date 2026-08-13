@@ -391,8 +391,10 @@ export function parsePediatricsRWorkbookReviewed(workbook, options = {}) {
     ...parsed.qa,
     extraLessonExpectations,
     extraLessonFailures,
+    // R69: temporal overlaps are preserved from the source and remain visible
+    // for diagnostics, but they are not an error, warning, or review trigger.
     remainingOverlaps,
-    status: parsed.qa.uncovered.length || extraLessonFailures.length || remainingOverlaps.length ? "REVIEW_REQUIRED" : "PASS",
+    status: parsed.qa.uncovered.length || extraLessonFailures.length ? "REVIEW_REQUIRED" : "PASS",
     eventCount: events.length,
     eventCountsByGroup: Object.fromEntries(schedules.map((schedule) => [schedule.group.code, schedule.events.length])),
     reviewedProfile: "R-PED-REVIEWED",

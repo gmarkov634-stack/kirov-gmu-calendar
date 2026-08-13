@@ -53,10 +53,10 @@ test("dry run parses real pediatrics R structure without review, notification, o
   assert.equal(result.derivedPeriod.academicYear, "2025/26");
   assert.equal(result.derivedPeriod.semester, 2);
   assert.equal(result.parserType, "R");
-  assert.equal(result.status, "REVIEW_REQUIRED");
-  assert.equal(result.reason, "PARSER_R_QA_FAILED");
+  assert.equal(result.status, "READY_TO_PUBLISH");
+  assert.equal(result.reason, "QA_PASS_AWAITING_PUBLISH");
   assert.equal(result.publicationBlocked, true);
-  assert.equal(result.qa.status, "REVIEW_REQUIRED");
+  assert.equal(result.qa.status, "PASS");
   assert.equal(result.qa.uncovered.length, 0);
   assert.equal(result.qa.extraLessonFailures.length, 0);
   assert.equal(result.qa.remainingOverlaps.length, 1);
