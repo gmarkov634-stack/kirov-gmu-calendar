@@ -186,9 +186,20 @@ function versionIdFactory() {
   return `ver_${randomUUID().replaceAll("-", "")}`;
 }
 
+function isoNow(value) {
+  const date = value === undefined ? new Date() : new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new TypeError("options.now must be a valid date/time");
+  return date.toISOString();
+}
+
+function positiveRevision(value) {
+  return Number.isInteger(value) && value >= 1 ? value : 1;
+}
+
 function summarizeEvent(event) {
   return {
     event_id: event?.system?.event_id ?? null,
+    revision: event?.system?.revision ?? null,
     date: event?.timing?.date ?? null,
     start_time: event?.timing?.start_time ?? null,
     end_time: event?.timing?.end_time ?? null,
@@ -243,31 +254,32 @@ export function versionSchedule(previousBatch, incomingBatch, options = {}) {
   const parentVersionId = sameContent
     ? (previousBatch?.schedule?.previous_schedule_version_id ?? null)
     : previousVersionId;
+  const generatedNow = isoNow(options.now);
+  const previousVersionCreatedAt = previousBatch?.schedule?.version_created_at ?? null;
+  const versionCreatedAt = sameContent && previousVersionCreatedAt
+    ? previousVersionCreatedAt
+    : generatedNow;
 
   result.schedule = {
     ...result.schedule,
     schedule_version_id: versionId,
     previous_schedule_version_id: parentVersionId,
     content_fingerprint: contentFingerprint,
+    version_created_at: versionCreatedAt,
   };
-  for (const event of incomingEvents) event.system.schedule_version_id = versionId;
 
-  const added = matching.addedIndexes.map((index) => ({
-    ...summarizeEvent(incomingEvents[index]),
-    status: "added",
-  }));
-  const removed = matching.removedIndexes.map((index) => ({
-    ...summarizeEvent(previousEvents[index]),
-    status: "removed",
-  }));
   const changed = [];
   const unchanged = [];
-
   for (const pair of matching.pairs) {
     const before = previousEvents[pair.oldIndex];
     const after = incomingEvents[pair.newIndex];
     const changes = diffValues(comparableFields(before), comparableFields(after));
+    const beforeRevision = positiveRevision(before?.system?.revision);
+    const createdAt = before?.system?.created_at || previousVersionCreatedAt || versionCreatedAt;
     if (changes.length) {
+      after.system.revision = beforeRevision + 1;
+      after.system.created_at = createdAt;
+      after.system.updated_at = versionCreatedAt;
       changed.push({
         ...summarizeEvent(after),
         status: "changed",
@@ -275,6 +287,9 @@ export function versionSchedule(previousBatch, incomingBatch, options = {}) {
         changes,
       });
     } else {
+      after.system.revision = beforeRevision;
+      after.system.created_at = createdAt;
+      after.system.updated_at = before?.system?.updated_at || previousVersionCreatedAt || versionCreatedAt;
       unchanged.push({
         ...summarizeEvent(after),
         status: "unchanged",
@@ -283,9 +298,28 @@ export function versionSchedule(previousBatch, incomingBatch, options = {}) {
     }
   }
 
+  const added = matching.addedIndexes.map((index) => {
+    const event = incomingEvents[index];
+    event.system.revision = 1;
+    event.system.created_at = versionCreatedAt;
+    event.system.updated_at = versionCreatedAt;
+    return {
+      ...summarizeEvent(event),
+      status: "added",
+    };
+  });
+
+  for (const event of incomingEvents) event.system.schedule_version_id = versionId;
+
+  const removed = matching.removedIndexes.map((index) => ({
+    ...summarizeEvent(previousEvents[index]),
+    status: "removed",
+  }));
+
   const diff = {
     previous_version_id: previousVersionId,
     version_id: versionId,
+    version_created_at: versionCreatedAt,
     content_fingerprint: contentFingerprint,
     same_content: sameContent,
     counts: {
