@@ -49,37 +49,6 @@ test("real reviewed KGMU group 401 migrates to canonical schedule-batch without 
   assert.equal(qa.errors.length, 0);
 });
 
-test("confirmed official source overlap is marked R69 only for group 408 on 2026-03-23", () => {
-  const batch = legacyReviewedGroupToCanonicalPackage(loadRealBundle(), {
-    group: "408",
-    week1StartDate: "2026-02-02",
-  }).batches[0];
-
-  const confirmed = batch.events.filter((event) => event.parse.rule_ids.includes("R69"));
-  assert.equal(confirmed.length, 2);
-  assert.deepEqual(
-    confirmed.map((event) => ({
-      range: event.source.references[0]?.range,
-      date: event.timing.date,
-      start: event.timing.start_time,
-      end: event.timing.end_time,
-    })),
-    [
-      { range: "AQ20:AX20", date: "2026-03-23", start: "12:00", end: "15:05" },
-      { range: "BX41", date: "2026-03-23", start: "14:45", end: "16:15" },
-    ],
-  );
-  assert.ok(batch.events.filter((event) => !confirmed.includes(event)).every((event) => !event.parse.rule_ids.includes("R69")));
-
-  const qa = validateScheduleBatch(batch);
-  assert.equal(qa.publishable, true, JSON.stringify(qa.errors));
-  assert.equal(qa.errors.length, 0);
-  assert.equal(qa.stats.overlaps, 1);
-  assert.equal(qa.stats.confirmed_overlaps, 1);
-  assert.equal(qa.warnings.length, 1);
-  assert.equal(qa.warnings[0].code, "CONFIRMED_OVERLAP");
-});
-
 test("whole real reviewed file 401-420 migrates as 20 independently publishable canonical batches", () => {
   const pkg = legacyReviewedBundleToCanonicalPackage(loadRealBundle(), {
     groups: "all",
@@ -90,22 +59,31 @@ test("whole real reviewed file 401-420 migrates as 20 independently publishable 
   assert.deepEqual(pkg.batches.map((batch) => batch.schedule.group), Array.from({ length: 20 }, (_, index) => String(401 + index)));
   assert.equal(pkg.batches.reduce((sum, batch) => sum + batch.events.length, 0), 2230);
 
-  let warningCount = 0;
   for (const batch of pkg.batches) {
     assert.equal(batch.schedule.period.week1_start_date, "2026-02-02");
     assert.equal(batch.schedule.source_files[0], "4_kurs_lechebnyy_fakultet-02-02-2026-14.xlsx");
     const qa = validateScheduleBatch(batch);
     assert.equal(qa.publishable, true, `${batch.schedule.group}: ${JSON.stringify(qa.errors)}`);
     assert.equal(qa.errors.length, 0);
-    warningCount += qa.warnings.length;
-    if (batch.schedule.group === "408") {
-      assert.equal(qa.warnings.length, 1);
-      assert.equal(qa.warnings[0].code, "CONFIRMED_OVERLAP");
-    } else {
-      assert.equal(qa.warnings.length, 0, `unexpected warnings for group ${batch.schedule.group}`);
-    }
+    assert.equal(qa.warnings.length, 0);
   }
-  assert.equal(warningCount, 1);
+});
+
+test("group 408 official overlap remains unchanged and does not require validator exception metadata", () => {
+  const batch = legacyReviewedGroupToCanonicalPackage(loadRealBundle(), {
+    group: "408",
+    week1StartDate: "2026-02-02",
+  }).batches[0];
+  const overlapping = batch.events.filter((event) =>
+    event.timing.date === "2026-03-23" &&
+    ["12:00", "14:45"].includes(event.timing.start_time)
+  );
+  assert.equal(overlapping.length, 2);
+  assert.ok(overlapping.every((event) => !event.parse.rule_ids.includes("R69")));
+  const qa = validateScheduleBatch(batch);
+  assert.equal(qa.publishable, true, JSON.stringify(qa.errors));
+  assert.equal(qa.errors.length, 0);
+  assert.equal(qa.warnings.length, 0);
 });
 
 test("comma-separated group selection is normalized and naturally sorted", () => {
