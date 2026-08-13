@@ -25,6 +25,30 @@ function metadata(input = {}) {
   };
 }
 
+function stagedSourceKey(bundle) {
+  const source = bundle?.source || {};
+  const digest = String(source.sha256 || "").trim().toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(digest)) return null;
+  const filename = String(source.filename || "schedule.xlsx")
+    .replace(/[^A-Za-z0-9._-]+/g, "_")
+    .slice(-120) || "schedule.xlsx";
+  return `parser-staging/kgmu/sources/${digest}/${filename}`;
+}
+
+function cachedSourceResponse(buffer) {
+  const bytes = Buffer.from(buffer);
+  return {
+    ok: true,
+    status: 200,
+    headers: {
+      get(name) {
+        return String(name || "").toLowerCase() === "content-length" ? String(bytes.length) : null;
+      },
+    },
+    arrayBuffer: async () => bytes,
+  };
+}
+
 export class KgmuReviewedService {
   constructor({ queue, notifier, config, scheduleStore, fetchFn = fetch }) {
     this.queue = queue;
@@ -207,11 +231,18 @@ export class KgmuReviewedService {
   }
 
   async submit(bundle, { publish = false } = {}) {
+    let fetchFn = this.fetch;
+    const sourceKey = stagedSourceKey(bundle);
+    if (sourceKey && typeof this.queue?.getSource === "function") {
+      const cached = await this.queue.getSource(sourceKey);
+      if (cached) fetchFn = async () => cachedSourceResponse(cached);
+    }
+
     const staged = await stageReviewedBundle({
       bundle,
       queue: this.queue,
       config: this.config,
-      fetchFn: this.fetch,
+      fetchFn,
     });
     let review = await this.queue.createReview({
       status: "READY_TO_PUBLISH",
