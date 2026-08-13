@@ -40,7 +40,7 @@ function parserProfile(program, course) {
 }
 
 function applyProfileQaPolicy(profile, qa) {
-  if (profile !== "R-MED3" && profile !== "R-FIO") return qa;
+  if (profile !== "R" && profile !== "R-MED3" && profile !== "R-FIO") return qa;
   const normalized = { ...qa };
   const skippedSafetyFixups = normalized.safetyFixups?.alternateTimeDateRanges?.skipped?.length || 0;
   normalized.status = Boolean(
