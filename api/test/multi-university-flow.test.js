@@ -109,6 +109,7 @@ test("checkout resolves arbitrary group codes through getSchedule", async () => 
   const config = {
     allowedOrigin: "https://example.test",
     offerExpiresAt: "2999-08-31T23:59:59+06:00",
+    commercialSalesEnabled: true,
   };
   const server = http.createServer(createHandler({ store, config, payments }));
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
