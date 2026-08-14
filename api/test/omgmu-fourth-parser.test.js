@@ -15,6 +15,16 @@ const lectures = `
 11.20-13.00 Акушерство и гинекология, 1 лекция: 07.04 - БУЗОО КРД № 6, ул. Перелета,3
 `;
 
+const multilineLectures = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+*08.20-10.00 Факультетская терапия, профессиональные болезни, 11 лекций: 07.05-21.05 (без субботы)
+- БУЗОО «ККД», ул. Лермонтова, 41
+ЧЕТВЕРГ
+11.20-13.00 Инфекционные болезни у детей, 4 лекции: 09.04-30.04 - БУЗОО «ДКБ № 3», инф.
+стационар, ул. 19 Партсъезда, 16
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -36,6 +46,15 @@ test("parses shared fourth-course lectures by weekday", () => {
   assert.equal(records.length, 2);
   assert.deepEqual(records[0].dates, ["2026-04-06", "2026-04-13"]);
   assert.equal(records[0].location, "БУЗОО ОКБ, ул. Березовая,3");
+});
+
+test("keeps physical continuation lines inside one lecture record", () => {
+  const records = parseFourthCourseLectures(multilineLectures);
+  assert.equal(records.length, 2);
+  assert.equal(records[0].discipline, "Факультетская терапия, профессиональные болезни");
+  assert.equal(records[0].location, "БУЗОО «ККД», ул. Лермонтова, 41");
+  assert.equal(records[1].discipline, "Инфекционные болезни у детей");
+  assert.equal(records[1].location, "БУЗОО «ДКБ № 3», инф. стационар, ул. 19 Партсъезда, 16");
 });
 
 test("parses separate fourth-course cycle columns", () => {
