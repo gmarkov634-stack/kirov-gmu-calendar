@@ -34,20 +34,24 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm test
-      - name: Fetch production OmGMU 4th-course lecture PDF
+      - name: Fetch production OmGMU 4th-course PDFs
         shell: bash
         run: |
           set -euo pipefail
-          PROBE='https://kgmu-calendar-api.containerapps.ru/api/v1/admin/omgmu/source-probe?url=https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Fbilingva%2F2026%2Fzan%2F4lek.pdf&format=pdf'
-          curl --fail --show-error --silent --location --dump-header /tmp/4lek.headers -o /tmp/4lek.pdf "$PROBE"
-          cat /tmp/4lek.headers
+          BASE='https://kgmu-calendar-api.containerapps.ru/api/v1/admin/omgmu/source-probe?format=pdf&url='
+          curl --fail --show-error --silent --location -o /tmp/4lek.pdf "${BASE}https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Fbilingva%2F2026%2Fzan%2F4lek.pdf"
+          curl --fail --show-error --silent --location --dump-header /tmp/4zan.headers -o /tmp/4zan.pdf "${BASE}https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Fbilingva%2F2026%2Fzan%2F4zan.pdf"
+          cat /tmp/4zan.headers
           test "$(head -c 5 /tmp/4lek.pdf)" = '%PDF-'
-          wc -c /tmp/4lek.pdf
-          sha256sum /tmp/4lek.pdf
-      - name: Upload production OmGMU PDF
+          test "$(head -c 5 /tmp/4zan.pdf)" = '%PDF-'
+          wc -c /tmp/4lek.pdf /tmp/4zan.pdf
+          sha256sum /tmp/4lek.pdf /tmp/4zan.pdf
+      - name: Upload production OmGMU PDFs
         uses: actions/upload-artifact@v4
         with:
-          name: omgmu-4lek-production
-          path: /tmp/4lek.pdf
+          name: omgmu-4course-production
+          path: |
+            /tmp/4lek.pdf
+            /tmp/4zan.pdf
           if-no-files-found: error
           retention-days: 1
