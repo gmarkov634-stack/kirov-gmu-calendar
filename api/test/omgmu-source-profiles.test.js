@@ -102,6 +102,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(!weeklyRules.includes("O69"));
   assert.ok(!weeklyRules.includes("O70"));
   assert.ok(!weeklyRules.includes("O71"));
+  assert.ok(!weeklyRules.includes("O72"));
 
   assert.ok(!lectureRules.includes("O03"));
   assert.ok(!lectureRules.includes("O57"));
@@ -112,6 +113,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(lectureRules.includes("O67"));
   assert.ok(lectureRules.includes("O68"));
   assert.ok(lectureRules.includes("O71"));
+  assert.ok(lectureRules.includes("O72"));
   assert.ok(!lectureRules.includes("O59"));
   assert.ok(!lectureRules.includes("O60"));
   assert.ok(!lectureRules.includes("O62"));
@@ -137,6 +139,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(!cycleRules.includes("O69"));
   assert.ok(!cycleRules.includes("O70"));
   assert.ok(!cycleRules.includes("O71"));
+  assert.ok(!cycleRules.includes("O72"));
   assert.ok(cycleRules.includes("O53"));
 
   assert.ok(!combinedRules.includes("O19"));
@@ -155,4 +158,5 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(combinedRules.includes("O69"));
   assert.ok(combinedRules.includes("O70"));
   assert.ok(!combinedRules.includes("O71"));
+  assert.ok(!combinedRules.includes("O72"));
 });
