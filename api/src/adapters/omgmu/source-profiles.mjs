@@ -13,7 +13,7 @@ const COMMON_RULES = Object.freeze([
 
 const PROFILE_RULES = Object.freeze({
   [OMG_SOURCE_PROFILES.WEEKLY_GRID]: Object.freeze([
-    "O03", "O04", "O13", "O14", "O16", "O22", "O27", "O57", "O58", "O59", "O60", "O61", "O62",
+    "O03", "O04", "O13", "O14", "O16", "O22", "O27", "O57", "O58", "O59", "O60", "O61", "O62", "O63",
   ]),
   [OMG_SOURCE_PROFILES.COURSE_LECTURE_LIST]: Object.freeze([
     "O24", "O27", "O31", "O58", "O61",
