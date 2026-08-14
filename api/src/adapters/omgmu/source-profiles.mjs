@@ -25,7 +25,7 @@ const PROFILE_RULES = Object.freeze({
   ]),
   [OMG_SOURCE_PROFILES.COMBINED_ROTATION_TABLE]: Object.freeze([
     "O07", "O20", "O21", "O22", "O26", "O29", "O30", "O37", "O42", "O43",
-    "O44", "O49", "O52",
+    "O44", "O49", "O52", "O69",
   ]),
 });
 
