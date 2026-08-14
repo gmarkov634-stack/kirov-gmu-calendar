@@ -48,6 +48,15 @@ const sameSlotDifferentDisciplines = `
 11.00-12.40 Педиатрия, 3 лекции: 13.04-27.04
 `;
 
+const similarDisciplineLabels = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+08.00-09.40 Неврология, медицинская генетика, нейрохирургия, 1 лекция: 06.04
+СРЕДА
+10.20-12.00 Неврология, мед. генетика, 1 лекция: 08.04
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -102,6 +111,16 @@ test("keeps different disciplines in the same weekday/time slot as separate lect
   assert.deepEqual(records[0].dates, ["2026-04-06"]);
   assert.equal(records[1].discipline, "Педиатрия");
   assert.deepEqual(records[1].dates, ["2026-04-13", "2026-04-20", "2026-04-27"]);
+});
+
+test("does not expand or merge similar discipline labels from other lecture series", () => {
+  const records = parseFourthCourseLectures(similarDisciplineLabels);
+  assert.equal(records.length, 2);
+  assert.equal(records[0].discipline, "Неврология, медицинская генетика, нейрохирургия");
+  assert.equal(records[1].discipline, "Неврология, мед. генетика");
+  assert.notEqual(records[0].discipline, records[1].discipline);
+  assert.deepEqual(records[0].dates, ["2026-04-06"]);
+  assert.deepEqual(records[1].dates, ["2026-04-08"]);
 });
 
 test("parses separate fourth-course cycle columns", () => {
