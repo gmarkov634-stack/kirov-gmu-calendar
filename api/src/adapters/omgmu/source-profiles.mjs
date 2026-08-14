@@ -7,19 +7,19 @@ export const OMG_SOURCE_PROFILES = Object.freeze({
 
 const COMMON_RULES = Object.freeze([
   "O01", "O02", "O05", "O06", "O08", "O09", "O10", "O11", "O12", "O15",
-  "O17", "O18", "O19", "O25", "O28", "O32", "O33", "O34", "O38", "O45",
+  "O17", "O18", "O25", "O28", "O32", "O33", "O34", "O38", "O45",
   "O46", "O48", "O50", "O54", "O55", "O56", "O64",
 ]);
 
 const PROFILE_RULES = Object.freeze({
   [OMG_SOURCE_PROFILES.WEEKLY_GRID]: Object.freeze([
-    "O03", "O04", "O13", "O14", "O16", "O22", "O27", "O57", "O58", "O59", "O60", "O61", "O62", "O63",
+    "O03", "O04", "O13", "O14", "O16", "O22", "O27", "O57", "O58", "O59", "O60", "O61", "O62", "O63", "O65",
   ]),
   [OMG_SOURCE_PROFILES.COURSE_LECTURE_LIST]: Object.freeze([
     "O24", "O27", "O31", "O58", "O61",
   ]),
   [OMG_SOURCE_PROFILES.CYCLE_ROTATION_GRID]: Object.freeze([
-    "O07", "O16", "O20", "O21", "O22", "O23", "O26", "O29", "O30", "O35",
+    "O07", "O16", "O19", "O20", "O21", "O22", "O23", "O26", "O29", "O30", "O35",
     "O36", "O37", "O39", "O40", "O41", "O42", "O43", "O44", "O47", "O49",
     "O51", "O52", "O53",
   ]),
