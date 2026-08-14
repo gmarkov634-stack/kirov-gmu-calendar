@@ -25,6 +25,21 @@ const multilineLectures = `
 стационар, ул. 19 Партсъезда, 16
 `;
 
+const irregularHyphenLectures = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+10.20-12.00 Факультетская хирургия, урология, 1 лекция: 04.05- БУЗОО«ОКБ»,ул.Березовая,3
+ВТОРНИК
+11.20-13.00 Акушерство и гинекология, 4 лекции:07.04-28.04- БУЗОО «КРД № 6»,ул. Перелета,3
+СРЕДА
+08.20-10.00 Факультетская хирургия, урология, 5 лекций:08.04 - 06.05-БУЗОО«ОКБ»,ул.Березовая,3
+ЧЕТВЕРГ
+11.20-13.00 Инфекционные болезни у детей, 4 лекции:09.04-30.04-БУЗОО «ГДКБ № 3», инф. стационар, ул.19 Партсъезда,16
+ПЯТНИЦА
+08.20-10.00 Факультетская хирургия, урология, 2 лекции: 10.04; 17.04-БУЗОО«ОКБ»,ул.Березовая,3
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -55,6 +70,19 @@ test("keeps physical continuation lines inside one lecture record", () => {
   assert.equal(records[0].location, "БУЗОО «ККД», ул. Лермонтова, 41");
   assert.equal(records[1].discipline, "Инфекционные болезни у детей");
   assert.equal(records[1].location, "БУЗОО «ДКБ № 3», инф. стационар, ул. 19 Партсъезда, 16");
+});
+
+test("separates lecture locations after hyphens regardless of surrounding spaces", () => {
+  const records = parseFourthCourseLectures(irregularHyphenLectures);
+  assert.equal(records.length, 5);
+  assert.deepEqual(records.map((record) => record.dates.length), [1, 4, 5, 4, 2]);
+  assert.deepEqual(records.map((record) => record.location), [
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+    "БУЗОО «КРД № 6»,ул. Перелета,3",
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+    "БУЗОО «ГДКБ № 3», инф. стационар, ул.19 Партсъезда,16",
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+  ]);
 });
 
 test("parses separate fourth-course cycle columns", () => {
