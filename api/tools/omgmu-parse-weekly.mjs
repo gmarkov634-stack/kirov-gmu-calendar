@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { buildWeeklySchedules } from "../src/adapters/omgmu/weekly-parser-blocks.mjs";
+import { assertOmgmuSourceProfile, OMG_SOURCE_PROFILES } from "../src/adapters/omgmu/source-profiles.mjs";
 
 function readArg(name, fallback) {
   const prefix = `--${name}=`;
@@ -14,6 +15,7 @@ const course = Number(readArg("course", "1"));
 const stream = readArg("stream", "") || null;
 const sourceUrl = readArg("source", "") || null;
 const text = await fs.readFile(input, "utf8");
+assertOmgmuSourceProfile(text, OMG_SOURCE_PROFILES.WEEKLY_GRID, { filename: path.basename(input) });
 const schedules = buildWeeklySchedules(text, { course, stream, sourceUrl });
 await fs.mkdir(outputDir, { recursive: true });
 let eventCount = 0;
