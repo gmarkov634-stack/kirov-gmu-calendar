@@ -57,6 +57,19 @@ const similarDisciplineLabels = `
 10.20-12.00 Неврология, мед. генетика, 1 лекция: 08.04
 `;
 
+const weekdaySectionInheritance = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+08.00-09.40 Неврология, медицинская генетика, нейрохирургия, 2 лекции: 06.04-13.04
+
+11.00-12.40 Акушерство и гинекология, 1 лекция: 20.04
+
+11.00-12.40 Педиатрия, 1 лекция: 27.04
+ВТОРНИК
+11.20-13.00 Факультетская хирургия, урология, 2 лекции: 07.04-14.04
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -121,6 +134,15 @@ test("does not expand or merge similar discipline labels from other lecture seri
   assert.notEqual(records[0].discipline, records[1].discipline);
   assert.deepEqual(records[0].dates, ["2026-04-06"]);
   assert.deepEqual(records[1].dates, ["2026-04-08"]);
+});
+
+test("inherits weekday context across multiple lecture records and blank lines until the next weekday heading", () => {
+  const records = parseFourthCourseLectures(weekdaySectionInheritance);
+  assert.equal(records.length, 4);
+  assert.deepEqual(records[0].dates, ["2026-04-06", "2026-04-13"]);
+  assert.deepEqual(records[1].dates, ["2026-04-20"]);
+  assert.deepEqual(records[2].dates, ["2026-04-27"]);
+  assert.deepEqual(records[3].dates, ["2026-04-07", "2026-04-14"]);
 });
 
 test("parses separate fourth-course cycle columns", () => {
