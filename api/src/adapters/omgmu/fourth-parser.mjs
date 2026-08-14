@@ -1,5 +1,11 @@
 const HOLIDAYS_2026 = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
 const WEEKDAYS = { ПОНЕДЕЛЬНИК: 1, ВТОРНИК: 2, СРЕДА: 3, ЧЕТВЕРГ: 4, ПЯТНИЦА: 5 };
+const LECTURE_DATE_ATOM = String.raw`\d{2}\.\d{2}(?:\s*[–-]\s*\d{2}\.\d{2})?`;
+const LECTURE_DATE_LOCATION_RE = new RegExp(
+  `^(${LECTURE_DATE_ATOM}(?:\\s*[,;]\\s*${LECTURE_DATE_ATOM})*(?:\\s*\\([^)]*\\))?)\\s*[–-]\\s*(.+)$`,
+  "i",
+);
+const EXPLICIT_LECTURE_LOCATION_RE = /(?:БУЗОО|ФГБОУ|ФГБУ|\bауд\.?\b|\bГК\b|\bул\.?\b|стационар|корпус|здание|кафедр)/i;
 
 function isoDate(date) {
   return date.toISOString().slice(0, 10);
@@ -30,12 +36,24 @@ function rangeDates(start, end, { weekday = null, includeSaturday = false } = {}
 function parseDateExpression(value, weekday = null) {
   const normalized = value.replace(/зач[её]т[^,;]*/gi, "").replace(/с\s+\d{2}[.:]\d{2}[^,;]*/gi, "");
   const dates = [];
-  for (const match of normalized.matchAll(/(\d{2})\.(\d{2})(?:\s*-\s*(\d{2})\.(\d{2}))?/g)) {
+  for (const match of normalized.matchAll(/(\d{2})\.(\d{2})(?:\s*[–-]\s*(\d{2})\.(\d{2}))?/g)) {
     const start = { day: Number(match[1]), month: Number(match[2]) };
     const end = match[3] ? { day: Number(match[3]), month: Number(match[4]) } : start;
     dates.push(...rangeDates(start, end, { weekday }));
   }
   return [...new Set(dates)].sort();
+}
+
+function splitLectureDateAndLocation(value) {
+  const normalized = String(value || "").trim();
+  const match = normalized.match(LECTURE_DATE_LOCATION_RE);
+  if (!match || !EXPLICIT_LECTURE_LOCATION_RE.test(match[2])) {
+    return { dateExpression: normalized, location: "" };
+  }
+  return {
+    dateExpression: match[1].trim(),
+    location: match[2].trim(),
+  };
 }
 
 function russianSection(text, marker) {
@@ -54,15 +72,14 @@ export function parseFourthCourseLectures(text) {
     const joined = current.lines.join(" ").replace(/\s+/g, " ").trim();
     const countMarker = joined.match(/^(.+?),\s*\d+\s+лекц(?:ия|ии|ий):\s*(.+)$/i);
     if (countMarker) {
-      const tail = countMarker[2];
-      const addressSplit = tail.split(/\s+[–-]\s+/);
-      const dates = parseDateExpression(addressSplit[0], current.weekday);
+      const { dateExpression, location } = splitLectureDateAndLocation(countMarker[2]);
+      const dates = parseDateExpression(dateExpression, current.weekday);
       if (dates.length) records.push({
         discipline: countMarker[1].trim(),
         startTime: current.startTime,
         endTime: current.endTime,
         dates,
-        location: addressSplit.slice(1).join(" - ").trim(),
+        location,
         kind: "lecture",
       });
     }
