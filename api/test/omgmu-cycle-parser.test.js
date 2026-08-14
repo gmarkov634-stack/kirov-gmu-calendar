@@ -22,6 +22,25 @@ const fixture = `
                                  13.50
 `;
 
+const continuationPageFixture = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+      Дисциплина                Время К.дн.             585
+
+Психиатрия,медицинская           08.20-
+                                          6     06.04-13.04 (лекции)
+  психология                     10.00
+                                 10.40-
+                                          8     06.04-15.04 (циклы)
+                                 13.50
+
+Инфекционные болезни             08.20-
+                                          12    17.06-02.07 (лекции)
+                                 10.00
+                                 10.40-
+                                          17    17.06-09.07 (циклы)
+                                 13.50
+`;
+
 test("parses fifth-course lecture and cycle blocks", () => {
   const blocks = parseFifthCourseBlocks(fixture);
   assert.equal(blocks.length, 4);
@@ -30,6 +49,17 @@ test("parses fifth-course lecture and cycle blocks", () => {
   assert.equal(blocks[0].startTime, "08:20");
   assert.equal(blocks[0].endTime, "10:00");
   assert.deepEqual(blocks[0].dates.slice(0, 2), ["2026-04-06", "2026-04-07"]);
+});
+
+test("keeps parsing a combined table continuation page without a repeated header row", () => {
+  const blocks = parseFifthCourseBlocks(continuationPageFixture);
+  const infectious = blocks.filter((block) => block.discipline === "Инфекционные болезни");
+  assert.equal(infectious.length, 2);
+  assert.deepEqual(infectious.map((block) => block.kind), ["lecture", "cycle"]);
+  assert.deepEqual(infectious.map((block) => [block.startTime, block.endTime]), [
+    ["08:20", "10:00"],
+    ["10:40", "13:50"],
+  ]);
 });
 
 test("builds normalized group 585 schedule and excludes weekends and holidays", () => {
