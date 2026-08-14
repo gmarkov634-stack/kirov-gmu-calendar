@@ -17,6 +17,8 @@ Tuesday
 Wednesday
 Thursday
 Friday
+Saturday
+08.00-10.25 Pathophysiology, 16 cl.: 11.04-01.08
 `;
 
 const lectures = `
@@ -90,6 +92,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(weeklyRules.includes("O60"));
   assert.ok(weeklyRules.includes("O61"));
   assert.ok(weeklyRules.includes("O62"));
+  assert.ok(weeklyRules.includes("O63"));
   assert.ok(!lectureRules.includes("O03"));
   assert.ok(!lectureRules.includes("O57"));
   assert.ok(lectureRules.includes("O31"));
@@ -98,6 +101,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(!lectureRules.includes("O59"));
   assert.ok(!lectureRules.includes("O60"));
   assert.ok(!lectureRules.includes("O62"));
+  assert.ok(!lectureRules.includes("O63"));
   assert.ok(!cycleRules.includes("O31"));
   assert.ok(!cycleRules.includes("O57"));
   assert.ok(!cycleRules.includes("O58"));
@@ -105,6 +109,7 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(!cycleRules.includes("O60"));
   assert.ok(!cycleRules.includes("O61"));
   assert.ok(!cycleRules.includes("O62"));
+  assert.ok(!cycleRules.includes("O63"));
   assert.ok(cycleRules.includes("O53"));
   assert.ok(!combinedRules.includes("O53"));
   assert.ok(!combinedRules.includes("O57"));
@@ -113,4 +118,5 @@ test("rule registry scopes profile-specific rules", () => {
   assert.ok(!combinedRules.includes("O60"));
   assert.ok(!combinedRules.includes("O61"));
   assert.ok(!combinedRules.includes("O62"));
+  assert.ok(!combinedRules.includes("O63"));
 });
