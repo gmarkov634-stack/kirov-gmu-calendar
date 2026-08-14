@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { buildFourthCourseSchedules } from "../src/adapters/omgmu/fourth-parser.mjs";
+import { assertOmgmuSourceProfile, OMG_SOURCE_PROFILES } from "../src/adapters/omgmu/source-profiles.mjs";
 
 function readArg(name, fallback) {
   const prefix = `--${name}=`;
@@ -15,6 +16,8 @@ const [lecturesText, cyclesText] = await Promise.all([
   fs.readFile(lecturesInput, "utf8"),
   fs.readFile(cyclesInput, "utf8"),
 ]);
+assertOmgmuSourceProfile(lecturesText, OMG_SOURCE_PROFILES.COURSE_LECTURE_LIST, { filename: path.basename(lecturesInput) });
+assertOmgmuSourceProfile(cyclesText, OMG_SOURCE_PROFILES.CYCLE_ROTATION_GRID, { filename: path.basename(cyclesInput) });
 const schedules = buildFourthCourseSchedules(lecturesText, cyclesText);
 await fs.mkdir(outputDir, { recursive: true });
 for (const [groupCode, schedule] of Object.entries(schedules)) {
