@@ -34,3 +34,20 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm test
+      - name: Fetch production OmGMU 4th-course lecture PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROBE='https://kgmu-calendar-api.containerapps.ru/api/v1/admin/omgmu/source-probe?url=https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Flech%2F2026%2Fzan%2F4lek.pdf&format=pdf'
+          curl --fail --show-error --silent --location --dump-header /tmp/4lek.headers -o /tmp/4lek.pdf "$PROBE"
+          cat /tmp/4lek.headers
+          test "$(head -c 5 /tmp/4lek.pdf)" = '%PDF-'
+          wc -c /tmp/4lek.pdf
+          sha256sum /tmp/4lek.pdf
+      - name: Upload production OmGMU PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-4lek-production
+          path: /tmp/4lek.pdf
+          if-no-files-found: error
+          retention-days: 1
