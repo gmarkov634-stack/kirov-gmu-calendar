@@ -22,6 +22,7 @@ test("registry contains kgmu and omgmu as isolated university configurations", (
   assert.equal(omgmu.timeMode, "floating");
   assert.equal(omgmu.source.kind, "pdf");
   assert.equal(omgmu.source.adapter, "omgmu");
+  assert.equal(omgmu.source.productionLanguage, "ru");
   assert.deepEqual(omgmu.source.versionIdentity, ["source_page", "source_url", "sha256"]);
   assert.equal(omgmu.sitePath, "/omgmu/");
   assert.equal(omgmu.active, false);
