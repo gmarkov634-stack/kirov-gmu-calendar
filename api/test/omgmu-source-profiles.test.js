@@ -84,6 +84,7 @@ test("rule registry scopes profile-specific rules", () => {
     assert.ok(rules.includes("O54"));
     assert.ok(rules.includes("O55"));
     assert.ok(rules.includes("O56"));
+    assert.ok(rules.includes("O64"));
   }
   assert.ok(weeklyRules.includes("O03"));
   assert.ok(weeklyRules.includes("O57"));
