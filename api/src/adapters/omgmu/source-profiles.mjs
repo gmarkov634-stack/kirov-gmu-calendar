@@ -8,7 +8,7 @@ export const OMG_SOURCE_PROFILES = Object.freeze({
 const COMMON_RULES = Object.freeze([
   "O01", "O02", "O05", "O06", "O08", "O09", "O10", "O11", "O12", "O15",
   "O17", "O18", "O19", "O25", "O28", "O32", "O33", "O34", "O38", "O45",
-  "O46", "O48", "O50", "O54", "O55", "O56",
+  "O46", "O48", "O50", "O54", "O55", "O56", "O64",
 ]);
 
 const PROFILE_RULES = Object.freeze({
