@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PROBE='https://kgmu-calendar-api.containerapps.ru/api/v1/admin/omgmu/source-probe?url=https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Flech%2F2026%2Fzan%2F4lek.pdf&format=pdf'
+          PROBE='https://kgmu-calendar-api.containerapps.ru/api/v1/admin/omgmu/source-probe?url=https%3A%2F%2Fomsk-osma.ru%2Ffiles%2Fr%2FUU%2Fbilingva%2F2026%2Fzan%2F4lek.pdf&format=pdf'
           curl --fail --show-error --silent --location --dump-header /tmp/4lek.headers -o /tmp/4lek.pdf "$PROBE"
           cat /tmp/4lek.headers
           test "$(head -c 5 /tmp/4lek.pdf)" = '%PDF-'
