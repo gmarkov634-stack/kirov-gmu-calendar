@@ -26,6 +26,7 @@ const UNIVERSITIES = Object.freeze({
       primaryPage: "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
       examsPage: "https://omsk-osma.ru/studentam/raspisanie-ekzamenov",
       adapter: "omgmu",
+      productionLanguage: "ru",
       versionIdentity: Object.freeze(["source_page", "source_url", "sha256"]),
     }),
     programs: Object.freeze([
