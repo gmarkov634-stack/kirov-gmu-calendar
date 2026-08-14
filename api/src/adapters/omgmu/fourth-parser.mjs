@@ -48,17 +48,31 @@ function splitLectureDateAndLocation(value) {
   const normalized = String(value || "").trim();
   const match = normalized.match(LECTURE_DATE_LOCATION_RE);
   if (!match || !EXPLICIT_LECTURE_LOCATION_RE.test(match[2])) {
-    return { dateExpression: normalized, location: "" };
+    return { dateExpression: normalized, location: "", usedLocationDelimiter: false };
   }
   return {
     dateExpression: match[1].trim(),
     location: match[2].trim(),
+    usedLocationDelimiter: true,
   };
 }
 
 function russianSection(text, marker) {
   const index = String(text || "").lastIndexOf(marker);
-  return index >= 0 ? String(text).slice(index) : String(text || "");
+  // O64: production parsing is Russian-only. Never fall back to another
+  // language/source part if the Russian marker is absent.
+  return index >= 0 ? String(text).slice(index) : "";
+}
+
+function lectureRuleIds({ current, dateExpression, location, usedLocationDelimiter }) {
+  const rules = ["O24", "O27", "O64", "O68"];
+  if (current.starred) rules.push("O31");
+  else if (current.weekday != null) rules.push("O72");
+  if (current.rawLines.length > 1) rules.push("O66");
+  if (location) rules.push("O58");
+  if (usedLocationDelimiter) rules.push("O67");
+  if (/[;,]/.test(dateExpression)) rules.push("O61");
+  return [...new Set(rules)];
 }
 
 export function parseFourthCourseLectures(text) {
@@ -66,44 +80,72 @@ export function parseFourthCourseLectures(text) {
   let weekday = null;
   const records = [];
   let current = null;
+  let lineNumber = 0;
 
   const flush = () => {
     if (!current) return;
     const joined = current.lines.join(" ").replace(/\s+/g, " ").trim();
-    const countMarker = joined.match(/^(.+?),\s*\d+\s+лекц(?:ия|ии|ий):\s*(.+)$/i);
+    const countMarker = joined.match(/^(.+?),\s*(\d+)\s+лекц(?:ия|ии|ий):\s*(.+)$/i);
     if (countMarker) {
-      const { dateExpression, location } = splitLectureDateAndLocation(countMarker[2]);
+      const declaredCount = Number(countMarker[2]);
+      const { dateExpression, location, usedLocationDelimiter } = splitLectureDateAndLocation(countMarker[3]);
       const dates = parseDateExpression(dateExpression, current.weekday);
-      if (dates.length) records.push({
-        discipline: countMarker[1].trim(),
-        startTime: current.startTime,
-        endTime: current.endTime,
-        dates,
-        location,
-        kind: "lecture",
-      });
+      if (dates.length) {
+        const warnings = [];
+        let status = "ok";
+        if (dates.length !== declaredCount) {
+          status = "needs_review";
+          warnings.push(`O27: declared ${declaredCount} lecture(s), resolved ${dates.length} date(s)`);
+        }
+        records.push({
+          discipline: countMarker[1].trim(),
+          disciplineRaw: countMarker[1].trim(),
+          disciplineNormalized: countMarker[1].trim(),
+          startTime: current.startTime,
+          endTime: current.endTime,
+          dates,
+          dateExpression,
+          declaredCount,
+          structuralWeekday: current.weekday,
+          location,
+          kind: "lecture",
+          typeRaw: "лекция",
+          rawSource: current.rawLines.map((line) => line.trim()).join("\n"),
+          references: [{ role: "lesson", range: `ru:lines:${current.startLine}-${current.endLine}` }],
+          ruleIds: lectureRuleIds({ current, dateExpression, location, usedLocationDelimiter }),
+          status,
+          warnings,
+        });
+      }
     }
     current = null;
   };
 
   for (const rawLine of lines) {
+    lineNumber += 1;
     const line = rawLine.trim();
     if (WEEKDAYS[line]) {
       flush();
       weekday = WEEKDAYS[line];
       continue;
     }
-    const match = rawLine.match(/^\s*\*?(\d{2})[.:](\d{2})-(\d{2})[.:](\d{2})\s+(.+)$/);
+    const match = rawLine.match(/^\s*(\*)?(\d{2})[.:](\d{2})-(\d{2})[.:](\d{2})\s+(.+)$/);
     if (match) {
       flush();
       current = {
-        startTime: `${match[1]}:${match[2]}`,
-        endTime: `${match[3]}:${match[4]}`,
-        weekday: rawLine.trimStart().startsWith("*") ? null : weekday,
-        lines: [match[5]],
+        startTime: `${match[2]}:${match[3]}`,
+        endTime: `${match[4]}:${match[5]}`,
+        starred: Boolean(match[1]),
+        weekday: match[1] ? null : weekday,
+        lines: [match[6]],
+        rawLines: [rawLine.trimEnd()],
+        startLine: lineNumber,
+        endLine: lineNumber,
       };
     } else if (current && line) {
       current.lines.push(line);
+      current.rawLines.push(rawLine.trimEnd());
+      current.endLine = lineNumber;
     }
   }
   flush();
