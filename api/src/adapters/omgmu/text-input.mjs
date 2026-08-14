@@ -9,7 +9,7 @@ const RUSSIAN_SCHEDULE_RE = /РАСПИСАНИЕ[^\n]*/i;
 const RUSSIAN_MARKER_RE = /^\s*ru\s*$/im;
 const ENGLISH_SCHEDULE_RE = /\b(?:SCHEDULE|SHEDULE)\b[^\n]*/i;
 const ENGLISH_MARKER_RE = /^\s*en\s*$/im;
-const RUSSIAN_STRUCTURE_RE = /\b(?:ПОНЕДЕЛЬНИК|ВТОРНИК|СРЕДА|ЧЕТВЕРГ|ПЯТНИЦА|СУББОТА|Дисциплина)\b|К\.\s*дн\.?/i;
+const RUSSIAN_STRUCTURE_RE = /(?:ПОНЕДЕЛЬНИК|ВТОРНИК|СРЕДА|ЧЕТВЕРГ|ПЯТНИЦА|СУББОТА|Дисциплина)|К\.\s*дн\.?/i;
 const ENGLISH_STRUCTURE_RE = /\b(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|Discipline)\b|N\.\s*of\s*d\.?/i;
 
 function firstMatchIndex(value, expressions) {
