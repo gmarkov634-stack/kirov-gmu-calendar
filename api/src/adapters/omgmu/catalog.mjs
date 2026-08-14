@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { detectOmgmuSourceProfile } from "./source-profiles.mjs";
 
 const SOURCE_NAME = /^(\d+)_([^_]+)_course-(\d+)(?:_stream-([^_]+))?_([^.]*)\.txt$/;
 
@@ -45,10 +46,17 @@ export async function buildOmgmuCatalog({ textDir, output } = {}) {
     if (!entry.isFile() || !entry.name.endsWith(".txt")) continue;
     const metadata = parseSourceFilename(entry.name);
     const text = await fs.readFile(path.join(textDir, entry.name), "utf8");
+    const profile = detectOmgmuSourceProfile(text, { filename: entry.name });
+    if (profile.status !== "classified") {
+      throw new Error(`ОмГМУ source profile needs review: ${entry.name}; evidence=${JSON.stringify(profile.evidence)}`);
+    }
     sources.push({
       ...metadata,
       filename: entry.name,
       groupCodes: extractGroupCodes(text),
+      sourceProfile: profile.profile,
+      applicableRules: profile.applicableRules,
+      profileEvidence: profile.evidence,
     });
   }
   sources.sort((a, b) => a.order - b.order);
@@ -62,10 +70,12 @@ export async function buildOmgmuCatalog({ textDir, output } = {}) {
       stream: source.stream,
       groupCodes: new Set(),
       parts: new Set(),
+      sourceProfiles: new Set(),
       sources: [],
     };
     for (const code of source.groupCodes) bucket.groupCodes.add(code);
     bucket.parts.add(source.part);
+    bucket.sourceProfiles.add(source.sourceProfile);
     bucket.sources.push(source.filename);
     buckets.set(key, bucket);
   }
@@ -79,6 +89,7 @@ export async function buildOmgmuCatalog({ textDir, output } = {}) {
       course: bucket.course,
       stream: bucket.stream,
       parts: [...bucket.parts].sort(),
+      sourceProfiles: [...bucket.sourceProfiles].sort(),
       groupCodes: codes,
       sources: bucket.sources,
       sharedParts: codes.length === 0 ? [...bucket.parts].sort() : [],
@@ -100,11 +111,12 @@ export async function buildOmgmuCatalog({ textDir, output } = {}) {
   offerings.sort((a, b) => a.course - b.course || String(a.stream || "").localeCompare(String(b.stream || "")));
 
   const catalog = {
-    version: 1,
+    version: 2,
     university: "omgmu",
     timezone: "Asia/Omsk",
     generatedAt: new Date().toISOString(),
     groupCount: groups.length,
+    sourceProfileCount: new Set(sources.map((source) => source.sourceProfile)).size,
     groups,
     offerings,
     sources,
