@@ -40,6 +40,14 @@ const irregularHyphenLectures = `
 08.20-10.00 Факультетская хирургия, урология, 2 лекции: 10.04; 17.04-БУЗОО«ОКБ»,ул.Березовая,3
 `;
 
+const sameSlotDifferentDisciplines = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+11.00-12.40 Акушерство и гинекология, 1 лекция: 06.04
+11.00-12.40 Педиатрия, 3 лекции: 13.04-27.04
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -83,6 +91,17 @@ test("separates lecture locations after hyphens regardless of surrounding spaces
     "БУЗОО «ГДКБ № 3», инф. стационар, ул.19 Партсъезда,16",
     "БУЗОО«ОКБ»,ул.Березовая,3",
   ]);
+});
+
+test("keeps different disciplines in the same weekday/time slot as separate lecture series", () => {
+  const records = parseFourthCourseLectures(sameSlotDifferentDisciplines);
+  assert.equal(records.length, 2);
+  assert.deepEqual(records.map((record) => record.startTime), ["11:00", "11:00"]);
+  assert.deepEqual(records.map((record) => record.endTime), ["12:40", "12:40"]);
+  assert.equal(records[0].discipline, "Акушерство и гинекология");
+  assert.deepEqual(records[0].dates, ["2026-04-06"]);
+  assert.equal(records[1].discipline, "Педиатрия");
+  assert.deepEqual(records[1].dates, ["2026-04-13", "2026-04-20", "2026-04-27"]);
 });
 
 test("parses separate fourth-course cycle columns", () => {
