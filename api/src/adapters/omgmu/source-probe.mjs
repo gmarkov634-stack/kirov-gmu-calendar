@@ -6,7 +6,18 @@ const MAX_BYTES = 25 * 1024 * 1024;
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
   response.setHeader("content-type", "application/json; charset=utf-8");
+  response.setHeader("cache-control", "no-store");
   response.end(JSON.stringify(payload));
+}
+
+function sendPdf(response, buffer) {
+  response.statusCode = 200;
+  response.setHeader("content-type", "application/pdf");
+  response.setHeader("content-length", String(buffer.length));
+  response.setHeader("content-disposition", 'inline; filename="omgmu-source.pdf"');
+  response.setHeader("cache-control", "no-store");
+  response.setHeader("x-content-type-options", "nosniff");
+  response.end(buffer);
 }
 
 function validateSourceUrl(rawUrl) {
@@ -30,8 +41,12 @@ export function createOmgmuSourceProbeHandler({ fetchFn = fetch } = {}) {
 
     const requestUrl = new URL(request.url, "http://localhost");
     const rawSourceUrl = requestUrl.searchParams.get("url");
+    const format = requestUrl.searchParams.get("format") || "json";
     if (!rawSourceUrl) {
       return sendJson(response, 400, { status: "error", error: "url_required" });
+    }
+    if (format !== "json" && format !== "pdf") {
+      return sendJson(response, 400, { status: "error", error: "invalid_format" });
     }
 
     let sourceUrl;
@@ -70,15 +85,32 @@ export function createOmgmuSourceProbeHandler({ fetchFn = fetch } = {}) {
       }
 
       const isPdf = buffer.length >= 5 && buffer.subarray(0, 5).toString("ascii") === "%PDF-";
-      return sendJson(response, isPdf ? 200 : 422, {
-        status: isPdf ? "ok" : "not_pdf",
+      if (!isPdf) {
+        return sendJson(response, 422, {
+          status: "not_pdf",
+          sourceUrl: sourceUrl.toString(),
+          finalUrl: upstream.url || sourceUrl.toString(),
+          httpStatus: upstream.status,
+          contentType: upstream.headers.get("content-type") || null,
+          bytes: buffer.length,
+          sha256: createHash("sha256").update(buffer).digest("hex"),
+          isPdf: false,
+        });
+      }
+
+      if (format === "pdf") {
+        return sendPdf(response, buffer);
+      }
+
+      return sendJson(response, 200, {
+        status: "ok",
         sourceUrl: sourceUrl.toString(),
         finalUrl: upstream.url || sourceUrl.toString(),
         httpStatus: upstream.status,
         contentType: upstream.headers.get("content-type") || null,
         bytes: buffer.length,
         sha256: createHash("sha256").update(buffer).digest("hex"),
-        isPdf,
+        isPdf: true,
       });
     } catch (error) {
       return sendJson(response, 502, {
