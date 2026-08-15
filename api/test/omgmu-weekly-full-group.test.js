@@ -101,8 +101,8 @@ test("group 2101 passes full PDF weekly geometry to canonical common pipeline an
   assert.ok(candidate.batch.events.every((event) => event.audience.group === "2101"));
   assert.ok(candidate.batch.events.every((event) => event.timing.time_mode === "floating"));
 
-  const topAnatomy = candidate.batch.events.filter((event) => event.lesson.discipline === "Топографическая анатомия и оперативная хирургия" && event.timing.start_time === "16:00");
-  const particular = candidate.batch.events.filter((event) => event.lesson.discipline === "Частные вопросы клинической анатомии" && event.timing.start_time === "16:00");
+  const topAnatomy = candidate.batch.events.filter((event) => event.lesson.discipline.normalized === "Топографическая анатомия и оперативная хирургия" && event.timing.start_time === "16:00");
+  const particular = candidate.batch.events.filter((event) => event.lesson.discipline.normalized === "Частные вопросы клинической анатомии" && event.timing.start_time === "16:00");
   assert.equal(topAnatomy.length, 7);
   assert.equal(particular.length, 11);
 
