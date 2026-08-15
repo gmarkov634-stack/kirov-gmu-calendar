@@ -210,7 +210,13 @@ test("full group 485 passes canonical common pipeline with source-level O33 and 
   const candidate = buildCycleRotationCanonicalCandidate(geometry, { metadata: metadata("485"), source });
   assert.equal(candidate.sourceSeries.length, 10);
   assert.equal(candidate.sourceSeries.filter((record) => record.status === "needs_review").length, 0);
-  assert.equal(candidate.batch.events.length, 107);
+
+  const expectedEvents = candidate.sourceSeries.reduce((total, record) => {
+    const controlAddsSeparateEvent = Boolean(record.control && !record.mainDates.includes(record.control.date));
+    return total + record.mainDates.length + (controlAddsSeparateEvent ? 1 : 0);
+  }, 0);
+  assert.equal(expectedEvents, 106);
+  assert.equal(candidate.batch.events.length, expectedEvents);
 
   const therapyOnMay11 = candidate.batch.events.filter((event) => (
     event.lesson.discipline.normalized.includes("Факультетская терапия")
@@ -229,7 +235,7 @@ test("full group 485 passes canonical common pipeline with source-level O33 and 
   });
   assert.equal(prepared.inputQa.publishable, true);
   assert.equal(prepared.outputQa.publishable, true);
-  assert.equal((prepared.ics.match(/BEGIN:VEVENT/g) || []).length, 107);
+  assert.equal((prepared.ics.match(/BEGIN:VEVENT/g) || []).length, expectedEvents);
   assert.match(prepared.ics, /DTSTART:20260511T082000/);
   assert.doesNotMatch(prepared.ics, /DTSTART:20260511T104000/);
   assert.doesNotMatch(prepared.ics, /TZID=Asia\/Omsk/);
