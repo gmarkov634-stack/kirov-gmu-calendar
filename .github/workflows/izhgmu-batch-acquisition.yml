@@ -18,6 +18,7 @@ on:
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine6.mjs"
       - "api/tools/izhgmu-parse-lecture-medicine5.mjs"
+      - "api/tools/izhgmu-parse-lecture-medicine6.mjs"
       - "api/tools/izhgmu-check-cycle-medicine5-provenance.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
@@ -84,6 +85,9 @@ jobs:
       - name: Parse real IZH-CYCLE medicine 6 fail-closed through canonical QA
         working-directory: api
         run: npm run parse:izhgmu:cycle:medicine6 -- --input-dir /tmp/izhgmu-current --group 601
+      - name: Parse medicine 6 lecture companion with course stream and choice boundaries
+        working-directory: api
+        run: npm run parse:izhgmu:lecture:medicine6 -- --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -130,6 +134,12 @@ jobs:
               print('CYCLE_MEDICINE6_STATS', diag['parser']['stats'])
               print('CYCLE_MEDICINE6_GROUPS', diag['groupSpans'])
               print('CYCLE_MEDICINE6_REVIEW', len(diag['review']))
+          lecture6_path=root/'medicine6-lecture-diagnostic.json'
+          if lecture6_path.exists():
+              diag=json.loads(lecture6_path.read_text())
+              print('LECTURE_MEDICINE6_STATS', diag['stats'])
+              print('LECTURE_MEDICINE6_MARKERS', diag['periodMarkers'])
+              print('LECTURE_MEDICINE6_BLOCKERS', diag['blockers'])
           PY
           fi
       - name: Upload current IzhGMU source set
