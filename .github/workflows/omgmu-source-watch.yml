@@ -8,9 +8,22 @@ on:
     paths:
       - "api/src/adapters/omgmu/discover.mjs"
       - "api/src/adapters/omgmu/watch.mjs"
+      - "api/src/adapters/omgmu/source-watcher.mjs"
+      - "api/src/adapters/omgmu/source-observer.mjs"
+      - "api/src/adapters/omgmu/watch-store.mjs"
+      - "api/src/adapters/omgmu/review-queue.mjs"
+      - "api/src/adapters/omgmu/reviewed-service.mjs"
+      - "api/src/adapters/omgmu/canonical-reviewed.mjs"
+      - "api/src/adapters/omgmu/http-handler.mjs"
+      - "api/src/schedule/review-service-router.js"
       - "api/tools/omgmu-watch-sources.mjs"
       - "api/test/omgmu-source-watch.test.mjs"
+      - "api/test/omgmu-source-review-watcher.test.js"
+      - "api/test/omgmu-source-bound-canonical-review.test.js"
+      - "api/test/omgmu-review-http-handler.test.js"
       - "api/package.json"
+      - "api/src/config.js"
+      - "api/src/server.js"
       - "universities/omgmu/source-watch.json"
       - ".github/workflows/omgmu-source-watch.yml"
 
@@ -37,8 +50,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test source watch
-        run: node --test test/omgmu-source-watch.test.mjs
+      - name: Test source watch and review boundary
+        run: >-
+          node --test
+          test/omgmu-source-watch.test.mjs
+          test/omgmu-source-review-watcher.test.js
+          test/omgmu-source-bound-canonical-review.test.js
+          test/omgmu-review-http-handler.test.js
 
       - name: Discover official ОмГМУ sources
         run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json

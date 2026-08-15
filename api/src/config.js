@@ -10,6 +10,14 @@ function parseWatchSemesters(value) {
   return semesters.length ? semesters : [1, 2];
 }
 
+function parsePrograms(value, fallback = []) {
+  const programs = String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return programs.length ? [...new Set(programs)] : [...fallback];
+}
+
 export function loadConfig(env = process.env) {
   const defaultOrigin = "https://gmarkov634-stack.github.io";
   const allowedOrigins = String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || defaultOrigin)
@@ -67,6 +75,11 @@ export function loadConfig(env = process.env) {
     kgmuPediatricsSchedulePage: env.KGMU_PEDIATRICS_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
     kgmuDentistrySchedulePage: env.KGMU_DENTISTRY_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
     kgmuForeignSchedulePage: env.KGMU_FOREIGN_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya",
+    omgmuWatchEnabled: env.OMGMU_WATCH_ENABLED === "true",
+    omgmuWatchIntervalMs: Math.max(60000, Number(env.OMGMU_WATCH_INTERVAL_MS || 900000)),
+    omgmuPdfMaxBytes: Number(env.OMGMU_PDF_MAX_BYTES || 25 * 1024 * 1024),
+    omgmuSchedulePage: env.OMGMU_SCHEDULE_PAGE || "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
+    omgmuWatchPrograms: parsePrograms(env.OMGMU_WATCH_PROGRAMS, ["medicine", "pediatrics", "dentistry", "preventive-medicine", "pharmacy"]),
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
     offers: {
