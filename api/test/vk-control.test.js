@@ -243,19 +243,16 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
-test("wall.delete uses the community token and requires a positive post id", async () => {
-  const requests = [];
+test("wall.delete is disabled after both production token classes failed", async () => {
+  let calls = 0;
   const response = fakeResponse();
-  await handler(vkSuccess(1, requests))(
+  await handler(async () => { calls += 1; })(
     fakeRequest(command("wall.delete", { postId: 500 })),
     response,
   );
-  assert.equal(response.statusCode, 200);
-  assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
-  assert.equal(requests[0].url, "https://api.vk.com/method/wall.delete");
-  assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
-  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.equal(response.statusCode, 501);
+  assert.deepEqual(parseResponse(response), { error: "vk_wall_delete_not_supported" });
+  assert.equal(calls, 0);
 });
 
 test("wall.pin and wall.unpin are disabled after both production token classes failed", async () => {
