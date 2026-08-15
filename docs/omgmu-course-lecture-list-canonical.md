@@ -94,6 +94,18 @@ O27 теперь реально валидирует объявленное чи
 
 На этом шаге доказан profile-level canonical preflight, а не production publication полного расписания группы. Это защищает от случайного удаления цикловых занятий частичной публикацией.
 
+## Актуальный план, шаг 2: fail-closed O66–O68
+
+Статус: **ЗАВЕРШЁН В ИЗОЛИРОВАННОМ PR #99**.
+
+- **O66:** неоднозначный физический continuation больше не принимается автоматически: series получает `needs_review`, статус доходит до canonical `parse.status`, общий input QA блокирует публикацию. Доказанные continuation-паттерны location остаются валидными.
+- **O67:** location отделяется только при явном признаке места справа от завершённого date expression. Нерегулярные пробелы вокруг тире допустимы. Неоднозначный RHS не угадывается: `location` остаётся пустым и сохраняется warning. Кириллические `ауд.`, `ГК`, `ул.` распознаются Unicode-aware вместо ненадёжной JS `\b`-границы.
+- **O68:** одинаковый временной слот не является identity series. Разные дисциплины с непересекающимися resolved dates остаются отдельными series; фактическое совпадение разных дисциплин на одной дате и времени переводит обе series в `needs_review` и блокирует common QA.
+
+Отдельный regression `api/test/omgmu-course-lecture-fail-closed.test.js` покрывает семь сценариев O66–O68, включая реальный перенос `09.04-23.04 –` → `229 ауд. ГК. ул.Ленина,12`.
+
+После усиления реальный fixture `4lek.pdf` обязан сохранять подтверждённый baseline: **20 source_series / 69 canonical events / все real-source series `status=ok` / полный `prepareSchedulePublication()` PASS / floating ICS**.
+
 ## Оставшийся технический долг profile parser
 
 Исторический `fourth-parser.mjs` всё ещё содержит hardcoded 2026 holidays/year для date expansion. Legacy `buildFourthCourseSchedules()` также сохраняет старый `+06:00` output для обратной совместимости. Эти legacy поля не используются новой canonical boundary, но год/holiday context должен быть вынесен из parser перед production migration нового учебного периода.
@@ -103,7 +115,8 @@ O27 теперь реально валидирует объявленное чи
 - `9f9104a6ba0d45d50ac120ac7174a7cffcf3ca3a` — evidence-rich lecture source series + O27/O64 fail-closed;
 - `85ec8e46d2f923b63921021c78474d8cf71dae01` — `course_lecture_list` canonical composition;
 - `d60235973d19f3a0483f99a18c4984c44298aaeb` — фактический русский fixture `4lek.pdf`;
-- `99d78c459665fc1fd5d684b08e5d0502fedcdc1f` — real-source canonical/pipeline regressions.
+- `99d78c459665fc1fd5d684b08e5d0502fedcdc1f` — real-source canonical/pipeline regressions;
+- PR #99 — fail-closed O66–O68 поверх актуального cumulative OmGMU branch.
 
 ## Следующий шаг
 
