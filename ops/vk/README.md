@@ -4,25 +4,51 @@
 
 Командный файл не хранится в `main`: для операции создаётся отдельная ветка и pull request, workflow получает GitHub OIDC token и передаёт команду в `calendar-api`. После получения результата pull request закрывается без слияния.
 
-Поддерживаемые действия:
+## Production capability matrix
 
-- `wall.list`
-- `wall.post`
-- `wall.edit`
-- `wall.delete`
-- `wall.pin`
-- `wall.unpin`
+Проверено реальными вызовами 15–16.08.2026 для сообщества `VK_CALLBACK_GROUP_ID=191574528`:
+
+| Action | Credential path | Production status |
+| --- | --- | --- |
+| `wall.list` | managed VK ID user OAuth | **PASS** |
+| `wall.post` | community `VK_ACCESS_TOKEN` | **PASS**; посты #64 и #65 созданы через control plane |
+| `wall.edit` | managed VK ID user OAuth | маршрут реализован, отдельный production mutation-test ещё не выполнен |
+| `wall.delete` | unsupported | **fail-closed HTTP 501**; VK ID → error 1051, community token → error 27 |
+| `wall.pin` | unsupported | **fail-closed HTTP 501**; VK ID → error 1051, community token → error 27 |
+| `wall.unpin` | unsupported | **fail-closed HTTP 501** вместе с `wall.pin` |
+| `group.info` | community `VK_ACCESS_TOKEN` | **PASS**; read-only `groups.getById`, production verified 16.08.2026 |
+
+Автоматические fallback между классами токенов запрещены. Успех одного `wall.*` или `groups.*` метода не считается доказательством поддержки другого.
+
+Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи и читать allowlisted публичные метаданные сообщества. Закрепление и удаление выполняются вручную в интерфейсе VK, пока отдельная поддерживаемая credential-схема для этих методов не появится. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста.
+
+## Group metadata read-only
+
+`group.info` использует официальный `groups.getById` и community token. Managed VK ID token для этой команды не запрашивается. Ответ намеренно ограничен allowlist: `id`, `name`, `screenName`, `type`, `isClosed`, `description`, `website`, `activity`, `status`, `membersCount`, `verified`, `city`, `country`. Admin/service metadata не возвращаются.
+
+Первый production read выполнен 16.08.2026 через operational PR #144, который после выполнения закрыт без merge. На момент чтения:
+
+- name: `Расписание в телефоне | Киров ГМУ`;
+- screenName: `calendarksmu`;
+- group access: open (`isClosed=0`);
+- website: пусто;
+- activity: `Объявления`;
+- status: `Для Apple и Google календаря`;
+- membersCount: `24`;
+- description содержит устаревшую цену `490 ₽` и формулировки, которые требуют актуализации перед запуском 2026/27.
+
+На read-only этапе настройки VK не изменялись. Следующая mutation-boundary для информации сообщества: сначала показать пользователю точный diff «было → станет», получить явное подтверждение и только затем добавлять/использовать строго allowlisted `group.edit` для ровно согласованных полей.
 
 ## VK tokens
 
 Интеграция разделяет два контура авторизации:
 
-- `VK_ACCESS_TOKEN` — токен сообщества для Callback API и сообщений;
-- пользовательская OAuth-сессия администратора — для `wall.*`.
+- `VK_ACCESS_TOKEN` — токен сообщества для Callback API, сообщений, подтверждённого `wall.post` и read-only `group.info`;
+- пользовательская OAuth-сессия администратора VK ID — для подтверждённого чтения стены и user-token маршрутов.
 
-Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
+Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback для user-token операций, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
 
-Токен сообщества никогда не используется как fallback для пользовательских методов стены.
+Community token никогда не используется как fallback для user-token операций; managed user token никогда не используется как fallback для community-only операций.
 
 ## VK ID OAuth
 
@@ -44,8 +70,21 @@ Access token, refresh token и `device_id` шифруются AES-256-GCM до �
 
 При отсутствии или некорректной длине `VK_OAUTH_ENCRYPTION_KEY` vault fail-closed: OAuth probe может подтвердить `wall.get`, но access/refresh token не сохраняются и managed wall endpoint остаётся не настроенным.
 
-После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет официальный VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
+После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
 
-`/api/v1/vk/wall` использует managed token manager и автоматически refresh-ит токен. GitHub OIDC control plane для write-операций переводится на тот же manager отдельным шагом после production-проверки encrypted read path.
+`/api/v1/vk/wall` и `wall.list` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post` и `group.info` используют community token.
+
+## Current wall state after cleanup
+
+16.08.2026 read-only cleanup verification через `wall.list` вернула `total=1`:
+
+- пост #64 «Расписание Кировского ГМУ — прямо в календаре телефона 📅»;
+- `isPinned=true`;
+- старые посты #59 и #60 удалены вручную;
+- operational PR #139 после проверки закрыт без merge.
+
+После этой cleanup-проверки через production `wall.post` дополнительно опубликован пост #65 о неудобстве Excel/распечаток/скриншотов как ежедневного интерфейса расписания. Operational PR #141 закрыт без merge после успешной публикации.
+
+Пост #64 был создан через `wall.post`; закрепление выполнено вручную, поскольку `wall.pin` не поддерживается текущими credential classes. Устаревшие #59/#60 удалены вручную, поскольку `wall.delete` не поддерживается текущими credential classes.
 
 Защищённый ключ приложения, сервисный ключ, `VK_OAUTH_ENCRYPTION_KEY`, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR, логи или чат.
