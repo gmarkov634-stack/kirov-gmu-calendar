@@ -61,7 +61,7 @@ function daysBetween(left, right) {
 }
 
 function streamFromSheetName(name) {
-  const match = norm(name).match(/(?:^|\s)([12])\s*п\b/i);
+  const match = norm(name).match(/(?:^|\s)([12])\s*п(?![A-Za-zА-Яа-яЁё0-9])/i);
   return match ? Number(match[1]) : null;
 }
 
