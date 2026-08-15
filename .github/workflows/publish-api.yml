@@ -6,7 +6,12 @@ on:
     branches:
       - main
     paths:
-      - "api/**"
+      - "api/src/**"
+      - "api/data/**"
+      - "api/schemas/**"
+      - "api/package.json"
+      - "api/package-lock.json"
+      - "api/Dockerfile"
       - ".github/workflows/publish-api.yml"
 
 env:
