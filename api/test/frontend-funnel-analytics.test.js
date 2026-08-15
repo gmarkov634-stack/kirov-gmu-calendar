@@ -11,6 +11,11 @@ function source(name) {
   return fs.readFileSync(path.join(root, name), "utf8");
 }
 
+function containsRoute(sourceText, route) {
+  const escaped = route.replaceAll("/", "\\/");
+  return sourceText.includes(route) || sourceText.includes(escaped);
+}
+
 test("landing loads analytics before app runtime", () => {
   const html = source("index.html");
   const analyticsIndex = html.indexOf('src="analytics.js?v=funnel-1"');
@@ -23,12 +28,12 @@ test("frontend analytics is session-scoped, privacy-safe and observes funnel API
   const js = source("analytics.js");
   assert.match(js, /sessionStorage/);
   assert.match(js, /crypto\.getRandomValues/);
-  assert.match(js, /\/api\/v2\/analytics/);
-  assert.match(js, /\/api\/v2\/trials/);
-  assert.match(js, /\/api\/v2\/payments/);
-  assert.ok(js.includes("\\/api\\/v2\\/catalog\\/") || js.includes("/api/v2/catalog/"));
-  assert.match(js, /\/api\/v2\/trials\/continue\//);
-  assert.match(js, /\/api\/v1\/orders\//);
+  assert.ok(containsRoute(js, "/api/v2/analytics"));
+  assert.ok(containsRoute(js, "/api/v2/trials"));
+  assert.ok(containsRoute(js, "/api/v2/payments"));
+  assert.ok(containsRoute(js, "/api/v2/catalog/"));
+  assert.ok(containsRoute(js, "/api/v2/trials/continue/"));
+  assert.ok(containsRoute(js, "/api/v1/orders/"));
   assert.doesNotMatch(js, /document\.cookie/);
   assert.doesNotMatch(js, /localStorage/);
   assert.doesNotMatch(js, /navigator\.userAgent/);
