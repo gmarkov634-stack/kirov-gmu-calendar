@@ -1,7 +1,7 @@
 {
-  "id": "vk-delete-old-post-60-20260816-0022",
+  "id": "vk-delete-old-post-60-community-20260816-0030",
   "action": "wall.delete",
-  "createdAt": "2026-08-15T21:22:00.000Z",
+  "createdAt": "2026-08-15T21:30:00.000Z",
   "payload": {
     "postId": 60
   }
