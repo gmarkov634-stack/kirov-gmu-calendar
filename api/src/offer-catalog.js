@@ -31,6 +31,21 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
+function publicPlans(config) {
+  const plans = [];
+  for (const id of ["semester", "year"]) {
+    const offer = config.offers?.[id];
+    const price = String(offer?.price || "");
+    if (!/^\d+\.\d{2}$/.test(price) || Number(price) <= 0) continue;
+    plans.push({
+      id,
+      price,
+      ...(id === "year" && offer.expiresAt ? { expiresAt: String(offer.expiresAt) } : {}),
+    });
+  }
+  return plans;
+}
+
 export function createOfferCatalogHandler({ store, config, listProgramAvailability = listOfferProgramAvailability }) {
   return async function offerCatalogHandler(request, response) {
     allowCors(request, response, config);
@@ -38,12 +53,26 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (request.method !== "GET") return send(response, 405, { error: "method_not_allowed" });
 
     const url = new URL(request.url, "http://localhost");
+    const offerMatch = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/offer$/);
     const programSummaryMatch = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/programs$/);
     const groupMatch = url.pathname.match(/^\/api\/v2\/catalog\/([^/]+)\/([^/]+)\/(\d+)\/groups$/);
-    if (!programSummaryMatch && !groupMatch) return send(response, 404, { error: "not_found" });
+    if (!offerMatch && !programSummaryMatch && !groupMatch) return send(response, 404, { error: "not_found" });
 
     const period = validOfferPeriod(config);
     if (!period) return send(response, 503, { error: "offer_not_configured" });
+
+    if (offerMatch) {
+      const university = decodeURIComponent(offerMatch[1]);
+      if (!UNIVERSITY_ID.test(university)) return send(response, 400, { error: "invalid_catalog_context" });
+      return send(response, 200, {
+        university,
+        academicYear: period.academicYear,
+        semester: period.semester,
+        sales: config.commercialSalesEnabled === true ? "open" : "closed",
+        paymentMode: config.yookassaTestMode === true ? "test" : "live",
+        plans: publicPlans(config),
+      }, "no-store");
+    }
 
     if (programSummaryMatch) {
       const university = decodeURIComponent(programSummaryMatch[1]);
