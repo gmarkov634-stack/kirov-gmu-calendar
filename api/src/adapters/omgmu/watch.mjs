@@ -32,7 +32,10 @@ export function buildOmgmuSourceWatchReport(manifest, config) {
   const pageAcademicYear = manifest.scheduleContext?.academicYear || null;
   const pageSemester = manifest.scheduleContext?.semester || null;
   const expectedAcademicYear = config.expectedAcademicYear || null;
-  const periodMatches = !expectedAcademicYear || pageAcademicYear === expectedAcademicYear;
+  const expectedSemester = config.expectedSemester || null;
+  const academicYearMatches = !expectedAcademicYear || pageAcademicYear === expectedAcademicYear;
+  const semesterMatches = !expectedSemester || pageSemester === expectedSemester;
+  const periodMatches = academicYearMatches && semesterMatches;
 
   return {
     version: 1,
@@ -40,9 +43,12 @@ export function buildOmgmuSourceWatchReport(manifest, config) {
     checkedAt: manifest.discoveredAt || new Date().toISOString(),
     sourcePage: manifest.sourcePage,
     expectedAcademicYear,
+    expectedSemester,
     pageAcademicYear,
     pageSemester,
     pageHeading: manifest.scheduleContext?.heading || null,
+    academicYearMatches,
+    semesterMatches,
     periodMatches,
     knownProgram: config.knownProgram
       ? {

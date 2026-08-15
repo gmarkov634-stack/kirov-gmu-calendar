@@ -6,6 +6,7 @@ import { buildOmgmuSourceWatchReport } from "../src/adapters/omgmu/watch.mjs";
 const config = {
   university: "omgmu",
   expectedAcademicYear: "2026/2027",
+  expectedSemester: "autumn",
   targetPrograms: [
     { program: "medicine", label: "Лечебное дело" },
     { program: "pediatrics", label: "Педиатрия" },
@@ -62,7 +63,24 @@ test("waits while only international medicine sources are active", () => {
   assert.equal(report.readyFor2026AutumnIngest, false);
 });
 
-test("marks target faculty files ready when 2026/2027 page appears", () => {
+test("does not accept spring 2026/2027 target files as autumn ingest", () => {
+  const report = buildOmgmuSourceWatchReport({
+    university: "omgmu",
+    discoveredAt: "2027-01-10T00:00:00Z",
+    sourcePage: "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
+    scheduleContext: { academicYear: "2026/2027", semester: "spring", heading: "spring" },
+    sources: [
+      { program: "pediatrics", course: 1, url: "https://example/ped-1.pdf" },
+    ],
+  }, config);
+  assert.equal(report.academicYearMatches, true);
+  assert.equal(report.semesterMatches, false);
+  assert.equal(report.periodMatches, false);
+  assert.equal(report.status, "needs-period-review");
+  assert.equal(report.readyFor2026AutumnIngest, false);
+});
+
+test("marks target faculty files ready when 2026/2027 autumn page appears", () => {
   const report = buildOmgmuSourceWatchReport({
     university: "omgmu",
     discoveredAt: "2026-08-20T00:00:00Z",
@@ -75,6 +93,8 @@ test("marks target faculty files ready when 2026/2027 page appears", () => {
     ],
   }, config);
   assert.equal(report.status, "ready-for-ingest");
+  assert.equal(report.expectedSemester, "autumn");
+  assert.equal(report.semesterMatches, true);
   assert.equal(report.readyFor2026AutumnIngest, true);
   assert.deepEqual(report.availableTargets, ["pediatrics"]);
   assert.deepEqual(report.targetPrograms.find((item) => item.program === "pediatrics").courses, [1, 2]);

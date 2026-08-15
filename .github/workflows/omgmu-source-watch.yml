@@ -3,7 +3,7 @@ name: ОмГМУ source watch
 on:
   workflow_dispatch:
   schedule:
-    - cron: "23 */6 * * *"
+    - cron: "23 * * * *"
   pull_request:
     paths:
       - "api/src/adapters/omgmu/discover.mjs"
@@ -18,6 +18,7 @@ on:
       - "api/src/schedule/review-service-router.js"
       - "api/tools/omgmu-watch-sources.mjs"
       - "api/test/omgmu-source-watch.test.mjs"
+      - "api/test/omgmu-watch-review-issue-workflow.test.js"
       - "api/test/omgmu-source-review-watcher.test.js"
       - "api/test/omgmu-source-bound-canonical-review.test.js"
       - "api/test/omgmu-review-http-handler.test.js"
@@ -29,10 +30,12 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   watch:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: api
@@ -47,13 +50,16 @@ jobs:
           cache: npm
           cache-dependency-path: api/package-lock.json
 
-      - name: Install dependencies
+      - name: Install dependencies for validation
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: npm ci
 
       - name: Test source watch and review boundary
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: >-
           node --test
           test/omgmu-source-watch.test.mjs
+          test/omgmu-watch-review-issue-workflow.test.js
           test/omgmu-source-review-watcher.test.js
           test/omgmu-source-bound-canonical-review.test.js
           test/omgmu-review-http-handler.test.js
@@ -76,9 +82,58 @@ jobs:
           console.log(`ready=${report.readyFor2026AutumnIngest ? 'true' : 'false'}`);
           NODE
 
-      - name: Capture newly active official PDFs
-        if: steps.watch.outputs.has_target == 'true'
+      - name: Capture exact current-period official PDFs
+        if: steps.watch.outputs.ready == 'true'
         run: npm run download:omgmu -- --manifest=data/imports/omgmu-source-manifest.json --output=data/imports/omgmu-watched-pdfs
+
+      - name: Create deduplicated source-bound review issues
+        if: steps.watch.outputs.ready == 'true' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          watch_report='data/imports/omgmu-source-watch-report.json'
+          download_report='data/imports/omgmu-watched-pdfs/download-report.json'
+          while IFS= read -r item; do
+            sha="$(jq -r '.sha256' <<<"$item")"
+            short="${sha:0:12}"
+            program="$(jq -r '.program' <<<"$item")"
+            course="$(jq -r '.course // "unknown"' <<<"$item")"
+            stream="$(jq -r '.stream // "—"' <<<"$item")"
+            part="$(jq -r '.part // "combined"' <<<"$item")"
+            url="$(jq -r '.url' <<<"$item")"
+            filename="$(jq -r '.filename' <<<"$item")"
+            existing="$(gh issue list --state all --limit 100 --search "OMGMU-SOURCE-$short in:title" --json number --jq 'length')"
+            if [ "$existing" -gt 0 ]; then
+              echo "Known source: program=$program course=$course sha=$sha"
+              continue
+            fi
+            title="OMGMU-SOURCE-$short: новое расписание $program, ${course} курс"
+            body="$(cat <<EOF
+          Обнаружен новый официальный PDF ОмГМУ, относящийся к текущему офферу **2026/2027, autumn**.
+
+          - Program: $program
+          - Course: $course
+          - Stream: $stream
+          - Part: $part
+          - SHA-256: $sha
+          - Official URL: $url
+          - Artifact file: $filename
+          - Watch run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Файл сохранён в artifact `omgmu-new-program-pdfs` этого run. Эта issue является только source-bound задачей на смысловой разбор. Автоматическая интерпретация и публикация расписания **не выполнялись**.
+
+          Следующий этап: ChatGPT semantic review точного PDF/SHA → canonical schedule-batch/v1 → common QA → explicit OIDC publication. До QA PASS `current` не изменяется, продажи и trial не открываются.
+          EOF
+          )"
+            gh issue create --title "$title" --body "$body"
+          done < <(
+            jq -c --slurpfile watch "$watch_report" '
+              .files[]
+              | select(.status == "downloaded")
+              | select(.program as $p | ($watch[0].availableTargets | index($p)) != null)
+            ' "$download_report"
+          )
 
       - name: Write job summary
         if: always()
@@ -94,13 +149,18 @@ jobs:
           console.log('## ОмГМУ source watch');
           console.log('');
           console.log(`Official page period: **${report.pageAcademicYear || 'unknown'} / ${report.pageSemester || 'unknown'}**`);
-          console.log(`Expected: **${report.expectedAcademicYear} / autumn**`);
+          console.log(`Expected: **${report.expectedAcademicYear} / ${report.expectedSemester || 'autumn'}**`);
+          console.log(`Period match: **${report.periodMatches ? 'yes' : 'no'}**`);
           console.log(`Status: **${report.status}**`);
           console.log('');
           console.log('| Program | Sources | Courses |');
           console.log('|---|---:|---|');
           for (const item of report.targetPrograms) {
             console.log(`| ${item.label} | ${item.sourceCount} | ${item.courses.join(', ') || '—'} |`);
+          }
+          if (!report.readyFor2026AutumnIngest) {
+            console.log('');
+            console.log('Current-period source is not ready; no PDF capture, review issue, publication, trial, or sale was triggered.');
           }
           NODE
 
@@ -116,7 +176,7 @@ jobs:
           retention-days: 30
 
       - name: Upload newly active PDFs
-        if: steps.watch.outputs.has_target == 'true'
+        if: steps.watch.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: omgmu-new-program-pdfs
