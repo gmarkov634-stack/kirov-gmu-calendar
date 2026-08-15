@@ -243,7 +243,7 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
-test("wall.delete uses the user token and requires a positive post id", async () => {
+test("wall.delete uses the community token and requires a positive post id", async () => {
   const requests = [];
   const response = fakeResponse();
   await handler(vkSuccess(1, requests))(
@@ -254,7 +254,8 @@ test("wall.delete uses the user token and requires a positive post id", async ()
   assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
   assert.equal(requests[0].url, "https://api.vk.com/method/wall.delete");
   assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.pin and wall.unpin are disabled after both production token classes failed", async () => {
