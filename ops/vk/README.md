@@ -17,33 +17,40 @@
 | `wall.pin` | unsupported | **fail-closed HTTP 501**; VK ID → error 1051, community token → error 27 |
 | `wall.unpin` | unsupported | **fail-closed HTTP 501** вместе с `wall.pin` |
 | `group.info` | community `VK_ACCESS_TOKEN` | **PASS**; read-only `groups.getById`, production verified 16.08.2026 |
+| `group.edit` | community `VK_ACCESS_TOKEN` | **PASS**; только allowlist `description` + `website`, production verified 16.08.2026 |
 
 Автоматические fallback между классами токенов запрещены. Успех одного `wall.*` или `groups.*` метода не считается доказательством поддержки другого.
 
-Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи и читать allowlisted публичные метаданные сообщества. Закрепление и удаление выполняются вручную в интерфейсе VK, пока отдельная поддерживаемая credential-схема для этих методов не появится. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста.
+Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи, читать allowlisted публичные метаданные сообщества и — только после явного подтверждения пользователя — менять `description` и `website`. Закрепление и удаление выполняются вручную в интерфейсе VK. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста.
 
-## Group metadata read-only
+## Group metadata read/write
 
 `group.info` использует официальный `groups.getById` и community token. Managed VK ID token для этой команды не запрашивается. Ответ намеренно ограничен allowlist: `id`, `name`, `screenName`, `type`, `isClosed`, `description`, `website`, `activity`, `status`, `membersCount`, `verified`, `city`, `country`. Admin/service metadata не возвращаются.
 
-Первый production read выполнен 16.08.2026 через operational PR #144, который после выполнения закрыт без merge. На момент чтения:
+Первый production read выполнен 16.08.2026 через operational PR #144. Он выявил устаревшее описание с ценой `490 ₽` и пустой website; никаких настроек на этом шаге не менялось.
+
+PR #146 добавил `group.edit` как отдельную community-token mutation-команду. Writable allowlist намеренно ограничен ровно двумя полями: `description` и `website`. Пустой payload, любые посторонние поля, слишком длинные значения и не-HTTPS website блокируются до обращения к VK. При отсутствии community token команда fail-closed и не переключается на managed/static user token.
+
+После явного подтверждения пользователя operational PR #147 передал только согласованные `description` и `website`. Production ответ: `updated=true`, `fields=[description, website]`. PR закрыт без merge. Затем operational PR #148 выполнил независимый read-only `group.info`, подтвердил точный результат и также был закрыт без merge.
+
+Итоговое состояние после проверки:
 
 - name: `Расписание в телефоне | Киров ГМУ`;
 - screenName: `calendarksmu`;
 - group access: open (`isClosed=0`);
-- website: пусто;
+- website: `https://gmarkov634-stack.github.io/kirov-gmu-calendar`;
 - activity: `Объявления`;
 - status: `Для Apple и Google календаря`;
-- membersCount: `24`;
-- description содержит устаревшую цену `490 ₽` и формулировки, которые требуют актуализации перед запуском 2026/27.
+- membersCount на момент проверки: `24`;
+- description: актуальная версия без цены, с объяснением ценности календаря и ожидания официального расписания 2026/27; точная публичная копия хранится в `ops/vk/CONTENT.md`.
 
-На read-only этапе настройки VK не изменялись. Следующая mutation-boundary для информации сообщества: сначала показать пользователю точный diff «было → станет», получить явное подтверждение и только затем добавлять/использовать строго allowlisted `group.edit` для ровно согласованных полей.
+Название, короткий адрес, тип/доступ группы, activity и status при mutation #147 не менялись. Перед любым будущим изменением метаданных пользователь должен увидеть точный diff «было → станет» и явно подтвердить его.
 
 ## VK tokens
 
 Интеграция разделяет два контура авторизации:
 
-- `VK_ACCESS_TOKEN` — токен сообщества для Callback API, сообщений, подтверждённого `wall.post` и read-only `group.info`;
+- `VK_ACCESS_TOKEN` — токен сообщества для Callback API, сообщений, подтверждённого `wall.post`, read-only `group.info` и строго allowlisted `group.edit`;
 - пользовательская OAuth-сессия администратора VK ID — для подтверждённого чтения стены и user-token маршрутов.
 
 Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback для user-token операций, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
@@ -72,7 +79,7 @@ Access token, refresh token и `device_id` шифруются AES-256-GCM до �
 
 После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
 
-`/api/v1/vk/wall` и `wall.list` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post` и `group.info` используют community token.
+`/api/v1/vk/wall` и `wall.list` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post`, `group.info` и строго allowlisted `group.edit` используют community token.
 
 ## Current wall state after cleanup
 
