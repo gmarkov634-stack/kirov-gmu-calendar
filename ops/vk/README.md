@@ -32,10 +32,10 @@
 - base domain: `kgmu-calendar-api.containerapps.ru`;
 - trusted redirect URL: `https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback`.
 
-`/api/v1/vk/oauth/callback` на первом этапе является receive-only boundary: он проверяет наличие `code`, `state` и `device_id`, но намеренно не логирует, не отображает, не сохраняет и не обменивает эти значения на токены.
+`/api/v1/vk/oauth/start` — диагностическая стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID с минимальным scope `wall groups`.
 
-`/api/v1/vk/oauth/start` — диагностический PKCE scope probe. Страница использует закреплённую официальную UMD-сборку `@vkid/sdk@2.6.1`, генерирует `state` и `codeVerifier` в браузере и запрашивает только `wall groups`. Цель этапа — подтвердить, что текущий VK ID принимает необходимые API scopes. Callback остаётся receive-only, поэтому даже успешная авторизация на этом этапе не сохраняет access/refresh token.
+`/api/v1/vk/oauth/callback` проверяет обязательные параметры и совпадение `state`, обменивает одноразовый authorization code на пользовательский token через OAuth 2.1/PKCE и сразу выполняет диагностический `wall.get` для `VK_CALLBACK_GROUP_ID`. Access token и refresh token на этом этапе не отображаются и не сохраняются; после проверки probe-cookie удаляются.
 
-Причина поэтапности: текущий VK ID использует OAuth 2.1/PKCE и возвращает access + refresh token. После успешного scope probe нужно отдельно реализовать, протестировать и зафиксировать PKCE exchange/refresh storage strategy, а уже затем подключать токен к `wall.*`.
+Цель exchange probe — доказать совместимость выданного VK ID user token с legacy `wall.*` API до выбора постоянного secret/refresh storage. Только после успешного `wall.get` разрешается переходить к постоянному хранению/обновлению токена и подключению его к production `wall.list/post/edit/delete/pin/unpin`.
 
 Защищённый ключ, сервисный ключ, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR или логи.
