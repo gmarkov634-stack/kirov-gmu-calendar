@@ -86,12 +86,14 @@ jobs:
           PY
 
           test -n "$KGMU_ADMIN_TOKEN"
-          reviews="$(curl --fail-with-body --silent --show-error \
+          curl --fail-with-body --silent --show-error \
             --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
-            "$base/api/v1/admin/parser-reviews?limit=20")"
-          python3 - "$reviews" <<'PY'
-          import json, sys
-          body = json.loads(sys.argv[1])
+            --output /tmp/parser-reviews.json \
+            "$base/api/v1/admin/parser-reviews?limit=20"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/parser-reviews.json', encoding='utf-8') as fh:
+              body = json.load(fh)
           reviews = body.get("reviews")
           assert isinstance(reviews, list), body
           safe = []
