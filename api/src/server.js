@@ -104,7 +104,7 @@ const server = http.createServer(async (request, response) => {
   if (request.method === "POST" && url.pathname === "/api/v1/vk/callback") {
     return vkCallbackHandler(request, response);
   }
-  if (url.pathname === "/api/v1/vk/oauth/start") {
+  if (url.pathname === "/api/v1/vk/oauth/start" || url.pathname === "/api/v1/vk/oauth/begin") {
     return vkOauthStartHandler(request, response);
   }
   if (url.pathname === "/api/v1/vk/oauth/callback") {
