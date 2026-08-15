@@ -15,12 +15,6 @@ function groupSeries(series, group) {
   }));
 }
 
-/**
- * Build a traceable weekly_grid candidate. The return value keeps both layers:
- * independent parser `sourceSeries` and O65-materialized `userSeries` used for
- * the canonical batch. This allows production review/debugging to retain every
- * original counter/range/bbox while the student receives the merged event.
- */
 export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source } = {}) {
   const group = String(metadata?.groupCode ?? metadata?.group ?? "").trim();
   if (!group) throw new TypeError("weekly_grid metadata.group is required");
@@ -42,10 +36,9 @@ export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source }
     throw error;
   }
 
-  const materialized = materializeWeeklyUserSeries(parsed.series, {
-    group,
-    maxGapMinutes: metadata?.o65MaxGapMinutes ?? 15,
-  });
+  // Current O65 evidence proves the adjacent 15:55 -> 16:00 pattern only.
+  // Broader breaks must not be enabled by metadata without a new source-backed rule.
+  const materialized = materializeWeeklyUserSeries(parsed.series, { group, maxGapMinutes: 5 });
   if (!materialized.sourceSeries.length) {
     const error = new Error(`weekly_grid produced no source series for group ${group}`);
     error.code = "OMG_WEEKLY_GRID_EMPTY";
