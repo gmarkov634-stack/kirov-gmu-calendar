@@ -35,13 +35,16 @@ export function sourceFormatFromUrl(url = "") {
   return null;
 }
 
+function normalizeYearPart(value) {
+  if (!value) return null;
+  return value.length === 2 ? `20${value}` : value;
+}
+
 function extractAcademicYear(value = "") {
   const text = normalizedText(value);
-  const match = text.match(/(20\d{2})\s*[-\/]\s*(20\d{2}|\d{2})(?!\d)/);
+  const match = text.match(/(?:^|\D)(20\d{2}|\d{2})\s*[-\/]\s*(20\d{2}|\d{2})(?!\d)/);
   if (!match) return null;
-  const start = match[1];
-  const end = match[2].length === 2 ? `${start.slice(0, 2)}${match[2]}` : match[2];
-  return `${start}/${end}`;
+  return `${normalizeYearPart(match[1])}/${normalizeYearPart(match[2])}`;
 }
 
 function extractSemester(value = "") {
@@ -135,10 +138,6 @@ export function classifyIzhgmuSource({ label = "", url = "", context = "" } = {}
   };
 }
 
-function anchorContext(html, index, width = 2200) {
-  return decodeHtml(html.slice(Math.max(0, index - width), index));
-}
-
 export function extractIzhgmuSources(html, sourceUrl = IZHGMU_SOURCE) {
   const base = new URL(sourceUrl);
   const sources = [];
@@ -150,15 +149,14 @@ export function extractIzhgmuSources(html, sourceUrl = IZHGMU_SOURCE) {
     if (!label) continue;
     let url;
     try { url = new URL(match[1], base).href; } catch { continue; }
-    const context = anchorContext(html, match.index ?? 0);
-    const classified = classifyIzhgmuSource({ label, url, context });
+    const classified = classifyIzhgmuSource({ label, url });
 
     if (classified.auxiliaryRole) {
       auxiliarySources.push({ label, url, ...classified });
       continue;
     }
     if (!classified.sourceFormat) continue;
-    if (!classified.sourceRole && !/распис|лекц|занят/i.test(`${label} ${context.slice(-500)}`)) continue;
+    if (!classified.sourceRole && !/распис|лекц|занят/i.test(label)) continue;
     sources.push({ label, url, ...classified });
   }
 
