@@ -1,64 +1,53 @@
-.calendar-preview--feed { height:526px; }
-.calendar-preview--feed .native-feed-bar { position:relative; z-index:3; }
-.native-feed-hint { color:#7b8798; font-size:9px; font-weight:800; letter-spacing:.03em; }
-.calendar-preview--feed .native-feed-scroll { height:426px; padding:0 0 16px; background:#f8fafc; scroll-snap-type:y proximity; }
-.native-feed-day { scroll-snap-align:start; background:#fff; }
-.native-feed-day + .native-feed-day { margin-top:7px; border-top:1px solid #e8edf4; }
-.native-feed-day-head { position:sticky; top:0; z-index:2; display:flex; align-items:baseline; gap:7px; padding:11px 14px 9px; border-bottom:1px solid #eef1f5; background:rgba(255,255,255,.96); backdrop-filter:blur(8px); }
-.native-feed-day-head strong { color:#111827; font-size:13px; }
-.native-feed-day-head span { color:#7b8798; font-size:10px; font-weight:700; }
-.native-feed-events { padding:3px 10px 7px 7px; }
-.native-feed-event { display:grid; width:100%; grid-template-columns:43px 13px minmax(0,1fr); gap:5px; align-items:stretch; min-height:76px; padding:0; border:0; background:transparent; color:#1559d6; cursor:pointer; font:inherit; text-align:left; }
-.native-feed-time { padding-top:13px; color:#344054; font-size:10px; font-weight:800; text-align:right; }
-.native-feed-time small { display:block; margin-top:2px; color:#98a2b3; font-size:8px; font-weight:700; }
-.native-feed-rail { position:relative; display:block; }
-.native-feed-rail::before { position:absolute; top:0; bottom:0; left:6px; width:1px; background:#dfe5ec; content:""; }
-.native-feed-event:first-child .native-feed-rail::before { top:19px; }
-.native-feed-event.is-last .native-feed-rail::before { bottom:calc(100% - 20px); }
-.native-feed-rail i { position:absolute; z-index:1; top:16px; left:2px; width:9px; height:9px; border:2px solid currentColor; border-radius:50%; background:#fff; }
-.native-feed-card { position:relative; display:block; margin:5px 0 7px; padding:10px 11px 9px; overflow:hidden; border-left:3px solid currentColor; border-radius:9px; background:#edf4ff; box-shadow:0 1px 2px rgba(15,23,42,.05); }
-.native-feed-card::before { position:absolute; inset:0; background:currentColor; content:""; opacity:.045; pointer-events:none; }
-.native-feed-card > * { position:relative; z-index:1; display:block; }
-.native-feed-card strong { color:#111827; font-size:10px; font-weight:800; line-height:1.28; }
-.native-feed-type { margin-top:4px; color:#667085; font-size:8px; font-weight:700; }
-.native-feed-place { margin-top:5px; color:#667085; font-size:8px; line-height:1.32; }
-.native-feed-event:hover .native-feed-card,.native-feed-event:focus-visible .native-feed-card { outline:2px solid rgba(21,89,214,.2); outline-offset:1px; }
-.native-feed-event:focus-visible { outline:none; }
-.native-feed-event.tone-lecture { color:#6f42c1; }
-.native-feed-event.tone-lecture .native-feed-card { background:#f4efff; }
-.native-feed-event.tone-practice { color:#1559d6; }
-.native-feed-event.tone-practice .native-feed-card { background:#edf4ff; }
-.native-feed-event.tone-sport { color:#207a55; }
-.native-feed-event.tone-sport .native-feed-card { background:#edf8f2; }
-.native-feed-end { margin:12px 14px 5px; padding:9px; border:1px dashed #d8dee8; border-radius:10px; color:#98a2b3; font-size:8px; font-weight:800; text-align:center; text-transform:uppercase; letter-spacing:.05em; }
+.calendar-preview--google { height:526px; overflow:hidden; background:#fff; color:#202124; }
+.gcal-toolbar { display:grid; grid-template-columns:34px 1fr auto; align-items:center; height:48px; padding:0 10px; border-bottom:1px solid #e8eaed; background:#fff; }
+.gcal-menu { border:0; background:transparent; color:#5f6368; font-size:16px; line-height:1; pointer-events:none; }
+.gcal-month { display:flex; align-items:baseline; gap:5px; }
+.gcal-month strong { font-size:13px; font-weight:600; }
+.gcal-month span { color:#80868b; font-size:9px; }
+.gcal-toolbar-icons { display:flex; gap:13px; color:#5f6368; font-size:15px; }
+.gcal-date-strip { display:grid; grid-template-columns:repeat(3,1fr); height:66px; padding-left:43px; border-bottom:1px solid #e8eaed; background:#fff; }
+.gcal-date { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:0; background:transparent; color:#5f6368; cursor:pointer; font:inherit; }
+.gcal-date span { font-size:9px; font-weight:600; text-transform:uppercase; }
+.gcal-date b { display:grid; width:29px; height:29px; place-items:center; border-radius:50%; font-size:13px; font-weight:500; }
+.gcal-date.is-active { color:#1a73e8; }
+.gcal-date.is-active b { background:#1a73e8; color:#fff; }
+.gcal-day-scroll { height:374px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; background:#fff; }
+.gcal-day-scroll::-webkit-scrollbar { display:none; }
+.gcal-day-grid { position:relative; margin-left:43px; border-left:1px solid #e8eaed; }
+.gcal-hour { position:absolute; right:0; left:-43px; height:1px; }
+.gcal-hour span { position:absolute; top:-6px; left:4px; width:33px; color:#70757a; font-size:8px; text-align:right; }
+.gcal-hour i { position:absolute; right:0; left:43px; height:1px; background:#f0f1f2; }
+.gcal-event { position:absolute; right:7px; left:7px; z-index:1; overflow:hidden; padding:6px 7px; border:0; border-left:3px solid currentColor; border-radius:4px; background:#d2e3fc; color:#1967d2; cursor:pointer; font:inherit; text-align:left; box-shadow:none; }
+.gcal-event strong,.gcal-event span,.gcal-event small { display:block; }
+.gcal-event strong { color:#174ea6; font-size:9px; font-weight:700; line-height:1.22; }
+.gcal-event span { margin-top:2px; color:#174ea6; font-size:8px; font-weight:600; }
+.gcal-event small { margin-top:3px; overflow:hidden; color:#3c4043; font-size:7px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+.gcal-event.tone-lecture { background:#e6cff2; color:#9334e6; }
+.gcal-event.tone-lecture strong,.gcal-event.tone-lecture span { color:#681da8; }
+.gcal-event.tone-sport { background:#ceead6; color:#188038; }
+.gcal-event.tone-sport strong,.gcal-event.tone-sport span { color:#0d652d; }
+.gcal-event:focus-visible { outline:2px solid #1a73e8; outline-offset:1px; }
+.gcal-footer { display:flex; justify-content:space-between; align-items:center; height:38px; padding:0 11px; border-top:1px solid #e8eaed; color:#80868b; background:#fff; font-size:8px; font-weight:600; }
 
-.calendar-preview--feed.is-detail-view { background:#f2f2f7; }
-.calendar-detail-nav { position:relative; display:grid; height:52px; grid-template-columns:1fr auto 1fr; align-items:center; padding:0 11px; border-bottom:1px solid #dddfe4; background:rgba(250,250,252,.96); }
-.calendar-detail-nav > strong { color:#111827; font-size:13px; font-weight:800; }
-.calendar-detail-back { justify-self:start; display:inline-flex; align-items:center; gap:2px; padding:5px 3px; border:0; background:transparent; color:#0a84ff; cursor:pointer; font:inherit; font-size:11px; font-weight:700; }
-.calendar-detail-back::first-letter { font-size:23px; font-weight:400; line-height:.7; }
-.calendar-detail-nav-spacer { width:60px; }
-.calendar-detail-scroll { height:474px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; background:#f2f2f7; }
-.calendar-detail-scroll::-webkit-scrollbar { display:none; }
-.calendar-detail-hero { display:grid; grid-template-columns:11px 1fr; gap:10px; padding:22px 18px 18px; background:#fff; color:#1559d6; }
-.calendar-detail-hero.tone-lecture { color:#6f42c1; }
-.calendar-detail-hero.tone-sport { color:#207a55; }
-.calendar-detail-dot { width:9px; height:9px; margin-top:4px; border-radius:50%; background:currentColor; }
-.calendar-detail-hero h3 { margin:0; color:#111827; font-size:17px; line-height:1.25; }
-.calendar-detail-hero p { margin:5px 0 0; color:#7c838e; font-size:10px; font-weight:700; }
-.calendar-detail-group { margin-top:10px; border-top:1px solid #e1e2e7; border-bottom:1px solid #e1e2e7; background:#fff; }
-.calendar-detail-row { display:grid; grid-template-columns:30px 1fr; gap:8px; padding:13px 16px; }
-.calendar-detail-row + .calendar-detail-row { border-top:1px solid #ececf0; }
-.calendar-detail-icon { color:#8e8e93; font-size:17px; line-height:1.2; text-align:center; }
-.calendar-detail-row div { display:grid; gap:3px; }
-.calendar-detail-row strong,.calendar-detail-calendar-row strong { color:#1c1c1e; font-size:11px; font-weight:700; }
-.calendar-detail-row span,.calendar-detail-calendar-row span { color:#6d6d72; font-size:10px; line-height:1.38; }
-.calendar-detail-calendar-row { display:grid; grid-template-columns:12px 1fr; gap:10px; align-items:center; padding:13px 18px; }
-.calendar-detail-calendar-row div { display:grid; gap:2px; }
-.calendar-detail-color { width:9px; height:9px; border-radius:50%; background:#1559d6; }
-.calendar-detail-color.tone-lecture { background:#6f42c1; }
-.calendar-detail-color.tone-sport { background:#207a55; }
+.calendar-preview--google.is-detail-view { background:#fff; }
+.gcal-detail-toolbar { display:grid; grid-template-columns:40px 1fr auto; align-items:center; height:52px; padding:0 12px; border-bottom:1px solid #e8eaed; }
+.gcal-detail-toolbar button { border:0; background:transparent; color:#3c4043; cursor:pointer; font:inherit; font-size:18px; }
+.gcal-detail-toolbar div { color:#5f6368; font-size:14px; letter-spacing:8px; }
+.gcal-detail-body { height:474px; overflow-y:auto; scrollbar-width:none; }
+.gcal-detail-body::-webkit-scrollbar { display:none; }
+.gcal-detail-title { display:grid; grid-template-columns:14px 1fr; gap:10px; padding:24px 18px 20px; color:#1967d2; }
+.gcal-detail-title i { width:10px; height:10px; margin-top:5px; border-radius:2px; background:currentColor; }
+.gcal-detail-title h3 { margin:0; color:#202124; font-size:17px; font-weight:500; line-height:1.3; }
+.gcal-detail-title p { margin:5px 0 0; color:#5f6368; font-size:10px; }
+.gcal-detail-title.tone-lecture { color:#9334e6; }
+.gcal-detail-title.tone-sport { color:#188038; }
+.gcal-detail-row { display:grid; grid-template-columns:28px 1fr; gap:11px; align-items:start; min-height:54px; padding:13px 18px; border-top:1px solid #f1f3f4; }
+.gcal-detail-row > span:first-child { color:#5f6368; font-size:17px; text-align:center; }
+.gcal-detail-row strong { display:block; color:#3c4043; font-size:11px; font-weight:500; line-height:1.35; }
+.gcal-detail-row p { margin:3px 0 0; color:#5f6368; font-size:10px; line-height:1.35; }
+.gcal-calendar-dot { width:10px; height:10px; margin:3px auto 0; border-radius:2px; background:#1a73e8; }
+.gcal-calendar-dot.tone-lecture { background:#9334e6; }
+.gcal-calendar-dot.tone-sport { background:#188038; }
 
-@media (max-width:760px) { .calendar-preview--feed .native-feed-scroll { height:426px; } }
-@media (max-width:430px) { .calendar-preview--feed { height:514px; } .calendar-preview--feed .native-feed-scroll { height:418px; } .native-feed-card strong { font-size:10px; } .calendar-detail-scroll { height:462px; } }
-@media (prefers-reduced-motion:reduce) { .calendar-preview--feed .native-feed-scroll { scroll-behavior:auto; } }
+@media (max-width:430px) { .calendar-preview--google { height:514px; } .gcal-day-scroll { height:362px; } .gcal-detail-body { height:462px; } }
+@media (prefers-reduced-motion:reduce) { .gcal-day-scroll { scroll-behavior:auto; } }
