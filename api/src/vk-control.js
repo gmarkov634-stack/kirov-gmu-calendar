@@ -9,7 +9,7 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post"]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "wall.delete"]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
