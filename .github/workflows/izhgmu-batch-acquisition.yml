@@ -9,6 +9,7 @@ on:
       - "api/src/universities/registry.mjs"
       - "api/tools/izhgmu-collect.mjs"
       - "api/tools/izhgmu-collect-postsemester.mjs"
+      - "api/tools/izhgmu-check-postsemester-reviewed.mjs"
       - "api/tools/izhgmu-fingerprint.py"
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
@@ -168,6 +169,9 @@ jobs:
       - name: Collect exact medicine 6 post-semester schedule PDFs on isolated runner
         working-directory: api
         run: npm run collect:izhgmu:postsemester -- --input-dir /tmp/izhgmu-postsemester
+      - name: Verify visually reviewed extraction against exact PDF SHA
+        working-directory: api
+        run: node tools/izhgmu-check-postsemester-reviewed.mjs --input-dir /tmp/izhgmu-postsemester
       - name: Show isolated post-semester acquisition summary
         if: always()
         shell: bash
