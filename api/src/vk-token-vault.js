@@ -48,7 +48,7 @@ function validateCredentials(value) {
 export class VkTokenVault {
   constructor(config, dependencies = {}) {
     this.config = config;
-    this.key = decodeKey(config.vkOauthEncryptionKey);
+    this.key = decodeKey(dependencies.encryptionKey ?? process.env.VK_OAUTH_ENCRYPTION_KEY);
     this.s3 = dependencies.s3 || (config.accessKeyId && config.secretAccessKey
       ? new S3Client({
           endpoint: config.endpoint,
