@@ -5,6 +5,7 @@ import { createPreviewSubscriptionHandler } from "./preview-subscription-handler
 import { loadConfig } from "./config.js";
 import { FunnelAnalyticsStore } from "./funnel-analytics-store.js";
 import { createFunnelAnalyticsHandler } from "./funnel-analytics.js";
+import { createFunnelEventHandler } from "./funnel-events.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
@@ -31,6 +32,7 @@ const payments = new YooKassaService({ store, config });
 const trials = new TrialService({ store, config });
 const trialHttpHandler = createTrialHttpHandler({ store, config, trials });
 const funnelAnalyticsHandler = createFunnelAnalyticsHandler({ store, config });
+const funnelEventHandler = createFunnelEventHandler({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const archivePaymentTestHandler = createArchivePaymentTestHandler({ store, config, payments });
 const previewSubscriptionHandler = createPreviewSubscriptionHandler({ store, config });
@@ -92,6 +94,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v1/admin/funnel") {
     return funnelAnalyticsHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/analytics") {
+    return funnelEventHandler(request, response);
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
@@ -161,6 +166,9 @@ server.listen(config.port, "0.0.0.0", () => {
   console.log(config.trialsEnabled
     ? "Trial subscriptions enabled"
     : "Trial subscriptions disabled");
+  console.log(config.funnelAnalyticsEnabled
+    ? "Funnel analytics enabled"
+    : "Funnel analytics disabled");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
     kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);
