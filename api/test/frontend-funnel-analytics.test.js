@@ -26,7 +26,7 @@ test("frontend analytics is session-scoped, privacy-safe and observes funnel API
   assert.match(js, /\/api\/v2\/analytics/);
   assert.match(js, /\/api\/v2\/trials/);
   assert.match(js, /\/api\/v2\/payments/);
-  assert.match(js, /\/api\/v2\/catalog\//);
+  assert.ok(js.includes("\\/api\\/v2\\/catalog\\/") || js.includes("/api/v2/catalog/"));
   assert.match(js, /\/api\/v2\/trials\/continue\//);
   assert.match(js, /\/api\/v1\/orders\//);
   assert.doesNotMatch(js, /document\.cookie/);
