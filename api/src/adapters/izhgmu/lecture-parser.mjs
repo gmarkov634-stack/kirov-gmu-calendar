@@ -120,9 +120,10 @@ function classTimeSlots(sheet, classDays) {
 
 function isChoiceBlock(value) {
   const text = norm(value);
-  return /^ДВ\b/i.test(text)
-    || /практические занятия по ДВ/i.test(text)
-    || (text.match(/\bДВ\b/gi) || []).length >= 2
+  const dvMarkers = text.match(/(?:^|[\s;,:()])ДВ(?=$|[\s;,:().])/gi) || [];
+  return /^ДВ(?=$|[\s;,:().])/i.test(text)
+    || /практические занятия по ДВ(?=$|[\s;,:().])/i.test(text)
+    || dvMarkers.length >= 2
     || /дисциплин(?:а|ы) по выбору/i.test(text);
 }
 
@@ -163,7 +164,7 @@ function classWideBlocks(sheet) {
 function lectureSheet(structure) {
   return structure?.sheets?.find((sheet) => (
     sheet.cells.some((cell) => cell.col === 1 && /^дни недели$/i.test(norm(cell.value)))
-    && sheet.cells.some((cell) => cell.col === 3 && /^(предмет|дисциплина)$/i.test(norm(cell.value)))
+    && sheet.cells.some((cell) => cell.col === 3 && /^(предмет|дисциплина)$/i.test(norm(cell.value))
   ));
 }
 
