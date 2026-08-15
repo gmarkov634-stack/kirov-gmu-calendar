@@ -74,7 +74,7 @@ test("extracts Russian cycle geometry with real group spans and inherited discip
 
 test("O32/O34 keep 11.05 for the 11-lecture row but exclude it from the K.дн. 15 cycle row", () => {
   assert.equal(academicCalendar.calendar_year, 2026);
-  assert.deepEqual(academicCalendar.calendar_exceptions, []);
+  assert.deepEqual(academicCalendar.calendar_exceptions, ["2026-05-01", "2026-05-09", "2026-06-12"]);
   assert.deepEqual(academicCalendar.conditional_calendar_exceptions.map((item) => item.date), ["2026-05-11"]);
 
   const parsed = parseCycleRotationGeometry(geometry, {
