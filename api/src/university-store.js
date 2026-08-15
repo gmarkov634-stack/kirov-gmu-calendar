@@ -283,6 +283,7 @@ export class MultiUniversityStore extends ScheduleStore {
       return {
         ...group,
         displayName: actual.groupDisplayName || group.displayName,
+        ...(actual.stream != null ? { stream: actual.stream } : {}),
       };
     }));
 
