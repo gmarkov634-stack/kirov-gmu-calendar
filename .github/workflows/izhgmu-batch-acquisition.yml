@@ -13,6 +13,7 @@ on:
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
       - "api/tools/izhgmu-diagnose-lecture.mjs"
       - "api/tools/izhgmu-parse-cycle.mjs"
+      - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -57,6 +58,9 @@ jobs:
       - name: Parse real IZH-CYCLE geometry fail-closed
         working-directory: api
         run: npm run parse:izhgmu:cycle -- --input-dir /tmp/izhgmu-current --faculty pediatrics --course 3
+      - name: Parse real IZH-CYCLE medicine 4 through canonical QA
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine4 -- --input-dir /tmp/izhgmu-current --group 401
       - name: Show acquisition summary
         if: always()
         shell: bash
