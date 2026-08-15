@@ -16,6 +16,7 @@ on:
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
+      - "api/tools/izhgmu-parse-lecture-medicine5.mjs"
       - "api/tools/izhgmu-check-cycle-medicine5-provenance.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
@@ -73,6 +74,9 @@ jobs:
       - name: Verify medicine 5 lecture-backed glossary provenance scope
         working-directory: api
         run: node tools/izhgmu-check-cycle-medicine5-provenance.mjs --input-dir /tmp/izhgmu-current
+      - name: Parse medicine 5 lecture streams without heuristic group attribution
+        working-directory: api
+        run: npm run parse:izhgmu:lecture:medicine5 -- --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -109,6 +113,10 @@ jobs:
               print('CYCLE_MEDICINE5_STATS', diag['parser']['stats'])
               print('CYCLE_MEDICINE5_GROUPS', diag['groupSpans'])
               print('CYCLE_MEDICINE5_REVIEW', len(diag['review']))
+          lecture5_path=root/'medicine5-lecture-diagnostic.json'
+          if lecture5_path.exists():
+              diag=json.loads(lecture5_path.read_text())
+              print('LECTURE_MEDICINE5', diag)
           PY
           fi
       - name: Upload current IzhGMU source set
