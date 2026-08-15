@@ -1,7 +1,7 @@
 const TIME_START_RE = /^\s*[,;]?\s*(\d{1,2})[.:/](\d{2})\s*[-–]\s*(\d{1,2})[.:/](\d{2})(?!\d)/;
 const DATE_ATOM_RE = /(?<!\d)(\d{2})\.(\d{2})(?:\s*[-–]\s*(\d{2})\.(\d{2}))?(?!\d)/g;
 const COUNT_RE = /(\d+)\s*(зан(?:ятий|ятие|ятия)?\.?|з\.?|лекц(?:ий|ии|ия|и)?\.?|лек\.?)\s*[:.]*/i;
-const SLASH_COUNT_RE = /\d+\s*\/\s*\d+\s*(?:зан(?:ятий|ятие|ятия)?\.?|з\.?|лекц(?:ий|ии|ия|и)?\.?|лек\.?)\s*[:.]*/i;
+const PAIRED_COUNT_RE = /(\d+)\s*\/\s*(\d+)\s*(зан(?:ятий|ятие|ятия)?\.?|з\.?|лекц(?:ий|ии|ия|и)?\.?|лек\.?)\s*[:.]*/i;
 const EXPLICIT_LOCATION_RE = /(?:БУЗОО|ФГБОУ|ФГБУ|(?:^|[^\p{L}\p{N}])(?:ауд\.?|каб\.?|ГК\.?|КЗ\.?|АЗ\.?|СГК\.?|ПАК\.?|ул\.?)|стационар|корпус|здание)/iu;
 
 function compact(value) {
@@ -102,7 +102,7 @@ function expandDates(value, weekday, { year, calendarExceptions }) {
 }
 
 function declarationInfo(remainder) {
-  if (SLASH_COUNT_RE.test(remainder)) return null;
+  if (PAIRED_COUNT_RE.test(remainder)) return null;
   const match = remainder.match(COUNT_RE);
   if (!match) return null;
   return {
@@ -112,10 +112,20 @@ function declarationInfo(remainder) {
   };
 }
 
+function pairedDeclarationInfo(remainder) {
+  const match = remainder.match(PAIRED_COUNT_RE);
+  if (!match) return null;
+  return {
+    counts: [Number(match[1]), Number(match[2])],
+    rawUnit: match[3],
+    lecture: /лекц|лек\./i.test(match[3]),
+  };
+}
+
 function titleAndLocation(remainder, atoms) {
   const count = remainder.match(COUNT_RE);
-  const slash = remainder.match(SLASH_COUNT_RE);
-  const cuts = [count?.index, slash?.index, atoms[0]?.start].filter((value) => Number.isInteger(value));
+  const paired = remainder.match(PAIRED_COUNT_RE);
+  const cuts = [count?.index, paired?.index, atoms[0]?.start].filter((value) => Number.isInteger(value));
   const cut = cuts.length ? Math.min(...cuts) : remainder.length;
   const title = compact(remainder.slice(0, cut)).replace(/[,:;.]+$/g, "").trim();
   const last = atoms.at(-1);
@@ -125,8 +135,25 @@ function titleAndLocation(remainder, atoms) {
   return { title, location, sourceNote };
 }
 
-function seriesRuleIds({ location, atoms, declaration }) {
-  const rules = ["O03", "O04", "O05", "O16", "O62", "O63", "O64"];
+function normalizedAliasMap(geometry) {
+  return new Map((geometry.sourceAliases || []).map((item) => [compact(item.alias), compact(item.expansion)]).filter(([alias, expansion]) => alias && expansion));
+}
+
+function resolveSourceAlias(title, geometry) {
+  const resolved = normalizedAliasMap(geometry).get(compact(title));
+  return resolved ? { title: resolved, used: true } : { title: compact(title), used: false };
+}
+
+function physicalAlternatives(title) {
+  const parts = compact(title).split("/").map(compact).filter(Boolean);
+  if (parts.length < 3) return false;
+  const joined = parts.join(" ");
+  return /(?:физ(?:ическая)?\s*культура|\bф\.?к\.?\b|спорт)/iu.test(joined)
+    && /(?:спортивные\s+игры|плавание|атлет(?:ическая|ическая)?\s+гимнастика|ат\.?\s*гимнастика)/iu.test(joined);
+}
+
+function seriesRuleIds({ location, atoms, declaration, extra = [] }) {
+  const rules = ["O03", "O04", "O05", "O16", "O62", "O63", "O64", ...extra];
   if (declaration?.lecture) rules.push("O27");
   else if (declaration) rules.push("O57");
   if (location) rules.push("O58");
@@ -139,31 +166,17 @@ function referenceFor(geometry, row, cell) {
   return `pdf:p${geometry.pageNumber}:row-${row.rowIndex}:bbox-${bbox}:groups-${cell.groups.join("+")}`;
 }
 
-function parseSegment(geometry, row, cell, segment, options) {
-  const time = timeParts(segment);
-  if (!time) return null;
-  const remainder = segment.slice(time.match[0].length).trim().replace(/^[,;]+\s*/, "");
-  const { atoms, dates, warnings: dateWarnings } = expandDates(remainder, row.weekday, options);
-  if (!dates.length) return null;
-  const { title, location, sourceNote } = titleAndLocation(remainder, atoms);
-  if (!title) return null;
-
-  const declaration = declarationInfo(remainder);
-  const warnings = [...dateWarnings];
-  if (declaration && declaration.count !== dates.length) {
-    const rule = declaration.lecture ? "O27" : "O57";
-    warnings.push(`${rule}: declared ${declaration.count} occurrence(s), resolved ${dates.length} date(s)`);
-  }
-
+function makeSeries({ geometry, row, cell, segment, time, dates, atoms, discipline, location, sourceNote, declaration = null, extraRules = [], warnings = [], pairedCounts = null }) {
   return {
-    discipline: title,
-    disciplineRaw: title,
-    disciplineNormalized: title,
+    discipline,
+    disciplineRaw: discipline,
+    disciplineNormalized: discipline,
     startTime: time.startTime,
     endTime: time.endTime,
     dates,
     dateExpression: atoms.map((atom) => atom.raw).join("; "),
     declaredCount: declaration?.count ?? null,
+    declaredCounts: pairedCounts ? [...pairedCounts] : null,
     declaredUnit: declaration?.rawUnit ?? null,
     location,
     sourceNote,
@@ -172,9 +185,9 @@ function parseSegment(geometry, row, cell, segment, options) {
     groups: [...cell.groups],
     rawSource: segment,
     references: [{ role: "lesson", range: referenceFor(geometry, row, cell) }],
-    ruleIds: seriesRuleIds({ location, atoms, declaration }),
+    ruleIds: seriesRuleIds({ location, atoms, declaration, extra: extraRules }),
     status: warnings.length ? "needs_review" : "ok",
-    warnings,
+    warnings: [...new Set(warnings)],
     sourceWeekday: row.weekday,
     geometry: {
       pageNumber: geometry.pageNumber,
@@ -183,6 +196,81 @@ function parseSegment(geometry, row, cell, segment, options) {
       groups: [...cell.groups],
     },
   };
+}
+
+function parseSegment(geometry, row, cell, segment, options) {
+  const time = timeParts(segment);
+  if (!time) return [];
+  const remainder = segment.slice(time.match[0].length).trim().replace(/^[,;]+\s*/, "");
+  const { atoms, dates, warnings: dateWarnings } = expandDates(remainder, row.weekday, options);
+  if (!dates.length) return [];
+  const parsedText = titleAndLocation(remainder, atoms);
+  if (!parsedText.title) return [];
+
+  const alias = resolveSourceAlias(parsedText.title, geometry);
+  const paired = pairedDeclarationInfo(remainder);
+  if (paired) {
+    const total = paired.counts[0] + paired.counts[1];
+    const pairWarnings = [...dateWarnings];
+    if (total !== dates.length) pairWarnings.push(`O13: declared ${paired.counts.join("/")} occurrence(s), resolved ${dates.length} date(s)`);
+
+    if (physicalAlternatives(alias.title)) {
+      const declaration = { count: total, rawUnit: paired.rawUnit, lecture: paired.lecture };
+      return [makeSeries({
+        geometry, row, cell, segment, time, dates, atoms,
+        discipline: "Физическая культура и спорт",
+        location: parsedText.location,
+        sourceNote: [parsedText.sourceNote, `Варианты из источника: ${alias.title}`].filter(Boolean).join("; "),
+        declaration,
+        pairedCounts: paired.counts,
+        extraRules: ["O14", ...(alias.used ? ["O59"] : [])],
+        warnings: pairWarnings,
+      })];
+    }
+
+    const disciplines = alias.title.split("/").map(compact).filter(Boolean);
+    if (disciplines.length !== 2 || pairWarnings.length) {
+      return [makeSeries({
+        geometry, row, cell, segment, time, dates, atoms,
+        discipline: alias.title,
+        location: parsedText.location,
+        sourceNote: parsedText.sourceNote,
+        declaration: { count: total, rawUnit: paired.rawUnit, lecture: paired.lecture },
+        pairedCounts: paired.counts,
+        extraRules: ["O13", ...(alias.used ? ["O59"] : [])],
+        warnings: [...pairWarnings, ...(disciplines.length !== 2 ? ["O13: paired counter does not map to exactly two disciplines"] : [])],
+      })];
+    }
+
+    const common = {
+      geometry, row, cell, segment, time, atoms,
+      location: parsedText.location,
+      sourceNote: parsedText.sourceNote,
+      pairedCounts: paired.counts,
+      extraRules: ["O13", ...(alias.used ? ["O59"] : [])],
+      warnings: [],
+    };
+    return [
+      makeSeries({ ...common, dates: dates.slice(0, paired.counts[0]), discipline: disciplines[0], declaration: { count: paired.counts[0], rawUnit: paired.rawUnit, lecture: paired.lecture } }),
+      makeSeries({ ...common, dates: dates.slice(paired.counts[0]), discipline: disciplines[1], declaration: { count: paired.counts[1], rawUnit: paired.rawUnit, lecture: paired.lecture } }),
+    ];
+  }
+
+  const declaration = declarationInfo(remainder);
+  const warnings = [...dateWarnings];
+  if (declaration && declaration.count !== dates.length) {
+    const rule = declaration.lecture ? "O27" : "O57";
+    warnings.push(`${rule}: declared ${declaration.count} occurrence(s), resolved ${dates.length} date(s)`);
+  }
+  return [makeSeries({
+    geometry, row, cell, segment, time, dates, atoms,
+    discipline: alias.title,
+    location: parsedText.location,
+    sourceNote: parsedText.sourceNote,
+    declaration,
+    extraRules: alias.used ? ["O59"] : [],
+    warnings,
+  })];
 }
 
 function intersect(left, right) {
@@ -251,7 +339,7 @@ export function parseWeeklyGeometry(geometry, { year, calendarExceptions = [] } 
       }
       for (const segment of segments) {
         const parsed = parseSegment(geometry, row, { ...cell, groups: covered }, segment, options);
-        if (parsed) series.push(parsed);
+        if (parsed.length) series.push(...parsed);
         else diagnostics.push(`row ${row.rowIndex}: unresolved segment ${segment.slice(0, 120)}`);
       }
     }
@@ -265,5 +353,8 @@ export const weeklyGeometryInternals = Object.freeze({
   expandDates,
   titleAndLocation,
   declarationInfo,
+  pairedDeclarationInfo,
+  resolveSourceAlias,
+  physicalAlternatives,
   markExactSlotConflicts,
 });
