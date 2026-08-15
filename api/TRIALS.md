@@ -2,7 +2,7 @@
 
 ## Статус
 
-Backend trial реализован в PR #100 и прошёл полный API regression на финальном head. Production-доступ при этом остаётся закрыт по умолчанию: создание trial возможно только при явном `TRIALS_ENABLED=true`.
+Backend trial реализован в PR #100 и прошёл полный API regression. Production-доступ остаётся закрыт по умолчанию: создание trial возможно только при явном `TRIALS_ENABLED=true`.
 
 Frontend и production smoke относятся к следующему этапу; до их завершения бесплатная проба не должна рекламироваться как уже доступная пользователям.
 
@@ -104,7 +104,7 @@ Revoked/upgraded trial feed содержит 0 VEVENT.
 
 Сначала сохраняется непривилегированный conversion context, затем создаётся live subscription entitlement.
 
-Это специально сделано fail-closed: если запись conversion context не удалась, рабочего trial URL не существует. Если позже не удалась запись subscription, возможен только нераскрытый orphaned conversion context, который сам по себе доступа к календарю не даёт.
+Это fail-closed: если запись conversion context не удалась, рабочего trial URL не существует. Если позже не удалась запись subscription, возможен только нераскрытый orphaned conversion context, который сам по себе доступа к календарю не даёт.
 
 ## Trial → paid
 
@@ -151,7 +151,7 @@ Trial token может быть переслан, но после покупки
 
 ## Regression
 
-Проверяются как минимум:
+Проверяются:
 
 - day 8 не входит в бесплатное окно;
 - canonical и legacy projection;
@@ -172,7 +172,7 @@ Trial token может быть переслан, но после покупки
 - direct purchase и существующие paid subscriptions сохраняют прежнее поведение;
 - `TRIALS_ENABLED` открывается только точным `true` и не зависит от sales gate.
 
-Финальный GitHub Actions `API tests` run #917 завершён SUCCESS на head `11115a9cbc42101a7d0b907842608388e4885347` перед этим чисто документальным обновлением. Код после run не менялся; изменена только эта строка статуса документа.
+Полный GitHub Actions `API tests` успешно проходит на реализации PR #100. После последних изменений кода дополнительно выполнен run #917 = SUCCESS; последующие commits меняли только этот документ.
 
 ## Следующий этап
 
