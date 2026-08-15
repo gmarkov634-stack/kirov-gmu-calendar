@@ -1,3 +1,7 @@
+import { loadConfig } from "./config.js";
+import { VkTokenManager } from "./vk-token-manager.js";
+import { VkTokenVault } from "./vk-token-vault.js";
+
 const VK_WALL_GET_URL = "https://api.vk.com/method/wall.get";
 const DEFAULT_API_VERSION = "5.199";
 const WALL_POST_LIMIT = 20;
@@ -96,18 +100,22 @@ function sanitizePost(post) {
 export function createVkWallHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
   const staticAccessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
-  const tokenManager = dependencies.tokenManager || null;
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
+  const tokenManager = dependencies.tokenManager || new VkTokenManager({
+    vault: new VkTokenVault(loadConfig(env), { encryptionKey: env.VK_OAUTH_ENCRYPTION_KEY }),
+    env,
+    fetchImpl,
+  });
 
   return async function handleVkWall(request, response) {
     if (request.method !== "GET") return sendJson(response, 405, { error: "method_not_allowed" });
-    if (!groupId || !/^\d+$/.test(groupId) || (!staticAccessToken && !tokenManager?.configured)) {
+    if (!groupId || !/^\d+$/.test(groupId) || (!staticAccessToken && !tokenManager.configured)) {
       return sendJson(response, 503, { error: "vk_wall_not_configured" });
     }
 
     try {
-      const accessToken = tokenManager ? await tokenManager.getAccessToken() : staticAccessToken;
+      const accessToken = await tokenManager.getAccessToken();
       const body = new URLSearchParams({
         access_token: accessToken,
         v: apiVersion,
