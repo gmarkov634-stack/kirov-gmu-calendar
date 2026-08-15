@@ -11,6 +11,7 @@
     "discover:izhgmu": "node tools/izhgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
+    "download:izhgmu": "node tools/izhgmu-download.mjs",
     "catalog:omgmu": "node tools/omgmu-catalog.mjs",
     "parse:omgmu:weekly": "python3 tools/omgmu-parse-weekly-pdf.py",
     "parse:omgmu:fourth": "python3 tools/omgmu-parse-fourth-pdf.py",
