@@ -15,6 +15,7 @@ on:
       - "api/tools/izhgmu-diagnose-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
+      - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -65,6 +66,9 @@ jobs:
       - name: Diagnose real IZH-CYCLE medicine 5 without publication
         working-directory: api
         run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
+      - name: Parse real IZH-CYCLE medicine 5 fail-closed through canonical QA
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine5 -- --input-dir /tmp/izhgmu-current --group 501
       - name: Show acquisition summary
         if: always()
         shell: bash
