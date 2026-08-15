@@ -16,6 +16,7 @@ on:
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
+      - "api/tools/izhgmu-parse-cycle-medicine6.mjs"
       - "api/tools/izhgmu-parse-lecture-medicine5.mjs"
       - "api/tools/izhgmu-check-cycle-medicine5-provenance.mjs"
       - "api/test/izhgmu-*.test.mjs"
@@ -80,6 +81,9 @@ jobs:
       - name: Diagnose real IZH-CYCLE medicine 6 without publication
         working-directory: api
         run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 6 --output cycle-diagnostic-medicine-6.json
+      - name: Parse real IZH-CYCLE medicine 6 fail-closed through canonical QA
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine6 -- --input-dir /tmp/izhgmu-current --group 601
       - name: Show acquisition summary
         if: always()
         shell: bash
