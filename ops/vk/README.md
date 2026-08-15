@@ -34,6 +34,8 @@
 
 `/api/v1/vk/oauth/callback` на первом этапе является receive-only boundary: он проверяет наличие `code`, `state` и `device_id`, но намеренно не логирует, не отображает, не сохраняет и не обменивает эти значения на токены.
 
-Причина: текущий VK ID использует OAuth 2.1/PKCE и возвращает access + refresh token. До включения реальной авторизации нужно отдельно зафиксировать и протестировать PKCE start/exchange/refresh flow и проверить, что выданный пользовательский токен действительно имеет необходимые права для `wall.*`.
+`/api/v1/vk/oauth/start` — диагностический PKCE scope probe. Страница использует закреплённую официальную UMD-сборку `@vkid/sdk@2.6.1`, генерирует `state` и `codeVerifier` в браузере и запрашивает только `wall groups`. Цель этапа — подтвердить, что текущий VK ID принимает необходимые API scopes. Callback остаётся receive-only, поэтому даже успешная авторизация на этом этапе не сохраняет access/refresh token.
+
+Причина поэтапности: текущий VK ID использует OAuth 2.1/PKCE и возвращает access + refresh token. После успешного scope probe нужно отдельно реализовать, протестировать и зафиксировать PKCE exchange/refresh storage strategy, а уже затем подключать токен к `wall.*`.
 
 Защищённый ключ, сервисный ключ, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR или логи.
