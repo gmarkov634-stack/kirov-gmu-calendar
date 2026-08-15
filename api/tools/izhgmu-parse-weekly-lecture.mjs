@@ -134,7 +134,7 @@ const surgical = candidate.events.find((event) => (
   && event.lesson.discipline.normalized === 'Хирургический уход'
 ));
 if (!surgical || surgical.source.file_name !== lectureSource.filename
-    || surgical.lesson.locations[0] !== '1 ауд.'
+    || surgical.lesson.locations[0]?.raw !== '1 ауд.'
     || surgical.lesson.type.code !== 'lecture') {
   throw new Error('IZH exact-date lecture canonical evidence changed');
 }
