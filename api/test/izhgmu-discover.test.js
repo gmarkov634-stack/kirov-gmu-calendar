@@ -71,7 +71,7 @@ test("material period conflict is fail-closed", async () => {
   });
   assert.equal(manifest.sourceCount, 1);
   assert.equal(manifest.validation.status, "needs_source_review");
-  assert.match(manifest.validation.errors.join("\n"), /semester metadata conflict/);
+  assert.match(manifest.validation.errors.join("\n"), /period metadata conflict.*semester conflict/);
 });
 
 test("academic-year typo against filename is fail-closed", async () => {
