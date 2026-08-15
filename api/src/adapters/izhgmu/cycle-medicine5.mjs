@@ -16,8 +16,8 @@ const TOKENS = Object.freeze([
   { token: 'ТравматиОрт', discipline: 'Травматология и ортопедия', metadataKey: 'traumatology', expectedDays: 13 },
   { token: 'Госптерапия', discipline: 'Госпитальная терапия', metadataKey: 'hospital_therapy', expectedDays: 13 },
   { token: 'Поликлтер', discipline: 'Поликлиническая терапия', metadataKey: 'outpatient_therapy', expectedDays: 13 },
-  { token: 'Избвптер', discipline: 'Избр. вопр. терапии', metadataKey: 'internal_diseases', expectedDays: 8 },
-  { token: 'Медправо', discipline: 'Мед-прав. основы', metadataKey: 'forensic_medicine', expectedDays: 8 },
+  { token: 'Избвптер', discipline: 'Избр. вопр. терапии', metadataKey: 'internal_diseases', expectedDays: 8, glossaryConfirmed: true },
+  { token: 'Медправо', discipline: 'Мед-прав. основы', metadataKey: 'forensic_medicine', expectedDays: 8, glossaryConfirmed: true },
   { token: 'Дисвыб', discipline: 'Дисциплина по выбору', metadataKey: 'elective', expectedDays: 7, elective: true },
 ].sort((left, right) => right.token.length - left.token.length));
 
@@ -409,7 +409,11 @@ export function parseIzhgmuMedicine5CycleStructures({ structure, groupCode }) {
       dates: token.dates,
       status: 'ok',
       warnings: [],
-      ruleIds: ['IZH-C01', 'IZH-C02', 'IZH-C03', 'IZH-C04', 'IZH-C07', 'IZH-C08', 'IZH-C09', 'IZH-C10', 'IZH-C13'],
+      ruleIds: [
+        'IZH-C01', 'IZH-C02', 'IZH-C03', 'IZH-C04', 'IZH-C07', 'IZH-C08', 'IZH-C09', 'IZH-C10',
+        ...(token.glossaryConfirmed ? ['IZH-C12'] : []),
+        'IZH-C13',
+      ],
       references: [
         { role: 'discipline', range: token.reference },
         { role: 'date', range: dateReference },
