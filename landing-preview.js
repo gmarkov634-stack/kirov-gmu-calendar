@@ -25,9 +25,9 @@
   const START_HOUR = 8;
   const END_HOUR = 20;
   const PX_PER_MINUTE = 0.55;
-  const platforms = ['apple', 'google'];
   let platform = 'google';
   let activeDay = 0;
+  let savedAppleScroll = 0;
   let userInteracting = false;
   let autoTimer = null;
   let touchStartX = 0;
@@ -47,88 +47,61 @@
       <button type="button" class="calendar-platform-tab${platform === 'google' ? ' is-active' : ''}" data-platform="google" role="tab" aria-selected="${platform === 'google'}">Google</button>
     </div>`;
 
-  const hourGrid = (kind) => {
+  const renderGoogleGrid = () => {
     const day = days[activeDay];
     const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
     const totalHeight = (END_HOUR - START_HOUR) * 60 * PX_PER_MINUTE;
     return `
-      <div class="${kind}-day-scroll" data-day-scroll>
-        <div class="${kind}-day-grid" style="height:${totalHeight}px">
-          ${hours.map((hour, i) => `<div class="${kind}-hour" style="top:${i * 60 * PX_PER_MINUTE}px"><span>${String(hour).padStart(2, '0')}:00</span><i></i></div>`).join('')}
-          ${day.events.map((event, eventIndex) => {
-            const top = (toMinutes(event.start) - START_HOUR * 60) * PX_PER_MINUTE;
-            const height = Math.max(38, (toMinutes(event.end) - toMinutes(event.start)) * PX_PER_MINUTE - 2);
-            return `<button type="button" class="${kind}-event tone-${event.tone}" data-calendar-event="${eventIndex}" style="top:${top}px;height:${height}px"><strong>${event.title}</strong><span>${event.start}–${event.end}</span><small>${event.place}</small></button>`;
-          }).join('')}
-        </div>
-      </div>`;
-  };
-
-  const renderGoogle = () => {
-    const day = days[activeDay];
-    return `
-      ${platformSwitch()}
-      <div class="gcal-toolbar">
-        <span class="gcal-menu" aria-hidden="true">☰</span>
-        <div class="gcal-month"><strong>Март</strong><span>2026</span></div>
-        <div class="gcal-toolbar-icons" aria-hidden="true"><span>⌕</span><span>□</span></div>
-      </div>
-      <div class="gcal-date-strip" role="tablist" aria-label="Дни">
-        ${days.map((item, index) => `<button type="button" class="gcal-date${index === activeDay ? ' is-active' : ''}" data-calendar-day="${index}" role="tab" aria-selected="${index === activeDay}"><span>${item.weekday}</span><b>${item.day}</b></button>`).join('')}
-      </div>
-      ${hourGrid('gcal')}
+      <div class="gcal-toolbar"><span class="gcal-menu" aria-hidden="true">☰</span><div class="gcal-month"><strong>Март</strong><span>2026</span></div><div class="gcal-toolbar-icons" aria-hidden="true"><span>⌕</span><span>□</span></div></div>
+      <div class="gcal-date-strip" role="tablist" aria-label="Дни">${days.map((item, index) => `<button type="button" class="gcal-date${index === activeDay ? ' is-active' : ''}" data-calendar-day="${index}" role="tab" aria-selected="${index === activeDay}"><span>${item.weekday}</span><b>${item.day}</b></button>`).join('')}</div>
+      <div class="gcal-day-scroll" data-day-scroll><div class="gcal-day-grid" style="height:${totalHeight}px">
+        ${hours.map((hour, i) => `<div class="gcal-hour" style="top:${i * 60 * PX_PER_MINUTE}px"><span>${String(hour).padStart(2, '0')}:00</span><i></i></div>`).join('')}
+        ${day.events.map((event, eventIndex) => {
+          const top = (toMinutes(event.start) - START_HOUR * 60) * PX_PER_MINUTE;
+          const height = Math.max(38, (toMinutes(event.end) - toMinutes(event.start)) * PX_PER_MINUTE - 2);
+          return `<button type="button" class="gcal-event tone-${event.tone}" data-calendar-event="${eventIndex}" data-day-index="${activeDay}" style="top:${top}px;height:${height}px"><strong>${event.title}</strong><span>${event.start}–${event.end}</span><small>${event.place}</small></button>`;
+        }).join('')}
+      </div></div>
       <div class="gcal-footer"><span>${day.fullWeekday}, ${day.date}</span><span>← Apple · Google →</span></div>`;
   };
 
-  const renderApple = () => {
-    const day = days[activeDay];
-    return `
-      ${platformSwitch()}
-      <div class="acal-toolbar">
-        <button type="button" class="acal-back" tabindex="-1">‹ Март</button>
-        <strong>${day.fullWeekday}</strong>
-        <span class="acal-actions" aria-hidden="true">⌕　＋</span>
-      </div>
-      <div class="acal-date-strip" role="tablist" aria-label="Дни">
-        ${days.map((item, index) => `<button type="button" class="acal-date${index === activeDay ? ' is-active' : ''}" data-calendar-day="${index}" role="tab" aria-selected="${index === activeDay}"><span>${item.weekday}</span><b>${item.day}</b></button>`).join('')}
-      </div>
-      ${hourGrid('acal')}
-      <div class="acal-footer"><span>Сегодня</span><strong>Календари</strong><span>Входящие</span></div>`;
-  };
+  const renderAppleFeed = () => `
+    <div class="acal-toolbar"><button type="button" class="acal-back" tabindex="-1">‹ Март</button><strong>Расписание</strong><span class="acal-actions" aria-hidden="true">⌕　＋</span></div>
+    <div class="acal-agenda-scroll" data-apple-scroll>
+      ${days.map((day, dayIndex) => `
+        <section class="acal-agenda-day">
+          <header class="acal-agenda-day-head"><span>${day.weekday}</span><b>${day.day}</b><div><strong>${day.fullWeekday}</strong><small>${day.date}</small></div></header>
+          <div class="acal-agenda-events">
+            ${day.events.map((event, eventIndex) => `
+              <button type="button" class="acal-agenda-event tone-${event.tone}" data-calendar-event="${eventIndex}" data-day-index="${dayIndex}">
+                <span class="acal-agenda-time"><b>${event.start}</b><small>${event.end}</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>${event.title}</strong><small>${event.place}</small></span>
+              </button>`).join('')}
+          </div>
+        </section>`).join('')}
+      <div class="acal-agenda-end">Конец показанных дней</div>
+    </div>
+    <div class="acal-footer"><span>Сегодня</span><strong>Календари</strong><span>Входящие</span></div>`;
 
-  const renderDetails = (eventIndex) => {
-    const day = days[activeDay];
+  const renderDetails = (dayIndex, eventIndex) => {
+    const day = days[dayIndex];
     const event = day?.events[eventIndex];
     if (!event) return;
     preview.classList.add('is-detail-view');
     if (platform === 'apple') {
-      preview.innerHTML = `
-        ${platformSwitch()}
-        <div class="acal-detail-nav"><button type="button" data-detail-back>‹ <span>Календарь</span></button><strong>Событие</strong><span>Изменить</span></div>
-        <div class="acal-detail-body">
-          <section class="acal-detail-hero tone-${event.tone}"><i></i><div><h3>${event.title}</h3><p>${toneLabel(event.tone)}</p></div></section>
-          <section class="acal-detail-group"><div><b>${day.fullWeekday}, ${day.date}</b><span>${event.start}–${event.end}</span></div><div><b>Место</b><span>${event.place}</span></div></section>
-          <section class="acal-detail-group"><div><b>Заметки</b><span>${event.meta}</span><span>${event.next}</span></div></section>
-          <section class="acal-detail-group"><div class="acal-calendar"><i class="tone-${event.tone}"></i><span>Календарь КГМУ</span></div></section>
-        </div>`;
+      preview.innerHTML = `${platformSwitch()}<div class="acal-detail-nav"><button type="button" data-detail-back>‹ <span>Расписание</span></button><strong>Событие</strong><span>Изменить</span></div><div class="acal-detail-body"><section class="acal-detail-hero tone-${event.tone}"><i></i><div><h3>${event.title}</h3><p>${toneLabel(event.tone)}</p></div></section><section class="acal-detail-group"><div><b>${day.fullWeekday}, ${day.date}</b><span>${event.start}–${event.end}</span></div><div><b>Место</b><span>${event.place}</span></div></section><section class="acal-detail-group"><div><b>Заметки</b><span>${event.meta}</span><span>${event.next}</span></div></section><section class="acal-detail-group"><div class="acal-calendar"><i class="tone-${event.tone}"></i><span>Календарь КГМУ</span></div></section></div>`;
     } else {
-      preview.innerHTML = `
-        ${platformSwitch()}
-        <div class="gcal-detail-toolbar"><button type="button" data-detail-back aria-label="Назад">←</button><span></span><div aria-hidden="true">✎ ⋮</div></div>
-        <div class="gcal-detail-body">
-          <section class="gcal-detail-title tone-${event.tone}"><i></i><div><h3>${event.title}</h3><p>${event.type}</p></div></section>
-          <section class="gcal-detail-row"><span>◷</span><div><strong>${day.fullWeekday}, ${day.date}</strong><p>${event.start}–${event.end}</p></div></section>
-          <section class="gcal-detail-row"><span>⌖</span><div><strong>${event.place}</strong></div></section>
-          <section class="gcal-detail-row"><span>≡</span><div><strong>${event.meta}</strong><p>${event.next}</p></div></section>
-          <section class="gcal-detail-row"><span class="gcal-calendar-dot tone-${event.tone}"></span><div><strong>Календарь КГМУ</strong><p>Расписание группы</p></div></section>
-        </div>`;
+      preview.innerHTML = `${platformSwitch()}<div class="gcal-detail-toolbar"><button type="button" data-detail-back aria-label="Назад">←</button><span></span><div aria-hidden="true">✎ ⋮</div></div><div class="gcal-detail-body"><section class="gcal-detail-title tone-${event.tone}"><i></i><div><h3>${event.title}</h3><p>${event.type}</p></div></section><section class="gcal-detail-row"><span>◷</span><div><strong>${day.fullWeekday}, ${day.date}</strong><p>${event.start}–${event.end}</p></div></section><section class="gcal-detail-row"><span>⌖</span><div><strong>${event.place}</strong></div></section><section class="gcal-detail-row"><span>≡</span><div><strong>${event.meta}</strong><p>${event.next}</p></div></section><section class="gcal-detail-row"><span class="gcal-calendar-dot tone-${event.tone}"></span><div><strong>Календарь КГМУ</strong><p>Расписание группы</p></div></section></div>`;
     }
     wireCommon();
     preview.querySelector('[data-detail-back]')?.addEventListener('click', renderCalendar);
   };
 
   const changePlatform = (nextPlatform) => {
-    if (!platforms.includes(nextPlatform) || nextPlatform === platform) return;
+    if (!['apple', 'google'].includes(nextPlatform) || nextPlatform === platform) return;
+    const appleScroller = preview.querySelector('[data-apple-scroll]');
+    if (platform === 'apple' && appleScroller) savedAppleScroll = appleScroller.scrollTop;
     markInteraction();
     platform = nextPlatform;
     renderCalendar();
@@ -139,55 +112,70 @@
     const endY = event.changedTouches[0]?.clientY || touchStartY;
     const dx = endX - touchStartX;
     const dy = endY - touchStartY;
-    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     markInteraction();
-    if (dx < 0) {
-      if (activeDay < days.length - 1) activeDay += 1;
-      else if (platform === 'apple') platform = 'google';
+    if (platform === 'apple') {
+      if (dx < 0) platform = 'google';
     } else {
-      if (activeDay > 0) activeDay -= 1;
-      else if (platform === 'google') platform = 'apple';
+      if (dx > 0 && activeDay === 0) platform = 'apple';
+      else if (dx < 0 && activeDay < days.length - 1) activeDay += 1;
+      else if (dx > 0 && activeDay > 0) activeDay -= 1;
     }
     renderCalendar();
   };
 
   const wireCommon = () => {
     preview.querySelectorAll('[data-platform]').forEach((button) => button.addEventListener('click', () => changePlatform(button.dataset.platform)));
-    preview.addEventListener('touchstart', (event) => {
-      touchStartX = event.touches[0]?.clientX || 0;
-      touchStartY = event.touches[0]?.clientY || 0;
-    }, { passive: true, once: true });
+    preview.addEventListener('touchstart', (event) => { touchStartX = event.touches[0]?.clientX || 0; touchStartY = event.touches[0]?.clientY || 0; }, { passive: true, once: true });
     preview.addEventListener('touchend', handleSwipe, { passive: true, once: true });
   };
 
   const renderCalendar = () => {
     preview.className = `calendar-preview calendar-preview--dual calendar-preview--${platform}`;
-    preview.innerHTML = platform === 'apple' ? renderApple() : renderGoogle();
+    preview.innerHTML = `${platformSwitch()}${platform === 'apple' ? renderAppleFeed() : renderGoogleGrid()}`;
     wireCommon();
-    preview.querySelectorAll('[data-calendar-day]').forEach((button) => button.addEventListener('click', () => {
-      markInteraction();
-      activeDay = Number(button.dataset.calendarDay);
-      renderCalendar();
-    }));
+
+    if (platform === 'google') {
+      preview.querySelectorAll('[data-calendar-day]').forEach((button) => button.addEventListener('click', () => { markInteraction(); activeDay = Number(button.dataset.calendarDay); renderCalendar(); }));
+      const scroller = preview.querySelector('[data-day-scroll]');
+      if (scroller) scroller.scrollTop = Math.max(0, (9.5 - START_HOUR) * 60 * PX_PER_MINUTE);
+    } else {
+      const scroller = preview.querySelector('[data-apple-scroll]');
+      if (scroller) {
+        scroller.scrollTop = savedAppleScroll;
+        scroller.addEventListener('scroll', () => { savedAppleScroll = scroller.scrollTop; markInteraction(); }, { passive: true, once: true });
+      }
+    }
+
     preview.querySelectorAll('[data-calendar-event]').forEach((button) => button.addEventListener('click', () => {
+      const appleScroller = preview.querySelector('[data-apple-scroll]');
+      if (appleScroller) savedAppleScroll = appleScroller.scrollTop;
       markInteraction();
-      renderDetails(Number(button.dataset.calendarEvent));
+      renderDetails(Number(button.dataset.dayIndex ?? activeDay), Number(button.dataset.calendarEvent));
     }));
-    const scroller = preview.querySelector('[data-day-scroll]');
-    if (scroller) scroller.scrollTop = Math.max(0, (9.2 - START_HOUR) * 60 * PX_PER_MINUTE);
   };
 
   const startAuto = () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     autoTimer = setInterval(() => {
       if (userInteracting || preview.classList.contains('is-detail-view')) return;
-      if (activeDay < days.length - 1) activeDay += 1;
-      else {
-        activeDay = 0;
-        platform = platform === 'google' ? 'apple' : 'google';
+      if (platform === 'google') {
+        activeDay = (activeDay + 1) % days.length;
+        if (activeDay === 0) platform = 'apple';
+      } else {
+        const scroller = preview.querySelector('[data-apple-scroll]');
+        if (scroller) {
+          const max = scroller.scrollHeight - scroller.clientHeight;
+          if (scroller.scrollTop < max - 24) {
+            scroller.scrollTo({ top: Math.min(max, scroller.scrollTop + 92), behavior: 'smooth' });
+            return;
+          }
+        }
+        savedAppleScroll = 0;
+        platform = 'google';
       }
       renderCalendar();
-    }, 4800);
+    }, 4600);
   };
 
   renderCalendar();
