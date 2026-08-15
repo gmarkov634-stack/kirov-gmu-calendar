@@ -9,6 +9,7 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "wall.pin", "wall.unpin"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -296,7 +297,7 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
 
       let accessToken;
-      if (command.action === "wall.post") {
+      if (COMMUNITY_TOKEN_ACTIONS.has(command.action)) {
         if (!communityAccessToken) return sendJson(response, 503, { error: "vk_control_not_configured" });
         accessToken = communityAccessToken;
       } else {

@@ -243,8 +243,22 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
-test("wall.delete, wall.pin and wall.unpin are restricted to a positive post id", async () => {
-  for (const action of ["wall.delete", "wall.pin", "wall.unpin"]) {
+test("wall.delete uses the user token and requires a positive post id", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  await handler(vkSuccess(1, requests))(
+    fakeRequest(command("wall.delete", { postId: 500 })),
+    response,
+  );
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
+  assert.equal(requests[0].url, "https://api.vk.com/method/wall.delete");
+  assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+});
+
+test("wall.pin and wall.unpin use the community token and require a positive post id", async () => {
+  for (const action of ["wall.pin", "wall.unpin"]) {
     const requests = [];
     const response = fakeResponse();
     await handler(vkSuccess(1, requests))(
@@ -255,7 +269,8 @@ test("wall.delete, wall.pin and wall.unpin are restricted to a positive post id"
     assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
     assert.equal(requests[0].url, `https://api.vk.com/method/${action}`);
     assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-    assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+    assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+    assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
   }
 });
 
