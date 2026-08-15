@@ -1,7 +1,9 @@
 import crypto from 'node:crypto';
+import https from 'node:https';
 
 const MAX_PDF_BYTES = 25 * 1024 * 1024;
 const ALLOWED_HOSTS = new Set(['igma.ru', 'www.igma.ru']);
+const MAX_REDIRECTS = 5;
 
 export const IZHGMU_MEDICINE6_STREAM_MAPPING_POLICY = Object.freeze({
   scope: 'source_local',
@@ -63,6 +65,12 @@ function assertOfficialPdfUrl(rawUrl) {
   return url;
 }
 
+function canonicalOfficialPdfUrl(rawUrl) {
+  const url = assertOfficialPdfUrl(rawUrl);
+  if (url.hostname.toLowerCase() === 'igma.ru') url.hostname = 'www.igma.ru';
+  return url;
+}
+
 function isPdf(buffer) {
   return buffer.length >= 5 && buffer.subarray(0, 5).toString('ascii') === '%PDF-';
 }
@@ -71,17 +79,100 @@ function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
-export async function fetchIzhgmuPostsemesterSource(source, {
-  fetchImpl = globalThis.fetch,
-  timeoutMs = 30_000,
-  maxBytes = MAX_PDF_BYTES,
-} = {}) {
-  if (typeof fetchImpl !== 'function') throw new TypeError('fetchImpl must be a function');
-  const url = assertOfficialPdfUrl(source?.url);
+function nodeHttpsGet(url, { timeoutMs, maxBytes, redirectCount = 0 } = {}) {
+  const canonicalUrl = canonicalOfficialPdfUrl(url);
+  return new Promise((resolve, reject) => {
+    const request = https.get(canonicalUrl, {
+      family: 4,
+      headers: {
+        'User-Agent': 'MedicalUniversityCalendarBot/1.0 (+IzhGMU post-semester schedule download)',
+        Accept: 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.1',
+        'Accept-Encoding': 'identity',
+      },
+    }, (response) => {
+      const status = Number(response.statusCode || 0);
+      const location = response.headers.location;
+      if (status >= 300 && status < 400 && location) {
+        response.resume();
+        if (redirectCount >= MAX_REDIRECTS) {
+          const error = new Error(`IzhGMU post-semester redirect limit exceeded: ${canonicalUrl.href}`);
+          error.code = 'IZH_POSTSEMESTER_REDIRECT_LIMIT';
+          reject(error);
+          return;
+        }
+        let nextUrl;
+        try {
+          nextUrl = canonicalOfficialPdfUrl(new URL(location, canonicalUrl).href);
+        } catch (error) {
+          reject(error);
+          return;
+        }
+        nodeHttpsGet(nextUrl, { timeoutMs, maxBytes, redirectCount: redirectCount + 1 }).then(resolve, reject);
+        return;
+      }
+      if (status < 200 || status >= 300) {
+        response.resume();
+        const error = new Error(`IzhGMU post-semester source HTTP ${status || 'unknown'}: ${canonicalUrl.href}`);
+        error.code = 'IZH_POSTSEMESTER_HTTP_ERROR';
+        error.status = status || null;
+        reject(error);
+        return;
+      }
+      const declaredLength = Number(response.headers['content-length'] || 0);
+      if (declaredLength > maxBytes) {
+        response.destroy();
+        const error = new Error(`IzhGMU post-semester PDF exceeds ${maxBytes} bytes`);
+        error.code = 'IZH_POSTSEMESTER_TOO_LARGE';
+        reject(error);
+        return;
+      }
+      const chunks = [];
+      let total = 0;
+      response.on('data', (chunk) => {
+        total += chunk.length;
+        if (total > maxBytes) {
+          const error = new Error(`IzhGMU post-semester PDF exceeds ${maxBytes} bytes`);
+          error.code = 'IZH_POSTSEMESTER_TOO_LARGE';
+          response.destroy(error);
+          return;
+        }
+        chunks.push(chunk);
+      });
+      response.on('end', () => {
+        resolve({
+          buffer: Buffer.concat(chunks),
+          finalUrl: canonicalUrl.href,
+          contentType: response.headers['content-type'] || null,
+        });
+      });
+      response.on('error', reject);
+    });
+    request.setTimeout(timeoutMs, () => {
+      const error = new Error(`IzhGMU post-semester request timed out: ${canonicalUrl.href}`);
+      error.code = 'IZH_POSTSEMESTER_TIMEOUT';
+      request.destroy(error);
+    });
+    request.on('error', (cause) => {
+      if (cause?.code?.startsWith?.('IZH_')) {
+        reject(cause);
+        return;
+      }
+      const error = new Error(`IzhGMU post-semester network error: ${cause?.code || cause?.message || 'unknown'}`);
+      error.code = 'IZH_POSTSEMESTER_NETWORK_ERROR';
+      error.causeCode = cause?.code || null;
+      reject(error);
+    });
+  });
+}
+
+async function fetchWithInjectedClient(url, fetchImpl, { timeoutMs, maxBytes }) {
   const response = await fetchImpl(url, {
     redirect: 'follow',
     signal: AbortSignal.timeout(timeoutMs),
-    headers: { 'user-agent': 'kirov-gmu-calendar/izhgmu-postsemester-source-boundary' },
+    headers: {
+      'user-agent': 'kirov-gmu-calendar/izhgmu-postsemester-source-boundary',
+      accept: 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.1',
+    },
   });
   if (!response?.ok) {
     const error = new Error(`IzhGMU post-semester source HTTP ${response?.status ?? 'unknown'}: ${url.href}`);
@@ -89,14 +180,31 @@ export async function fetchIzhgmuPostsemesterSource(source, {
     error.status = response?.status ?? null;
     throw error;
   }
-  const finalUrl = assertOfficialPdfUrl(response.url || url.href);
+  const finalUrl = canonicalOfficialPdfUrl(response.url || url.href);
   const lengthHeader = Number(response.headers?.get?.('content-length'));
   if (Number.isFinite(lengthHeader) && lengthHeader > maxBytes) {
     const error = new Error(`IzhGMU post-semester PDF exceeds ${maxBytes} bytes`);
     error.code = 'IZH_POSTSEMESTER_TOO_LARGE';
     throw error;
   }
-  const buffer = Buffer.from(await response.arrayBuffer());
+  return {
+    buffer: Buffer.from(await response.arrayBuffer()),
+    finalUrl: finalUrl.href,
+    contentType: response.headers?.get?.('content-type') || null,
+  };
+}
+
+export async function fetchIzhgmuPostsemesterSource(source, {
+  fetchImpl = null,
+  timeoutMs = 30_000,
+  maxBytes = MAX_PDF_BYTES,
+} = {}) {
+  if (fetchImpl != null && typeof fetchImpl !== 'function') throw new TypeError('fetchImpl must be a function');
+  const url = canonicalOfficialPdfUrl(source?.url);
+  const response = fetchImpl
+    ? await fetchWithInjectedClient(url, fetchImpl, { timeoutMs, maxBytes })
+    : await nodeHttpsGet(url, { timeoutMs, maxBytes });
+  const buffer = response.buffer;
   if (buffer.length === 0 || buffer.length > maxBytes) {
     const error = new Error(`IzhGMU post-semester PDF size is invalid: ${buffer.length}`);
     error.code = 'IZH_POSTSEMESTER_TOO_LARGE';
@@ -108,11 +216,11 @@ export async function fetchIzhgmuPostsemesterSource(source, {
     throw error;
   }
   return {
-    source: { ...source, url: url.href, finalUrl: finalUrl.href },
+    source: { ...source, url: url.href, finalUrl: response.finalUrl },
     buffer,
     bytes: buffer.length,
     sha256: sha256(buffer),
-    contentType: response.headers?.get?.('content-type') || null,
+    contentType: response.contentType,
   };
 }
 
@@ -146,6 +254,7 @@ export async function collectIzhgmuMedicine6PostsemesterSources(options = {}) {
         status: 'failed',
         error: error?.code || 'fetch_error',
         message: error?.message || String(error),
+        causeCode: error?.causeCode || null,
         calendarAuthority: source.calendarAuthority,
         rangeMarkerFallback: source.rangeMarkerFallback,
         buffer: null,
