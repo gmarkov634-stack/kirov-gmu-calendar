@@ -42,35 +42,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate landing files and catalog
+      - name: Validate landing files and live commercial boundary
         run: |
           for file in index.html styles.css landing-v1.css data.js app.js app-utils.js; do
             test -f "$file"
           done
-          for file in index.html styles.css mobile.css app.js config.js groups.js; do
+          for file in index.html styles.css mobile.css app.js config.js ui.js; do
             test -f "site/omgmu/$file"
           done
+          test ! -f site/omgmu/groups.js
           node - <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          const groupCode = fs.readFileSync('site/omgmu/groups.js', 'utf8');
           const configCode = fs.readFileSync('site/omgmu/config.js', 'utf8');
           const sandbox = { window: {} };
-          vm.runInNewContext(groupCode, sandbox);
           vm.runInNewContext(configCode, sandbox);
-          const catalog = sandbox.window.OMGMU_GROUPS;
           const config = sandbox.window.OMGMU_CONFIG;
-          if (!Array.isArray(catalog)) throw new Error('OMGMU_GROUPS is not an array');
-          const groups = catalog.flatMap(item => item.groups || []);
-          const unique = new Set(groups);
-          const approvedManual = ['2113', '2114', '389', '393'];
-          if (groups.length !== 43) throw new Error(`Expected 43 groups, got ${groups.length}`);
-          if (unique.size !== groups.length) throw new Error('Duplicate ОмГМУ groups are exposed');
-          for (const group of approvedManual) {
-            if (!groups.includes(group)) throw new Error(`Approved group ${group} is missing`);
-          }
-          if (config.checkoutEnabled === true && config.testMode !== true) {
-            throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
+          if (!config || config.university !== 'omgmu') throw new Error('OmGMU identity config is missing');
+          if (config.defaultPlan !== 'semester') throw new Error('OmGMU default commercial plan must be explicit');
+          for (const forbidden of ['checkoutEnabled', 'testMode', 'priceRub']) {
+            if (Object.prototype.hasOwnProperty.call(config, forbidden) || configCode.includes(forbidden)) {
+              throw new Error(`Static commercial authority must not exist in OmGMU config: ${forbidden}`);
+            }
           }
           if (!configCode.includes('mobile.css') || !configCode.includes('document.currentScript')) {
             throw new Error('ОмГМУ mobile stylesheet loader is missing');
@@ -82,11 +75,14 @@ jobs:
           }
 
           const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
-          for (const requiredId of ['how', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'restore-order', 'faq']) {
+          for (const requiredId of ['how', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'runtime-price', 'restore-order', 'faq']) {
             if (!html.includes(`id="${requiredId}"`)) throw new Error(`Landing UX element missing: ${requiredId}`);
           }
           for (const requiredCopy of ['Оплата проходит через ЮKassa', 'Без автосписаний', 'Открыть последний заказ', 'Это официальный сервис ОмГМУ?']) {
             if (!html.includes(requiredCopy)) throw new Error(`Trust/FAQ copy missing: ${requiredCopy}`);
+          }
+          for (const program of ['medicine-international', 'medicine', 'pediatrics', 'dentistry', 'preventive-medicine', 'pharmacy']) {
+            if (!html.includes(`data-program="${program}"`)) throw new Error(`Program card missing: ${program}`);
           }
           if (/name=["']calendar["']/.test(html)) {
             throw new Error('Calendar provider must not be selected before payment; subscription URL is universal');
@@ -94,15 +90,39 @@ jobs:
           if (html.includes('Email для получения ссылки')) {
             throw new Error('Landing must not claim that the subscription URL is delivered by email');
           }
+          if (html.includes('groups.js') || html.includes('>490 ₽<') || html.includes('<span class="badge">Доступно</span>')) {
+            throw new Error('OmGMU landing contains stale static commercial availability');
+          }
+          if (!html.includes('type="submit" disabled')) {
+            throw new Error('OmGMU checkout must start fail-closed before runtime meta is loaded');
+          }
 
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel', 'enableSavedOrderRecovery', 'restoreOrderButton']) {
-            if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
+          for (const required of [
+            'email:',
+            'groupId:',
+            'stream: group.stream ?? null',
+            'plan: config.defaultPlan',
+            'confirmationUrl',
+            '/api/v2/meta',
+            '/api/v2/catalog/',
+            "runtime.sales === 'open'",
+            'meta.paymentMode',
+            'meta.offers?.[config.defaultPlan]?.price',
+            'restoreOrderForm',
+            'resultPanel',
+            'enableSavedOrderRecovery',
+            'restoreOrderButton',
+          ]) {
+            if (!app.includes(required)) throw new Error(`Live checkout contract marker missing: ${required}`);
+          }
+          for (const forbidden of ['window.OMGMU_GROUPS', 'checkoutEnabled', 'config.testMode', 'config.priceRub']) {
+            if (app.includes(forbidden)) throw new Error(`Stale static commercial marker remains: ${forbidden}`);
           }
           if (!app.includes("window.location.hash === '#order'")) {
             throw new Error('Return-to-group reset guard is missing');
           }
-          console.log('Landing validation passed');
+          console.log('Landing live commercial boundary validation passed');
           NODE
       - name: Prepare production artifact
         if: github.event_name != 'pull_request'
