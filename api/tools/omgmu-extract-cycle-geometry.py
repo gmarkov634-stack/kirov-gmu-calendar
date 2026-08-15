@@ -10,6 +10,8 @@ from typing import Any
 RUSSIAN_TITLE = "РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ"
 CYCLE_RE = re.compile(r"(\d+)\s*цикл\s*:\s*(\d{2}\.\d{2})\s*[-–]\s*(\d{2}\.\d{2})(.*)", re.I)
 GROUP_RE = re.compile(r"\d{3,4}")
+HOLIDAY_LINE_RE = re.compile(r"(?:Праздничные\s+дни|Public\s+holidays)\s*:\s*([\d.;\s]+)", re.I)
+DATE_TOKEN_RE = re.compile(r"(?<!\d)(\d{2}\.\d{2})(?!\d)")
 
 
 def compact(value: Any) -> str:
@@ -32,10 +34,22 @@ def extract_cycle_geometry(pdf_path: Path) -> dict[str, Any]:
         raise RuntimeError("pdfplumber is required; install tools/requirements-omgmu.txt") from error
 
     cycles: list[dict[str, Any]] = []
+    source_calendar_exceptions: list[str] = []
     with pdfplumber.open(pdf_path) as document:
         russian_started = False
         for page_number, page in enumerate(document.pages, start=1):
             page_text = page.extract_text() or ""
+
+            # O33 is document-level calendar metadata. In the current bilingual
+            # 4zan.pdf the explicit holiday list is printed in the common English
+            # header, while event rows used for production begin in the Russian
+            # source_part. Calendar metadata may be read from either header; lesson
+            # geometry below remains Russian-only and never falls back to English.
+            for match in HOLIDAY_LINE_RE.finditer(page_text):
+                for token in DATE_TOKEN_RE.findall(match.group(1)):
+                    if token not in source_calendar_exceptions:
+                        source_calendar_exceptions.append(token)
+
             if RUSSIAN_TITLE in page_text:
                 russian_started = True
             if not russian_started:
@@ -165,6 +179,7 @@ def extract_cycle_geometry(pdf_path: Path) -> dict[str, Any]:
         "version": 1,
         "sourceProfile": "cycle_rotation_grid",
         "sourceLanguage": "ru",
+        "sourceCalendarExceptions": source_calendar_exceptions,
         "cycles": cycles,
     }
 
@@ -185,6 +200,7 @@ def main() -> int:
             f"cycle {cycle['cycleNo']} page={cycle['pageNumber']} rows={len(cycle['rows'])}"
             for cycle in geometry["cycles"]
         )
+        + f" holidays={','.join(geometry['sourceCalendarExceptions']) or '-'}"
         + f" -> {output_path}"
     )
     return 0

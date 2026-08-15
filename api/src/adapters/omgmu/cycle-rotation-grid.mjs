@@ -30,6 +30,38 @@ function dateValue(year, month, day) {
   return value;
 }
 
+function normalizeExceptionDate(value, year) {
+  const text = String(value || "").trim();
+  const isoMatch = text.match(/^(20\d{2})-(\d{2})-(\d{2})$/);
+  if (isoMatch) {
+    const parsedYear = Number(isoMatch[1]);
+    dateValue(parsedYear, Number(isoMatch[2]), Number(isoMatch[3]));
+    return text;
+  }
+  const sourceMatch = text.match(/^(\d{2})\.(\d{2})$/);
+  if (!sourceMatch) throw new TypeError(`Invalid calendar exception date: ${text}`);
+  dateValue(year, Number(sourceMatch[2]), Number(sourceMatch[1]));
+  return iso(year, Number(sourceMatch[2]), Number(sourceMatch[1]));
+}
+
+function normalizeConditionalExceptions(values, year) {
+  if (!Array.isArray(values)) return [];
+  return values.map((item) => {
+    if (!item || typeof item !== "object") throw new TypeError("conditional calendar exception must be an object");
+    const policy = String(item.policy || "").trim();
+    if (policy !== "exclude_if_required_for_exact_control") {
+      throw new TypeError(`Unsupported conditional calendar exception policy: ${policy || "<empty>"}`);
+    }
+    return {
+      date: normalizeExceptionDate(item.date, year),
+      policy,
+      ruleIds: Array.isArray(item.rule_ids) ? item.rule_ids.map(String) : ["O32", "O34"],
+      evidence: item.evidence || null,
+      note: item.note ? String(item.note) : null,
+    };
+  });
+}
+
 function expandWorkingRange(range, { year, calendarExceptions }) {
   const start = dateValue(year, range.startMonth, range.startDay);
   const end = dateValue(year, range.endMonth, range.endDay);
@@ -39,9 +71,9 @@ function expandWorkingRange(range, { year, calendarExceptions }) {
   while (cursor <= end) {
     const date = cursor.toISOString().slice(0, 10);
     const weekday = cursor.getUTCDay();
-    // The verified `cycle_rotation_grid` source calendar has no teaching on
-    // Sundays; the cycle header additionally says `без субботы`. Explicit
-    // source calendar exceptions are supplied by orchestration.
+    // The cycle source explicitly says `без субботы`; Sunday is not treated as
+    // a teaching day. O33 source holidays are unconditional. External
+    // non-working days are NOT handled here: O32/O34 resolve them per series.
     if (weekday !== 0 && weekday !== 6 && !calendarExceptions.has(date)) dates.push(date);
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
@@ -100,7 +132,68 @@ function reference(cycle, row, cell) {
   return `pdf:p${cycle.pageNumber}:cycle-${cycle.cycleNo}:row-${row.rowIndex}:bbox-${bbox}:groups-${cell.groups.join("+")}`;
 }
 
-function recordRuleIds({ cycle, row, cell, kind, typeExplicit, slots, control, controlSameMainDate }) {
+function educationDateCount(mainDates, control) {
+  const dates = new Set(mainDates);
+  if (control) dates.add(control.date);
+  return dates.size;
+}
+
+function resolveConditionalCalendarExceptions({ mainDates, control, declaredDays, candidates }) {
+  const applicable = candidates.filter((candidate) => mainDates.includes(candidate.date));
+  const baseCount = educationDateCount(mainDates, control);
+  if (!applicable.length) {
+    return {
+      mainDates,
+      baseCount,
+      resolvedCount: baseCount,
+      applied: [],
+      kept: [],
+      mode: "none",
+    };
+  }
+
+  // O32: a more specific official OmGMU row wins when it is already internally
+  // consistent. External non-working days may not erase such an event.
+  if (baseCount === declaredDays) {
+    return {
+      mainDates,
+      baseCount,
+      resolvedCount: baseCount,
+      applied: [],
+      kept: applicable,
+      mode: "source_priority_keep",
+    };
+  }
+
+  // O34: external dates are candidates, not global exclusions. Apply the full
+  // independently-authoritative candidate set only when it uniquely resolves
+  // this exact series to its explicit control count. Never choose an arbitrary
+  // subset merely to make arithmetic fit.
+  const applicableDates = new Set(applicable.map((candidate) => candidate.date));
+  const withoutCandidates = mainDates.filter((date) => !applicableDates.has(date));
+  const candidateCount = educationDateCount(withoutCandidates, control);
+  if (candidateCount === declaredDays) {
+    return {
+      mainDates: withoutCandidates,
+      baseCount,
+      resolvedCount: candidateCount,
+      applied: applicable,
+      kept: [],
+      mode: "external_exception_applied",
+    };
+  }
+
+  return {
+    mainDates,
+    baseCount,
+    resolvedCount: baseCount,
+    applied: [],
+    kept: applicable,
+    mode: "unresolved",
+  };
+}
+
+function recordRuleIds({ cycle, row, cell, kind, typeExplicit, slots, control, controlSameMainDate, hasSourceExceptions, calendarResolution }) {
   const rules = ["O07", "O16", "O20", "O22", "O23", "O35", "O39", "O43", "O49", "O64"];
   if (cycle.envelope.withoutSaturday) rules.push("O47");
   if (row.disciplineInherited) rules.push("O26");
@@ -111,6 +204,8 @@ function recordRuleIds({ cycle, row, cell, kind, typeExplicit, slots, control, c
   if (control) rules.push("O30", "O42");
   if (control?.explicitTime) rules.push("O37");
   if (controlSameMainDate && !control.explicitTime) rules.push("O29");
+  if (hasSourceExceptions) rules.push("O33");
+  if (calendarResolution.mode !== "none") rules.push("O32", "O34");
   return [...new Set(rules)];
 }
 
@@ -123,8 +218,15 @@ function parseRecord(cycle, row, cell, options) {
   const typeMatch = text.match(TYPE_RE);
   const typeExplicit = Boolean(typeMatch);
   const kind = typeMatch?.[1].toLowerCase() === "лекции" ? "lecture" : "cycle";
-  const mainDates = expandWorkingRange(range, options);
+  const baseMainDates = expandWorkingRange(range, options);
   const control = parseControl(text, options.year);
+  const calendarResolution = resolveConditionalCalendarExceptions({
+    mainDates: baseMainDates,
+    control,
+    declaredDays: row.declaredDays,
+    candidates: options.conditionalCalendarExceptions,
+  });
+  const mainDates = calendarResolution.mainDates;
   const controlSameMainDate = Boolean(control && mainDates.includes(control.date));
   const uniqueEducationDates = new Set(mainDates);
   if (control) uniqueEducationDates.add(control.date);
@@ -155,9 +257,27 @@ function parseRecord(cycle, row, cell, options) {
     mainDates,
     control,
     declaredDays: row.declaredDays,
+    calendarResolution: {
+      mode: calendarResolution.mode,
+      baseCount: calendarResolution.baseCount,
+      resolvedCount: calendarResolution.resolvedCount,
+      appliedDates: calendarResolution.applied.map((candidate) => candidate.date),
+      keptDates: calendarResolution.kept.map((candidate) => candidate.date),
+    },
     status: warnings.length ? "needs_review" : "ok",
     warnings,
-    ruleIds: recordRuleIds({ cycle, row, cell, kind, typeExplicit, slots, control, controlSameMainDate }),
+    ruleIds: recordRuleIds({
+      cycle,
+      row,
+      cell,
+      kind,
+      typeExplicit,
+      slots,
+      control,
+      controlSameMainDate,
+      hasSourceExceptions: options.sourceCalendarExceptions.size > 0,
+      calendarResolution,
+    }),
     rawSource: `${row.discipline} | ${row.timeText} | К.дн. ${row.declaredDays} | ${text}`,
     references: [{ role: "lesson", range: reference(cycle, row, cell) }],
     geometry: {
@@ -227,7 +347,7 @@ function materializeRecord(record) {
   return userSeries;
 }
 
-export function parseCycleRotationGeometry(geometry, { year, calendarExceptions = [] } = {}) {
+export function parseCycleRotationGeometry(geometry, { year, calendarExceptions = [], conditionalCalendarExceptions = [] } = {}) {
   if (geometry?.version !== 1 || geometry?.sourceProfile !== "cycle_rotation_grid") {
     throw new TypeError("cycle_rotation_grid geometry/v1 is required");
   }
@@ -238,7 +358,19 @@ export function parseCycleRotationGeometry(geometry, { year, calendarExceptions 
   }
   if (!Number.isInteger(Number(year))) throw new TypeError("cycle_rotation_grid requires explicit calendar year");
 
-  const options = { year: Number(year), calendarExceptions: new Set(calendarExceptions.map(String)) };
+  const numericYear = Number(year);
+  const sourceCalendarExceptions = new Set(
+    (Array.isArray(geometry.sourceCalendarExceptions) ? geometry.sourceCalendarExceptions : [])
+      .map((value) => normalizeExceptionDate(value, numericYear)),
+  );
+  const metadataExceptions = new Set(calendarExceptions.map((value) => normalizeExceptionDate(value, numericYear)));
+  const unconditionalExceptions = new Set([...sourceCalendarExceptions, ...metadataExceptions]);
+  const options = {
+    year: numericYear,
+    calendarExceptions: unconditionalExceptions,
+    sourceCalendarExceptions,
+    conditionalCalendarExceptions: normalizeConditionalExceptions(conditionalCalendarExceptions, numericYear),
+  };
   const groups = [...new Set((geometry.cycles || []).flatMap((cycle) => (cycle.groups || []).map((group) => String(group.code))))];
   const sourceSeries = [];
   const diagnostics = [];
@@ -269,6 +401,7 @@ export function buildCycleRotationCanonicalCandidate(geometry, { metadata, sourc
   const parsed = parseCycleRotationGeometry(geometry, {
     year: calendarYear(metadata),
     calendarExceptions: metadata?.calendarExceptions || [],
+    conditionalCalendarExceptions: metadata?.conditionalCalendarExceptions || [],
   });
   if (!parsed.groups.includes(group)) {
     const error = new Error(`cycle_rotation_grid geometry does not contain group ${group}`);
@@ -315,4 +448,5 @@ export const cycleRotationInternals = Object.freeze({
   parseRange,
   parseControl,
   materializeRecord,
+  resolveConditionalCalendarExceptions,
 });
