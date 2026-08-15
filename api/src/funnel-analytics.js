@@ -37,7 +37,27 @@ function paymentBucket(orders, connectedOrderIds, testMode) {
   };
 }
 
-export function buildFunnelSummary({ orders = [], conversions = [], accesses = [], filter = {}, now = new Date() } = {}) {
+function validJourneyHash(value) {
+  return SHA256.test(String(value || ""));
+}
+
+function eventJourneySet(events, eventName) {
+  return new Set(events
+    .filter((value) => value?.kind === "event" && value.event === eventName && validJourneyHash(value.journeyIdHash))
+    .map((value) => value.journeyIdHash));
+}
+
+function linkedJourneySet(values, linkMap, idField) {
+  const result = new Set();
+  for (const value of values) {
+    const id = value?.[idField];
+    const journey = linkMap.get(id);
+    if (journey) result.add(journey);
+  }
+  return result;
+}
+
+export function buildFunnelSummary({ orders = [], conversions = [], accesses = [], events = [], filter = {}, now = new Date() } = {}) {
   const periodFilter = {
     university: filter.university || null,
     academicYear: normalizeAcademicYear(filter.academicYear) || null,
@@ -46,6 +66,8 @@ export function buildFunnelSummary({ orders = [], conversions = [], accesses = [
 
   const filteredOrders = orders.filter((value) => samePeriod(value, periodFilter));
   const filteredConversions = conversions.filter((value) => samePeriod(value, periodFilter));
+  const filteredEvents = events.filter((value) => samePeriod(value, periodFilter));
+  const userEvents = filteredEvents.filter((value) => value?.kind === "event" && validJourneyHash(value.journeyIdHash));
   const accessByHash = new Map(
     accesses
       .filter((value) => SHA256.test(String(value?.tokenHash || "")))
@@ -56,6 +78,12 @@ export function buildFunnelSummary({ orders = [], conversions = [], accesses = [
       .filter((value) => value?.orderId && value?.firstSeenAt)
       .map((value) => value.orderId),
   );
+  const trialLinkMap = new Map(filteredEvents
+    .filter((value) => value?.kind === "link" && value.linkType === "trial" && SHA256.test(String(value.conversionIdHash || "")) && validJourneyHash(value.journeyIdHash))
+    .map((value) => [value.conversionIdHash, value.journeyIdHash]));
+  const orderLinkMap = new Map(filteredEvents
+    .filter((value) => value?.kind === "link" && value.linkType === "order" && value.orderId && validJourneyHash(value.journeyIdHash))
+    .map((value) => [value.orderId, value.journeyIdHash]));
 
   const trialCreated = filteredConversions.length;
   const connectedTrialConversions = filteredConversions.filter((conversion) => {
@@ -72,10 +100,64 @@ export function buildFunnelSummary({ orders = [], conversions = [], accesses = [
     paidConnected: filteredOrders.filter((order) => order?.status === "succeeded" && connectedOrderIds.has(order.orderId)).length,
   };
 
+  const landingJourneys = eventJourneySet(userEvents, "landing_view");
+  const universityJourneys = eventJourneySet(userEvents, "university_view");
+  const groupJourneys = eventJourneySet(userEvents, "group_selected");
+  const trialCtaJourneys = eventJourneySet(userEvents, "trial_cta_clicked");
+  const directCtaJourneys = eventJourneySet(userEvents, "direct_purchase_clicked");
+  const trialConnectClickJourneys = eventJourneySet(userEvents, "trial_connect_clicked");
+  const offerJourneys = eventJourneySet(userEvents, "offer_view");
+  const checkoutJourneys = eventJourneySet(userEvents, "checkout_started");
+  const paidLinkShownJourneys = eventJourneySet(userEvents, "paid_link_shown");
+  const paidConnectClickJourneys = eventJourneySet(userEvents, "paid_connect_clicked");
+
+  const linkedTrialCreatedJourneys = linkedJourneySet(filteredConversions, trialLinkMap, "conversionIdHash");
+  const linkedTrialConnectedJourneys = linkedJourneySet(connectedTrialConversions, trialLinkMap, "conversionIdHash");
+  const succeededOrders = filteredOrders.filter((order) => order?.status === "succeeded");
+  const trialToPaidOrders = succeededOrders.filter((order) => order.purchasePath === "trial_to_paid");
+  const connectedOrders = succeededOrders.filter((order) => connectedOrderIds.has(order.orderId));
+  const linkedSucceededJourneys = linkedJourneySet(succeededOrders, orderLinkMap, "orderId");
+  const linkedTrialToPaidJourneys = linkedJourneySet(trialToPaidOrders, orderLinkMap, "orderId");
+  const linkedPaidConnectedJourneys = linkedJourneySet(connectedOrders, orderLinkMap, "orderId");
+
   return {
-    version: 1,
+    version: 2,
     generatedAt: (now instanceof Date ? now : new Date(now)).toISOString(),
     filter: periodFilter,
+    upper: {
+      uniqueJourneys: {
+        landingView: landingJourneys.size,
+        universityView: universityJourneys.size,
+        groupSelected: groupJourneys.size,
+        trialCtaClicked: trialCtaJourneys.size,
+        directPurchaseClicked: directCtaJourneys.size,
+        trialConnectClicked: trialConnectClickJourneys.size,
+        offerView: offerJourneys.size,
+        checkoutStarted: checkoutJourneys.size,
+        paidLinkShown: paidLinkShownJourneys.size,
+        paidConnectClicked: paidConnectClickJourneys.size,
+      },
+      linkedServerFacts: {
+        trialCreated: linkedTrialCreatedJourneys.size,
+        trialConnected: linkedTrialConnectedJourneys.size,
+        paymentSucceeded: linkedSucceededJourneys.size,
+        trialToPaidSucceeded: linkedTrialToPaidJourneys.size,
+        paidConnected: linkedPaidConnectedJourneys.size,
+      },
+      linkCoverage: {
+        trialCreated: ratio(linkedTrialCreatedJourneys.size, trialCreated),
+        paymentSucceeded: ratio(linkedSucceededJourneys.size, allPayments.paymentSucceeded),
+      },
+      rates: {
+        landingToGroupSelected: ratio(groupJourneys.size, landingJourneys.size),
+        groupSelectedToTrialCreated: ratio(linkedTrialCreatedJourneys.size, groupJourneys.size),
+        trialCreatedToConnected: ratio(linkedTrialConnectedJourneys.size, linkedTrialCreatedJourneys.size),
+        connectedTrialToPaid: ratio(linkedTrialToPaidJourneys.size, linkedTrialConnectedJourneys.size),
+        checkoutToPayment: ratio(linkedSucceededJourneys.size, checkoutJourneys.size),
+        paymentToPaidConnected: ratio(linkedPaidConnectedJourneys.size, linkedSucceededJourneys.size),
+        landingToPaidConnected: ratio(linkedPaidConnectedJourneys.size, landingJourneys.size),
+      },
+    },
     trial: {
       created: trialCreated,
       connected: trialConnected,
@@ -129,15 +211,17 @@ export function createFunnelAnalyticsHandler({ store, config, now = () => new Da
       const semester = url.searchParams.get("semester") || config.offerSemester;
       const academicYear = url.searchParams.get("academicYear") || config.offerAcademicYear;
       const university = url.searchParams.get("university") || "";
-      const [orders, conversions, accesses] = await Promise.all([
+      const [orders, conversions, accesses, events] = await Promise.all([
         store.listFunnelOrders(),
         store.listTrialConversions(),
         store.listSubscriptionAccess(),
+        typeof store.listFunnelEvents === "function" ? store.listFunnelEvents() : Promise.resolve([]),
       ]);
       return send(response, 200, buildFunnelSummary({
         orders,
         conversions,
         accesses,
+        events,
         filter: { university, academicYear, semester },
         now: now(),
       }));
