@@ -8,6 +8,7 @@
     "test": "node --test && python3 tools/omgmu-parse-weekly-pdf.py --self-test && python3 tools/omgmu-parse-fourth-pdf.py --self-test",
     "create-subscription": "node tools/create-subscription.mjs",
     "collect:izhgmu": "node tools/izhgmu-collect.mjs",
+    "fingerprint:izhgmu": "python3 tools/izhgmu-fingerprint.py",
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
