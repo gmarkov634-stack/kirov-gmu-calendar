@@ -75,17 +75,36 @@ test('IZH-LECTURE expands exact dates, resolves end time and reconciles aggregat
     weeklyParsed,
   });
 
-  assert.equal(parsed.stats.lectureRows, 3);
-  assert.equal(parsed.stats.exactOccurrences, 3);
-  assert.equal(parsed.stats.safeOccurrences, 2);
-  assert.equal(parsed.stats.electiveOccurrences, 1);
-  assert.equal(parsed.reviewRequired.length, 0);
-  assert.equal(parsed.choiceRequired.warning, 'elective_choice_required');
-  assert.equal(parsed.choiceRequired.options.length, 1);
-  assert.equal(parsed.classCoverage.totalWideBlocks, 4);
-  assert.equal(parsed.classCoverage.resolvedByLecture.length, 2);
-  assert.equal(parsed.classCoverage.choiceRequired.length, 2);
-  assert.equal(parsed.classCoverage.unmapped.length, 0);
+  console.log('IZH_LECTURE_SYNTH', JSON.stringify({
+    stats: parsed.stats,
+    reviewRequired: parsed.reviewRequired.map((item) => item.warning),
+    optionCount: parsed.choiceRequired?.options?.length || 0,
+    coverage: {
+      totalWideBlocks: parsed.classCoverage.totalWideBlocks,
+      resolvedByLecture: parsed.classCoverage.resolvedByLecture.length,
+      choiceRequired: parsed.classCoverage.choiceRequired.length,
+      unmapped: parsed.classCoverage.unmapped.length,
+      blocks: parsed.classCoverage.blocks.map((item) => ({
+        ref: item.ref,
+        value: item.value,
+        slotKey: item.slotKey,
+        choiceRequired: item.choiceRequired,
+        coverage: item.coverage,
+      })),
+    },
+  }));
+
+  assert.equal(parsed.stats.lectureRows, 3, 'lectureRows');
+  assert.equal(parsed.stats.exactOccurrences, 3, 'exactOccurrences');
+  assert.equal(parsed.stats.safeOccurrences, 2, 'safeOccurrences');
+  assert.equal(parsed.stats.electiveOccurrences, 1, 'electiveOccurrences');
+  assert.equal(parsed.reviewRequired.length, 0, 'reviewRequired');
+  assert.equal(parsed.choiceRequired.warning, 'elective_choice_required', 'choice warning');
+  assert.equal(parsed.choiceRequired.options.length, 1, 'choice option count');
+  assert.equal(parsed.classCoverage.totalWideBlocks, 4, 'totalWideBlocks');
+  assert.equal(parsed.classCoverage.resolvedByLecture.length, 2, 'resolvedByLecture');
+  assert.equal(parsed.classCoverage.choiceRequired.length, 2, 'choiceRequired blocks');
+  assert.equal(parsed.classCoverage.unmapped.length, 0, 'unmapped blocks');
 
   const bioethics = parsed.series.filter((item) => item.discipline === 'Биоэтика');
   assert.deepEqual(bioethics.map((item) => item.endTime), ['10:05', '10:05']);
