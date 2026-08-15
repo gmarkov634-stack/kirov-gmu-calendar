@@ -9,8 +9,11 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info"]);
+const MAX_GROUP_DESCRIPTION_LENGTH = 10000;
+const MAX_GROUP_WEBSITE_LENGTH = 2048;
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit"]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
+const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -125,6 +128,39 @@ function positivePostId(value) {
   const postId = Number(value);
   if (!Number.isInteger(postId) || postId <= 0) throw new Error("invalid_post_id");
   return postId;
+}
+
+function cleanGroupEditPayload(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_group_edit_payload");
+  const keys = Object.keys(value);
+  if (!keys.length || keys.some((key) => !GROUP_EDIT_ALLOWED_FIELDS.has(key))) {
+    throw new Error("invalid_group_edit_payload");
+  }
+
+  const fields = {};
+  if (Object.hasOwn(value, "description")) {
+    if (typeof value.description !== "string" || value.description.length > MAX_GROUP_DESCRIPTION_LENGTH) {
+      throw new Error("invalid_group_description");
+    }
+    fields.description = value.description;
+  }
+  if (Object.hasOwn(value, "website")) {
+    if (typeof value.website !== "string" || value.website.length > MAX_GROUP_WEBSITE_LENGTH) {
+      throw new Error("invalid_group_website");
+    }
+    const website = value.website.trim();
+    if (website) {
+      let url;
+      try {
+        url = new URL(website);
+      } catch {
+        throw new Error("invalid_group_website");
+      }
+      if (url.protocol !== "https:") throw new Error("invalid_group_website");
+    }
+    fields.website = website;
+  }
+  return fields;
 }
 
 function bestPhotoUrl(photo) {
@@ -248,6 +284,18 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     const group = groups.find((item) => Number(item?.id || 0) === Number(groupId)) || groups[0];
     if (!group) throw new Error("vk_group_not_found");
     return sanitizeGroup(group);
+  }
+
+  if (command.action === "group.edit") {
+    const fields = cleanGroupEditPayload(command.payload);
+    const result = await vkMethod({
+      method: "groups.edit",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, ...fields },
+    });
+    return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
   }
 
   if (command.action === "wall.post") {
@@ -376,6 +424,9 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_attachments",
         "invalid_post_id",
         "empty_post",
+        "invalid_group_edit_payload",
+        "invalid_group_description",
+        "invalid_group_website",
         "unsupported_action",
         "vk_group_not_found",
       ].includes(error?.message)) {
