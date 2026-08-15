@@ -70,8 +70,6 @@ function canMerge(left, right, maxGapMinutes) {
   const gap = minutes(right.startTime) - minutes(left.endTime);
   if (!Number.isFinite(gap) || gap < 0 || gap > maxGapMinutes) return false;
 
-  // O65 requires a clear source order. For the verified weekly_grid pattern the
-  // two source records are adjacent table rows on the same rendered PDF page.
   const leftLast = lastEvidence(left)?.geometry;
   const rightFirst = firstEvidence(right)?.geometry;
   if (!leftLast || !rightFirst) return false;
@@ -123,8 +121,12 @@ function mergePair(left, right) {
  * adjacent, already-valid occurrences under O65. The merged occurrence keeps
  * structured evidence from every source series in `sourceSeriesEvidence` and
  * unions all PDF references for canonical traceability.
+ *
+ * The default five-minute gap is intentionally limited to the currently
+ * verified O65 pattern (15:55 -> 16:00). A broader gap requires new source
+ * evidence instead of silent generalization.
  */
-export function materializeWeeklyUserSeries(sourceSeries, { group, maxGapMinutes = 15 } = {}) {
+export function materializeWeeklyUserSeries(sourceSeries, { group, maxGapMinutes = 5 } = {}) {
   const groupCode = String(group || "").trim();
   if (!groupCode) throw new TypeError("O65 materialization requires group");
   if (!Number.isFinite(Number(maxGapMinutes)) || Number(maxGapMinutes) < 0) {
