@@ -95,17 +95,19 @@ function sanitizePost(post) {
 
 export function createVkWallHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
-  const accessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const staticAccessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const tokenManager = dependencies.tokenManager || null;
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
 
   return async function handleVkWall(request, response) {
     if (request.method !== "GET") return sendJson(response, 405, { error: "method_not_allowed" });
-    if (!groupId || !/^\d+$/.test(groupId) || !accessToken) {
+    if (!groupId || !/^\d+$/.test(groupId) || (!staticAccessToken && !tokenManager?.configured)) {
       return sendJson(response, 503, { error: "vk_wall_not_configured" });
     }
 
     try {
+      const accessToken = tokenManager ? await tokenManager.getAccessToken() : staticAccessToken;
       const body = new URLSearchParams({
         access_token: accessToken,
         v: apiVersion,
@@ -132,7 +134,10 @@ export function createVkWallHandler(env = process.env, dependencies = {}) {
         posts: items.map(sanitizePost),
       }, "public, max-age=60");
     } catch (error) {
-      console.error("vk wall read failed", error);
+      if (["vk_oauth_vault_not_configured", "vk_oauth_credentials_missing"].includes(error?.message)) {
+        return sendJson(response, 503, { error: "vk_wall_not_configured" });
+      }
+      console.error("vk wall read failed", error?.message || "unknown");
       return sendJson(response, 502, { error: "vk_wall_unavailable" });
     }
   };
