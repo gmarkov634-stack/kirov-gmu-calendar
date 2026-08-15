@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
+import { buildCalendar } from "../src/calendar.js";
 import { YooKassaService } from "../src/yookassa.js";
 
 const config = {
@@ -137,6 +138,15 @@ test("trial checkout stores only hashes and fulfillment creates full paid entitl
   assert.equal(paid.status, "active");
   assert.equal(paid.groupId, "kgmu:pediatrics:1:131");
   assert.equal(paid.expiresAt, "2026-12-20T07:30:00.000Z");
+  assert.equal("trialStartDate" in paid, false);
+  assert.equal("trialEndDateExclusive" in paid, false);
+
+  // The purchased calendar remains self-contained: the same paid builder sees
+  // both the first-week event and a later semester event.
+  const paidCalendar = buildCalendar(schedule, "https://kgmu.example.test/");
+  assert.match(paidCalendar, /UID:class-1@kgmu-calendar/);
+  assert.match(paidCalendar, /UID:class-2@kgmu-calendar/);
+
   assert.deepEqual(store.revokedHashes, [sha(store.trialToken)]);
   assert.deepEqual(store.upgradedHashes, [sha(conversionId)]);
   assert.equal(store.conversions.get(conversionId).status, "upgraded");
