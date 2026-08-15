@@ -8,6 +8,7 @@ on:
       - "api/src/adapters/izhgmu/**"
       - "api/src/universities/registry.mjs"
       - "api/tools/izhgmu-collect.mjs"
+      - "api/tools/izhgmu-collect-postsemester.mjs"
       - "api/tools/izhgmu-fingerprint.py"
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
@@ -88,6 +89,9 @@ jobs:
       - name: Parse medicine 6 lecture companion with course stream and choice boundaries
         working-directory: api
         run: npm run parse:izhgmu:lecture:medicine6 -- --input-dir /tmp/izhgmu-current
+      - name: Collect exact medicine 6 post-semester schedule PDFs
+        working-directory: api
+        run: npm run collect:izhgmu:postsemester -- --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -140,6 +144,13 @@ jobs:
               print('LECTURE_MEDICINE6_STATS', diag['stats'])
               print('LECTURE_MEDICINE6_MARKERS', diag['periodMarkers'])
               print('LECTURE_MEDICINE6_BLOCKERS', diag['blockers'])
+          post_path=root/'postsemester-report.json'
+          if post_path.exists():
+              post=json.loads(post_path.read_text())
+              print('POSTSEMESTER_STATUS', post['status'])
+              print('POSTSEMESTER_DOWNLOADED', post['downloadedCount'])
+              print('POSTSEMESTER_STREAM_POLICY', post['streamMappingPolicy']['scope'], post['streamMappingPolicy']['communicationSkillsStatus'])
+              print('POSTSEMESTER_FILES', [{k:v for k,v in f.items() if k in ('kind','status','bytes','sha256','outputFile')} for f in post['files']])
           PY
           fi
       - name: Upload current IzhGMU source set
