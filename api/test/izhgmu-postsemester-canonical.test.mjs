@@ -8,9 +8,10 @@ import {
 } from '../src/adapters/izhgmu/postsemester-canonical.mjs';
 
 function prepare(group) {
+  let eventCounter = 0;
   return prepareSchedulePublication(buildIzhgmuMedicine6PostsemesterQaBatch({ group }), {
     now: '2026-08-16T00:00:00Z',
-    eventIdFactory: ({ event }) => `evt_izh_ps_${group}_${event.timing.date}_${event.lesson.type.code}_${Math.random().toString(36).slice(2, 8)}`,
+    eventIdFactory: () => `evt_izh_ps_${group}_${String(++eventCounter).padStart(3, '0')}`,
     versionIdFactory: () => `ver_izh_ps_${group}`,
   });
 }
