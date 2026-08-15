@@ -2,308 +2,176 @@
 
 ## Статус
 
-Архитектурный контракт подготовлен. Runtime-код trial ещё не включён. До реализации и regression-тестов production-поведение существующих paid-подписок не меняется.
+Backend trial реализован в PR #100 и прошёл полный API regression. Production-доступ при этом остаётся закрыт по умолчанию: создание trial возможно только при явном `TRIALS_ENABLED=true`.
+
+Frontend и production smoke относятся к следующему этапу; до их завершения бесплатная проба не должна рекламироваться как уже доступная пользователям.
 
 ## Цель
 
-Trial должен дать студенту реальный опыт использования календаря на первой учебной неделе его группы без банковской карты и без отдельного формата календаря.
+Trial даёт студенту реальный календарь первой учебной недели его группы без банковской карты. Отдельного формата календаря или параллельного backend нет: используется тот же опубликованный canonical schedule и тот же tokenized endpoint, что и для paid.
 
-Главный инвариант: trial использует тот же опубликованный canonical schedule и тот же tokenized subscription endpoint, что и paid. Отличается только entitlement и проекция доступных событий.
+## Entitlement
 
-## Инварианты
+Subscription record остаётся `version: 2` и получает additive-поле:
 
-1. `subscriptions/<sha256(token)>.json` остаётся единственным источником прав на tokenized ICS.
-2. Существующие записи subscription version 2 без поля `entitlement` трактуются как `paid` для обратной совместимости.
-3. Для trial вводится `entitlement: "trial"`; для новых платных записей явно записывается `entitlement: "paid"`.
-4. Trial и paid всегда имеют разные subscription token.
-5. Trial token никогда не превращается в paid token.
-6. Повторное создание trial не открывает новые даты: окно фиксируется относительно первой учебной недели опубликованного расписания, а не относительно момента регистрации.
-7. Trial не публикует собственную копию расписания. Каждый fetch использует текущий подтверждённый `current.json`, затем применяет сохранённое trial-окно.
-8. Исчезновение/ошибка source не очищает trial: действует общий fail-closed инвариант последней подтверждённой публикации.
-9. Subscription token не используется как marketing/analytics identifier.
-10. До явного `TRIALS_ENABLED=true` создание trial закрыто.
+- `entitlement: "trial"` — только фиксированное демо-окно;
+- `entitlement: "paid"` — весь оплаченный период.
 
-## Окно trial
+Исторические version-2 paid records без `entitlement` остаются обратно совместимыми и продолжают обслуживаться прежним handler.
 
-Trial относится только к текущему продаваемому семестру.
+Trial и paid всегда имеют разные приватные token. Trial token никогда не превращается в paid token.
 
-`trialStartDate` — минимальная дата фактического занятия в опубликованном расписании группы.
+## Фиксированное окно
 
-`trialEndDateExclusive` — `trialStartDate + 7 календарных дней`.
+`trialStartDate` — минимальная фактическая дата занятия в опубликованном расписании группы.
 
-В feed входят занятия, для которых дата удовлетворяет условию:
+`trialEndDateExclusive` — ровно +7 календарных дней.
+
+В trial feed входят только занятия:
 
 ```text
 trialStartDate <= event.date < trialEndDateExclusive
 ```
 
-Окно сохраняется в subscription record при создании и не пересчитывается при последующих редакциях расписания. Поэтому обновление расписания может добавить, изменить или удалить занятия внутри уже зафиксированной первой недели, но не может незаметно расширить бесплатный период.
+Окно сохраняется при создании и не сдвигается из-за повторного запроса trial или последующих исправлений расписания. Новая подтверждённая редакция может добавить, изменить или удалить занятия внутри уже сохранённого окна.
 
-Если расписание группы не опубликовано, не совпадает с текущим `OFFER_ACADEMIC_YEAR/OFFER_SEMESTER`, не содержит ни одного валидного занятия или первая неделя уже закончилась, новый trial не создаётся.
+Новый trial не создаётся, если группа не опубликована для текущего `OFFER_ACADEMIC_YEAR/OFFER_SEMESTER`, расписание не содержит валидных занятий либо фиксированная первая неделя уже закончилась.
 
-## Subscription record
-
-Trial использует `version: 2` и существующую token storage схему. Новые поля additive.
-
-```json
-{
-  "version": 2,
-  "status": "active",
-  "entitlement": "trial",
-  "university": "kgmu",
-  "program": "pediatrics",
-  "course": 1,
-  "groupCode": "131",
-  "groupId": "kgmu:pediatrics:1:131",
-  "groupDisplayName": "Группа 131",
-  "academicYear": "2026/2027",
-  "semester": 1,
-  "plan": "semester",
-  "trialStartDate": "2026-09-01",
-  "trialEndDateExclusive": "2026-09-08",
-  "conversionId": "<unguessable non-secret id>",
-  "expiresAt": "<semester end>",
-  "createdAt": "<ISO timestamp>"
-}
-```
-
-`plan: "semester"` сохраняется как period selector для существующего schedule lookup; entitlement определяется отдельным полем и не выводится из plan.
-
-Paid record:
-
-```json
-{
-  "version": 2,
-  "status": "active",
-  "entitlement": "paid",
-  "plan": "semester | year"
-}
-```
-
-Для исторических paid records отсутствие `entitlement` эквивалентно `entitlement: "paid"`.
+Derived-поля (`X из N`, учебная неделя, next_same_event и др.) считаются по полному расписанию до фильтрации и в trial не пересчитываются.
 
 ## Conversion context
 
-Для перехода trial → offer используется отдельный непривилегированный `conversionId`. Он не даёт доступ к ICS и не содержит subscription token.
+Каждый trial получает отдельный случайный 43-символьный `conversionId`. Это непривилегированный идентификатор: он не открывает ICS и не является subscription token.
 
-Хранилище:
+Storage key:
 
 ```text
 trial-conversions/<sha256(conversionId)>.json
 ```
 
-Запись содержит безопасный контекст:
+Запись содержит контекст группы/периода, attribution, фиксированное trial-окно и SHA-256 trial token. Raw trial token в conversion context не хранится.
 
-```json
-{
-  "version": 1,
-  "conversionIdHash": "<sha256>",
-  "trialTokenHash": "<sha256>",
-  "status": "active",
-  "university": "kgmu",
-  "program": "pediatrics",
-  "course": 1,
-  "groupCode": "131",
-  "groupId": "kgmu:pediatrics:1:131",
-  "academicYear": "2026/2027",
-  "semester": 1,
-  "trialStartDate": "2026-09-01",
-  "trialEndDateExclusive": "2026-09-08",
-  "attribution": {
-    "source": null,
-    "medium": null,
-    "campaign": null,
-    "content": null,
-    "referral": null
-  },
-  "createdAt": "<ISO timestamp>"
-}
-```
-
-Raw trial token в conversion context не хранится.
-
-## Public API
-
-### POST `/api/v2/trials`
-
-Создаёт trial только при `TRIALS_ENABLED=true` и только для реально опубликованной группы текущего offer period.
-
-Request:
-
-```json
-{
-  "university": "kgmu",
-  "program": "pediatrics",
-  "course": 1,
-  "groupCode": "131",
-  "groupId": "kgmu:pediatrics:1:131",
-  "source": "vk",
-  "medium": "post",
-  "campaign": "fall-2026",
-  "content": "creative-a",
-  "referral": "starosta-131"
-}
-```
-
-Response `201`:
-
-```json
-{
-  "status": "active",
-  "groupCode": "131",
-  "trialStartDate": "2026-09-01",
-  "trialEndDateExclusive": "2026-09-08",
-  "subscriptionUrl": "https://.../api/v1/subscriptions/<trial-token>/calendar.ics",
-  "conversionId": "<id>",
-  "continueUrl": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/?continue=<id>"
-}
-```
-
-Ошибки fail-closed:
-
-- `409 trials_not_open` — feature gate выключен;
-- `404 offer_not_found` — опубликованной группы текущего периода нет;
-- `409 trial_not_ready` — расписание не даёт валидного первого занятия;
-- `409 trial_window_closed` — фиксированная первая учебная неделя уже закончилась;
-- `400 invalid_trial_context` — невалидный request.
-
-### GET `/api/v2/trials/continue/{conversionId}`
-
-Возвращает только безопасный group/offer context. Subscription URL и raw token не возвращаются.
-
-Используется лендингом, чтобы ссылка из promo event сразу открывала оффер той же группы без повторного выбора факультета/курса/группы.
-
-## Tokenized calendar endpoint
-
-Маршрут остаётся тем же:
+Публичные API:
 
 ```text
-GET /api/v1/subscriptions/{token}/calendar.ics
+POST /api/v2/trials
+GET  /api/v2/trials/continue/{conversionId}
 ```
 
-Для `entitlement=paid` поведение сохраняется без изменений.
+Continue API возвращает только безопасный контекст для восстановления уже выбранной группы на лендинге; `trialTokenHash` и `conversionIdHash` наружу не выдаются.
 
-Для `entitlement=trial` endpoint:
-
-1. читает текущую опубликованную schedule version;
-2. проверяет schedule context так же строго, как paid;
-3. фильтрует только события сохранённого `[trialStartDate, trialEndDateExclusive)`;
-4. добавляет одно синтетическое conversion event;
-5. генерирует ICS существующим builder;
-6. записывает access observation существующим механизмом.
-
-Никакие derived-поля исходных занятий не пересчитываются после фильтрации. `X из N`, academic week, next_same_event и другие значения остаются рассчитанными по полному расписанию группы, потому что trial — это view полного продукта, а не отдельное расписание.
-
-## Conversion event
-
-В trial feed допускается ровно одно синтетическое all-day событие на `trialEndDateExclusive`:
-
-```text
-SUMMARY: Продолжить календарь на семестр
-DESCRIPTION: Первая бесплатная неделя закончилась. Подключить календарь своей группы на весь семестр: <continueUrl>
-```
-
-Событие создаётся только на feed projection и не записывается в canonical schedule/current.json.
-
-UID детерминирован от `conversionId`, чтобы повторные fetch не создавали новое событие. Synthetic event не участвует в subject counters, day counters, diff или canonical QA.
-
-## Trial → paid
-
-`POST /api/v2/payments` получает необязательный `conversionId`.
-
-Если conversionId передан:
-
-1. backend разрешает его в server-side conversion context;
-2. group/university/period из conversion context становятся authoritative и должны совпасть с checkout request;
-3. order получает `acquisitionPath: "trial_to_paid"`, `trialConversionIdHash` и attribution;
-4. обычный YooKassa flow создаёт новый paid subscription token;
-5. paid feed всегда остаётся полным paid feed купленного периода.
-
-### Поведение linked trial после успешной оплаты
-
-Предыдущее маркетинговое предположение «paid feed начинает события только после trial_end» отменяется как технически невыгодное: оно раскалывает один семестр на два календаря и удаляет историю первой недели после удаления trial.
-
-Вместо этого после успешного fulfillment linked trial переводится в `status: "upgraded"` (либо эквивалентно отзывается с reason=`upgraded`) и на следующем refresh перестаёт выдавать учебные VEVENT. Paid feed содержит полный оплаченный период.
-
-Это сохраняет два ключевых свойства:
-
-- расшаренный trial token никогда не превращается в paid access;
-- купленный календарь самодостаточен и не зависит от сохранения trial-календаря.
-
-На success page пользователь всё равно получает явную инструкцию удалить бесплатный календарь после подключения paid. До следующего refresh возможен кратковременный визуальный дубль, поэтому E2E должен отдельно проверить переход и UX-инструкцию.
-
-## Аналитика без отдельной tracking-системы на первом этапе
-
-Существующий `subscription-access/<tokenHash>.json` уже хранит `firstSeenAt`, `lastSeenAt` и `totalRequests`. После добавления `entitlement` в access record можно надёжно получить серверные события:
-
-- trial feed first fetch;
-- paid feed first fetch.
-
-Attribution сохраняется в conversion context и затем переносится в order.
-
-UI-события (`landing_view`, `group_selected`, `trial_cta_clicked`, `checkout_started`, `paid_connect_clicked`) реализуются отдельным analytics endpoint/слоем после готовности trial backend. Они не должны блокировать выдачу календаря.
-
-## Конфигурация
-
-Новая переменная:
+## Feature gate
 
 ```text
 TRIALS_ENABLED=false
 ```
 
-Default — `false`.
+Default — `false`. Только точное `true` разрешает создание trial.
 
-`COMMERCIAL_SALES_ENABLED` и `TRIALS_ENABLED` независимы. Это позволяет тестировать trial в закрытом коммерческом режиме. Публичный `/api/v2/meta` должен отдавать безопасное `trials: open|closed`, чтобы frontend не мог открыть trial статической конфигурацией.
+`TRIALS_ENABLED` независим от `COMMERCIAL_SALES_ENABLED`, поэтому trial можно тестировать при закрытых коммерческих продажах.
 
-Даже при `TRIALS_ENABLED=true` endpoint остаётся fail-closed без опубликованного расписания текущего offer period.
+`GET /api/v2/meta` возвращает:
 
-## Безопасность и sharing
+```json
+{
+  "trials": "open | closed"
+}
+```
 
-- Trial token имеет ту же энтропию и формат, что paid token.
-- Raw token не пишется в Object Storage и analytics.
-- Conversion ID не является правом доступа, но также должен быть случайным и неугадываемым.
-- Один человек может создать несколько trial URL, однако все они показывают одно и то же фиксированное первое учебное окно. Без аккаунта невозможно надёжно доказать «один человек = один trial», поэтому v1 не вводит фиктивную защиту через cookies/email.
-- Access monitoring не блокирует trial автоматически. Sharing остаётся диагностикой.
-- При необходимости storage-abuse ограничивается на ingress/rate-limit уровне отдельно от entitlement логики.
+## Trial feed
 
-## Изменения в коде, необходимые для реализации
+Маршрут остаётся прежним:
 
-1. `config.js`: `trialsEnabled`; `/api/v2/meta`: `trials`.
-2. Новый `trial-service.js`: создание token/conversionId, вычисление фиксированного окна, запись subscription + conversion context.
-3. `store.js`: put/get conversion context и возможность отметить linked trial как upgraded без raw token.
-4. `app.js`: POST create trial, GET continue context, entitlement-aware subscription validation/projection, optional conversionId в payment request.
-5. `yookassa.js`: перенос trial attribution в order и перевод linked trial в upgraded после fulfillment; direct purchase остаётся без изменений.
-6. Новый pure helper `trial-projection.js`: date filtering и deterministic synthetic conversion event для canonical и legacy schedule shape без изменения stored canonical batch.
-7. Access record: добавить `entitlement`, сохраняя default `paid` для старых subscriptions.
-8. Frontend подключается только после backend regression PASS.
+```text
+GET /api/v1/subscriptions/{token}/calendar.ics
+```
 
-## Обязательные regression-тесты до включения TRIALS_ENABLED
+Server перехватывает только записи с `entitlement=trial`; paid и legacy subscriptions продолжают идти через прежний handler.
 
-1. Feature gate по умолчанию закрыт.
-2. Trial невозможно создать для неопубликованной группы.
-3. Trial невозможно создать для другого academic year/semester.
-4. Trial window вычисляется по первой фактической дате занятия и равен ровно 7 календарным дням.
-5. Повторный trial той же группы не расширяет окно.
-6. Tokenized trial feed содержит только события окна + один conversion event.
-7. Обновление canonical current внутри окна появляется по тому же trial URL.
-8. Событие после trialEnd не появляется в trial feed.
-9. Derived `X из N` не пересчитывается на урезанном наборе.
-10. Старый paid subscription record без entitlement продолжает работать без изменений.
-11. Новый paid record работает как раньше и содержит полный период.
-12. conversion endpoint не возвращает raw subscription token.
-13. Checkout с conversionId не может подменить группу/вуз/период.
-14. Успешный trial_to_paid создаёт новый paid token, а trial token не получает paid entitlement.
-15. После fulfillment linked trial перестаёт выдавать учебные события, paid feed содержит полный период.
-16. Direct purchase без trial не меняет поведение.
-17. Revoke/rotate существующих paid subscriptions остаются зелёными.
-18. Полный API regression suite проходит до deployment.
+Для активного trial:
 
-## Критерий завершения backend trial
+1. загружается текущая подтверждённая публикация группы;
+2. проверяется точное совпадение university/program/course/stream/group/year/semester;
+3. события фильтруются по сохранённому окну;
+4. derived/calendar поля исходных занятий не меняются;
+5. добавляется ровно одно синтетическое all-day событие `Продолжить календарь на семестр`.
 
-Шаг считается реализованным только когда:
+Conversion event существует только в feed projection и не записывается в canonical `current.json`. Его UID детерминирован от `conversionId`, поэтому повторные fetch не создают новые события.
 
-- все новые regression-тесты проходят;
-- полный существующий API suite проходит;
-- `TRIALS_ENABLED=false` не меняет production behavior;
-- preview/deployment с `TRIALS_ENABLED=true` подтверждает реальный сценарий `create trial → webcal/URL fetch → ограниченный ICS → conversion context`;
-- затем отдельный E2E подтверждает `trial → test YooKassa → новый paid token → linked trial upgraded → полный paid ICS`.
+Revoked/upgraded trial feed содержит 0 VEVENT.
+
+## Порядок записи при создании
+
+Сначала сохраняется непривилегированный conversion context, затем создаётся live subscription entitlement.
+
+Это специально сделано fail-closed: если запись conversion context не удалась, рабочего trial URL не существует. Если позже не удалась запись subscription, возможен только нераскрытый orphaned conversion context, который сам по себе доступа к календарю не даёт.
+
+## Trial → paid
+
+`POST /api/v2/payments` принимает необязательный `conversionId`.
+
+Если он передан, backend разрешает его server-side и требует точного совпадения trial с покупаемыми university/program/course/stream/group/academic year/semester. Несовпадение блокируется до обращения к ЮKassa.
+
+В order raw `conversionId` не сохраняется. Записываются только:
+
+- `purchasePath: "trial_to_paid"`;
+- SHA-256 conversionId;
+- SHA-256 trial token;
+- безопасный attribution.
+
+Прямая покупка без trial сохраняет существующий поток и получает `purchasePath: "direct_purchase"`.
+
+После `payment.succeeded`:
+
+1. создаётся новый независимый paid token с `entitlement=paid` на весь приобретённый период, включая первую неделю;
+2. completed order сохраняется;
+3. связанный trial token отзывается;
+4. conversion record помечается `upgraded`.
+
+Такой порядок выбран намеренно: частичный сбой cleanup может временно оставить старый trial видимым, но не лишит оплатившего студента уже созданного paid-доступа. Повторный fulfillment идемпотентно повторяет cleanup и не создаёт второй paid subscription.
+
+Ранее обсуждавшаяся схема «paid начинается только после trial_end» отменена: она делила один оплаченный семестр между двумя календарями и лишала paid-календарь истории первой недели.
+
+## Sharing
+
+Повторное создание trial не открывает следующие недели: все trial для одной опубликованной группы/периода показывают одно и то же фиксированное первое окно.
+
+Trial token может быть переслан, но после покупки именно он не получает платные права. Покупателю выдаётся новый paid token, а linked trial отзывается.
+
+## Реализованные файлы
+
+- `src/trial-projection.js` — pure fixed-window projection;
+- `src/trial-service.js` — создание trial, validation и safe continue context;
+- `src/trial-store.js` — hashed local/S3 conversion storage и upgrade status;
+- `src/trial-http-handler.js` — public API и entitlement-aware trial feed;
+- `src/config.js` — `TRIALS_ENABLED`;
+- `src/server.js` — runtime routing;
+- `src/app.js` — `meta.trials` и forwarding `conversionId` в checkout;
+- `src/yookassa.js` — trial-aware checkout, `entitlement=paid`, retire linked trial.
+
+## Regression
+
+Проверяются как минимум:
+
+- day 8 не входит в бесплатное окно;
+- canonical и legacy projection;
+- derived counters не пересчитываются;
+- repeated trial не сдвигает окно;
+- trial после окончания окна не создаётся;
+- неправильный период/неопубликованная группа fail-closed;
+- conversion object хранится по SHA-256;
+- storage failure conversion context не оставляет live entitlement;
+- continue API не раскрывает hashes/token;
+- runtime trial ICS содержит только первую неделю и одно promo event;
+- checkout не принимает conversion другой группы;
+- order не хранит raw conversionId;
+- успешная оплата создаёт полноценный `entitlement=paid`;
+- linked trial отзывается;
+- fulfillment retry не создаёт второй paid calendar;
+- direct purchase и существующие paid subscriptions сохраняют прежнее поведение.
+
+GitHub Actions `API tests` run #908 успешно завершён на implementation head `2195415171ce6f1f2fbd33e05b13819a4174416e` до финального документального commit.
+
+## Следующий этап
+
+После merge backend остаётся закрытым (`TRIALS_ENABLED=false`). Далее требуется frontend: group preview → trial creation → platform-aware connect → continue/offer → checkout → paid connect. После этого проводится ограниченный E2E smoke на тестовой опубликованной группе, и только затем trial можно включать в production и использовать в маркетинге.
