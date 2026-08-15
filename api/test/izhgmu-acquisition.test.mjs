@@ -6,6 +6,7 @@ import {
   extractIzhgmuSources,
 } from "../src/adapters/izhgmu/discover.mjs";
 import { detectSpreadsheetKind } from "../src/adapters/izhgmu/download.mjs";
+import { getUniversityConfig, hasUniversity } from "../src/universities/registry.mjs";
 
 test("IzhGMU canonicalizes bare host and relative URLs to www.igma.ru", () => {
   assert.equal(
@@ -49,4 +50,15 @@ test("IzhGMU detects XLSX ZIP and legacy XLS OLE signatures", () => {
   assert.equal(detectSpreadsheetKind(Buffer.from([0x50, 0x4b, 0x03, 0x04, 1, 2])), "xlsx");
   assert.equal(detectSpreadsheetKind(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 1])), "xls");
   assert.equal(detectSpreadsheetKind(Buffer.from("<html>error</html>")), null);
+});
+
+test("IzhGMU is registered but cannot publish while expansion is under review", () => {
+  assert.equal(hasUniversity("izhgmu"), true);
+  const config = getUniversityConfig("izhgmu");
+  assert.equal(config.active, false);
+  assert.equal(config.timezone, "Europe/Samara");
+  assert.equal(config.timeMode, "floating");
+  assert.equal(config.source.acquisition, "github-actions");
+  assert.deepEqual(config.source.acceptedContainers, ["xlsx", "xls"]);
+  assert.equal(config.programs.length, 3);
 });
