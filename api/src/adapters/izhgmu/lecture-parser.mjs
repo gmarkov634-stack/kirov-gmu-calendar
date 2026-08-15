@@ -164,7 +164,7 @@ function classWideBlocks(sheet) {
 function lectureSheet(structure) {
   return structure?.sheets?.find((sheet) => (
     sheet.cells.some((cell) => cell.col === 1 && /^дни недели$/i.test(norm(cell.value)))
-    && sheet.cells.some((cell) => cell.col === 3 && /^(предмет|дисциплина)$/i.test(norm(cell.value))
+    && sheet.cells.some((cell) => cell.col === 3 && /^(предмет|дисциплина)$/i.test(norm(cell.value)))
   ));
 }
 
