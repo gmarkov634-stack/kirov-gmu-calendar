@@ -69,6 +69,13 @@ jobs:
           python3 tools/omgmu-extract-cycle-geometry.py
           --input=data/imports/omgmu-pdfs/07_medicine-international_course-4_cycles.pdf
           --output=data/imports/omgmu-cycle-rotation-geometry.json
+      - name: Analyze cycle_rotation_grid geometry
+        run: >-
+          node tools/omgmu-cycle-rotation-report.mjs
+          --input=data/imports/omgmu-cycle-rotation-geometry.json
+          --output=data/imports/omgmu-cycle-rotation-report.json
+          --year=2026
+          --exceptions=2026-05-01,2026-05-09,2026-06-12
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
@@ -168,7 +175,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omgmu-cycle-rotation-geometry
-          path: api/data/imports/omgmu-cycle-rotation-geometry.json
+          path: |
+            api/data/imports/omgmu-cycle-rotation-geometry.json
+            api/data/imports/omgmu-cycle-rotation-report.json
           if-no-files-found: error
           retention-days: 14
       - name: Upload group catalog
