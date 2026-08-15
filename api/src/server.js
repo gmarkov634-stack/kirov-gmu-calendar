@@ -15,6 +15,7 @@ import { createTrialHttpHandler } from "./trial-http-handler.js";
 import { TrialService } from "./trial-service.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
+import { createVkOauthCallbackHandler } from "./vk-oauth-callback.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
 import { createIzhgmuSourceProbeHandler } from "./adapters/izhgmu/source-probe.mjs";
@@ -49,6 +50,7 @@ const offerPreviewHandler = createOfferPreviewHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
+const vkOauthCallbackHandler = createVkOauthCallbackHandler();
 const izhgmuSourceProbeHandler = createIzhgmuSourceProbeHandler();
 const omgmuSourceProbeHandler = createOmgmuSourceProbeHandler();
 const schedulePublishHandler = createSchedulePublishHandler({ store, config });
@@ -99,6 +101,9 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, "http://localhost");
   if (request.method === "POST" && url.pathname === "/api/v1/vk/callback") {
     return vkCallbackHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/oauth/callback") {
+    return vkOauthCallbackHandler(request, response);
   }
   if (url.pathname === "/api/v1/vk/wall") {
     return vkWallHandler(request, response);
