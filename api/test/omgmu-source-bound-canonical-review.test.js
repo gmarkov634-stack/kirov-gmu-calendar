@@ -27,7 +27,7 @@ function batch({ hash = `sha256:${SHA}` } = {}) {
       endTime: "10:00",
       dates: ["2026-09-01"],
       rawSource: "Анатомия 08:20-10:00",
-      references: [{ role: "pdf_geometry", range: "page=2,row=1" }],
+      references: [{ role: "other", range: "pdf_geometry:page=2,row=1" }],
       ruleIds: ["O16"],
       status: "ok",
     }],
