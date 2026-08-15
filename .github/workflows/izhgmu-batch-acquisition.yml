@@ -12,6 +12,7 @@ on:
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
       - "api/tools/izhgmu-diagnose-lecture.mjs"
+      - "api/tools/izhgmu-diagnose-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/test/izhgmu-*.test.mjs"
@@ -61,6 +62,9 @@ jobs:
       - name: Parse real IZH-CYCLE medicine 4 through canonical QA
         working-directory: api
         run: npm run parse:izhgmu:cycle:medicine4 -- --input-dir /tmp/izhgmu-current --group 401
+      - name: Diagnose real IZH-CYCLE medicine 5 without publication
+        working-directory: api
+        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -91,6 +95,12 @@ jobs:
               diag=json.loads(diag_path.read_text())
               print('LECTURE_STATS', diag['lecture']['stats'])
               print('COMBINED_BLOCKERS', diag['combined']['blockers'])
+          cycle_diag_path=root/'cycle-diagnostic-medicine-5.json'
+          if cycle_diag_path.exists():
+              diag=json.loads(cycle_diag_path.read_text())
+              print('CYCLE_MEDICINE5_STATS', diag['parser']['stats'])
+              print('CYCLE_MEDICINE5_GROUPS', diag['groupSpans'])
+              print('CYCLE_MEDICINE5_REVIEW', len(diag['review']))
           PY
           fi
       - name: Upload current IzhGMU source set
