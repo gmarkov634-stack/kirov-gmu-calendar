@@ -10,6 +10,7 @@ on:
       - "api/tools/requirements-omgmu.txt"
       - "universities/omgmu/structure.json"
       - "universities/omgmu/manual-review.json"
+      - "universities/omgmu/academic-calendar-*.json"
       - ".github/workflows/omgmu-discovery.yml"
 
 permissions:
@@ -30,6 +31,14 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: api/package-lock.json
+      - name: Load reviewed academic calendar metadata
+        run: |
+          node - <<'NODE' >> "$GITHUB_ENV"
+          const fs = require('fs');
+          const metadata = JSON.parse(fs.readFileSync('../universities/omgmu/academic-calendar-2025-2026-spring.json', 'utf8'));
+          console.log(`OMG_CALENDAR_YEAR=${metadata.calendar_year}`);
+          console.log(`OMG_CALENDAR_EXCEPTIONS=${metadata.calendar_exceptions.join(',')}`);
+          NODE
       - name: Install Node dependencies
         run: npm ci
       - name: Install PDF tools and parser dependencies
@@ -62,8 +71,8 @@ jobs:
           node tools/omgmu-weekly-geometry-report.mjs
           --input=data/imports/omgmu-weekly-geometry
           --output=data/imports/omgmu-weekly-geometry-report.json
-          --year=2026
-          --exceptions=2026-05-01,2026-05-09,2026-06-12
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
       - name: Extract authoritative cycle_rotation_grid geometry
         run: >-
           python3 tools/omgmu-extract-cycle-geometry.py
@@ -74,8 +83,8 @@ jobs:
           node tools/omgmu-cycle-rotation-report.mjs
           --input=data/imports/omgmu-cycle-rotation-geometry.json
           --output=data/imports/omgmu-cycle-rotation-report.json
-          --year=2026
-          --exceptions=2026-05-01,2026-05-09,2026-06-12
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
       - name: Extract authoritative combined_rotation_table geometry
         run: >-
           python3 tools/omgmu-extract-combined-geometry.py
@@ -86,8 +95,8 @@ jobs:
           node tools/omgmu-combined-rotation-report.mjs
           --input=data/imports/omgmu-combined-rotation-geometry.json
           --output=data/imports/omgmu-combined-rotation-report.json
-          --year=2026
-          --exceptions=2026-05-01,2026-05-09,2026-06-12
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
