@@ -83,8 +83,6 @@ function expandDates(value, weekday, { year, calendarExceptions }) {
     }
 
     if (atom.range) {
-      // O04: a weekly range means only the structural weekday inside the
-      // inclusive source range, not every date and not a widened interval.
       while (cursor <= end) {
         const date = cursor.toISOString().slice(0, 10);
         if (cursor.getUTCDay() === weekday && !calendarExceptions.has(date)) dates.add(date);
@@ -164,6 +162,9 @@ function parseSegment(geometry, row, cell, segment, options) {
     startTime: time.startTime,
     endTime: time.endTime,
     dates,
+    dateExpression: atoms.map((atom) => atom.raw).join("; "),
+    declaredCount: declaration?.count ?? null,
+    declaredUnit: declaration?.rawUnit ?? null,
     location,
     sourceNote,
     kind: declaration?.lecture ? "lecture" : "unknown",
@@ -213,13 +214,6 @@ function markExactSlotConflicts(series) {
   return series;
 }
 
-/**
- * Parse an authoritative geometry/v1 extraction of an ОмГМУ `weekly_grid`.
- *
- * O16 group attribution is taken only from cell borders/spans already encoded
- * by the PDF geometry extractor. This function intentionally does not perform
- * O65 final-user-event merging; each source record remains independent.
- */
 export function parseWeeklyGeometry(geometry, { year, calendarExceptions = [] } = {}) {
   if (geometry?.version !== 1 || geometry?.sourceProfile !== "weekly_grid") {
     throw new TypeError("weekly_grid geometry/v1 is required");
