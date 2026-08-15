@@ -1,0 +1,31 @@
+name: IzhGMU medicine 6 composite unit
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/medicine6-composite.mjs"
+      - "api/test/izhgmu-medicine6-composite.test.mjs"
+      - ".github/workflows/izhgmu-composite-unit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composite-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Run only medicine 6 composite regression
+        working-directory: api
+        run: node --test test/izhgmu-medicine6-composite.test.mjs
