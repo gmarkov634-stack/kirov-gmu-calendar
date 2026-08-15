@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import { runIzhgmuSourceAdapter } from "../src/adapters/izhgmu/source-adapter.mjs";
 
 const sourcePage = "https://example.test/schedule";
-const xlsxUrl = "https://example.test/files/леч_1_Весна_25-26.xlsx";
+const xlsxUrl = new URL("https://example.test/files/леч_1_Весна_25-26.xlsx").href;
 const label = "Расписание занятий для студентов 1 курса лечебного факультета на весенний семестр 2025-2026 уч.г.";
 const html = `<a href="${xlsxUrl}">${label}</a>`;
 const xlsxA = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.from("A")]);
