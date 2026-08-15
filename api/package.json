@@ -10,6 +10,7 @@
     "collect:izhgmu": "node tools/izhgmu-collect.mjs",
     "fingerprint:izhgmu": "python3 tools/izhgmu-fingerprint.py",
     "parse:izhgmu:weekly": "node tools/izhgmu-parse-weekly.mjs",
+    "parse:izhgmu:weekly-lecture": "node tools/izhgmu-parse-weekly-lecture.mjs",
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
