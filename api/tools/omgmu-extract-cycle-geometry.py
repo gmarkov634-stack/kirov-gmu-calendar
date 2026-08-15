@@ -10,7 +10,7 @@ from typing import Any
 RUSSIAN_TITLE = "РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ"
 CYCLE_RE = re.compile(r"(\d+)\s*цикл\s*:\s*(\d{2}\.\d{2})\s*[-–]\s*(\d{2}\.\d{2})(.*)", re.I)
 GROUP_RE = re.compile(r"\d{3,4}")
-HOLIDAY_LINE_RE = re.compile(r"(?:Праздничные\s+дни|Public\s+holidays)\s*:\s*([^\n\r]+)", re.I)
+HOLIDAY_LINE_RE = re.compile(r"(?:Праздничные\s+дни|Public\s+holidays)\s*:\s*([\d.;\s]+)", re.I)
 DATE_TOKEN_RE = re.compile(r"(?<!\d)(\d{2}\.\d{2})(?!\d)")
 
 
