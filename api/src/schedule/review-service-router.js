@@ -5,7 +5,7 @@ export class ScheduleReviewServiceRouter {
 
   async #resolve(reviewId) {
     for (const service of this.services) {
-      if (typeof service?.hasReview === "function" && await service.hasReview(reviewId)) return service;
+      if (typeof service?.queue?.getReview === "function" && await service.queue.getReview(reviewId)) return service;
     }
     return null;
   }
