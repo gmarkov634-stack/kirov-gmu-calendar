@@ -9,7 +9,8 @@ on:
       - "api/src/universities/registry.mjs"
       - "api/tools/izhgmu-collect.mjs"
       - "api/tools/izhgmu-fingerprint.py"
-      - "api/test/izhgmu-acquisition.test.mjs"
+      - "api/tools/izhgmu-parse-weekly.mjs"
+      - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
   workflow_dispatch:
@@ -41,6 +42,9 @@ jobs:
       - name: Fingerprint current source set
         working-directory: api
         run: npm run fingerprint:izhgmu -- --input-dir /tmp/izhgmu-current
+      - name: Parse real IZH-WEEKLY source pair through canonical QA boundary
+        working-directory: api
+        run: npm run parse:izhgmu:weekly -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
       - name: Show acquisition summary
         if: always()
         shell: bash
