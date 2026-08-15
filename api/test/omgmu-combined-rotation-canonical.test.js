@@ -95,7 +95,10 @@ test("full real group 585 produces 154 canonical events and passes the shared pi
   const candidate = buildCombinedRotationCanonicalCandidate(geometry, { metadata, source });
   assert.equal(candidate.group, "585");
   assert.equal(candidate.sourceSeries.length, 16);
-  assert.equal(candidate.userSeries.length, 16);
+  // Fifteen ordinary source rows materialize one user-series each. The final
+  // O70 composite row becomes one cycle user-series for 24.07-06.08 plus one
+  // credit user-series for 07.08 under O29, while still representing 11 dates.
+  assert.equal(candidate.userSeries.length, 17);
   assert.equal(candidate.batch.events.length, 154);
   assert.ok(candidate.batch.events.every((event) => event.university.code === "omgmu"));
   assert.ok(candidate.batch.events.every((event) => event.audience.group === "585"));
