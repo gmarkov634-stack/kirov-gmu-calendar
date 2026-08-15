@@ -166,11 +166,13 @@ Trial token может быть переслан, но после покупки
 - checkout не принимает conversion другой группы;
 - order не хранит raw conversionId;
 - успешная оплата создаёт полноценный `entitlement=paid`;
+- paid subscription не содержит trial window и остаётся самодостаточной на весь период;
 - linked trial отзывается;
 - fulfillment retry не создаёт второй paid calendar;
-- direct purchase и существующие paid subscriptions сохраняют прежнее поведение.
+- direct purchase и существующие paid subscriptions сохраняют прежнее поведение;
+- `TRIALS_ENABLED` открывается только точным `true` и не зависит от sales gate.
 
-GitHub Actions `API tests` run #908 успешно завершён на implementation head `2195415171ce6f1f2fbd33e05b13819a4174416e` до финального документального commit.
+GitHub Actions `API tests` run #908 успешно завершён на промежуточном implementation head. Перед merge обязателен ещё один зелёный run на финальном PR head после последних regression-добавлений.
 
 ## Следующий этап
 
