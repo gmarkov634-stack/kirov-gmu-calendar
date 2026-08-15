@@ -12,6 +12,7 @@ on:
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
       - "api/tools/izhgmu-diagnose-lecture.mjs"
+      - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -53,6 +54,9 @@ jobs:
       - name: Parse real IZH-WEEKLY plus exact-date lecture companion
         working-directory: api
         run: npm run parse:izhgmu:weekly-lecture -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
+      - name: Parse real IZH-CYCLE geometry fail-closed
+        working-directory: api
+        run: npm run parse:izhgmu:cycle -- --input-dir /tmp/izhgmu-current --faculty pediatrics --course 3
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -71,11 +75,6 @@ jobs:
               report=json.loads(report_path.read_text())
               print('DOWNLOADED', report['downloadedCount'])
               print('FAILED', report['failedCount'])
-              kinds={}
-              for item in report['files']:
-                  if item.get('status') == 'downloaded':
-                      kinds[item.get('spreadsheetKind')] = kinds.get(item.get('spreadsheetKind'), 0) + 1
-              print('KINDS', kinds)
           fingerprint_path=root/'fingerprint-report.json'
           if fingerprint_path.exists():
               fp=json.loads(fingerprint_path.read_text())
@@ -87,8 +86,6 @@ jobs:
           if diag_path.exists():
               diag=json.loads(diag_path.read_text())
               print('LECTURE_STATS', diag['lecture']['stats'])
-              print('LECTURE_REVIEW', diag['lecture']['reviewRequired'])
-              print('LECTURE_COVERAGE', {k:v for k,v in diag['lecture']['classCoverage'].items() if k != 'blocks'})
               print('COMBINED_BLOCKERS', diag['combined']['blockers'])
           PY
           fi
