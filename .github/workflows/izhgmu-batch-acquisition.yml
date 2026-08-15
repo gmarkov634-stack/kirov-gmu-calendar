@@ -10,6 +10,7 @@ on:
       - "api/tools/izhgmu-collect.mjs"
       - "api/tools/izhgmu-fingerprint.py"
       - "api/tools/izhgmu-parse-weekly.mjs"
+      - "api/tools/izhgmu-parse-weekly-lecture.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -45,6 +46,9 @@ jobs:
       - name: Parse real IZH-WEEKLY source pair through canonical QA boundary
         working-directory: api
         run: npm run parse:izhgmu:weekly -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
+      - name: Parse real IZH-WEEKLY plus exact-date lecture companion
+        working-directory: api
+        run: npm run parse:izhgmu:weekly-lecture -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
       - name: Show acquisition summary
         if: always()
         shell: bash
