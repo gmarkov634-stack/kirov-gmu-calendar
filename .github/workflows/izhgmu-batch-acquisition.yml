@@ -11,6 +11,7 @@ on:
       - "api/tools/izhgmu-collect-postsemester.mjs"
       - "api/tools/izhgmu-check-postsemester-reviewed.mjs"
       - "api/tools/izhgmu-check-postsemester-canonical.mjs"
+      - "api/tools/izhgmu-check-medicine6-composite.mjs"
       - "api/tools/izhgmu-fingerprint.py"
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
@@ -201,3 +202,31 @@ jobs:
           path: /tmp/izhgmu-postsemester
           if-no-files-found: error
           retention-days: 7
+
+  composite:
+    needs: [collect, postsemester]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Download exact ordinary IzhGMU artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: izhgmu-current-sources
+          path: /tmp/izhgmu-current
+      - name: Download exact post-semester IzhGMU artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: izhgmu-postsemester-sources
+          path: /tmp/izhgmu-postsemester
+      - name: Build and verify medicine 6 composite candidate from reviewed artifacts
+        working-directory: api
+        run: node tools/izhgmu-check-medicine6-composite.mjs --current-dir /tmp/izhgmu-current --postsemester-dir /tmp/izhgmu-postsemester
