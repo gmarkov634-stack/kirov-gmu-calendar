@@ -141,9 +141,10 @@ for (const group of ['601', '626']) {
     sourceGroupSpan: cycleParsed.sourceGroupSpan,
     componentStats: candidate.componentStats,
     blockers: candidate.blockers.map((blocker) => ({
-      component: blocker.component,
+      sourceComponent: blocker.source_component,
+      component: blocker.component || null,
       warning: blocker.warning,
-      discipline: blocker.discipline || blocker.component || null,
+      discipline: blocker.discipline || null,
       date: blocker.date || null,
     })),
     deferredFacts: candidate.deferredFacts.map((fact) => ({
