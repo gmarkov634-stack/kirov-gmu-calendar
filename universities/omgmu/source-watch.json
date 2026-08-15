@@ -2,6 +2,7 @@
   "version": 1,
   "university": "omgmu",
   "expectedAcademicYear": "2026/2027",
+  "expectedSemester": "autumn",
   "targetPrograms": [
     { "program": "medicine", "label": "Лечебное дело" },
     { "program": "pediatrics", "label": "Педиатрия" },
