@@ -4,6 +4,23 @@ const FACULTY_NAMES = Object.freeze({
   dentistry: 'Стоматологический факультет',
 });
 
+const CANONICAL_REFERENCE_ROLE = Object.freeze({
+  discipline: 'lesson',
+  lesson: 'lesson',
+  start_time: 'time',
+  end_time: 'time',
+  time: 'time',
+  date: 'date',
+  location: 'location',
+  week_label: 'week',
+  week: 'week',
+  declared_count: 'note',
+  note: 'note',
+  teacher: 'teacher',
+  subgroup: 'subgroup',
+  other: 'other',
+});
+
 function requiredString(value, name) {
   const normalized = String(value ?? '').trim();
   if (!normalized) throw new TypeError(`${name} is required`);
@@ -59,14 +76,20 @@ function warnings(series) {
   return [...new Set((series.warnings || []).map(String).map((value) => value.trim()).filter(Boolean))];
 }
 
+function canonicalReferenceRole(rawRole) {
+  const role = requiredString(rawRole, 'series.references[].role');
+  return CANONICAL_REFERENCE_ROLE[role] || 'other';
+}
+
 function sourceReferences(parsed, source, series) {
   const isLecture = series.sourceRole === 'lecture';
   const references = (series.references || []).map((reference) => {
-    const role = requiredString(reference.role, 'series.references[].role');
+    const rawRole = requiredString(reference.role, 'series.references[].role');
+    const role = canonicalReferenceRole(rawRole);
     const rawRange = requiredString(reference.range, 'series.references[].range');
     let range = rawRange;
     if (isLecture) {
-      const filename = role === 'end_time' ? source.classFileName : source.companionFileName;
+      const filename = rawRole === 'end_time' ? source.classFileName : source.companionFileName;
       range = `${filename}::${rawRange}`;
     }
     return { role, range };
@@ -81,13 +104,18 @@ function sourceReferences(parsed, source, series) {
   return references;
 }
 
+function canonicalLocation(value) {
+  const raw = optionalString(value);
+  return raw ? { raw, building: null, room: null, address: null } : null;
+}
+
 function eventForDate({ metadata, parsed, source, series, date }) {
   const discipline = requiredString(series.discipline, 'series.discipline');
   const startTime = requiredString(series.startTime, 'series.startTime');
   const endTime = requiredString(series.endTime, 'series.endTime');
   const isLecture = series.sourceRole === 'lecture';
   const lessonType = series.lessonType || { raw: null, code: 'unknown' };
-  const location = optionalString(series.location);
+  const location = canonicalLocation(series.location);
   return {
     schema_version: '1.0',
     system: {
