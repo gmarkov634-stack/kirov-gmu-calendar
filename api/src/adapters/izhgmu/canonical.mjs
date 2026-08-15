@@ -60,10 +60,17 @@ function warnings(series) {
 }
 
 function sourceReferences(parsed, source, series) {
-  const references = (series.references || []).map((reference) => ({
-    role: requiredString(reference.role, 'series.references[].role'),
-    range: requiredString(reference.range, 'series.references[].range'),
-  }));
+  const isLecture = series.sourceRole === 'lecture';
+  const references = (series.references || []).map((reference) => {
+    const role = requiredString(reference.role, 'series.references[].role');
+    const rawRange = requiredString(reference.range, 'series.references[].range');
+    let range = rawRange;
+    if (isLecture) {
+      const filename = role === 'end_time' ? source.classFileName : source.companionFileName;
+      range = `${filename}::${rawRange}`;
+    }
+    return { role, range };
+  });
   references.push({
     role: 'week',
     range: `${source.companionFileName}::${parsed.period.reference}`,
@@ -78,6 +85,9 @@ function eventForDate({ metadata, parsed, source, series, date }) {
   const discipline = requiredString(series.discipline, 'series.discipline');
   const startTime = requiredString(series.startTime, 'series.startTime');
   const endTime = requiredString(series.endTime, 'series.endTime');
+  const isLecture = series.sourceRole === 'lecture';
+  const lessonType = series.lessonType || { raw: null, code: 'unknown' };
+  const location = optionalString(series.location);
   return {
     schema_version: '1.0',
     system: {
@@ -114,17 +124,19 @@ function eventForDate({ metadata, parsed, source, series, date }) {
     },
     lesson: {
       discipline: { raw: discipline, normalized: discipline },
-      type: { raw: null, code: 'unknown' },
+      type: { raw: optionalString(lessonType.raw), code: lessonType.code || 'unknown' },
       teachers: [],
-      locations: [],
-      source_note: series.parity ? `Источник: ${series.parity === 'above_line' ? 'над чертой' : 'под чертой'}` : null,
+      locations: location ? [location] : [],
+      source_note: series.parity && series.parity !== 'weekly_declared'
+        ? `Источник: ${series.parity === 'above_line' ? 'над чертой' : 'под чертой'}`
+        : null,
       cycle_id: null,
       joint_groups: [],
     },
     source: {
-      file_name: source.classFileName,
-      file_hash: source.classFileHash,
-      sheet: 'расписание',
+      file_name: isLecture ? source.companionFileName : source.classFileName,
+      file_hash: isLecture ? source.companionFileHash : source.classFileHash,
+      sheet: series.sourceSheet || (isLecture ? 'подробное расписание лекций' : 'расписание'),
       references: sourceReferences(parsed, source, series),
       raw_text: optionalString(series.rawSource),
     },
@@ -139,7 +151,9 @@ function eventForDate({ metadata, parsed, source, series, date }) {
 }
 
 function normalizeInputs({ parsed, metadata, source }) {
-  if (!parsed || parsed.profile !== 'IZH-WEEKLY') throw new TypeError('IZH-WEEKLY parsed result is required');
+  if (!parsed || !['IZH-WEEKLY', 'IZH-WEEKLY+LECTURE'].includes(parsed.profile)) {
+    throw new TypeError('IZH-WEEKLY or combined parsed result is required');
+  }
   const normalizedMetadata = {
     academicYear: academicYear(metadata?.academicYear),
     semester: semester(metadata?.semester),
@@ -161,19 +175,38 @@ function normalizeInputs({ parsed, metadata, source }) {
   return { metadata: normalizedMetadata, source: normalizedSource };
 }
 
+function reviewBlockers(parsed) {
+  return (parsed?.reviewRequired || []).map((item) => ({
+    kind: 'series_review',
+    warning: item.warning || item.warnings?.[0] || 'needs_review',
+    reference: item.references?.[0]?.range || null,
+    discipline: item.discipline || null,
+  }));
+}
+
+function deferredBlockers(parsed) {
+  return (parsed?.deferred || []).map((item) => ({
+    kind: 'companion_deferred',
+    warning: item.reason || 'stream_wide_companion_owned',
+    reference: item.ref || null,
+    discipline: item.value || null,
+  }));
+}
+
 export function izhgmuWeeklyBlockers(parsed) {
+  return [...reviewBlockers(parsed), ...deferredBlockers(parsed)];
+}
+
+export function izhgmuWeeklyLectureBlockers(parsed) {
   return [
-    ...(parsed?.reviewRequired || []).map((item) => ({
-      kind: 'series_review',
-      warning: item.warning || item.warnings?.[0] || 'needs_review',
-      reference: item.references?.[0]?.range || null,
-      discipline: item.discipline || null,
-    })),
-    ...(parsed?.deferred || []).map((item) => ({
-      kind: 'companion_deferred',
-      warning: item.reason || 'stream_wide_companion_owned',
-      reference: item.ref || null,
-      discipline: item.value || null,
+    ...reviewBlockers(parsed),
+    ...deferredBlockers(parsed),
+    ...(parsed?.unresolvedChoices || []).map((item) => ({
+      kind: item.kind || 'choice_review',
+      warning: item.warning || 'elective_choice_required',
+      reference: item.blocks?.[0]?.ref || null,
+      discipline: 'Дисциплина по выбору',
+      optionCount: item.options?.length || 0,
     })),
   ];
 }
@@ -183,6 +216,17 @@ export function assertIzhgmuWeeklyComplete(parsed) {
   if (!parsed?.publishable || blockers.length) {
     const error = new Error(`IZH-WEEKLY source is incomplete: ${blockers.length} blocker(s)`);
     error.code = 'IZH_WEEKLY_INCOMPLETE';
+    error.blockers = blockers;
+    throw error;
+  }
+  return parsed;
+}
+
+export function assertIzhgmuWeeklyLectureComplete(parsed) {
+  const blockers = izhgmuWeeklyLectureBlockers(parsed);
+  if (!parsed?.publishable || blockers.length) {
+    const error = new Error(`IZH-WEEKLY+LECTURE source is incomplete: ${blockers.length} blocker(s)`);
+    error.code = 'IZH_WEEKLY_LECTURE_INCOMPLETE';
     error.blockers = blockers;
     throw error;
   }
@@ -235,11 +279,7 @@ function canonicalCandidate({ parsed, metadata, source, parserName }) {
   };
 }
 
-/**
- * QA-only canonical projection of already unambiguous IZH-WEEKLY series.
- * It is deliberately named "candidate" because unresolved/deferred source
- * content is omitted and production publication must never call this helper.
- */
+/** QA-only projection of already unambiguous IZH-WEEKLY series. */
 export function buildIzhgmuWeeklyQaCandidate(input) {
   return canonicalCandidate({ ...input, parserName: 'izhgmu-weekly-v1-qa-candidate' });
 }
@@ -248,4 +288,15 @@ export function buildIzhgmuWeeklyQaCandidate(input) {
 export function buildIzhgmuWeeklyCanonicalBatch(input) {
   assertIzhgmuWeeklyComplete(input.parsed);
   return canonicalCandidate({ ...input, parserName: 'izhgmu-weekly-v1' });
+}
+
+/** QA-only combined projection. Unresolved elective choice/review rows are excluded. */
+export function buildIzhgmuWeeklyLectureQaCandidate(input) {
+  return canonicalCandidate({ ...input, parserName: 'izhgmu-weekly-lecture-v1-qa-candidate' });
+}
+
+/** Production boundary for a fully resolved WEEKLY + exact-date companion pair. */
+export function buildIzhgmuWeeklyLectureCanonicalBatch(input) {
+  assertIzhgmuWeeklyLectureComplete(input.parsed);
+  return canonicalCandidate({ ...input, parserName: 'izhgmu-weekly-lecture-v1' });
 }
