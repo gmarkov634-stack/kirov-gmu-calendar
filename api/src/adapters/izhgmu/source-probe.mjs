@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
+import https from "node:https";
 
 const ALLOWED_HOSTS = new Set(["igma.ru", "www.igma.ru"]);
 const MAX_BYTES = 25 * 1024 * 1024;
+const REQUEST_TIMEOUT_MS = 20_000;
+const MAX_REDIRECTS = 5;
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -48,7 +51,77 @@ function spreadsheetKind(buffer) {
   return null;
 }
 
-export function createIzhgmuSourceProbeHandler({ fetchFn = fetch } = {}) {
+function headersFromIncoming(incomingHeaders) {
+  const headers = new Headers();
+  for (const [name, value] of Object.entries(incomingHeaders || {})) {
+    if (Array.isArray(value)) {
+      for (const item of value) headers.append(name, item);
+    } else if (value != null) {
+      headers.set(name, String(value));
+    }
+  }
+  return headers;
+}
+
+async function fetchSpreadsheetOverIpv4(input, options = {}, redirectCount = 0) {
+  const url = input instanceof URL ? input : new URL(input);
+  if (redirectCount > MAX_REDIRECTS) {
+    const error = new Error("too_many_redirects");
+    error.code = "ETOOMANYREDIRECTS";
+    throw error;
+  }
+
+  return await new Promise((resolve, reject) => {
+    const request = https.get(url, {
+      family: 4,
+      headers: options.headers,
+      timeout: REQUEST_TIMEOUT_MS,
+    }, (upstream) => {
+      const status = upstream.statusCode || 0;
+      const location = upstream.headers.location;
+      if (status >= 300 && status < 400 && location && options.redirect === "follow") {
+        upstream.resume();
+        fetchSpreadsheetOverIpv4(new URL(location, url), options, redirectCount + 1).then(resolve, reject);
+        return;
+      }
+
+      const chunks = [];
+      let total = 0;
+      upstream.on("data", (chunk) => {
+        total += chunk.length;
+        if (total > MAX_BYTES) {
+          const error = new Error("source_too_large");
+          error.code = "ETOOLARGE";
+          upstream.destroy(error);
+          return;
+        }
+        chunks.push(chunk);
+      });
+      upstream.on("error", reject);
+      upstream.on("end", () => {
+        const buffer = Buffer.concat(chunks);
+        resolve({
+          ok: status >= 200 && status < 300,
+          status,
+          url: url.toString(),
+          headers: headersFromIncoming(upstream.headers),
+          async arrayBuffer() {
+            return buffer;
+          },
+        });
+      });
+    });
+
+    request.on("timeout", () => {
+      const error = new Error("upstream_timeout");
+      error.code = "ETIMEDOUT";
+      request.destroy(error);
+    });
+    request.on("error", reject);
+  });
+}
+
+export function createIzhgmuSourceProbeHandler({ fetchFn = fetchSpreadsheetOverIpv4 } = {}) {
   return async function izhgmuSourceProbeHandler(request, response) {
     if (request.method !== "GET") {
       return sendJson(response, 405, { status: "error", error: "method_not_allowed" });
@@ -121,10 +194,13 @@ export function createIzhgmuSourceProbeHandler({ fetchFn = fetch } = {}) {
 
       return sendJson(response, 200, { status: "ok", ...metadata });
     } catch (error) {
+      const cause = error?.cause || error;
       return sendJson(response, 502, {
         status: "fetch_error",
         sourceUrl: sourceUrl.toString(),
         error: error.message,
+        causeCode: cause?.code || null,
+        causeMessage: cause?.message || null,
       });
     }
   };
