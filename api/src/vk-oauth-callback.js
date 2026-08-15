@@ -48,10 +48,11 @@ function sendHtml(response, status, title, message, { clearCookies = false } = {
   response.end(body);
 }
 
-function sendJson(response, status, body) {
+function sendJson(response, status, body, extra = {}) {
   response.writeHead(status, {
     ...securityHeaders(),
     "Content-Type": "application/json; charset=utf-8",
+    ...extra,
   });
   response.end(JSON.stringify(body));
 }
