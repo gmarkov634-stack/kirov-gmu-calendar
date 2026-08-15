@@ -266,7 +266,8 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
 
 export function createVkControlHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
-  const accessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const staticAccessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const tokenManager = dependencies.tokenManager || null;
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
   const verifyOidcToken = dependencies.verifyOidcToken || ((token) => verifyGitHubOidcToken(token, { fetchImpl }));
@@ -274,7 +275,10 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
 
   return async function handleVkControl(request, response) {
     if (request.method !== "POST") return sendJson(response, 405, { error: "method_not_allowed" });
-    if (!/^\d+$/.test(groupId) || !accessToken) return sendJson(response, 503, { error: "vk_control_not_configured" });
+    const managedConfigured = Boolean(tokenManager?.configured);
+    if (!/^\d+$/.test(groupId) || (!staticAccessToken && !managedConfigured)) {
+      return sendJson(response, 503, { error: "vk_control_not_configured" });
+    }
 
     try {
       const authToken = bearerToken(request);
@@ -290,6 +294,9 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
 
+      const accessToken = managedConfigured
+        ? await tokenManager.getAccessToken()
+        : staticAccessToken;
       const result = await executeCommand(command, {
         groupId,
         token: accessToken,
@@ -315,11 +322,14 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       ].includes(error?.message)) {
         return sendJson(response, 400, { error: error.message });
       }
+      if (["vk_oauth_vault_not_configured", "vk_oauth_credentials_missing"].includes(error?.message)) {
+        return sendJson(response, 503, { error: "vk_control_not_configured" });
+      }
       if (error?.message === "vk_api_error") {
         console.error("vk control VK API error", { code: error.vkCode || 0 });
         return sendJson(response, 502, { error: "vk_api_error", code: error.vkCode || 0 });
       }
-      console.error("vk control failed", error);
+      console.error("vk control failed", error?.message || "unknown");
       return sendJson(response, 502, { error: "vk_control_unavailable" });
     }
   };
