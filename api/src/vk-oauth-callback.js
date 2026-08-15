@@ -1,3 +1,7 @@
+import { loadConfig } from "./config.js";
+import { VkTokenManager } from "./vk-token-manager.js";
+import { VkTokenVault } from "./vk-token-vault.js";
+
 const APP_ID = 54722093;
 const REDIRECT_URL = "https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback";
 const VKID_TOKEN_URL = "https://id.vk.ru/oauth2/auth";
@@ -112,7 +116,11 @@ async function probeWall({ accessToken, groupId, apiVersion, fetchImpl }) {
 
 export function createVkOauthCallbackHandler(env = process.env, dependencies = {}) {
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
-  const tokenManager = dependencies.tokenManager || null;
+  const tokenManager = dependencies.tokenManager || new VkTokenManager({
+    vault: new VkTokenVault(loadConfig(env), { encryptionKey: env.VK_OAUTH_ENCRYPTION_KEY }),
+    env,
+    fetchImpl,
+  });
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
 
@@ -178,7 +186,7 @@ export function createVkOauthCallbackHandler(env = process.env, dependencies = {
         fetchImpl,
       });
 
-      if (!tokenManager?.persistentOAuthEnabled) {
+      if (!tokenManager.persistentOAuthEnabled) {
         return sendHtml(
           response,
           200,
