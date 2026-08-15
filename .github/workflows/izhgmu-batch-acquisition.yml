@@ -7,6 +7,7 @@ on:
     paths:
       - "api/src/adapters/izhgmu/**"
       - "api/tools/izhgmu-collect.mjs"
+      - "api/tools/izhgmu-fingerprint.py"
       - "api/test/izhgmu-acquisition.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -30,10 +31,15 @@ jobs:
         run: npm ci
       - name: Run acquisition boundary tests
         working-directory: api
-        run: node --test test/izhgmu-acquisition.test.mjs
+        run: |
+          node --test test/izhgmu-acquisition.test.mjs
+          python3 tools/izhgmu-fingerprint.py --self-test
       - name: Collect current official schedule files
         working-directory: api
         run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+      - name: Fingerprint current source set
+        working-directory: api
+        run: npm run fingerprint:izhgmu -- --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -57,6 +63,13 @@ jobs:
                   if item.get('status') == 'downloaded':
                       kinds[item.get('spreadsheetKind')] = kinds.get(item.get('spreadsheetKind'), 0) + 1
               print('KINDS', kinds)
+          fingerprint_path=root/'fingerprint-report.json'
+          if fingerprint_path.exists():
+              fp=json.loads(fingerprint_path.read_text())
+              print('FINGERPRINT_PROFILES', fp['profileCounts'])
+              print('XLSX_FINGERPRINT_STATUS', fp['xlsxFingerprintStatus'])
+              print('LEGACY_XLS', fp['legacyXlsCount'])
+              print('OVERALL_STATUS', fp['overallStatus'])
           PY
           fi
       - name: Upload current IzhGMU source set
