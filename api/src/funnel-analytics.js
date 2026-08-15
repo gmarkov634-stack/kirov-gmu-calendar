@@ -202,7 +202,7 @@ export function createFunnelAnalyticsHandler({ store, config, now = () => new Da
     if (request.method !== "GET") return send(response, 405, { error: "method_not_allowed" });
     if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
     if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
-    if (typeof store?.listFunnelOrders !== "function" || typeof store?.listTrialConversions !== "function" || typeof store?.listFunnelEvents !== "function") {
+    if (typeof store?.listFunnelOrders !== "function" || typeof store?.listTrialConversions !== "function") {
       return send(response, 503, { error: "analytics_store_unavailable" });
     }
 
@@ -215,7 +215,7 @@ export function createFunnelAnalyticsHandler({ store, config, now = () => new Da
         store.listFunnelOrders(),
         store.listTrialConversions(),
         store.listSubscriptionAccess(),
-        store.listFunnelEvents(),
+        typeof store.listFunnelEvents === "function" ? store.listFunnelEvents() : Promise.resolve([]),
       ]);
       return send(response, 200, buildFunnelSummary({
         orders,
