@@ -15,14 +15,7 @@ Backend trial реализован в PR #100. Production-доступ оста�
 
 Trial получает отдельный случайный 43-символьный `conversionId`, который не даёт права на ICS. Storage key — `trial-conversions/<sha256(conversionId)>.json`. В conversion record хранится безопасный контекст группы/периода, attribution, окно trial и SHA-256 trial token; raw trial token не хранится.
 
-API:
-
-```text
-POST /api/v2/trials
-GET  /api/v2/trials/continue/{conversionId}
-```
-
-Continue API не возвращает `trialTokenHash`, `conversionIdHash` или subscription token.
+API: `POST /api/v2/trials`, `GET /api/v2/trials/continue/{conversionId}`. Continue API не возвращает `trialTokenHash`, `conversionIdHash` или subscription token.
 
 ## Feature gate
 
@@ -44,7 +37,7 @@ Server перехватывает только subscription records с `entitlem
 
 После `payment.succeeded` сначала создаётся полноценный новый `entitlement=paid` на весь купленный период, включая первую неделю, и сохраняется completed order; затем linked trial отзывается и conversion record переводится в `upgraded`. Retry fulfillment повторяет cleanup идемпотентно и не создаёт второй paid subscription. Схема «paid начинается после trial_end» отменена: оплаченный календарь должен быть самодостаточным.
 
-## Реализация
+## Реализация и regression
 
 Основные файлы: `trial-projection.js`, `trial-service.js`, `trial-store.js`, `trial-http-handler.js`, а также изменения `config.js`, `server.js`, `app.js`, `yookassa.js`.
 
