@@ -106,7 +106,8 @@ test('medicine-6 composite preserves every component blocker instead of collapsi
   assert.equal(candidate.componentStats.lectureBlockers, 2);
   assert.equal(candidate.componentStats.postsemesterBlockers, 1);
   assert.equal(candidate.componentStats.totalBlockers, 5);
-  assert.deepEqual(candidate.blockers.map((item) => item.component), ['cycle','cycle','lecture','lecture','postsemester']);
+  assert.deepEqual(candidate.blockers.map((item) => item.source_component), ['cycle','cycle','lecture','lecture','postsemester']);
+  assert.equal(candidate.blockers[4].component, 'Государственный экзамен');
   assert.equal(candidate.publishable, false);
 });
 
@@ -116,15 +117,14 @@ test('group 626 composite preserves missing therapy blockers and never synthesiz
   assert.equal(candidate.componentStats.totalEvents, 4);
   assert.equal(candidate.componentStats.postsemesterBlockers, 3);
   assert.equal(candidate.componentStats.totalBlockers, 7);
-  assert.equal(candidate.events, undefined);
   assert.equal(candidate.batch.events.some((event) => /Промежуточная аттестация: Госпитальная терапия/.test(event.lesson.discipline.normalized)), false);
   assert.equal(candidate.batch.events.some((event) => /Промежуточная аттестация: Поликлиническая терапия/.test(event.lesson.discipline.normalized)), false);
   assert.deepEqual(
-    candidate.blockers.filter((item) => item.component === 'postsemester').map((item) => [item.warning, item.date || null]),
+    candidate.blockers.filter((item) => item.source_component === 'postsemester').map((item) => [item.component, item.warning, item.date || null]),
     [
-      ['group_missing_from_reviewed_source', null],
-      ['group_missing_from_reviewed_source', null],
-      ['end_time_missing_in_source', '2026-06-15'],
+      ['Госпитальная терапия', 'group_missing_from_reviewed_source', null],
+      ['Поликлиническая терапия', 'group_missing_from_reviewed_source', null],
+      ['Государственный экзамен', 'end_time_missing_in_source', '2026-06-15'],
     ],
   );
 });
