@@ -17,6 +17,7 @@ import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
+import { createIzhgmuSourceProbeHandler } from "./adapters/izhgmu/source-probe.mjs";
 import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
 import { EmailReviewNotifier } from "./adapters/kgmu/email-notifier.mjs";
 import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
@@ -48,6 +49,7 @@ const offerPreviewHandler = createOfferPreviewHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
+const izhgmuSourceProbeHandler = createIzhgmuSourceProbeHandler();
 const omgmuSourceProbeHandler = createOmgmuSourceProbeHandler();
 const schedulePublishHandler = createSchedulePublishHandler({ store, config });
 const parserReviewQueue = new ParserReviewQueue(config);
@@ -106,6 +108,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v1/schedule-review/control") {
     return scheduleReviewControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/izhgmu/source-probe") {
+    return izhgmuSourceProbeHandler(request, response);
   }
   if (url.pathname === "/api/v1/admin/omgmu/source-probe") {
     return omgmuSourceProbeHandler(request, response);
