@@ -15,15 +15,14 @@
 .gcal-date b { display:grid; width:29px; height:29px; place-items:center; border-radius:50%; font-size:13px; font-weight:500; }
 .gcal-date.is-active { color:#1a73e8; }
 .gcal-date.is-active b { background:#1a73e8; color:#fff; }
-.gcal-day-scroll,.acal-day-scroll { height:347px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; background:#fff; }
-.gcal-day-scroll::-webkit-scrollbar,.acal-day-scroll::-webkit-scrollbar { display:none; }
-.gcal-day-grid,.acal-day-grid { position:relative; margin-left:43px; border-left:1px solid #e8eaed; }
-.gcal-hour,.acal-hour { position:absolute; right:0; left:-43px; height:1px; }
-.gcal-hour span,.acal-hour span { position:absolute; top:-6px; left:4px; width:33px; color:#70757a; font-size:8px; text-align:right; }
-.gcal-hour i,.acal-hour i { position:absolute; right:0; left:43px; height:1px; background:#f0f1f2; }
-.gcal-event,.acal-event { position:absolute; right:7px; left:7px; z-index:1; overflow:hidden; padding:6px 7px; border:0; cursor:pointer; font:inherit; text-align:left; }
-.gcal-event strong,.gcal-event span,.gcal-event small,.acal-event strong,.acal-event span,.acal-event small { display:block; }
-.gcal-event { border-left:3px solid currentColor; border-radius:4px; background:#d2e3fc; color:#1967d2; }
+.gcal-day-scroll { height:347px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; background:#fff; }
+.gcal-day-scroll::-webkit-scrollbar { display:none; }
+.gcal-day-grid { position:relative; margin-left:43px; border-left:1px solid #e8eaed; }
+.gcal-hour { position:absolute; right:0; left:-43px; height:1px; }
+.gcal-hour span { position:absolute; top:-6px; left:4px; width:33px; color:#70757a; font-size:8px; text-align:right; }
+.gcal-hour i { position:absolute; right:0; left:43px; height:1px; background:#f0f1f2; }
+.gcal-event { position:absolute; right:7px; left:7px; z-index:1; overflow:hidden; padding:6px 7px; border:0; border-left:3px solid currentColor; border-radius:4px; background:#d2e3fc; color:#1967d2; cursor:pointer; font:inherit; text-align:left; }
+.gcal-event strong,.gcal-event span,.gcal-event small { display:block; }
 .gcal-event strong { color:#174ea6; font-size:9px; font-weight:700; line-height:1.22; }
 .gcal-event span { margin-top:2px; color:#174ea6; font-size:8px; font-weight:600; }
 .gcal-event small { margin-top:3px; overflow:hidden; color:#3c4043; font-size:7px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
@@ -33,24 +32,34 @@
 .gcal-event.tone-sport strong,.gcal-event.tone-sport span { color:#0d652d; }
 .gcal-footer { display:flex; justify-content:space-between; align-items:center; height:38px; padding:0 11px; border-top:1px solid #e8eaed; color:#80868b; background:#fff; font-size:8px; font-weight:600; }
 
-.acal-toolbar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; height:46px; padding:0 11px; border-bottom:1px solid #e5e5ea; background:rgba(255,255,255,.96); }
+.acal-toolbar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; height:46px; padding:0 11px; border-bottom:1px solid #e5e5ea; background:rgba(255,255,255,.97); }
 .acal-toolbar > strong { color:#1c1c1e; font-size:12px; font-weight:700; }
 .acal-back { justify-self:start; padding:0; border:0; background:transparent; color:#0a84ff; font:inherit; font-size:11px; font-weight:600; }
 .acal-actions { justify-self:end; color:#0a84ff; font-size:14px; }
-.acal-date-strip { display:grid; grid-template-columns:repeat(3,1fr); height:61px; padding-left:43px; border-bottom:1px solid #e5e5ea; background:#fff; }
-.acal-date { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:0; background:transparent; color:#8e8e93; cursor:pointer; font:inherit; }
-.acal-date span { font-size:8px; font-weight:700; text-transform:uppercase; }
-.acal-date b { display:grid; width:29px; height:29px; place-items:center; border-radius:50%; color:#1c1c1e; font-size:13px; font-weight:600; }
-.acal-date.is-active { color:#ff3b30; }
-.acal-date.is-active b { background:#ff3b30; color:#fff; }
-.acal-day-grid { border-left-color:#e5e5ea; }
-.acal-hour i { background:#ededf0; }
-.acal-event { border-radius:5px; background:#dbeafe; color:#0a84ff; box-shadow:inset 2px 0 0 currentColor; }
-.acal-event strong { color:#1c1c1e; font-size:9px; font-weight:700; line-height:1.22; }
-.acal-event span { margin-top:2px; color:#3a3a3c; font-size:8px; font-weight:600; }
-.acal-event small { margin-top:3px; overflow:hidden; color:#636366; font-size:7px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
-.acal-event.tone-lecture { background:#efe2ff; color:#af52de; }
-.acal-event.tone-sport { background:#dff6e7; color:#34c759; }
+.acal-agenda-scroll { height:408px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; background:#f2f2f7; }
+.acal-agenda-scroll::-webkit-scrollbar { display:none; }
+.acal-agenda-day { background:#fff; }
+.acal-agenda-day + .acal-agenda-day { margin-top:9px; border-top:1px solid #dedee3; }
+.acal-agenda-day-head { position:sticky; top:0; z-index:2; display:grid; grid-template-columns:24px 34px 1fr; align-items:center; min-height:52px; padding:5px 12px 5px 10px; border-bottom:1px solid #ececf0; background:rgba(255,255,255,.96); backdrop-filter:blur(10px); }
+.acal-agenda-day-head > span { color:#8e8e93; font-size:9px; font-weight:700; text-transform:uppercase; }
+.acal-agenda-day-head > b { display:grid; width:30px; height:30px; place-items:center; border-radius:50%; background:#ff3b30; color:#fff; font-size:13px; }
+.acal-agenda-day-head > div { display:grid; gap:1px; margin-left:7px; }
+.acal-agenda-day-head strong { color:#1c1c1e; font-size:11px; }
+.acal-agenda-day-head small { color:#8e8e93; font-size:8px; }
+.acal-agenda-events { background:#fff; }
+.acal-agenda-event { display:grid; width:100%; grid-template-columns:48px 5px minmax(0,1fr); gap:9px; align-items:start; min-height:68px; padding:10px 13px 10px 8px; border:0; border-bottom:1px solid #f0f0f3; background:#fff; cursor:pointer; font:inherit; text-align:left; }
+.acal-agenda-event:last-child { border-bottom:0; }
+.acal-agenda-time { display:grid; gap:1px; padding-top:1px; text-align:right; }
+.acal-agenda-time b { color:#1c1c1e; font-size:9px; font-weight:700; }
+.acal-agenda-time small { color:#8e8e93; font-size:8px; }
+.acal-agenda-event > i { width:4px; min-height:46px; border-radius:3px; background:#0a84ff; }
+.acal-agenda-event.tone-lecture > i { background:#af52de; }
+.acal-agenda-event.tone-sport > i { background:#34c759; }
+.acal-agenda-copy { display:grid; gap:4px; min-width:0; }
+.acal-agenda-copy strong { color:#1c1c1e; font-size:10px; font-weight:700; line-height:1.25; }
+.acal-agenda-copy small { overflow:hidden; color:#636366; font-size:8px; line-height:1.3; text-overflow:ellipsis; white-space:nowrap; }
+.acal-agenda-event:hover,.acal-agenda-event:focus-visible { background:#f7f7fa; outline:none; }
+.acal-agenda-end { margin:12px 14px 16px; padding:9px; border:1px dashed #d1d1d6; border-radius:10px; color:#8e8e93; font-size:8px; font-weight:700; text-align:center; }
 .acal-footer { display:grid; grid-template-columns:1fr 1fr 1fr; align-items:center; height:38px; padding:0 12px; border-top:1px solid #e5e5ea; color:#0a84ff; background:#fafafa; font-size:8px; font-weight:700; }
 .acal-footer strong { justify-self:center; font-weight:700; }
 .acal-footer span:last-child { justify-self:end; }
@@ -98,6 +107,6 @@
 .acal-calendar > i.tone-lecture { background:#af52de; }
 .acal-calendar > i.tone-sport { background:#34c759; }
 
-.gcal-event:focus-visible,.acal-event:focus-visible,.gcal-date:focus-visible,.acal-date:focus-visible,.calendar-platform-tab:focus-visible { outline:2px solid #1a73e8; outline-offset:1px; }
-@media (max-width:430px) { .calendar-preview--dual { height:514px; } .gcal-day-scroll,.acal-day-scroll { height:335px; } .gcal-detail-body,.acal-detail-body { height:428px; } }
-@media (prefers-reduced-motion:reduce) { .gcal-day-scroll,.acal-day-scroll { scroll-behavior:auto; } }
+.gcal-event:focus-visible,.gcal-date:focus-visible,.calendar-platform-tab:focus-visible { outline:2px solid #1a73e8; outline-offset:1px; }
+@media (max-width:430px) { .calendar-preview--dual { height:514px; } .gcal-day-scroll { height:335px; } .acal-agenda-scroll { height:396px; } .gcal-detail-body,.acal-detail-body { height:428px; } }
+@media (prefers-reduced-motion:reduce) { .gcal-day-scroll,.acal-agenda-scroll { scroll-behavior:auto; } }
