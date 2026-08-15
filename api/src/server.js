@@ -5,6 +5,7 @@ import { createPreviewSubscriptionHandler } from "./preview-subscription-handler
 import { loadConfig } from "./config.js";
 import { TrialEnabledStore } from "./trial-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
+import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
 import { createTrialHttpHandler } from "./trial-http-handler.js";
@@ -32,6 +33,7 @@ const appHandler = createHandler({ store, config, payments });
 const archivePaymentTestHandler = createArchivePaymentTestHandler({ store, config, payments });
 const previewSubscriptionHandler = createPreviewSubscriptionHandler({ store, config });
 const offerCatalogHandler = createOfferCatalogHandler({ store, config });
+const offerPreviewHandler = createOfferPreviewHandler({ store, config });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler();
 const vkControlHandler = createVkControlHandler();
@@ -88,6 +90,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
+  }
+  if (url.pathname.match(/^\/api\/v2\/catalog\/[^/]+\/[^/]+\/\d+\/[^/]+\/preview$/)) {
+    return offerPreviewHandler(request, response);
   }
   if (url.pathname.startsWith("/api/v2/catalog/")) {
     return offerCatalogHandler(request, response);

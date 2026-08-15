@@ -14,11 +14,12 @@ async function text(name) {
   return fs.readFile(path.join(root, name), "utf8");
 }
 
-test("KGMU landing posts selected plan to the v2 payment endpoint", async () => {
+test("KGMU landing posts selected plan and server-scoped group context to the v2 payment endpoint", async () => {
   const app = await text("app.js");
   assert.match(app, /\/api\/v2\/payments/);
   assert.match(app, /plan:\s*state\.plan/);
-  assert.match(app, /university:\s*data\.university/);
+  assert.match(app, /\.\.\.apiGroupContext\(\)/);
+  assert.match(app, /function apiGroupContext\(\)[\s\S]*university:\s*data\.university\s*\|\|\s*"kgmu"/);
   assert.doesNotMatch(app, /\/api\/v1\/payments/);
 });
 
@@ -29,11 +30,11 @@ test("KGMU landing exposes semester 299 and year 499 plans", async () => {
   assert.match(data, /badge:\s*"Выгоднее"/);
 });
 
-test("KGMU landing keeps the 2026/27 offer closed until a verified schedule is available", async () => {
+test("KGMU landing keeps the 2026/27 offer fail-closed until verified groups exist", async () => {
   const html = await text("index.html");
   const data = await text("data.js");
-  assert.match(html, /Продажа открывается только после проверки расписания/);
-  assert.match(html, /В продаже появляются только группы с опубликованным и проверенным расписанием/);
+  assert.match(html, /Доступ появляется только после проверки расписания/);
+  assert.match(html, /В выборе появляются только группы с опубликованным и проверенным расписанием/);
   assert.doesNotMatch(html, /проверки парсера/);
   assert.doesNotMatch(data, /groups:\s*\{\s*1:\s*\[/);
 });

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1559d6" />
-    <meta name="description" content="Расписание Кировского ГМУ в Apple Calendar и Google Calendar: выберите факультет, курс и группу и подключите персональный календарь." />
+    <meta name="description" content="Расписание Кировского ГМУ в Apple Calendar и Google Calendar: выберите свою группу и смотрите пары в обычном календаре телефона." />
     <meta name="robots" content="index,follow" />
     <title>Расписание КГМУ в Apple и Google Calendar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="pricing.css?v=landing-1" />
     <link rel="stylesheet" href="landing-v1.css?v=landing-1" />
     <link rel="stylesheet" href="program-status.css?v=landing-2" />
+    <link rel="stylesheet" href="trial.css?v=trial-1" />
   </head>
   <body>
     <header class="topbar">
@@ -35,17 +36,17 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Кировский государственный медицинский университет</p>
-          <h1>Расписание КГМУ — сразу в календаре</h1>
-          <p>Персональная подписка на учебное расписание для Apple Calendar и Google Calendar. Вы выбираете свою группу, а занятия появляются в календаре телефона.</p>
+          <h1>Не ищи расписание каждый день</h1>
+          <p>Пары вашей группы уже в календаре телефона. Откройте привычный Apple Calendar или Google Calendar — и учебный день будет перед глазами.</p>
           <div class="hero-features" aria-label="Главные преимущества">
             <span class="hero-feature">Apple и Google</span>
-            <span class="hero-feature">Оплата один раз</span>
+            <span class="hero-feature">Проверенное расписание</span>
             <span class="hero-feature">Без автосписаний</span>
           </div>
           <div class="hero-actions">
-            <a class="hero-cta" href="#selector">Выбрать группу →</a>
-            <div class="hero-price"><strong>от 299 ₽</strong><span>Семестр · учебный год 499 ₽</span></div>
+            <a class="hero-cta" id="hero-primary-cta" href="#selector">Выбрать свою группу →</a>
           </div>
+          <span class="hero-runtime-note" id="hero-runtime-note">Выберите группу и посмотрите, как её расписание выглядит в календаре телефона.</span>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="calendar-preview">
@@ -57,9 +58,21 @@
         </div>
       </section>
 
+      <section class="comparison-section" aria-label="Сравнение способов просмотра расписания">
+        <article class="comparison-card">
+          <strong>Обычно</strong>
+          <p>Открыть XLSX, PDF, сайт или чат → найти свою группу → определить неделю → найти день → прочитать расписание.</p>
+        </article>
+        <article class="comparison-card is-calendar">
+          <strong>С календарём</strong>
+          <p>Открыть календарь телефона → увидеть сегодняшние и следующие пары среди остальных событий дня.</p>
+        </article>
+        <p class="comparison-note">Мы не сделали ещё одно место, где можно посмотреть расписание. Мы убрали необходимость каждый раз его искать.</p>
+      </section>
+
       <section class="availability" aria-label="Статус расписания 2026/27">
         <div>
-          <strong>Продажа открывается только после проверки расписания</strong>
+          <strong>Доступ появляется только после проверки расписания</strong>
           <p>Для учебного года 2026/27 группа появится в выборе после публикации официального расписания КГМУ и проверки дат, времени занятий и состава групп.</p>
         </div>
         <span class="availability-badge">2026/27 · осенний семестр</span>
@@ -69,7 +82,7 @@
         <div class="section-heading">
           <p class="eyebrow">Направления КГМУ</p>
           <h2 id="directions-title">Один сервис для основных расписаний</h2>
-          <p>В продаже появляются только группы с опубликованным и проверенным расписанием. Если расписание ещё не опубликовано или требует уточнения, группа остаётся недоступной.</p>
+          <p>В выборе появляются только группы с опубликованным и проверенным расписанием. Если расписание ещё не опубликовано или требует уточнения, группа остаётся недоступной.</p>
         </div>
         <div class="program-grid">
           <article class="program-card"><div class="program-card-top"><span class="program-badge">Ожидаем 2026/27</span></div><h3>Лечебное дело</h3><p>Курсы 1–6</p></article>
@@ -82,29 +95,28 @@
       <section id="how" class="info-section" aria-labelledby="how-title">
         <div class="section-heading">
           <p class="eyebrow">Как это работает</p>
-          <h2 id="how-title">Три шага — и расписание в календаре</h2>
+          <h2 id="how-title">Сначала увидьте результат — потом решайте</h2>
         </div>
         <div class="how-grid">
-          <article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Факультет, курс и группа из уже проверенного расписания.</p></article>
-          <article class="how-card"><span class="how-number">2</span><h3>Оплатите один раз</h3><p>Семестр — 299 ₽, учебный год — 499 ₽. Автоматических списаний нет.</p></article>
-          <article class="how-card"><span class="how-number">3</span><h3>Подключите календарь</h3><p>После оплаты получите персональную ссылку для Apple Calendar или Google Calendar.</p></article>
+          <article class="how-card"><span class="how-number">1</span><h3>Выберите свою группу</h3><p>Показываем только группы из уже опубликованного и проверенного расписания.</p></article>
+          <article class="how-card"><span class="how-number">2</span><h3 id="how-step2-title">Посмотрите реальные пары</h3><p id="how-step2-copy">Перед оплатой вы увидите несколько занятий именно своей группы.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3 id="how-step3-title">Подключите календарь</h3><p id="how-step3-copy">Если формат подходит, выберите полный период и подключите персональную ссылку.</p></article>
         </div>
         <div class="trust-strip" aria-label="О сервисе">
           <div><strong>Официальный источник</strong><span>Расписание берётся из опубликованных материалов КГМУ.</span></div>
-          <div><strong>Проверено перед публикацией</strong><span>Перед продажей проверяем даты, время занятий и состав групп.</span></div>
-          <div><strong>Одна подписная ссылка</strong><span>Обновлённое опубликованное расписание приходит по той же ссылке.</span></div>
+          <div><strong>Проверено перед публикацией</strong><span>Перед выдачей проверяем даты, время занятий и состав групп.</span></div>
+          <div><strong>Одна paid-ссылка</strong><span>После проверки новой версии изменения приходят по той же оплаченной ссылке.</span></div>
         </div>
       </section>
 
       <section id="selector" class="selector selector-anchor" aria-labelledby="selector-title">
-        <div class="steps" aria-label="Этапы оформления">
+        <div class="steps" aria-label="Выбор группы">
           <div class="step is-active" data-step-indicator="faculty"><span>1</span><strong>Факультет</strong></div>
           <div class="step" data-step-indicator="course"><span>2</span><strong>Курс</strong></div>
           <div class="step" data-step-indicator="group"><span>3</span><strong>Группа</strong></div>
-          <div class="step" data-step-indicator="checkout"><span>4</span><strong>Оплата</strong></div>
         </div>
         <div class="panel-head">
-          <div><p class="section-kicker" id="step-kicker">Шаг 1 из 4</p><h2 id="selector-title">Выберите факультет</h2></div>
+          <div><p class="section-kicker" id="step-kicker">Шаг 1 из 3</p><h2 id="selector-title">Выберите факультет</h2></div>
           <button class="back-button" id="back-button" type="button" hidden>← Назад</button>
         </div>
         <div class="choice-grid" id="choice-grid" aria-live="polite"></div>
@@ -141,6 +153,6 @@
     <script src="data.js?v=landing-1"></script>
     <script src="program-status.js?v=landing-2"></script>
     <script src="app-utils.js?v=landing-1"></script>
-    <script src="app.js?v=landing-1"></script>
+    <script src="app.js?v=trial-1"></script>
   </body>
 </html>
