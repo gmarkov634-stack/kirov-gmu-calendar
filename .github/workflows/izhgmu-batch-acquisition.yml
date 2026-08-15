@@ -77,6 +77,9 @@ jobs:
       - name: Parse medicine 5 lecture streams without heuristic group attribution
         working-directory: api
         run: npm run parse:izhgmu:lecture:medicine5 -- --input-dir /tmp/izhgmu-current
+      - name: Diagnose real IZH-CYCLE medicine 6 without publication
+        working-directory: api
+        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 6 --output cycle-diagnostic-medicine-6.json
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -117,6 +120,12 @@ jobs:
           if lecture5_path.exists():
               diag=json.loads(lecture5_path.read_text())
               print('LECTURE_MEDICINE5', diag)
+          cycle6_path=root/'cycle-diagnostic-medicine-6.json'
+          if cycle6_path.exists():
+              diag=json.loads(cycle6_path.read_text())
+              print('CYCLE_MEDICINE6_STATS', diag['parser']['stats'])
+              print('CYCLE_MEDICINE6_GROUPS', diag['groupSpans'])
+              print('CYCLE_MEDICINE6_REVIEW', len(diag['review']))
           PY
           fi
       - name: Upload current IzhGMU source set
