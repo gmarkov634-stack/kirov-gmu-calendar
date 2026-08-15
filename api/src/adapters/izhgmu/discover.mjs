@@ -49,8 +49,8 @@ function extractAcademicYear(value = "") {
 
 function extractSemester(value = "") {
   const text = normalizedText(value);
-  if (/осенн/.test(text)) return "autumn";
-  if (/весенн/.test(text)) return "spring";
+  if (/осен|autumn|fall/.test(text)) return "autumn";
+  if (/весн|spring/.test(text)) return "spring";
   return null;
 }
 
