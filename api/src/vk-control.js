@@ -9,7 +9,7 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post"]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info"]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
@@ -180,6 +180,28 @@ function sanitizePost(post) {
   };
 }
 
+function sanitizeGroup(group) {
+  return {
+    id: Number(group?.id || 0),
+    name: String(group?.name || ""),
+    screenName: String(group?.screen_name || ""),
+    type: String(group?.type || ""),
+    isClosed: Number(group?.is_closed || 0),
+    description: String(group?.description || ""),
+    website: String(group?.site || group?.website || ""),
+    activity: String(group?.activity || ""),
+    status: String(group?.status || ""),
+    membersCount: Number(group?.members_count || 0),
+    verified: Number(group?.verified || 0) === 1,
+    city: group?.city && typeof group.city === "object"
+      ? { id: Number(group.city.id || 0), title: String(group.city.title || "") }
+      : null,
+    country: group?.country && typeof group.country === "object"
+      ? { id: Number(group.country.id || 0), title: String(group.country.title || "") }
+      : null,
+  };
+}
+
 async function vkMethod({ method, token, apiVersion, params, fetchImpl }) {
   const body = new URLSearchParams({ access_token: token, v: apiVersion, ...params });
   const response = await fetchImpl(`https://api.vk.com/method/${method}`, {
@@ -209,6 +231,23 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     });
     const items = Array.isArray(result?.items) ? result.items : [];
     return { total: Number(result?.count || items.length), posts: items.map(sanitizePost) };
+  }
+
+  if (command.action === "group.info") {
+    const result = await vkMethod({
+      method: "groups.getById",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: {
+        group_ids: groupId,
+        fields: "description,site,activity,status,members_count,verified,city,country",
+      },
+    });
+    const groups = Array.isArray(result?.groups) ? result.groups : (Array.isArray(result) ? result : []);
+    const group = groups.find((item) => Number(item?.id || 0) === Number(groupId)) || groups[0];
+    if (!group) throw new Error("vk_group_not_found");
+    return sanitizeGroup(group);
   }
 
   if (command.action === "wall.post") {
@@ -338,6 +377,7 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_post_id",
         "empty_post",
         "unsupported_action",
+        "vk_group_not_found",
       ].includes(error?.message)) {
         return sendJson(response, 400, { error: error.message });
       }
