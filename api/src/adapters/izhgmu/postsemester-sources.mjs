@@ -65,10 +65,15 @@ function assertOfficialPdfUrl(rawUrl) {
   return url;
 }
 
-function canonicalOfficialPdfUrl(rawUrl) {
+export function canonicalOfficialPdfUrl(rawUrl) {
   const url = assertOfficialPdfUrl(rawUrl);
   if (url.hostname.toLowerCase() === 'igma.ru') url.hostname = 'www.igma.ru';
   return url;
+}
+
+export function resolveOfficialPdfRedirect(currentUrl, location) {
+  const base = assertOfficialPdfUrl(currentUrl);
+  return assertOfficialPdfUrl(new URL(location, base).href);
 }
 
 function isPdf(buffer) {
@@ -79,10 +84,25 @@ function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
-function nodeHttpsGet(url, { timeoutMs, maxBytes, redirectCount = 0 } = {}) {
-  const canonicalUrl = canonicalOfficialPdfUrl(url);
+function nodeHttpsGet(url, {
+  timeoutMs,
+  maxBytes,
+  redirectCount = 0,
+  redirectHistory = [],
+} = {}) {
+  const currentUrl = redirectCount === 0
+    ? canonicalOfficialPdfUrl(url)
+    : assertOfficialPdfUrl(url);
+  const currentHref = currentUrl.href;
+  if (redirectHistory.includes(currentHref)) {
+    const error = new Error(`IzhGMU post-semester redirect loop detected: ${currentHref}`);
+    error.code = 'IZH_POSTSEMESTER_REDIRECT_LOOP';
+    throw error;
+  }
+  const nextHistory = [...redirectHistory, currentHref];
+
   return new Promise((resolve, reject) => {
-    const request = https.get(canonicalUrl, {
+    const request = https.get(currentUrl, {
       family: 4,
       headers: {
         'User-Agent': 'MedicalUniversityCalendarBot/1.0 (+IzhGMU post-semester schedule download)',
@@ -95,24 +115,29 @@ function nodeHttpsGet(url, { timeoutMs, maxBytes, redirectCount = 0 } = {}) {
       if (status >= 300 && status < 400 && location) {
         response.resume();
         if (redirectCount >= MAX_REDIRECTS) {
-          const error = new Error(`IzhGMU post-semester redirect limit exceeded: ${canonicalUrl.href}`);
+          const error = new Error(`IzhGMU post-semester redirect limit exceeded: ${currentHref}`);
           error.code = 'IZH_POSTSEMESTER_REDIRECT_LIMIT';
           reject(error);
           return;
         }
         let nextUrl;
         try {
-          nextUrl = canonicalOfficialPdfUrl(new URL(location, canonicalUrl).href);
+          nextUrl = resolveOfficialPdfRedirect(currentUrl, location);
         } catch (error) {
           reject(error);
           return;
         }
-        nodeHttpsGet(nextUrl, { timeoutMs, maxBytes, redirectCount: redirectCount + 1 }).then(resolve, reject);
+        nodeHttpsGet(nextUrl, {
+          timeoutMs,
+          maxBytes,
+          redirectCount: redirectCount + 1,
+          redirectHistory: nextHistory,
+        }).then(resolve, reject);
         return;
       }
       if (status < 200 || status >= 300) {
         response.resume();
-        const error = new Error(`IzhGMU post-semester source HTTP ${status || 'unknown'}: ${canonicalUrl.href}`);
+        const error = new Error(`IzhGMU post-semester source HTTP ${status || 'unknown'}: ${currentHref}`);
         error.code = 'IZH_POSTSEMESTER_HTTP_ERROR';
         error.status = status || null;
         reject(error);
@@ -141,14 +166,14 @@ function nodeHttpsGet(url, { timeoutMs, maxBytes, redirectCount = 0 } = {}) {
       response.on('end', () => {
         resolve({
           buffer: Buffer.concat(chunks),
-          finalUrl: canonicalUrl.href,
+          finalUrl: currentHref,
           contentType: response.headers['content-type'] || null,
         });
       });
       response.on('error', reject);
     });
     request.setTimeout(timeoutMs, () => {
-      const error = new Error(`IzhGMU post-semester request timed out: ${canonicalUrl.href}`);
+      const error = new Error(`IzhGMU post-semester request timed out: ${currentHref}`);
       error.code = 'IZH_POSTSEMESTER_TIMEOUT';
       request.destroy(error);
     });
@@ -180,7 +205,7 @@ async function fetchWithInjectedClient(url, fetchImpl, { timeoutMs, maxBytes }) 
     error.status = response?.status ?? null;
     throw error;
   }
-  const finalUrl = canonicalOfficialPdfUrl(response.url || url.href);
+  const finalUrl = assertOfficialPdfUrl(response.url || url.href);
   const lengthHeader = Number(response.headers?.get?.('content-length'));
   if (Number.isFinite(lengthHeader) && lengthHeader > maxBytes) {
     const error = new Error(`IzhGMU post-semester PDF exceeds ${maxBytes} bytes`);
