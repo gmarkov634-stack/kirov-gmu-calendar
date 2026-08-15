@@ -81,14 +81,16 @@ function groupHeaders(sheet) {
     if (!byRow.has(cell.row)) byRow.set(cell.row, []);
     byRow.get(cell.row).push(cell);
   }
-  const selected = [...byRow.values()].sort((left, right) => right.length - left.length)[0];
-  if (!selected || selected.length < 2) {
+  const selectedEntry = [...byRow.entries()].sort((left, right) => right[1].length - left[1].length)[0];
+  const headerRow = selectedEntry?.[0] ?? null;
+  const selected = selectedEntry?.[1] ?? null;
+  if (!selected || selected.length < 2 || !Number.isInteger(headerRow)) {
     const error = new Error('IZH-LECTURE class group span missing');
     error.code = 'IZH_LECTURE_GROUP_SPAN_MISSING';
     throw error;
   }
   const groups = selected.sort((left, right) => left.col - right.col);
-  return { firstCol: groups[0].col, lastCol: groups.at(-1).col };
+  return { row: headerRow, firstCol: groups[0].col, lastCol: groups.at(-1).col };
 }
 
 function classTimeSlots(sheet, classDays) {
@@ -128,12 +130,13 @@ function isChoiceBlock(value) {
 }
 
 function classWideBlocks(sheet) {
-  const { firstCol, lastCol } = groupHeaders(sheet);
+  const { row: groupHeaderRow, firstCol, lastCol } = groupHeaders(sheet);
   const classDays = dayRows(sheet);
   const slots = classTimeSlots(sheet, classDays);
   const blocks = [];
 
   for (const merge of sheet.merges) {
+    if (merge.startRow <= groupHeaderRow) continue;
     if (merge.startCol > firstCol || merge.endCol < lastCol) continue;
     const anchor = sheet.cells.find((cell) => cell.row === merge.startRow && cell.col === merge.startCol);
     const value = anchor?.value ?? '';
