@@ -11,6 +11,7 @@ on:
       - "api/tools/izhgmu-fingerprint.py"
       - "api/tools/izhgmu-parse-weekly.mjs"
       - "api/tools/izhgmu-parse-weekly-lecture.mjs"
+      - "api/tools/izhgmu-diagnose-lecture.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -46,6 +47,9 @@ jobs:
       - name: Parse real IZH-WEEKLY source pair through canonical QA boundary
         working-directory: api
         run: npm run parse:izhgmu:weekly -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
+      - name: Diagnose real IZH-LECTURE companion before assertions
+        working-directory: api
+        run: node tools/izhgmu-diagnose-lecture.mjs --input-dir /tmp/izhgmu-current --group 109
       - name: Parse real IZH-WEEKLY plus exact-date lecture companion
         working-directory: api
         run: npm run parse:izhgmu:weekly-lecture -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
@@ -79,6 +83,13 @@ jobs:
               print('XLSX_FINGERPRINT_STATUS', fp['xlsxFingerprintStatus'])
               print('LEGACY_XLS', fp['legacyXlsCount'])
               print('OVERALL_STATUS', fp['overallStatus'])
+          diag_path=root/'lecture-diagnostic.json'
+          if diag_path.exists():
+              diag=json.loads(diag_path.read_text())
+              print('LECTURE_STATS', diag['lecture']['stats'])
+              print('LECTURE_REVIEW', diag['lecture']['reviewRequired'])
+              print('LECTURE_COVERAGE', {k:v for k,v in diag['lecture']['classCoverage'].items() if k != 'blocks'})
+              print('COMBINED_BLOCKERS', diag['combined']['blockers'])
           PY
           fi
       - name: Upload current IzhGMU source set
