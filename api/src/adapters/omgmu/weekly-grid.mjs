@@ -1,5 +1,6 @@
 import { buildOmgmuCanonicalBatch } from "./canonical.mjs";
 import { parseWeeklyGeometry } from "./weekly-geometry.mjs";
+import { materializeWeeklyUserSeries } from "./weekly-o65.mjs";
 
 function calendarYear(metadata) {
   const start = String(metadata?.period?.start_date ?? metadata?.period?.startDate ?? "").match(/^(20\d{2})-/);
@@ -7,13 +8,20 @@ function calendarYear(metadata) {
   return Number(start[1]);
 }
 
+function groupSeries(series, group) {
+  return series.map((item) => ({
+    ...item,
+    jointGroups: item.groups.filter((code) => code !== group),
+  }));
+}
+
 /**
- * Compose one group-specific canonical batch from authoritative weekly_grid
- * geometry. Shared PDF cells remain shared evidence; each group batch receives
- * the same source series plus `jointGroups` for the other geometrically covered
- * groups. O65 merging is intentionally not performed here.
+ * Build a traceable weekly_grid candidate. The return value keeps both layers:
+ * independent parser `sourceSeries` and O65-materialized `userSeries` used for
+ * the canonical batch. This allows production review/debugging to retain every
+ * original counter/range/bbox while the student receives the merged event.
  */
-export function buildWeeklyGridCanonicalBatch(geometry, { metadata, source } = {}) {
+export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source } = {}) {
   const group = String(metadata?.groupCode ?? metadata?.group ?? "").trim();
   if (!group) throw new TypeError("weekly_grid metadata.group is required");
 
@@ -34,25 +42,35 @@ export function buildWeeklyGridCanonicalBatch(geometry, { metadata, source } = {
     throw error;
   }
 
-  const series = parsed.series
-    .filter((item) => item.groups.includes(group))
-    .map((item) => ({
-      ...item,
-      jointGroups: item.groups.filter((code) => code !== group),
-    }));
-
-  if (!series.length) {
+  const materialized = materializeWeeklyUserSeries(parsed.series, {
+    group,
+    maxGapMinutes: metadata?.o65MaxGapMinutes ?? 15,
+  });
+  if (!materialized.sourceSeries.length) {
     const error = new Error(`weekly_grid produced no source series for group ${group}`);
     error.code = "OMG_WEEKLY_GRID_EMPTY";
     throw error;
   }
 
-  return buildOmgmuCanonicalBatch({
+  const userSeries = groupSeries(materialized.userSeries, group);
+  const batch = buildOmgmuCanonicalBatch({
     metadata: {
       ...metadata,
       parser: metadata?.parser || "omgmu-weekly-grid/o01-o72",
     },
     source,
-    series,
+    series: userSeries,
   });
+
+  return {
+    batch,
+    sourceSeries: materialized.sourceSeries,
+    userSeries,
+    merges: materialized.merges,
+    groups: parsed.groups,
+  };
+}
+
+export function buildWeeklyGridCanonicalBatch(geometry, options = {}) {
+  return buildWeeklyGridCanonicalCandidate(geometry, options).batch;
 }
