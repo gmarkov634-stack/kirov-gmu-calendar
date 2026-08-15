@@ -1,0 +1,105 @@
+import { createHash } from "node:crypto";
+
+const DATE = /^20\d{2}-\d{2}-\d{2}$/;
+
+function canonical(schedule) {
+  return schedule?.schema_version === "1.0" && Boolean(schedule?.schedule) && Array.isArray(schedule?.events);
+}
+
+function eventDate(event, isCanonical) {
+  const value = isCanonical ? event?.timing?.date : String(event?.start || "").slice(0, 10);
+  return DATE.test(String(value || "")) ? String(value) : null;
+}
+
+export function addCalendarDays(value, days) {
+  if (!DATE.test(String(value || "")) || !Number.isInteger(days)) throw new TypeError("valid date and integer days are required");
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
+}
+
+export function trialWindowFromSchedule(schedule) {
+  const isCanonical = canonical(schedule);
+  const dates = (schedule?.events || [])
+    .map((event) => eventDate(event, isCanonical))
+    .filter(Boolean)
+    .sort();
+  if (!dates.length) return null;
+  const trialStartDate = dates[0];
+  return {
+    trialStartDate,
+    trialEndDateExclusive: addCalendarDays(trialStartDate, 7),
+  };
+}
+
+function deterministicId(trial) {
+  const basis = String(trial?.conversionId || `${trial?.groupId || "group"}:${trial?.trialEndDateExclusive || "trial"}`);
+  return createHash("sha256").update(basis).digest("hex");
+}
+
+function conversionDescription(continueUrl) {
+  return [
+    "Первая бесплатная неделя закончилась.",
+    continueUrl ? `Подключить календарь своей группы на весь семестр: ${continueUrl}` : null,
+  ].filter(Boolean).join("\n\n");
+}
+
+function canonicalConversionEvent(schedule, trial, continueUrl) {
+  const digest = deterministicId(trial);
+  const stamp = trial?.createdAt || schedule?.schedule?.version_created_at || new Date(0).toISOString();
+  return {
+    schema_version: "1.0",
+    system: {
+      event_id: `evt_trial_conversion_${digest.slice(0, 24)}`,
+      schedule_version_id: schedule.schedule.schedule_version_id,
+      fingerprint: `sha256:${digest}`,
+      revision: 1,
+      created_at: stamp,
+      updated_at: stamp,
+    },
+    timing: {
+      date: trial.trialEndDateExclusive,
+      start_time: null,
+      end_time: null,
+      all_day: true,
+      time_mode: "floating",
+    },
+    calendar: {
+      title: "Продолжить календарь на семестр",
+      description: conversionDescription(continueUrl),
+      location: null,
+    },
+  };
+}
+
+function legacyConversionEvent(trial, continueUrl) {
+  const digest = deterministicId(trial);
+  return {
+    id: `trial-conversion-${digest.slice(0, 24)}`,
+    title: "Продолжить календарь на семестр",
+    description: conversionDescription(continueUrl),
+    location: "",
+    start: trial.trialEndDateExclusive,
+    end: addCalendarDays(trial.trialEndDateExclusive, 1),
+    allDay: true,
+  };
+}
+
+export function projectTrialSchedule(schedule, trial, { continueUrl = "" } = {}) {
+  if (!schedule || !Array.isArray(schedule.events)) throw new TypeError("schedule with events is required");
+  if (!DATE.test(String(trial?.trialStartDate || "")) || !DATE.test(String(trial?.trialEndDateExclusive || ""))) {
+    throw new TypeError("trial window is invalid");
+  }
+
+  const isCanonical = canonical(schedule);
+  if (trial.status !== "active") return { ...schedule, events: [] };
+
+  const events = schedule.events.filter((event) => {
+    const date = eventDate(event, isCanonical);
+    return date && date >= trial.trialStartDate && date < trial.trialEndDateExclusive;
+  });
+  const conversion = isCanonical
+    ? canonicalConversionEvent(schedule, trial, continueUrl)
+    : legacyConversionEvent(trial, continueUrl);
+
+  return { ...schedule, events: [...events, conversion] };
+}

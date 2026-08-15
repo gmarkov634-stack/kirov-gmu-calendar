@@ -116,6 +116,10 @@ function salesState(config) {
   return config?.commercialSalesEnabled === true ? "open" : "closed";
 }
 
+function trialState(config) {
+  return config?.trialsEnabled === true ? "open" : "closed";
+}
+
 function paymentMode(config) {
   return config?.yookassaTestMode === true ? "test" : "live";
 }
@@ -151,13 +155,19 @@ export function createHandler({ store, config, payments }) {
         if (!schedule || !sameSchedule(schedule, { ...context, academicYear: scheduleContext(schedule).academicYear, semester: scheduleContext(schedule).semester })) {
           return send(response, 400, { error: "offer_not_found" });
         }
-        const payment = await payments.create({ email: input.email.trim().toLowerCase(), schedule, plan });
+        const payment = await payments.create({
+          email: input.email.trim().toLowerCase(),
+          schedule,
+          plan,
+          conversionId: typeof input.conversionId === "string" ? input.conversionId : "",
+        });
         if (!payment.confirmationUrl) throw new Error("YooKassa did not return confirmation URL");
         return send(response, 201, payment, "application/json; charset=utf-8", "no-store");
       } catch (error) {
         console.error(error);
         if (["invalid_json", "request_too_large"].includes(error.message)) return send(response, 400, { error: error.message });
         if (error.code === "invalid_plan") return send(response, 400, { error: "invalid_checkout" });
+        if (error.code === "trial_context_invalid") return send(response, 400, { error: error.code });
         if (error.code === "semester_end_not_found") return send(response, 409, { error: "offer_not_ready" });
         if (error.code === "offer_expired") return send(response, 409, { error: "offer_expired" });
         return send(response, 503, { error: "payment_unavailable" });
@@ -225,6 +235,7 @@ export function createHandler({ store, config, payments }) {
         version: 2,
         disclaimer: DISCLAIMER,
         sales: salesState(config),
+        trials: trialState(config),
         paymentMode: paymentMode(config),
       }, "application/json; charset=utf-8", "no-store");
     }

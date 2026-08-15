@@ -6,7 +6,12 @@ on:
     branches:
       - main
     paths:
-      - "api/**"
+      - "api/src/**"
+      - "api/data/**"
+      - "api/schemas/**"
+      - "api/package.json"
+      - "api/package-lock.json"
+      - "api/Dockerfile"
       - ".github/workflows/publish-api.yml"
 
 env:
@@ -36,14 +41,13 @@ jobs:
           registry: kgmu-calendar-api.cr.cloud.ru
           username: ${{ secrets.EVO_CR_LOGIN }}
           password: ${{ secrets.EVO_CR_PWD }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push linux/amd64 image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./api
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ github.sha }}
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:${GITHUB_SHA}" \
+            ./api
+      - name: Push Docker image
+        run: |
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${GITHUB_SHA}"

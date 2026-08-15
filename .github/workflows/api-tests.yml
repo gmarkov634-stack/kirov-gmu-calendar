@@ -32,5 +32,9 @@ jobs:
           cache-dependency-path: api/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Run tests
-        run: npm test
+      - name: Node regression tests
+        run: node --test
+      - name: OmGMU weekly parser self-test
+        run: python3 tools/omgmu-parse-weekly-pdf.py --self-test
+      - name: OmGMU fourth-course parser self-test
+        run: python3 tools/omgmu-parse-fourth-pdf.py --self-test
