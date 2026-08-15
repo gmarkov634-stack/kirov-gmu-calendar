@@ -28,8 +28,6 @@
 .gcal-event small { margin-top:3px; overflow:hidden; color:#3c4043; font-size:7px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
 .gcal-event.tone-lecture { background:#e6cff2; color:#9334e6; }
 .gcal-event.tone-lecture strong,.gcal-event.tone-lecture span { color:#681da8; }
-.gcal-event.tone-sport { background:#ceead6; color:#188038; }
-.gcal-event.tone-sport strong,.gcal-event.tone-sport span { color:#0d652d; }
 .gcal-footer { display:flex; justify-content:space-between; align-items:center; height:38px; padding:0 11px; border-top:1px solid #e8eaed; color:#80868b; background:#fff; font-size:8px; font-weight:600; }
 
 .acal-toolbar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; height:46px; padding:0 11px; border-bottom:1px solid #e5e5ea; background:rgba(255,255,255,.97); }
@@ -54,7 +52,6 @@
 .acal-agenda-time small { color:#8e8e93; font-size:8px; }
 .acal-agenda-event > i { width:4px; min-height:46px; border-radius:3px; background:#0a84ff; }
 .acal-agenda-event.tone-lecture > i { background:#af52de; }
-.acal-agenda-event.tone-sport > i { background:#34c759; }
 .acal-agenda-copy { display:grid; gap:4px; min-width:0; }
 .acal-agenda-copy strong { color:#1c1c1e; font-size:10px; font-weight:700; line-height:1.25; }
 .acal-agenda-copy small { overflow:hidden; color:#636366; font-size:8px; line-height:1.3; text-overflow:ellipsis; white-space:nowrap; }
@@ -75,14 +72,12 @@
 .gcal-detail-title h3 { margin:0; color:#202124; font-size:17px; font-weight:500; line-height:1.3; }
 .gcal-detail-title p { margin:5px 0 0; color:#5f6368; font-size:10px; }
 .gcal-detail-title.tone-lecture { color:#9334e6; }
-.gcal-detail-title.tone-sport { color:#188038; }
 .gcal-detail-row { display:grid; grid-template-columns:28px 1fr; gap:11px; align-items:start; min-height:54px; padding:13px 18px; border-top:1px solid #f1f3f4; }
 .gcal-detail-row > span:first-child { color:#5f6368; font-size:17px; text-align:center; }
 .gcal-detail-row strong { display:block; color:#3c4043; font-size:11px; font-weight:500; line-height:1.35; }
 .gcal-detail-row p { margin:3px 0 0; color:#5f6368; font-size:10px; line-height:1.35; }
 .gcal-calendar-dot { width:10px; height:10px; margin:3px auto 0; border-radius:2px; background:#1a73e8; }
 .gcal-calendar-dot.tone-lecture { background:#9334e6; }
-.gcal-calendar-dot.tone-sport { background:#188038; }
 
 .acal-detail-nav { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; height:52px; padding:0 11px; border-bottom:1px solid #d1d1d6; background:#fafafa; }
 .acal-detail-nav button { justify-self:start; padding:0; border:0; background:transparent; color:#0a84ff; cursor:pointer; font:inherit; font-size:20px; }
@@ -93,7 +88,6 @@
 .acal-detail-body::-webkit-scrollbar { display:none; }
 .acal-detail-hero { display:grid; grid-template-columns:12px 1fr; gap:10px; padding:22px 18px 18px; background:#fff; color:#0a84ff; }
 .acal-detail-hero.tone-lecture { color:#af52de; }
-.acal-detail-hero.tone-sport { color:#34c759; }
 .acal-detail-hero > i { width:9px; height:9px; margin-top:5px; border-radius:50%; background:currentColor; }
 .acal-detail-hero h3 { margin:0; color:#1c1c1e; font-size:17px; line-height:1.25; }
 .acal-detail-hero p { margin:4px 0 0; color:#8e8e93; font-size:10px; }
@@ -105,7 +99,6 @@
 .acal-calendar { grid-template-columns:13px 1fr; align-items:center; }
 .acal-calendar > i { width:9px; height:9px; border-radius:50%; background:#0a84ff; }
 .acal-calendar > i.tone-lecture { background:#af52de; }
-.acal-calendar > i.tone-sport { background:#34c759; }
 
 .gcal-event:focus-visible,.gcal-date:focus-visible,.calendar-platform-tab:focus-visible { outline:2px solid #1a73e8; outline-offset:1px; }
 @media (max-width:430px) { .calendar-preview--dual { height:514px; } .gcal-day-scroll { height:335px; } .acal-agenda-scroll { height:396px; } .gcal-detail-body,.acal-detail-body { height:428px; } }
