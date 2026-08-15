@@ -1,6 +1,7 @@
 import { buildOmgmuCanonicalBatch } from "./canonical.mjs";
 import { parseWeeklyGeometry } from "./weekly-geometry.mjs";
 import { materializeWeeklyUserSeries } from "./weekly-o65.mjs";
+import { applyApprovedWeeklyReview } from "./weekly-reviewed.mjs";
 
 function calendarYear(metadata) {
   const start = String(metadata?.period?.start_date ?? metadata?.period?.startDate ?? "").match(/^(20\d{2})-/);
@@ -15,7 +16,7 @@ function groupSeries(series, group) {
   }));
 }
 
-export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source } = {}) {
+export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source, reviewRegistry = null } = {}) {
   const group = String(metadata?.groupCode ?? metadata?.group ?? "").trim();
   if (!group) throw new TypeError("weekly_grid metadata.group is required");
 
@@ -36,9 +37,15 @@ export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source }
     throw error;
   }
 
-  // Current O65 evidence proves the adjacent 15:55 -> 16:00 pattern only.
-  // Broader breaks must not be enabled by metadata without a new source-backed rule.
-  const materialized = materializeWeeklyUserSeries(parsed.series, { group, maxGapMinutes: 5 });
+  const reviewed = applyApprovedWeeklyReview(parsed.series, {
+    metadata: { ...metadata, group },
+    source,
+    registry: reviewRegistry,
+  });
+
+  // O65 runs only after parser + source-bound review have produced validated
+  // independent source-series for this exact official PDF revision.
+  const materialized = materializeWeeklyUserSeries(reviewed.series, { group, maxGapMinutes: 5 });
   if (!materialized.sourceSeries.length) {
     const error = new Error(`weekly_grid produced no source series for group ${group}`);
     error.code = "OMG_WEEKLY_GRID_EMPTY";
@@ -61,6 +68,7 @@ export function buildWeeklyGridCanonicalCandidate(geometry, { metadata, source }
     userSeries,
     merges: materialized.merges,
     groups: parsed.groups,
+    review: reviewed.review,
   };
 }
 
