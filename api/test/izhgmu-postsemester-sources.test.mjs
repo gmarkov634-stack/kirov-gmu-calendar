@@ -3,6 +3,8 @@ import test from 'node:test';
 import {
   IZHGMU_MEDICINE6_POSTSEMESTER_SOURCES,
   IZHGMU_MEDICINE6_STREAM_MAPPING_POLICY,
+  canonicalOfficialPdfUrl,
+  resolveOfficialPdfRedirect,
   fetchIzhgmuPostsemesterSource,
   collectIzhgmuMedicine6PostsemesterSources,
 } from '../src/adapters/izhgmu/postsemester-sources.mjs';
@@ -34,6 +36,25 @@ test('post-semester boundary pins separate official attestation and GIA PDF sour
   assert.equal(IZHGMU_MEDICINE6_POSTSEMESTER_SOURCES.every((source) => source.calendarAuthority === 'exact_schedule_required'), true);
   assert.equal(IZHGMU_MEDICINE6_POSTSEMESTER_SOURCES.every((source) => source.rangeMarkerFallback === false), true);
   assert.equal(IZHGMU_MEDICINE6_POSTSEMESTER_SOURCES.every((source) => source.url.startsWith('https://www.igma.ru/')), true);
+});
+
+test('post-semester redirect policy canonicalizes only the initial host and preserves an allowed redirect host', () => {
+  assert.equal(
+    canonicalOfficialPdfUrl('https://igma.ru/images/a.pdf').href,
+    'https://www.igma.ru/images/a.pdf',
+  );
+  assert.equal(
+    resolveOfficialPdfRedirect('https://www.igma.ru/images/a.pdf', 'https://igma.ru/images/a.pdf').href,
+    'https://igma.ru/images/a.pdf',
+  );
+  assert.equal(
+    resolveOfficialPdfRedirect('https://www.igma.ru/images/a.pdf', '../b.pdf').href,
+    'https://www.igma.ru/b.pdf',
+  );
+  assert.throws(
+    () => resolveOfficialPdfRedirect('https://www.igma.ru/images/a.pdf', 'https://example.com/a.pdf'),
+    (error) => error.code === 'IZH_POSTSEMESTER_URL_REJECTED',
+  );
 });
 
 test('post-semester PDF fetch validates official host, PDF magic and SHA', async () => {
