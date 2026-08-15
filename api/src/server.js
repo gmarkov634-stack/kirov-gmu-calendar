@@ -18,6 +18,10 @@ import { KgmuReviewedService } from "./adapters/kgmu/reviewed-service.mjs";
 import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
+import { OmgmuReviewQueue } from "./adapters/omgmu/review-queue.mjs";
+import { OmgmuSourceObserver } from "./adapters/omgmu/source-observer.mjs";
+import { OmgmuWatchStore } from "./adapters/omgmu/watch-store.mjs";
+import { OmgmuSourceWatcher } from "./adapters/omgmu/source-watcher.mjs";
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
@@ -61,6 +65,14 @@ const kgmuParserHandler = createKgmuParserHandler({
   watcher: kgmuWatcher,
   notifier: parserNotifier,
   config,
+});
+const omgmuReviewQueue = new OmgmuReviewQueue(config);
+const omgmuSourceObserver = new OmgmuSourceObserver({ queue: omgmuReviewQueue });
+const omgmuWatchStore = new OmgmuWatchStore(config);
+const omgmuWatcher = new OmgmuSourceWatcher({
+  config,
+  observer: omgmuSourceObserver,
+  stateStore: omgmuWatchStore,
 });
 
 const server = http.createServer((request, response) => {
@@ -106,6 +118,7 @@ const server = http.createServer((request, response) => {
 });
 
 let kgmuWatchTimer = null;
+let omgmuWatchTimer = null;
 
 async function runKgmuWatch(reason) {
   try {
@@ -124,6 +137,23 @@ async function runKgmuWatch(reason) {
   }
 }
 
+async function runOmgmuWatch(reason) {
+  try {
+    const result = await omgmuWatcher.run();
+    console.log("OMGMU source watch", reason, JSON.stringify({
+      status: result.status,
+      targetCount: result.targetCount,
+      newReviewCount: result.newReviewCount,
+      changedReviewCount: result.changedReviewCount,
+      unchangedCount: result.unchangedCount,
+      missingCount: result.missingCount,
+      errorCount: result.errorCount,
+    }));
+  } catch (error) {
+    console.error("OMGMU source watch failed", reason, error);
+  }
+}
+
 server.listen(config.port, "0.0.0.0", () => {
   console.log(`medical-calendar-api listening on :${config.port}`);
   console.log(parserNotifier.enabled
@@ -138,10 +168,17 @@ server.listen(config.port, "0.0.0.0", () => {
     kgmuWatchTimer.unref();
     console.log(`KGMU source watcher enabled: ${config.kgmuWatchIntervalMs} ms`);
   }
+  if (config.omgmuWatchEnabled) {
+    void runOmgmuWatch("startup");
+    omgmuWatchTimer = setInterval(() => { void runOmgmuWatch("interval"); }, config.omgmuWatchIntervalMs);
+    omgmuWatchTimer.unref();
+    console.log(`OMGMU source watcher enabled: ${config.omgmuWatchIntervalMs} ms (observation/review only)`);
+  }
 });
 
 function shutdown() {
   if (kgmuWatchTimer) clearInterval(kgmuWatchTimer);
+  if (omgmuWatchTimer) clearInterval(omgmuWatchTimer);
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 10000).unref();
 }
