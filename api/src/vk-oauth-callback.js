@@ -1,3 +1,7 @@
+import { loadConfig } from "./config.js";
+import { VkTokenManager } from "./vk-token-manager.js";
+import { VkTokenVault } from "./vk-token-vault.js";
+
 const APP_ID = 54722093;
 const REDIRECT_URL = "https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback";
 const VKID_TOKEN_URL = "https://id.vk.ru/oauth2/auth";
@@ -87,7 +91,7 @@ async function exchangeCode({ code, state, deviceId, codeVerifier, fetchImpl }) 
   const result = await response.json();
   if (result?.error) throw new Error(`vkid_${String(result.error)}`);
   if (result?.state && result.state !== state) throw new Error("vkid_state_mismatch");
-  if (!result?.access_token) throw new Error("vkid_access_token_missing");
+  if (!result?.access_token || !result?.refresh_token) throw new Error("vkid_token_missing");
   return result;
 }
 
@@ -112,6 +116,11 @@ async function probeWall({ accessToken, groupId, apiVersion, fetchImpl }) {
 
 export function createVkOauthCallbackHandler(env = process.env, dependencies = {}) {
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
+  const tokenManager = dependencies.tokenManager || new VkTokenManager({
+    vault: new VkTokenVault(loadConfig(env), { encryptionKey: env.VK_OAUTH_ENCRYPTION_KEY }),
+    env,
+    fetchImpl,
+  });
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
 
@@ -177,21 +186,32 @@ export function createVkOauthCallbackHandler(env = process.env, dependencies = {
         fetchImpl,
       });
 
+      if (!tokenManager.persistentOAuthEnabled) {
+        return sendHtml(
+          response,
+          200,
+          "Доступ к стене VK подтверждён",
+          `wall.get успешно выполнен. На стене найдено записей: ${postCount}. Постоянное зашифрованное хранилище ещё не настроено, поэтому access/refresh token не сохранены.`,
+          { clearCookies: true },
+        );
+      }
+
+      await tokenManager.saveAuthorizationResult(tokenResult, deviceId);
       return sendHtml(
         response,
         200,
-        "Доступ к стене VK подтверждён",
-        `Пользовательский токен успешно прошёл wall.get для сообщества. На стене найдено записей: ${postCount}. Токен и refresh token не отображались и не сохранялись.`,
+        "Доступ VK сохранён",
+        `wall.get успешно выполнен. На стене найдено записей: ${postCount}. Access/refresh token сохранены только в зашифрованном хранилище и будут обновляться автоматически.`,
         { clearCookies: true },
       );
     } catch (error) {
       const reason = String(error?.message || "vk_oauth_probe_failed").replace(/[^a-zA-Z0-9_-]/g, "_");
-      console.error("VK OAuth wall probe failed", reason);
+      console.error("VK OAuth wall probe/persist failed", reason);
       return sendHtml(
         response,
         502,
         "Проверка доступа к стене не пройдена",
-        "VK ID вернул токен, но проверка wall.get не завершилась успешно. Секреты не отображались и не сохранялись.",
+        "Проверка wall.get или безопасное сохранение токена не завершились успешно. Секреты не отображались.",
         { clearCookies: true },
       );
     }
