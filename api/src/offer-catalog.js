@@ -1,5 +1,5 @@
 import { listOfferProgramAvailability } from "./offer-availability.js";
-import { scheduleContext } from "./order-context.js";
+import { normalizeAcademicYear, scheduleContext } from "./order-context.js";
 
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PROGRAM_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -181,6 +181,7 @@ export function createOfferCatalogHandler({
         context.program === program &&
         context.course === course &&
         context.groupId === group.groupId &&
+        normalizeAcademicYear(context.academicYear) === normalizeAcademicYear(period.academicYear) &&
         Number(context.semester) === Number(period.semester);
       if (!samePeriod) return send(response, 409, { error: "offer_not_ready" });
 
