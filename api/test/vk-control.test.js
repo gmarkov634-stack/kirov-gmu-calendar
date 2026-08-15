@@ -257,20 +257,17 @@ test("wall.delete uses the user token and requires a positive post id", async ()
   assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
-test("wall.pin and wall.unpin use the community token and require a positive post id", async () => {
+test("wall.pin and wall.unpin are disabled after both production token classes failed", async () => {
   for (const action of ["wall.pin", "wall.unpin"]) {
-    const requests = [];
+    let calls = 0;
     const response = fakeResponse();
-    await handler(vkSuccess(1, requests))(
+    await handler(async () => { calls += 1; })(
       fakeRequest(command(action, { postId: 500 })),
       response,
     );
-    assert.equal(response.statusCode, 200);
-    assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
-    assert.equal(requests[0].url, `https://api.vk.com/method/${action}`);
-    assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-    assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
-    assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+    assert.equal(response.statusCode, 501);
+    assert.deepEqual(parseResponse(response), { error: "vk_wall_pin_not_supported" });
+    assert.equal(calls, 0);
   }
 });
 

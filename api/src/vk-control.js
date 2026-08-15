@@ -9,7 +9,8 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "wall.pin", "wall.unpin"]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post"]);
+const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -295,6 +296,9 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const input = await readJson(request);
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
+      if (UNSUPPORTED_WALL_ACTIONS.has(command.action)) {
+        return sendJson(response, 501, { error: "vk_wall_pin_not_supported" });
+      }
 
       let accessToken;
       if (COMMUNITY_TOKEN_ACTIONS.has(command.action)) {
