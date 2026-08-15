@@ -13,18 +13,22 @@ import { prepareSchedulePublication } from "../src/schedule/pipeline.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const encoded = fs.readFileSync(path.join(__dirname, "fixtures/omgmu-cycle-rotation-course4.geometry.json.gz.b64"), "utf8").trim();
 const geometry = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"));
+const academicCalendar = JSON.parse(fs.readFileSync(
+  path.join(__dirname, "../../universities/omgmu/academic-calendar-2025-2026-spring.json"),
+  "utf8",
+));
 const SOURCE_HASH = "d3436fb8a1f40b4286ffd550004e477424c9424590128dbbf564340200c38daa";
 
 function metadata(group = "485") {
   return {
-    academicYear: "2025/2026",
-    semester: "spring",
+    academicYear: academicCalendar.academic_year,
+    semester: academicCalendar.semester,
     facultyCode: "medicine-international",
     facultyName: "Лечебное дело для иностранных граждан",
     course: 4,
     group,
-    period: { start_date: "2026-04-06", end_date: "2026-08-08", week1_start_date: "2026-04-06" },
-    calendarExceptions: ["2026-05-01", "2026-05-09", "2026-06-12"],
+    period: academicCalendar.period,
+    calendarExceptions: academicCalendar.calendar_exceptions,
   };
 }
 
@@ -59,9 +63,12 @@ test("extracts Russian cycle geometry with real group spans and inherited discip
   assert.equal(cycle.discipline, lecture.discipline);
 });
 
-test("parses 18 independent source records and exposes the real K.дн. mismatch fail-closed", () => {
+test("verified 2026 calendar metadata resolves the real K.дн. 15 cycle without parser guessing", () => {
+  assert.equal(academicCalendar.calendar_year, 2026);
+  assert.ok(academicCalendar.calendar_exceptions.includes("2026-05-11"));
+
   const parsed = parseCycleRotationGeometry(geometry, {
-    year: 2026,
+    year: academicCalendar.calendar_year,
     calendarExceptions: metadata().calendarExceptions,
   });
   assert.deepEqual(parsed.diagnostics, []);
@@ -74,11 +81,12 @@ test("parses 18 independent source records and exposes the real K.дн. mismatch
   ));
   assert.deepEqual(therapyCycle.groups, ["485", "486"]);
   assert.equal(therapyCycle.declaredDays, 15);
-  assert.equal(therapyCycle.mainDates.length, 16);
-  assert.equal(therapyCycle.status, "needs_review");
+  assert.equal(therapyCycle.mainDates.length, 15);
+  assert.equal(therapyCycle.status, "ok");
   assert.ok(therapyCycle.ruleIds.includes("O20"));
   assert.ok(therapyCycle.ruleIds.includes("O26"));
-  assert.ok(therapyCycle.warnings.some((warning) => warning.includes("К.дн.=15") && warning.includes("=16")));
+  assert.ok(!therapyCycle.mainDates.includes("2026-05-11"));
+  assert.ok(!therapyCycle.warnings.some((warning) => warning.includes("К.дн.")));
 });
 
 test("O19 merges a real two-slot cycle row into one user event while keeping source slots", () => {
@@ -155,24 +163,34 @@ test("O29 replaces the last cycle occurrence with one credit when control is sam
   assert.equal(july29[0].timing.end_time, "16:00");
 });
 
-test("full group 485 remains blocked by the source K.дн. inconsistency instead of silently publishing", () => {
+test("full group 485 passes canonical common pipeline with verified source calendar metadata", () => {
   const candidate = buildCycleRotationCanonicalCandidate(geometry, { metadata: metadata("485"), source });
   assert.equal(candidate.sourceSeries.length, 10);
-  assert.equal(candidate.sourceSeries.filter((record) => record.status === "needs_review").length, 1);
-  assert.equal(candidate.batch.events.length, 107);
-  assert.throws(
-    () => prepareSchedulePublication(candidate.batch, {
-      now: "2026-08-15T09:30:00.000Z",
-      eventIdFactory: () => "evt_never",
-      versionIdFactory: () => "ver_never",
-    }),
-    (error) => error.code === "SCHEDULE_NOT_PUBLISHABLE" && error.stage === "input",
-  );
+  assert.equal(candidate.sourceSeries.filter((record) => record.status === "needs_review").length, 0);
+  assert.equal(candidate.batch.events.length, 106);
+
+  const therapyOnHoliday = candidate.batch.events.filter((event) => (
+    event.lesson.discipline.normalized.includes("Факультетская терапия")
+    && event.timing.date === "2026-05-11"
+  ));
+  assert.equal(therapyOnHoliday.length, 0);
+
+  let eventNo = 0;
+  const prepared = prepareSchedulePublication(candidate.batch, {
+    now: "2026-08-15T09:30:00.000Z",
+    eventIdFactory: () => `evt_omgmu_cycle_full_${++eventNo}`,
+    versionIdFactory: () => "ver_omgmu_cycle_485_full",
+  });
+  assert.equal(prepared.inputQa.publishable, true);
+  assert.equal(prepared.outputQa.publishable, true);
+  assert.equal((prepared.ics.match(/BEGIN:VEVENT/g) || []).length, 106);
+  assert.doesNotMatch(prepared.ics, /TZID=Asia\/Omsk/);
+  assert.doesNotMatch(prepared.ics, /\+06:00/);
 });
 
 test("rejects non-Russian cycle geometry for production", () => {
   assert.throws(
-    () => parseCycleRotationGeometry({ ...geometry, sourceLanguage: "en" }, { year: 2026 }),
+    () => parseCycleRotationGeometry({ ...geometry, sourceLanguage: "en" }, { year: academicCalendar.calendar_year }),
     (error) => error.code === "OMG_CYCLE_ROTATION_RU_REQUIRED",
   );
 });
