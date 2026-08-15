@@ -53,6 +53,20 @@ jobs:
           print("TRIAL_GATE_SAFE", json.dumps(body, ensure_ascii=False))
           PY
 
+          analytics_status="$(curl --silent --show-error --output /tmp/analytics-closed.json --write-out '%{http_code}' \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --data '{}' \
+            "$base/api/v2/analytics")"
+          test "$analytics_status" = "409"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/analytics-closed.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body == {"error": "analytics_not_open"}, body
+          print("ANALYTICS_GATE_SAFE", json.dumps(body, ensure_ascii=False))
+          PY
+
           programs="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$base/api/v2/catalog/kgmu/programs")"
           python3 - "$programs" <<'PY'
           import json, sys
@@ -86,6 +100,16 @@ jobs:
           assert body == {"error": "admin_forbidden"}, body
           PY
 
+          funnel_unauth_status="$(curl --silent --show-error --output /tmp/funnel-unauth.json --write-out '%{http_code}' "$base/api/v1/admin/funnel")"
+          test "$funnel_unauth_status" = "403"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/funnel-unauth.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body == {"error": "admin_forbidden"}, body
+          print("FUNNEL_ADMIN_GUARD_SAFE", json.dumps(body, ensure_ascii=False))
+          PY
+
           control_status="$(curl --silent --show-error --output /tmp/schedule-control.json --write-out '%{http_code}' \
             --request POST \
             --header 'Content-Type: application/json' \
@@ -100,6 +124,26 @@ jobs:
           PY
 
           test -n "$KGMU_ADMIN_TOKEN"
+          curl --fail-with-body --silent --show-error \
+            --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            --output /tmp/funnel.json \
+            "$base/api/v1/admin/funnel?university=kgmu&academicYear=2026%2F27&semester=1"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/funnel.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body.get("version") == 2, body
+          assert isinstance(body.get("upper"), dict), body
+          assert isinstance(body.get("trial"), dict), body
+          assert isinstance(body.get("payments"), dict), body
+          assert body.get("filter", {}).get("university") == "kgmu", body
+          print("FUNNEL_V2_SAFE", json.dumps({
+              "version": body.get("version"),
+              "filter": body.get("filter"),
+              "upper": body.get("upper"),
+          }, ensure_ascii=False))
+          PY
+
           curl --fail-with-body --silent --show-error \
             --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
             --output /tmp/parser-reviews.json \
