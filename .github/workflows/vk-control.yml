@@ -46,7 +46,9 @@ jobs:
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-vk-control")"
           oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s=""; process.stdin.on("data",d=>s+=d); process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
 
-          result="$(curl --fail-with-body --silent --show-error \
+          http_code="$(curl --silent --show-error \
+            -o /tmp/vk-control-result.json \
+            -w '%{http_code}' \
             -X POST \
             -H "Authorization: Bearer ${oidc_token}" \
             -H "Content-Type: application/json" \
@@ -54,5 +56,12 @@ jobs:
             "$VK_CONTROL_URL")"
 
           echo "VK_CONTROL_RESULT_BEGIN"
-          printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(JSON.stringify(JSON.parse(s),null,2)));'
+          node -e 'const fs=require("fs");const s=fs.readFileSync("/tmp/vk-control-result.json","utf8");try{console.log(JSON.stringify(JSON.parse(s),null,2))}catch{console.log(s)}'
+          echo "VK_CONTROL_HTTP_STATUS=$http_code"
           echo "VK_CONTROL_RESULT_END"
+
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            safe_body="$(node -e 'const fs=require("fs");let s=fs.readFileSync("/tmp/vk-control-result.json","utf8").replace(/[\r\n]+/g," "); if(s.length>500)s=s.slice(0,500); process.stdout.write(s.replace(/%/g,"%25").replace(/\r/g,"%0D").replace(/\n/g,"%0A"));')"
+            echo "::error title=VK control HTTP ${http_code}::${safe_body}"
+            exit 22
+          fi
