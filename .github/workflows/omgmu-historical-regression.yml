@@ -1,0 +1,56 @@
+name: ОмГМУ historical regression
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/adapters/omgmu/**"
+      - "api/src/schedule/**"
+      - "api/src/order-context.js"
+      - "api/src/year-aware-store.js"
+      - "api/test/omgmu-*.test.js"
+      - "api/test/omgmu-*.test.mjs"
+      - "api/test/schedule-*.test.js"
+      - "api/test/multi-university-flow.test.js"
+      - "api/test/university-registry.test.js"
+      - "api/test/fixtures/omgmu-*"
+      - "api/tools/omgmu-historical-regression.mjs"
+      - "api/package.json"
+      - ".github/workflows/omgmu-historical-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run immutable offline historical regression
+        env:
+          OMGMU_HISTORICAL_REPORT: data/regression/omgmu-historical-regression-report.json
+        run: npm run regression:omgmu:historical
+
+      - name: Upload historical regression report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-historical-regression
+          path: api/data/regression/omgmu-historical-regression-report.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "university": "omgmu",
+  "purpose": "immutable-historical-regression",
+  "network": "forbidden",
+  "profiles": [
+    {
+      "profile": "course_lecture_list",
+      "sourceSha256": "6e8cf99d14f53eb2a441cff588d39e619574863d8e5d12b08f4939113ac906fe",
+      "source": "4lek.pdf",
+      "expectedSourceSeries": 20,
+      "expectedEvents": 69,
+      "tests": [
+        "test/omgmu-course-lecture-list-canonical.test.js",
+        "test/omgmu-course-lecture-fail-closed.test.js"
+      ]
+    },
+    {
+      "profile": "weekly_grid",
+      "anchors": [
+        {
+          "group": "2101",
+          "sourceSha256": "f34129fe1a98ca8935620fce10b3adab7ca3858e5f5e842fe38bcfc85491d3da"
+        },
+        {
+          "group": "385",
+          "sourceSha256": "5a77c3eaede8e32887bc8c768cb19b5aaa6d9506249b2484ffb0bbb2f3bc9427"
+        }
+      ],
+      "tests": [
+        "test/omgmu-weekly-full-group-canonical.test.js",
+        "test/omgmu-weekly-geometry-canonical.test.js",
+        "test/omgmu-weekly-reviewed-canonical.test.js",
+        "test/omgmu-weekly-weekday-mismatch.test.js"
+      ]
+    },
+    {
+      "profile": "cycle_rotation_grid",
+      "sourceSha256": "d3436fb8a1f40b4286ffd550004e477424c9424590128dbbf564340200c38daa",
+      "group": "485",
+      "expectedSourceSeries": 10,
+      "expectedEvents": 106,
+      "tests": [
+        "test/omgmu-cycle-rotation-canonical.test.js"
+      ]
+    },
+    {
+      "profile": "combined_rotation_table",
+      "sourceSha256": "6b7862a6aa7fb2a0cca00b9e965eccdeea9ece8825d58da15a6e03b1b38fd328",
+      "group": "585",
+      "expectedSourceSeries": 16,
+      "expectedEvents": 154,
+      "tests": [
+        "test/omgmu-combined-rotation-canonical.test.js"
+      ]
+    }
+  ],
+  "failClosedTests": [
+    "test/omgmu-source-version.test.js",
+    "test/omgmu-source-review-watcher.test.js",
+    "test/omgmu-source-bound-canonical-review.test.js",
+    "test/omgmu-legacy-direct-publication-retired.test.js",
+    "test/omgmu-publish-s3.test.js"
+  ],
+  "sharedCoreTests": [
+    "test/omgmu-canonical-pipeline.test.js",
+    "test/schedule-pipeline.test.js",
+    "test/schedule-ics.test.js",
+    "test/schedule-versioning.test.js",
+    "test/schedule-versioning-exact-fingerprint.test.js",
+    "test/multi-university-flow.test.js",
+    "test/university-registry.test.js"
+  ],
+  "forbiddenTests": [
+    "test/omgmu-discover.test.js",
+    "test/omgmu-download.test.js",
+    "test/omgmu-source-watch.test.mjs"
+  ]
+}
