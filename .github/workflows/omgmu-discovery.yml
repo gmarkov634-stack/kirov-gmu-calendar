@@ -57,6 +57,13 @@ jobs:
               --input="$file" \
               --output="data/imports/omgmu-weekly-geometry/$name.json"
           done
+      - name: Analyze weekly_grid geometry
+        run: >-
+          node tools/omgmu-weekly-geometry-report.mjs
+          --input=data/imports/omgmu-weekly-geometry
+          --output=data/imports/omgmu-weekly-geometry-report.json
+          --year=2026
+          --exceptions=2026-05-01,2026-05-09,2026-06-12
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
@@ -146,7 +153,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omgmu-weekly-geometry
-          path: api/data/imports/omgmu-weekly-geometry
+          path: |
+            api/data/imports/omgmu-weekly-geometry
+            api/data/imports/omgmu-weekly-geometry-report.json
           if-no-files-found: error
           retention-days: 14
       - name: Upload group catalog
