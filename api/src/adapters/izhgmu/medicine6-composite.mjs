@@ -21,10 +21,10 @@ function requiredString(value, name) {
   return normalized;
 }
 
-function componentBlockers(component, items) {
+function componentBlockers(sourceComponent, items) {
   return (items || []).map((item) => ({
-    component,
     ...item,
+    source_component: sourceComponent,
   }));
 }
 
