@@ -23,7 +23,7 @@
 .preview-event strong,.preview-event span { display:block; }
 .preview-event strong { font-size:13px; line-height:1.35; }
 .preview-event span { margin-top:4px; color:var(--muted); font-size:11px; }
-.calendar-preview--native { position:relative; height:510px; background:#fff; transform:rotate(.35deg); isolation:isolate; }
+.calendar-preview--native { position:relative; height:526px; background:#fff; transform:rotate(.35deg); isolation:isolate; }
 .native-calendar-bar { display:flex; height:64px; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px 8px 16px; border-bottom:1px solid #e9edf3; background:rgba(255,255,255,.96); }
 .native-calendar-bar > div:first-child { display:grid; gap:1px; }
 .native-calendar-demo { color:#7b8798; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
@@ -108,4 +108,4 @@ footer nav { display:flex; gap:16px; }
 footer a { color:var(--muted); text-decoration:none; }
 @media (max-width:900px) { .program-grid{grid-template-columns:repeat(2,1fr)} .hero{grid-template-columns:1fr .8fr;padding:44px 38px}.calendar-preview{transform:none} }
 @media (max-width:760px) { .topnav{display:none}.hero{grid-template-columns:1fr;padding:34px 24px}.hero-visual{display:block}.calendar-preview{width:100%;margin-top:6px}.native-calendar-scroll{height:368px}.availability{grid-template-columns:1fr}.availability-badge{justify-self:start}.program-grid,.how-grid,.trust-strip{grid-template-columns:1fr}.footer-inner{align-items:flex-start;flex-direction:column}.faq{margin-top:30px}.info-section{margin-top:30px} }
-@media (max-width:430px) { .calendar-preview{border-radius:20px}.calendar-preview--native{height:500px}.native-calendar-bar{height:60px}.native-calendar-scroll{height:360px}.native-calendar-days{padding-left:48px}.hero-actions{align-items:stretch;flex-direction:column}.hero-cta{width:100%} }
+@media (max-width:430px) { .calendar-preview{border-radius:20px}.calendar-preview--native{height:514px}.native-calendar-bar{height:60px}.native-calendar-scroll{height:360px}.native-calendar-days{padding-left:48px}.hero-actions{align-items:stretch;flex-direction:column}.hero-cta{width:100%} }
