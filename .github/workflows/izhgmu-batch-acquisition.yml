@@ -6,6 +6,7 @@ on:
       - agent/izhgmu-batch-acquisition
     paths:
       - "api/src/adapters/izhgmu/**"
+      - "api/src/universities/registry.mjs"
       - "api/tools/izhgmu-collect.mjs"
       - "api/tools/izhgmu-fingerprint.py"
       - "api/test/izhgmu-acquisition.test.mjs"
@@ -29,10 +30,10 @@ jobs:
       - name: Install dependencies
         working-directory: api
         run: npm ci
-      - name: Run acquisition boundary tests
+      - name: Run full API regression and fingerprint self-test
         working-directory: api
         run: |
-          node --test test/izhgmu-acquisition.test.mjs
+          npm test
           python3 tools/izhgmu-fingerprint.py --self-test
       - name: Collect current official schedule files
         working-directory: api
