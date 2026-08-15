@@ -267,6 +267,7 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
 export function createVkControlHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
   const staticAccessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const communityAccessToken = String(env.VK_ACCESS_TOKEN || "").trim();
   const tokenManager = dependencies.tokenManager || null;
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
@@ -276,7 +277,7 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
   return async function handleVkControl(request, response) {
     if (request.method !== "POST") return sendJson(response, 405, { error: "method_not_allowed" });
     const managedConfigured = Boolean(tokenManager?.configured);
-    if (!/^\d+$/.test(groupId) || (!staticAccessToken && !managedConfigured)) {
+    if (!/^\d+$/.test(groupId)) {
       return sendJson(response, 503, { error: "vk_control_not_configured" });
     }
 
@@ -294,9 +295,19 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
 
-      const accessToken = managedConfigured
-        ? await tokenManager.getAccessToken()
-        : staticAccessToken;
+      let accessToken;
+      if (command.action === "wall.post") {
+        if (!communityAccessToken) return sendJson(response, 503, { error: "vk_control_not_configured" });
+        accessToken = communityAccessToken;
+      } else {
+        if (!staticAccessToken && !managedConfigured) {
+          return sendJson(response, 503, { error: "vk_control_not_configured" });
+        }
+        accessToken = managedConfigured
+          ? await tokenManager.getAccessToken()
+          : staticAccessToken;
+      }
+
       const result = await executeCommand(command, {
         groupId,
         token: accessToken,
