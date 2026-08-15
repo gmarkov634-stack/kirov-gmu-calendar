@@ -184,6 +184,35 @@ function parseSegment(geometry, row, cell, segment, options) {
   };
 }
 
+function intersect(left, right) {
+  const rightSet = new Set(right);
+  return left.filter((value) => rightSet.has(value));
+}
+
+function markExactSlotConflicts(series) {
+  for (let leftIndex = 0; leftIndex < series.length; leftIndex += 1) {
+    const left = series[leftIndex];
+    for (let rightIndex = leftIndex + 1; rightIndex < series.length; rightIndex += 1) {
+      const right = series[rightIndex];
+      if (left.disciplineNormalized === right.disciplineNormalized) continue;
+      if (left.startTime !== right.startTime || left.endTime !== right.endTime) continue;
+      const sharedGroups = intersect(left.groups, right.groups);
+      if (!sharedGroups.length) continue;
+      const sharedDates = intersect(left.dates, right.dates);
+      if (!sharedDates.length) continue;
+
+      const warning = (other) => `O06: same group/date/time has another discipline (${other}) on ${sharedDates.join(", ")}`;
+      left.warnings = [...new Set([...left.warnings, warning(right.disciplineNormalized)])];
+      right.warnings = [...new Set([...right.warnings, warning(left.disciplineNormalized)])];
+      left.ruleIds = [...new Set([...left.ruleIds, "O06"])];
+      right.ruleIds = [...new Set([...right.ruleIds, "O06"])];
+      left.status = "needs_review";
+      right.status = "needs_review";
+    }
+  }
+  return series;
+}
+
 /**
  * Parse an authoritative geometry/v1 extraction of an ОмГМУ `weekly_grid`.
  *
@@ -234,7 +263,7 @@ export function parseWeeklyGeometry(geometry, { year, calendarExceptions = [] } 
     }
   }
 
-  return { groups: groupCodes, series, diagnostics };
+  return { groups: groupCodes, series: markExactSlotConflicts(series), diagnostics };
 }
 
 export const weeklyGeometryInternals = Object.freeze({
@@ -242,4 +271,5 @@ export const weeklyGeometryInternals = Object.freeze({
   expandDates,
   titleAndLocation,
   declarationInfo,
+  markExactSlotConflicts,
 });
