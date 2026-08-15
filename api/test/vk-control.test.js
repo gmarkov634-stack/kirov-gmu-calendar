@@ -118,7 +118,7 @@ test("GitHub OIDC verifier accepts only the expected repository pull-request ide
   assert.equal(claims.repository, "gmarkov634-stack/kirov-gmu-calendar");
 });
 
-test("control endpoint fails closed when only the community token is configured", async () => {
+test("user-token wall.list fails closed when only the community token is configured", async () => {
   let fetchCalls = 0;
   let verificationCalls = 0;
   const response = fakeResponse();
@@ -141,7 +141,7 @@ test("control endpoint fails closed when only the community token is configured"
   await control(fakeRequest(command("wall.list")), response);
   assert.equal(response.statusCode, 503);
   assert.deepEqual(parseResponse(response), { error: "vk_control_not_configured" });
-  assert.equal(verificationCalls, 0);
+  assert.equal(verificationCalls, 1);
   assert.equal(fetchCalls, 0);
 });
 
@@ -225,7 +225,8 @@ test("wall.post publishes as the community and uses the command id as VK guid", 
   assert.equal(requests[0].options.body.get("from_group"), "1");
   assert.equal(requests[0].options.body.get("message"), "Новый пост");
   assert.equal(requests[0].options.body.get("guid"), input.id);
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.edit changes only a concrete post on the fixed community wall", async () => {
