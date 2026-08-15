@@ -48,6 +48,15 @@ jobs:
             name="$(basename "${file%.pdf}")"
             pdftotext -layout "$file" "data/imports/omgmu-text/$name.txt"
           done
+      - name: Extract authoritative weekly_grid geometry
+        run: |
+          mkdir -p data/imports/omgmu-weekly-geometry
+          for file in data/imports/omgmu-pdfs/0[1-5]_*.pdf; do
+            name="$(basename "${file%.pdf}")"
+            python3 tools/omgmu-extract-weekly-geometry.py \
+              --input="$file" \
+              --output="data/imports/omgmu-weekly-geometry/$name.json"
+          done
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
@@ -132,6 +141,14 @@ jobs:
           path: api/data/imports/omgmu-pdfs
           if-no-files-found: error
           retention-days: 7
+      - name: Upload weekly_grid geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-weekly-geometry
+          path: api/data/imports/omgmu-weekly-geometry
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload group catalog
         if: always()
         uses: actions/upload-artifact@v4
