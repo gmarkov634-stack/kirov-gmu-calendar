@@ -12,6 +12,13 @@ function arg(name, fallback = null) {
   return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
 }
 
+function csv(value) {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function blocker(record) {
   return {
     discipline: record.discipline,
@@ -23,6 +30,7 @@ function blocker(record) {
     resolvedMainDates: record.mainDates.length,
     control: record.control,
     declaredDays: record.declaredDays,
+    calendarResolution: record.calendarResolution,
     ruleIds: record.ruleIds,
     warnings: record.warnings,
     references: record.references.map((reference) => reference.range),
@@ -34,13 +42,19 @@ async function main() {
   const input = path.resolve(arg("input", "data/imports/omgmu-cycle-rotation-geometry.json"));
   const output = path.resolve(arg("output", "data/imports/omgmu-cycle-rotation-report.json"));
   const year = Number(arg("year", "2026"));
-  const exceptions = String(arg("exceptions", "2026-05-01,2026-05-09,2026-06-12"))
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const exceptions = csv(arg("exceptions", ""));
+  const conditionalExceptions = csv(arg("conditional-exceptions", "")).map((date) => ({
+    date,
+    policy: "exclude_if_required_for_exact_control",
+    rule_ids: ["O32", "O34"],
+  }));
 
   const geometry = JSON.parse(await fs.readFile(input, "utf8"));
-  const parsed = parseCycleRotationGeometry(geometry, { year, calendarExceptions: exceptions });
+  const parsed = parseCycleRotationGeometry(geometry, {
+    year,
+    calendarExceptions: exceptions,
+    conditionalCalendarExceptions: conditionalExceptions,
+  });
   const groups = parsed.groups.map((group) => {
     const records = parsed.sourceSeries.filter((record) => record.groups.includes(group));
     const blocked = records.filter((record) => record.status === "needs_review");
@@ -57,7 +71,9 @@ async function main() {
     sourceProfile: "cycle_rotation_grid",
     sourceLanguage: "ru",
     year,
+    sourceCalendarExceptions: geometry.sourceCalendarExceptions || [],
     calendarExceptions: exceptions,
+    conditionalCalendarExceptions: conditionalExceptions.map((item) => item.date),
     cycles: geometry.cycles.map((cycle) => ({
       cycleNo: cycle.cycleNo,
       pageNumber: cycle.pageNumber,
