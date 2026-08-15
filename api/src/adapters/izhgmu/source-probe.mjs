@@ -39,7 +39,10 @@ function validateSourceUrl(rawUrl) {
 }
 
 function spreadsheetKind(buffer) {
-  if (buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b) return "xlsx";
+  if (buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b) {
+    const zipSignature = `${buffer[2].toString(16).padStart(2, "0")}${buffer[3].toString(16).padStart(2, "0")}`;
+    if (["0304", "0506", "0708"].includes(zipSignature)) return "xlsx";
+  }
   const ole = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
   if (buffer.length >= ole.length && buffer.subarray(0, ole.length).equals(ole)) return "xls";
   return null;
