@@ -76,6 +76,18 @@ jobs:
           --output=data/imports/omgmu-cycle-rotation-report.json
           --year=2026
           --exceptions=2026-05-01,2026-05-09,2026-06-12
+      - name: Extract authoritative combined_rotation_table geometry
+        run: >-
+          python3 tools/omgmu-extract-combined-geometry.py
+          --input=data/imports/omgmu-pdfs/08_medicine-international_course-5_combined.pdf
+          --output=data/imports/omgmu-combined-rotation-geometry.json
+      - name: Analyze combined_rotation_table geometry
+        run: >-
+          node tools/omgmu-combined-rotation-report.mjs
+          --input=data/imports/omgmu-combined-rotation-geometry.json
+          --output=data/imports/omgmu-combined-rotation-report.json
+          --year=2026
+          --exceptions=2026-05-01,2026-05-09,2026-06-12
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
@@ -178,6 +190,16 @@ jobs:
           path: |
             api/data/imports/omgmu-cycle-rotation-geometry.json
             api/data/imports/omgmu-cycle-rotation-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload combined_rotation_table geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-combined-rotation-geometry
+          path: |
+            api/data/imports/omgmu-combined-rotation-geometry.json
+            api/data/imports/omgmu-combined-rotation-report.json
           if-no-files-found: error
           retention-days: 14
       - name: Upload group catalog
