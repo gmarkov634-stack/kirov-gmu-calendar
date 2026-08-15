@@ -28,6 +28,7 @@ function baseClassStructure() {
   return { sheets: [{
     name: 'расписание',
     cells: [
+      cell('A4', 4, 1, '1 курс 1 поток лечебный факультет'),
       cell('C5', 5, 3, '101'), cell('D5', 5, 4, '102'),
       cell('A6', 6, 1, 'Понедельник'), cell('B6', 6, 2, '8.30-10.05'),
       cell('C6', 6, 3, 'Биоэтика'), cell('C7', 7, 3, 'Биоэтика'),
@@ -36,6 +37,7 @@ function baseClassStructure() {
       cell('B9', 9, 2, '10.15-11.55'), cell('C9', 9, 3, 'практические занятия по ДВ'),
     ],
     merges: [
+      { ref: 'A4:D4', startRef: 'A4', endRef: 'D4', startRow: 4, endRow: 4, startCol: 1, endCol: 4 },
       { ref: 'A6:A7', startRef: 'A6', endRef: 'A7', startRow: 6, endRow: 7, startCol: 1, endCol: 1 },
       { ref: 'B6:B7', startRef: 'B6', endRef: 'B7', startRow: 6, endRow: 7, startCol: 2, endCol: 2 },
       { ref: 'C6:D6', startRef: 'C6', endRef: 'D6', startRow: 6, endRow: 6, startCol: 3, endCol: 4 },
@@ -68,31 +70,12 @@ function baseLectureStructure() {
   }] };
 }
 
-test('IZH-LECTURE expands exact dates, resolves end time and reconciles aggregate count', () => {
+test('IZH-LECTURE expands exact dates, resolves end time and ignores title metadata above group headers', () => {
   const parsed = parseIzhgmuLectureStructures({
     classStructure: baseClassStructure(),
     lectureStructure: baseLectureStructure(),
     weeklyParsed,
   });
-
-  console.log('IZH_LECTURE_SYNTH', JSON.stringify({
-    stats: parsed.stats,
-    reviewRequired: parsed.reviewRequired.map((item) => item.warning),
-    optionCount: parsed.choiceRequired?.options?.length || 0,
-    coverage: {
-      totalWideBlocks: parsed.classCoverage.totalWideBlocks,
-      resolvedByLecture: parsed.classCoverage.resolvedByLecture.length,
-      choiceRequired: parsed.classCoverage.choiceRequired.length,
-      unmapped: parsed.classCoverage.unmapped.length,
-      blocks: parsed.classCoverage.blocks.map((item) => ({
-        ref: item.ref,
-        value: item.value,
-        slotKey: item.slotKey,
-        choiceRequired: item.choiceRequired,
-        coverage: item.coverage,
-      })),
-    },
-  }));
 
   assert.equal(parsed.stats.lectureRows, 3, 'lectureRows');
   assert.equal(parsed.stats.exactOccurrences, 3, 'exactOccurrences');
@@ -105,6 +88,7 @@ test('IZH-LECTURE expands exact dates, resolves end time and reconciles aggregat
   assert.equal(parsed.classCoverage.resolvedByLecture.length, 2, 'resolvedByLecture');
   assert.equal(parsed.classCoverage.choiceRequired.length, 2, 'choiceRequired blocks');
   assert.equal(parsed.classCoverage.unmapped.length, 0, 'unmapped blocks');
+  assert.ok(!parsed.classCoverage.blocks.some((item) => item.ref === 'A4'), 'title row must not become a schedule block');
 
   const bioethics = parsed.series.filter((item) => item.discipline === 'Биоэтика');
   assert.deepEqual(bioethics.map((item) => item.endTime), ['10:05', '10:05']);
@@ -115,6 +99,21 @@ test('IZH-LECTURE expands exact dates, resolves end time and reconciles aggregat
   assert.equal(combined.profile, 'IZH-WEEKLY+LECTURE');
   assert.equal(combined.unresolvedChoices.length, 1);
   assert.equal(combined.publishable, false);
+});
+
+test('IZH-LECTURE keeps an unexplained full-span row below group headers fail-closed', () => {
+  const classStructure = baseClassStructure();
+  const sheet = classStructure.sheets[0];
+  sheet.cells.push(cell('C10', 10, 3, 'Неясный общий блок'));
+  sheet.merges.push({ ref: 'C10:D10', startRef: 'C10', endRef: 'D10', startRow: 10, endRow: 10, startCol: 3, endCol: 4 });
+  const parsed = parseIzhgmuLectureStructures({
+    classStructure,
+    lectureStructure: baseLectureStructure(),
+    weeklyParsed,
+  });
+  assert.ok(parsed.reviewRequired.some((item) => (
+    item.warning === 'stream_wide_class_block_unmapped' && item.references?.[0]?.range === 'расписание!C10'
+  )));
 });
 
 test('IZH-LECTURE recovers a missing class day only through one shared merged time slot', () => {
