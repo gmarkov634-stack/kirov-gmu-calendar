@@ -58,7 +58,7 @@ export function scheduleContext(schedule = {}, requestedUniversity) {
   const stream = stringOrNull(canonical?.stream) || stringOrNull(schedule.stream);
   const course = Number(canonical?.course ?? schedule.course);
   const groupCode = stringOrNull(canonical?.groupCode) || stringOrNull(schedule.group?.code) || stringOrNull(schedule.groupCode) || stringOrNull(schedule.group);
-  const explicitGroupId = stringOrNull(canonical?.groupId) || stringOrNull(schedule.group?.id);
+  const explicitGroupId = stringOrNull(canonical?.groupId) || stringOrNull(schedule.group?.id) || stringOrNull(schedule.groupId);
   const groupId = explicitGroupId || [university, program, course, stream && `stream-${stream}`, groupCode]
     .filter(Boolean)
     .join(":");

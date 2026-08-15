@@ -1,12 +1,17 @@
 window.OMGMU_CONFIG = Object.freeze({
   university: "omgmu",
-  program: "medicine-international",
   timezone: "Asia/Omsk",
   apiBaseUrl: "https://kgmu-calendar-api.containerapps.ru",
   paymentPath: "/api/v2/payments",
-  priceRub: 490,
-  testMode: true,
-  checkoutEnabled: true,
+  defaultPlan: "semester",
+  programs: Object.freeze({
+    "medicine-international": "Лечебное дело · иностранные обучающиеся",
+    medicine: "Лечебное дело",
+    pediatrics: "Педиатрия",
+    dentistry: "Стоматология",
+    "preventive-medicine": "Медико-профилактическое дело",
+    pharmacy: "Фармация",
+  }),
 });
 
 if (typeof document !== "undefined" && document.currentScript) {

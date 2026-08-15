@@ -88,7 +88,12 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
         course,
         academicYear: period.academicYear,
         semester: period.semester,
-        groups: groups.map(({ groupId, groupCode, displayName }) => ({ groupId, groupCode, displayName })),
+        groups: groups.map(({ groupId, groupCode, displayName, stream }) => ({
+          groupId,
+          groupCode,
+          displayName,
+          ...(stream != null ? { stream } : {}),
+        })),
       }, "public, max-age=60");
     } catch (error) {
       console.error("offer catalog unavailable", error);
