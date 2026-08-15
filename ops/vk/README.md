@@ -15,14 +15,14 @@
 
 ## VK tokens
 
-Интеграция использует два разных токена и не подменяет один другим:
+Интеграция разделяет два контура авторизации:
 
 - `VK_ACCESS_TOKEN` — токен сообщества для Callback API и сообщений;
-- `VK_USER_ACCESS_TOKEN` — пользовательский токен администратора для чтения и управления стеной (`wall.*`).
+- пользовательская OAuth-сессия администратора — для `wall.*`.
 
-Если `VK_USER_ACCESS_TOKEN` отсутствует, endpoints стены работают fail-closed и возвращают `503`, даже если `VK_ACCESS_TOKEN` сообщества настроен.
+Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
 
-Оба токена остаются только в Cloud.ru и не передаются в GitHub. Сами значения токенов никогда не должны попадать в репозиторий, command-файлы или логи.
+Токен сообщества никогда не используется как fallback для пользовательских методов стены.
 
 ## VK ID OAuth
 
@@ -32,10 +32,20 @@
 - base domain: `kgmu-calendar-api.containerapps.ru`;
 - trusted redirect URL: `https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback`.
 
-`/api/v1/vk/oauth/start` — диагностическая стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID с минимальным scope `wall groups`.
+`/api/v1/vk/oauth/start` — стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID с минимальным scope `wall groups`.
 
-`/api/v1/vk/oauth/callback` проверяет обязательные параметры и совпадение `state`, обменивает одноразовый authorization code на пользовательский token через OAuth 2.1/PKCE и сразу выполняет диагностический `wall.get` для `VK_CALLBACK_GROUP_ID`. Access token и refresh token на этом этапе не отображаются и не сохраняются; после проверки probe-cookie удаляются.
+`/api/v1/vk/oauth/callback` проверяет обязательные параметры и совпадение `state`, обменивает одноразовый authorization code на пользовательский token через OAuth 2.1/PKCE и сначала выполняет `wall.get` для `VK_CALLBACK_GROUP_ID`. Только после успешного `wall.get` разрешено постоянное сохранение.
 
-Цель exchange probe — доказать совместимость выданного VK ID user token с legacy `wall.*` API до выбора постоянного secret/refresh storage. Только после успешного `wall.get` разрешается переходить к постоянному хранению/обновлению токена и подключению его к production `wall.list/post/edit/delete/pin/unpin`.
+## Encrypted token vault
 
-Защищённый ключ, сервисный ключ, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR или логи.
+Для постоянной OAuth-сессии используется отдельный secret `VK_OAUTH_ENCRYPTION_KEY`. Допустимые представления: ровно 32 байта в base64url/base64 или 64 hex-символа.
+
+Access token, refresh token и `device_id` шифруются AES-256-GCM до записи в object storage. В S3 хранится только envelope `secure/vk/oauth-credentials.v1.json` с `iv`, authentication tag и ciphertext; plaintext-токены не записываются. Для локальной разработки используется тот же encrypted envelope в `DATA_DIR` с режимом файла `0600`.
+
+При отсутствии или некорректной длине `VK_OAUTH_ENCRYPTION_KEY` vault fail-closed: OAuth probe может подтвердить `wall.get`, но access/refresh token не сохраняются и managed wall endpoint остаётся не настроенным.
+
+После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет официальный VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
+
+`/api/v1/vk/wall` использует managed token manager и автоматически refresh-ит токен. GitHub OIDC control plane для write-операций переводится на тот же manager отдельным шагом после production-проверки encrypted read path.
+
+Защищённый ключ приложения, сервисный ключ, `VK_OAUTH_ENCRYPTION_KEY`, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR, логи или чат.
