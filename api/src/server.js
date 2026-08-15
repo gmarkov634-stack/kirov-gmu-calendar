@@ -3,7 +3,8 @@ import { createHandler } from "./app.js";
 import { createArchivePaymentTestHandler } from "./archive-payment-test-handler.js";
 import { createPreviewSubscriptionHandler } from "./preview-subscription-handler.js";
 import { loadConfig } from "./config.js";
-import { TrialEnabledStore } from "./trial-store.js";
+import { FunnelAnalyticsStore } from "./funnel-analytics-store.js";
+import { createFunnelAnalyticsHandler } from "./funnel-analytics.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
@@ -25,10 +26,11 @@ import { createOmgmuSourceProbeHandler } from "./adapters/omgmu/source-probe.mjs
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
-const store = new TrialEnabledStore(config);
+const store = new FunnelAnalyticsStore(config);
 const payments = new YooKassaService({ store, config });
 const trials = new TrialService({ store, config });
 const trialHttpHandler = createTrialHttpHandler({ store, config, trials });
+const funnelAnalyticsHandler = createFunnelAnalyticsHandler({ store, config });
 const appHandler = createHandler({ store, config, payments });
 const archivePaymentTestHandler = createArchivePaymentTestHandler({ store, config, payments });
 const previewSubscriptionHandler = createPreviewSubscriptionHandler({ store, config });
@@ -87,6 +89,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v1/admin/omgmu/source-probe") {
     return omgmuSourceProbeHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/funnel") {
+    return funnelAnalyticsHandler(request, response);
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
