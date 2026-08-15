@@ -118,7 +118,7 @@ test("GitHub OIDC verifier accepts only the expected repository pull-request ide
   assert.equal(claims.repository, "gmarkov634-stack/kirov-gmu-calendar");
 });
 
-test("control endpoint fails closed when only the community token is configured", async () => {
+test("user-token wall.list fails closed when only the community token is configured", async () => {
   let fetchCalls = 0;
   let verificationCalls = 0;
   const response = fakeResponse();
@@ -141,7 +141,7 @@ test("control endpoint fails closed when only the community token is configured"
   await control(fakeRequest(command("wall.list")), response);
   assert.equal(response.statusCode, 503);
   assert.deepEqual(parseResponse(response), { error: "vk_control_not_configured" });
-  assert.equal(verificationCalls, 0);
+  assert.equal(verificationCalls, 1);
   assert.equal(fetchCalls, 0);
 });
 
@@ -225,7 +225,8 @@ test("wall.post publishes as the community and uses the command id as VK guid", 
   assert.equal(requests[0].options.body.get("from_group"), "1");
   assert.equal(requests[0].options.body.get("message"), "Новый пост");
   assert.equal(requests[0].options.body.get("guid"), input.id);
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.edit changes only a concrete post on the fixed community wall", async () => {
@@ -242,19 +243,32 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
-test("wall.delete, wall.pin and wall.unpin are restricted to a positive post id", async () => {
-  for (const action of ["wall.delete", "wall.pin", "wall.unpin"]) {
-    const requests = [];
+test("wall.delete uses the community token and requires a positive post id", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  await handler(vkSuccess(1, requests))(
+    fakeRequest(command("wall.delete", { postId: 500 })),
+    response,
+  );
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
+  assert.equal(requests[0].url, "https://api.vk.com/method/wall.delete");
+  assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+});
+
+test("wall.pin and wall.unpin are disabled after both production token classes failed", async () => {
+  for (const action of ["wall.pin", "wall.unpin"]) {
+    let calls = 0;
     const response = fakeResponse();
-    await handler(vkSuccess(1, requests))(
+    await handler(async () => { calls += 1; })(
       fakeRequest(command(action, { postId: 500 })),
       response,
     );
-    assert.equal(response.statusCode, 200);
-    assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
-    assert.equal(requests[0].url, `https://api.vk.com/method/${action}`);
-    assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-    assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+    assert.equal(response.statusCode, 501);
+    assert.deepEqual(parseResponse(response), { error: "vk_wall_pin_not_supported" });
+    assert.equal(calls, 0);
   }
 });
 

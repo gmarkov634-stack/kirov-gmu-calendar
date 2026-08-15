@@ -9,6 +9,8 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "wall.delete"]);
+const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -267,6 +269,7 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
 export function createVkControlHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
   const staticAccessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
+  const communityAccessToken = String(env.VK_ACCESS_TOKEN || "").trim();
   const tokenManager = dependencies.tokenManager || null;
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
@@ -276,7 +279,7 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
   return async function handleVkControl(request, response) {
     if (request.method !== "POST") return sendJson(response, 405, { error: "method_not_allowed" });
     const managedConfigured = Boolean(tokenManager?.configured);
-    if (!/^\d+$/.test(groupId) || (!staticAccessToken && !managedConfigured)) {
+    if (!/^\d+$/.test(groupId)) {
       return sendJson(response, 503, { error: "vk_control_not_configured" });
     }
 
@@ -293,10 +296,23 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const input = await readJson(request);
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
+      if (UNSUPPORTED_WALL_ACTIONS.has(command.action)) {
+        return sendJson(response, 501, { error: "vk_wall_pin_not_supported" });
+      }
 
-      const accessToken = managedConfigured
-        ? await tokenManager.getAccessToken()
-        : staticAccessToken;
+      let accessToken;
+      if (COMMUNITY_TOKEN_ACTIONS.has(command.action)) {
+        if (!communityAccessToken) return sendJson(response, 503, { error: "vk_control_not_configured" });
+        accessToken = communityAccessToken;
+      } else {
+        if (!staticAccessToken && !managedConfigured) {
+          return sendJson(response, 503, { error: "vk_control_not_configured" });
+        }
+        accessToken = managedConfigured
+          ? await tokenManager.getAccessToken()
+          : staticAccessToken;
+      }
+
       const result = await executeCommand(command, {
         groupId,
         token: accessToken,
