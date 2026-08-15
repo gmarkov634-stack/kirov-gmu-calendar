@@ -16,6 +16,7 @@ on:
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
+      - "api/tools/izhgmu-check-cycle-medicine5-provenance.mjs"
       - "api/test/izhgmu-*.test.mjs"
       - "api/package.json"
       - ".github/workflows/izhgmu-batch-acquisition.yml"
@@ -69,6 +70,9 @@ jobs:
       - name: Parse real IZH-CYCLE medicine 5 fail-closed through canonical QA
         working-directory: api
         run: npm run parse:izhgmu:cycle:medicine5 -- --input-dir /tmp/izhgmu-current --group 501
+      - name: Verify medicine 5 lecture-backed glossary provenance scope
+        working-directory: api
+        run: node tools/izhgmu-check-cycle-medicine5-provenance.mjs --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
