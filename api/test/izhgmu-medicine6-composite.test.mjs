@@ -159,3 +159,22 @@ test('production composite remains fail-closed while any component blocker exist
     );
   }
 });
+
+test('all medicine-6 groups 601-630 keep safe composite QA and reviewed blocker boundaries', () => {
+  const expectedGroups = Array.from({ length: 30 }, (_, index) => String(601 + index));
+  assert.deepEqual(IZHGMU_MEDICINE6_EXPECTED_GROUPS, expectedGroups);
+  for (const group of expectedGroups) {
+    const { candidate, prepared } = prepare(group);
+    assert.equal(prepared.inputQa.publishable, true, group);
+    assert.equal(prepared.outputQa.publishable, true, group);
+    assert.equal(candidate.componentStats.postsemesterEvents, group === '626' ? 2 : 4, group);
+    assert.equal(candidate.componentStats.totalBlockers, group === '626' ? 7 : 5, group);
+    assert.equal(candidate.publishable, false, group);
+    assert.equal(candidate.batch.events.some((event) => /^2026-06-(15|16|17|18|19)$/.test(event.timing.date) && event.timing.start_time === '08:00'), false, group);
+    assert.throws(
+      () => buildIzhgmuMedicine6CompositeCanonicalBatch(input(group)),
+      (error) => error.code === 'IZH_M6_COMPOSITE_INCOMPLETE' && error.group === group,
+      group,
+    );
+  }
+});
