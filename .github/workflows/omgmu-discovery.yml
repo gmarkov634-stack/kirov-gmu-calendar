@@ -38,6 +38,7 @@ jobs:
           const metadata = JSON.parse(fs.readFileSync('../universities/omgmu/academic-calendar-2025-2026-spring.json', 'utf8'));
           console.log(`OMG_CALENDAR_YEAR=${metadata.calendar_year}`);
           console.log(`OMG_CALENDAR_EXCEPTIONS=${metadata.calendar_exceptions.join(',')}`);
+          console.log(`OMG_CONDITIONAL_CALENDAR_EXCEPTIONS=${(metadata.conditional_calendar_exceptions || []).map(item => item.date).join(',')}`);
           NODE
       - name: Install Node dependencies
         run: npm ci
@@ -85,6 +86,7 @@ jobs:
           --output=data/imports/omgmu-cycle-rotation-report.json
           --year="$OMG_CALENDAR_YEAR"
           --exceptions="$OMG_CALENDAR_EXCEPTIONS"
+          --conditional-exceptions="$OMG_CONDITIONAL_CALENDAR_EXCEPTIONS"
       - name: Extract authoritative combined_rotation_table geometry
         run: >-
           python3 tools/omgmu-extract-combined-geometry.py
