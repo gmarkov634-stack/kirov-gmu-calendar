@@ -12,7 +12,14 @@ import { prepareSchedulePublication } from "../src/schedule/pipeline.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const encoded = fs.readFileSync(path.join(__dirname, "fixtures/omgmu-cycle-rotation-course4.geometry.json.gz.b64"), "utf8").trim();
-const geometry = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"));
+const fixture = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"));
+// The committed fixture predates O33 extraction. Keep its table geometry byte-stable
+// and attach the explicit Russian PDF holiday line as source metadata here; the live
+// extractor is independently exercised by the source-discovery workflow.
+const geometry = {
+  ...fixture,
+  sourceCalendarExceptions: ["01.05", "09.05", "12.06"],
+};
 const academicCalendar = JSON.parse(fs.readFileSync(
   path.join(__dirname, "../../universities/omgmu/academic-calendar-2025-2026-spring.json"),
   "utf8",
@@ -29,6 +36,7 @@ function metadata(group = "485") {
     group,
     period: academicCalendar.period,
     calendarExceptions: academicCalendar.calendar_exceptions,
+    conditionalCalendarExceptions: academicCalendar.conditional_calendar_exceptions,
   };
 }
 
@@ -52,6 +60,7 @@ function subsetGeometry(predicate) {
 
 test("extracts Russian cycle geometry with real group spans and inherited discipline", () => {
   assert.equal(geometry.sourceLanguage, "ru");
+  assert.deepEqual(geometry.sourceCalendarExceptions, ["01.05", "09.05", "12.06"]);
   assert.deepEqual(geometry.cycles.map((cycle) => cycle.cycleNo), [1, 2]);
   assert.deepEqual(geometry.cycles[0].groups.map((group) => group.code), ["485", "486"]);
 
@@ -63,30 +72,62 @@ test("extracts Russian cycle geometry with real group spans and inherited discip
   assert.equal(cycle.discipline, lecture.discipline);
 });
 
-test("verified 2026 calendar metadata resolves the real K.дн. 15 cycle without parser guessing", () => {
+test("O32/O34 keep 11.05 for the 11-lecture row but exclude it from the K.дн. 15 cycle row", () => {
   assert.equal(academicCalendar.calendar_year, 2026);
-  assert.ok(academicCalendar.calendar_exceptions.includes("2026-05-11"));
+  assert.deepEqual(academicCalendar.calendar_exceptions, []);
+  assert.deepEqual(academicCalendar.conditional_calendar_exceptions.map((item) => item.date), ["2026-05-11"]);
 
   const parsed = parseCycleRotationGeometry(geometry, {
     year: academicCalendar.calendar_year,
     calendarExceptions: metadata().calendarExceptions,
+    conditionalCalendarExceptions: metadata().conditionalCalendarExceptions,
   });
   assert.deepEqual(parsed.diagnostics, []);
   assert.equal(parsed.sourceSeries.length, 18);
-  assert.equal(parsed.sourceSeries.filter((record) => record.groups.includes("485")).length, 10);
-  assert.equal(parsed.sourceSeries.filter((record) => record.groups.includes("486")).length, 10);
 
+  const therapyLecture = parsed.sourceSeries.find((record) => (
+    record.discipline.includes("Факультетская терапия") && record.kind === "lecture"
+  ));
   const therapyCycle = parsed.sourceSeries.find((record) => (
     record.discipline.includes("Факультетская терапия") && record.kind === "cycle"
   ));
-  assert.deepEqual(therapyCycle.groups, ["485", "486"]);
+
+  assert.equal(therapyLecture.declaredDays, 11);
+  assert.equal(therapyLecture.mainDates.length, 11);
+  assert.ok(therapyLecture.mainDates.includes("2026-05-11"));
+  assert.equal(therapyLecture.calendarResolution.mode, "source_priority_keep");
+  assert.deepEqual(therapyLecture.calendarResolution.keptDates, ["2026-05-11"]);
+  assert.equal(therapyLecture.status, "ok");
+  assert.ok(therapyLecture.ruleIds.includes("O32"));
+  assert.ok(therapyLecture.ruleIds.includes("O34"));
+
   assert.equal(therapyCycle.declaredDays, 15);
   assert.equal(therapyCycle.mainDates.length, 15);
+  assert.ok(!therapyCycle.mainDates.includes("2026-05-11"));
+  assert.equal(therapyCycle.calendarResolution.mode, "external_exception_applied");
+  assert.deepEqual(therapyCycle.calendarResolution.appliedDates, ["2026-05-11"]);
   assert.equal(therapyCycle.status, "ok");
   assert.ok(therapyCycle.ruleIds.includes("O20"));
   assert.ok(therapyCycle.ruleIds.includes("O26"));
-  assert.ok(!therapyCycle.mainDates.includes("2026-05-11"));
-  assert.ok(!therapyCycle.warnings.some((warning) => warning.includes("К.дн.")));
+  assert.ok(therapyCycle.ruleIds.includes("O32"));
+  assert.ok(therapyCycle.ruleIds.includes("O34"));
+});
+
+test("O34 never chooses an external date merely to force an unrelated K.дн. mismatch", () => {
+  const therapyCycleGeometry = subsetGeometry((_cycle, row) => (
+    row.discipline.includes("Факультетская терапия") && row.rowIndex === 4
+  ));
+  therapyCycleGeometry.cycles[0].rows[0].declaredDays = 14;
+  const parsed = parseCycleRotationGeometry(therapyCycleGeometry, {
+    year: academicCalendar.calendar_year,
+    conditionalCalendarExceptions: metadata().conditionalCalendarExceptions,
+  });
+  assert.equal(parsed.sourceSeries.length, 1);
+  const record = parsed.sourceSeries[0];
+  assert.equal(record.calendarResolution.mode, "unresolved");
+  assert.equal(record.mainDates.length, 16);
+  assert.equal(record.status, "needs_review");
+  assert.ok(record.warnings.some((warning) => warning.includes("К.дн.=14") && warning.includes("=16")));
 });
 
 test("O19 merges a real two-slot cycle row into one user event while keeping source slots", () => {
@@ -100,6 +141,7 @@ test("O19 merges a real two-slot cycle row into one user event while keeping sou
     { startTime: "10:00", endTime: "11:30" },
   ]);
   assert.ok(candidate.sourceSeries[0].ruleIds.includes("O19"));
+  assert.ok(candidate.sourceSeries[0].ruleIds.includes("O33"));
   assert.equal(candidate.sourceSeries[0].status, "ok");
   assert.equal(candidate.batch.events.length, 12);
   assert.ok(candidate.batch.events.every((event) => event.timing.start_time === "08:20"));
@@ -116,6 +158,7 @@ test("O19 merges a real two-slot cycle row into one user event while keeping sou
   assert.equal(prepared.outputQa.publishable, true);
   assert.match(prepared.ics, /DTSTART:20260529T082000/);
   assert.match(prepared.ics, /DTEND:20260529T113000/);
+  assert.doesNotMatch(prepared.ics, /DTSTART:20260612T082000/);
   assert.doesNotMatch(prepared.ics, /TZID=Asia\/Omsk/);
 });
 
@@ -163,17 +206,20 @@ test("O29 replaces the last cycle occurrence with one credit when control is sam
   assert.equal(july29[0].timing.end_time, "16:00");
 });
 
-test("full group 485 passes canonical common pipeline with verified source calendar metadata", () => {
+test("full group 485 passes canonical common pipeline with source-level O33 and series-scoped O32/O34", () => {
   const candidate = buildCycleRotationCanonicalCandidate(geometry, { metadata: metadata("485"), source });
   assert.equal(candidate.sourceSeries.length, 10);
   assert.equal(candidate.sourceSeries.filter((record) => record.status === "needs_review").length, 0);
-  assert.equal(candidate.batch.events.length, 106);
+  assert.equal(candidate.batch.events.length, 107);
 
-  const therapyOnHoliday = candidate.batch.events.filter((event) => (
+  const therapyOnMay11 = candidate.batch.events.filter((event) => (
     event.lesson.discipline.normalized.includes("Факультетская терапия")
     && event.timing.date === "2026-05-11"
   ));
-  assert.equal(therapyOnHoliday.length, 0);
+  assert.equal(therapyOnMay11.length, 1);
+  assert.equal(therapyOnMay11[0].lesson.type.code, "lecture");
+  assert.equal(therapyOnMay11[0].timing.start_time, "08:20");
+  assert.equal(therapyOnMay11[0].timing.end_time, "10:00");
 
   let eventNo = 0;
   const prepared = prepareSchedulePublication(candidate.batch, {
@@ -183,7 +229,9 @@ test("full group 485 passes canonical common pipeline with verified source calen
   });
   assert.equal(prepared.inputQa.publishable, true);
   assert.equal(prepared.outputQa.publishable, true);
-  assert.equal((prepared.ics.match(/BEGIN:VEVENT/g) || []).length, 106);
+  assert.equal((prepared.ics.match(/BEGIN:VEVENT/g) || []).length, 107);
+  assert.match(prepared.ics, /DTSTART:20260511T082000/);
+  assert.doesNotMatch(prepared.ics, /DTSTART:20260511T104000/);
   assert.doesNotMatch(prepared.ics, /TZID=Asia\/Omsk/);
   assert.doesNotMatch(prepared.ics, /\+06:00/);
 });
