@@ -24,6 +24,7 @@ import { OmgmuReviewedService } from "./adapters/omgmu/reviewed-service.mjs";
 import { OmgmuSourceObserver } from "./adapters/omgmu/source-observer.mjs";
 import { OmgmuWatchStore } from "./adapters/omgmu/watch-store.mjs";
 import { OmgmuSourceWatcher } from "./adapters/omgmu/source-watcher.mjs";
+import { createOmgmuReviewHandler } from "./adapters/omgmu/http-handler.mjs";
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
@@ -76,6 +77,7 @@ const omgmuWatcher = new OmgmuSourceWatcher({
   observer: omgmuSourceObserver,
   stateStore: omgmuWatchStore,
 });
+const omgmuReviewHandler = createOmgmuReviewHandler({ queue: omgmuReviewQueue, watcher: omgmuWatcher, config });
 const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService]);
 const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: reviewServiceRouter });
 
@@ -107,6 +109,9 @@ const server = http.createServer((request, response) => {
   }
   if (url.pathname === "/api/v1/admin/schedules/publish") {
     return schedulePublishHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/omgmu/watch" || url.pathname.startsWith("/api/v1/admin/omgmu/parser-reviews")) {
+    return omgmuReviewHandler(request, response);
   }
   if (
     url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
