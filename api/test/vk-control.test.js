@@ -36,7 +36,8 @@ const now = Date.parse("2026-08-10T18:40:00.000Z");
 const createdAt = "2026-08-10T18:39:00.000Z";
 const env = {
   VK_CALLBACK_GROUP_ID: "191574528",
-  VK_ACCESS_TOKEN: "vk1-test-token",
+  VK_ACCESS_TOKEN: "vk1-community-test-token",
+  VK_USER_ACCESS_TOKEN: "vk1-user-test-token",
   VK_API_VERSION: "5.199",
 };
 
@@ -117,6 +118,33 @@ test("GitHub OIDC verifier accepts only the expected repository pull-request ide
   assert.equal(claims.repository, "gmarkov634-stack/kirov-gmu-calendar");
 });
 
+test("control endpoint fails closed when only the community token is configured", async () => {
+  let fetchCalls = 0;
+  let verificationCalls = 0;
+  const response = fakeResponse();
+  const control = createVkControlHandler({
+    VK_CALLBACK_GROUP_ID: "191574528",
+    VK_ACCESS_TOKEN: "vk1-community-test-token",
+    VK_API_VERSION: "5.199",
+  }, {
+    nowFactory: () => now,
+    verifyOidcToken: async () => {
+      verificationCalls += 1;
+      return {};
+    },
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("must not fetch VK");
+    },
+  });
+
+  await control(fakeRequest(command("wall.list")), response);
+  assert.equal(response.statusCode, 503);
+  assert.deepEqual(parseResponse(response), { error: "vk_control_not_configured" });
+  assert.equal(verificationCalls, 0);
+  assert.equal(fetchCalls, 0);
+});
+
 test("control endpoint requires GitHub OIDC authorization", async () => {
   const response = fakeResponse();
   await handler(async () => { throw new Error("must not fetch"); })(
@@ -139,7 +167,7 @@ test("control endpoint rejects an OIDC token that fails verification", async () 
   assert.deepEqual(parseResponse(response), { error: "forbidden" });
 });
 
-test("wall.list reads the fixed community and returns sanitized posts", async () => {
+test("wall.list reads the fixed community with the user token and returns sanitized posts", async () => {
   const requests = [];
   const response = fakeResponse();
   const fetchImpl = vkSuccess({
@@ -180,7 +208,8 @@ test("wall.list reads the fixed community and returns sanitized posts", async ()
   assert.equal(requests.length, 1);
   assert.equal(requests[0].url, "https://api.vk.com/method/wall.get");
   assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), env.VK_ACCESS_TOKEN);
 });
 
 test("wall.post publishes as the community and uses the command id as VK guid", async () => {
@@ -196,6 +225,7 @@ test("wall.post publishes as the community and uses the command id as VK guid", 
   assert.equal(requests[0].options.body.get("from_group"), "1");
   assert.equal(requests[0].options.body.get("message"), "Новый пост");
   assert.equal(requests[0].options.body.get("guid"), input.id);
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.edit changes only a concrete post on the fixed community wall", async () => {
@@ -209,6 +239,7 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.deepEqual(parseResponse(response).result, { postId: 444, edited: true });
   assert.equal(requests[0].url, "https://api.vk.com/method/wall.edit");
   assert.equal(requests[0].options.body.get("post_id"), "444");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.delete, wall.pin and wall.unpin are restricted to a positive post id", async () => {
@@ -223,6 +254,7 @@ test("wall.delete, wall.pin and wall.unpin are restricted to a positive post id"
     assert.deepEqual(parseResponse(response).result, { postId: 500, success: true });
     assert.equal(requests[0].url, `https://api.vk.com/method/${action}`);
     assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
+    assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
   }
 });
 
