@@ -1,0 +1,37 @@
+.calendar-preview--feed { height:526px; }
+.calendar-preview--feed .native-feed-bar { position:relative; z-index:3; }
+.native-feed-hint { color:#7b8798; font-size:9px; font-weight:800; letter-spacing:.03em; }
+.calendar-preview--feed .native-feed-scroll { height:426px; padding:0 0 16px; background:#f8fafc; scroll-snap-type:y proximity; }
+.native-feed-day { scroll-snap-align:start; background:#fff; }
+.native-feed-day + .native-feed-day { margin-top:7px; border-top:1px solid #e8edf4; }
+.native-feed-day-head { position:sticky; top:0; z-index:2; display:flex; align-items:baseline; gap:7px; padding:11px 14px 9px; border-bottom:1px solid #eef1f5; background:rgba(255,255,255,.96); backdrop-filter:blur(8px); }
+.native-feed-day-head strong { color:#111827; font-size:13px; }
+.native-feed-day-head span { color:#7b8798; font-size:10px; font-weight:700; }
+.native-feed-events { padding:3px 10px 7px 7px; }
+.native-feed-event { display:grid; width:100%; grid-template-columns:43px 13px minmax(0,1fr); gap:5px; align-items:stretch; min-height:76px; padding:0; border:0; background:transparent; color:#1559d6; cursor:pointer; font:inherit; text-align:left; }
+.native-feed-time { padding-top:13px; color:#344054; font-size:10px; font-weight:800; text-align:right; }
+.native-feed-time small { display:block; margin-top:2px; color:#98a2b3; font-size:8px; font-weight:700; }
+.native-feed-rail { position:relative; display:block; }
+.native-feed-rail::before { position:absolute; top:0; bottom:0; left:6px; width:1px; background:#dfe5ec; content:""; }
+.native-feed-event:first-child .native-feed-rail::before { top:19px; }
+.native-feed-event.is-last .native-feed-rail::before { bottom:calc(100% - 20px); }
+.native-feed-rail i { position:absolute; z-index:1; top:16px; left:2px; width:9px; height:9px; border:2px solid currentColor; border-radius:50%; background:#fff; }
+.native-feed-card { position:relative; display:block; margin:5px 0 7px; padding:10px 11px 9px; overflow:hidden; border-left:3px solid currentColor; border-radius:9px; background:#edf4ff; box-shadow:0 1px 2px rgba(15,23,42,.05); }
+.native-feed-card::before { position:absolute; inset:0; background:currentColor; content:""; opacity:.045; pointer-events:none; }
+.native-feed-card > * { position:relative; z-index:1; display:block; }
+.native-feed-card strong { color:#111827; font-size:10px; font-weight:800; line-height:1.28; }
+.native-feed-type { margin-top:4px; color:#667085; font-size:8px; font-weight:700; }
+.native-feed-place { margin-top:5px; color:#667085; font-size:8px; line-height:1.32; }
+.native-feed-event:hover .native-feed-card,.native-feed-event:focus-visible .native-feed-card { outline:2px solid rgba(21,89,214,.2); outline-offset:1px; }
+.native-feed-event:focus-visible { outline:none; }
+.native-feed-event.tone-lecture { color:#6f42c1; }
+.native-feed-event.tone-lecture .native-feed-card { background:#f4efff; }
+.native-feed-event.tone-practice { color:#1559d6; }
+.native-feed-event.tone-practice .native-feed-card { background:#edf4ff; }
+.native-feed-event.tone-sport { color:#207a55; }
+.native-feed-event.tone-sport .native-feed-card { background:#edf8f2; }
+.native-feed-end { margin:12px 14px 5px; padding:9px; border:1px dashed #d8dee8; border-radius:10px; color:#98a2b3; font-size:8px; font-weight:800; text-align:center; text-transform:uppercase; letter-spacing:.05em; }
+.calendar-preview--feed .calendar-event-sheet { bottom:8px; }
+@media (max-width:760px) { .calendar-preview--feed .native-feed-scroll { height:426px; } }
+@media (max-width:430px) { .calendar-preview--feed { height:514px; } .calendar-preview--feed .native-feed-scroll { height:418px; } .native-feed-card strong { font-size:10px; } }
+@media (prefers-reduced-motion:reduce) { .calendar-preview--feed .native-feed-scroll { scroll-behavior:auto; } }
