@@ -20,6 +20,10 @@ function sourceKeyAllowed(key) {
   return /^parser-staging\/omgmu\/sources\/[a-f0-9]{64}\/[A-Za-z0-9._-]{1,124}$/.test(String(key || ""));
 }
 
+function normalizedKeyAllowed(key) {
+  return /^parser-staging\/omgmu\/normalized\/[a-f0-9]{64}\.json$/.test(String(key || ""));
+}
+
 export class OmgmuReviewQueue {
   constructor(config) {
     this.config = config;
@@ -59,6 +63,18 @@ export class OmgmuReviewQueue {
     }
   }
 
+  async storeNormalized(sourceSha256, value) {
+    if (!/^[a-f0-9]{64}$/.test(String(sourceSha256 || ""))) throw new Error("Invalid source SHA-256");
+    const key = `parser-staging/omgmu/normalized/${sourceSha256}.json`;
+    await this.#writeJson(key, value);
+    return key;
+  }
+
+  async getNormalized(key) {
+    if (!normalizedKeyAllowed(key)) return null;
+    return this.#readJson(key);
+  }
+
   async createReview(value) {
     const reviewId = randomUUID();
     const now = new Date().toISOString();
@@ -73,6 +89,23 @@ export class OmgmuReviewQueue {
     };
     await this.#writeJson(`parser-reviews/omgmu/${reviewId}.json`, item);
     return item;
+  }
+
+  async updateReview(reviewId, patch) {
+    if (!validReviewId(reviewId)) return null;
+    const key = `parser-reviews/omgmu/${reviewId}.json`;
+    const current = await this.#readJson(key);
+    if (!current) return null;
+    const updated = {
+      ...current,
+      ...patch,
+      reviewId: current.reviewId,
+      version: current.version,
+      university: "omgmu",
+      updatedAt: new Date().toISOString(),
+    };
+    await this.#writeJson(key, updated);
+    return updated;
   }
 
   async getReview(reviewId) {
