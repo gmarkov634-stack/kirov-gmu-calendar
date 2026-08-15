@@ -1,15 +1,17 @@
+import { randomBytes } from "node:crypto";
+
 const APP_ID = 54722093;
 const REDIRECT_URL = "https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback";
 const SDK_URL = "https://unpkg.com/@vkid/sdk@2.6.1/dist-sdk/umd/index.js";
 const PROBE_SCOPE = "wall groups";
 
-function sendHtml(response, status, body) {
+function sendHtml(response, status, body, nonce) {
   response.writeHead(status, {
     "Content-Type": "text/html; charset=utf-8",
     "Cache-Control": "no-store",
     "Content-Security-Policy": [
       "default-src 'none'",
-      "script-src 'self' https://unpkg.com",
+      `script-src 'nonce-${nonce}' https://unpkg.com`,
       "connect-src https://*.vk.ru https://*.vk.com",
       "form-action 'none'",
       "base-uri 'none'",
@@ -22,7 +24,7 @@ function sendHtml(response, status, body) {
   response.end(body);
 }
 
-function page() {
+function page(nonce) {
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -37,8 +39,8 @@ function page() {
     <button id="vk-auth" type="button">Проверить доступ VK</button>
     <p id="status" role="status"></p>
   </main>
-  <script src="${SDK_URL}"></script>
-  <script>
+  <script nonce="${nonce}" src="${SDK_URL}"></script>
+  <script nonce="${nonce}">
     (() => {
       const button = document.getElementById('vk-auth');
       const status = document.getElementById('status');
@@ -94,7 +96,8 @@ export function createVkOauthStartHandler() {
       return;
     }
 
-    return sendHtml(response, 200, page());
+    const nonce = randomBytes(18).toString("base64url");
+    return sendHtml(response, 200, page(nonce), nonce);
   };
 }
 
