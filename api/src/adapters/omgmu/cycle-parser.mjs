@@ -1,4 +1,5 @@
-const RANGE = /(\d{2})\.(\d{2})\s*-\s*(\d{2})\.(\d{2})\s*\((лекции|циклы)\)/i;
+const GROUP_RANGE = /(\d{2})\.(\d{2})\s*[-–]\s*(\d{2})\.(\d{2})(?:\s*,?\s*зач[её]т\s*[-–]\s*(\d{2})\.(\d{2}))?/gi;
+const TYPE_MARKER = /\((лекции|циклы)\)/gi;
 const HOLIDAYS_2026 = new Set(["2026-05-01", "2026-05-09", "2026-06-12"]);
 
 function isoDate(year, month, day) {
@@ -47,27 +48,34 @@ function parseBlock(block) {
 
   const starts = [];
   const ends = [];
-  const ranges = [];
   for (const line of lines) {
     const time = timeColumnValue(line);
     if (time?.isStart) starts.push(time.value);
     else if (time) ends.push(time.value);
-    const range = line.match(RANGE);
-    if (range) {
-      ranges.push({
-        start: { day: Number(range[1]), month: Number(range[2]) },
-        end: { day: Number(range[3]), month: Number(range[4]) },
-        kind: range[5].toLowerCase() === "лекции" ? "lecture" : "cycle",
-      });
-    }
   }
+
+  // Historical 5-course parser has fixed source columns. Restrict date/type parsing
+  // to the group-data column so lesson times cannot be mistaken for date ranges.
+  // O70 allows other-column text (for example an end time on an intervening line)
+  // between the control fragment and the explicit type marker in layout extraction.
+  const groupText = lines.map((line) => line.slice(41)).join(" ");
+  const ranges = [...groupText.matchAll(GROUP_RANGE)].map((range) => ({
+    start: { day: Number(range[1]), month: Number(range[2]) },
+    end: { day: Number(range[3]), month: Number(range[4]) },
+    controlDate: range[5] && range[6] ? isoDate(2026, Number(range[6]), Number(range[5])) : null,
+  }));
+  const types = [...groupText.matchAll(TYPE_MARKER)].map((match) => (
+    match[1].toLowerCase() === "лекции" ? "lecture" : "cycle"
+  ));
+
   return ranges.map((range, index) => ({
     discipline,
-    kind: range.kind,
+    kind: types[index] || null,
     startTime: starts[index] || null,
     endTime: ends[index] || null,
     dates: dateRange(range.start, range.end),
-  })).filter((item) => item.startTime && item.endTime && item.dates.length);
+    controlDate: range.controlDate,
+  })).filter((item) => item.kind && item.startTime && item.endTime && item.dates.length);
 }
 
 export function parseFifthCourseBlocks(text) {
@@ -80,14 +88,20 @@ export function parseFifthCourseBlocks(text) {
 
 export function buildFifthCourseSchedule(text, { sourceUrl = null } = {}) {
   const blocks = parseFifthCourseBlocks(text);
-  const events = blocks.flatMap((block) => block.dates.map((date) => ({
-    id: `omgmu-585-${date}-${block.startTime.replace(":", "")}-${block.kind}`,
-    title: `${block.kind === "lecture" ? "Лекция" : "Цикл"}: ${block.discipline}`,
-    start: `${date}T${block.startTime}:00+06:00`,
-    end: `${date}T${block.endTime}:00+06:00`,
-    location: "",
-    sourceType: block.kind,
-  })));
+  const events = blocks.flatMap((block) => block.dates.map((date) => {
+    const isControl = block.kind === "cycle" && block.controlDate === date;
+    const sourceType = isControl ? "control" : block.kind;
+    return {
+      id: `omgmu-585-${date}-${block.startTime.replace(":", "")}-${sourceType}`,
+      title: isControl
+        ? `ЗАЧЁТ — ${block.discipline}`
+        : `${block.kind === "lecture" ? "Лекция" : "Цикл"}: ${block.discipline}`,
+      start: `${date}T${block.startTime}:00+06:00`,
+      end: `${date}T${block.endTime}:00+06:00`,
+      location: "",
+      sourceType,
+    };
+  }));
   return {
     version: 1,
     university: "omgmu",

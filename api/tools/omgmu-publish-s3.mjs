@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 function arg(name, fallback = null) {
   const prefix = `--${name}=`;
@@ -9,26 +8,26 @@ function arg(name, fallback = null) {
   return value ? value.slice(prefix.length) : fallback;
 }
 
-function isNotFound(error) {
-  return error?.$metadata?.httpStatusCode === 404 || error?.name === "NotFound" || error?.name === "NoSuchKey";
-}
-
 function validScheduleKey(value) {
   return typeof value === "string" && value.startsWith("schedules/omgmu/") && !value.includes("..");
 }
 
-const confirmed = process.argv.includes("--confirm");
+if (process.argv.includes("--confirm")) {
+  const error = new Error(
+    "Direct ОмГМУ S3 publication is retired. Publish only a reviewed canonical schedule-batch through publishScheduleBatch()/YearAwareStore/current.json.",
+  );
+  error.code = "OMG_LEGACY_DIRECT_PUBLICATION_RETIRED";
+  throw error;
+}
+
 const packageDir = path.resolve(arg("package", "data/publication/omgmu"));
 const manifestPath = path.join(packageDir, "publication-manifest.json");
 const expectedPublishable = Number(arg("expected-publishable", "43"));
 const expectedBlocked = Number(arg("expected-blocked", "0"));
-const reportPath = path.resolve(arg("report", path.join(packageDir, "s3-publication-report.json")));
+const reportPath = path.resolve(arg("report", path.join(packageDir, "legacy-s3-plan-report.json")));
 
 const bucket = process.env.S3_BUCKET || "kgmu-calendar-data-gmarkov634";
 const endpoint = process.env.S3_ENDPOINT || "https://s3.cloud.ru";
-const region = process.env.S3_REGION || "ru-central-1";
-const accessKeyId = process.env.S3_ACCESS_KEY_ID || "";
-const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY || "";
 
 const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
 if (manifest.university !== "omgmu") throw new Error(`Unexpected university: ${manifest.university}`);
@@ -61,7 +60,7 @@ for (const item of manifest.objects) {
     throw new Error(`Schedule ${item.group} is empty`);
   }
   const sha256 = createHash("sha256").update(body).digest("hex");
-  objects.push({ ...item, absolute, body, sha256, eventCount: schedule.events.length });
+  objects.push({ ...item, sha256, eventCount: schedule.events.length });
 }
 
 const blocked = [];
@@ -74,83 +73,22 @@ for (const item of manifest.blocked) {
 }
 
 const report = {
-  version: 1,
+  version: 2,
   university: "omgmu",
-  mode: confirmed ? "publish" : "dry-run",
+  mode: "legacy-debug-plan-only",
   generatedAt: new Date().toISOString(),
   bucket,
   endpoint,
   expectedPublishable,
   expectedBlocked,
-  uploaded: [],
-  unchanged: [],
-  deleted: [],
-  alreadyAbsent: [],
-  planned: [],
-  plannedDeletes: [],
+  directPublicationEnabled: false,
+  canonicalPublicationRequired: true,
+  canonicalEntrypoint: "publishScheduleBatch",
+  plannedLegacyObjects: objects.map(({ group, key, sha256, eventCount }) => ({ group, key, sha256, eventCount })),
+  blockedLegacyObjects: blocked,
 };
 
-if (!confirmed) {
-  report.planned = objects.map(({ group, key, sha256, eventCount }) => ({ group, key, sha256, eventCount }));
-  report.plannedDeletes = blocked.map(({ group, reason, key }) => ({ group, reason, key }));
-  await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  console.log(`Dry-run complete: ${objects.length} objects would be published and ${blocked.length} blocked objects would be removed from s3://${bucket}`);
-  console.log(`Report: ${reportPath}`);
-  process.exit(0);
-}
-
-if (!accessKeyId || !secretAccessKey) {
-  throw new Error("S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are required with --confirm");
-}
-
-const s3 = new S3Client({
-  endpoint,
-  region,
-  forcePathStyle: true,
-  credentials: { accessKeyId, secretAccessKey },
-});
-
-for (const item of blocked) {
-  try {
-    await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: item.key }));
-    await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: item.key }));
-    report.deleted.push(item);
-  } catch (error) {
-    if (!isNotFound(error)) throw error;
-    report.alreadyAbsent.push(item);
-  }
-}
-
-for (const object of objects) {
-  let unchanged = false;
-  try {
-    const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: object.key }));
-    unchanged = head.Metadata?.sha256 === object.sha256;
-  } catch (error) {
-    if (!isNotFound(error)) throw error;
-  }
-
-  if (unchanged) {
-    report.unchanged.push({ group: object.group, key: object.key, sha256: object.sha256, eventCount: object.eventCount });
-    continue;
-  }
-
-  await s3.send(new PutObjectCommand({
-    Bucket: bucket,
-    Key: object.key,
-    Body: object.body,
-    ContentType: "application/json; charset=utf-8",
-    CacheControl: "no-cache",
-    Metadata: {
-      sha256: object.sha256,
-      university: "omgmu",
-      group: String(object.group),
-    },
-  }));
-  report.uploaded.push({ group: object.group, key: object.key, sha256: object.sha256, eventCount: object.eventCount });
-}
-
 await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-console.log(`Deleted blocked: ${report.deleted.length}; already absent: ${report.alreadyAbsent.length}`);
-console.log(`Published: ${report.uploaded.length}; unchanged: ${report.unchanged.length}`);
+console.log(`Legacy debug plan only: ${objects.length} schedule object(s), ${blocked.length} blocked object(s).`);
+console.log("No S3 write/delete operation is available. Canonical publication must use publishScheduleBatch()/YearAwareStore/current.json.");
 console.log(`Report: ${reportPath}`);

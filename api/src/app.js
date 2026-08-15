@@ -124,6 +124,15 @@ function paymentMode(config) {
   return config?.yookassaTestMode === true ? "test" : "live";
 }
 
+function publicOfferPrices(config) {
+  const result = {};
+  for (const plan of PLAN_IDS) {
+    const price = String(config?.offers?.[plan]?.price || "");
+    if (/^\d+\.\d{2}$/.test(price) && Number(price) > 0) result[plan] = { price };
+  }
+  return result;
+}
+
 export function createHandler({ store, config, payments }) {
   return async function handler(request, response) {
     const origin = request.headers.origin;
@@ -237,6 +246,7 @@ export function createHandler({ store, config, payments }) {
         sales: salesState(config),
         trials: trialState(config),
         paymentMode: paymentMode(config),
+        offers: publicOfferPrices(config),
       }, "application/json; charset=utf-8", "no-store");
     }
 

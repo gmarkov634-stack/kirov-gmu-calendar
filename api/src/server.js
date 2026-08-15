@@ -10,6 +10,7 @@ import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
+import { ScheduleReviewServiceRouter } from "./schedule/review-service-router.js";
 import { createTrialHttpHandler } from "./trial-http-handler.js";
 import { TrialService } from "./trial-service.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
@@ -24,6 +25,12 @@ import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
 import { createOmgmuSourceProbeHandler } from "./adapters/omgmu/source-probe.mjs";
+import { OmgmuReviewQueue } from "./adapters/omgmu/review-queue.mjs";
+import { OmgmuReviewedService } from "./adapters/omgmu/reviewed-service.mjs";
+import { OmgmuSourceObserver } from "./adapters/omgmu/source-observer.mjs";
+import { OmgmuWatchStore } from "./adapters/omgmu/watch-store.mjs";
+import { OmgmuSourceWatcher } from "./adapters/omgmu/source-watcher.mjs";
+import { createOmgmuReviewHandler } from "./adapters/omgmu/http-handler.mjs";
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
@@ -57,7 +64,6 @@ const kgmuReviewedService = new KgmuReviewedService({
   config,
   scheduleStore: store,
 });
-const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: kgmuReviewedService });
 const kgmuWatchStore = new KgmuWatchStore(config);
 const kgmuWatcher = new KgmuSourceWatcher({
   config,
@@ -74,6 +80,18 @@ const kgmuParserHandler = createKgmuParserHandler({
   notifier: parserNotifier,
   config,
 });
+const omgmuReviewQueue = new OmgmuReviewQueue(config);
+const omgmuReviewedService = new OmgmuReviewedService({ queue: omgmuReviewQueue, scheduleStore: store });
+const omgmuSourceObserver = new OmgmuSourceObserver({ queue: omgmuReviewQueue });
+const omgmuWatchStore = new OmgmuWatchStore(config);
+const omgmuWatcher = new OmgmuSourceWatcher({
+  config,
+  observer: omgmuSourceObserver,
+  stateStore: omgmuWatchStore,
+});
+const omgmuReviewHandler = createOmgmuReviewHandler({ queue: omgmuReviewQueue, watcher: omgmuWatcher, config });
+const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService]);
+const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: reviewServiceRouter });
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, "http://localhost");
@@ -119,6 +137,9 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/api/v1/admin/schedules/publish") {
     return schedulePublishHandler(request, response);
   }
+  if (url.pathname === "/api/v1/admin/omgmu/watch" || url.pathname.startsWith("/api/v1/admin/omgmu/parser-reviews")) {
+    return omgmuReviewHandler(request, response);
+  }
   if (
     url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
     url.pathname === "/api/v1/admin/kgmu/dry-run" ||
@@ -137,6 +158,7 @@ const server = http.createServer(async (request, response) => {
 });
 
 let kgmuWatchTimer = null;
+let omgmuWatchTimer = null;
 
 async function runKgmuWatch(reason) {
   try {
@@ -152,6 +174,23 @@ async function runKgmuWatch(reason) {
     }));
   } catch (error) {
     console.error("KGMU source watch failed", reason, error);
+  }
+}
+
+async function runOmgmuWatch(reason) {
+  try {
+    const result = await omgmuWatcher.run();
+    console.log("OMGMU source watch", reason, JSON.stringify({
+      status: result.status,
+      targetCount: result.targetCount,
+      newReviewCount: result.newReviewCount,
+      changedReviewCount: result.changedReviewCount,
+      unchangedCount: result.unchangedCount,
+      missingCount: result.missingCount,
+      errorCount: result.errorCount,
+    }));
+  } catch (error) {
+    console.error("OMGMU source watch failed", reason, error);
   }
 }
 
@@ -175,10 +214,17 @@ server.listen(config.port, "0.0.0.0", () => {
     kgmuWatchTimer.unref();
     console.log(`KGMU source watcher enabled: ${config.kgmuWatchIntervalMs} ms`);
   }
+  if (config.omgmuWatchEnabled) {
+    void runOmgmuWatch("startup");
+    omgmuWatchTimer = setInterval(() => { void runOmgmuWatch("interval"); }, config.omgmuWatchIntervalMs);
+    omgmuWatchTimer.unref();
+    console.log(`OMGMU source watcher enabled: ${config.omgmuWatchIntervalMs} ms (observation/review only)`);
+  }
 });
 
 function shutdown() {
   if (kgmuWatchTimer) clearInterval(kgmuWatchTimer);
+  if (omgmuWatchTimer) clearInterval(omgmuWatchTimer);
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(1), 10000).unref();
 }

@@ -15,6 +15,61 @@ const lectures = `
 11.20-13.00 Акушерство и гинекология, 1 лекция: 07.04 - БУЗОО КРД № 6, ул. Перелета,3
 `;
 
+const multilineLectures = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+*08.20-10.00 Факультетская терапия, профессиональные болезни, 11 лекций: 07.05-21.05 (без субботы)
+- БУЗОО «ККД», ул. Лермонтова, 41
+ЧЕТВЕРГ
+11.20-13.00 Инфекционные болезни у детей, 4 лекции: 09.04-30.04 - БУЗОО «ДКБ № 3», инф.
+стационар, ул. 19 Партсъезда, 16
+`;
+
+const irregularHyphenLectures = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+10.20-12.00 Факультетская хирургия, урология, 1 лекция: 04.05- БУЗОО«ОКБ»,ул.Березовая,3
+ВТОРНИК
+11.20-13.00 Акушерство и гинекология, 4 лекции:07.04-28.04- БУЗОО «КРД № 6»,ул. Перелета,3
+СРЕДА
+08.20-10.00 Факультетская хирургия, урология, 5 лекций:08.04 - 06.05-БУЗОО«ОКБ»,ул.Березовая,3
+ЧЕТВЕРГ
+11.20-13.00 Инфекционные болезни у детей, 4 лекции:09.04-30.04-БУЗОО «ГДКБ № 3», инф. стационар, ул.19 Партсъезда,16
+ПЯТНИЦА
+08.20-10.00 Факультетская хирургия, урология, 2 лекции: 10.04; 17.04-БУЗОО«ОКБ»,ул.Березовая,3
+`;
+
+const sameSlotDifferentDisciplines = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+11.00-12.40 Акушерство и гинекология, 1 лекция: 06.04
+11.00-12.40 Педиатрия, 3 лекции: 13.04-27.04
+`;
+
+const similarDisciplineLabels = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+08.00-09.40 Неврология, медицинская генетика, нейрохирургия, 1 лекция: 06.04
+СРЕДА
+10.20-12.00 Неврология, мед. генетика, 1 лекция: 08.04
+`;
+
+const weekdaySectionInheritance = `
+РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ
+ЛЕКЦИИ
+ПОНЕДЕЛЬНИК
+08.00-09.40 Неврология, медицинская генетика, нейрохирургия, 2 лекции: 06.04-13.04
+
+11.00-12.40 Акушерство и гинекология, 1 лекция: 20.04
+
+11.00-12.40 Педиатрия, 1 лекция: 27.04
+ВТОРНИК
+11.20-13.00 Факультетская хирургия, урология, 2 лекции: 07.04-14.04
+`;
+
 const cycles = `
 РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ
 1 цикл
@@ -36,6 +91,58 @@ test("parses shared fourth-course lectures by weekday", () => {
   assert.equal(records.length, 2);
   assert.deepEqual(records[0].dates, ["2026-04-06", "2026-04-13"]);
   assert.equal(records[0].location, "БУЗОО ОКБ, ул. Березовая,3");
+});
+
+test("keeps physical continuation lines inside one lecture record", () => {
+  const records = parseFourthCourseLectures(multilineLectures);
+  assert.equal(records.length, 2);
+  assert.equal(records[0].discipline, "Факультетская терапия, профессиональные болезни");
+  assert.equal(records[0].location, "БУЗОО «ККД», ул. Лермонтова, 41");
+  assert.equal(records[1].discipline, "Инфекционные болезни у детей");
+  assert.equal(records[1].location, "БУЗОО «ДКБ № 3», инф. стационар, ул. 19 Партсъезда, 16");
+});
+
+test("separates lecture locations after hyphens regardless of surrounding spaces", () => {
+  const records = parseFourthCourseLectures(irregularHyphenLectures);
+  assert.equal(records.length, 5);
+  assert.deepEqual(records.map((record) => record.dates.length), [1, 4, 5, 4, 2]);
+  assert.deepEqual(records.map((record) => record.location), [
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+    "БУЗОО «КРД № 6»,ул. Перелета,3",
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+    "БУЗОО «ГДКБ № 3», инф. стационар, ул.19 Партсъезда,16",
+    "БУЗОО«ОКБ»,ул.Березовая,3",
+  ]);
+});
+
+test("keeps different disciplines in the same weekday/time slot as separate lecture series", () => {
+  const records = parseFourthCourseLectures(sameSlotDifferentDisciplines);
+  assert.equal(records.length, 2);
+  assert.deepEqual(records.map((record) => record.startTime), ["11:00", "11:00"]);
+  assert.deepEqual(records.map((record) => record.endTime), ["12:40", "12:40"]);
+  assert.equal(records[0].discipline, "Акушерство и гинекология");
+  assert.deepEqual(records[0].dates, ["2026-04-06"]);
+  assert.equal(records[1].discipline, "Педиатрия");
+  assert.deepEqual(records[1].dates, ["2026-04-13", "2026-04-20", "2026-04-27"]);
+});
+
+test("does not expand or merge similar discipline labels from other lecture series", () => {
+  const records = parseFourthCourseLectures(similarDisciplineLabels);
+  assert.equal(records.length, 2);
+  assert.equal(records[0].discipline, "Неврология, медицинская генетика, нейрохирургия");
+  assert.equal(records[1].discipline, "Неврология, мед. генетика");
+  assert.notEqual(records[0].discipline, records[1].discipline);
+  assert.deepEqual(records[0].dates, ["2026-04-06"]);
+  assert.deepEqual(records[1].dates, ["2026-04-08"]);
+});
+
+test("inherits weekday context across multiple lecture records and blank lines until the next weekday heading", () => {
+  const records = parseFourthCourseLectures(weekdaySectionInheritance);
+  assert.equal(records.length, 4);
+  assert.deepEqual(records[0].dates, ["2026-04-06", "2026-04-13"]);
+  assert.deepEqual(records[1].dates, ["2026-04-20"]);
+  assert.deepEqual(records[2].dates, ["2026-04-27"]);
+  assert.deepEqual(records[3].dates, ["2026-04-07", "2026-04-14"]);
 });
 
 test("parses separate fourth-course cycle columns", () => {

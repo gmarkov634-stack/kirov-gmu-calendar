@@ -10,6 +10,7 @@ on:
       - "api/tools/requirements-omgmu.txt"
       - "universities/omgmu/structure.json"
       - "universities/omgmu/manual-review.json"
+      - "universities/omgmu/academic-calendar-*.json"
       - ".github/workflows/omgmu-discovery.yml"
 
 permissions:
@@ -30,6 +31,15 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: api/package-lock.json
+      - name: Load reviewed academic calendar metadata
+        run: |
+          node - <<'NODE' >> "$GITHUB_ENV"
+          const fs = require('fs');
+          const metadata = JSON.parse(fs.readFileSync('../universities/omgmu/academic-calendar-2025-2026-spring.json', 'utf8'));
+          console.log(`OMG_CALENDAR_YEAR=${metadata.calendar_year}`);
+          console.log(`OMG_CALENDAR_EXCEPTIONS=${metadata.calendar_exceptions.join(',')}`);
+          console.log(`OMG_CONDITIONAL_CALENDAR_EXCEPTIONS=${(metadata.conditional_calendar_exceptions || []).map(item => item.date).join(',')}`);
+          NODE
       - name: Install Node dependencies
         run: npm ci
       - name: Install PDF tools and parser dependencies
@@ -48,6 +58,47 @@ jobs:
             name="$(basename "${file%.pdf}")"
             pdftotext -layout "$file" "data/imports/omgmu-text/$name.txt"
           done
+      - name: Extract authoritative weekly_grid geometry
+        run: |
+          mkdir -p data/imports/omgmu-weekly-geometry
+          for file in data/imports/omgmu-pdfs/0[1-5]_*.pdf; do
+            name="$(basename "${file%.pdf}")"
+            python3 tools/omgmu-extract-weekly-geometry.py \
+              --input="$file" \
+              --output="data/imports/omgmu-weekly-geometry/$name.json"
+          done
+      - name: Analyze weekly_grid geometry
+        run: >-
+          node tools/omgmu-weekly-geometry-report.mjs
+          --input=data/imports/omgmu-weekly-geometry
+          --output=data/imports/omgmu-weekly-geometry-report.json
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
+      - name: Extract authoritative cycle_rotation_grid geometry
+        run: >-
+          python3 tools/omgmu-extract-cycle-geometry.py
+          --input=data/imports/omgmu-pdfs/07_medicine-international_course-4_cycles.pdf
+          --output=data/imports/omgmu-cycle-rotation-geometry.json
+      - name: Analyze cycle_rotation_grid geometry
+        run: >-
+          node tools/omgmu-cycle-rotation-report.mjs
+          --input=data/imports/omgmu-cycle-rotation-geometry.json
+          --output=data/imports/omgmu-cycle-rotation-report.json
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
+          --conditional-exceptions="$OMG_CONDITIONAL_CALENDAR_EXCEPTIONS"
+      - name: Extract authoritative combined_rotation_table geometry
+        run: >-
+          python3 tools/omgmu-extract-combined-geometry.py
+          --input=data/imports/omgmu-pdfs/08_medicine-international_course-5_combined.pdf
+          --output=data/imports/omgmu-combined-rotation-geometry.json
+      - name: Analyze combined_rotation_table geometry
+        run: >-
+          node tools/omgmu-combined-rotation-report.mjs
+          --input=data/imports/omgmu-combined-rotation-geometry.json
+          --output=data/imports/omgmu-combined-rotation-report.json
+          --year="$OMG_CALENDAR_YEAR"
+          --exceptions="$OMG_CALENDAR_EXCEPTIONS"
       - name: Build ОмГМУ group catalog
         run: npm run catalog:omgmu -- --text-dir=data/imports/omgmu-text --output=data/imports/omgmu-catalog.json
       - name: Parse first-course stream 1 schedules
@@ -132,6 +183,36 @@ jobs:
           path: api/data/imports/omgmu-pdfs
           if-no-files-found: error
           retention-days: 7
+      - name: Upload weekly_grid geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-weekly-geometry
+          path: |
+            api/data/imports/omgmu-weekly-geometry
+            api/data/imports/omgmu-weekly-geometry-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload cycle_rotation_grid geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-cycle-rotation-geometry
+          path: |
+            api/data/imports/omgmu-cycle-rotation-geometry.json
+            api/data/imports/omgmu-cycle-rotation-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload combined_rotation_table geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omgmu-combined-rotation-geometry
+          path: |
+            api/data/imports/omgmu-combined-rotation-geometry.json
+            api/data/imports/omgmu-combined-rotation-report.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload group catalog
         if: always()
         uses: actions/upload-artifact@v4

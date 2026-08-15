@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { buildFifthCourseSchedule } from "../src/adapters/omgmu/cycle-parser.mjs";
+import { assertOmgmuSourceProfile, OMG_SOURCE_PROFILES } from "../src/adapters/omgmu/source-profiles.mjs";
+import { readOmgmuSourceText, selectOmgmuRussianSourceText } from "../src/adapters/omgmu/text-input.mjs";
 
 function readArg(name, fallback) {
   const prefix = `--${name}=`;
@@ -11,7 +13,9 @@ function readArg(name, fallback) {
 const input = path.resolve(readArg("input", "data/imports/omgmu-text/08_medicine-international_course-5_combined.txt"));
 const output = path.resolve(readArg("output", "data/imports/omgmu-schedules/585.json"));
 const sourceUrl = readArg("source", "");
-const text = await fs.readFile(input, "utf8");
+const sourceText = await readOmgmuSourceText(input);
+assertOmgmuSourceProfile(sourceText, OMG_SOURCE_PROFILES.COMBINED_ROTATION_TABLE, { filename: path.basename(input) });
+const text = selectOmgmuRussianSourceText(sourceText);
 const schedule = buildFifthCourseSchedule(text, { sourceUrl: sourceUrl || null });
 await fs.mkdir(path.dirname(output), { recursive: true });
 await fs.writeFile(output, `${JSON.stringify(schedule, null, 2)}\n`, "utf8");

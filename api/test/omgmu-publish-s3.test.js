@@ -56,7 +56,7 @@ function publisherArgs(directory, reportPath) {
   ];
 }
 
-test("dry-run plans deletion of every blocked ОмГМУ schedule", async (context) => {
+test("legacy debug plan lists blocked ОмГМУ objects but never plans deletion or publication", async (context) => {
   const fixture = await createPackage();
   context.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
   const reportPath = path.join(fixture.directory, "report.json");
@@ -64,16 +64,37 @@ test("dry-run plans deletion of every blocked ОмГМУ schedule", async (conte
   await execFile(process.execPath, publisherArgs(fixture.directory, reportPath));
   const report = JSON.parse(await fs.readFile(reportPath, "utf8"));
 
-  assert.equal(report.mode, "dry-run");
-  assert.equal(report.planned.length, 1);
-  assert.deepEqual(report.plannedDeletes, [{
+  assert.equal(report.mode, "legacy-debug-plan-only");
+  assert.equal(report.directPublicationEnabled, false);
+  assert.equal(report.canonicalPublicationRequired, true);
+  assert.equal(report.canonicalEntrypoint, "publishScheduleBatch");
+  assert.equal(report.plannedLegacyObjects.length, 1);
+  assert.deepEqual(report.blockedLegacyObjects, [{
     group: "2113",
     reason: "manual-review-pending",
     key: fixture.blockedKey,
   }]);
+  assert.equal(report.plannedDeletes, undefined);
+  assert.equal(report.planned, undefined);
+  assert.doesNotMatch(JSON.stringify(report), /"action"\s*:\s*"delete"/i);
 });
 
-test("publisher rejects a blocked schedule without a storage key", async (context) => {
+test("legacy debug tool rejects --confirm instead of writing or deleting S3 objects", async (context) => {
+  const fixture = await createPackage();
+  context.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
+  const reportPath = path.join(fixture.directory, "report.json");
+
+  await assert.rejects(
+    execFile(process.execPath, [...publisherArgs(fixture.directory, reportPath), "--confirm"]),
+    (error) => {
+      assert.match(String(error.stderr), /Direct ОмГМУ S3 publication is retired/);
+      assert.match(String(error.stderr), /publishScheduleBatch/);
+      return true;
+    },
+  );
+});
+
+test("debug planner rejects a blocked schedule without a storage key", async (context) => {
   const fixture = await createPackage({ includeBlockedKey: false });
   context.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
   const reportPath = path.join(fixture.directory, "report.json");
