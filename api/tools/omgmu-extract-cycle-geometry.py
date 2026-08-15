@@ -10,7 +10,7 @@ from typing import Any
 RUSSIAN_TITLE = "РАСПИСАНИЕ ЦИКЛОВЫХ ЗАНЯТИЙ"
 CYCLE_RE = re.compile(r"(\d+)\s*цикл\s*:\s*(\d{2}\.\d{2})\s*[-–]\s*(\d{2}\.\d{2})(.*)", re.I)
 GROUP_RE = re.compile(r"\d{3,4}")
-HOLIDAY_LINE_RE = re.compile(r"Праздничные\s+дни\s*:\s*([^\n\r]+)", re.I)
+HOLIDAY_LINE_RE = re.compile(r"(?:Праздничные\s+дни|Public\s+holidays)\s*:\s*([^\n\r]+)", re.I)
 DATE_TOKEN_RE = re.compile(r"(?<!\d)(\d{2}\.\d{2})(?!\d)")
 
 
@@ -39,15 +39,21 @@ def extract_cycle_geometry(pdf_path: Path) -> dict[str, Any]:
         russian_started = False
         for page_number, page in enumerate(document.pages, start=1):
             page_text = page.extract_text() or ""
-            if RUSSIAN_TITLE in page_text:
-                russian_started = True
-            if not russian_started:
-                continue
 
+            # O33 is document-level calendar metadata. In the current bilingual
+            # 4zan.pdf the explicit holiday list is printed in the common English
+            # header, while event rows used for production begin in the Russian
+            # source_part. Calendar metadata may be read from either header; lesson
+            # geometry below remains Russian-only and never falls back to English.
             for match in HOLIDAY_LINE_RE.finditer(page_text):
                 for token in DATE_TOKEN_RE.findall(match.group(1)):
                     if token not in source_calendar_exceptions:
                         source_calendar_exceptions.append(token)
+
+            if RUSSIAN_TITLE in page_text:
+                russian_started = True
+            if not russian_started:
+                continue
 
             tables = page.find_tables()
             if not tables:
