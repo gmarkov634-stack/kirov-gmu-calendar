@@ -5,6 +5,7 @@ import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { YearAwareStore } from "./year-aware-store.js";
 
 const TOKEN = /^[A-Za-z0-9_-]{43}$/;
+const SHA256 = /^[a-f0-9]{64}$/;
 
 function hash(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -17,12 +18,35 @@ function isMissingObject(error) {
 export class TrialEnabledStore extends YearAwareStore {
   async putTrialConversion(conversionId, value) {
     if (!TOKEN.test(String(conversionId || ""))) throw new Error("Invalid trial conversion id");
-    await this.#writeTrialJson(`trial-conversions/${hash(conversionId)}.json`, value);
+    await this.putTrialConversionByHash(hash(conversionId), value);
   }
 
   async getTrialConversion(conversionId) {
     if (!TOKEN.test(String(conversionId || ""))) return null;
-    return this.#readTrialJson(`trial-conversions/${hash(conversionId)}.json`);
+    return this.getTrialConversionByHash(hash(conversionId));
+  }
+
+  async putTrialConversionByHash(conversionHash, value) {
+    if (!SHA256.test(String(conversionHash || ""))) throw new Error("Invalid trial conversion hash");
+    await this.#writeTrialJson(`trial-conversions/${conversionHash}.json`, value);
+  }
+
+  async getTrialConversionByHash(conversionHash) {
+    if (!SHA256.test(String(conversionHash || ""))) return null;
+    return this.#readTrialJson(`trial-conversions/${conversionHash}.json`);
+  }
+
+  async markTrialConversionUpgradedByHash(conversionHash, upgradedAt = new Date().toISOString()) {
+    const current = await this.getTrialConversionByHash(conversionHash);
+    if (!current) return null;
+    if (current.status === "upgraded") return current;
+    const updated = {
+      ...current,
+      status: "upgraded",
+      upgradedAt,
+    };
+    await this.putTrialConversionByHash(conversionHash, updated);
+    return updated;
   }
 
   async #readTrialJson(key) {
