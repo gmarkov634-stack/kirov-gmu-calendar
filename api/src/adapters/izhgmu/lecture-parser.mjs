@@ -19,6 +19,17 @@ function norm(value) {
   return String(value ?? '').replace(/\s+/g, ' ').trim();
 }
 
+function columnLetters(value) {
+  let n = Number(value);
+  let out = '';
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    out = String.fromCharCode(65 + rem) + out;
+    n = Math.floor((n - 1) / 26);
+  }
+  return out;
+}
+
 function normalizeClock(value) {
   const match = String(value ?? '').trim().match(/^(\d{1,2})[.:](\d{1,2})$/);
   if (!match) return null;
@@ -202,7 +213,7 @@ function expectedParity(date, period, weeklyParity) {
 }
 
 function markReview(series, warning) {
-  if (series.status !== 'deferred') series.status = 'needs_review';
+  series.status = 'needs_review';
   if (!series.warnings.includes(warning)) series.warnings.push(warning);
   series.warning ??= warning;
 }
@@ -329,7 +340,7 @@ export function parseIzhgmuLectureStructures({ classStructure, lectureStructure,
         ...(locationCell ? [{ role: 'location', range: `${lectures.name}!${locationCell.ref}` }] : []),
         ...(weekCell ? [{ role: 'week_label', range: `${lectures.name}!${weekCell.ref}` }] : []),
         ...dateRefs.map((range) => ({ role: 'date', range })),
-        ...(countCol && declaredRaw != null ? [{ role: 'declared_count', range: `${lectures.name}!${String.fromCharCode(64 + countCol)}${row}` }] : []),
+        ...(countCol && declaredRaw != null ? [{ role: 'declared_count', range: `${lectures.name}!${columnLetters(countCol)}${row}` }] : []),
         ...(slot ? [{ role: 'end_time', range: `${classSheet.name}!${slot.ref}` }] : []),
       ],
       rawSource: [day?.label, timeCell?.value, disciplineCell.value, locationCell?.value, weekCell?.value]
