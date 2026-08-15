@@ -141,8 +141,7 @@ export class TrialService {
       expiresAt,
       createdAt,
     };
-    await this.store.putSubscription(token, record);
-    await this.store.putTrialConversion(conversionId, {
+    const conversion = {
       version: 1,
       conversionIdHash: tokenHash(conversionId),
       trialTokenHash: tokenHash(token),
@@ -151,7 +150,13 @@ export class TrialService {
       ...window,
       attribution,
       createdAt,
-    });
+    };
+
+    // Store the non-privileged conversion context first. If it fails, no live
+    // subscription entitlement exists. An orphaned conversion context is safe;
+    // an orphaned live trial URL is not.
+    await this.store.putTrialConversion(conversionId, conversion);
+    await this.store.putSubscription(token, record);
 
     return {
       status: "active",
