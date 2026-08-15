@@ -17,6 +17,7 @@ DAY_BY_NAME = {
 }
 GROUP_RE = re.compile(r"\d{3,4}")
 RUSSIAN_MARKER = "РАСПИСАНИЕ УЧЕБНЫХ ЗАНЯТИЙ"
+ALIASES_MARKER = "Обозначения и сокращения:"
 
 
 def compact(value: Any) -> str:
@@ -30,6 +31,29 @@ def decode_day(value: Any) -> int | None:
             if candidate == name or candidate.startswith(name) or (len(candidate) >= 5 and name.startswith(candidate)):
                 return weekday
     return None
+
+
+def extract_source_aliases(page_text: str) -> list[dict[str, str]]:
+    marker_index = page_text.find(ALIASES_MARKER)
+    if marker_index < 0:
+        return []
+
+    aliases: list[dict[str, str]] = []
+    lines = page_text[marker_index:].splitlines()
+    for line_index, raw_line in enumerate(lines):
+        line = compact(raw_line)
+        if line_index == 0 and line.startswith(ALIASES_MARKER):
+            line = compact(line[len(ALIASES_MARKER):])
+        if not line:
+            continue
+        match = re.match(r"^(.+?)\s*-\s+(.+)$", line)
+        if not match:
+            continue
+        alias = compact(match.group(1))
+        expansion = compact(match.group(2))
+        if alias and expansion:
+            aliases.append({"alias": alias, "expansion": expansion})
+    return aliases
 
 
 def header_groups(table: Any, extracted: list[list[Any]]) -> list[dict[str, Any]]:
@@ -48,17 +72,16 @@ def header_groups(table: Any, extracted: list[list[Any]]) -> list[dict[str, Any]
     return result
 
 
-def choose_russian_table(pdf_path: Path) -> tuple[int, Any, Any, list[list[Any]], list[dict[str, Any]]]:
+def choose_russian_table(pdf_path: Path) -> tuple[int, Any, list[list[Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, str]]]:
     try:
         import pdfplumber  # type: ignore
     except ImportError as error:
         raise RuntimeError("pdfplumber is required; install tools/requirements-omgmu.txt") from error
 
-    candidates: list[tuple[int, int, Any, Any, list[list[Any]], list[dict[str, Any]]]] = []
+    candidates: list[tuple[int, int, Any, Any, list[list[Any]], list[dict[str, Any]], str]] = []
     with pdfplumber.open(pdf_path) as document:
         for page_number, page in enumerate(document.pages, start=1):
             page_text = page.extract_text() or ""
-            # O64: geometry used for production must come from the Russian source part.
             if RUSSIAN_MARKER not in page_text:
                 continue
             cyrillic_score = len(re.findall(r"[А-Яа-яЁё]", page_text))
@@ -67,14 +90,12 @@ def choose_russian_table(pdf_path: Path) -> tuple[int, Any, Any, list[list[Any]]
                 groups = header_groups(table, extracted)
                 if len(groups) < 2:
                     continue
-                candidates.append((len(groups) * 1000 + cyrillic_score, page_number, page, table, extracted, groups))
+                candidates.append((len(groups) * 1000 + cyrillic_score, page_number, page, table, extracted, groups, page_text))
 
         if not candidates:
             raise RuntimeError(f"OMG_WEEKLY_RU_GEOMETRY_NOT_FOUND: {pdf_path}")
 
-        _score, page_number, page, table, extracted, groups = max(candidates, key=lambda item: item[0])
-        # pdfplumber page objects depend on the open document. Materialize everything below
-        # before leaving the context manager.
+        _score, page_number, _page, table, extracted, groups, page_text = max(candidates, key=lambda item: item[0])
         rows: list[dict[str, Any]] = []
         weekday: int | None = None
         for row_index, (row, values) in enumerate(zip(table.rows[1:], extracted[1:]), start=1):
@@ -106,11 +127,11 @@ def choose_russian_table(pdf_path: Path) -> tuple[int, Any, Any, list[list[Any]]
             if cells:
                 rows.append({"rowIndex": row_index, "weekday": weekday, "cells": cells})
 
-        return page_number, page, table, extracted, groups, rows
+        return page_number, table, extracted, groups, rows, extract_source_aliases(page_text)
 
 
 def extract_weekly_geometry(pdf_path: Path) -> dict[str, Any]:
-    page_number, _page, table, _extracted, groups, rows = choose_russian_table(pdf_path)
+    page_number, table, _extracted, groups, rows, source_aliases = choose_russian_table(pdf_path)
     return {
         "version": 1,
         "sourceProfile": "weekly_grid",
@@ -118,6 +139,7 @@ def extract_weekly_geometry(pdf_path: Path) -> dict[str, Any]:
         "pageNumber": page_number,
         "tableBbox": [round(value, 3) for value in table.bbox],
         "groups": groups,
+        "sourceAliases": source_aliases,
         "rows": rows,
     }
 
@@ -135,7 +157,7 @@ def main() -> int:
     output_path.write_text(json.dumps(geometry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
         f"weekly_grid geometry: page={geometry['pageNumber']} "
-        f"groups={len(geometry['groups'])} rows={len(geometry['rows'])} -> {output_path}"
+        f"groups={len(geometry['groups'])} rows={len(geometry['rows'])} aliases={len(geometry['sourceAliases'])} -> {output_path}"
     )
     return 0
 
