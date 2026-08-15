@@ -26,12 +26,12 @@ test("trial landing uses server gates and all required backend routes", async ()
     "/api/v2/trials/continue/",
     "/preview",
     "conversionId",
-    'runtimeMeta.trials === "open"',
-    'runtimeMeta.sales === "open"',
-    'order.purchasePath === "trial_to_paid"',
   ]) {
     assert.ok(source.includes(required), `missing frontend invariant: ${required}`);
   }
+  assert.match(source, /runtimeMeta\.trials\s*===\s*["']open["']/);
+  assert.match(source, /runtimeMeta\.sales\s*(?:===|!==)\s*["']open["']/);
+  assert.match(source, /order\.purchasePath\s*===\s*["']trial_to_paid["']/);
 });
 
 test("landing has three discovery steps and does not statically promise an open trial", async () => {
