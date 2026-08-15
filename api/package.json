@@ -13,6 +13,7 @@
     "parse:izhgmu:weekly-lecture": "node tools/izhgmu-parse-weekly-lecture.mjs",
     "parse:izhgmu:cycle": "node tools/izhgmu-parse-cycle.mjs",
     "parse:izhgmu:cycle:medicine4": "node tools/izhgmu-parse-cycle-medicine4.mjs",
+    "parse:izhgmu:cycle:medicine5": "node tools/izhgmu-parse-cycle-medicine5.mjs",
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
     "download:omgmu": "node tools/omgmu-download.mjs",
