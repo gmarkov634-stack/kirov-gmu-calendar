@@ -62,6 +62,10 @@ const schedule = {
   ],
 };
 
+function offeredGroup() {
+  return [{ groupId: "kgmu:pediatrics:1:131", groupCode: "131", displayName: "Группа 131" }];
+}
+
 test("group preview exposes at most four upcoming safe event summaries from an offered group", () => {
   const scheduleCalls = [];
   const handler = createOfferCatalogHandler({
@@ -72,9 +76,7 @@ test("group preview exposes at most four upcoming safe event summaries from an o
     },
     now: () => new Date("2026-08-15T08:00:00.000Z"),
     store: {
-      async listScheduleGroups() {
-        return [{ groupId: "kgmu:pediatrics:1:131", groupCode: "131", displayName: "Группа 131" }];
-      },
+      async listScheduleGroups() { return offeredGroup(); },
       async getSchedule(input) {
         scheduleCalls.push(input);
         return schedule;
@@ -120,5 +122,25 @@ test("group preview is fail-closed for a group outside the published offer catal
     const response = await fetch(`${base}/api/v2/catalog/kgmu/pediatrics/1/999/preview`);
     assert.equal(response.status, 404);
     assert.deepEqual(await response.json(), { error: "offer_not_found" });
+  },
+));
+
+test("group preview rejects a stored schedule from a different academic year", () => withServer(
+  createOfferCatalogHandler({
+    config: { offerAcademicYear: "2026/27", offerSemester: 1 },
+    store: {
+      async listScheduleGroups() { return offeredGroup(); },
+      async getSchedule() {
+        return {
+          ...schedule,
+          schedule: { ...schedule.schedule, academic_year: "2025/2026" },
+        };
+      },
+    },
+  }),
+  async (base) => {
+    const response = await fetch(`${base}/api/v2/catalog/kgmu/pediatrics/1/131/preview`);
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "offer_not_ready" });
   },
 ));
