@@ -37,7 +37,6 @@ function eventKey(event) {
     event?.lesson?.discipline?.normalized || event?.lesson?.discipline?.raw || '',
     event?.lesson?.type?.code || '',
     event?.audience?.group || '',
-    event?.source?.file_name || '',
   ].join('|');
 }
 
@@ -76,8 +75,8 @@ export function buildIzhgmuMedicine6CompositeCandidate({
   postsemesterReview = IZHGMU_MEDICINE6_POSTSEMESTER_REVIEW,
 } = {}) {
   const group = requiredString(metadata?.groupCode, 'metadata.groupCode');
-  const academicYear = requiredString(metadata?.academicYear, 'metadata.academicYear');
-  const semester = requiredString(metadata?.semester, 'metadata.semester');
+  requiredString(metadata?.academicYear, 'metadata.academicYear');
+  requiredString(metadata?.semester, 'metadata.semester');
   const facultyCode = requiredString(metadata?.facultyCode, 'metadata.facultyCode');
   const course = Number(metadata?.course);
   if (course !== 6) throw new TypeError('metadata.course must be 6');
@@ -117,9 +116,11 @@ export function buildIzhgmuMedicine6CompositeCandidate({
     throw error;
   }
 
+  const cycleBlockers = izhgmuCycleBlockers(cycle?.parsed);
+  const lectureBlockers = izhgmuMedicine6LectureBlockers(lecture?.parsed);
   const blockers = [
-    ...componentBlockers('cycle', izhgmuCycleBlockers(cycle?.parsed)),
-    ...componentBlockers('lecture', izhgmuMedicine6LectureBlockers(lecture?.parsed)),
+    ...componentBlockers('cycle', cycleBlockers),
+    ...componentBlockers('lecture', lectureBlockers),
     ...componentBlockers('postsemester', postsemesterCandidate.blockers),
   ];
 
@@ -132,8 +133,8 @@ export function buildIzhgmuMedicine6CompositeCandidate({
       postsemesterEvents: postsemesterBatch.events.length,
       totalEvents: events.length,
       deferredPostsemesterFacts: postsemesterCandidate.deferredFacts.length,
-      cycleBlockers: izhgmuCycleBlockers(cycle?.parsed).length,
-      lectureBlockers: izhgmuMedicine6LectureBlockers(lecture?.parsed).length,
+      cycleBlockers: cycleBlockers.length,
+      lectureBlockers: lectureBlockers.length,
       postsemesterBlockers: postsemesterCandidate.blockers.length,
       totalBlockers: blockers.length,
     },
