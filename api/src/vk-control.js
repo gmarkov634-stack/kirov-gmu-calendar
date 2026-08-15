@@ -266,7 +266,7 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
 
 export function createVkControlHandler(env = process.env, dependencies = {}) {
   const groupId = String(env.VK_CALLBACK_GROUP_ID || "").trim();
-  const accessToken = String(env.VK_ACCESS_TOKEN || "").trim();
+  const accessToken = String(env.VK_USER_ACCESS_TOKEN || "").trim();
   const apiVersion = String(env.VK_API_VERSION || DEFAULT_API_VERSION).trim();
   const fetchImpl = dependencies.fetchImpl || globalThis.fetch;
   const verifyOidcToken = dependencies.verifyOidcToken || ((token) => verifyGitHubOidcToken(token, { fetchImpl }));

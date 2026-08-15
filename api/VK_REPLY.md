@@ -17,8 +17,10 @@ calendar-api подключён ✅
 Required environment variable:
 
 ```text
-VK_ACCESS_TOKEN=<Cloud.ru secret reference>
+VK_ACCESS_TOKEN=<Cloud.ru community secret reference>
 ```
+
+`VK_ACCESS_TOKEN` is the community token used for Callback API / messaging only. Wall reads and wall management must use the separate `VK_USER_ACCESS_TOKEN` described in `ops/vk/README.md`; wall code must not fall back to this community token.
 
 Optional API version override:
 
@@ -26,4 +28,4 @@ Optional API version override:
 VK_API_VERSION=5.199
 ```
 
-Do not commit the community access token itself.
+Do not commit either VK access token itself.

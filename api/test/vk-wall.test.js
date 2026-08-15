@@ -23,11 +23,12 @@ function fakeResponse() {
 
 const env = {
   VK_CALLBACK_GROUP_ID: "191574528",
-  VK_ACCESS_TOKEN: "vk1-test-token",
+  VK_ACCESS_TOKEN: "vk1-community-test-token",
+  VK_USER_ACCESS_TOKEN: "vk1-user-test-token",
   VK_API_VERSION: "5.199",
 };
 
-test("wall endpoint reads fixed community wall without exposing token", async () => {
+test("wall endpoint reads fixed community wall with the user token without exposing tokens", async () => {
   const requests = [];
   const response = fakeResponse();
   const handler = createVkWallHandler(env, {
@@ -81,7 +82,8 @@ test("wall endpoint reads fixed community wall without exposing token", async ()
   assert.equal(requests[0].options.body.get("owner_id"), "-191574528");
   assert.equal(requests[0].options.body.get("count"), "20");
   assert.equal(requests[0].options.body.get("filter"), "owner");
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), env.VK_ACCESS_TOKEN);
 
   const body = JSON.parse(response.body);
   assert.equal(body.groupId, 191574528);
@@ -92,7 +94,8 @@ test("wall endpoint reads fixed community wall without exposing token", async ()
   assert.equal(body.posts[0].isPinned, true);
   assert.equal(body.posts[0].likes, 7);
   assert.equal(body.posts[0].attachments[0].imageUrl, "https://example.test/large.jpg");
-  assert.equal(response.body.includes("vk1-test-token"), false);
+  assert.equal(response.body.includes("vk1-user-test-token"), false);
+  assert.equal(response.body.includes("vk1-community-test-token"), false);
   assert.equal(response.headers["Cache-Control"], "public, max-age=60");
 });
 
@@ -112,10 +115,15 @@ test("wall endpoint rejects mutation methods", async () => {
   assert.equal(fetchCalls, 0);
 });
 
-test("wall endpoint fails closed when VK token is missing", async () => {
+test("wall endpoint fails closed when only the community token is configured", async () => {
+  let fetchCalls = 0;
   const response = fakeResponse();
-  const handler = createVkWallHandler({ VK_CALLBACK_GROUP_ID: "191574528" }, {
+  const handler = createVkWallHandler({
+    VK_CALLBACK_GROUP_ID: "191574528",
+    VK_ACCESS_TOKEN: "vk1-community-test-token",
+  }, {
     fetchImpl: async () => {
+      fetchCalls += 1;
       throw new Error("must not be called");
     },
   });
@@ -123,6 +131,7 @@ test("wall endpoint fails closed when VK token is missing", async () => {
   await handler(fakeRequest(), response);
   assert.equal(response.statusCode, 503);
   assert.deepEqual(JSON.parse(response.body), { error: "vk_wall_not_configured" });
+  assert.equal(fetchCalls, 0);
 });
 
 test("VK API error is sanitized", async () => {
