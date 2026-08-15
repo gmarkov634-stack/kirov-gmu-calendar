@@ -1,0 +1,69 @@
+name: IzhGMU batch acquisition
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/**"
+      - "api/tools/izhgmu-collect.mjs"
+      - "api/test/izhgmu-acquisition.test.mjs"
+      - "api/package.json"
+      - ".github/workflows/izhgmu-batch-acquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Run acquisition boundary tests
+        working-directory: api
+        run: node --test test/izhgmu-acquisition.test.mjs
+      - name: Collect current official schedule files
+        working-directory: api
+        run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+      - name: Show acquisition summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/izhgmu-current/source-manifest.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/izhgmu-current')
+          manifest=json.loads((root/'source-manifest.json').read_text())
+          print('SOURCE_COUNT', manifest['sourceCount'])
+          print('VALIDATION', manifest['validation']['status'])
+          print('WARNINGS', len(manifest['validation']['warnings']))
+          report_path=root/'download-report.json'
+          if report_path.exists():
+              report=json.loads(report_path.read_text())
+              print('DOWNLOADED', report['downloadedCount'])
+              print('FAILED', report['failedCount'])
+              kinds={}
+              for item in report['files']:
+                  if item.get('status') == 'downloaded':
+                      kinds[item.get('spreadsheetKind')] = kinds.get(item.get('spreadsheetKind'), 0) + 1
+              print('KINDS', kinds)
+          PY
+          fi
+      - name: Upload current IzhGMU source set
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-current-sources
+          path: /tmp/izhgmu-current
+          if-no-files-found: error
+          retention-days: 7
