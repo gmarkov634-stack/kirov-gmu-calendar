@@ -7,6 +7,7 @@ import { YearAwareStore } from "./year-aware-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
+import { ScheduleReviewServiceRouter } from "./schedule/review-service-router.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -19,6 +20,7 @@ import { createKgmuParserHandler } from "./adapters/kgmu/http-handler.mjs";
 import { KgmuWatchStore } from "./adapters/kgmu/watch-store.mjs";
 import { KgmuSourceWatcher } from "./adapters/kgmu/source-watcher.mjs";
 import { OmgmuReviewQueue } from "./adapters/omgmu/review-queue.mjs";
+import { OmgmuReviewedService } from "./adapters/omgmu/reviewed-service.mjs";
 import { OmgmuSourceObserver } from "./adapters/omgmu/source-observer.mjs";
 import { OmgmuWatchStore } from "./adapters/omgmu/watch-store.mjs";
 import { OmgmuSourceWatcher } from "./adapters/omgmu/source-watcher.mjs";
@@ -49,7 +51,6 @@ const kgmuReviewedService = new KgmuReviewedService({
   config,
   scheduleStore: store,
 });
-const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: kgmuReviewedService });
 const kgmuWatchStore = new KgmuWatchStore(config);
 const kgmuWatcher = new KgmuSourceWatcher({
   config,
@@ -67,6 +68,7 @@ const kgmuParserHandler = createKgmuParserHandler({
   config,
 });
 const omgmuReviewQueue = new OmgmuReviewQueue(config);
+const omgmuReviewedService = new OmgmuReviewedService({ queue: omgmuReviewQueue, scheduleStore: store });
 const omgmuSourceObserver = new OmgmuSourceObserver({ queue: omgmuReviewQueue });
 const omgmuWatchStore = new OmgmuWatchStore(config);
 const omgmuWatcher = new OmgmuSourceWatcher({
@@ -74,6 +76,8 @@ const omgmuWatcher = new OmgmuSourceWatcher({
   observer: omgmuSourceObserver,
   stateStore: omgmuWatchStore,
 });
+const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService]);
+const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: reviewServiceRouter });
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, "http://localhost");
