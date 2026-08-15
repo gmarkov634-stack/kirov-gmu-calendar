@@ -5,6 +5,8 @@ import { semesterEndFromSchedule } from "./subscription-period.js";
 const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PLAN_IDS = new Set(["semester", "year"]);
+const TOKEN = /^[A-Za-z0-9_-]{43}$/;
+const SHA256 = /^[a-f0-9]{64}$/;
 
 function normalizedHttpsBaseUrl(value) {
   try {
@@ -110,6 +112,7 @@ function publicOrder(order) {
     amount: order.amount,
     expiresAt: order.expiresAt,
     testMode: order.testMode === true,
+    purchasePath: order.purchasePath || "direct_purchase",
     subscriptionUrl: order.status === "succeeded" ? order.subscriptionUrl : undefined,
   };
 }
@@ -119,7 +122,7 @@ function accessTokenHash(token) {
 }
 
 function validAccessToken(token) {
-  return typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token || "");
+  return typeof token === "string" && TOKEN.test(token || "");
 }
 
 function accessAllowed(order, token) {
@@ -139,6 +142,24 @@ function forbidden() {
   const error = new Error("Order access denied");
   error.code = "order_forbidden";
   return error;
+}
+
+function trialContextError() {
+  const error = new Error("Trial conversion context is invalid for this checkout");
+  error.code = "trial_context_invalid";
+  return error;
+}
+
+function sameTrialContext(trial, context) {
+  return trial?.status === "active" &&
+    trial.university === context.university &&
+    trial.program === context.program &&
+    trial.course === context.course &&
+    (trial.stream ?? null) === (context.stream ?? null) &&
+    trial.groupId === context.groupId &&
+    normalizeAcademicYear(trial.academicYear) === normalizeAcademicYear(context.academicYear) &&
+    Number(trial.semester) === Number(context.semester) &&
+    SHA256.test(String(trial.trialTokenHash || ""));
 }
 
 export class YooKassaService {
@@ -183,7 +204,7 @@ export class YooKassaService {
     }
   }
 
-  async create({ email, schedule, plan = "semester" }) {
+  async create({ email, schedule, plan = "semester", conversionId = "" }) {
     if (!this.enabled) throw new Error("Payments are not configured");
     const offer = configuredOffer(this.config, plan);
     const context = scheduleContext(schedule);
@@ -198,6 +219,20 @@ export class YooKassaService {
       error.code = "offer_expired";
       throw error;
     }
+
+    let trialLink = null;
+    if (conversionId) {
+      if (!TOKEN.test(String(conversionId)) || typeof this.store?.getTrialConversion !== "function") throw trialContextError();
+      const trial = await this.store.getTrialConversion(conversionId);
+      if (!sameTrialContext(trial, context)) throw trialContextError();
+      trialLink = {
+        purchasePath: "trial_to_paid",
+        trialConversionHash: accessTokenHash(conversionId),
+        trialTokenHash: trial.trialTokenHash,
+        attribution: trial.attribution || null,
+      };
+    }
+
     const orderId = randomBytes(24).toString("base64url");
     const accessToken = randomBytes(32).toString("base64url");
     const now = new Date().toISOString();
@@ -213,11 +248,12 @@ export class YooKassaService {
       testMode: this.config.yookassaTestMode,
       email,
       accessTokenHash: accessTokenHash(accessToken),
+      purchasePath: trialLink ? "trial_to_paid" : "direct_purchase",
+      ...(trialLink || {}),
       createdAt: now,
       updatedAt: now,
     };
     await this.store.putOrder(orderId, order);
-
     const body = {
       amount: { value: order.amount, currency: order.currency },
       capture: true,
@@ -267,6 +303,19 @@ export class YooKassaService {
     return this.fulfill(payment);
   }
 
+  async #upgradeLinkedTrial(order, completedAt) {
+    if (!order.trialConversionHash || !order.trialTokenHash) return;
+    if (!SHA256.test(order.trialConversionHash) || !SHA256.test(order.trialTokenHash)) {
+      throw new Error("Stored trial linkage is invalid");
+    }
+    if (typeof this.store?.revokeSubscriptionByHash !== "function" ||
+        typeof this.store?.markTrialConversionUpgradedByHash !== "function") {
+      throw new Error("Trial upgrade storage is unavailable");
+    }
+    await this.store.revokeSubscriptionByHash(order.trialTokenHash);
+    await this.store.markTrialConversionUpgradedByHash(order.trialConversionHash, completedAt);
+  }
+
   async fulfill(payment) {
     if (payment.status !== "succeeded" || payment.paid !== true) return null;
     this.assertPaymentMode(payment);
@@ -275,13 +324,17 @@ export class YooKassaService {
     if (!order || order.paymentId && order.paymentId !== payment.id) throw new Error("Payment does not match order");
     if (payment.amount?.value !== order.amount || payment.amount?.currency !== order.currency) throw new Error("Payment amount does not match order");
 
-    if (order.status === "succeeded" && order.subscriptionUrl) return publicOrder(order);
+    if (order.status === "succeeded" && order.subscriptionUrl) {
+      await this.#upgradeLinkedTrial(order, order.updatedAt || new Date().toISOString());
+      return publicOrder(order);
+    }
     const token = subscriptionToken(this.config, orderId);
     const subscriptionUrl = `${publicApiBaseUrl(this.config)}/api/v1/subscriptions/${token}/calendar.ics`;
     const completedAt = new Date().toISOString();
     await this.store.putSubscription(token, {
       version: 2,
       status: "active",
+      entitlement: "paid",
       university: order.university,
       universityName: order.universityName,
       program: order.program,
@@ -308,6 +361,7 @@ export class YooKassaService {
       updatedAt: completedAt,
     };
     await this.store.putOrder(orderId, completed);
+    await this.#upgradeLinkedTrial(completed, completedAt);
     return publicOrder(completed);
   }
 

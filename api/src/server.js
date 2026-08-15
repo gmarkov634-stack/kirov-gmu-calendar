@@ -3,10 +3,12 @@ import { createHandler } from "./app.js";
 import { createArchivePaymentTestHandler } from "./archive-payment-test-handler.js";
 import { createPreviewSubscriptionHandler } from "./preview-subscription-handler.js";
 import { loadConfig } from "./config.js";
-import { YearAwareStore } from "./year-aware-store.js";
+import { TrialEnabledStore } from "./trial-store.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
+import { createTrialHttpHandler } from "./trial-http-handler.js";
+import { TrialService } from "./trial-service.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
 import { createVkWallHandler } from "./vk-wall.js";
@@ -22,8 +24,10 @@ import { createOmgmuSourceProbeHandler } from "./adapters/omgmu/source-probe.mjs
 import { createSchedulePublishHandler } from "./schedule/publish-handler.js";
 
 const config = loadConfig();
-const store = new YearAwareStore(config);
+const store = new TrialEnabledStore(config);
 const payments = new YooKassaService({ store, config });
+const trials = new TrialService({ store, config });
+const trialHttpHandler = createTrialHttpHandler({ store, config, trials });
 const appHandler = createHandler({ store, config, payments });
 const archivePaymentTestHandler = createArchivePaymentTestHandler({ store, config, payments });
 const previewSubscriptionHandler = createPreviewSubscriptionHandler({ store, config });
@@ -65,7 +69,7 @@ const kgmuParserHandler = createKgmuParserHandler({
   config,
 });
 
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, "http://localhost");
   if (request.method === "POST" && url.pathname === "/api/v1/vk/callback") {
     return vkCallbackHandler(request, response);
@@ -88,6 +92,9 @@ const server = http.createServer((request, response) => {
   if (url.pathname.startsWith("/api/v2/catalog/")) {
     return offerCatalogHandler(request, response);
   }
+  if (url.pathname === "/api/v2/trials" || url.pathname.startsWith("/api/v2/trials/continue/")) {
+    return trialHttpHandler.handleApi(request, response);
+  }
   if (url.pathname === "/api/v1/admin/payments/test-archive") {
     return archivePaymentTestHandler(request, response);
   }
@@ -106,6 +113,10 @@ const server = http.createServer((request, response) => {
     url.pathname.startsWith("/api/v1/admin/parser-reviews")
   ) {
     return kgmuParserHandler(request, response);
+  }
+  if (url.pathname.match(/^\/api\/v1\/subscriptions\/[A-Za-z0-9_-]{43}\/calendar\.ics$/)) {
+    const handled = await trialHttpHandler.handleSubscription(request, response);
+    if (handled) return;
   }
   return appHandler(request, response);
 });
@@ -137,6 +148,9 @@ server.listen(config.port, "0.0.0.0", () => {
   console.log(config.kgmuManualNormalization
     ? "KGMU normalization mode: reviewed JSON (server XLSX parsing disabled)"
     : "KGMU normalization mode: legacy server parser");
+  console.log(config.trialsEnabled
+    ? "Trial subscriptions enabled"
+    : "Trial subscriptions disabled");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
     kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);

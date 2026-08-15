@@ -90,6 +90,7 @@ test("payment creation stores the complete university context and derives semest
   assert.equal(order.groupCode, "Л-402А");
   assert.equal(order.groupId, "omgmu:medicine:4:stream-2:Л-402А");
   assert.equal(order.plan, "semester");
+  assert.equal(order.purchasePath, "direct_purchase");
   assert.equal(order.amount, "299.00");
   assert.equal(order.expiresAt, "2026-12-22T06:30:00.000Z");
   assert.equal(order.accessTokenHash, createHash("sha256").update(result.accessToken).digest("hex"));
@@ -221,7 +222,7 @@ test("year plan charges 499 rubles and stores year access", async () => {
   assert.match(request.body.description, /учебный год/);
 });
 
-test("succeeded payment creates a version 2 subscription", async () => {
+test("succeeded payment creates a version 2 paid subscription", async () => {
   const store = memoryStore();
   const orderId = "o".repeat(32);
   await store.putOrder(orderId, {
@@ -264,6 +265,7 @@ test("succeeded payment creates a version 2 subscription", async () => {
   assert.equal(store.subscriptions.size, 1);
   const subscription = [...store.subscriptions.values()][0];
   assert.equal(subscription.version, 2);
+  assert.equal(subscription.entitlement, "paid");
   assert.equal(subscription.university, "omgmu");
   assert.equal(subscription.groupCode, "Л-402А");
   assert.equal(subscription.timezone, "Asia/Omsk");
