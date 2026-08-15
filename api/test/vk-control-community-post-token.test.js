@@ -32,10 +32,6 @@ function command(action, payload = {}) {
   };
 }
 
-function pinCommand(action) {
-  return command(action, { postId: 64 });
-}
-
 function makeHandler(env, { fetchImpl, tokenManager } = {}) {
   return createVkControlHandler(env, {
     tokenManager,
@@ -77,10 +73,38 @@ test("VK control routes wall.post through community token and does not request m
   assert.deepEqual(JSON.parse(response.body).result, { postId: 61 });
 });
 
-test("VK control routes wall.delete through community token and does not request managed token", async () => {
+test("VK control fails closed for wall.post when community token is absent", async () => {
   let managedTokenCalls = 0;
-  let requestUrl = null;
-  let requestBody = null;
+  let fetchCalls = 0;
+  const response = fakeResponse();
+  const handler = makeHandler({
+    VK_CALLBACK_GROUP_ID: "191574528",
+    VK_API_VERSION: "5.199",
+  }, {
+    tokenManager: {
+      configured: true,
+      async getAccessToken() {
+        managedTokenCalls += 1;
+        return "managed-user-token";
+      },
+    },
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("VK must not be called");
+    },
+  });
+
+  await handler(fakeRequest(command("wall.post", { message: "Тест" })), response);
+
+  assert.equal(response.statusCode, 503);
+  assert.equal(managedTokenCalls, 0);
+  assert.equal(fetchCalls, 0);
+  assert.deepEqual(JSON.parse(response.body), { error: "vk_control_not_configured" });
+});
+
+test("VK control fails closed for wall.delete before selecting any token", async () => {
+  let managedTokenCalls = 0;
+  let fetchCalls = 0;
   const response = fakeResponse();
   const handler = makeHandler({
     VK_CALLBACK_GROUP_ID: "191574528",
@@ -91,57 +115,21 @@ test("VK control routes wall.delete through community token and does not request
       configured: true,
       async getAccessToken() {
         managedTokenCalls += 1;
-        return "managed-user-token-must-not-be-used";
+        return "managed-user-token";
       },
     },
-    fetchImpl: async (url, options) => {
-      requestUrl = url;
-      requestBody = options.body;
-      return { ok: true, async json() { return { response: 1 }; } };
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("VK must not be called");
     },
   });
 
   await handler(fakeRequest(command("wall.delete", { postId: 60 })), response);
 
-  assert.equal(response.statusCode, 200);
+  assert.equal(response.statusCode, 501);
   assert.equal(managedTokenCalls, 0);
-  assert.equal(requestUrl, "https://api.vk.com/method/wall.delete");
-  assert.equal(requestBody.get("access_token"), "community-token");
-  assert.equal(requestBody.get("owner_id"), "-191574528");
-  assert.equal(requestBody.get("post_id"), "60");
-  assert.deepEqual(JSON.parse(response.body).result, { postId: 60, success: true });
-});
-
-test("VK control fails closed for community-token wall actions when community token is absent", async () => {
-  for (const action of ["wall.post", "wall.delete"]) {
-    let managedTokenCalls = 0;
-    let fetchCalls = 0;
-    const response = fakeResponse();
-    const handler = makeHandler({
-      VK_CALLBACK_GROUP_ID: "191574528",
-      VK_API_VERSION: "5.199",
-    }, {
-      tokenManager: {
-        configured: true,
-        async getAccessToken() {
-          managedTokenCalls += 1;
-          return "managed-user-token";
-        },
-      },
-      fetchImpl: async () => {
-        fetchCalls += 1;
-        throw new Error("VK must not be called");
-      },
-    });
-
-    const payload = action === "wall.post" ? { message: "Тест" } : { postId: 60 };
-    await handler(fakeRequest(command(action, payload)), response);
-
-    assert.equal(response.statusCode, 503);
-    assert.equal(managedTokenCalls, 0);
-    assert.equal(fetchCalls, 0);
-    assert.deepEqual(JSON.parse(response.body), { error: "vk_control_not_configured" });
-  }
+  assert.equal(fetchCalls, 0);
+  assert.deepEqual(JSON.parse(response.body), { error: "vk_wall_delete_not_supported" });
 });
 
 test("VK control fails closed for wall.pin and wall.unpin before selecting any token", async () => {
@@ -167,7 +155,7 @@ test("VK control fails closed for wall.pin and wall.unpin before selecting any t
       },
     });
 
-    await handler(fakeRequest(pinCommand(action)), response);
+    await handler(fakeRequest(command(action, { postId: 64 })), response);
 
     assert.equal(response.statusCode, 501);
     assert.equal(managedTokenCalls, 0);
