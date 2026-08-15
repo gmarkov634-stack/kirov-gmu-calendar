@@ -39,6 +39,20 @@ jobs:
           }, ensure_ascii=False))
           PY
 
+          trial_status="$(curl --silent --show-error --output /tmp/trial-closed.json --write-out '%{http_code}' \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --data '{}' \
+            "$base/api/v2/trials")"
+          test "$trial_status" = "409"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/trial-closed.json', encoding='utf-8') as fh:
+              body = json.load(fh)
+          assert body == {"error": "trials_not_open"}, body
+          print("TRIAL_GATE_SAFE", json.dumps(body, ensure_ascii=False))
+          PY
+
           programs="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$base/api/v2/catalog/kgmu/programs")"
           python3 - "$programs" <<'PY'
           import json, sys
