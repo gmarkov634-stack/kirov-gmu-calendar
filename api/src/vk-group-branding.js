@@ -3,7 +3,7 @@ const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 
-export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.branding.info"]);
+export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.cover.probe", "group.branding.info"]);
 export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.avatar.set"]);
 
 function cleanPhotoSourceUrl(value) {
@@ -74,6 +74,41 @@ async function uploadPhoto({ uploadUrl, bytes, contentType, filename, fetchImpl 
   return { uploaded, photo, hash };
 }
 
+function uploadShape(uploaded) {
+  const rawPhoto = uploaded?.photo;
+  const photoKind = Array.isArray(rawPhoto) ? "array" : rawPhoto === null ? "null" : typeof rawPhoto;
+  const photoString = typeof rawPhoto === "string" ? rawPhoto : "";
+  let parsedPhotoKind = null;
+  if (photoString) {
+    try {
+      const parsed = JSON.parse(photoString);
+      parsedPhotoKind = Array.isArray(parsed) ? "array" : parsed === null ? "null" : typeof parsed;
+    } catch {
+      parsedPhotoKind = "not_json";
+    }
+  }
+  const objectKeys = rawPhoto && typeof rawPhoto === "object" && !Array.isArray(rawPhoto)
+    ? Object.keys(rawPhoto).sort().slice(0, 20)
+    : [];
+  const firstArrayItemKeys = Array.isArray(rawPhoto) && rawPhoto[0] && typeof rawPhoto[0] === "object"
+    ? Object.keys(rawPhoto[0]).sort().slice(0, 20)
+    : [];
+  return {
+    uploadKeys: uploaded && typeof uploaded === "object" ? Object.keys(uploaded).sort().slice(0, 30) : [],
+    photoKind,
+    photoStringLength: photoString.length,
+    photoStartsWithBrace: photoString.startsWith("{"),
+    photoStartsWithBracket: photoString.startsWith("["),
+    parsedPhotoKind,
+    photoObjectKeys: objectKeys,
+    firstArrayItemKeys,
+    hashKind: typeof uploaded?.hash,
+    hashLength: typeof uploaded?.hash === "string" ? uploaded.hash.length : 0,
+    serverKind: typeof uploaded?.server,
+    serverPresent: uploaded?.server !== undefined && uploaded?.server !== null,
+  };
+}
+
 function sanitizeImages(value) {
   return (Array.isArray(value) ? value : [])
     .map((item) => ({
@@ -84,7 +119,7 @@ function sanitizeImages(value) {
     .filter((item) => /^https:\/\//.test(item.url));
 }
 
-async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+async function getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
   const { bytes, contentType } = await loadSource(sourceUrl, fetchImpl);
   const server = await vkMethod({
     method: "photos.getOwnerCoverPhotoUploadServer",
@@ -100,13 +135,23 @@ async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl 
     },
   });
   const uploadUrl = cleanUploadUrl(server?.upload_url);
-  const { photo, hash } = await uploadPhoto({
+  const uploaded = await uploadPhoto({
     uploadUrl,
     bytes,
     contentType,
     filename: contentType === "image/png" ? "cover.png" : "cover.jpg",
     fetchImpl,
   });
+  return uploaded;
+}
+
+async function probeGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const { uploaded } = await getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
+  return { saved: false, upload: uploadShape(uploaded) };
+}
+
+async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const { photo, hash } = await getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
   const saved = await vkMethod({
     method: "photos.saveOwnerCoverPhoto",
     token,
@@ -178,6 +223,7 @@ async function groupBrandingInfo({ groupId, token, apiVersion, fetchImpl }) {
 
 export async function executeVkGroupBrandingAction(command, { groupId, token, apiVersion, fetchImpl }) {
   if (command.action === "group.cover.set") return setGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
+  if (command.action === "group.cover.probe") return probeGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   if (command.action === "group.avatar.set") return setGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   if (command.action === "group.branding.info") return groupBrandingInfo({ groupId, token, apiVersion, fetchImpl });
   throw new Error("unsupported_action");
