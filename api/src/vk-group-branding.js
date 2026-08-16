@@ -64,9 +64,10 @@ function cleanUploadUrl(value) {
   return url.toString();
 }
 
-async function uploadPhoto({ uploadUrl, bytes, contentType, filename, fetchImpl }) {
+async function uploadPhoto({ uploadUrl, bytes, contentType, filename, fieldName = "photo", fetchImpl }) {
+  if (!["photo", "file"].includes(fieldName)) throw new Error("vk_photo_upload_failed");
   const form = new FormData();
-  form.append("photo", new Blob([bytes], { type: contentType }), filename);
+  form.append(fieldName, new Blob([bytes], { type: contentType }), filename);
   const response = await fetchImpl(uploadUrl, { method: "POST", body: form });
   if (!response.ok) throw new Error("vk_photo_upload_failed");
   const uploaded = await response.json();
@@ -149,6 +150,7 @@ async function getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl
     bytes,
     contentType,
     filename: contentType === "image/png" ? "cover.png" : "cover.jpg",
+    fieldName: "file",
     fetchImpl,
   });
   return uploaded;
