@@ -9,15 +9,9 @@ export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.a
 function cleanPhotoSourceUrl(value) {
   const raw = String(value || "").trim();
   let url;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new Error("invalid_photo_source_url");
-  }
+  try { url = new URL(raw); } catch { throw new Error("invalid_photo_source_url"); }
   if (url.protocol !== "https:" || url.hostname !== PHOTO_SOURCE_HOST) throw new Error("invalid_photo_source_url");
-  if (!url.pathname.startsWith(PHOTO_SOURCE_PREFIX) || !url.pathname.includes("/ops/vk/assets/")) {
-    throw new Error("invalid_photo_source_url");
-  }
+  if (!url.pathname.startsWith(PHOTO_SOURCE_PREFIX) || !url.pathname.includes("/ops/vk/assets/")) throw new Error("invalid_photo_source_url");
   if (!/\.(?:jpe?g|png)$/i.test(url.pathname)) throw new Error("invalid_photo_source_url");
   if (url.search || url.hash) throw new Error("invalid_photo_source_url");
   return url.toString();
@@ -58,19 +52,12 @@ async function loadSource(sourceUrl, fetchImpl) {
   if (!response.ok) throw new Error("photo_source_unavailable");
   const bytes = Buffer.from(await response.arrayBuffer());
   if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("invalid_photo_source_content");
-  return {
-    bytes,
-    contentType: photoContentType(bytes, response.headers?.get?.("content-type")),
-  };
+  return { bytes, contentType: photoContentType(bytes, response.headers?.get?.("content-type")) };
 }
 
 function cleanUploadUrl(value) {
   let url;
-  try {
-    url = new URL(String(value || ""));
-  } catch {
-    throw new Error("vk_photo_upload_failed");
-  }
+  try { url = new URL(String(value || "")); } catch { throw new Error("vk_photo_upload_failed"); }
   if (url.protocol !== "https:") throw new Error("vk_photo_upload_failed");
   return url.toString();
 }
@@ -109,7 +96,7 @@ async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl 
       crop_x: "0",
       crop_y: "0",
       crop_x2: "1590",
-      crop_y2: "530",
+      crop_y2: "400",
     },
   });
   const uploadUrl = cleanUploadUrl(server?.upload_url);
@@ -173,10 +160,7 @@ async function groupBrandingInfo({ groupId, token, apiVersion, fetchImpl }) {
     token,
     apiVersion,
     fetchImpl,
-    params: {
-      group_ids: groupId,
-      fields: "photo_200,photo_400,photo_max_orig,cover",
-    },
+    params: { group_ids: groupId, fields: "photo_200,photo_400,photo_max_orig,cover" },
   });
   const groups = Array.isArray(result?.groups) ? result.groups : (Array.isArray(result) ? result : []);
   const group = groups.find((item) => Number(item?.id || 0) === Number(groupId)) || groups[0];
@@ -187,23 +171,14 @@ async function groupBrandingInfo({ groupId, token, apiVersion, fetchImpl }) {
     photo400: typeof group?.photo_400 === "string" ? group.photo_400 : null,
     photoMax: typeof group?.photo_max_orig === "string" ? group.photo_max_orig : null,
     cover: group?.cover && typeof group.cover === "object"
-      ? {
-          enabled: Number(group.cover.enabled || 0) === 1,
-          images: sanitizeImages(group.cover.images),
-        }
+      ? { enabled: Number(group.cover.enabled || 0) === 1, images: sanitizeImages(group.cover.images) }
       : null,
   };
 }
 
 export async function executeVkGroupBrandingAction(command, { groupId, token, apiVersion, fetchImpl }) {
-  if (command.action === "group.cover.set") {
-    return setGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
-  }
-  if (command.action === "group.avatar.set") {
-    return setGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
-  }
-  if (command.action === "group.branding.info") {
-    return groupBrandingInfo({ groupId, token, apiVersion, fetchImpl });
-  }
+  if (command.action === "group.cover.set") return setGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
+  if (command.action === "group.avatar.set") return setGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
+  if (command.action === "group.branding.info") return groupBrandingInfo({ groupId, token, apiVersion, fetchImpl });
   throw new Error("unsupported_action");
 }
