@@ -21,21 +21,21 @@
 
 Автоматические fallback между классами токенов запрещены. Успех одного `wall.*`, `photos.*` или `groups.*` метода не считается доказательством поддержки другого.
 
-Практический operational contract на текущих credentials: ChatGPT может безопасно читать стену, публиковать **текстовые** записи, читать allowlisted metadata сообщества и после явного подтверждения менять `description`/`website`. Закрепление, удаление и добавление изображения к wall post выполняются вручную в VK. `wall.edit` не использовать повторно с managed VK ID после подтверждённого error 1051.
+Практический operational contract на текущих credentials: ChatGPT может безопасно читать стену, публиковать **текстовые** записи, читать allowlisted metadata сообщества и после явного подтверждения менять `description`/`website`. Закрепление, удаление и добавление изображения к wall post выполняются вручную в VK. После ручного добавления изображения результат проверяется через `wall.list`. `wall.edit` не использовать повторно с managed VK ID после подтверждённого error 1051.
 
 ## Wall photo boundary
 
 PR #151 добавил защищённый `photo.importWall`: источник изображения ограничен HTTPS URL из `raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/.../ops/vk/assets/`, только JPEG/PNG до 8 МБ. Flow использует managed user OAuth: `photos.getWallUploadServer → multipart upload → photos.saveWallPhoto`.
 
-После первоначального error 15 OAuth scope был расширен PR #156 до `wall groups photos`, администратор заново прошёл штатный OAuth flow, credentials были сохранены. Повторный production probe после reauth снова вернул VK error 15. Поэтому `photo.importWall` считается неподдерживаемым текущей современной VK ID user-сессией, а не ожидающим ещё одной авторизации.
+После первоначального error 15 OAuth scope был расширен PR #156 до `wall groups photos`, администратор заново прошёл штатный OAuth flow, credentials были сохранены. Повторный production probe после reauth снова вернул VK error 15. Поэтому `photo.importWall` считается неподдерживаемым текущей современной VK ID user-сессией.
 
-PR #159 добавил отдельный community-token `photo.importMessages` через `photos.getMessagesUploadServer → upload → photos.saveMessagesPhoto`. Этот путь production-подтверждён как **storage capability**. Operational PR #160 сохранил утверждённый JPEG поста #66 как photo `ownerId=-191574528`, `id=457239087`.
+PR #159 добавил отдельный community-token `photo.importMessages` через `photos.getMessagesUploadServer → upload → photos.saveMessagesPhoto`. Этот путь production-подтверждён только как **storage capability**. Operational PR #160 сохранил ранний JPEG поста #66 как photo `ownerId=-191574528`, `id=457239087`.
 
-Operational PR #161 затем передал message-photo attachment в production-подтверждённый `wall.post`, и VK создал #66. Независимый `wall.list` PR #162 показал `attachments=[]`: VK не использовал message-photo как wall attachment. Следовательно `photo.importMessages` нельзя считать способом публикации картинки на стене.
+Operational PR #161 затем передал message-photo attachment в `wall.post`, и VK создал #66. Независимый `wall.list` PR #162 показал `attachments=[]`: VK не использовал message-photo как wall attachment. Попытка исправить #66 через `wall.edit` завершилась production VK error 1051.
 
-Попытка исправить уже существующий #66 через `wall.edit`, сохранив точный текст и передав group-owned photo ID, завершилась production VK error 1051. Community-token `wall.edit` не вводится как неподтверждённый обход.
+После этого пользователь вручную прикрепил финальный visual к #66. Read-only PR #165 подтвердил фактический production-результат: у #66 одно attachment типа `photo`, `ownerId=-191574528`, `id=457239089`; текст не изменён; #64 сохранил `isPinned=true`.
 
-Утверждённый visual хранится в `ops/vk/assets/post66-study-day-approved-20260816.jpg`. До появления нового официально подтверждённого credential/method path wall-изображения прикрепляются вручную в интерфейсе VK и затем проверяются read-only `wall.list`.
+Следовательно текущий безопасный процесс для wall-изображений: **согласовать visual → прикрепить вручную в VK → проверить read-only `wall.list`**. Точный контент и статус #66 ведутся в `ops/vk/CONTENT.md`.
 
 ## Group metadata read/write
 
@@ -87,10 +87,10 @@ Runtime-изменения проходят постоянную цепочку 
 
 ## Current wall state
 
-Read-only проверка после создания #66 вернула `total=3`:
+Read-only PR #165 после ручного прикрепления финального visual вернул `total=3`:
 
 - #64 — закреплён, `isPinned=true`;
-- #66 — точный утверждённый текст, но `attachments=[]` до ручного добавления JPEG;
+- #66 — точный утверждённый текст + одно photo attachment `ownerId=-191574528`, `id=457239089`;
 - #65 — предыдущая образовательная публикация.
 
-#59/#60 ранее удалены вручную. #64 был закреплён вручную. Точный контент и статус #66 ведутся в `ops/vk/CONTENT.md`.
+#59/#60 ранее удалены вручную. #64 был закреплён вручную. Пост #66 считается **полностью завершённым и проверенным**.
