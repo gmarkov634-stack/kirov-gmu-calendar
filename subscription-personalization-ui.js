@@ -1,12 +1,13 @@
 (() => {
   const TOKEN = /^[A-Za-z0-9_-]{43}$/;
+  const CALENDAR_SUFFIX = '/calendar.ics';
   const mounted = new WeakSet();
 
   function subscriptionHttpsUrl(value) {
     try {
       const normalized = String(value || '').replace(/^webcal:/i, 'https:');
       const url = new URL(normalized, window.location.href);
-      if (url.protocol !== 'https:') return null;
+      if (url.protocol !== 'https:' || !url.pathname.endsWith(CALENDAR_SUFFIX)) return null;
       const match = url.pathname.match(/^\/api\/v1\/subscriptions\/([A-Za-z0-9_-]{43})\/calendar\.ics$/);
       if (!match || !TOKEN.test(match[1])) return null;
       return { url, token: match[1] };
