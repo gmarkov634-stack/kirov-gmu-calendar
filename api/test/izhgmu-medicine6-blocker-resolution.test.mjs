@@ -85,7 +85,7 @@ function compositeInput(group) {
   };
 }
 
-test('3N classifies only reviewed component-warning combinations and never resolves them', () => {
+test('3N classifies only reviewed component-warning combinations and never resolves them automatically', () => {
   const cases = [
     [{ source_component: 'cycle', warning: 'elective_choice_required' }, 'student_choice_required', false, true],
     [{ source_component: 'lecture', warning: 'elective_choice_required' }, 'student_choice_required', false, true],
@@ -125,16 +125,17 @@ test('3N classification is diagnostic-only and does not mutate blocker objects',
   assert.equal(result.productionSemantics, 'diagnostic_only_blockers_remain_fail_closed');
 });
 
-test('3N legacy synthetic composite remains classified while new lecture elective semantics avoid student choice', () => {
+test('3N composite classifies explicit elective alternatives as per-subscription student choices', () => {
   for (const group of IZHGMU_MEDICINE6_EXPECTED_GROUPS) {
     const candidate = buildIzhgmuMedicine6CompositeCandidate(compositeInput(group));
     assert.equal(candidate.blockerResolution.items.length, candidate.blockers.length, group);
     assert.equal(candidate.blockerResolution.unknownCount, 0, group);
-    assert.equal(candidate.blockerResolution.counts.student_choice_required, 2, group);
-    assert.equal(candidate.blockerResolution.counts.official_source_required, group === '626' ? 5 : 3, group);
+    assert.equal(candidate.blockerResolution.counts.student_choice_required, 3, group);
+    assert.equal(candidate.blockerResolution.counts.official_source_required, group === '626' ? 4 : 2, group);
     assert.equal(candidate.blockerResolution.requiresStudentChoice, true, group);
     assert.equal(candidate.blockerResolution.watchOfficialSource, true, group);
-    assert.equal(candidate.blockers.some((item) => item.warning === 'elective_schedule_mapping_required'), true, group);
+    assert.equal(candidate.blockers.some((item) => item.warning === 'elective_choice_required'), true, group);
+    assert.equal(candidate.blockers.some((item) => item.warning === 'elective_schedule_mapping_required'), false, group);
     assert.equal(candidate.publishable, false, group);
   }
 });
