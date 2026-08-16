@@ -8,6 +8,7 @@ import {
   buildIzhgmuMedicine6PostsemesterQaBatch,
 } from './postsemester-canonical.mjs';
 import { IZHGMU_MEDICINE6_POSTSEMESTER_REVIEW } from './postsemester-reviewed.mjs';
+import { classifyIzhgmuMedicine6Blockers } from './medicine6-blocker-resolution.mjs';
 
 const COMPOSITE_PERIOD = Object.freeze({
   start_date: '2026-02-02',
@@ -123,6 +124,7 @@ export function buildIzhgmuMedicine6CompositeCandidate({
     ...componentBlockers('lecture', lectureBlockers),
     ...componentBlockers('postsemester', postsemesterCandidate.blockers),
   ];
+  const blockerResolution = classifyIzhgmuMedicine6Blockers(blockers);
 
   return {
     profile: 'IZH-MEDICINE6-COMPOSITE-CANDIDATE',
@@ -140,6 +142,7 @@ export function buildIzhgmuMedicine6CompositeCandidate({
     },
     deferredFacts: postsemesterCandidate.deferredFacts,
     blockers,
+    blockerResolution,
     publishable: blockers.length === 0,
     batch: {
       schema_version: '1.0',
