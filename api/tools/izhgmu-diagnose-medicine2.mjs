@@ -39,6 +39,15 @@ function scheduleSheet(structure) {
   return structure.sheets.find((item) => item.name.toLowerCase().includes('расписание')) || structure.sheets[0] || null;
 }
 
+function weeklyCompanion(structure) {
+  if (structure.sheets.some((sheet) => sheet.name.toLowerCase().includes('расписание'))) return structure;
+  if (structure.sheets.length !== 1) return structure;
+  return {
+    ...structure,
+    sheets: [{ ...structure.sheets[0], name: `расписание (${structure.sheets[0].name})` }],
+  };
+}
+
 function groupCodes(classStructure) {
   const sheet = scheduleSheet(classStructure);
   if (!sheet) throw new Error('medicine-2 class sheet missing');
@@ -70,7 +79,7 @@ function summarizeWarnings(items = []) {
 const inputDir = path.resolve(arg('--input-dir', '/tmp/izhgmu-current'));
 const output = path.resolve(arg('--output', path.join(inputDir, 'medicine2-diagnostic.json')));
 const report = JSON.parse(await fs.readFile(path.join(inputDir, 'download-report.json'), 'utf8'));
-const result = { version: 2, status: 'diagnostic_only', course: 2, streams: [] };
+const result = { version: 3, status: 'diagnostic_only', course: 2, streams: [] };
 
 for (const stream of ['1', '2', '3']) {
   const { classSource, lectureSource } = sourcePair(report, stream);
@@ -78,6 +87,7 @@ for (const stream of ['1', '2', '3']) {
   const lectureBuffer = await fs.readFile(path.join(inputDir, lectureSource.filename));
   if (sha256(classBuffer) !== classSource.sha256 || sha256(lectureBuffer) !== lectureSource.sha256) throw new Error(`medicine-2 stream ${stream} source SHA mismatch`);
   const [classStructure, lectureStructure] = await Promise.all([readIzhgmuXlsxStructure(classBuffer), readIzhgmuXlsxStructure(lectureBuffer)]);
+  const companionForWeekly = weeklyCompanion(lectureStructure);
   const groups = groupCodes(classStructure);
   const streamResult = {
     stream,
@@ -88,6 +98,7 @@ for (const stream of ['1', '2', '3']) {
     groups,
     classTopology: topology(classStructure),
     lectureTopology: topology(lectureStructure),
+    companionNormalization: lectureStructure === companionForWeekly ? 'none' : 'sole_sheet_alias',
     parserError: null,
     lecture: null,
     groupsDiagnostic: [],
@@ -95,7 +106,7 @@ for (const stream of ['1', '2', '3']) {
 
   try {
     for (const groupCode of groups) {
-      const weekly = parseIzhgmuWeeklyStructures({ classStructure, companionStructure: lectureStructure, groupCode });
+      const weekly = parseIzhgmuWeeklyStructures({ classStructure, companionStructure: companionForWeekly, groupCode });
       const lecture = parseIzhgmuLectureStructures({ classStructure, lectureStructure, weeklyParsed: weekly });
       const combined = composeIzhgmuWeeklyLecture({ weeklyParsed: weekly, lectureParsed: lecture });
       streamResult.lecture ||= {
@@ -134,13 +145,14 @@ result.summary = {
   streams: result.streams.length,
   allGroups: result.streams.flatMap((item) => item.groups),
   streamsWithParserError: result.streams.filter((item) => item.parserError).map((item) => item.stream),
+  groupsWithReview: result.streams.flatMap((item) => item.groupsDiagnostic).filter((item) => item.reviewRequired > 0).length,
+  groupsWithChoices: result.streams.flatMap((item) => item.groupsDiagnostic).filter((item) => item.unresolvedChoices > 0).length,
+  groupsWithDeferred: result.streams.flatMap((item) => item.groupsDiagnostic).filter((item) => item.deferred > 0).length,
 };
 await fs.writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
 console.log('IZHGMU_MEDICINE2_DIAGNOSTIC', JSON.stringify(result.summary));
 for (const item of result.streams) {
-  console.log('STREAM', item.stream, 'GROUPS', item.groups.join(','));
-  console.log('CLASS_TOPOLOGY', JSON.stringify(item.classTopology));
-  console.log('LECTURE_TOPOLOGY', JSON.stringify(item.lectureTopology));
+  console.log('STREAM', item.stream, 'GROUPS', item.groups.join(','), 'COMPANION_NORMALIZATION', item.companionNormalization);
   console.log('PARSER_ERROR', JSON.stringify(item.parserError));
   if (!item.parserError) {
     console.log('LECTURE', JSON.stringify(item.lecture));
