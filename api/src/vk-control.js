@@ -12,10 +12,12 @@ const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
 const MAX_GROUP_DESCRIPTION_LENGTH = 10000;
 const MAX_GROUP_WEBSITE_LENGTH = 2048;
+const MAX_GROUP_LINK_URL_LENGTH = 2048;
+const MAX_GROUP_LINK_TEXT_LENGTH = 256;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "group.links.list", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 const UNSUPPORTED_BRANDING_MUTATIONS = new Set(["group.cover.set", "group.avatar.set"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
@@ -135,6 +137,12 @@ function positivePostId(value) {
   return postId;
 }
 
+function positiveLinkId(value, errorName = "invalid_group_link_id") {
+  const linkId = Number(value);
+  if (!Number.isInteger(linkId) || linkId <= 0) throw new Error(errorName);
+  return linkId;
+}
+
 function cleanGroupEditPayload(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_group_edit_payload");
   const keys = Object.keys(value);
@@ -166,6 +174,36 @@ function cleanGroupEditPayload(value) {
     fields.website = website;
   }
   return fields;
+}
+
+function cleanGroupLinkUrl(value) {
+  if (typeof value !== "string" || !value.trim() || value.length > MAX_GROUP_LINK_URL_LENGTH) {
+    throw new Error("invalid_group_link_url");
+  }
+  let url;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    throw new Error("invalid_group_link_url");
+  }
+  if (url.protocol !== "https:") throw new Error("invalid_group_link_url");
+  return url.toString();
+}
+
+function cleanGroupLinkText(value) {
+  if (value == null) return "";
+  if (typeof value !== "string" || value.length > MAX_GROUP_LINK_TEXT_LENGTH) throw new Error("invalid_group_link_text");
+  return value.trim();
+}
+
+function cleanGroupLinkAddPayload(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_group_link_payload");
+  const keys = Object.keys(value);
+  if (!keys.length || keys.some((key) => !["url", "text"].includes(key))) throw new Error("invalid_group_link_payload");
+  return {
+    url: cleanGroupLinkUrl(value.url),
+    text: cleanGroupLinkText(value.text),
+  };
 }
 
 function cleanPhotoSourceUrl(value) {
@@ -360,6 +398,17 @@ function sanitizePost(post) {
   };
 }
 
+function sanitizeGroupLink(link) {
+  return {
+    id: Number(link?.id || 0),
+    name: String(link?.name || ""),
+    description: String(link?.desc || ""),
+    url: typeof link?.url === "string" ? link.url : null,
+    photo50: typeof link?.photo_50 === "string" ? link.photo_50 : null,
+    photo100: typeof link?.photo_100 === "string" ? link.photo_100 : null,
+  };
+}
+
 function sanitizeGroup(group) {
   return {
     id: Number(group?.id || 0),
@@ -435,6 +484,21 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     return sanitizeGroup(group);
   }
 
+  if (command.action === "group.links.list") {
+    const result = await vkMethod({
+      method: "groups.getById",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_ids: groupId, fields: "links" },
+    });
+    const groups = Array.isArray(result?.groups) ? result.groups : (Array.isArray(result) ? result : []);
+    const group = groups.find((item) => Number(item?.id || 0) === Number(groupId)) || groups[0];
+    if (!group) throw new Error("vk_group_not_found");
+    const links = Array.isArray(group?.links) ? group.links.map(sanitizeGroupLink) : [];
+    return { links };
+  }
+
   if (command.action === "group.edit") {
     const fields = cleanGroupEditPayload(command.payload);
     const result = await vkMethod({
@@ -445,6 +509,58 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
       params: { group_id: groupId, ...fields },
     });
     return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
+  }
+
+  if (command.action === "group.link.add") {
+    const { url, text } = cleanGroupLinkAddPayload(command.payload);
+    const result = await vkMethod({
+      method: "groups.addLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link: url, ...(text ? { text } : {}) },
+    });
+    return { link: sanitizeGroupLink(result) };
+  }
+
+  if (command.action === "group.link.edit") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const text = cleanGroupLinkText(command.payload?.text);
+    const result = await vkMethod({
+      method: "groups.editLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId), text },
+    });
+    return { linkId, updated: Number(result || 0) === 1 };
+  }
+
+  if (command.action === "group.link.delete") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const result = await vkMethod({
+      method: "groups.deleteLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId) },
+    });
+    return { linkId, deleted: Number(result || 0) === 1 };
+  }
+
+  if (command.action === "group.link.reorder") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const after = command.payload?.after == null || Number(command.payload.after) === 0
+      ? 0
+      : positiveLinkId(command.payload.after, "invalid_group_link_after");
+    const result = await vkMethod({
+      method: "groups.reorderLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId), after: String(after) },
+    });
+    return { linkId, after, reordered: Number(result || 0) === 1 };
   }
 
   if (command.action === "photo.importMessages") {
@@ -589,6 +705,11 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_group_edit_payload",
         "invalid_group_description",
         "invalid_group_website",
+        "invalid_group_link_payload",
+        "invalid_group_link_url",
+        "invalid_group_link_text",
+        "invalid_group_link_id",
+        "invalid_group_link_after",
         "invalid_photo_source_url",
         "invalid_photo_source_content",
         "unsupported_action",
