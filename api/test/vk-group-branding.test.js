@@ -38,7 +38,7 @@ function jpegResponse() {
   };
 }
 
-test("group.cover.set uses community token only and 1590x400 crop", async () => {
+test("group.cover.set uses community token only, centered 1590x400 crop, and response_json save", async () => {
   let managedTokenCalls = 0;
   const methods = [];
   const response = fakeResponse();
@@ -71,14 +71,15 @@ test("group.cover.set uses community token only and 1590x400 crop", async () => 
         if (method === "photos.getOwnerCoverPhotoUploadServer") {
           assert.equal(options.body.get("group_id"), "191574528");
           assert.equal(options.body.get("crop_x"), "0");
-          assert.equal(options.body.get("crop_y"), "0");
+          assert.equal(options.body.get("crop_y"), "65");
           assert.equal(options.body.get("crop_x2"), "1590");
-          assert.equal(options.body.get("crop_y2"), "400");
+          assert.equal(options.body.get("crop_y2"), "465");
           return { ok: true, async json() { return { response: { upload_url: "https://pu.vk.com/group-cover" } }; } };
         }
         if (method === "photos.saveOwnerCoverPhoto") {
-          assert.equal(options.body.get("hash"), "cover-hash");
-          assert.equal(options.body.get("photo"), "cover-photo");
+          assert.equal(options.body.get("hash"), null);
+          assert.equal(options.body.get("photo"), null);
+          assert.equal(options.body.get("response_json"), JSON.stringify({ hash: "cover-hash", photo: "cover-photo" }));
           return {
             ok: true,
             async json() {
