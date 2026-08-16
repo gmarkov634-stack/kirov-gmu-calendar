@@ -20,6 +20,7 @@ on:
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
       - "api/tools/izhgmu-parse-lecture-medicine4.mjs"
+      - "api/tools/izhgmu-audit-medicine4-mapping.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine6.mjs"
       - "api/tools/izhgmu-parse-lecture-medicine5.mjs"
@@ -75,6 +76,9 @@ jobs:
       - name: Verify medicine 4 lecture streams without heuristic group attribution
         working-directory: api
         run: node tools/izhgmu-parse-lecture-medicine4.mjs --input-dir /tmp/izhgmu-current
+      - name: Audit medicine 4 stream-group mapping fail-closed boundary
+        working-directory: api
+        run: node tools/izhgmu-audit-medicine4-mapping.mjs --input-dir /tmp/izhgmu-current
       - name: Diagnose real IZH-CYCLE medicine 5 without publication
         working-directory: api
         run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
@@ -126,6 +130,12 @@ jobs:
               diag=json.loads(diag_path.read_text())
               print('LECTURE_STATS', diag['lecture']['stats'])
               print('COMBINED_BLOCKERS', diag['combined']['blockers'])
+          medicine4_path=root/'medicine4-mapping-audit.json'
+          if medicine4_path.exists():
+              m4=json.loads(medicine4_path.read_text())
+              print('MEDICINE4_GROUPS', m4['groups'])
+              print('MEDICINE4_MAPPING', m4['mapping'])
+              print('MEDICINE4_QA', m4['representativeQa'])
           cycle_diag_path=root/'cycle-diagnostic-medicine-5.json'
           if cycle_diag_path.exists():
               diag=json.loads(cycle_diag_path.read_text())
