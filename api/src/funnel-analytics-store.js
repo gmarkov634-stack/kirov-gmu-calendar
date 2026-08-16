@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { academicYearStorageSegment, scheduleContext } from "./order-context.js";
+import { postprocessSchedule } from "./schedule/postprocess.js";
 import { projectScheduleForSubscription } from "./subscription-personalization.js";
 import { TrialEnabledStore } from "./trial-store.js";
 
@@ -33,7 +34,8 @@ export class FunnelAnalyticsStore extends TrialEnabledStore {
     if (!schedule) return null;
     if (!input?.preferences?.electives || !Object.keys(input.preferences.electives).length) return schedule;
     const catalog = await this.getSchedulePersonalization(input);
-    return projectScheduleForSubscription(schedule, input, catalog);
+    const projected = projectScheduleForSubscription(schedule, input, catalog);
+    return postprocessSchedule(projected);
   }
 
   async getSchedulePersonalization(input) {
