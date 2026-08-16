@@ -1,5 +1,6 @@
 import { scheduleContext } from "../order-context.js";
 import { buildScheduleIcs } from "./ics.js";
+import { bindSchedulePersonalizationCatalog } from "./personalization-publication.js";
 import { postprocessSchedule } from "./postprocess.js";
 import { validatePostprocessedSchedule, validateScheduleBatch } from "./validate.js";
 import { versionSchedule } from "./versioning.js";
@@ -70,9 +71,14 @@ export function prepareSchedulePublication(incomingBatch, options = {}) {
   };
 }
 
-export async function publishScheduleBatch({ store, incomingBatch, ...options }) {
+export async function publishScheduleBatch({ store, incomingBatch, personalizationCatalog = null, ...options }) {
   if (!store || typeof store.getSchedule !== "function" || typeof store.putSchedule !== "function") {
     throw new TypeError("Schedule store with getSchedule() and putSchedule() is required");
+  }
+  if (personalizationCatalog && typeof store.putSchedulePersonalization !== "function") {
+    const error = new TypeError("Personalized publication requires putSchedulePersonalization()");
+    error.code = "SCHEDULE_PERSONALIZATION_STORE_REQUIRED";
+    throw error;
   }
 
   const context = requireContext(incomingBatch);
@@ -92,6 +98,15 @@ export async function publishScheduleBatch({ store, incomingBatch, ...options })
     ...options,
     previousBatch: isCanonicalBatch(current) ? current : null,
   });
+
+  let boundPersonalization = null;
+  if (personalizationCatalog) {
+    boundPersonalization = bindSchedulePersonalizationCatalog(prepared.batch, personalizationCatalog);
+    // Write the version-bound sidecar first. Until the matching schedule batch
+    // becomes current, readers reject it by version/fingerprint and expose no
+    // elective events. This keeps a partial publication fail-closed.
+    await store.putSchedulePersonalization(prepared.batch, boundPersonalization);
+  }
   const publication = await store.putSchedule(prepared.batch);
 
   return {
@@ -101,6 +116,11 @@ export async function publishScheduleBatch({ store, incomingBatch, ...options })
     inputQa: prepared.inputQa,
     outputQa: prepared.outputQa,
     publication,
+    personalization: boundPersonalization ? {
+      published: true,
+      electiveBlocks: boundPersonalization.electives.length,
+      baseSchedule: boundPersonalization.baseSchedule,
+    } : { published: false, electiveBlocks: 0 },
     icsBytes: Buffer.byteLength(prepared.ics, "utf8"),
     eventCount: prepared.batch.events.length,
   };
