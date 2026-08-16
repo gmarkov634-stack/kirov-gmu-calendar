@@ -21,6 +21,13 @@ function normalizeAcademicYear(raw) {
   return match ? `${match[1]}-${match[2]}` : null;
 }
 
+function isConsecutiveAcademicYear(raw) {
+  const academicYear = normalizeAcademicYear(raw);
+  if (!academicYear) return false;
+  const [start, end] = academicYear.split("-").map(Number);
+  return end === start + 1;
+}
+
 function detectTerm(text = "") {
   if (/весенн/i.test(text)) return "spring";
   if (/осенн/i.test(text)) return "autumn";
@@ -62,9 +69,8 @@ export function classifyIzhgmuLabel(label) {
   const term = detectTerm(normalized);
   const warnings = [];
 
-  if (academicYear) {
-    const [start, end] = academicYear.split("-").map(Number);
-    if (end !== start + 1) warnings.push("malformed-academic-year");
+  if (academicYear && !isConsecutiveAcademicYear(academicYear)) {
+    warnings.push("malformed-academic-year");
   }
 
   return {
@@ -91,6 +97,24 @@ export function extractIzhgmuScheduleContext(html) {
     term: detectTerm(context),
     dailyChangesNotice: /ежедневн[^.]{0,100}изменен/i.test(text),
   };
+}
+
+export function applyIzhgmuScheduleContext(sources, scheduleContext = {}) {
+  const contextAcademicYear = normalizeAcademicYear(scheduleContext.academicYear);
+  const contextYearIsAuthoritative = isConsecutiveAcademicYear(contextAcademicYear);
+
+  return (sources || []).map((source) => {
+    const warnings = [...(source.warnings || [])];
+    if (!warnings.includes("malformed-academic-year") || !contextYearIsAuthoritative) return source;
+
+    return {
+      ...source,
+      labelAcademicYear: source.academicYear,
+      academicYear: contextAcademicYear,
+      academicYearSource: "schedule-context-recovery",
+      warnings: [...new Set([...warnings, "academic-year-recovered-from-schedule-context"])],
+    };
+  });
 }
 
 export function extractIzhgmuSources(html, sourceUrl = IZH_GMU_SOURCE) {
@@ -159,13 +183,14 @@ export async function discoverIzhgmuSources({ sourceUrl = IZH_GMU_SOURCE, output
   if (!response.ok) throw new Error(`IzhGMU page request failed: HTTP ${response.status}`);
 
   const html = await response.text();
-  const sources = extractIzhgmuSources(html, sourceUrl);
+  const scheduleContext = extractIzhgmuScheduleContext(html);
+  const sources = applyIzhgmuScheduleContext(extractIzhgmuSources(html, sourceUrl), scheduleContext);
   const manifest = {
     version: 1,
     university: "izhgmu",
     sourcePage: sourceUrl,
     discoveredAt: new Date().toISOString(),
-    scheduleContext: extractIzhgmuScheduleContext(html),
+    scheduleContext,
     sourceCount: sources.length,
     sources,
   };
