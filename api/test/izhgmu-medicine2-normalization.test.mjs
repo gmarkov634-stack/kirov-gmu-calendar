@@ -28,8 +28,11 @@ test('class normalization only changes time-column cells with exact proven synta
   };
   const result = normalizeIzhgmuMedicine2ClassStructure(source);
   assert.equal(result.sheets[0].cells[0].value, '08.30-10.05');
+  assert.equal(result.sheets[0].cells[0].sourceNormalization.ruleId, 'IZH-M2-01');
   assert.equal(result.sheets[0].cells[1].value, '8-30-10-05');
+  assert.equal(result.sheets[0].cells[1].sourceNormalization, undefined);
   assert.equal(result.sheets[0].cells[2].value, '08.30-10.05');
+  assert.equal(result.sheets[0].cells[2].sourceNormalization, undefined);
 });
 
 test('medicine-2 stream-1 physical education duplicate 9 February cell is corrected to 16', () => {
@@ -57,6 +60,45 @@ test('medicine-2 stream-1 physical education duplicate 9 February cell is correc
     ] }],
   });
   assert.equal(nearMiss.sheets[0].cells.find((cell) => cell.ref === 'H8').value, 10);
+});
+
+test('normalization rule ids propagate only through referenced normalized cells', () => {
+  const classStructure = normalizeIzhgmuMedicine2ClassStructure({
+    sheets: [{ name: 'расписание', cells: [
+      { ref: 'B25', row: 25, col: 2, value: '8-30-10-05' },
+    ] }],
+  });
+  const lectureStructure = normalizeIzhgmuMedicine2LectureStructure({
+    sheets: [{ name: 'Лист1', cells: [
+      { ref: 'C8', row: 8, col: 3, value: 'Физвоспитание' },
+      { ref: 'G8', row: 8, col: 7, value: 9 },
+      { ref: 'H8', row: 8, col: 8, value: 9 },
+    ] }],
+  });
+  const combined = {
+    profile: 'IZH-WEEKLY+LECTURE',
+    series: [
+      {
+        status: 'ok', warnings: [], ruleIds: ['BASE'],
+        references: [{ role: 'end_time', range: 'расписание!B25' }],
+      },
+      {
+        status: 'ok', warnings: [], ruleIds: ['BASE'],
+        references: [{ role: 'date', range: 'Лист1!H8' }],
+      },
+      {
+        status: 'ok', warnings: [], ruleIds: ['BASE'],
+        references: [{ role: 'date', range: 'Лист1!G8' }],
+      },
+    ],
+    reviewRequired: [],
+    deferred: [],
+    unresolvedChoices: [],
+  };
+  const result = normalizeIzhgmuMedicine2Combined(combined, { classStructure, lectureStructure });
+  assert.deepEqual(result.series[0].ruleIds, ['BASE', 'IZH-M2-01']);
+  assert.deepEqual(result.series[1].ruleIds, ['BASE', 'IZH-M2-04']);
+  assert.deepEqual(result.series[2].ruleIds, ['BASE']);
 });
 
 test('assessment summary is annotation, matching count row is promoted, mismatch stays blocked', () => {
