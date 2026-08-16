@@ -74,6 +74,8 @@ export function normalizeIzhgmuMedicine2ClassStructure(classStructure) {
           sourceNormalization: {
             kind: 'izh_medicine2_hyphen_clock_range',
             raw: cell.value,
+            corrected: normalized,
+            ruleId: 'IZH-M2-01',
           },
         };
       }),
@@ -126,9 +128,40 @@ function resolveDeclaredCountRow(item) {
   };
 }
 
-export function normalizeIzhgmuMedicine2Combined(combined) {
+function normalizationRulesByReference(structures) {
+  const result = new Map();
+  for (const structure of structures.filter(Boolean)) {
+    for (const sheet of structure.sheets || []) {
+      for (const cell of sheet.cells || []) {
+        const ruleId = norm(cell.sourceNormalization?.ruleId);
+        if (!ruleId) continue;
+        result.set(`${sheet.name}!${cell.ref}`, ruleId);
+      }
+    }
+  }
+  return result;
+}
+
+function attachNormalizationRules(item, rulesByReference) {
+  const inherited = [];
+  for (const reference of item.references || []) {
+    const ruleId = rulesByReference.get(reference.range);
+    if (ruleId) inherited.push(ruleId);
+  }
+  if (!inherited.length) return item;
+  return {
+    ...item,
+    ruleIds: [...new Set([...(item.ruleIds || []), ...inherited])],
+  };
+}
+
+export function normalizeIzhgmuMedicine2Combined(combined, context = {}) {
   if (combined?.profile !== 'IZH-WEEKLY+LECTURE') throw new TypeError('IZH-WEEKLY+LECTURE result is required');
 
+  const rulesByReference = normalizationRulesByReference([
+    context.classStructure,
+    context.lectureStructure,
+  ]);
   const annotations = [];
   const promoted = [];
   const reviewRequired = [];
@@ -144,7 +177,7 @@ export function normalizeIzhgmuMedicine2Combined(combined) {
       });
       continue;
     }
-    const item = resolveDeclaredCountRow(sourceItem);
+    const item = attachNormalizationRules(resolveDeclaredCountRow(sourceItem), rulesByReference);
     if (item.status === 'ok' && !item.warning && !(item.warnings || []).length) promoted.push(item);
     else reviewRequired.push(item);
   }
@@ -155,7 +188,9 @@ export function normalizeIzhgmuMedicine2Combined(combined) {
     && !item.weekday && !item.startTime && !item.endTime
   ));
 
-  const series = [...(combined.series || []), ...promoted].map(resolveDeclaredCountRow);
+  const series = [...(combined.series || []), ...promoted]
+    .map(resolveDeclaredCountRow)
+    .map((item) => attachNormalizationRules(item, rulesByReference));
   const sourceCoverage = combined.sourceCoverage ? {
     ...combined.sourceCoverage,
     unmapped: (combined.sourceCoverage.unmapped || []).filter((item) => !(
@@ -181,4 +216,6 @@ export const __medicine2NormalizationTest = {
   normalizeHyphenClockRange,
   isAssessmentSummary,
   isMedicine2Stream1PhysicalEducationDuplicateDate,
+  normalizationRulesByReference,
+  attachNormalizationRules,
 };
