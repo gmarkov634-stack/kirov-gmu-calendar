@@ -6,7 +6,7 @@ const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 const COVER_CROP = Object.freeze({ x: 0, y: 32, x2: 795, y2: 232 });
 
 export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.cover.probe", "group.branding.info"]);
-export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.cover.userProbe", "group.avatar.set"]);
+export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.cover.userProbe", "group.avatar.probe", "group.avatar.set"]);
 
 function cleanPhotoSourceUrl(value) {
   const raw = String(value || "").trim();
@@ -175,7 +175,7 @@ async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl 
   return { updated: true, images };
 }
 
-async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+async function getAvatarUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
   const { bytes, contentType } = await loadSource(sourceUrl, fetchImpl);
   const server = await vkMethod({
     method: "photos.getOwnerPhotoUploadServer",
@@ -185,15 +185,25 @@ async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl
     params: { owner_id: `-${groupId}` },
   });
   const uploadUrl = cleanUploadUrl(server?.upload_url);
-  const { uploaded, photo, hash } = await uploadPhoto({
+  const result = await uploadPhoto({
     uploadUrl,
     bytes,
     contentType,
     filename: contentType === "image/png" ? "avatar.png" : "avatar.jpg",
     fetchImpl,
   });
-  const uploadServer = String(uploaded?.server ?? "").trim();
+  const uploadServer = String(result.uploaded?.server ?? "").trim();
   if (!/^-?\d+$/.test(uploadServer)) throw new Error("vk_photo_upload_failed");
+  return { ...result, uploadServer };
+}
+
+async function probeGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const { uploaded } = await getAvatarUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
+  return { saved: false, upload: uploadShape(uploaded) };
+}
+
+async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const { uploaded, photo, hash, uploadServer } = await getAvatarUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
   const saved = await vkMethod({
     method: "photos.saveOwnerPhoto",
     token,
@@ -207,6 +217,7 @@ async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl
     updated: true,
     photoUrl: String(saved?.photo_src_big || saved?.photo_src || saved?.photo_src_small || "") || null,
     postId: Number(saved?.post_id || 0) > 0 ? Number(saved.post_id) : null,
+    upload: uploadShape(uploaded),
   };
 }
 
@@ -237,6 +248,7 @@ export async function executeVkGroupBrandingAction(command, { groupId, token, ap
   if (command.action === "group.cover.probe" || command.action === "group.cover.userProbe") {
     return probeGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   }
+  if (command.action === "group.avatar.probe") return probeGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   if (command.action === "group.avatar.set") return setGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   if (command.action === "group.branding.info") return groupBrandingInfo({ groupId, token, apiVersion, fetchImpl });
   throw new Error("unsupported_action");
