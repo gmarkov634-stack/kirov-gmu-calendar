@@ -74,21 +74,27 @@ export function createSubscriptionPreferencesHandler({ store, config }) {
         return true;
       }
 
-      const schedule = await store.getSchedule(baseScheduleInput(subscription));
+      const scheduleInput = baseScheduleInput(subscription);
+      const schedule = await store.getSchedule(scheduleInput);
       if (!schedule) {
         send(response, 409, { error: 'schedule_not_published' });
         return true;
       }
+      const catalog = await store.getSchedulePersonalization(scheduleInput);
+      if (!catalog) {
+        send(response, 200, { electives: [] });
+        return true;
+      }
 
       if (request.method === 'GET') {
-        send(response, 200, subscriptionPersonalizationView(schedule, subscription));
+        send(response, 200, subscriptionPersonalizationView(catalog, subscription));
         return true;
       }
 
       const input = await readJson(request);
-      const updated = updateSubscriptionElectivePreferences(subscription, schedule, input);
+      const updated = updateSubscriptionElectivePreferences(subscription, catalog, input);
       await store.putSubscription(token, updated);
-      send(response, 200, subscriptionPersonalizationView(schedule, updated));
+      send(response, 200, subscriptionPersonalizationView(catalog, updated));
       return true;
     } catch (error) {
       if (['invalid_json', 'request_too_large'].includes(error.message)) {
@@ -101,6 +107,7 @@ export function createSubscriptionPreferencesHandler({ store, config }) {
         'elective_selection_not_available',
         'subscription_preferences_invalid',
         'schedule_personalization_invalid',
+        'schedule_personalization_context_invalid',
       ].includes(error.code)) {
         send(response, 400, { error: error.code });
         return true;
