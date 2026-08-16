@@ -19,6 +19,7 @@ on:
       - "api/tools/izhgmu-check-medicine1-publication.mjs"
       - "api/tools/izhgmu-check-medicine1-readiness.mjs"
       - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
+      - "api/tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator-geometry.mjs"
       - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
@@ -69,6 +70,9 @@ jobs:
       - name: Build dry-run packages for all 30 groups
         working-directory: api
         run: node tools/izhgmu-build-medicine1-dryrun-packages.mjs --input-dir /tmp/izhgmu-current --output-dir /tmp/izhgmu-medicine1-dryrun
+      - name: Bind dry-run package manifest to readiness
+        working-directory: api
+        run: node tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs --input-dir /tmp/izhgmu-current --package-dir /tmp/izhgmu-medicine1-dryrun
       - name: Show personalization summary
         if: always()
         shell: bash
@@ -120,6 +124,7 @@ jobs:
           from pathlib import Path
           manifest=json.loads(Path('/tmp/izhgmu-medicine1-dryrun/manifest.json').read_text())
           print('DRYRUN_SUMMARY', manifest['summary'])
+          print('CONTENT_READY_ALL', manifest.get('contentReady'))
           print('PRODUCTION_AUTHORIZED', manifest['productionAuthorized'])
           PY
           fi
