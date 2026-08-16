@@ -14,6 +14,7 @@ on:
       - "api/tools/izhgmu-verify-medicine3-lecture-audience.mjs"
       - "api/tools/izhgmu-resolve-medicine3-times.mjs"
       - "api/tools/izhgmu-check-medicine3-canonical.mjs"
+      - "api/tools/izhgmu-audit-medicine3-stomatology.py"
       - ".github/workflows/izhgmu-medicine3-diagnostic.yml"
   workflow_dispatch:
 
@@ -63,6 +64,9 @@ jobs:
       - name: Run medicine course 3 group 301 through shared canonical QA
         working-directory: api
         run: node tools/izhgmu-check-medicine3-canonical.mjs --input-dir /tmp/izhgmu-current --group 301
+      - name: Audit medicine course 3 stomatology timing evidence
+        working-directory: api
+        run: python3 tools/izhgmu-audit-medicine3-stomatology.py --input-dir /tmp/izhgmu-current
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -77,5 +81,6 @@ jobs:
             /tmp/izhgmu-current/medicine3-lecture-audience.json
             /tmp/izhgmu-current/medicine3-time-resolution.json
             /tmp/izhgmu-current/medicine3-canonical-301.json
+            /tmp/izhgmu-current/medicine3-stomatology-audit.json
           if-no-files-found: warn
           retention-days: 14
