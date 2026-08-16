@@ -7,7 +7,7 @@ function arg(name, fallback = null) {
 }
 
 const inputDir = path.resolve(arg('--input-dir', '/tmp/izhgmu-current'));
-const outputPath = path.resolve(arg('--output', path.join(inputDir, 'medicine3-time-resolution.json')));
+const outputPath = path.resolve(arg('--output', path.join(inputDir, 'medicine3-time-resolution.json'));
 
 const norm = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 const low = (value) => norm(value).toLowerCase().replace(/ё/g, 'е');
@@ -196,8 +196,20 @@ for (const [group, pair] of [...groupToPair.entries()].sort((a, b) => Number(a[0
           && lectureRange.start === '11:20'
           && lectureRange.end === '12:50'
         ) {
+          // Preserve both source facts, but do not invent an 11:05 practice end, split the practice,
+          // or remove the lecture. The exact sources overlap and do not explain the intended resolution.
           time = variants.primary;
-          timeMode = 'primary_cycle_interval_with_later_stomatology_lecture';
+          timeMode = 'source_overlap_unresolved_stomatology';
+          blockers.push(blocker('medicine3_stomatology_practice_lecture_overlap_unresolved', {
+            group,
+            discipline: series.discipline,
+            date,
+            practiceStart: variants.primary.start,
+            practiceEnd: variants.primary.end,
+            lectureStart: lectureRange.start,
+            lectureEnd: lectureRange.end,
+            references: [series.refs?.time ?? null, matchingLecture.ref].filter(Boolean),
+          }));
         } else {
           blockers.push(blocker('medicine3_cycle_lecture_slot_unreviewed', {
             group,
@@ -332,6 +344,7 @@ for (const [group, pair] of [...groupToPair.entries()].sort((a, b) => Number(a[0
     stats: {
       practiceEvents: practiceEvents.length,
       shiftedPracticeEvents: practiceEvents.filter((event) => event.timeMode === 'after_same_cycle_morning_lecture').length,
+      unresolvedStomatologyOverlapEvents: practiceEvents.filter((event) => event.timeMode === 'source_overlap_unresolved_stomatology').length,
       ordinaryLectureEvents: ordinaryLectures.length,
       physicalEducationEvents: physicalEducation.length,
       totalEvents: practiceEvents.length + lectureEvents.length,
@@ -361,7 +374,7 @@ const result = {
   policy: {
     primary: 'Use first cycle interval from lower source legend.',
     afterMorningLecture: 'Use parenthesized cycle interval only when exact same-group same-discipline same-date lecture is 08:30-10:05.',
-    laterStomatologyLecture: '11:20-12:50 Stomatology lecture does not replace primary practice interval.',
+    laterStomatologyLecture: 'Exact 11:20-12:50 Stomatology lecture overlaps the source primary practice interval; preserve both facts and fail closed until an explicit source-specific resolution exists.',
     countColumn: 'Ordinary lecture printed count is source_metadata_only and never creates/deletes dates.',
     productionAuthorized: false,
   },
