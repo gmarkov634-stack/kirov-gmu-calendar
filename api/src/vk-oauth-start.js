@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 const APP_ID = 54722093;
 const REDIRECT_URL = "https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback";
-const PROBE_SCOPE = "wall groups";
+const PROBE_SCOPE = "wall groups photos";
 const VKID_AUTHORIZE_URL = "https://id.vk.ru/authorize";
 const SDK_VERSION = "2.6.1";
 const START_PATH = "/api/v1/vk/oauth/start";
@@ -46,7 +46,7 @@ function page() {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Проверка доступа VK</title>
+  <title>Доступ VK для календаря</title>
   <style>
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 32px 20px; color: #111; }
     main { max-width: 680px; margin: 0 auto; }
@@ -57,9 +57,10 @@ function page() {
 </head>
 <body>
   <main>
-    <h1>Проверка доступа VK</h1>
-    <p>Будут запрошены только права <code>wall</code> и <code>groups</code>. На этом этапе токены не сохраняются.</p>
-    <p><a class="button" href="${BEGIN_PATH}">Проверить доступ VK</a></p>
+    <h1>Доступ VK для календаря</h1>
+    <p>Будут запрошены права <code>wall</code>, <code>groups</code> и <code>photos</code>. Право <code>photos</code> нужно только для загрузки утверждённых изображений к записям сообщества.</p>
+    <p>После успешной проверки административная OAuth-сессия сохраняется только в зашифрованном хранилище сервиса.</p>
+    <p><a class="button" href="${BEGIN_PATH}">Обновить доступ VK</a></p>
   </main>
 </body>
 </html>`;

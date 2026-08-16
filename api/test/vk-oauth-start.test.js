@@ -33,9 +33,10 @@ test("VK OAuth start page is no-store and works without client-side JavaScript",
   assert.match(response.headers["Content-Security-Policy"], /default-src 'none'/);
   assert.equal(response.body.includes("<script"), false);
   assert.equal(response.body.includes("unpkg.com"), false);
-  assert.match(response.body, /Проверить доступ VK/);
+  assert.match(response.body, /Обновить доступ VK/);
   assert.match(response.body, /wall/);
   assert.match(response.body, /groups/);
+  assert.match(response.body, /photos/);
   assert.ok(response.body.includes(VK_OAUTH_PROBE.beginPath));
   assert.equal(response.body.includes("VK_ACCESS_TOKEN"), false);
   assert.equal(response.body.includes("VK_USER_ACCESS_TOKEN"), false);
@@ -63,6 +64,7 @@ test("VK OAuth begin endpoint redirects to VK ID with PKCE and exact registered 
   assert.equal(target.searchParams.get("app_id"), String(VK_OAUTH_PROBE.appId));
   assert.equal(target.searchParams.get("redirect_uri"), VK_OAUTH_PROBE.redirectUrl);
   assert.equal(target.searchParams.get("response_type"), "code");
+  assert.equal(VK_OAUTH_PROBE.scope, "wall groups photos");
   assert.equal(target.searchParams.get("scope"), VK_OAUTH_PROBE.scope);
   assert.equal(target.searchParams.get("code_challenge_method"), "s256");
   assert.match(target.searchParams.get("state") || "", /^[A-Za-z0-9_-]{20,}$/);
