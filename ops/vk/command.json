@@ -1,0 +1,8 @@
+{
+  "id": "vk-photo-post66-community-20260816-1740",
+  "action": "photo.importMessages",
+  "createdAt": "2026-08-16T14:40:00Z",
+  "payload": {
+    "sourceUrl": "https://raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/5a4c0fe100cf0795cd2a022d3f183f8fd397fe70/ops/vk/assets/post66-study-day-approved-20260816.jpg"
+  }
+}
