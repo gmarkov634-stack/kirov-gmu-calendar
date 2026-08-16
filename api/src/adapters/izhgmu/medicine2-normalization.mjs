@@ -69,7 +69,7 @@ function stripWarning(item, warning) {
   return next;
 }
 
-function resolveMatchingDeclaredCount(item) {
+function resolveDeclaredCountRow(item) {
   if (item?.warning !== 'declared_lecture_count_scope_ambiguous') return item;
   if (!Number.isInteger(item.declaredCount) || !Array.isArray(item.dates)) return item;
   if (item.declaredCount !== item.dates.length) return {
@@ -92,13 +92,25 @@ function resolveMatchingDeclaredCount(item) {
 export function normalizeIzhgmuMedicine2Combined(combined) {
   if (combined?.profile !== 'IZH-WEEKLY+LECTURE') throw new TypeError('IZH-WEEKLY+LECTURE result is required');
 
-  const reviewRequired = (combined.reviewRequired || [])
-    .filter((item) => !(
-      item.warning === 'stream_wide_class_block_unmapped'
-      && isAssessmentSummary(item.discipline || item.rawSource)
-      && !item.weekday && !item.startTime && !item.endTime
-    ))
-    .map(resolveMatchingDeclaredCount);
+  const annotations = [];
+  const promoted = [];
+  const reviewRequired = [];
+  for (const sourceItem of combined.reviewRequired || []) {
+    if (sourceItem.warning === 'stream_wide_class_block_unmapped'
+      && isAssessmentSummary(sourceItem.discipline || sourceItem.rawSource)
+      && !sourceItem.weekday && !sourceItem.startTime && !sourceItem.endTime) {
+      annotations.push({
+        kind: 'assessment_summary',
+        value: sourceItem.rawSource || sourceItem.discipline,
+        references: sourceItem.references || [],
+        ruleIds: [...new Set([...(sourceItem.ruleIds || []), 'IZH-M2-02'])],
+      });
+      continue;
+    }
+    const item = resolveDeclaredCountRow(sourceItem);
+    if (item.status === 'ok' && !item.warning && !(item.warnings || []).length) promoted.push(item);
+    else reviewRequired.push(item);
+  }
 
   const deferred = (combined.deferred || []).filter((item) => !(
     item.reason === 'stream_wide_class_block_unmapped'
@@ -106,7 +118,7 @@ export function normalizeIzhgmuMedicine2Combined(combined) {
     && !item.weekday && !item.startTime && !item.endTime
   ));
 
-  const series = (combined.series || []).map(resolveMatchingDeclaredCount);
+  const series = [...(combined.series || []), ...promoted].map(resolveDeclaredCountRow);
   const sourceCoverage = combined.sourceCoverage ? {
     ...combined.sourceCoverage,
     unmapped: (combined.sourceCoverage.unmapped || []).filter((item) => !(
@@ -121,19 +133,7 @@ export function normalizeIzhgmuMedicine2Combined(combined) {
     reviewRequired,
     deferred,
     sourceCoverage,
-    informationalAnnotations: [
-      ...((combined.informationalAnnotations || [])),
-      ...(combined.reviewRequired || []).filter((item) => (
-        item.warning === 'stream_wide_class_block_unmapped'
-        && isAssessmentSummary(item.discipline || item.rawSource)
-        && !item.weekday && !item.startTime && !item.endTime
-      )).map((item) => ({
-        kind: 'assessment_summary',
-        value: item.rawSource || item.discipline,
-        references: item.references || [],
-        ruleIds: [...new Set([...(item.ruleIds || []), 'IZH-M2-02'])],
-      })),
-    ],
+    informationalAnnotations: [...(combined.informationalAnnotations || []), ...annotations],
     publishable: reviewRequired.length === 0
       && (combined.unresolvedChoices || []).length === 0
       && deferred.length === 0,
