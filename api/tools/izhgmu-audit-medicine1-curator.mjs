@@ -68,7 +68,7 @@ function fullRange(value) {
 }
 
 const inputDir = path.resolve(arg('--input-dir', '/tmp/izhgmu-current'));
-const output = path.resolve(arg('--output', path.join(inputDir, 'medicine1-curator-audit.json'));
+const output = path.resolve(arg('--output', path.join(inputDir, 'medicine1-curator-audit.json')));
 const report = JSON.parse(await fs.readFile(path.join(inputDir, 'download-report.json'), 'utf8'));
 const result = { version: 1, status: 'diagnostic_only', streams: [], uniqueBlockers: [] };
 const unique = new Map();
