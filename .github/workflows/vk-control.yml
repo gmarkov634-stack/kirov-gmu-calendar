@@ -46,13 +46,20 @@ jobs:
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-vk-control")"
           oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s=""; process.stdin.on("data",d=>s+=d); process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
 
-          result="$(curl --fail-with-body --silent --show-error \
+          response="$(curl --silent --show-error \
+            -w '\n%{http_code}' \
             -X POST \
             -H "Authorization: Bearer ${oidc_token}" \
             -H "Content-Type: application/json" \
             --data-binary @ops/vk/command.json \
             "$VK_CONTROL_URL")"
+          status="${response##*$'\n'}"
+          result="${response%$'\n'*}"
 
           echo "VK_CONTROL_RESULT_BEGIN"
-          printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(JSON.stringify(JSON.parse(s),null,2)));'
+          printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{try{console.log(JSON.stringify(JSON.parse(s),null,2))}catch{console.log("{\"error\":\"non_json_response\"}")}});'
           echo "VK_CONTROL_RESULT_END"
+          if [[ ! "$status" =~ ^2 ]]; then
+            echo "VK control HTTP status: $status"
+            exit 22
+          fi
