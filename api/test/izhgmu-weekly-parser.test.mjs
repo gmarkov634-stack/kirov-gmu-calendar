@@ -50,7 +50,7 @@ function syntheticStructures() {
   };
 }
 
-test('IZH-WEEKLY resolves parity but defers stream-wide rows and missing end time', () => {
+test('IZH-WEEKLY resolves parity, defers stream-wide rows, and resolves curator hour by W11', () => {
   const result = parseIzhgmuWeeklyStructures({ ...syntheticStructures(), groupCode: '109' });
   assert.equal(result.profile, 'IZH-WEEKLY');
   assert.equal(result.period.start_date, '2026-02-09');
@@ -66,7 +66,13 @@ test('IZH-WEEKLY resolves parity but defers stream-wide rows and missing end tim
   ]);
   assert.ok(pair[0].dates.includes('2026-02-16'));
   assert.ok(pair[1].dates.includes('2026-02-09'));
-  assert.equal(result.reviewRequired.length, 1);
-  assert.equal(result.reviewRequired[0].warning, 'end_time_missing_in_source');
+  const curator = result.series.find((series) => series.references?.[0]?.range === 'расписание!K8');
+  assert.ok(curator);
+  assert.equal(curator.discipline, 'Кураторский час');
+  assert.equal(curator.startTime, '16:30');
+  assert.equal(curator.endTime, '17:30');
+  assert.equal(curator.status, 'ok');
+  assert.ok(curator.ruleIds.includes('IZH-W11'));
+  assert.equal(result.reviewRequired.length, 0);
   assert.equal(result.publishable, false);
 });
