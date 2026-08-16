@@ -7,7 +7,7 @@ function arg(name, fallback = null) {
 }
 
 const inputDir = path.resolve(arg('--input-dir', '/tmp/izhgmu-current'));
-const outputPath = path.resolve(arg('--output', path.join(inputDir, 'medicine3-time-resolution.json'));
+const outputPath = path.resolve(arg('--output', path.join(inputDir, 'medicine3-time-resolution.json')));
 
 const norm = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 const low = (value) => norm(value).toLowerCase().replace(/ё/g, 'е');
