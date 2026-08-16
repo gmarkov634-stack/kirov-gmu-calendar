@@ -203,7 +203,7 @@ async function probeGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchIm
 }
 
 async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
-  const { uploaded, photo, hash, uploadServer } = await getAvatarUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
+  const { photo, hash, uploadServer } = await getAvatarUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
   const saved = await vkMethod({
     method: "photos.saveOwnerPhoto",
     token,
@@ -217,7 +217,6 @@ async function setGroupAvatar({ sourceUrl, groupId, token, apiVersion, fetchImpl
     updated: true,
     photoUrl: String(saved?.photo_src_big || saved?.photo_src || saved?.photo_src_small || "") || null,
     postId: Number(saved?.post_id || 0) > 0 ? Number(saved.post_id) : null,
-    upload: uploadShape(uploaded),
   };
 }
 
