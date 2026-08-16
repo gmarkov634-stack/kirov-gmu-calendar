@@ -71,7 +71,7 @@ function dayRows(sheet) {
 }
 function countColumn(sheet, row) { return sheet.cells.find((cell) => cell.row === row && /кол-?во\s+лекц/i.test(norm(cell.value)))?.col ?? null; }
 function streamSuffix(value) {
-  const match = norm(value).match(/\s([12])\s*п\.?\s*$/i);
+  const match = norm(value).match(/\s*([12])\s*п\.?\s*$/i);
   return match ? Number(match[1]) : null;
 }
 function stripStreamSuffix(value) { return norm(value).replace(/\s*[12]\s*п\.?\s*$/i, '').trim(); }
