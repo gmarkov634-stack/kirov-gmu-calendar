@@ -19,6 +19,7 @@ on:
       - "api/tools/izhgmu-diagnose-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine4.mjs"
+      - "api/tools/izhgmu-parse-lecture-medicine4.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine5.mjs"
       - "api/tools/izhgmu-parse-cycle-medicine6.mjs"
       - "api/tools/izhgmu-parse-lecture-medicine5.mjs"
@@ -71,6 +72,9 @@ jobs:
       - name: Parse real IZH-CYCLE medicine 4 through canonical QA
         working-directory: api
         run: npm run parse:izhgmu:cycle:medicine4 -- --input-dir /tmp/izhgmu-current --group 401
+      - name: Verify medicine 4 lecture streams without heuristic group attribution
+        working-directory: api
+        run: node tools/izhgmu-parse-lecture-medicine4.mjs --input-dir /tmp/izhgmu-current
       - name: Diagnose real IZH-CYCLE medicine 5 without publication
         working-directory: api
         run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
