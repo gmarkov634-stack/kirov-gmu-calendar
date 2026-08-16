@@ -1,0 +1,43 @@
+name: IzhGMU medicine-2 diagnostic
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/**"
+      - "api/tools/izhgmu-diagnose-medicine2.mjs"
+      - ".github/workflows/izhgmu-medicine2-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Collect exact current official IzhGMU sources
+        working-directory: api
+        run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+      - name: Diagnose medicine course 2
+        working-directory: api
+        run: node tools/izhgmu-diagnose-medicine2.mjs --input-dir /tmp/izhgmu-current
+      - name: Upload diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-medicine2-diagnostic
+          path: /tmp/izhgmu-current/medicine2-diagnostic.json
+          if-no-files-found: warn
+          retention-days: 14
