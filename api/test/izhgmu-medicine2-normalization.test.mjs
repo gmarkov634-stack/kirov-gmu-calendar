@@ -31,7 +31,7 @@ test('class normalization only changes time-column cells with exact proven synta
   assert.equal(result.sheets[0].cells[2].value, '08.30-10.05');
 });
 
-test('assessment summary is annotation, matching count row is safe, mismatch stays blocked', () => {
+test('assessment summary is annotation, matching count row is promoted, mismatch stays blocked', () => {
   const result = normalizeIzhgmuMedicine2Combined({
     profile: 'IZH-WEEKLY+LECTURE',
     series: [],
@@ -79,12 +79,15 @@ test('assessment summary is annotation, matching count row is safe, mismatch sta
     },
   });
 
-  assert.equal(result.reviewRequired.length, 2);
-  const safeCount = result.reviewRequired.find((item) => item.declaredCount === 15);
-  const mismatch = result.reviewRequired.find((item) => item.declaredCount === 14);
+  assert.equal(result.reviewRequired.length, 1);
+  assert.equal(result.series.length, 1);
+  const safeCount = result.series[0];
+  const mismatch = result.reviewRequired[0];
+  assert.equal(safeCount.declaredCount, 15);
   assert.equal(safeCount.status, 'ok');
   assert.equal(safeCount.warning, null);
   assert.equal(safeCount.declaredCountScope, 'row');
+  assert.equal(mismatch.declaredCount, 14);
   assert.equal(mismatch.warning, 'declared_lecture_count_mismatch');
   assert.equal(mismatch.status, 'needs_review');
   assert.equal(result.deferred.length, 0);
