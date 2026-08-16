@@ -16,6 +16,10 @@ import {
 const SOURCE_FILE = 'SYNTHETIC-medicine6-cycle.xlsx';
 const SOURCE_HASH = 'b'.repeat(64);
 
+function hasErrorCode(code) {
+  return (error) => error?.code === code;
+}
+
 function series({ discipline, date, startTime, endTime, range }) {
   return {
     discipline,
@@ -192,7 +196,7 @@ test('3R rejects hidden event change when declared delta is incomplete', () => {
       beforeBlockers: fixture.beforeBlockers,
       result: tampered,
     }),
-    /IZH_M6_REMATERIALIZATION_EVENT_DELTA_MISMATCH/,
+    hasErrorCode('IZH_M6_REMATERIALIZATION_EVENT_DELTA_MISMATCH'),
   );
 });
 
@@ -236,7 +240,7 @@ test('3R rejects stale/mismatched result binding before QA', () => {
       beforeBlockers: fixture.beforeBlockers,
       result: tampered,
     }),
-    /IZH_M6_REMATERIALIZATION_RESULT_BINDING_MISMATCH/,
+    hasErrorCode('IZH_M6_REMATERIALIZATION_RESULT_BINDING_MISMATCH'),
   );
 });
 
@@ -255,7 +259,7 @@ test('3R rejects semantic duplicate even when provenance differs', () => {
       beforeBlockers: fixture.beforeBlockers,
       result: tampered,
     }),
-    /IZH_M6_REMATERIALIZATION_SEMANTIC_DUPLICATE/,
+    hasErrorCode('IZH_M6_REMATERIALIZATION_SEMANTIC_DUPLICATE'),
   );
 });
 
@@ -270,7 +274,7 @@ test('3R rejects schedule-context mutation', () => {
       beforeBlockers: fixture.beforeBlockers,
       result: tampered,
     }),
-    /IZH_M6_REMATERIALIZATION_CONTEXT_CHANGED/,
+    hasErrorCode('IZH_M6_REMATERIALIZATION_CONTEXT_CHANGED'),
   );
 });
 
