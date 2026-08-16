@@ -144,32 +144,37 @@ function prepare(group) {
   return { candidate, prepared };
 }
 
-test('medicine-6 composite neutralizes cycle electives and preserves only real unresolved blockers', () => {
+test('medicine-6 composite keeps electives hidden until explicit student choice', () => {
   const candidate = buildIzhgmuMedicine6CompositeCandidate(input('601'));
-  assert.equal(candidate.componentStats.cycleEvents, 3);
+  assert.equal(candidate.componentStats.cycleEvents, 1);
   assert.equal(candidate.componentStats.lectureEvents, 1);
   assert.equal(candidate.componentStats.postsemesterEvents, 4);
-  assert.equal(candidate.componentStats.totalEvents, 8);
-  assert.equal(candidate.componentStats.cycleBlockers, 0);
+  assert.equal(candidate.componentStats.totalEvents, 6);
+  assert.equal(candidate.componentStats.cycleBlockers, 2);
   assert.equal(candidate.componentStats.lectureBlockers, 2);
   assert.equal(candidate.componentStats.postsemesterBlockers, 1);
-  assert.equal(candidate.componentStats.totalBlockers, 3);
-  assert.deepEqual(candidate.blockers.map((item) => item.source_component), ['lecture','lecture','postsemester']);
-  assert.deepEqual(candidate.blockers.map((item) => item.warning), ['stream_group_mapping_required','elective_schedule_mapping_required','end_time_missing_in_source']);
-  assert.equal(candidate.blockerResolution.requiresStudentChoice, false);
-  assert.equal(candidate.blockers[2].component, 'Государственный экзамен');
-  const electives = candidate.batch.events.filter((event) => event.lesson.discipline.normalized === 'Дисциплина по выбору');
-  assert.equal(electives.length, 2);
-  assert.equal(electives.every((event) => event.lesson.locations.length === 0), true);
+  assert.equal(candidate.componentStats.totalBlockers, 5);
+  assert.deepEqual(candidate.blockers.map((item) => item.source_component), ['cycle','cycle','lecture','lecture','postsemester']);
+  assert.deepEqual(candidate.blockers.map((item) => item.warning), [
+    'elective_choice_required',
+    'elective_choice_required',
+    'stream_group_mapping_required',
+    'elective_choice_required',
+    'end_time_missing_in_source',
+  ]);
+  assert.equal(candidate.blockerResolution.requiresStudentChoice, true);
+  assert.equal(candidate.blockers[4].component, 'Государственный экзамен');
+  assert.equal(candidate.batch.events.some((event) => event.lesson.discipline.normalized === 'Дисциплина по выбору'), false);
+  assert.equal(candidate.batch.events.some((event) => /Конкретный вариант ДВ/.test(event.lesson.discipline.normalized)), false);
   assert.equal(candidate.publishable, false);
 });
 
 test('group 626 composite preserves missing therapy blockers and never synthesizes their events', () => {
   const candidate = buildIzhgmuMedicine6CompositeCandidate(input('626'));
   assert.equal(candidate.componentStats.postsemesterEvents, 2);
-  assert.equal(candidate.componentStats.totalEvents, 6);
+  assert.equal(candidate.componentStats.totalEvents, 4);
   assert.equal(candidate.componentStats.postsemesterBlockers, 3);
-  assert.equal(candidate.componentStats.totalBlockers, 5);
+  assert.equal(candidate.componentStats.totalBlockers, 7);
   assert.equal(candidate.batch.events.some((event) => /Промежуточная аттестация: Госпитальная терапия/.test(event.lesson.discipline.normalized)), false);
   assert.equal(candidate.batch.events.some((event) => /Промежуточная аттестация: Поликлиническая терапия/.test(event.lesson.discipline.normalized)), false);
   assert.deepEqual(
@@ -206,14 +211,14 @@ test('production composite remains fail-closed while any component blocker exist
       (error) => {
         assert.equal(error.code, 'IZH_M6_COMPOSITE_INCOMPLETE');
         assert.equal(error.group, group);
-        assert.equal(error.blockers.length, group === '626' ? 5 : 3);
+        assert.equal(error.blockers.length, group === '626' ? 7 : 5);
         return true;
       },
     );
   }
 });
 
-test('all medicine-6 groups 601-630 keep safe composite QA and generic elective titles', () => {
+test('all medicine-6 groups 601-630 keep safe composite QA and real elective choices hidden', () => {
   const expectedGroups = Array.from({ length: 30 }, (_, index) => String(601 + index));
   assert.deepEqual(IZHGMU_MEDICINE6_EXPECTED_GROUPS, expectedGroups);
   for (const group of expectedGroups) {
@@ -221,9 +226,10 @@ test('all medicine-6 groups 601-630 keep safe composite QA and generic elective 
     assert.equal(prepared.inputQa.publishable, true, group);
     assert.equal(prepared.outputQa.publishable, true, group);
     assert.equal(candidate.componentStats.postsemesterEvents, group === '626' ? 2 : 4, group);
-    assert.equal(candidate.componentStats.totalBlockers, group === '626' ? 5 : 3, group);
-    assert.equal(candidate.blockerResolution.requiresStudentChoice, false, group);
-    assert.equal(candidate.batch.events.filter((event) => event.lesson.discipline.normalized === 'Дисциплина по выбору').length, 2, group);
+    assert.equal(candidate.componentStats.totalBlockers, group === '626' ? 7 : 5, group);
+    assert.equal(candidate.blockerResolution.requiresStudentChoice, true, group);
+    assert.equal(candidate.batch.events.some((event) => event.lesson.discipline.normalized === 'Дисциплина по выбору'), false, group);
+    assert.equal(candidate.batch.events.some((event) => /Конкретный вариант ДВ/.test(event.lesson.discipline.normalized)), false, group);
     assert.equal(candidate.publishable, false, group);
     assert.equal(candidate.batch.events.some((event) => /^2026-06-(15|16|17|18|19)$/.test(event.timing.date) && event.timing.start_time === '08:00'), false, group);
     assert.throws(
