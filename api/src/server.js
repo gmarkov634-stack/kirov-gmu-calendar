@@ -11,6 +11,7 @@ import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
 import { ScheduleReviewServiceRouter } from "./schedule/review-service-router.js";
+import { createSubscriptionPreferencesHandler } from "./subscription-preferences-handler.js";
 import { createTrialHttpHandler } from "./trial-http-handler.js";
 import { TrialService } from "./trial-service.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
@@ -43,6 +44,7 @@ const store = new FunnelAnalyticsStore(config);
 const payments = new YooKassaService({ store, config });
 const trials = new TrialService({ store, config });
 const trialHttpHandler = createTrialHttpHandler({ store, config, trials });
+const subscriptionPreferencesHandler = createSubscriptionPreferencesHandler({ store, config });
 const funnelAnalyticsHandler = createFunnelAnalyticsHandler({ store, config });
 const funnelEventHandler = createFunnelEventHandler({ store, config });
 const appHandler = createHandler({ store, config, payments });
@@ -168,6 +170,10 @@ const server = http.createServer(async (request, response) => {
     url.pathname.startsWith("/api/v1/admin/parser-reviews")
   ) {
     return kgmuParserHandler(request, response);
+  }
+  if (url.pathname.match(/^\/api\/v1\/subscriptions\/[A-Za-z0-9_-]{43}\/preferences$/)) {
+    const handled = await subscriptionPreferencesHandler(request, response);
+    if (handled) return;
   }
   if (url.pathname.match(/^\/api\/v1\/subscriptions\/[A-Za-z0-9_-]{43}\/calendar\.ics$/)) {
     const handled = await trialHttpHandler.handleSubscription(request, response);
