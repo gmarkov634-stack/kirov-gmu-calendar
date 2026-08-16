@@ -80,7 +80,7 @@ export function createSubscriptionPreferencesHandler({ store, config }) {
         send(response, 409, { error: 'schedule_not_published' });
         return true;
       }
-      const catalog = await store.getSchedulePersonalization(scheduleInput);
+      const catalog = await store.getSchedulePersonalization(scheduleInput, schedule);
       if (!catalog) {
         send(response, 200, { electives: [] });
         return true;
