@@ -13,28 +13,51 @@ def txt(r,c):
     v=sh.cell_value(r,c)
     return str(int(v)) if isinstance(v,float) and v.is_integer() else str(v).strip()
 
-def style_sig(r,c):
-    cell=sh.cell(r,c)
-    return {'xf': int(cell.xf_index)}
+def rgb(index):
+    value=book.colour_map.get(index)
+    return list(value) if value is not None else None
+
+def fill_sig(r,c):
+    cell=sh.cell(r,c); xf=book.xf_list[cell.xf_index]; bg=xf.background
+    return {
+        'fillPattern': int(bg.fill_pattern),
+        'patternColorIndex': int(bg.pattern_colour_index),
+        'patternRgb': rgb(bg.pattern_colour_index),
+        'backgroundColorIndex': int(bg.background_colour_index),
+        'backgroundRgb': rgb(bg.background_colour_index),
+    }
+
+def fill_key(sig):
+    return (sig['fillPattern'],sig['patternColorIndex'],sig['backgroundColorIndex'])
 
 rows=[]
+# Practical-semester colored grid occupies B:CO; retain every cell, including blanks,
+# so a blank character cell cannot split or shorten a colored cycle.
 for r in range(12,25):
     last=None; run=None; runs=[]
-    for c in range(1,116):
-        sig=style_sig(r,c); key=sig['xf']
+    for c in range(1,sh.ncols):
+        sig=fill_sig(r,c); key=fill_key(sig)
         if key!=last:
             if run: runs.append(run)
-            run={'c1':c+1,'c2':c+1,'xf':key,'text':''}
+            run={'c1':c+1,'c2':c+1,**sig,'text':'','nonEmptyCells':[],'xfIndexes':[]}
             last=key
         else:
             run['c2']=c+1
+        cell=sh.cell(r,c)
+        if int(cell.xf_index) not in run['xfIndexes']: run['xfIndexes'].append(int(cell.xf_index))
         t=txt(r,c)
-        if t: run['text']+=t
+        if t:
+            run['text']+=t
+            run['nonEmptyCells'].append({'col':c+1,'value':t})
     if run: runs.append(run)
     rows.append({'row':r+1,'label':txt(r,0),'runs':runs})
 
-out={'version':2,'source':src,'rows':rows}
+out={'version':3,'source':src,'segmentation':'fill_color','rows':rows}
 (root/'medicine3-style-diagnostic.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
 for row in rows:
-    print('STYLE_ROW',row['row'],'LABEL',row['label'])
-    print(' XF_RUNS',json.dumps([run for run in row['runs'] if run['text']],ensure_ascii=False))
+    print('COLOR_ROW',row['row'],'LABEL',row['label'])
+    print(' COLOR_RUNS',json.dumps([
+        {k:v for k,v in run.items() if k not in ('nonEmptyCells',)}
+        for run in row['runs']
+        if run['text'] or run['fillPattern'] != 0
+    ],ensure_ascii=False))
