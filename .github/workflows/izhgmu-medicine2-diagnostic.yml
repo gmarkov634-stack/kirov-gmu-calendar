@@ -7,6 +7,7 @@ on:
     paths:
       - "api/src/adapters/izhgmu/**"
       - "api/tools/izhgmu-diagnose-medicine2.mjs"
+      - "api/tools/izhgmu-audit-medicine2-blockers.mjs"
       - ".github/workflows/izhgmu-medicine2-diagnostic.yml"
   workflow_dispatch:
 
@@ -33,11 +34,16 @@ jobs:
       - name: Diagnose medicine course 2
         working-directory: api
         run: node tools/izhgmu-diagnose-medicine2.mjs --input-dir /tmp/izhgmu-current
+      - name: Audit medicine course 2 blockers
+        working-directory: api
+        run: node tools/izhgmu-audit-medicine2-blockers.mjs --input-dir /tmp/izhgmu-current
       - name: Upload diagnostic
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: izhgmu-medicine2-diagnostic
-          path: /tmp/izhgmu-current/medicine2-diagnostic.json
+          path: |
+            /tmp/izhgmu-current/medicine2-diagnostic.json
+            /tmp/izhgmu-current/medicine2-blocker-audit.json
           if-no-files-found: warn
           retention-days: 14
