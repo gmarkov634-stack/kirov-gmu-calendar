@@ -6,7 +6,7 @@ const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 const COVER_CROP = Object.freeze({ x: 0, y: 65, x2: 1590, y2: 465 });
 
 export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.cover.probe", "group.branding.info"]);
-export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.avatar.set"]);
+export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.cover.userProbe", "group.avatar.set"]);
 
 function cleanPhotoSourceUrl(value) {
   const raw = String(value || "").trim();
@@ -234,7 +234,9 @@ async function groupBrandingInfo({ groupId, token, apiVersion, fetchImpl }) {
 
 export async function executeVkGroupBrandingAction(command, { groupId, token, apiVersion, fetchImpl }) {
   if (command.action === "group.cover.set") return setGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
-  if (command.action === "group.cover.probe") return probeGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
+  if (command.action === "group.cover.probe" || command.action === "group.cover.userProbe") {
+    return probeGroupCover({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
+  }
   if (command.action === "group.avatar.set") return setGroupAvatar({ sourceUrl: command.payload?.sourceUrl, groupId, token, apiVersion, fetchImpl });
   if (command.action === "group.branding.info") return groupBrandingInfo({ groupId, token, apiVersion, fetchImpl });
   throw new Error("unsupported_action");
