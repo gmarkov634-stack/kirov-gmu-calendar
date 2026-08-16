@@ -5,17 +5,11 @@ const RESOLUTION_CLASS = Object.freeze({
 });
 
 const KNOWN_RULES = Object.freeze({
-  'cycle|elective_choice_required': Object.freeze({
-    resolutionClass: RESOLUTION_CLASS.STUDENT_CHOICE,
-    watchOfficialSource: false,
-    requiresStudentChoice: true,
-    requiredEvidence: 'Explicit student selection for the relevant medicine-6 elective slot. The parser must not choose an elective discipline from the listed alternatives.',
-  }),
-  'lecture|elective_choice_required': Object.freeze({
-    resolutionClass: RESOLUTION_CLASS.STUDENT_CHOICE,
-    watchOfficialSource: false,
-    requiresStudentChoice: true,
-    requiredEvidence: 'Explicit student selection for the relevant medicine-6 elective slot before elective lecture occurrences can be projected to that student calendar.',
+  'lecture|elective_schedule_mapping_required': Object.freeze({
+    resolutionClass: RESOLUTION_CLASS.OFFICIAL_SOURCE,
+    watchOfficialSource: true,
+    requiresStudentChoice: false,
+    requiredEvidence: 'Official or otherwise reviewed timetable evidence must identify which date/time pattern applies without exposing or requiring selection of the specific elective discipline. User-facing title remains «Дисциплина по выбору».',
   }),
   'lecture|stream_group_mapping_required': Object.freeze({
     resolutionClass: RESOLUTION_CLASS.OFFICIAL_SOURCE,
