@@ -38,7 +38,7 @@ function jpegResponse() {
   };
 }
 
-test("group.cover.set uses community token only and full 1590x530 crop", async () => {
+test("group.cover.set uses community token only and 1590x400 crop", async () => {
   let managedTokenCalls = 0;
   const methods = [];
   const response = fakeResponse();
@@ -73,7 +73,7 @@ test("group.cover.set uses community token only and full 1590x530 crop", async (
           assert.equal(options.body.get("crop_x"), "0");
           assert.equal(options.body.get("crop_y"), "0");
           assert.equal(options.body.get("crop_x2"), "1590");
-          assert.equal(options.body.get("crop_y2"), "530");
+          assert.equal(options.body.get("crop_y2"), "400");
           return { ok: true, async json() { return { response: { upload_url: "https://pu.vk.com/group-cover" } }; } };
         }
         if (method === "photos.saveOwnerCoverPhoto") {
@@ -82,7 +82,7 @@ test("group.cover.set uses community token only and full 1590x530 crop", async (
           return {
             ok: true,
             async json() {
-              return { response: { images: [{ url: "https://sun.vk.com/cover.jpg", width: 1590, height: 530 }] } };
+              return { response: { images: [{ url: "https://sun.vk.com/cover.jpg", width: 1590, height: 400 }] } };
             },
           };
         }
@@ -97,7 +97,7 @@ test("group.cover.set uses community token only and full 1590x530 crop", async (
   assert.deepEqual(methods, ["photos.getOwnerCoverPhotoUploadServer", "photos.saveOwnerCoverPhoto"]);
   assert.deepEqual(JSON.parse(response.body).result, {
     updated: true,
-    images: [{ url: "https://sun.vk.com/cover.jpg", width: 1590, height: 530 }],
+    images: [{ url: "https://sun.vk.com/cover.jpg", width: 1590, height: 400 }],
   });
 });
 
@@ -217,7 +217,7 @@ test("group.branding.info is read-only and returns only avatar and cover fields"
                 photo_max_orig: "https://sun.vk.com/amax.jpg",
                 cover: {
                   enabled: 1,
-                  images: [{ url: "https://sun.vk.com/c1590.jpg", width: 1590, height: 530 }],
+                  images: [{ url: "https://sun.vk.com/c1590.jpg", width: 1590, height: 400 }],
                 },
                 admin_level: 3,
               }],
@@ -238,7 +238,7 @@ test("group.branding.info is read-only and returns only avatar and cover fields"
     photoMax: "https://sun.vk.com/amax.jpg",
     cover: {
       enabled: true,
-      images: [{ url: "https://sun.vk.com/c1590.jpg", width: 1590, height: 530 }],
+      images: [{ url: "https://sun.vk.com/c1590.jpg", width: 1590, height: 400 }],
     },
   });
 });
