@@ -1,0 +1,145 @@
+name: IzhGMU medicine 1-3 readiness
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/**"
+      - "api/src/schedule/**"
+      - "api/src/subscription-personalization.js"
+      - "api/tools/izhgmu-check-medicine1-*.mjs"
+      - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
+      - "api/tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs"
+      - "api/tools/izhgmu-check-medicine2-normalized.mjs"
+      - "api/tools/izhgmu-parse-medicine3-legacy.py"
+      - "api/tools/izhgmu-diagnose-medicine3-lecture.mjs"
+      - "api/tools/izhgmu-verify-medicine3-lecture-audience.mjs"
+      - "api/tools/izhgmu-resolve-medicine3-lecture-weekday.mjs"
+      - "api/tools/izhgmu-resolve-medicine3-times.mjs"
+      - "api/tools/izhgmu-check-medicine3-canonical.mjs"
+      - "api/tools/izhgmu-audit-medicine3-stomatology.py"
+      - "api/tools/izhgmu-check-medicine1-3-readiness.mjs"
+      - ".github/workflows/izhgmu-medicine1-3-readiness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install Node dependencies
+        working-directory: api
+        run: npm ci
+      - name: Install legacy XLS reader
+        run: python3 -m pip install --disable-pip-version-check xlrd==2.0.1
+      - name: Run focused medicine 1-3 unit regression
+        working-directory: api
+        run: |
+          node --test \
+            test/izhgmu-curator-hour-duration-policy.test.mjs \
+            test/izhgmu-weekly-lecture-elective-catalog.test.mjs \
+            test/izhgmu-weekly-lecture-personalization-readiness.test.mjs \
+            test/izhgmu-medicine2-normalization.test.mjs \
+            test/subscription-personalization.test.js \
+            test/schedule-personalization-publication.test.js
+      - name: Collect exact current official IzhGMU sources once
+        working-directory: api
+        run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+
+      - name: Verify medicine course 1 elective source contract
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-electives.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify medicine course 1 readiness
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-readiness.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify medicine course 1 publication boundary
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-publication.mjs --input-dir /tmp/izhgmu-current
+      - name: Build medicine course 1 dry-run packages for all 30 groups
+        working-directory: api
+        run: node tools/izhgmu-build-medicine1-dryrun-packages.mjs --input-dir /tmp/izhgmu-current --output-dir /tmp/izhgmu-medicine1-dryrun
+      - name: Bind medicine course 1 dry-run packages to readiness
+        working-directory: api
+        run: node tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs --input-dir /tmp/izhgmu-current --package-dir /tmp/izhgmu-medicine1-dryrun
+
+      - name: Verify normalized medicine course 2 boundary for all 30 groups
+        working-directory: api
+        run: node tools/izhgmu-check-medicine2-normalized.mjs --input-dir /tmp/izhgmu-current
+
+      - name: Recover medicine course 3 cycles from reviewed legacy source
+        working-directory: api
+        run: python3 tools/izhgmu-parse-medicine3-legacy.py --input-dir /tmp/izhgmu-current
+      - name: Diagnose medicine course 3 lecture source
+        working-directory: api
+        run: node tools/izhgmu-diagnose-medicine3-lecture.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify medicine course 3 lecture audience against exact cycles
+        working-directory: api
+        run: node tools/izhgmu-verify-medicine3-lecture-audience.mjs --input-dir /tmp/izhgmu-current
+      - name: Apply reviewed medicine course 3 lecture date correction
+        working-directory: api
+        run: node tools/izhgmu-resolve-medicine3-lecture-weekday.mjs --input-dir /tmp/izhgmu-current
+      - name: Resolve medicine course 3 practice times
+        working-directory: api
+        run: node tools/izhgmu-resolve-medicine3-times.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify medicine course 3 publication candidate for all 26 groups
+        working-directory: api
+        run: node tools/izhgmu-check-medicine3-canonical.mjs --input-dir /tmp/izhgmu-current --group all
+      - name: Preserve independent medicine course 3 Stomatology evidence audit
+        working-directory: api
+        run: python3 tools/izhgmu-audit-medicine3-stomatology.py --input-dir /tmp/izhgmu-current
+
+      - name: Assert aggregate medicine courses 1-3 readiness
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-3-readiness.mjs --input-dir /tmp/izhgmu-current --medicine1-dir /tmp/izhgmu-medicine1-dryrun
+
+      - name: Show aggregate summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/izhgmu-current/medicine1-3-readiness.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/izhgmu-current/medicine1-3-readiness.json').read_text())
+          print('IZHGMU_MEDICINE_1_3', {
+              'groups': report['groups'],
+              'contentReadyGroups': report['contentReadyGroups'],
+              'baseEvents': report['baseEvents'],
+              'potentialElectiveOptionEvents': report['potentialElectiveOptionEvents'],
+              'semanticOverlaps': report['semanticOverlaps'],
+              'activeCourses': report['scope']['activeCourses'],
+              'deferredCourses': report['scope']['deferredCourses'],
+              'productionAuthorized': report['productionAuthorized'],
+          })
+          PY
+          else
+            echo "Aggregate readiness report was not generated."
+          fi
+      - name: Upload medicine 1-3 readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-medicine1-3-readiness
+          path: |
+            /tmp/izhgmu-current/medicine1-readiness.json
+            /tmp/izhgmu-current/medicine1-elective-personalization.json
+            /tmp/izhgmu-current/medicine2-normalized.json
+            /tmp/izhgmu-current/medicine3-legacy-cycle.json
+            /tmp/izhgmu-current/medicine3-lecture-audience.json
+            /tmp/izhgmu-current/medicine3-time-resolution.json
+            /tmp/izhgmu-current/medicine3-canonical-summary.json
+            /tmp/izhgmu-current/medicine3-stomatology-audit.json
+            /tmp/izhgmu-current/medicine1-3-readiness.json
+            /tmp/izhgmu-medicine1-dryrun/manifest.json
+          if-no-files-found: warn
+          retention-days: 14
