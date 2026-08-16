@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   __medicine2NormalizationTest,
   normalizeIzhgmuMedicine2ClassStructure,
+  normalizeIzhgmuMedicine2LectureStructure,
   normalizeIzhgmuMedicine2Combined,
 } from '../src/adapters/izhgmu/medicine2-normalization.mjs';
 
@@ -29,6 +30,33 @@ test('class normalization only changes time-column cells with exact proven synta
   assert.equal(result.sheets[0].cells[0].value, '08.30-10.05');
   assert.equal(result.sheets[0].cells[1].value, '8-30-10-05');
   assert.equal(result.sheets[0].cells[2].value, '08.30-10.05');
+});
+
+test('medicine-2 stream-1 physical education duplicate 9 February cell is corrected to 16', () => {
+  const source = {
+    sheets: [{
+      name: 'Лист1',
+      cells: [
+        { ref: 'C8', row: 8, col: 3, value: 'Физвоспитание' },
+        { ref: 'G8', row: 8, col: 7, value: 9 },
+        { ref: 'H8', row: 8, col: 8, value: 9 },
+      ],
+    }],
+  };
+  const result = normalizeIzhgmuMedicine2LectureStructure(source);
+  const corrected = result.sheets[0].cells.find((cell) => cell.ref === 'H8');
+  assert.equal(corrected.value, 16);
+  assert.equal(corrected.sourceNormalization.kind, 'izh_medicine2_stream1_physical_education_duplicate_date_correction');
+  assert.equal(corrected.sourceNormalization.ruleId, 'IZH-M2-04');
+
+  const nearMiss = normalizeIzhgmuMedicine2LectureStructure({
+    sheets: [{ name: 'Лист1', cells: [
+      { ref: 'C8', row: 8, col: 3, value: 'Физвоспитание' },
+      { ref: 'G8', row: 8, col: 7, value: 9 },
+      { ref: 'H8', row: 8, col: 8, value: 10 },
+    ] }],
+  });
+  assert.equal(nearMiss.sheets[0].cells.find((cell) => cell.ref === 'H8').value, 10);
 });
 
 test('assessment summary is annotation, matching count row is promoted, mismatch stays blocked', () => {
