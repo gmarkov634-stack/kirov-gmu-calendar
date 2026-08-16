@@ -170,7 +170,7 @@ const out={
   unresolved,
   rowAudits,
   perRussianGroup:perGroup,
-  stats:{ordinaryDateCells:ordinary.length,physicalDateCells:physical.length,classifications:counts,unresolvedKinds,perRussianGroupCounts},
+  stats:{ordinaryDateCells:ordinary.length,physicalDateCells:physical.length,classifications:counts,unresolvedKinds,perRussianGroupCounts:perGroupCounts},
   publishable:false,
   blockers:[
     {kind:'time_semantics_pending',message:'Practice parenthesized time variants remain unresolved.'},
@@ -178,4 +178,4 @@ const out={
   ],
 };
 await fs.writeFile(path.join(inputDir,'medicine3-lecture-audience.json'),`${JSON.stringify(out,null,2)}\n`);
-console.log('IZHGMU_MEDICINE3_LECTURE_AUDIENCE',JSON.stringify({ordinaryDateCells:ordinary.length,physicalDateCells:physical.length,classifications:counts,unresolvedKinds,perRussianGroupCounts,publishable:false}));
+console.log('IZHGMU_MEDICINE3_LECTURE_AUDIENCE',JSON.stringify({ordinaryDateCells:ordinary.length,physicalDateCells:physical.length,classifications:counts,unresolvedKinds,perRussianGroupCounts:perGroupCounts,publishable:false}));
