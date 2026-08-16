@@ -69,8 +69,17 @@ if (parsed.parity.odd !== 'below_line' || parsed.parity.even !== 'above_line' ||
   throw new Error('IZH-WEEKLY real parity evidence changed');
 }
 if (!parsed.deferred.length) throw new Error('IZH-WEEKLY expected stream-wide companion-owned rows');
-if (!parsed.reviewRequired.some((item) => item.warning === 'end_time_missing_in_source')) {
-  throw new Error('IZH-WEEKLY expected missing end-time blocker');
+const curatorSeries = parsed.series.find((item) => (
+  item.discipline === 'Кураторский час'
+  && item.startTime === '16:30'
+));
+if (
+  !curatorSeries
+  || curatorSeries.endTime !== '17:30'
+  || curatorSeries.status !== 'ok'
+  || !curatorSeries.ruleIds?.includes('IZH-W11')
+) {
+  throw new Error('IZH-WEEKLY curator-hour rule IZH-W11 no longer matches the reviewed real source');
 }
 if (parsed.publishable) throw new Error('IZH-WEEKLY real group must remain fail-closed before companion integration');
 
