@@ -8,6 +8,7 @@ on:
       - "api/src/adapters/izhgmu/**"
       - "api/src/schedule/**"
       - "api/src/subscription-personalization.js"
+      - "api/test/izhgmu-discover-metadata-recovery.test.mjs"
       - "api/tools/izhgmu-check-medicine1-*.mjs"
       - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
       - "api/tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs"
@@ -46,6 +47,7 @@ jobs:
         working-directory: api
         run: |
           node --test \
+            test/izhgmu-discover-metadata-recovery.test.mjs \
             test/izhgmu-curator-hour-duration-policy.test.mjs \
             test/izhgmu-weekly-lecture-elective-catalog.test.mjs \
             test/izhgmu-weekly-lecture-personalization-readiness.test.mjs \
@@ -131,6 +133,8 @@ jobs:
         with:
           name: izhgmu-medicine1-3-readiness
           path: |
+            /tmp/izhgmu-current/source-manifest.json
+            /tmp/izhgmu-current/download-report.json
             /tmp/izhgmu-current/medicine1-readiness.json
             /tmp/izhgmu-current/medicine1-elective-personalization.json
             /tmp/izhgmu-current/medicine2-normalized.json
