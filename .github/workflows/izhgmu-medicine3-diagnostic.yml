@@ -1,0 +1,50 @@
+name: IzhGMU medicine-3 diagnostic
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/tools/izhgmu-diagnose-medicine3-legacy.py"
+      - "api/tools/izhgmu-diagnose-medicine3-lecture.mjs"
+      - ".github/workflows/izhgmu-medicine3-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install Node dependencies
+        working-directory: api
+        run: npm ci
+      - name: Install legacy XLS reader
+        run: python3 -m pip install --disable-pip-version-check xlrd==2.0.1
+      - name: Collect exact current official IzhGMU sources
+        working-directory: api
+        run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+      - name: Diagnose medicine course 3 legacy class XLS
+        working-directory: api
+        run: python3 tools/izhgmu-diagnose-medicine3-legacy.py --input-dir /tmp/izhgmu-current
+      - name: Diagnose medicine course 3 lecture XLSX
+        working-directory: api
+        run: node tools/izhgmu-diagnose-medicine3-lecture.mjs --input-dir /tmp/izhgmu-current
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-medicine3-diagnostic
+          path: |
+            /tmp/izhgmu-current/medicine3-legacy-diagnostic.json
+            /tmp/izhgmu-current/medicine3-lecture-diagnostic.json
+          if-no-files-found: warn
+          retention-days: 14
