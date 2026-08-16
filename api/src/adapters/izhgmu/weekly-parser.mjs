@@ -288,6 +288,16 @@ function normalizeClock(value) {
   return `${String(Number(match[1])).padStart(2, '0')}:${match[2]}`;
 }
 
+function addMinutesToClock(value, minutes) {
+  const normalized = normalizeClock(value);
+  if (!normalized) return null;
+  const [hours, mins] = normalized.split(':').map(Number);
+  const total = hours * 60 + mins + minutes;
+  const nextHours = Math.floor(total / 60) % 24;
+  const nextMinutes = total % 60;
+  return `${String(nextHours).padStart(2, '0')}:${String(nextMinutes).padStart(2, '0')}`;
+}
+
 function lessonSeries({ cell, group, day, period, parityMap }) {
   const time = timeInfo(cell.value);
   if (!time) {
@@ -321,9 +331,27 @@ function lessonSeries({ cell, group, day, period, parityMap }) {
   };
 
   if (time.startOnly) {
+    const discipline = cleanDiscipline(time.textAfter);
+    if (discipline.toLowerCase().startsWith('кураторский час')) {
+      return [{
+        ...base,
+        discipline,
+        endTime: addMinutesToClock(time.start, 60),
+        dates: dateSet(period, day.weekday, null, parityMap),
+        status: 'ok',
+        warnings: [],
+        timingDerivation: {
+          kind: 'project_rule',
+          ruleId: 'IZH-W11',
+          durationMinutes: 60,
+          sourceProvidesStartOnly: true,
+        },
+        ruleIds: ['IZH-W01', 'IZH-W02', 'IZH-W03', 'IZH-W11'],
+      }];
+    }
     return [{
       ...base,
-      discipline: cleanDiscipline(time.textAfter),
+      discipline,
       dates: dateSet(period, day.weekday, null, parityMap),
       status: 'needs_review',
       warning: 'end_time_missing_in_source',
