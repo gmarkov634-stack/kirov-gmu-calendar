@@ -115,3 +115,9 @@ Read-only baseline до branding-экспериментов и итоговая 
 PR #183 добавил безопасный upload-only `group.avatar.probe`; после deploy/smoke operational PR #184 показал VK error 1051 ещё на `photos.getOwnerPhotoUploadServer`. `photos.saveOwnerPhoto` не вызывался, поэтому служебный wall post не создавался. Все branding operational PR закрыты без merge.
 
 **Operational rule:** с текущими классами credentials автоматическую смену аватара и обложки не считать поддерживаемой и не повторять mutation-пробы. Оформление меняется вручную через интерфейс VK, а результат при необходимости проверяется read-only `group.branding.info`. Автоматический fallback между community token и managed VK ID запрещён.
+
+### Production fail-closed guard
+
+PR #186 (`d3b24d11d76a47d4350a6e4253772d1627778a2c`) перевёл `group.cover.set` и `group.avatar.set` в явный production fail-closed. После успешной GitHub OIDC-проверки и валидации command оба action немедленно возвращают HTTP 501 `vk_group_branding_not_supported` **до** выбора credential class, чтения community/managed token и любого обращения к VK или upload-server. Regression-тесты фиксируют zero managed-token calls и zero network calls для обеих mutations.
+
+Этот SHA прошёл полный test → immutable image publish → guarded Cloud.ru image-only deploy → production smoke. Дополнительный operational PR #187 после deploy отправил `group.cover.set` с пустым payload и успешно подтвердил точный production-ответ HTTP 501 `vk_group_branding_not_supported`; PR #187 закрыт без merge. Read-only `group.branding.info` и non-mutating probes сохранены.
