@@ -56,8 +56,10 @@ export function createSchedulePublishHandler({ store, config }) {
 
     try {
       const input = await readJson(request);
-      const incomingBatch = input?.batch || input;
-      const result = await publishScheduleBatch({ store, incomingBatch });
+      const wrapped = Boolean(input?.batch);
+      const incomingBatch = wrapped ? input.batch : input;
+      const personalizationCatalog = wrapped ? input.personalizationCatalog ?? null : null;
+      const result = await publishScheduleBatch({ store, incomingBatch, personalizationCatalog });
       return send(response, 200, {
         status: result.publication?.unchanged ? "unchanged" : "published",
         context: result.context,
@@ -70,12 +72,20 @@ export function createSchedulePublishHandler({ store, config }) {
         inputQa: compactQa(result.inputQa),
         outputQa: compactQa(result.outputQa),
         publication: result.publication,
+        personalization: result.personalization,
       });
     } catch (error) {
       if (["invalid_json", "request_too_large"].includes(error.code)) {
         return send(response, 400, { error: error.code });
       }
-      if (["SCHEDULE_BATCH_REQUIRED", "SCHEDULE_CONTEXT_INVALID"].includes(error.code)) {
+      if ([
+        "SCHEDULE_BATCH_REQUIRED",
+        "SCHEDULE_CONTEXT_INVALID",
+        "schedule_personalization_invalid",
+        "schedule_personalization_schedule_unversioned",
+        "schedule_personalization_context_mismatch",
+        "SCHEDULE_PERSONALIZATION_STORE_REQUIRED",
+      ].includes(error.code)) {
         return send(response, 400, { error: error.code, message: error.message });
       }
       if (error.code === "SCHEDULE_NOT_PUBLISHABLE") {
