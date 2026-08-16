@@ -21,6 +21,43 @@ function isAssessmentSummary(value) {
   return /^зач[её]ты\s*:/i.test(norm(value));
 }
 
+function isMedicine2Stream1PhysicalEducationDuplicateDate(sheet) {
+  const byRef = new Map((sheet.cells || []).map((cell) => [String(cell.ref || '').toUpperCase(), cell]));
+  const discipline = byRef.get('C8');
+  const firstNine = byRef.get('G8');
+  const secondNine = byRef.get('H8');
+  return /^физвоспитание$/i.test(norm(discipline?.value))
+    && norm(firstNine?.value) === '9'
+    && norm(secondNine?.value) === '9';
+}
+
+export function normalizeIzhgmuMedicine2LectureStructure(lectureStructure) {
+  if (!lectureStructure?.sheets) throw new TypeError('IzhGMU lecture structure is required');
+  return {
+    ...lectureStructure,
+    sheets: lectureStructure.sheets.map((sheet) => {
+      if (!isMedicine2Stream1PhysicalEducationDuplicateDate(sheet)) return sheet;
+      return {
+        ...sheet,
+        cells: sheet.cells.map((cell) => {
+          if (String(cell.ref || '').toUpperCase() !== 'H8') return cell;
+          return {
+            ...cell,
+            value: 16,
+            sourceNormalization: {
+              kind: 'izh_medicine2_stream1_physical_education_duplicate_date_correction',
+              raw: cell.value,
+              corrected: 16,
+              ruleId: 'IZH-M2-04',
+              rationale: 'user_verified_second_09_february_is_typo; corrected_to_16_matching_adjacent_row_and_weekly_sequence',
+            },
+          };
+        }),
+      };
+    }),
+  };
+}
+
 export function normalizeIzhgmuMedicine2ClassStructure(classStructure) {
   if (!classStructure?.sheets) throw new TypeError('IzhGMU class structure is required');
   return {
@@ -45,17 +82,17 @@ export function normalizeIzhgmuMedicine2ClassStructure(classStructure) {
 }
 
 export function normalizeIzhgmuMedicine2CompanionForWeekly(lectureStructure) {
-  if (!lectureStructure?.sheets) throw new TypeError('IzhGMU lecture structure is required');
-  if (lectureStructure.sheets.some((sheet) => sheet.name.toLowerCase().includes('расписание'))) return lectureStructure;
-  if (lectureStructure.sheets.length !== 1) return lectureStructure;
+  const normalized = normalizeIzhgmuMedicine2LectureStructure(lectureStructure);
+  if (normalized.sheets.some((sheet) => sheet.name.toLowerCase().includes('расписание'))) return normalized;
+  if (normalized.sheets.length !== 1) return normalized;
   return {
-    ...lectureStructure,
+    ...normalized,
     sheets: [{
-      ...lectureStructure.sheets[0],
-      name: `расписание (${lectureStructure.sheets[0].name})`,
+      ...normalized.sheets[0],
+      name: `расписание (${normalized.sheets[0].name})`,
       sourceNormalization: {
         kind: 'izh_medicine2_sole_sheet_companion_alias',
-        rawName: lectureStructure.sheets[0].name,
+        rawName: normalized.sheets[0].name,
       },
     }],
   };
@@ -143,4 +180,5 @@ export function normalizeIzhgmuMedicine2Combined(combined) {
 export const __medicine2NormalizationTest = {
   normalizeHyphenClockRange,
   isAssessmentSummary,
+  isMedicine2Stream1PhysicalEducationDuplicateDate,
 };
