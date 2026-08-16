@@ -13,6 +13,7 @@ on:
       - "api/package-lock.json"
       - "api/Dockerfile"
       - ".github/workflows/publish-api.yml"
+      - ".github/workflows/deploy-api-cloudru.yml"
 
 env:
   IMAGE: kgmu-calendar-api.cr.cloud.ru/api
