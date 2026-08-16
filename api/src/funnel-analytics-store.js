@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { projectScheduleForSubscription } from "./subscription-personalization.js";
 import { TrialEnabledStore } from "./trial-store.js";
 
 const SHA256 = /^[a-f0-9]{64}$/;
@@ -10,6 +11,13 @@ function isMissingObject(error) {
 }
 
 export class FunnelAnalyticsStore extends TrialEnabledStore {
+  async getSchedule(input) {
+    const schedule = await super.getSchedule(input);
+    if (!schedule) return null;
+    if (!input?.preferences?.electives) return schedule;
+    return projectScheduleForSubscription(schedule, input);
+  }
+
   async listFunnelOrders() {
     return this.#listJson("orders/", /^[A-Za-z0-9_-]{32}\.json$/);
   }
