@@ -94,3 +94,24 @@ Read-only PR #165 после ручного прикрепления финал�
 - #65 — предыдущая образовательная публикация.
 
 #59/#60 ранее удалены вручную. #64 был закреплён вручную. Пост #66 считается **полностью завершённым и проверенным**.
+
+## Community branding boundary
+
+Итог production-диагностики 16–17.08.2026 для аватара и обложки:
+
+| Branding path | Credential path | Production result |
+| --- | --- | --- |
+| `group.branding.info` | community `VK_ACCESS_TOKEN` | **PASS**, read-only avatar/cover snapshot |
+| cover upload (`photos.getOwnerCoverPhotoUploadServer` + upload) | community `VK_ACCESS_TOKEN` | **PASS** |
+| cover save (`photos.saveOwnerCoverPhoto`) | community `VK_ACCESS_TOKEN` | **UNSUPPORTED**; VK error 129 (`Invalid photo`) на проверенных save/crop вариантах |
+| cover upload-server | managed VK ID user OAuth | **UNSUPPORTED**; VK error 1051 |
+| avatar upload-server (`photos.getOwnerPhotoUploadServer`) | managed VK ID user OAuth | **UNSUPPORTED**; VK error 1051 |
+| avatar save (`photos.saveOwnerPhoto`) | managed VK ID user OAuth | **NOT EXECUTED in production**; путь остановлен до save, чтобы не создавать потенциальный service `post_id` |
+
+Подготовленные независимые исходники версионированы в `ops/vk/assets/group-avatar-independent-20260816.jpg` и `ops/vk/assets/group-cover-independent-1590x530-20260816.jpg`; официальная эмблема Кировского ГМУ в них не используется.
+
+Read-only baseline до branding-экспериментов и итоговая проверка PR #182 вернули те же avatar/cover URL. Следовательно ни одна cover-попытка фактически не изменила оформление сообщества. Avatar mutation в production не запускалась вообще.
+
+PR #183 добавил безопасный upload-only `group.avatar.probe`; после deploy/smoke operational PR #184 показал VK error 1051 ещё на `photos.getOwnerPhotoUploadServer`. `photos.saveOwnerPhoto` не вызывался, поэтому служебный wall post не создавался. Все branding operational PR закрыты без merge.
+
+**Operational rule:** с текущими классами credentials автоматическую смену аватара и обложки не считать поддерживаемой и не повторять mutation-пробы. Оформление меняется вручную через интерфейс VK, а результат при необходимости проверяется read-only `group.branding.info`. Автоматический fallback между community token и managed VK ID запрещён.
