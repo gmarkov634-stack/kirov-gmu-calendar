@@ -32,11 +32,33 @@ test("static landing remains fail-closed before runtime gates load", async () =>
   assert.ok(html.includes("Выбрать свою группу"));
   assert.equal(html.includes('id="hero-primary-cta">Попробовать свою группу бесплатно'), false);
   assert.ok(html.includes("trial.css?v=trial-1"));
+  assert.ok(html.includes("subscription-personalization-ui.css?v=electives-1"));
+  assert.ok(html.includes("subscription-personalization-ui.js?v=electives-1"));
 });
 
 test("trial stylesheet contains preview and onboarding states", async () => {
   const css = await readRoot("trial.css");
   for (const className of [".group-preview", ".trial-connect-card", ".trial-replace-note", ".checkout-context"]) {
     assert.ok(css.includes(className), `missing trial style: ${className}`);
+  }
+});
+
+test("subscription elective UI is generic, source-driven and keeps unselected as a valid state", async () => {
+  const source = await readRoot("subscription-personalization-ui.js");
+  assert.doesNotThrow(() => new Function(source));
+  for (const required of [
+    "/api/v1/subscriptions/",
+    "/calendar.ics",
+    "/preferences",
+    "Не выбрано — не добавлять в календарь",
+    "officialDiscipline",
+    "method: 'PUT'",
+    "[blockId]: value || null",
+    "payload.electives.length === 0",
+  ]) {
+    assert.ok(source.includes(required), `missing personalization UI invariant: ${required}`);
+  }
+  for (const forbidden of ["Культурология", "Медицинская химия", "Популяционная антропология", "Формирование ЗОЖ"]) {
+    assert.equal(source.includes(forbidden), false, `frontend must not hardcode elective option: ${forbidden}`);
   }
 });
