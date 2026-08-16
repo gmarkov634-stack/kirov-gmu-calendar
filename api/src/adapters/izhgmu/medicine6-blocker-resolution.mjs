@@ -5,6 +5,18 @@ const RESOLUTION_CLASS = Object.freeze({
 });
 
 const KNOWN_RULES = Object.freeze({
+  'cycle|elective_choice_required': Object.freeze({
+    resolutionClass: RESOLUTION_CLASS.STUDENT_CHOICE,
+    watchOfficialSource: false,
+    requiresStudentChoice: true,
+    requiredEvidence: 'Legacy compatibility rule for pre-neutralization medicine-6 cycle candidates. New composite construction neutralizes these cycle electives before blocker classification and does not expose this route to production.',
+  }),
+  'lecture|elective_choice_required': Object.freeze({
+    resolutionClass: RESOLUTION_CLASS.STUDENT_CHOICE,
+    watchOfficialSource: false,
+    requiresStudentChoice: true,
+    requiredEvidence: 'Legacy compatibility rule for pre-neutralization lecture candidates. New medicine-6 composite converts this blocker to elective_schedule_mapping_required before classification.',
+  }),
   'lecture|elective_schedule_mapping_required': Object.freeze({
     resolutionClass: RESOLUTION_CLASS.OFFICIAL_SOURCE,
     watchOfficialSource: true,
