@@ -1,0 +1,9 @@
+{
+  "id": "kgmu-group-link-add-selector-20260817-001",
+  "action": "group.link.add",
+  "createdAt": "2026-08-16T22:58:30.000Z",
+  "payload": {
+    "url": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/#selector",
+    "text": "Выбрать группу и подключить расписание"
+  }
+}
