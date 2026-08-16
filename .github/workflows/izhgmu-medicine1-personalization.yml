@@ -17,6 +17,7 @@ on:
       - "api/src/schedule/publish-handler.js"
       - "api/tools/izhgmu-check-medicine1-electives.mjs"
       - "api/tools/izhgmu-check-medicine1-publication.mjs"
+      - "api/tools/izhgmu-check-medicine1-readiness.mjs"
       - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator-geometry.mjs"
@@ -59,6 +60,9 @@ jobs:
       - name: Audit curator row time geometry
         working-directory: api
         run: node tools/izhgmu-audit-medicine1-curator-geometry.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify real content readiness state
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-readiness.mjs --input-dir /tmp/izhgmu-current
       - name: Verify real group-109 publication boundary
         working-directory: api
         run: node tools/izhgmu-check-medicine1-publication.mjs --input-dir /tmp/izhgmu-current
@@ -102,6 +106,14 @@ jobs:
           print('CURATOR_GEOMETRY', audit['summary'])
           PY
           fi
+          if [ -f /tmp/izhgmu-current/medicine1-readiness.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          readiness=json.loads(Path('/tmp/izhgmu-current/medicine1-readiness.json').read_text())
+          print('CONTENT_READINESS', readiness['summary'])
+          PY
+          fi
           if [ -f /tmp/izhgmu-medicine1-dryrun/manifest.json ]; then
             python3 - <<'PY'
           import json
@@ -120,6 +132,7 @@ jobs:
             /tmp/izhgmu-current/medicine1-elective-personalization.json
             /tmp/izhgmu-current/medicine1-curator-audit.json
             /tmp/izhgmu-current/medicine1-curator-geometry.json
+            /tmp/izhgmu-current/medicine1-readiness.json
           if-no-files-found: warn
           retention-days: 14
       - name: Upload medicine-1 dry-run packages
