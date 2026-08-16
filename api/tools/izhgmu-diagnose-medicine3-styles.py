@@ -31,8 +31,6 @@ def fill_key(sig):
     return (sig['fillPattern'],sig['patternColorIndex'],sig['backgroundColorIndex'])
 
 rows=[]
-# Practical-semester colored grid occupies B:CO; retain every cell, including blanks,
-# so a blank character cell cannot split or shorten a colored cycle.
 for r in range(12,25):
     last=None; run=None; runs=[]
     for c in range(1,sh.ncols):
@@ -52,8 +50,19 @@ for r in range(12,25):
     if run: runs.append(run)
     rows.append({'row':r+1,'label':txt(r,0),'runs':runs})
 
-out={'version':3,'source':src,'segmentation':'fill_color','rows':rows}
+# Correlate each merged department block with its literal source fill.
+metadata=[]
+for rlo,rhi,clo,chi in sh.merged_cells:
+    if rlo == 30 and rhi == 31 and clo > 0:
+        department=txt(rlo,clo)
+        if department:
+            metadata.append({'department':department,'c1':clo+1,'c2':chi,**fill_sig(rlo,clo)})
+metadata.sort(key=lambda item:item['c1'])
+
+out={'version':4,'source':src,'segmentation':'fill_color','rows':rows,'metadataColors':metadata}
 (root/'medicine3-style-diagnostic.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+for item in metadata:
+    print('METADATA_COLOR',json.dumps(item,ensure_ascii=False))
 for row in rows:
     print('COLOR_ROW',row['row'],'LABEL',row['label'])
     print(' COLOR_RUNS',json.dumps([
