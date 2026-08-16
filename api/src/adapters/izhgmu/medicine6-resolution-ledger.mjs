@@ -107,17 +107,21 @@ function buildRecord(evaluatedProposal, authorization) {
     authorizationReference: normalized(authorization.authorizationReference),
     authorizedAt: normalized(authorization.authorizedAt),
   };
-  const recordIdentity = {
+  const resolutionIdentity = {
     schema: 'izhgmu-medicine6-resolution-record/v1',
     blockerFingerprint,
     candidateFingerprint,
-    authorizationReference: authorizationSnapshot.authorizationReference,
   };
-  const recordFingerprint = fingerprint(recordIdentity);
+  const resolutionFingerprint = fingerprint(resolutionIdentity);
+  const recordFingerprint = fingerprint({
+    ...resolutionIdentity,
+    authorization: authorizationSnapshot,
+  });
 
   return {
     schema: 'izhgmu-medicine6-resolution-record/v1',
-    resolutionId: `izhgmu-m6:${recordFingerprint}`,
+    resolutionId: `izhgmu-m6:${resolutionFingerprint}`,
+    resolutionFingerprint,
     recordFingerprint,
     status: 'authorized_not_materialized',
     resolutionClass: normalized(evaluatedProposal.resolutionClass) || null,
@@ -138,7 +142,9 @@ function buildRecord(evaluatedProposal, authorization) {
 function validateExistingRecord(record) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) return false;
   if (record.schema !== 'izhgmu-medicine6-resolution-record/v1') return false;
-  if (!normalized(record.resolutionId) || !isSha256(record.recordFingerprint)) return false;
+  if (!normalized(record.resolutionId)) return false;
+  if (!isSha256(record.resolutionFingerprint) || !isSha256(record.recordFingerprint)) return false;
+  if (record.resolutionId !== `izhgmu-m6:${record.resolutionFingerprint}`) return false;
   return true;
 }
 
@@ -183,7 +189,8 @@ export function authorizeIzhgmuMedicine6ResolutionCandidate({
 export function validateIzhgmuMedicine6ResolutionLedger(records = []) {
   if (!Array.isArray(records)) throw new TypeError('medicine-6 resolution ledger must be an array');
   const ids = new Set();
-  const fingerprints = new Set();
+  const resolutionFingerprints = new Set();
+  const recordFingerprints = new Set();
   const errors = [];
   records.forEach((record, index) => {
     if (!validateExistingRecord(record)) {
@@ -191,9 +198,13 @@ export function validateIzhgmuMedicine6ResolutionLedger(records = []) {
       return;
     }
     if (ids.has(record.resolutionId)) errors.push({ index, code: 'duplicate_resolution_id' });
-    if (fingerprints.has(record.recordFingerprint)) errors.push({ index, code: 'duplicate_record_fingerprint' });
+    if (resolutionFingerprints.has(record.resolutionFingerprint)) {
+      errors.push({ index, code: 'duplicate_resolution_fingerprint' });
+    }
+    if (recordFingerprints.has(record.recordFingerprint)) errors.push({ index, code: 'duplicate_record_fingerprint' });
     ids.add(record.resolutionId);
-    fingerprints.add(record.recordFingerprint);
+    resolutionFingerprints.add(record.resolutionFingerprint);
+    recordFingerprints.add(record.recordFingerprint);
     if (record.clearsBlocker !== false || record.mutatesSchedule !== false || record.publishable !== false) {
       errors.push({ index, code: 'ledger_record_must_not_materialize_or_publish' });
     }
