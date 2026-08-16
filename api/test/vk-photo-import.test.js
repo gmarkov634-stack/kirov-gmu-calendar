@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createVkControlHandler } from "../src/vk-control.js";
 
+// Production flow: managed user token imports the photo; community token publishes it with wall.post.
 const now = Date.parse("2026-08-16T08:30:00.000Z");
 
 function fakeRequest(payload, action = "photo.importWall") {
