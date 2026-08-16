@@ -1,7 +1,9 @@
 const DEFAULT_API_VERSION = "5.199";
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
+const MAX_COVER_RESPONSE_JSON_BYTES = 25000;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
+const COVER_CROP = Object.freeze({ x: 0, y: 65, x2: 1590, y2: 465 });
 
 export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.cover.probe", "group.branding.info"]);
 export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.avatar.set"]);
@@ -74,6 +76,13 @@ async function uploadPhoto({ uploadUrl, bytes, contentType, filename, fetchImpl 
   return { uploaded, photo, hash };
 }
 
+function coverResponseJson(uploaded) {
+  if (!uploaded || typeof uploaded !== "object" || Array.isArray(uploaded)) throw new Error("vk_photo_upload_failed");
+  const value = JSON.stringify(uploaded);
+  if (!value || Buffer.byteLength(value, "utf8") > MAX_COVER_RESPONSE_JSON_BYTES) throw new Error("vk_photo_upload_failed");
+  return value;
+}
+
 function uploadShape(uploaded) {
   const rawPhoto = uploaded?.photo;
   const photoKind = Array.isArray(rawPhoto) ? "array" : rawPhoto === null ? "null" : typeof rawPhoto;
@@ -128,10 +137,10 @@ async function getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl
     fetchImpl,
     params: {
       group_id: groupId,
-      crop_x: "0",
-      crop_y: "0",
-      crop_x2: "1590",
-      crop_y2: "400",
+      crop_x: String(COVER_CROP.x),
+      crop_y: String(COVER_CROP.y),
+      crop_x2: String(COVER_CROP.x2),
+      crop_y2: String(COVER_CROP.y2),
     },
   });
   const uploadUrl = cleanUploadUrl(server?.upload_url);
@@ -151,13 +160,13 @@ async function probeGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImp
 }
 
 async function setGroupCover({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
-  const { photo, hash } = await getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
+  const { uploaded } = await getCoverUpload({ sourceUrl, groupId, token, apiVersion, fetchImpl });
   const saved = await vkMethod({
     method: "photos.saveOwnerCoverPhoto",
     token,
     apiVersion,
     fetchImpl,
-    params: { photo, hash },
+    params: { response_json: coverResponseJson(uploaded) },
   });
   const images = sanitizeImages(saved?.images);
   if (!images.length) throw new Error("vk_photo_save_failed");
