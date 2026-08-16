@@ -3,6 +3,7 @@ import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { academicYearStorageSegment, scheduleContext } from "./order-context.js";
 import { postprocessSchedule } from "./schedule/postprocess.js";
+import { schedulePersonalizationMatchesSchedule } from "./schedule/personalization-publication.js";
 import { projectScheduleForSubscription } from "./subscription-personalization.js";
 import { TrialEnabledStore } from "./trial-store.js";
 
@@ -33,18 +34,21 @@ export class FunnelAnalyticsStore extends TrialEnabledStore {
     const schedule = await super.getSchedule(input);
     if (!schedule) return null;
     if (!input?.preferences?.electives || !Object.keys(input.preferences.electives).length) return schedule;
-    const catalog = await this.getSchedulePersonalization(input);
+    const catalog = await this.getSchedulePersonalization(input, schedule);
     const projected = projectScheduleForSubscription(schedule, input, catalog);
     return postprocessSchedule(projected);
   }
 
-  async getSchedulePersonalization(input) {
-    return this.#readJson(personalizationKey(input));
+  async getSchedulePersonalization(input, schedule = null) {
+    const catalog = await this.#readJson(personalizationKey(input));
+    if (!catalog) return null;
+    if (schedule && !schedulePersonalizationMatchesSchedule(schedule, catalog)) return null;
+    return catalog;
   }
 
   async putSchedulePersonalization(input, catalog) {
-    if (catalog?.version !== 1 || !Array.isArray(catalog?.electives)) {
-      const error = new Error("Invalid schedule personalization catalog");
+    if (catalog?.version !== 1 || !Array.isArray(catalog?.electives) || !catalog?.baseSchedule) {
+      const error = new Error("Invalid or unbound schedule personalization catalog");
       error.code = "schedule_personalization_invalid";
       throw error;
     }
