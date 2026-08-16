@@ -46,13 +46,18 @@ jobs:
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-vk-control")"
           oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s=""; process.stdin.on("data",d=>s+=d); process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
 
-          result="$(curl --fail-with-body --silent --show-error \
+          http_code="$(curl --silent --show-error \
+            --output /tmp/vk-result.json \
+            --write-out '%{http_code}' \
             -X POST \
             -H "Authorization: Bearer ${oidc_token}" \
             -H "Content-Type: application/json" \
             --data-binary @ops/vk/command.json \
             "$VK_CONTROL_URL")"
 
+          echo "VK_CONTROL_HTTP=$http_code"
           echo "VK_CONTROL_RESULT_BEGIN"
-          printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(JSON.stringify(JSON.parse(s),null,2)));'
+          node -e 'const fs=require("fs");const s=fs.readFileSync("/tmp/vk-result.json","utf8");console.log(JSON.stringify(JSON.parse(s),null,2));'
           echo "VK_CONTROL_RESULT_END"
+          test "$http_code" -ge 200
+          test "$http_code" -lt 300
