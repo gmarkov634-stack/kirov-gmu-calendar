@@ -9,6 +9,7 @@ on:
       - "api/tools/izhgmu-diagnose-medicine3-grid.py"
       - "api/tools/izhgmu-diagnose-medicine3-styles.py"
       - "api/tools/izhgmu-diagnose-medicine3-lecture.mjs"
+      - "api/tools/izhgmu-parse-medicine3-legacy.py"
       - ".github/workflows/izhgmu-medicine3-diagnostic.yml"
   workflow_dispatch:
 
@@ -40,9 +41,12 @@ jobs:
       - name: Expose medicine course 3 cycle grid
         working-directory: api
         run: python3 tools/izhgmu-diagnose-medicine3-grid.py --input-dir /tmp/izhgmu-current
-      - name: Inspect medicine course 3 style boundaries
+      - name: Inspect medicine course 3 color boundaries
         working-directory: api
         run: python3 tools/izhgmu-diagnose-medicine3-styles.py --input-dir /tmp/izhgmu-current
+      - name: Recover medicine course 3 cycles from colors
+        working-directory: api
+        run: python3 tools/izhgmu-parse-medicine3-legacy.py --input-dir /tmp/izhgmu-current
       - name: Diagnose medicine course 3 lecture XLSX
         working-directory: api
         run: node tools/izhgmu-diagnose-medicine3-lecture.mjs --input-dir /tmp/izhgmu-current
@@ -55,6 +59,7 @@ jobs:
             /tmp/izhgmu-current/medicine3-legacy-diagnostic.json
             /tmp/izhgmu-current/medicine3-grid-diagnostic.json
             /tmp/izhgmu-current/medicine3-style-diagnostic.json
+            /tmp/izhgmu-current/medicine3-legacy-cycle.json
             /tmp/izhgmu-current/medicine3-lecture-diagnostic.json
           if-no-files-found: warn
           retention-days: 14
