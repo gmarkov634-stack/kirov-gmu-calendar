@@ -1,0 +1,8 @@
+{
+  "id": "vk-avatar-probe-20260817-001",
+  "action": "group.avatar.probe",
+  "createdAt": "2026-08-16T22:23:30.000Z",
+  "payload": {
+    "sourceUrl": "https://raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/455c8554161621380011c9200c2b2040c2f48900/ops/vk/assets/group-avatar-independent-20260816.jpg"
+  }
+}
