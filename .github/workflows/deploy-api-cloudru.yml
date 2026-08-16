@@ -98,10 +98,9 @@ jobs:
           print(json.dumps({"keyId": os.environ["CLOUDRU_KEY_ID"], "secret": os.environ["CLOUDRU_KEY_SECRET"]}))
           PY
           )"
-          auth_code="$(curl --silent --show-error --output /tmp/token.json --write-out '%{http_code}' \
+          test "$(curl --silent --show-error --output /tmp/token.json --write-out '%{http_code}' \
             --request POST --header 'Content-Type: application/json' --data "$auth_payload" \
-            'https://iam.api.cloud.ru/api/v1/auth/token')"
-          test "$auth_code" = "200"
+            'https://iam.api.cloud.ru/api/v1/auth/token')" = "200"
 
           readarray -t auth < <(python3 - <<'PY'
           import base64, json
@@ -185,8 +184,8 @@ jobs:
           })
           PY
 
-          # Revisions are diagnostic only. Cloud.ru may transiently report no row as `active`
-          # even while the authoritative container resource is `running`.
+          # The revisions endpoint is supplementary diagnostics only. Cloud.ru can transiently
+          # omit the `active` marker while the authoritative container resource is running.
           revisions_code="$(curl --silent --show-error --output /tmp/revisions-before.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $token" --header 'Accept: application/json' "$revisions_url")"
           if [ "$revisions_code" = "200" ]; then
@@ -267,10 +266,13 @@ jobs:
           PY
 
       - name: Production smoke after deploy
+        env:
+          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
           base="$PRODUCTION_BASE_URL"
+
           health="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/health")"
           meta="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/api/v2/meta")"
           python3 - "$health" "$meta" <<'PY'
@@ -289,13 +291,56 @@ jobs:
           analytics_status="$(curl --silent --show-error --output /tmp/analytics.json --write-out '%{http_code}' \
             --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v2/analytics")"
           test "$analytics_status" = "409"
+          python3 - <<'PY'
+          import json
+          assert json.load(open('/tmp/trial.json', encoding='utf-8')) == {'error':'trials_not_open'}
+          assert json.load(open('/tmp/analytics.json', encoding='utf-8')) == {'error':'analytics_not_open'}
+          print('PRODUCTION_GATES_SAFE')
+          PY
+
+          programs="$(curl --fail --silent --show-error "$base/api/v2/catalog/kgmu/programs")"
+          groups="$(curl --fail --silent --show-error "$base/api/v2/catalog/kgmu/medicine/1/groups")"
+          python3 - "$programs" "$groups" <<'PY'
+          import json, sys
+          programs=json.loads(sys.argv[1]); groups=json.loads(sys.argv[2])
+          assert programs.get('university') == 'kgmu' and programs.get('academicYear') == '2026/27' and programs.get('semester') == 1
+          assert isinstance(programs.get('programs'), list)
+          assert groups.get('university') == 'kgmu' and groups.get('program') == 'medicine' and groups.get('course') == 1
+          assert groups.get('academicYear') == '2026/27' and groups.get('semester') == 1 and isinstance(groups.get('groups'), list)
+          print('CATALOG_SAFE', {'programs':len(programs['programs']),'medicineCourse1Groups':len(groups['groups'])})
+          PY
+
+          admin_status="$(curl --silent --show-error --output /tmp/admin.json --write-out '%{http_code}' --request POST "$base/api/v1/admin/kgmu/watch")"
+          test "$admin_status" = "403"
+          funnel_unauth_status="$(curl --silent --show-error --output /tmp/funnel-unauth.json --write-out '%{http_code}' "$base/api/v1/admin/funnel")"
+          test "$funnel_unauth_status" = "403"
+          control_status="$(curl --silent --show-error --output /tmp/control.json --write-out '%{http_code}' \
+            --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v1/schedule-review/control")"
+          test "$control_status" = "401"
           vk_control_status="$(curl --silent --show-error --output /tmp/vk-control.json --write-out '%{http_code}' \
             --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v1/vk/control")"
           test "$vk_control_status" = "401"
           python3 - <<'PY'
           import json
-          assert json.load(open('/tmp/trial.json', encoding='utf-8')) == {'error':'trials_not_open'}
-          assert json.load(open('/tmp/analytics.json', encoding='utf-8')) == {'error':'analytics_not_open'}
+          assert json.load(open('/tmp/admin.json', encoding='utf-8')) == {'error':'admin_forbidden'}
+          assert json.load(open('/tmp/funnel-unauth.json', encoding='utf-8')) == {'error':'admin_forbidden'}
+          assert json.load(open('/tmp/control.json', encoding='utf-8')) == {'error':'unauthorized'}
           assert json.load(open('/tmp/vk-control.json', encoding='utf-8')) == {'error':'unauthorized'}
-          print('PRODUCTION_GATES_AND_AUTH_SAFE')
+          print('AUTH_GUARDS_SAFE')
+          PY
+
+          test -n "$KGMU_ADMIN_TOKEN"
+          curl --fail-with-body --silent --show-error \
+            --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
+            --output /tmp/funnel.json \
+            "$base/api/v1/admin/funnel?university=kgmu&academicYear=2026%2F27&semester=1"
+          python3 - <<'PY'
+          import json
+          body=json.load(open('/tmp/funnel.json', encoding='utf-8'))
+          assert body.get('version') == 2, body
+          assert isinstance(body.get('upper'), dict), body
+          assert isinstance(body.get('trial'), dict), body
+          assert isinstance(body.get('payments'), dict), body
+          assert body.get('filter',{}).get('university') == 'kgmu', body
+          print('FUNNEL_V2_SAFE', {'version':body.get('version'),'filter':body.get('filter')})
           PY
