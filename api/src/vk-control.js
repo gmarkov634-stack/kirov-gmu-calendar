@@ -14,7 +14,7 @@ const MAX_GROUP_WEBSITE_LENGTH = 2048;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit"]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "photo.importMessages"]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
 
@@ -247,6 +247,64 @@ async function importWallPhoto({ sourceUrl, groupId, token, apiVersion, fetchImp
   };
 }
 
+async function importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl }) {
+  const sourceResponse = await fetchImpl(sourceUrl, {
+    method: "GET",
+    headers: { Accept: "image/jpeg,image/png" },
+    redirect: "error",
+  });
+  if (!sourceResponse.ok) throw new Error("photo_source_unavailable");
+  const bytes = Buffer.from(await sourceResponse.arrayBuffer());
+  if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("invalid_photo_source_content");
+  const contentType = photoContentType(bytes, sourceResponse.headers?.get?.("content-type"));
+
+  const uploadServer = await vkMethod({
+    method: "photos.getMessagesUploadServer",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: {},
+  });
+  let uploadUrl;
+  try {
+    uploadUrl = new URL(String(uploadServer?.upload_url || ""));
+  } catch {
+    throw new Error("vk_photo_upload_failed");
+  }
+  if (uploadUrl.protocol !== "https:") throw new Error("vk_photo_upload_failed");
+
+  const form = new FormData();
+  form.append("photo", new Blob([bytes], { type: contentType }), contentType === "image/png" ? "post.png" : "post.jpg");
+  const uploadResponse = await fetchImpl(uploadUrl.toString(), { method: "POST", body: form });
+  if (!uploadResponse.ok) throw new Error("vk_photo_upload_failed");
+  const uploaded = await uploadResponse.json();
+  const server = String(uploaded?.server ?? "").trim();
+  const photo = typeof uploaded?.photo === "string" ? uploaded.photo : JSON.stringify(uploaded?.photo ?? "");
+  const hash = String(uploaded?.hash ?? "").trim();
+  if (!/^-?\d+$/.test(server) || !photo || photo.length > 20000 || !hash || hash.length > 2048) {
+    throw new Error("vk_photo_upload_failed");
+  }
+
+  const saved = await vkMethod({
+    method: "photos.saveMessagesPhoto",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { server, photo, hash },
+  });
+  const photos = Array.isArray(saved) ? saved : (Array.isArray(saved?.photos) ? saved.photos : []);
+  const item = photos[0];
+  const id = Number(item?.id || 0);
+  const ownerId = Number(item?.owner_id || 0);
+  const accessKey = String(item?.access_key || "").trim();
+  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(ownerId) || ownerId === 0) throw new Error("vk_photo_save_failed");
+  if (accessKey && (accessKey.length > 512 || !/^[A-Za-z0-9_-]+$/.test(accessKey))) throw new Error("vk_photo_save_failed");
+  return {
+    attachment: `photo${ownerId}_${id}${accessKey ? `_${accessKey}` : ""}`,
+    photo: { id, ownerId, imageUrl: bestPhotoUrl(item) },
+  };
+}
+
 function bestPhotoUrl(photo) {
   const sizes = Array.isArray(photo?.sizes) ? photo.sizes : [];
   return [...sizes]
@@ -381,6 +439,11 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     });
     return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
   }
+
+  if (command.action === "photo.importMessages") {
+  const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
+  return importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl });
+}
 
   if (command.action === "photo.importWall") {
     const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
