@@ -17,6 +17,7 @@ on:
       - "api/tools/izhgmu-check-medicine1-electives.mjs"
       - "api/tools/izhgmu-check-medicine1-publication.mjs"
       - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
+      - "api/tools/izhgmu-audit-medicine1-curator.mjs"
       - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
       - "api/test/subscription-personalization.test.js"
       - "api/test/schedule-personalization-publication.test.js"
@@ -49,6 +50,9 @@ jobs:
       - name: Verify all medicine course-1 streams and groups
         working-directory: api
         run: node tools/izhgmu-check-medicine1-electives.mjs --input-dir /tmp/izhgmu-current
+      - name: Audit start-only curator evidence
+        working-directory: api
+        run: node tools/izhgmu-audit-medicine1-curator.mjs --input-dir /tmp/izhgmu-current
       - name: Verify real group-109 publication boundary
         working-directory: api
         run: node tools/izhgmu-check-medicine1-publication.mjs --input-dir /tmp/izhgmu-current
@@ -76,6 +80,14 @@ jobs:
           else
             echo "Personalization report was not generated."
           fi
+          if [ -f /tmp/izhgmu-current/medicine1-curator-audit.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('/tmp/izhgmu-current/medicine1-curator-audit.json').read_text())
+          print('CURATOR_AUDIT', audit['summary'])
+          PY
+          fi
           if [ -f /tmp/izhgmu-medicine1-dryrun/manifest.json ]; then
             python3 - <<'PY'
           import json
@@ -90,7 +102,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: izhgmu-medicine1-personalization
-          path: /tmp/izhgmu-current/medicine1-elective-personalization.json
+          path: |
+            /tmp/izhgmu-current/medicine1-elective-personalization.json
+            /tmp/izhgmu-current/medicine1-curator-audit.json
           if-no-files-found: warn
           retention-days: 14
       - name: Upload medicine-1 dry-run packages
