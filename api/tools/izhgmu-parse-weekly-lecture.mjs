@@ -97,9 +97,8 @@ if (lecture.choiceRequired?.options?.length !== 8) {
 }
 
 const combined = composeIzhgmuWeeklyLecture({ weeklyParsed: weekly, lectureParsed: lecture });
-if (combined.reviewRequired.length !== 1
-    || combined.reviewRequired[0].warning !== 'end_time_missing_in_source') {
-  throw new Error('IZH combined curator-hour blocker changed');
+if (combined.reviewRequired.length !== 0) {
+  throw new Error(`IZH combined unexpected content blocker: ${JSON.stringify(combined.reviewRequired.slice(0, 3))}`);
 }
 if (combined.unresolvedChoices.length !== 1 || combined.deferred.length !== 0 || combined.publishable) {
   throw new Error('IZH combined fail-closed state changed');
@@ -121,8 +120,13 @@ const sourceMetadata = {
 };
 
 const candidate = buildIzhgmuWeeklyLectureQaCandidate({ parsed: combined, metadata, source: sourceMetadata });
-if (candidate.events.length !== 356) {
+if (candidate.events.length !== 375) {
   throw new Error(`IZH combined safe event count changed: ${candidate.events.length}`);
+}
+const curatorEvents = candidate.events.filter((event) => event.lesson.discipline.normalized === 'Кураторский час');
+if (curatorEvents.length !== 19
+    || curatorEvents.some((event) => event.timing.start_time !== '16:30' || event.timing.end_time !== '17:30')) {
+  throw new Error(`IZH curator-hour materialization changed: ${JSON.stringify(curatorEvents.slice(0, 3))}`);
 }
 const prepared = prepareSchedulePublication(candidate, { now: '2026-08-15T19:30:00.000Z' });
 if (!prepared.inputQa.publishable || !prepared.outputQa.publishable) {
@@ -156,9 +160,8 @@ if (productionGate?.code !== 'IZH_WEEKLY_LECTURE_INCOMPLETE') {
   throw new Error('IZH combined production gate did not fail closed');
 }
 const blockers = izhgmuWeeklyLectureBlockers(combined);
-if (blockers.length !== 2
-    || !blockers.some((item) => item.warning === 'end_time_missing_in_source')
-    || !blockers.some((item) => item.warning === 'elective_choice_required')) {
+if (blockers.length !== 1
+    || blockers[0].warning !== 'elective_choice_required') {
   throw new Error(`IZH combined blockers changed: ${JSON.stringify(blockers)}`);
 }
 
@@ -177,6 +180,7 @@ console.log('IZHGMU_WEEKLY_LECTURE_REAL', JSON.stringify({
     unmapped: lecture.classCoverage.unmapped.length,
   },
   combinedSafeEvents: candidate.events.length,
+  curatorEvents: curatorEvents.length,
   blockers: blockers.map((item) => item.warning),
   inputQa: prepared.inputQa.publishable,
   outputQa: prepared.outputQa.publishable,
