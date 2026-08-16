@@ -34,6 +34,15 @@ jobs:
           if (!command || typeof command !== 'object') throw new Error('Invalid VK command');
           if (typeof command.id !== 'string' || !command.id) throw new Error('Missing command id');
           if (typeof command.action !== 'string' || !command.action) throw new Error('Missing command action');
+          const unsupportedLinkMutations = new Set([
+            'group.link.add',
+            'group.link.edit',
+            'group.link.delete',
+            'group.link.reorder',
+          ]);
+          if (unsupportedLinkMutations.has(command.action)) {
+            throw new Error('VK production API does not support community link mutations; manage community menu/links in VK UI');
+          }
           NODE
 
       - name: Execute VK command
