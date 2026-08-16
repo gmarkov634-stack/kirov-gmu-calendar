@@ -11,6 +11,9 @@ const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
 const MAX_GROUP_DESCRIPTION_LENGTH = 10000;
 const MAX_GROUP_WEBSITE_LENGTH = 2048;
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
+const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
+const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit"]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
@@ -163,6 +166,87 @@ function cleanGroupEditPayload(value) {
   return fields;
 }
 
+function cleanPhotoSourceUrl(value) {
+  const raw = String(value || "").trim();
+  let url;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("invalid_photo_source_url");
+  }
+  if (url.protocol !== "https:" || url.hostname !== PHOTO_SOURCE_HOST) throw new Error("invalid_photo_source_url");
+  if (!url.pathname.startsWith(PHOTO_SOURCE_PREFIX) || !url.pathname.includes("/ops/vk/assets/")) {
+    throw new Error("invalid_photo_source_url");
+  }
+  if (!/\.(?:jpe?g|png)$/i.test(url.pathname)) throw new Error("invalid_photo_source_url");
+  if (url.search || url.hash) throw new Error("invalid_photo_source_url");
+  return url.toString();
+}
+
+function photoContentType(buffer, declaredType = "") {
+  const type = String(declaredType || "").split(";", 1)[0].trim().toLowerCase();
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+  if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (["image/jpeg", "image/png"].includes(type)) return type;
+  throw new Error("invalid_photo_source_content");
+}
+
+async function importWallPhoto({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const sourceResponse = await fetchImpl(sourceUrl, {
+    method: "GET",
+    headers: { Accept: "image/jpeg,image/png" },
+    redirect: "error",
+  });
+  if (!sourceResponse.ok) throw new Error("photo_source_unavailable");
+  const bytes = Buffer.from(await sourceResponse.arrayBuffer());
+  if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("invalid_photo_source_content");
+  const contentType = photoContentType(bytes, sourceResponse.headers?.get?.("content-type"));
+
+  const uploadServer = await vkMethod({
+    method: "photos.getWallUploadServer",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { group_id: groupId },
+  });
+  let uploadUrl;
+  try {
+    uploadUrl = new URL(String(uploadServer?.upload_url || ""));
+  } catch {
+    throw new Error("vk_photo_upload_failed");
+  }
+  if (uploadUrl.protocol !== "https:") throw new Error("vk_photo_upload_failed");
+
+  const form = new FormData();
+  form.append("photo", new Blob([bytes], { type: contentType }), contentType === "image/png" ? "post.png" : "post.jpg");
+  const uploadResponse = await fetchImpl(uploadUrl.toString(), { method: "POST", body: form });
+  if (!uploadResponse.ok) throw new Error("vk_photo_upload_failed");
+  const uploaded = await uploadResponse.json();
+  const server = String(uploaded?.server ?? "").trim();
+  const photo = typeof uploaded?.photo === "string" ? uploaded.photo : JSON.stringify(uploaded?.photo ?? "");
+  const hash = String(uploaded?.hash ?? "").trim();
+  if (!/^-?\d+$/.test(server) || !photo || photo.length > 20000 || !hash || hash.length > 2048) {
+    throw new Error("vk_photo_upload_failed");
+  }
+
+  const saved = await vkMethod({
+    method: "photos.saveWallPhoto",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { group_id: groupId, server, photo, hash },
+  });
+  const photos = Array.isArray(saved) ? saved : (Array.isArray(saved?.photos) ? saved.photos : []);
+  const item = photos[0];
+  const id = Number(item?.id || 0);
+  const ownerId = Number(item?.owner_id || 0);
+  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(ownerId) || ownerId === 0) throw new Error("vk_photo_save_failed");
+  return {
+    attachment: `photo${ownerId}_${id}`,
+    photo: { id, ownerId, imageUrl: bestPhotoUrl(item) },
+  };
+}
+
 function bestPhotoUrl(photo) {
   const sizes = Array.isArray(photo?.sizes) ? photo.sizes : [];
   return [...sizes]
@@ -298,6 +382,11 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
   }
 
+  if (command.action === "photo.importWall") {
+    const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
+    return importWallPhoto({ sourceUrl, groupId, token, apiVersion, fetchImpl });
+  }
+
   if (command.action === "wall.post") {
     const message = cleanMessage(command.payload?.message);
     const attachments = cleanAttachments(command.payload?.attachments);
@@ -427,10 +516,15 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_group_edit_payload",
         "invalid_group_description",
         "invalid_group_website",
+        "invalid_photo_source_url",
+        "invalid_photo_source_content",
         "unsupported_action",
         "vk_group_not_found",
       ].includes(error?.message)) {
         return sendJson(response, 400, { error: error.message });
+      }
+      if (["photo_source_unavailable", "vk_photo_upload_failed", "vk_photo_save_failed"].includes(error?.message)) {
+        return sendJson(response, 502, { error: error.message });
       }
       if (["vk_oauth_vault_not_configured", "vk_oauth_credentials_missing"].includes(error?.message)) {
         return sendJson(response, 503, { error: "vk_control_not_configured" });
