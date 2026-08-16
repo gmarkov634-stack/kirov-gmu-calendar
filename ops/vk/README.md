@@ -18,10 +18,21 @@
 | `wall.unpin` | unsupported | **fail-closed HTTP 501** вместе с `wall.pin` |
 | `group.info` | community `VK_ACCESS_TOKEN` | **PASS**; read-only `groups.getById`, production verified 16.08.2026 |
 | `group.edit` | community `VK_ACCESS_TOKEN` | **PASS**; только allowlist `description` + `website`, production verified 16.08.2026 |
+| `photo.importWall` | managed VK ID user OAuth | **PENDING REAUTH**; код и production deploy готовы, первый probe на старой сессии `wall groups` вернул VK error 15; новый scope `wall groups photos` уже развернут |
 
-Автоматические fallback между классами токенов запрещены. Успех одного `wall.*` или `groups.*` метода не считается доказательством поддержки другого.
+Автоматические fallback между классами токенов запрещены. Успех одного `wall.*`, `photos.*` или `groups.*` метода не считается доказательством поддержки другого.
 
-Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи, читать allowlisted публичные метаданные сообщества и — только после явного подтверждения пользователя — менять `description` и `website`. Закрепление и удаление выполняются вручную в интерфейсе VK. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста.
+Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи, читать allowlisted публичные метаданные сообщества и — только после явного подтверждения пользователя — менять `description` и `website`. Закрепление и удаление выполняются вручную в интерфейсе VK. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста. Публикация поста с изображением состоит из двух отдельных операций: `photo.importWall` получает VK photo attachment, затем production-подтверждённый `wall.post` публикует согласованный текст с этим attachment.
+
+## Wall photo import
+
+PR #151 добавил защищённый `photo.importWall`. Источник изображения ограничен HTTPS URL из `raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/.../ops/vk/assets/`, разрешены только JPEG/PNG до 8 МБ. Это SSRF boundary: произвольный внешний URL использовать нельзя.
+
+Flow: managed user OAuth → `photos.getWallUploadServer` → multipart upload → `photos.saveWallPhoto` → наружу возвращается только безопасный attachment вида `photo<owner_id>_<id>`. Community token для этого flow намеренно не используется. Сам `wall.post` остаётся отдельной community-token операцией.
+
+Утверждённый visual для следующего поста сохранён PR #152 в `ops/vk/assets/post66-study-day-approved-20260816.jpg`.
+
+Первый production probe через operational PR #155 дошёл до VK и вернул `vk_api_error`, code `15` (`Access denied`). Стена при этом не изменялась. Причина — сохранённая managed VK ID сессия была выдана со scope `wall groups`. PR #156 изменил требуемый scope на `wall groups photos`; regression и production deploy/smoke прошли. До повторного production probe администратор должен один раз пройти штатный OAuth flow и подтвердить новое право `photos`. Только после успешного probe capability можно перевести из `PENDING REAUTH` в `PASS`.
 
 ## Group metadata read/write
 
@@ -51,7 +62,7 @@ PR #146 добавил `group.edit` как отдельную community-token mu
 Интеграция разделяет два контура авторизации:
 
 - `VK_ACCESS_TOKEN` — токен сообщества для Callback API, сообщений, подтверждённого `wall.post`, read-only `group.info` и строго allowlisted `group.edit`;
-- пользовательская OAuth-сессия администратора VK ID — для подтверждённого чтения стены и user-token маршрутов.
+- пользовательская OAuth-сессия администратора VK ID — для подтверждённого чтения стены, user-token маршрутов и `photo.importWall`.
 
 Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback для user-token операций, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
 
@@ -65,7 +76,7 @@ Community token никогда не используется как fallback д�
 - base domain: `kgmu-calendar-api.containerapps.ru`;
 - trusted redirect URL: `https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback`.
 
-`/api/v1/vk/oauth/start` — стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID с минимальным scope `wall groups`.
+`/api/v1/vk/oauth/start` — стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID. С 16.08.2026 требуемый scope — `wall groups photos`: `photos` нужен только для загрузки уже утверждённых изображений к записям сообщества.
 
 `/api/v1/vk/oauth/callback` проверяет обязательные параметры и совпадение `state`, обменивает одноразовый authorization code на пользовательский token через OAuth 2.1/PKCE и сначала выполняет `wall.get` для `VK_CALLBACK_GROUP_ID`. Только после успешного `wall.get` разрешено постоянное сохранение.
 
@@ -79,7 +90,11 @@ Access token, refresh token и `device_id` шифруются AES-256-GCM до �
 
 После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
 
-`/api/v1/vk/wall` и `wall.list` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post`, `group.info` и строго allowlisted `group.edit` используют community token.
+`/api/v1/vk/wall`, `wall.list` и `photo.importWall` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post`, `group.info` и строго allowlisted `group.edit` используют community token.
+
+## Cloud.ru deploy boundary
+
+Во время внедрения `photo.importWall` Cloud.ru временно возвращал контейнер `running`, но revisions API не отмечал ни одну ревизию как `active`. PR #153 сделал current container resource авторитетным источником readiness и exact immutable image, а revisions list — диагностическим источником; состояние с несколькими active revisions по-прежнему fail-closed. PR #154 вернул полный production smoke: catalog, auth guards и authenticated funnel v2 (`FUNNEL_V2_SAFE`). После #154 и #156 цепочки publish → deploy → production smoke прошли успешно.
 
 ## Current wall state after cleanup
 
