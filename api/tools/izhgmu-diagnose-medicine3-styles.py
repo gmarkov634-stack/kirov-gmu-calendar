@@ -31,7 +31,8 @@ def fill_key(sig):
     return (sig['fillPattern'],sig['patternColorIndex'],sig['backgroundColorIndex'])
 
 rows=[]
-for r in range(12,25):
+# Include Russian pairs 301-326 and the immediately following English 3501-3506 rows.
+for r in range(12,28):
     last=None; run=None; runs=[]
     for c in range(1,sh.ncols):
         sig=fill_sig(r,c); key=fill_key(sig)
@@ -50,7 +51,6 @@ for r in range(12,25):
     if run: runs.append(run)
     rows.append({'row':r+1,'label':txt(r,0),'runs':runs})
 
-# Correlate each merged department block with its literal source fill.
 metadata=[]
 for rlo,rhi,clo,chi in sh.merged_cells:
     if rlo == 30 and rhi == 31 and clo > 0:
@@ -59,7 +59,7 @@ for rlo,rhi,clo,chi in sh.merged_cells:
             metadata.append({'department':department,'c1':clo+1,'c2':chi,**fill_sig(rlo,clo)})
 metadata.sort(key=lambda item:item['c1'])
 
-out={'version':4,'source':src,'segmentation':'fill_color','rows':rows,'metadataColors':metadata}
+out={'version':5,'source':src,'segmentation':'fill_color','rows':rows,'metadataColors':metadata}
 (root/'medicine3-style-diagnostic.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
 for item in metadata:
     print('METADATA_COLOR',json.dumps(item,ensure_ascii=False))
