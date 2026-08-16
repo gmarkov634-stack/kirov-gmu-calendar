@@ -7,6 +7,7 @@ on:
     paths:
       - "api/src/adapters/izhgmu/weekly-parser.mjs"
       - "api/src/adapters/izhgmu/lecture-parser.mjs"
+      - "api/src/adapters/izhgmu/weekly-lecture.mjs"
       - "api/src/adapters/izhgmu/weekly-lecture-elective-catalog.mjs"
       - "api/src/adapters/izhgmu/weekly-lecture-personalization-readiness.mjs"
       - "api/src/subscription-personalization.js"
@@ -22,6 +23,7 @@ on:
       - "api/tools/izhgmu-annotate-medicine1-dryrun-readiness.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator.mjs"
       - "api/tools/izhgmu-audit-medicine1-curator-geometry.mjs"
+      - "api/test/izhgmu-curator-hour-duration-policy.test.mjs"
       - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
       - "api/test/izhgmu-weekly-lecture-personalization-readiness.test.mjs"
       - "api/test/subscription-personalization.test.js"
@@ -48,7 +50,7 @@ jobs:
         run: npm ci
       - name: Run personalization unit regression
         working-directory: api
-        run: node --test test/izhgmu-weekly-lecture-elective-catalog.test.mjs test/izhgmu-weekly-lecture-personalization-readiness.test.mjs test/subscription-personalization.test.js test/schedule-personalization-publication.test.js
+        run: node --test test/izhgmu-curator-hour-duration-policy.test.mjs test/izhgmu-weekly-lecture-elective-catalog.test.mjs test/izhgmu-weekly-lecture-personalization-readiness.test.mjs test/subscription-personalization.test.js test/schedule-personalization-publication.test.js
       - name: Collect exact current official IzhGMU sources
         working-directory: api
         run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
