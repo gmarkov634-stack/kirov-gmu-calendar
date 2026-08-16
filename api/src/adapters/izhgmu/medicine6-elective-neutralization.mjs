@@ -66,10 +66,12 @@ function neutralCycleSeries(parsed, choice) {
 }
 
 export function neutralizeIzhgmuMedicine6CycleElectives(parsed) {
-  if (parsed?.profile !== 'IZH-CYCLE' || parsed?.sourceProfile !== 'IZH-CYCLE-MEDICINE6') {
-    throw new TypeError('IZH-CYCLE-MEDICINE6 parsed source is required');
+  if (parsed?.profile !== 'IZH-CYCLE') {
+    throw new TypeError('IZH-CYCLE parsed source is required');
   }
   const next = clone(parsed);
+  if (next.sourceProfile !== 'IZH-CYCLE-MEDICINE6') return next;
+
   const choices = Array.isArray(next.electiveChoices) ? next.electiveChoices : [];
   const existingSlots = new Set((next.series || []).map((item) => Number(item?.electiveSlot)).filter(Number.isInteger));
   const materialized = choices
