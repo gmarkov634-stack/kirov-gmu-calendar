@@ -1,21 +1,52 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { academicYearStorageSegment, scheduleContext } from "./order-context.js";
 import { projectScheduleForSubscription } from "./subscription-personalization.js";
 import { TrialEnabledStore } from "./trial-store.js";
 
 const SHA256 = /^[a-f0-9]{64}$/;
+const SAFE_SEGMENT = /^[A-Za-z0-9_-]+$/;
 
 function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
+}
+
+function personalizationKey(input) {
+  const context = scheduleContext(input, input?.university);
+  const year = academicYearStorageSegment(context.academicYear);
+  const semester = Number(context.semester);
+  if (!SAFE_SEGMENT.test(String(context.university || ""))
+      || !SAFE_SEGMENT.test(String(context.program || ""))
+      || !Number.isInteger(context.course) || context.course < 1
+      || !context.groupId || !year || ![1, 2].includes(semester)) {
+    const error = new Error("Incomplete schedule personalization context");
+    error.code = "schedule_personalization_context_invalid";
+    throw error;
+  }
+  return `schedule-personalization/${context.university}/${context.program}/${context.course}/${year}/semester-${semester}/${encodeURIComponent(context.groupId)}.json`;
 }
 
 export class FunnelAnalyticsStore extends TrialEnabledStore {
   async getSchedule(input) {
     const schedule = await super.getSchedule(input);
     if (!schedule) return null;
-    if (!input?.preferences?.electives) return schedule;
-    return projectScheduleForSubscription(schedule, input);
+    if (!input?.preferences?.electives || !Object.keys(input.preferences.electives).length) return schedule;
+    const catalog = await this.getSchedulePersonalization(input);
+    return projectScheduleForSubscription(schedule, input, catalog);
+  }
+
+  async getSchedulePersonalization(input) {
+    return this.#readJson(personalizationKey(input));
+  }
+
+  async putSchedulePersonalization(input, catalog) {
+    if (catalog?.version !== 1 || !Array.isArray(catalog?.electives)) {
+      const error = new Error("Invalid schedule personalization catalog");
+      error.code = "schedule_personalization_invalid";
+      throw error;
+    }
+    await this.#writeJson(personalizationKey(input), catalog);
   }
 
   async listFunnelOrders() {
