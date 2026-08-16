@@ -68,7 +68,7 @@ replaceOnce(
           print(active[0].get('name','') if len(active) == 1 else '')
           PY
               )"
-              echo "REVISION_POLL_SAFE attempt=$attempt active=${new_revision:-none}"
+              echo "REVISION_POLL_SAFE attempt=$attempt active=\${new_revision:-none}"
               if [ -n "$new_revision" ] && [ "$new_revision" != "$old_revision" ]; then
                 break
               fi
@@ -90,7 +90,7 @@ replaceOnce(
           print(active[0].get('name','') if active else '')
           PY
               )"
-              echo "REVISION_POLL_SAFE attempt=$attempt active=${new_revision:-none}"
+              echo "REVISION_POLL_SAFE attempt=$attempt active=\${new_revision:-none}"
               if [ -n "$new_revision" ] && { [ -z "$old_revision" ] || [ "$new_revision" != "$old_revision" ]; }; then
                 break
               fi
