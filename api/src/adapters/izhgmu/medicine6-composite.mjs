@@ -9,10 +9,6 @@ import {
 } from './postsemester-canonical.mjs';
 import { IZHGMU_MEDICINE6_POSTSEMESTER_REVIEW } from './postsemester-reviewed.mjs';
 import { classifyIzhgmuMedicine6Blockers } from './medicine6-blocker-resolution.mjs';
-import {
-  neutralizeIzhgmuMedicine6CycleElectives,
-  neutralizeIzhgmuMedicine6LectureElectiveNames,
-} from './medicine6-elective-neutralization.mjs';
 
 const COMPOSITE_PERIOD = Object.freeze({
   start_date: '2026-02-02',
@@ -31,16 +27,6 @@ function componentBlockers(sourceComponent, items) {
     ...item,
     source_component: sourceComponent,
   }));
-}
-
-function normalizeLectureBlocker(item) {
-  if (item?.warning !== 'elective_choice_required') return item;
-  return {
-    ...item,
-    warning: 'elective_schedule_mapping_required',
-    kind: 'audience_mapping',
-    discipline: 'Дисциплина по выбору',
-  };
 }
 
 function eventKey(event) {
@@ -96,16 +82,16 @@ export function buildIzhgmuMedicine6CompositeCandidate({
   const course = Number(metadata?.course);
   if (course !== 6) throw new TypeError('metadata.course must be 6');
 
-  const normalizedCycleParsed = neutralizeIzhgmuMedicine6CycleElectives(cycle?.parsed);
-  const normalizedLectureParsed = neutralizeIzhgmuMedicine6LectureElectiveNames(lecture?.parsed);
+  const cycleParsed = cycle?.parsed;
+  const lectureParsed = lecture?.parsed;
 
   const cycleBatch = buildIzhgmuCycleQaCandidate({
-    parsed: normalizedCycleParsed,
+    parsed: cycleParsed,
     metadata,
     source: cycle?.source,
   });
   const lectureBatch = buildIzhgmuMedicine6LectureQaCandidate({
-    parsed: normalizedLectureParsed,
+    parsed: lectureParsed,
     metadata,
     source: lecture?.source,
   });
@@ -134,8 +120,8 @@ export function buildIzhgmuMedicine6CompositeCandidate({
     throw error;
   }
 
-  const cycleBlockers = izhgmuCycleBlockers(normalizedCycleParsed);
-  const lectureBlockers = izhgmuMedicine6LectureBlockers(normalizedLectureParsed).map(normalizeLectureBlocker);
+  const cycleBlockers = izhgmuCycleBlockers(cycleParsed);
+  const lectureBlockers = izhgmuMedicine6LectureBlockers(lectureParsed);
   const blockers = [
     ...componentBlockers('cycle', cycleBlockers),
     ...componentBlockers('lecture', lectureBlockers),
