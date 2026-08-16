@@ -10,6 +10,7 @@ on:
       - "api/tools/izhgmu-diagnose-medicine3-styles.py"
       - "api/tools/izhgmu-diagnose-medicine3-lecture.mjs"
       - "api/tools/izhgmu-parse-medicine3-legacy.py"
+      - "api/tools/izhgmu-verify-medicine3-lecture-audience.mjs"
       - ".github/workflows/izhgmu-medicine3-diagnostic.yml"
   workflow_dispatch:
 
@@ -50,6 +51,9 @@ jobs:
       - name: Diagnose medicine course 3 lecture XLSX
         working-directory: api
         run: node tools/izhgmu-diagnose-medicine3-lecture.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify medicine course 3 lecture audience against cycles
+        working-directory: api
+        run: node tools/izhgmu-verify-medicine3-lecture-audience.mjs --input-dir /tmp/izhgmu-current
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,5 +65,6 @@ jobs:
             /tmp/izhgmu-current/medicine3-style-diagnostic.json
             /tmp/izhgmu-current/medicine3-legacy-cycle.json
             /tmp/izhgmu-current/medicine3-lecture-diagnostic.json
+            /tmp/izhgmu-current/medicine3-lecture-audience.json
           if-no-files-found: warn
           retention-days: 14
