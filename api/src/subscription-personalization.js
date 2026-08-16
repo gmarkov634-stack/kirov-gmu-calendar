@@ -10,15 +10,14 @@ function clone(value) {
   return value === undefined ? undefined : structuredClone(value);
 }
 
-function electiveBlocks(schedule) {
-  const blocks = schedule?.personalization?.electives;
-  if (blocks == null) return [];
-  if (!Array.isArray(blocks)) {
-    const error = new Error('Schedule elective personalization must be an array');
+function electiveBlocks(catalog) {
+  if (catalog == null) return [];
+  if (catalog?.version !== 1 || !Array.isArray(catalog?.electives)) {
+    const error = new Error('Schedule elective personalization catalog is invalid');
     error.code = 'schedule_personalization_invalid';
     throw error;
   }
-  return blocks;
+  return catalog.electives;
 }
 
 function blockId(block) {
@@ -78,9 +77,9 @@ function preferences(subscription) {
   return value;
 }
 
-export function projectScheduleForSubscription(schedule, subscription) {
+export function projectScheduleForSubscription(schedule, subscription, catalog = null) {
   const next = clone(schedule);
-  const blocks = electiveBlocks(next);
+  const blocks = electiveBlocks(catalog);
   if (!blocks.length) return next;
 
   const selected = preferences(subscription);
@@ -99,22 +98,11 @@ export function projectScheduleForSubscription(schedule, subscription) {
   }
 
   next.events = [...(Array.isArray(next.events) ? next.events : []), ...personalizedEvents];
-  next.subscriptionPersonalization = {
-    electives: blocks.map((block) => {
-      const id = blockId(block);
-      const selection = normalized(selected[id]);
-      return {
-        id,
-        state: selection ? 'selected' : 'unselected',
-        selected: selection || null,
-      };
-    }),
-  };
   return next;
 }
 
-export function updateSubscriptionElectivePreferences(subscription, schedule, input) {
-  const blocks = electiveBlocks(schedule);
+export function updateSubscriptionElectivePreferences(subscription, catalog, input) {
+  const blocks = electiveBlocks(catalog);
   const byId = new Map(blocks.map((block) => [blockId(block), block]));
   const requested = input?.electives;
   if (!requested || typeof requested !== 'object' || Array.isArray(requested)) {
@@ -125,20 +113,21 @@ export function updateSubscriptionElectivePreferences(subscription, schedule, in
 
   const current = { ...preferences(subscription) };
   for (const [id, value] of Object.entries(requested)) {
-    const block = byId.get(normalized(id));
+    const normalizedId = normalized(id);
+    const block = byId.get(normalizedId);
     if (!block) {
       const error = new Error(`Unknown elective block: ${id}`);
       error.code = 'elective_block_not_available';
-      error.blockId = normalized(id);
+      error.blockId = normalizedId;
       throw error;
     }
     const selection = normalized(value);
     if (!selection) {
-      delete current[id];
+      delete current[normalizedId];
       continue;
     }
     const option = findOption(block, selection);
-    current[id] = optionIdentity(option);
+    current[normalizedId] = optionIdentity(option);
   }
 
   return {
@@ -151,10 +140,10 @@ export function updateSubscriptionElectivePreferences(subscription, schedule, in
   };
 }
 
-export function subscriptionPersonalizationView(schedule, subscription) {
+export function subscriptionPersonalizationView(catalog, subscription) {
   const selected = preferences(subscription);
   return {
-    electives: electiveBlocks(schedule).map((block) => {
+    electives: electiveBlocks(catalog).map((block) => {
       const id = blockId(block);
       const selection = normalized(selected[id]);
       const selectedOption = selection ? findOption(block, selection) : null;
