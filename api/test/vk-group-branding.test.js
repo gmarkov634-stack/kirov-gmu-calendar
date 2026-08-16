@@ -38,7 +38,7 @@ function jpegResponse() {
   };
 }
 
-test("group.cover.set uses community token, cover file multipart field, centered crop, and response_json save", async () => {
+test("group.cover.set uses community token, cover file multipart field, normalized centered crop, and response_json save", async () => {
   let managedTokenCalls = 0;
   const methods = [];
   const response = fakeResponse();
@@ -73,9 +73,9 @@ test("group.cover.set uses community token, cover file multipart field, centered
         if (method === "photos.getOwnerCoverPhotoUploadServer") {
           assert.equal(options.body.get("group_id"), "191574528");
           assert.equal(options.body.get("crop_x"), "0");
-          assert.equal(options.body.get("crop_y"), "65");
-          assert.equal(options.body.get("crop_x2"), "1590");
-          assert.equal(options.body.get("crop_y2"), "465");
+          assert.equal(options.body.get("crop_y"), "32");
+          assert.equal(options.body.get("crop_x2"), "795");
+          assert.equal(options.body.get("crop_y2"), "232");
           return { ok: true, async json() { return { response: { upload_url: "https://pu.vk.com/group-cover" } }; } };
         }
         if (method === "photos.saveOwnerCoverPhoto") {
