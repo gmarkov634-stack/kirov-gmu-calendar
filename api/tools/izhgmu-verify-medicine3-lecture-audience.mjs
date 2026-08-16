@@ -148,7 +148,7 @@ for(const row of [...byRow.keys()].filter((r)=>r>=7).sort((a,b)=>a-b)){
     ordinary.push(item);
     audit.classifications[classification]=(audit.classifications[classification]||0)+1;
     for(const group of russianGroups){ if(perGroup[group]) perGroup[group].push(item); }
-    if(classification==='neither') unresolved.push({kind:'lecture_audience_no_cycle_match',...item});
+    if(classification==='neither') unresolved.push({...item,kind:'lecture_audience_no_cycle_match'});
   }
   rowAudits.push(audit);
 }
