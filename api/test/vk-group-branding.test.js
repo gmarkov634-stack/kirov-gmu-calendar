@@ -38,7 +38,7 @@ function jpegResponse() {
   };
 }
 
-test("group.cover.set uses community token only, centered 1590x400 crop, and response_json save", async () => {
+test("group.cover.set uses community token, cover file multipart field, centered crop, and response_json save", async () => {
   let managedTokenCalls = 0;
   const methods = [];
   const response = fakeResponse();
@@ -62,6 +62,8 @@ test("group.cover.set uses community token only, centered 1590x400 crop, and res
       if (value === "https://pu.vk.com/group-cover") {
         assert.equal(options.method, "POST");
         assert.ok(options.body instanceof FormData);
+        assert.ok(options.body.get("file") instanceof Blob);
+        assert.equal(options.body.get("photo"), null);
         return { ok: true, async json() { return { hash: "cover-hash", photo: "cover-photo" }; } };
       }
       if (value.startsWith("https://api.vk.com/method/")) {
@@ -102,7 +104,7 @@ test("group.cover.set uses community token only, centered 1590x400 crop, and res
   });
 });
 
-test("group.avatar.set uses managed user token only", async () => {
+test("group.avatar.set uses managed user token only and keeps photo multipart field", async () => {
   let managedTokenCalls = 0;
   const methods = [];
   const response = fakeResponse();
@@ -126,6 +128,8 @@ test("group.avatar.set uses managed user token only", async () => {
       if (value === "https://pu.vk.com/group-avatar") {
         assert.equal(options.method, "POST");
         assert.ok(options.body instanceof FormData);
+        assert.ok(options.body.get("photo") instanceof Blob);
+        assert.equal(options.body.get("file"), null);
         return { ok: true, async json() { return { server: 321, hash: "avatar-hash", photo: "avatar-photo" }; } };
       }
       if (value.startsWith("https://api.vk.com/method/")) {
