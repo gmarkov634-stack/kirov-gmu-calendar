@@ -1,0 +1,8 @@
+{
+  "id": "vk-set-cover-normalized-20260817-001",
+  "action": "group.cover.set",
+  "createdAt": "2026-08-16T22:14:00.000Z",
+  "payload": {
+    "sourceUrl": "https://raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/9981111b5362c1673e67c34ab7e5efb95c550907/ops/vk/assets/group-cover-independent-1590x530-20260816.jpg"
+  }
+}
