@@ -5,6 +5,7 @@ on:
     branches:
       - agent/izhgmu-batch-acquisition
     paths:
+      - "api/src/adapters/izhgmu/medicine3-composite.mjs"
       - "api/tools/izhgmu-diagnose-medicine3-legacy.py"
       - "api/tools/izhgmu-diagnose-medicine3-grid.py"
       - "api/tools/izhgmu-diagnose-medicine3-styles.py"
@@ -12,6 +13,7 @@ on:
       - "api/tools/izhgmu-parse-medicine3-legacy.py"
       - "api/tools/izhgmu-verify-medicine3-lecture-audience.mjs"
       - "api/tools/izhgmu-resolve-medicine3-times.mjs"
+      - "api/tools/izhgmu-check-medicine3-canonical.mjs"
       - ".github/workflows/izhgmu-medicine3-diagnostic.yml"
   workflow_dispatch:
 
@@ -58,6 +60,9 @@ jobs:
       - name: Resolve medicine course 3 practice times from lecture evidence
         working-directory: api
         run: node tools/izhgmu-resolve-medicine3-times.mjs --input-dir /tmp/izhgmu-current
+      - name: Run medicine course 3 group 301 through shared canonical QA
+        working-directory: api
+        run: node tools/izhgmu-check-medicine3-canonical.mjs --input-dir /tmp/izhgmu-current --group 301
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -71,5 +76,6 @@ jobs:
             /tmp/izhgmu-current/medicine3-lecture-diagnostic.json
             /tmp/izhgmu-current/medicine3-lecture-audience.json
             /tmp/izhgmu-current/medicine3-time-resolution.json
+            /tmp/izhgmu-current/medicine3-canonical-301.json
           if-no-files-found: warn
           retention-days: 14
