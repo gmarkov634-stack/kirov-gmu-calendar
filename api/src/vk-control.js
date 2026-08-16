@@ -17,6 +17,7 @@ const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
+const UNSUPPORTED_BRANDING_MUTATIONS = new Set(["group.cover.set", "group.avatar.set"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
@@ -541,6 +542,9 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const input = await readJson(request);
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
+      if (UNSUPPORTED_BRANDING_MUTATIONS.has(command.action)) {
+        return sendJson(response, 501, { error: "vk_group_branding_not_supported" });
+      }
       if (command.action === "wall.delete") {
         return sendJson(response, 501, { error: "vk_wall_delete_not_supported" });
       }
