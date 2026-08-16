@@ -1,0 +1,60 @@
+.subscription-electives {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid rgba(21, 89, 214, 0.18);
+  border-radius: 18px;
+  background: rgba(21, 89, 214, 0.05);
+}
+
+.subscription-electives h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.subscription-electives-copy {
+  margin: 0 0 16px;
+  color: var(--muted, #5f6b7a);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.subscription-elective-field {
+  display: grid;
+  gap: 8px;
+}
+
+.subscription-elective-field + .subscription-elective-field {
+  margin-top: 16px;
+}
+
+.subscription-elective-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.subscription-elective-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid rgba(20, 36, 64, 0.18);
+  border-radius: 12px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.subscription-elective-select:focus {
+  outline: 3px solid rgba(21, 89, 214, 0.14);
+  border-color: #1559d6;
+}
+
+.subscription-elective-select:disabled {
+  opacity: 0.7;
+}
+
+.subscription-elective-status {
+  color: var(--muted, #5f6b7a);
+  font-size: 12px;
+  line-height: 1.45;
+}
