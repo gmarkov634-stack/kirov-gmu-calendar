@@ -6,9 +6,11 @@ on:
       - agent/izhgmu-batch-acquisition
     paths:
       - "api/src/adapters/izhgmu/**"
+      - "api/test/izhgmu-medicine2-normalization.test.mjs"
       - "api/tools/izhgmu-diagnose-medicine2.mjs"
       - "api/tools/izhgmu-audit-medicine2-blockers.mjs"
       - "api/tools/izhgmu-audit-medicine2-source-evidence.mjs"
+      - "api/tools/izhgmu-check-medicine2-normalized.mjs"
       - ".github/workflows/izhgmu-medicine2-diagnostic.yml"
   workflow_dispatch:
 
@@ -29,6 +31,9 @@ jobs:
       - name: Install dependencies
         working-directory: api
         run: npm ci
+      - name: Run medicine course 2 normalization regression
+        working-directory: api
+        run: node --test test/izhgmu-medicine2-normalization.test.mjs
       - name: Collect exact current official IzhGMU sources
         working-directory: api
         run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
@@ -41,6 +46,9 @@ jobs:
       - name: Inspect medicine course 2 source evidence
         working-directory: api
         run: node tools/izhgmu-audit-medicine2-source-evidence.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify normalized medicine course 2 boundary
+        working-directory: api
+        run: node tools/izhgmu-check-medicine2-normalized.mjs --input-dir /tmp/izhgmu-current
       - name: Upload diagnostic
         if: always()
         uses: actions/upload-artifact@v4
@@ -50,5 +58,6 @@ jobs:
             /tmp/izhgmu-current/medicine2-diagnostic.json
             /tmp/izhgmu-current/medicine2-blocker-audit.json
             /tmp/izhgmu-current/medicine2-source-evidence.json
+            /tmp/izhgmu-current/medicine2-normalized.json
           if-no-files-found: warn
           retention-days: 14
