@@ -7,6 +7,7 @@ import { parseIzhgmuLectureStructures } from '../src/adapters/izhgmu/lecture-par
 import { composeIzhgmuWeeklyLecture } from '../src/adapters/izhgmu/weekly-lecture.mjs';
 import {
   normalizeIzhgmuMedicine2ClassStructure,
+  normalizeIzhgmuMedicine2LectureStructure,
   normalizeIzhgmuMedicine2CompanionForWeekly,
   normalizeIzhgmuMedicine2Combined,
 } from '../src/adapters/izhgmu/medicine2-normalization.mjs';
@@ -58,8 +59,9 @@ for (const stream of ['1', '2', '3']) {
   const classBuffer = await fs.readFile(path.join(inputDir, classSource.filename));
   const lectureBuffer = await fs.readFile(path.join(inputDir, lectureSource.filename));
   if (sha256(classBuffer) !== classSource.sha256 || sha256(lectureBuffer) !== lectureSource.sha256) throw new Error(`SHA mismatch stream ${stream}`);
-  const [rawClass, lectureStructure] = await Promise.all([readIzhgmuXlsxStructure(classBuffer), readIzhgmuXlsxStructure(lectureBuffer)]);
+  const [rawClass, rawLecture] = await Promise.all([readIzhgmuXlsxStructure(classBuffer), readIzhgmuXlsxStructure(lectureBuffer)]);
   const classStructure = normalizeIzhgmuMedicine2ClassStructure(rawClass);
+  const lectureStructure = normalizeIzhgmuMedicine2LectureStructure(rawLecture);
   const companion = normalizeIzhgmuMedicine2CompanionForWeekly(lectureStructure);
   const groupCodes = groups(classStructure);
   const groupResults = [];
