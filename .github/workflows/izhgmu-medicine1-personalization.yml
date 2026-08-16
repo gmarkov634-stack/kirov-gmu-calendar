@@ -16,6 +16,7 @@ on:
       - "api/src/schedule/publish-handler.js"
       - "api/tools/izhgmu-check-medicine1-electives.mjs"
       - "api/tools/izhgmu-check-medicine1-publication.mjs"
+      - "api/tools/izhgmu-build-medicine1-dryrun-packages.mjs"
       - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
       - "api/test/subscription-personalization.test.js"
       - "api/test/schedule-personalization-publication.test.js"
@@ -28,7 +29,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,6 +52,9 @@ jobs:
       - name: Verify real group-109 publication boundary
         working-directory: api
         run: node tools/izhgmu-check-medicine1-publication.mjs --input-dir /tmp/izhgmu-current
+      - name: Build dry-run packages for all 30 groups
+        working-directory: api
+        run: node tools/izhgmu-build-medicine1-dryrun-packages.mjs --input-dir /tmp/izhgmu-current --output-dir /tmp/izhgmu-medicine1-dryrun
       - name: Show personalization summary
         if: always()
         shell: bash
@@ -72,11 +76,28 @@ jobs:
           else
             echo "Personalization report was not generated."
           fi
+          if [ -f /tmp/izhgmu-medicine1-dryrun/manifest.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('/tmp/izhgmu-medicine1-dryrun/manifest.json').read_text())
+          print('DRYRUN_SUMMARY', manifest['summary'])
+          print('PRODUCTION_AUTHORIZED', manifest['productionAuthorized'])
+          PY
+          fi
       - name: Upload medicine-1 personalization report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: izhgmu-medicine1-personalization
           path: /tmp/izhgmu-current/medicine1-elective-personalization.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload medicine-1 dry-run packages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-medicine1-dryrun-packages
+          path: /tmp/izhgmu-medicine1-dryrun
           if-no-files-found: warn
           retention-days: 14
