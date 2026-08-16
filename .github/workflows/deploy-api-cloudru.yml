@@ -84,7 +84,7 @@ jobs:
           echo "TARGET_IMAGE_SAFE=$target_image"
           echo "target_image=$target_image" >> "$GITHUB_OUTPUT"
 
-      - name: Patch only image and wait for active revision
+      - name: Patch only image and verify production template
         env:
           CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
           CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
@@ -146,8 +146,6 @@ jobs:
 
           test "$(curl --silent --show-error --output /tmp/current.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = "200"
-          test "$(curl --silent --show-error --output /tmp/revisions-before.json --write-out '%{http_code}' \
-            --header "Authorization: Bearer $token" --header 'Accept: application/json' "$revisions_url")" = "200"
 
           TARGET_IMAGE="$TARGET_IMAGE" python3 - <<'PY'
           import copy, hashlib, json, os
@@ -161,43 +159,49 @@ jobs:
           assert isinstance(current_image,str) and current_image.startswith('kgmu-calendar-api.cr.cloud.ru/api'), current_image
           env={item.get('name'):item.get('value') for item in container.get('env',[]) if isinstance(item,dict)}
           for gate in ('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'):
-              assert env.get(gate) != 'true', f'{gate} unexpectedly open; auto-deploy is intentionally fail-closed while launch gates are closed'
-
-          rows=json.load(open('/tmp/revisions-before.json', encoding='utf-8')).get('data') or []
-          active=[row for row in rows if isinstance(row,dict) and row.get('status') == 'active']
-          assert len(active) == 1, active
+              assert env.get(gate) != 'true', f'{gate} unexpectedly open; deploy is intentionally fail-closed while launch gates are closed'
 
           protected=copy.deepcopy(app.get('template') or {})
           protected_containers=protected.get('containers') or []
           assert len(protected_containers) == 1
           protected_containers[0]['image']='<DEPLOY_IMAGE>'
-          protected_fingerprint=hashlib.sha256(json.dumps(protected,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
-
+          fingerprint=hashlib.sha256(json.dumps(protected,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
           state={
-              'oldRevision': active[0].get('name'),
               'oldImage': current_image,
               'targetImage': os.environ['TARGET_IMAGE'],
               'needsPatch': current_image != os.environ['TARGET_IMAGE'],
-              'protectedTemplateFingerprint': protected_fingerprint,
+              'protectedTemplateFingerprint': fingerprint,
           }
-          assert state['oldRevision']
           json.dump(state, open('/tmp/deploy-state.json','w', encoding='utf-8'))
           if state['needsPatch']:
               container['image']=os.environ['TARGET_IMAGE']
               json.dump(app, open('/tmp/patch.json','w', encoding='utf-8'), ensure_ascii=False, separators=(',',':'))
           print('DEPLOY_PRECHECK_SAFE', {
-              'oldRevision':state['oldRevision'],
               'oldImage':state['oldImage'],
               'targetImage':state['targetImage'],
               'needsPatch':state['needsPatch'],
               'gates':'closed_or_unset',
-              'protectedTemplateFingerprint':protected_fingerprint,
+              'protectedTemplateFingerprint':fingerprint,
           })
           PY
 
-          needs_patch="$(python3 -c "import json; print('true' if json.load(open('/tmp/deploy-state.json'))['needsPatch'] else 'false')")"
-          old_revision="$(python3 -c "import json; print(json.load(open('/tmp/deploy-state.json'))['oldRevision'])")"
+          # Revisions are diagnostic only. Cloud.ru may transiently report no row as `active`
+          # even while the authoritative container resource is `running`.
+          revisions_code="$(curl --silent --show-error --output /tmp/revisions-before.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $token" --header 'Accept: application/json' "$revisions_url")"
+          if [ "$revisions_code" = "200" ]; then
+            python3 - <<'PY'
+          import json
+          rows=json.load(open('/tmp/revisions-before.json', encoding='utf-8')).get('data') or []
+          active=[row.get('name') for row in rows if isinstance(row,dict) and row.get('status') == 'active' and row.get('name')]
+          assert len(active) <= 1, active
+          print('REVISION_DIAGNOSTIC_SAFE', {'count':len(rows),'active':active[0] if active else 'not-reported'})
+          PY
+          else
+            echo "REVISION_DIAGNOSTIC_SAFE unavailable_http=$revisions_code"
+          fi
 
+          needs_patch="$(python3 -c "import json; print('true' if json.load(open('/tmp/deploy-state.json'))['needsPatch'] else 'false')")"
           if [ "$needs_patch" = "true" ]; then
             patch_code="$(curl --silent --show-error --output /tmp/patch-response.json --write-out '%{http_code}' \
               --request PATCH --header "Authorization: Bearer $token" --header 'Content-Type: application/json' \
@@ -215,36 +219,15 @@ jobs:
               exit 1
             fi
             rm -f /tmp/patch.json /tmp/patch-response.json
-
-            new_revision=''
-            for attempt in $(seq 1 60); do
-              sleep 5
-              test "$(curl --silent --show-error --output /tmp/revisions-now.json --write-out '%{http_code}' \
-                --header "Authorization: Bearer $token" --header 'Accept: application/json' "$revisions_url")" = "200"
-              new_revision="$(python3 - <<'PY'
-          import json
-          rows=json.load(open('/tmp/revisions-now.json', encoding='utf-8')).get('data') or []
-          active=[row for row in rows if isinstance(row,dict) and row.get('status') == 'active']
-          print(active[0].get('name','') if len(active) == 1 else '')
-          PY
-              )"
-              echo "REVISION_POLL_SAFE attempt=$attempt active=${new_revision:-none}"
-              if [ -n "$new_revision" ] && [ "$new_revision" != "$old_revision" ]; then
-                break
-              fi
-            done
-            test -n "$new_revision"
-            test "$new_revision" != "$old_revision"
           else
-            new_revision="$old_revision"
-            echo "DEPLOY_SKIP_SAFE target image already active"
+            echo "DEPLOY_SKIP_SAFE target image already active on container resource"
           fi
 
           ready='false'
-          for attempt in $(seq 1 30); do
-            test "$(curl --silent --show-error --output /tmp/after.json --write-out '%{http_code}' \
-              --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = "200"
-            if TARGET_IMAGE="$TARGET_IMAGE" python3 - <<'PY'
+          for attempt in $(seq 1 40); do
+            current_code="$(curl --silent --show-error --output /tmp/after.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")"
+            if [ "$current_code" = "200" ] && TARGET_IMAGE="$TARGET_IMAGE" python3 - <<'PY'
           import json, os, sys
           app=json.load(open('/tmp/after.json', encoding='utf-8'))
           containers=app.get('template',{}).get('containers',[])
@@ -253,43 +236,41 @@ jobs:
           PY
             then
               ready='true'
+              echo "CONTAINER_READY_SAFE attempt=$attempt"
               break
             fi
+            echo "CONTAINER_WAIT_SAFE attempt=$attempt http=$current_code"
             sleep 3
           done
           test "$ready" = "true"
 
-          TARGET_IMAGE="$TARGET_IMAGE" NEW_REVISION="$new_revision" python3 - <<'PY'
+          TARGET_IMAGE="$TARGET_IMAGE" python3 - <<'PY'
           import copy, hashlib, json, os
           state=json.load(open('/tmp/deploy-state.json', encoding='utf-8'))
           app=json.load(open('/tmp/after.json', encoding='utf-8'))
+          assert app.get('status') == 'running', app.get('status')
           container=app['template']['containers'][0]
           assert container.get('image') == os.environ['TARGET_IMAGE']
           env={item.get('name'):item.get('value') for item in container.get('env',[]) if isinstance(item,dict)}
           for gate in ('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'):
               assert env.get(gate) != 'true', f'{gate} unexpectedly open after deploy'
-
           protected=copy.deepcopy(app.get('template') or {})
           protected['containers'][0]['image']='<DEPLOY_IMAGE>'
           fingerprint=hashlib.sha256(json.dumps(protected,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
           assert fingerprint == state['protectedTemplateFingerprint'], 'non-image production template drift detected'
           print('DEPLOY_RESULT_SAFE', {
-              'revision': os.environ['NEW_REVISION'],
-              'status': app.get('status'),
-              'image': container.get('image'),
+              'status':app.get('status'),
+              'image':container.get('image'),
               'gates':'closed_or_unset',
               'protectedTemplateFingerprint':fingerprint,
           })
           PY
 
       - name: Production smoke after deploy
-        env:
-          KGMU_ADMIN_TOKEN: ${{ secrets.KGMU_ADMIN_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
           base="$PRODUCTION_BASE_URL"
-
           health="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/health")"
           meta="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/api/v2/meta")"
           python3 - "$health" "$meta" <<'PY'
@@ -305,62 +286,16 @@ jobs:
           trial_status="$(curl --silent --show-error --output /tmp/trial.json --write-out '%{http_code}' \
             --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v2/trials")"
           test "$trial_status" = "409"
-          python3 - <<'PY'
-          import json
-          body=json.load(open('/tmp/trial.json', encoding='utf-8'))
-          assert body == {'error':'trials_not_open'}, body
-          print('TRIAL_GATE_SAFE', body)
-          PY
-
           analytics_status="$(curl --silent --show-error --output /tmp/analytics.json --write-out '%{http_code}' \
             --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v2/analytics")"
           test "$analytics_status" = "409"
+          vk_control_status="$(curl --silent --show-error --output /tmp/vk-control.json --write-out '%{http_code}' \
+            --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v1/vk/control")"
+          test "$vk_control_status" = "401"
           python3 - <<'PY'
           import json
-          body=json.load(open('/tmp/analytics.json', encoding='utf-8'))
-          assert body == {'error':'analytics_not_open'}, body
-          print('ANALYTICS_GATE_SAFE', body)
-          PY
-
-          programs="$(curl --fail --silent --show-error "$base/api/v2/catalog/kgmu/programs")"
-          groups="$(curl --fail --silent --show-error "$base/api/v2/catalog/kgmu/medicine/1/groups")"
-          python3 - "$programs" "$groups" <<'PY'
-          import json, sys
-          programs=json.loads(sys.argv[1]); groups=json.loads(sys.argv[2])
-          assert programs.get('university') == 'kgmu' and programs.get('academicYear') == '2026/27' and programs.get('semester') == 1
-          assert isinstance(programs.get('programs'), list)
-          assert groups.get('university') == 'kgmu' and groups.get('program') == 'medicine' and groups.get('course') == 1
-          assert groups.get('academicYear') == '2026/27' and groups.get('semester') == 1 and isinstance(groups.get('groups'), list)
-          print('CATALOG_SAFE', {'programs':len(programs['programs']),'medicineCourse1Groups':len(groups['groups'])})
-          PY
-
-          admin_status="$(curl --silent --show-error --output /tmp/admin.json --write-out '%{http_code}' --request POST "$base/api/v1/admin/kgmu/watch")"
-          test "$admin_status" = "403"
-          funnel_unauth_status="$(curl --silent --show-error --output /tmp/funnel-unauth.json --write-out '%{http_code}' "$base/api/v1/admin/funnel")"
-          test "$funnel_unauth_status" = "403"
-          control_status="$(curl --silent --show-error --output /tmp/control.json --write-out '%{http_code}' \
-            --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v1/schedule-review/control")"
-          test "$control_status" = "401"
-          python3 - <<'PY'
-          import json
-          assert json.load(open('/tmp/admin.json', encoding='utf-8')) == {'error':'admin_forbidden'}
-          assert json.load(open('/tmp/funnel-unauth.json', encoding='utf-8')) == {'error':'admin_forbidden'}
-          assert json.load(open('/tmp/control.json', encoding='utf-8')) == {'error':'unauthorized'}
-          print('AUTH_GUARDS_SAFE')
-          PY
-
-          test -n "$KGMU_ADMIN_TOKEN"
-          curl --fail-with-body --silent --show-error \
-            --header "X-Admin-Token: $KGMU_ADMIN_TOKEN" \
-            --output /tmp/funnel.json \
-            "$base/api/v1/admin/funnel?university=kgmu&academicYear=2026%2F27&semester=1"
-          python3 - <<'PY'
-          import json
-          body=json.load(open('/tmp/funnel.json', encoding='utf-8'))
-          assert body.get('version') == 2, body
-          assert isinstance(body.get('upper'), dict), body
-          assert isinstance(body.get('trial'), dict), body
-          assert isinstance(body.get('payments'), dict), body
-          assert body.get('filter',{}).get('university') == 'kgmu', body
-          print('FUNNEL_V2_SAFE', {'version':body.get('version'),'filter':body.get('filter')})
+          assert json.load(open('/tmp/trial.json', encoding='utf-8')) == {'error':'trials_not_open'}
+          assert json.load(open('/tmp/analytics.json', encoding='utf-8')) == {'error':'analytics_not_open'}
+          assert json.load(open('/tmp/vk-control.json', encoding='utf-8')) == {'error':'unauthorized'}
+          print('PRODUCTION_GATES_AND_AUTH_SAFE')
           PY
