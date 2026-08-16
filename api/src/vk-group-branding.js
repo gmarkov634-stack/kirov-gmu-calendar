@@ -3,7 +3,7 @@ const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const MAX_COVER_RESPONSE_JSON_BYTES = 25000;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
-const COVER_CROP = Object.freeze({ x: 0, y: 65, x2: 1590, y2: 465 });
+const COVER_CROP = Object.freeze({ x: 0, y: 32, x2: 795, y2: 232 });
 
 export const COMMUNITY_BRANDING_ACTIONS = new Set(["group.cover.set", "group.cover.probe", "group.branding.info"]);
 export const BRANDING_ACTIONS = new Set([...COMMUNITY_BRANDING_ACTIONS, "group.cover.userProbe", "group.avatar.set"]);
