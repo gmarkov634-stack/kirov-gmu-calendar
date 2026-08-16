@@ -1,4 +1,5 @@
 import { createPublicKey, verify as verifySignature } from "node:crypto";
+import { BRANDING_ACTIONS, COMMUNITY_BRANDING_ACTIONS, executeVkGroupBrandingAction } from "./vk-group-branding.js";
 
 const GITHUB_OIDC_ISSUER = "https://token.actions.githubusercontent.com";
 const GITHUB_JWKS_URL = `${GITHUB_OIDC_ISSUER}/.well-known/jwks`;
@@ -14,7 +15,7 @@ const MAX_GROUP_WEBSITE_LENGTH = 2048;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
 const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "photo.importMessages"]);
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
 
@@ -399,6 +400,11 @@ async function vkMethod({ method, token, apiVersion, params, fetchImpl }) {
 
 async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }) {
   const ownerId = `-${groupId}`;
+
+  if (BRANDING_ACTIONS.has(command.action)) {
+    return executeVkGroupBrandingAction(command, { groupId, token, apiVersion, fetchImpl });
+  }
+
   if (command.action === "wall.list") {
     const result = await vkMethod({
       method: "wall.get",
@@ -441,9 +447,9 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
   }
 
   if (command.action === "photo.importMessages") {
-  const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
-  return importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl });
-}
+    const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
+    return importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl });
+  }
 
   if (command.action === "photo.importWall") {
     const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
