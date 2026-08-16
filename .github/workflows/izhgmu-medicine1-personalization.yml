@@ -10,9 +10,15 @@ on:
       - "api/src/adapters/izhgmu/weekly-lecture-elective-catalog.mjs"
       - "api/src/subscription-personalization.js"
       - "api/src/funnel-analytics-store.js"
+      - "api/src/subscription-preferences-handler.js"
+      - "api/src/schedule/personalization-publication.js"
+      - "api/src/schedule/pipeline.js"
+      - "api/src/schedule/publish-handler.js"
       - "api/tools/izhgmu-check-medicine1-electives.mjs"
+      - "api/tools/izhgmu-check-medicine1-publication.mjs"
       - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
       - "api/test/subscription-personalization.test.js"
+      - "api/test/schedule-personalization-publication.test.js"
       - ".github/workflows/izhgmu-medicine1-personalization.yml"
   workflow_dispatch:
 
@@ -35,13 +41,16 @@ jobs:
         run: npm ci
       - name: Run personalization unit regression
         working-directory: api
-        run: node --test test/izhgmu-weekly-lecture-elective-catalog.test.mjs test/subscription-personalization.test.js
+        run: node --test test/izhgmu-weekly-lecture-elective-catalog.test.mjs test/subscription-personalization.test.js test/schedule-personalization-publication.test.js
       - name: Collect exact current official IzhGMU sources
         working-directory: api
         run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
       - name: Verify all medicine course-1 streams and groups
         working-directory: api
         run: node tools/izhgmu-check-medicine1-electives.mjs --input-dir /tmp/izhgmu-current
+      - name: Verify real group-109 publication boundary
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-publication.mjs --input-dir /tmp/izhgmu-current
       - name: Show personalization summary
         if: always()
         shell: bash
