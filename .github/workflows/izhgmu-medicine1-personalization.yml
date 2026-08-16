@@ -1,0 +1,73 @@
+name: IzhGMU medicine-1 personalization
+
+on:
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/weekly-parser.mjs"
+      - "api/src/adapters/izhgmu/lecture-parser.mjs"
+      - "api/src/adapters/izhgmu/weekly-lecture-elective-catalog.mjs"
+      - "api/src/subscription-personalization.js"
+      - "api/src/funnel-analytics-store.js"
+      - "api/tools/izhgmu-check-medicine1-electives.mjs"
+      - "api/test/izhgmu-weekly-lecture-elective-catalog.test.mjs"
+      - "api/test/subscription-personalization.test.js"
+      - ".github/workflows/izhgmu-medicine1-personalization.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Run personalization unit regression
+        working-directory: api
+        run: node --test test/izhgmu-weekly-lecture-elective-catalog.test.mjs test/subscription-personalization.test.js
+      - name: Collect exact current official IzhGMU sources
+        working-directory: api
+        run: npm run collect:izhgmu -- --output /tmp/izhgmu-current --concurrency 4
+      - name: Verify all medicine course-1 streams and groups
+        working-directory: api
+        run: node tools/izhgmu-check-medicine1-electives.mjs --input-dir /tmp/izhgmu-current
+      - name: Show personalization summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/izhgmu-current/medicine1-elective-personalization.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/izhgmu-current/medicine1-elective-personalization.json').read_text())
+          print('STATUS', report['status'])
+          for stream in report['streams']:
+              print('STREAM', stream['stream'], 'GROUPS', ','.join(stream['groups']))
+              print('  OPTIONS', stream['optionCount'], 'EVENTS_PER_OPTION', stream['eventsPerOption'])
+              print('  SOURCE_BLOCKS', stream['sourceBlockRefs'], 'PRACTICE_BLOCKS', stream['practiceBlockRefs'])
+              if stream['manifestAcademicYear'] != stream['sourceAcademicYear']:
+                  print('  MANIFEST_YEAR_DIAGNOSTIC', stream['manifestAcademicYear'], '=>', stream['sourceAcademicYear'])
+          print('GROUP_109_SCENARIO', report['scenario109'])
+          PY
+          else
+            echo "Personalization report was not generated."
+          fi
+      - name: Upload medicine-1 personalization report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-medicine1-personalization
+          path: /tmp/izhgmu-current/medicine1-elective-personalization.json
+          if-no-files-found: warn
+          retention-days: 14
