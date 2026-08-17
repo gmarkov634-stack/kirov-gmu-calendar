@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createOfferCatalogHandler,
-  isRegisteredUniversityInactive,
+  isRegisteredUniversityCatalogDisabled,
 } from "../src/offer-catalog.js";
 
 function createResponse() {
@@ -37,13 +37,14 @@ const config = {
   allowedOrigins: [],
 };
 
-test("registered inactive universities are fail-closed while legacy Kirov remains compatible", () => {
-  assert.equal(isRegisteredUniversityInactive("izhgmu"), true);
-  assert.equal(isRegisteredUniversityInactive("omgmu"), true);
-  assert.equal(isRegisteredUniversityInactive("kirov"), false);
+test("public catalog gate is independent from the university active state", () => {
+  assert.equal(isRegisteredUniversityCatalogDisabled("izhgmu"), true);
+  assert.equal(isRegisteredUniversityCatalogDisabled("omgmu"), false);
+  assert.equal(isRegisteredUniversityCatalogDisabled("kgmu"), false);
+  assert.equal(isRegisteredUniversityCatalogDisabled("kirov"), false);
 });
 
-test("inactive IzhGMU program catalog is blocked before availability lookup", async () => {
+test("IzhGMU program catalog is blocked before availability lookup", async () => {
   let availabilityCalls = 0;
   const handler = createOfferCatalogHandler({
     store: {},
@@ -66,7 +67,7 @@ test("inactive IzhGMU program catalog is blocked before availability lookup", as
   assert.equal(availabilityCalls, 0);
 });
 
-test("inactive IzhGMU group catalog is blocked before schedule storage lookup", async () => {
+test("IzhGMU group catalog is blocked before schedule storage lookup", async () => {
   let storageCalls = 0;
   const handler = createOfferCatalogHandler({
     store: {
