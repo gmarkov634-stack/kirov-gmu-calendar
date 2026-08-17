@@ -13,6 +13,7 @@ const UNIVERSITIES = Object.freeze({
     }),
     sitePath: "/",
     active: true,
+    catalogEnabled: true,
   }),
   omgmu: Object.freeze({
     id: "omgmu",
@@ -41,6 +42,7 @@ const UNIVERSITIES = Object.freeze({
     ]),
     sitePath: "/omgmu/",
     active: false,
+    catalogEnabled: true,
   }),
   izhgmu: Object.freeze({
     id: "izhgmu",
@@ -64,6 +66,7 @@ const UNIVERSITIES = Object.freeze({
     ]),
     sitePath: "/izhgmu/",
     active: false,
+    catalogEnabled: false,
   }),
 });
 
