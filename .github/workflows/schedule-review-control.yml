@@ -36,59 +36,56 @@ jobs:
           const command = JSON.parse(fs.readFileSync(commandPath, 'utf8'));
           if (!command || typeof command !== 'object' || Array.isArray(command)) throw new Error('Invalid command');
           if (typeof command.id !== 'string' || !command.id) throw new Error('Missing command id');
-          if (!['review.submit', 'review.submit_publish', 'review.publish'].includes(command.action)) throw new Error('Unsupported command action');
-          if (typeof command.reviewId !== 'string' || !/^[a-f0-9-]{36}$/.test(command.reviewId)) throw new Error('Invalid review id');
+          if (!['review.create','review.submit','review.submit_publish','review.publish'].includes(command.action)) throw new Error('Unsupported command action');
           if (!Number.isFinite(Date.parse(command.createdAt))) throw new Error('Invalid createdAt');
 
-          const request = {
-            id: command.id,
-            action: command.action,
-            reviewId: command.reviewId,
-            createdAt: command.createdAt,
-          };
-
-          if (command.action !== 'review.publish') {
-            if (command.package) {
-              if (command.package.format !== 'canonical-reviewed/v1') throw new Error('Invalid canonical review package');
-              if (!Array.isArray(command.package.batches) || !command.package.batches.length) throw new Error('Canonical review package has no batches');
-              request.package = command.package;
-            } else {
-              const migration = command.migration;
-              if (!migration || migration.type !== 'legacy-reviewed/v1') throw new Error('Missing canonical review package or supported migration');
-              const sourceFile = String(migration.sourceFile || '');
-              if (!/^reviewed\/kgmu\/[A-Za-z0-9_./-]+\.json$/.test(sourceFile) || sourceFile.includes('..')) throw new Error('Invalid migration source file');
-              const resolved = path.resolve(sourceFile);
-              const root = `${path.resolve('reviewed/kgmu')}${path.sep}`;
-              if (!resolved.startsWith(root)) throw new Error('Migration source is outside reviewed/kgmu');
-
-              let groups = migration.groups ?? migration.group;
-              if (groups === 'all' || groups === '*') groups = 'all';
-              else if (Array.isArray(groups)) {
-                if (!groups.length || groups.length > 50 || groups.some((group) => !/^\d{3}(?:и)?$/u.test(String(group)))) throw new Error('Invalid migration groups');
-                groups = groups.map(String);
+          const request = { id: command.id, action: command.action, createdAt: command.createdAt };
+          if (command.action === 'review.create') {
+            const review = command.review;
+            if (!review || review.university !== 'izhgmu' || review.program !== 'medicine') throw new Error('Invalid review create payload');
+            if (!['2026-2027','2026/2027'].includes(review.academicYear) || review.semester !== 'autumn') throw new Error('Review create must target IzhGMU 2026/2027 autumn');
+            if (!Array.isArray(review.courses) || !review.courses.length || review.courses.some(c => ![1,2,3].includes(Number(c)))) throw new Error('Invalid active course scope');
+            if (!/^[a-f0-9]{64}$/.test(String(review.sourceSet?.digest || ''))) throw new Error('Invalid source-set digest');
+            if (!Array.isArray(review.sourceSet?.members) || !review.sourceSet.members.length) throw new Error('Missing source-set members');
+            for (const member of review.sourceSet.members) {
+              if (!/^https:\/\//.test(String(member.url || '')) || !/^[a-f0-9]{64}$/.test(String(member.sha256 || '').replace(/^sha256:/,''))) throw new Error('Invalid source-set member');
+            }
+            request.review = review;
+          } else {
+            if (typeof command.reviewId !== 'string' || !/^[a-f0-9-]{36}$/.test(command.reviewId)) throw new Error('Invalid review id');
+            request.reviewId = command.reviewId;
+            if (command.action !== 'review.publish') {
+              if (command.package) {
+                if (command.package.format !== 'canonical-reviewed/v1') throw new Error('Invalid canonical review package');
+                if (!Array.isArray(command.package.batches) || !command.package.batches.length) throw new Error('Canonical review package has no batches');
+                request.package = command.package;
               } else {
-                groups = String(groups || '');
-                if (!groups || groups.split(',').some((group) => !/^\d{3}(?:и)?$/u.test(group.trim()))) throw new Error('Invalid migration groups');
+                const migration = command.migration;
+                if (!migration || migration.type !== 'legacy-reviewed/v1') throw new Error('Missing canonical review package or supported migration');
+                const sourceFile = String(migration.sourceFile || '');
+                if (!/^reviewed\/kgmu\/[A-Za-z0-9_./-]+\.json$/.test(sourceFile) || sourceFile.includes('..')) throw new Error('Invalid migration source file');
+                const resolved = path.resolve(sourceFile);
+                const root = `${path.resolve('reviewed/kgmu')}${path.sep}`;
+                if (!resolved.startsWith(root)) throw new Error('Migration source is outside reviewed/kgmu');
+                let groups = migration.groups ?? migration.group;
+                if (groups === 'all' || groups === '*') groups = 'all';
+                else if (Array.isArray(groups)) {
+                  if (!groups.length || groups.length > 50 || groups.some((group) => !/^\d{3}(?:и)?$/u.test(String(group)))) throw new Error('Invalid migration groups');
+                  groups = groups.map(String);
+                } else {
+                  groups = String(groups || '');
+                  if (!groups || groups.split(',').some((group) => !/^\d{3}(?:и)?$/u.test(group.trim()))) throw new Error('Invalid migration groups');
+                }
+                const week1StartDate = String(migration.week1StartDate || '');
+                if (!/^20\d{2}-\d{2}-\d{2}$/.test(week1StartDate)) throw new Error('Invalid migration week1StartDate');
+                request.package = legacyReviewedBundleToCanonicalPackage(JSON.parse(fs.readFileSync(resolved, 'utf8')), { groups, week1StartDate });
               }
-
-              const week1StartDate = String(migration.week1StartDate || '');
-              if (!/^20\d{2}-\d{2}-\d{2}$/.test(week1StartDate)) throw new Error('Invalid migration week1StartDate');
-              const legacy = JSON.parse(fs.readFileSync(resolved, 'utf8'));
-              request.package = legacyReviewedBundleToCanonicalPackage(legacy, { groups, week1StartDate });
             }
           }
-
           const encoded = JSON.stringify(request);
           if (Buffer.byteLength(encoded) > 20 * 1024 * 1024) throw new Error('Materialized schedule review command is too large');
           fs.writeFileSync('/tmp/schedule-review-command.json', `${encoded}\n`);
-          console.log(JSON.stringify({
-            id: request.id,
-            action: request.action,
-            reviewId: request.reviewId,
-            materializedFormat: request.package?.format || null,
-            groups: request.package?.batches?.map((batch) => batch.schedule?.group) || [],
-            events: request.package?.batches?.reduce((sum, batch) => sum + (batch.events?.length || 0), 0) || 0,
-          }));
+          console.log(JSON.stringify({ id: request.id, action: request.action, reviewId: request.reviewId || null, university: request.review?.university || null, sourceSetDigest: request.review?.sourceSet?.digest || request.package?.source_set_digest || null, groups: request.package?.batches?.map((batch) => batch.schedule?.group) || [] }));
           NODE
 
       - name: Execute schedule review command
@@ -96,29 +93,16 @@ jobs:
           SCHEDULE_REVIEW_CONTROL_URL: https://kgmu-calendar-api.containerapps.ru/api/v1/schedule-review/control
         run: |
           set -euo pipefail
-          oidc_response="$(curl --fail-with-body --silent --show-error \
-            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-schedule-review")"
-          oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s=""; process.stdin.on("data",d=>s+=d); process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
-
-          result="$(curl --fail-with-body --silent --show-error \
-            -X POST \
-            -H "Authorization: Bearer ${oidc_token}" \
-            -H "Content-Type: application/json" \
-            --data-binary @/tmp/schedule-review-command.json \
-            "$SCHEDULE_REVIEW_CONTROL_URL")"
-
+          oidc_response="$(curl --fail-with-body --silent --show-error -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-schedule-review")"
+          oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
+          result="$(curl --fail-with-body --silent --show-error -X POST -H "Authorization: Bearer ${oidc_token}" -H "Content-Type: application/json" --data-binary @/tmp/schedule-review-command.json "$SCHEDULE_REVIEW_CONTROL_URL")"
           echo "SCHEDULE_REVIEW_RESULT_BEGIN"
           printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(JSON.stringify(JSON.parse(s),null,2)));'
           echo "SCHEDULE_REVIEW_RESULT_END"
-
           ACTION="$(node -p "JSON.parse(require('fs').readFileSync('/tmp/schedule-review-command.json','utf8')).action")"
           RESULT_STATUS="$(printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>process.stdout.write(String(JSON.parse(s)?.result?.status||"")));')"
           case "$ACTION" in
-            review.submit)
-              test "$RESULT_STATUS" = "READY_TO_PUBLISH"
-              ;;
-            review.submit_publish|review.publish)
-              test "$RESULT_STATUS" = "PUBLISHED"
-              ;;
+            review.create) test "$RESULT_STATUS" = "REVIEW_REQUIRED" ;;
+            review.submit) test "$RESULT_STATUS" = "READY_TO_PUBLISH" ;;
+            review.submit_publish|review.publish) test "$RESULT_STATUS" = "PUBLISHED" ;;
           esac
