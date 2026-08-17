@@ -49,8 +49,32 @@ jobs:
           python3 -m pip install --disable-pip-version-check -r tools/requirements-omgmu.txt
       - name: Discover official ОмГМУ sources
         run: npm run discover:omgmu -- --output=data/imports/omgmu-source-manifest.json
-      - name: Download official ОмГМУ PDF files
-        run: npm run download:omgmu -- --manifest=data/imports/omgmu-source-manifest.json --output=data/imports/omgmu-pdfs
+      - name: Select legacy parser source scope
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const input = 'data/imports/omgmu-source-manifest.json';
+          const output = 'data/imports/omgmu-parser-source-manifest.json';
+          const manifest = JSON.parse(fs.readFileSync(input, 'utf8'));
+          const sources = manifest.sources.filter((source) => source.program === 'medicine-international');
+          if (sources.length !== 8) {
+            throw new Error(`Expected exactly 8 medicine-international legacy parser sources, got ${sources.length}`);
+          }
+          const parserManifest = {
+            ...manifest,
+            sourceCount: sources.length,
+            sources,
+            parserScope: {
+              program: 'medicine-international',
+              expectedSourceCount: 8,
+              purpose: 'legacy-historical-regression-only',
+            },
+          };
+          fs.writeFileSync(output, `${JSON.stringify(parserManifest, null, 2)}\n`);
+          console.log(`Legacy parser source scope: ${sources.length} medicine-international source(s)`);
+          NODE
+      - name: Download legacy parser ОмГМУ PDF files
+        run: npm run download:omgmu -- --manifest=data/imports/omgmu-parser-source-manifest.json --output=data/imports/omgmu-pdfs
       - name: Extract PDF text
         run: |
           mkdir -p data/imports/omgmu-text
@@ -167,12 +191,14 @@ jobs:
         run: npm run quality:omgmu -- --input=data/imports/omgmu-schedules --output=data/imports/omgmu-quality-report.json
       - name: Build publication dry run
         run: npm run publish:omgmu:plan -- --input=data/imports/omgmu-schedules --output=data/publication/omgmu --expected-publishable=43 --expected-blocked=0
-      - name: Upload source manifest
+      - name: Upload source manifests
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: omgmu-source-manifest
-          path: api/data/imports/omgmu-source-manifest.json
+          path: |
+            api/data/imports/omgmu-source-manifest.json
+            api/data/imports/omgmu-parser-source-manifest.json
           if-no-files-found: error
           retention-days: 14
       - name: Upload PDF bundle and report
