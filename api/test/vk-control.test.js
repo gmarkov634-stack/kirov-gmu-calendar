@@ -240,7 +240,8 @@ test("wall.edit changes only a concrete post on the fixed community wall", async
   assert.deepEqual(parseResponse(response).result, { postId: 444, edited: true });
   assert.equal(requests[0].url, "https://api.vk.com/method/wall.edit");
   assert.equal(requests[0].options.body.get("post_id"), "444");
-  assert.equal(requests[0].options.body.get("access_token"), "vk1-user-test-token");
+  assert.equal(requests[0].options.body.get("access_token"), "vk1-community-test-token");
+  assert.notEqual(requests[0].options.body.get("access_token"), "vk1-user-test-token");
 });
 
 test("wall.delete is disabled after both production token classes failed", async () => {
