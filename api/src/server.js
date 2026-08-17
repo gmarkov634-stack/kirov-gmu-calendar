@@ -9,6 +9,7 @@ import { createFunnelEventHandler } from "./funnel-events.js";
 import { createOfferCatalogHandler } from "./offer-catalog.js";
 import { createOfferPreviewHandler } from "./offer-preview.js";
 import { createKgmuWatchStatusHandler } from "./kgmu-watch-status.js";
+import { createOmgmuWatchStatusHandler } from "./omgmu-watch-status.js";
 import { createScheduleReviewControlHandler } from "./schedule-review-control.js";
 import { ScheduleReviewServiceRouter } from "./schedule/review-service-router.js";
 import { createTrialHttpHandler } from "./trial-http-handler.js";
@@ -102,6 +103,7 @@ const omgmuWatcher = new OmgmuSourceWatcher({
   observer: omgmuSourceObserver,
   stateStore: omgmuWatchStore,
 });
+const omgmuWatchStatusHandler = createOmgmuWatchStatusHandler({ stateStore: omgmuWatchStore, reviewQueue: omgmuReviewQueue, config });
 const omgmuReviewHandler = createOmgmuReviewHandler({ queue: omgmuReviewQueue, watcher: omgmuWatcher, config });
 const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService]);
 const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: reviewServiceRouter });
@@ -143,6 +145,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v2/status/kgmu-watcher") {
     return kgmuWatchStatusHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/status/omgmu-watcher") {
+    return omgmuWatchStatusHandler(request, response);
   }
   if (url.pathname.match(/^\/api\/v2\/catalog\/[^/]+\/[^/]+\/\d+\/[^/]+\/preview$/)) {
     return offerPreviewHandler(request, response);
