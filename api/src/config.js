@@ -43,6 +43,7 @@ export function loadConfig(env = process.env) {
       kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
       pgmu: env.PGMU_SITE_URL || "",
+      izhgmu: env.IZHGMU_SITE_URL || "",
     },
     publicApiUrl: env.PUBLIC_API_URL || "",
     enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
