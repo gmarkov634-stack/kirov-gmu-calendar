@@ -1,0 +1,188 @@
+name: IzhGMU autumn 2026-27 source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+  push:
+    branches:
+      - agent/izhgmu-batch-acquisition
+    paths:
+      - "api/src/adapters/izhgmu/discover.mjs"
+      - "api/src/adapters/izhgmu/download.mjs"
+      - "api/src/adapters/izhgmu/target-watch.mjs"
+      - "api/tools/izhgmu-watch-target.mjs"
+      - "api/test/izhgmu-target-watch.test.mjs"
+      - "api/package.json"
+      - ".github/workflows/izhgmu-target-source-watch.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: izhgmu-autumn-2026-27-source-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Observe official IzhGMU target sources without publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+
+      - name: Run target-watch unit boundary
+        working-directory: api
+        run: node --test test/izhgmu-target-watch.test.mjs
+
+      - name: Observe exact autumn 2026-27 medicine 1-3 target
+        id: observe
+        continue-on-error: true
+        working-directory: api
+        run: npm run watch:izhgmu:target -- --output /tmp/izhgmu-target-watch --concurrency 4
+
+      - name: Read watch report
+        id: report
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          report=/tmp/izhgmu-target-watch/target-watch-report.json
+          if [ ! -f "$report" ]; then
+            echo "status=observation-error" >> "$GITHUB_OUTPUT"
+            echo "candidate_count=0" >> "$GITHUB_OUTPUT"
+            echo "digest=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 - "$report" "$GITHUB_OUTPUT" <<'PY'
+          import json, sys
+          report=json.load(open(sys.argv[1], encoding='utf-8'))
+          with open(sys.argv[2], 'a', encoding='utf-8') as out:
+              out.write(f"status={report['status']}\n")
+              out.write(f"candidate_count={report['candidateSourceCount']}\n")
+              out.write(f"digest={report.get('sourceSetDigest') or ''}\n")
+          print('WATCH_STATUS', report['status'])
+          print('TARGET', report['target'])
+          print('PAGE_CONTEXT', report.get('pageScheduleContext'))
+          print('CANDIDATE_SOURCE_COUNT', report['candidateSourceCount'])
+          print('DOWNLOADED_COUNT', report['downloadedCount'])
+          print('FAILED_COUNT', report['failedCount'])
+          print('SOURCE_SET_DIGEST', report.get('sourceSetDigest'))
+          print('COVERAGE', report['coverage'])
+          print('SAFETY', report['safety'])
+          PY
+
+      - name: Upload source-watch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-autumn-2026-27-source-watch
+          path: /tmp/izhgmu-target-watch
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Create or update deduplicated review issue
+        if: always() && (steps.report.outputs.status == 'candidate' || steps.report.outputs.status == 'review-required')
+        uses: actions/github-script@v7
+        env:
+          WATCH_STATUS: ${{ steps.report.outputs.status }}
+          WATCH_DIGEST: ${{ steps.report.outputs.digest }}
+          CANDIDATE_COUNT: ${{ steps.report.outputs.candidate_count }}
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('/tmp/izhgmu-target-watch/target-watch-report.json', 'utf8'));
+            const title = '[IzhGMU source watch] Autumn 2026/27 target detected';
+            const digest = process.env.WATCH_DIGEST || `review-required-${report.observedAt.slice(0, 10)}`;
+            const marker = `<!-- izhgmu-target-digest:${digest} -->`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const coverage = Object.entries(report.coverage)
+              .map(([course, value]) => `- course ${course}: ${value.sourceCount} source(s), classes ${value.classCount}, lectures ${value.lectureCount}, streams ${value.streams.join(', ') || '—'}`)
+              .join('\n');
+            const body = [
+              marker,
+              'The official IzhGMU schedule page now contains one or more exact target sources for **medicine courses 1–3 / autumn 2026–2027**.',
+              '',
+              `Watch status: **${report.status}**`,
+              `Candidate sources: **${report.candidateSourceCount}**`,
+              `Downloaded: **${report.downloadedCount}**, failed: **${report.failedCount}**`,
+              `Source-set SHA-256 digest: \`${report.sourceSetDigest || 'not available'}\``,
+              `Page schedule context: \`${JSON.stringify(report.pageScheduleContext)}\``,
+              '',
+              'Coverage:',
+              coverage,
+              '',
+              `Evidence run: ${runUrl}`,
+              '',
+              '**Safety:** this watcher does not parse schedules, publish schedules, open the catalog, enable trials, or enable sales. A fresh medicine 1–3 readiness run and explicit launch authorization are still required.',
+            ].join('\n');
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100,
+            });
+            let issue = issues.find((item) => !item.pull_request && item.title === title);
+            if (!issue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+              });
+              return;
+            }
+
+            if (issue.state === 'closed') {
+              issue = (await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'open',
+              })).data;
+            }
+            if ((issue.body || '').includes(marker)) return;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            });
+            if (comments.some((comment) => (comment.body || '').includes(marker))) return;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body,
+            });
+
+      - name: Keep candidate detection informational but fail closed on observation errors
+        if: always()
+        shell: bash
+        env:
+          WATCH_STATUS: ${{ steps.report.outputs.status }}
+          OBSERVE_OUTCOME: ${{ steps.observe.outcome }}
+        run: |
+          set -euo pipefail
+          echo "status=$WATCH_STATUS observe=$OBSERVE_OUTCOME"
+          if [ "$WATCH_STATUS" = "review-required" ] || [ "$WATCH_STATUS" = "observation-error" ]; then
+            exit 1
+          fi
+          if [ "$OBSERVE_OUTCOME" = "failure" ]; then
+            exit 1
+          fi
+          # waiting and candidate are both successful observations. Candidate
+          # only means source evidence exists; it is never launch authorization.
+          exit 0
