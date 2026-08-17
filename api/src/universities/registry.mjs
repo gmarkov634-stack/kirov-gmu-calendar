@@ -14,6 +14,7 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/",
     active: true,
     catalogEnabled: true,
+    commercialEnabled: true,
   }),
   omgmu: Object.freeze({
     id: "omgmu",
@@ -43,6 +44,7 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/omgmu/",
     active: false,
     catalogEnabled: true,
+    commercialEnabled: true,
   }),
   izhgmu: Object.freeze({
     id: "izhgmu",
@@ -67,6 +69,7 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/izhgmu/",
     active: false,
     catalogEnabled: false,
+    commercialEnabled: false,
   }),
 });
 
@@ -84,6 +87,11 @@ export function getUniversityConfig(id) {
 export function hasUniversity(id) {
   const normalized = String(id || "").trim().toLowerCase();
   return Boolean(UNIVERSITIES[normalized]);
+}
+
+export function isUniversityCommercialEnabled(id) {
+  const normalized = String(id || "").trim().toLowerCase();
+  return UNIVERSITIES[normalized]?.commercialEnabled === true;
 }
 
 export { UNIVERSITIES };
