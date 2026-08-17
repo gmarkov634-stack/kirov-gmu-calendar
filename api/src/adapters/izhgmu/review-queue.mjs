@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 function missing(error) {
@@ -13,6 +13,18 @@ function validReviewId(value) {
 
 function validDigest(value) {
   return /^[a-f0-9]{64}$/.test(String(value || ""));
+}
+
+function canonicalSourceSetDigest(members) {
+  if (!Array.isArray(members) || !members.length) return null;
+  const identities = [];
+  for (const member of members) {
+    const url = String(member?.url || "").trim();
+    const sha = String(member?.sha256 || "").replace(/^sha256:/, "").toLowerCase();
+    if (!/^https:\/\//.test(url) || !validDigest(sha)) return null;
+    identities.push(`${url}\0${sha}`);
+  }
+  return createHash("sha256").update(identities.sort().join("\n")).digest("hex");
 }
 
 export class IzhgmuReviewQueue {
@@ -29,8 +41,10 @@ export class IzhgmuReviewQueue {
   }
 
   async createSourceSetReview(value) {
+    const members = value?.sourceSet?.members;
     const digest = String(value?.sourceSet?.digest || "").toLowerCase();
-    if (!validDigest(digest) || !Array.isArray(value?.sourceSet?.members) || !value.sourceSet.members.length) {
+    const recomputed = canonicalSourceSetDigest(members);
+    if (!validDigest(digest) || !recomputed || recomputed !== digest) {
       throw Object.assign(new Error("Invalid IzhGMU source set"), { code: "IZHGMU_SOURCE_SET_INVALID" });
     }
     const existing = (await this.listReviews({ limit: 500 })).find((item) =>
@@ -49,7 +63,7 @@ export class IzhgmuReviewQueue {
       publicationBlocked: true,
       currentPublishedSchedulePreserved: true,
       ...value,
-      sourceSet: { ...value.sourceSet, digest },
+      sourceSet: { ...value.sourceSet, digest, members: structuredClone(members) },
     };
     await this.#writeJson(`parser-reviews/izhgmu/${reviewId}.json`, item);
     return item;
