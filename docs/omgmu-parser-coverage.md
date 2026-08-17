@@ -2,7 +2,7 @@
 
 Дата актуализации: 17.08.2026.
 
-Статус: **известные structural profiles ОмГМУ подключены к canonical boundary и общему ядру; осенний current-period coverage 2026/2027 ожидает официальные источники**.
+Статус: **известные structural profiles ОмГМУ подключены к canonical boundary и общему ядру; structural readiness PASS; осенний current-period coverage 2026/2027 ожидает официальные источники**.
 
 Этот документ является текущей агрегирующей картой покрытия ОмГМУ. Ранние поэтапные документы (`omgmu-parser-audit.md`, отдельные O-rule/canonical step docs) сохраняются как история решений, но их старые разделы «не покрыто» не должны использоваться как текущий статус, если более поздняя реализация уже закрыла соответствующий gap.
 
@@ -42,7 +42,7 @@ Manifest: `api/test/fixtures/omgmu-historical-regression.v1.json`.
 - `cycle_rotation_grid`: group 485, 10 source-series, 106 events;
 - `combined_rotation_table`: group 585, 16 source-series, 154 events.
 
-Historical gate также проверяет source-version fail-closed, watcher/review-only boundary, source-bound canonical review, retired direct-S3 publication, common canonical pipeline, ICS, versioning и multi-university isolation.
+Historical gate также проверяет source-version fail-closed, watcher/review-only boundary, source-bound canonical review, retired direct-S3 publication, common canonical pipeline, ICS, versioning, multi-university isolation и восстановленный end-to-end regression группы 2101: publish → тот же subscription URL → change → rollback.
 
 Historical fixtures не обращаются к live-сайту ОмГМУ и не используются как текущий commercial offer.
 
@@ -94,7 +94,7 @@ Production-target chain:
 - preview subscription после проверки отозвана;
 - sales во время E2E оставались закрыты.
 
-Этот E2E доказывает production-механику publication/update/subscription для tenant `omgmu`, но **не является продажей актуального расписания 2026/27 и не заменяет current-period review**.
+Этот E2E доказывает production-механику publication/update/subscription для tenant `omgmu`, но **не является продажей актуального расписания 2026/27 и не заменяет current-period review**. Его code-level regression восстановлен в `main` как `api/test/omgmu-storage-subscription-e2e.test.js` и включён в immutable historical gate.
 
 ## 7. Source watch 2026/2027
 
@@ -141,11 +141,17 @@ Landing ОмГМУ использует server-owned live state:
 
 Любой новый structural family требует отдельного source-bound profile/rules/regression, а не расширения существующего parser по аналогии.
 
-## 10. Реальные оставшиеся structural задачи до появления расписания
+## 10. Structural readiness, закрытый до появления расписания
 
-1. Поддерживать этот coverage-документ как authoritative агрегат вместо чтения десятков step-docs.
-2. Зафиксировать отдельный `docs/omgmu-launch-gate.md` с условиями открытия current-period публикации и продаж.
-3. Добавить агрегирующий launch-readiness smoke/report, который не требует реального 2026/27, но проверяет неизменность historical gate, source-watch fail-closed, live catalog fail-closed и tenant isolation.
-4. До появления current source не расширять parser coverage искусственно и не материализовывать historical schedule в current offer.
+На 17.08.2026 выполнено:
 
-После появления первого `2026/2027 + autumn` source дальнейшая работа начинается с exact PDF/SHA и semantic review, а не с переработки общего backend.
+1. [x] Этот coverage-документ зафиксирован как authoritative агрегат текущего parser status.
+2. [x] Создан `docs/omgmu-launch-gate.md` с условиями current-period publication и открытия продаж.
+3. [x] Создан `.github/workflows/omgmu-launch-readiness.yml` и команда `npm run readiness:omgmu`; gate прошёл в GitHub Actions со статусом success и формирует JSON artifact.
+4. [x] В historical gate восстановлен regression группы 2101, проверяющий publish → same subscription URL → update → rollback.
+5. [x] Создан read-only `/api/v2/status/omgmu-watcher` с состояниями `WAITING_SOURCE`, `REVIEW_REQUIRED`, `READY_TO_PUBLISH` и безопасными агрегированными review counts; endpoint включён в readiness tests.
+6. [x] Создан `docs/omgmu-runbook.md` для нового PDF, changed SHA, unknown profile, disappearance/recovery и launch flow.
+7. [x] Отдельный `reviewed/omgmu/...` mirror признан ненужным: existing source-bound review queue/object storage остаётся единственным reviewed source of truth.
+8. [x] Без current source parsers не расширяются искусственно и historical schedules не материализуются как current offer.
+
+Оставшееся до появления 2026/27 — поддерживать эти gates зелёными. Функциональные launch-шаги, требующие фактического current source, начинаются только с exact PDF/SHA и semantic review.
