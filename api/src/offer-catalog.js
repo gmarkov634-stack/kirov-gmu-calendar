@@ -32,7 +32,7 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
-export function isRegisteredUniversityInactive(id) {
+export function isRegisteredUniversityCatalogDisabled(id) {
   const normalized = String(id || "").trim().toLowerCase();
   if (!normalized) return false;
 
@@ -42,11 +42,11 @@ export function isRegisteredUniversityInactive(id) {
       .some((value) => String(value).trim().toLowerCase() === normalized),
   );
 
-  return university?.active === false;
+  return university?.catalogEnabled === false;
 }
 
-function rejectInactiveUniversity(response, university) {
-  if (!isRegisteredUniversityInactive(university)) return false;
+function rejectCatalogDisabledUniversity(response, university) {
+  if (!isRegisteredUniversityCatalogDisabled(university)) return false;
   send(response, 404, {
     error: "catalog_not_available",
     university,
@@ -72,7 +72,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (programSummaryMatch) {
       const university = decodeURIComponent(programSummaryMatch[1]);
       if (!UNIVERSITY_ID.test(university)) return send(response, 400, { error: "invalid_catalog_context" });
-      if (rejectInactiveUniversity(response, university)) return;
+      if (rejectCatalogDisabledUniversity(response, university)) return;
       try {
         const programs = await listProgramAvailability({
           store,
@@ -98,7 +98,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (!UNIVERSITY_ID.test(university) || !PROGRAM_ID.test(program) || !Number.isInteger(course) || course < 1 || course > 9) {
       return send(response, 400, { error: "invalid_catalog_context" });
     }
-    if (rejectInactiveUniversity(response, university)) return;
+    if (rejectCatalogDisabledUniversity(response, university)) return;
 
     try {
       const groups = await store.listScheduleGroups({
