@@ -47,7 +47,7 @@ function makeHandler({ communityToken = "community-token", fetchImpl, tokenManag
   });
 }
 
-test("group.edit updates only description and website through the community token", async () => {
+test("group.edit updates name, description and website through the community token", async () => {
   const requests = [];
   let managedTokenCalls = 0;
   const response = fakeResponse();
@@ -68,9 +68,10 @@ test("group.edit updates only description and website through the community toke
     },
   });
 
+  const name = "Расписание в телефоне | ОмГМУ";
   const description = "Новое описание сообщества";
   const website = "https://gmarkov634-stack.github.io/kirov-gmu-calendar";
-  await handler(fakeRequest({ description, website }), response);
+  await handler(fakeRequest({ name, description, website }), response);
 
   assert.equal(response.statusCode, 200);
   assert.equal(managedTokenCalls, 0);
@@ -80,22 +81,43 @@ test("group.edit updates only description and website through the community toke
   assert.equal(body.get("access_token"), "community-token");
   assert.equal(body.get("v"), "5.199");
   assert.equal(body.get("group_id"), "191574528");
+  assert.equal(body.get("title"), name);
   assert.equal(body.get("description"), description);
   assert.equal(body.get("website"), website);
-  assert.equal(body.get("title"), null);
   assert.equal(body.get("screen_name"), null);
   assert.equal(body.get("access"), null);
   assert.equal(body.get("subject"), null);
   assert.equal(body.get("status"), null);
   assert.deepEqual(JSON.parse(response.body).result, {
     updated: true,
-    fields: ["description", "website"],
+    fields: ["name", "description", "website"],
   });
+});
+
+test("group.edit maps a name-only mutation to VK title and does not broaden the request", async () => {
+  const requests = [];
+  const response = fakeResponse();
+  const handler = makeHandler({
+    fetchImpl: async (url, options) => {
+      requests.push({ url, options });
+      return { ok: true, async json() { return { response: 1 }; } };
+    },
+  });
+
+  await handler(fakeRequest({ name: "  Расписание в телефоне | ОмГМУ  " }), response);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(requests.length, 1);
+  const body = requests[0].options.body;
+  assert.equal(body.get("title"), "Расписание в телефоне | ОмГМУ");
+  assert.equal(body.get("description"), null);
+  assert.equal(body.get("website"), null);
+  assert.equal(body.get("status"), null);
+  assert.deepEqual(JSON.parse(response.body).result.fields, ["name"]);
 });
 
 test("group.edit rejects any field outside the strict allowlist", async () => {
   let vkCalls = 0;
-  const response = fakeResponse();
   const handler = makeHandler({
     fetchImpl: async () => {
       vkCalls += 1;
@@ -103,17 +125,21 @@ test("group.edit rejects any field outside the strict allowlist", async () => {
     },
   });
 
-  await handler(fakeRequest({
-    description: "Допустимое описание",
-    name: "Нельзя менять название",
-  }), response);
-
-  assert.equal(response.statusCode, 400);
-  assert.deepEqual(JSON.parse(response.body), { error: "invalid_group_edit_payload" });
+  for (const payload of [
+    { title: "Raw VK title is not a control field" },
+    { status: "Нельзя менять статус через groups.edit" },
+    { screen_name: "other" },
+    { subject: "1" },
+  ]) {
+    const response = fakeResponse();
+    await handler(fakeRequest(payload), response);
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(JSON.parse(response.body), { error: "invalid_group_edit_payload" });
+  }
   assert.equal(vkCalls, 0);
 });
 
-test("group.edit rejects an empty payload and a non-HTTPS website", async () => {
+test("group.edit rejects invalid names, an empty payload and a non-HTTPS website", async () => {
   let vkCalls = 0;
   const handler = makeHandler({
     fetchImpl: async () => {
@@ -121,6 +147,13 @@ test("group.edit rejects an empty payload and a non-HTTPS website", async () => 
       return { ok: true, async json() { return { response: 1 }; } };
     },
   });
+
+  for (const name of ["", "   ", "x".repeat(101)]) {
+    const response = fakeResponse();
+    await handler(fakeRequest({ name }), response);
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(JSON.parse(response.body), { error: "invalid_group_name" });
+  }
 
   const emptyResponse = fakeResponse();
   await handler(fakeRequest({}), emptyResponse);
@@ -153,7 +186,7 @@ test("group.edit fails closed without a community token and never falls back to 
     },
   });
 
-  await handler(fakeRequest({ description: "Описание" }), response);
+  await handler(fakeRequest({ name: "Расписание в телефоне | ОмГМУ" }), response);
   assert.equal(response.statusCode, 503);
   assert.deepEqual(JSON.parse(response.body), { error: "vk_control_not_configured" });
   assert.equal(managedTokenCalls, 0);

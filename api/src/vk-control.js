@@ -10,6 +10,7 @@ const DEFAULT_API_VERSION = "5.199";
 const MAX_BODY_BYTES = 32768;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
+const MAX_GROUP_NAME_LENGTH = 100;
 const MAX_GROUP_DESCRIPTION_LENGTH = 10000;
 const MAX_GROUP_WEBSITE_LENGTH = 2048;
 const MAX_GROUP_LINK_URL_LENGTH = 2048;
@@ -20,7 +21,7 @@ const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
 const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "wall.edit", "group.info", "group.edit", "group.links.list", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
 const UNSUPPORTED_BRANDING_MUTATIONS = new Set(["group.cover.set", "group.avatar.set"]);
-const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
+const GROUP_EDIT_ALLOWED_FIELDS = new Set(["name", "description", "website"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -150,12 +151,23 @@ function cleanGroupEditPayload(value) {
     throw new Error("invalid_group_edit_payload");
   }
 
-  const fields = {};
+  const params = {};
+  const fields = [];
+  if (Object.hasOwn(value, "name")) {
+    if (typeof value.name !== "string" || value.name.length > MAX_GROUP_NAME_LENGTH) {
+      throw new Error("invalid_group_name");
+    }
+    const name = value.name.trim();
+    if (!name) throw new Error("invalid_group_name");
+    params.title = name;
+    fields.push("name");
+  }
   if (Object.hasOwn(value, "description")) {
     if (typeof value.description !== "string" || value.description.length > MAX_GROUP_DESCRIPTION_LENGTH) {
       throw new Error("invalid_group_description");
     }
-    fields.description = value.description;
+    params.description = value.description;
+    fields.push("description");
   }
   if (Object.hasOwn(value, "website")) {
     if (typeof value.website !== "string" || value.website.length > MAX_GROUP_WEBSITE_LENGTH) {
@@ -171,11 +183,11 @@ function cleanGroupEditPayload(value) {
       }
       if (url.protocol !== "https:") throw new Error("invalid_group_website");
     }
-    fields.website = website;
+    params.website = website;
+    fields.push("website");
   }
-  return fields;
+  return { params, fields };
 }
-
 function cleanGroupLinkUrl(value) {
   if (typeof value !== "string" || !value.trim() || value.length > MAX_GROUP_LINK_URL_LENGTH) {
     throw new Error("invalid_group_link_url");
@@ -500,15 +512,15 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
   }
 
   if (command.action === "group.edit") {
-    const fields = cleanGroupEditPayload(command.payload);
+    const { params, fields } = cleanGroupEditPayload(command.payload);
     const result = await vkMethod({
       method: "groups.edit",
       token,
       apiVersion,
       fetchImpl,
-      params: { group_id: groupId, ...fields },
+      params: { group_id: groupId, ...params },
     });
-    return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
+    return { updated: Number(result || 0) === 1, fields };
   }
 
   if (command.action === "group.link.add") {
@@ -703,6 +715,7 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_post_id",
         "empty_post",
         "invalid_group_edit_payload",
+        "invalid_group_name",
         "invalid_group_description",
         "invalid_group_website",
         "invalid_group_link_payload",
