@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractOmgmuScheduleContext, extractOmgmuSources } from "../src/adapters/omgmu/discover.mjs";
+import { extractOmgmuScheduleContext, extractOmgmuSources, validateOmgmuManifest } from "../src/adapters/omgmu/discover.mjs";
 import { buildOmgmuSourceWatchReport } from "../src/adapters/omgmu/watch.mjs";
 
 const config = {
@@ -48,6 +48,67 @@ test("classifies ordinary faculty PDF links when they become active", () => {
   ]);
 });
 
+test("classifies generic master links from explicit section/course context", () => {
+  const html = `
+    <h2>ОБЩЕСТВЕННОЕ ЗДРАВООХРАНЕНИЕ</h2>
+    <div>1 год обучения
+      <a href="/files/r/UU/magistr/2026/ozz/lecz_magistr_2026-2027_1.pdf">Лекции</a>
+      <a href="/files/r/UU/magistr/2026/ozz/magistr_praktzan_2026-2027_1.pdf">Практические занятия</a>
+    </div>
+    <div>2 год обучения
+      <a href="/files/r/UU/magistr/2026/ozz/lecz_magistr_2026-2027_2.pdf">Лекции</a>
+      <a href="/files/r/UU/magistr/2026/ozz/magistr_praktzan_2026-2027_2.pdf">Практические занятия</a>
+    </div>
+    <h2>ПСИХОЛОГИЯ</h2>
+    <div>1 год обучения
+      <a href="/files/r/UU/magistr/2026/psih/lecz_magistr_2026-2027_1.pdf">Лекции</a>
+      <a href="/files/r/UU/magistr/2026/psih/magistr_praktzan_2026-2027_1.pdf">Практические занятия</a>
+    </div>
+    <div>2 год обучения
+      <a href="/files/r/UU/magistr/2026/psih/lecz_magistr_2026-2027_2.pdf">Лекции</a>
+      <a href="/files/r/UU/magistr/2026/psih/magistr_praktzan_2026-2027_2.pdf">Практические занятия</a>
+    </div>
+  `;
+  const sources = extractOmgmuSources(html);
+  assert.deepEqual(sources.map((item) => [item.program, item.course, item.part]), [
+    ["public-health", 1, "lectures"],
+    ["public-health", 1, "practice"],
+    ["public-health", 2, "lectures"],
+    ["public-health", 2, "practice"],
+    ["psychology", 1, "lectures"],
+    ["psychology", 1, "practice"],
+    ["psychology", 2, "lectures"],
+    ["psychology", 2, "practice"],
+  ]);
+  assert.deepEqual(validateOmgmuManifest({ sources }), []);
+});
+
+test("generic target links inherit only recognized faculty/course context", () => {
+  const html = `
+    <h2>ПЕДИАТРИЧЕСКИЙ ФАКУЛЬТЕТ</h2>
+    <div>2 пед
+      <a href="/files/r/UU/2026/ped2-lectures.pdf">Лекции</a>
+      <a href="/files/r/UU/2026/ped2-practice.pdf">Практические занятия</a>
+    </div>
+  `;
+  const sources = extractOmgmuSources(html);
+  assert.deepEqual(sources.map((item) => [item.program, item.course, item.part]), [
+    ["pediatrics", 2, "lectures"],
+    ["pediatrics", 2, "practice"],
+  ]);
+});
+
+test("unknown generic schedule context remains fail-closed", () => {
+  const html = `
+    <h2>НЕИЗВЕСТНАЯ ПРОГРАММА</h2>
+    <div>1 год обучения <a href="/files/r/UU/other/generic.pdf">Лекции</a></div>
+  `;
+  const sources = extractOmgmuSources(html);
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].program, null);
+  assert.deepEqual(validateOmgmuManifest({ sources }), ["unclassified program: Лекции"]);
+});
+
 test("waits while only international medicine sources are active", () => {
   const report = buildOmgmuSourceWatchReport({
     university: "omgmu",
@@ -56,6 +117,23 @@ test("waits while only international medicine sources are active", () => {
     scheduleContext: { academicYear: "2025/2026", semester: "spring", heading: "spring" },
     sources: [
       { program: "medicine-international", course: 1, url: "https://example/1.pdf" },
+    ],
+  }, config);
+  assert.equal(report.status, "waiting");
+  assert.equal(report.availableTargetCount, 0);
+  assert.equal(report.readyFor2026AutumnIngest, false);
+});
+
+test("out-of-scope master sources do not activate the target offer", () => {
+  const report = buildOmgmuSourceWatchReport({
+    university: "omgmu",
+    discoveredAt: "2026-08-17T00:00:00Z",
+    sourcePage: "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
+    scheduleContext: { academicYear: null, semester: null, heading: "current page" },
+    sources: [
+      { program: "medicine-international", course: 1, url: "https://example/bilingva.pdf" },
+      { program: "public-health", course: 1, url: "https://example/ozz.pdf" },
+      { program: "psychology", course: 1, url: "https://example/psychology.pdf" },
     ],
   }, config);
   assert.equal(report.status, "waiting");
