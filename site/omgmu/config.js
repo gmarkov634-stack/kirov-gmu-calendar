@@ -13,10 +13,3 @@ window.OMGMU_CONFIG = Object.freeze({
     pharmacy: "Фармация",
   }),
 });
-
-if (typeof document !== "undefined" && document.currentScript) {
-  const omgmuMobileStyles = document.createElement("link");
-  omgmuMobileStyles.rel = "stylesheet";
-  omgmuMobileStyles.href = new URL("mobile.css", document.currentScript.src).href;
-  document.head.append(omgmuMobileStyles);
-}
