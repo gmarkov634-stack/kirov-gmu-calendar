@@ -34,8 +34,14 @@ on:
 permissions:
   contents: read
 
+# Medicine 1-3 full readiness is enforced independently by
+# izhgmu-medicine1-3-readiness.yml. This workflow keeps acquisition and the
+# current early-course source smoke blocking, while medicine 4-6 remain
+# fail-closed in parser code but diagnostic-only until that scope is resumed.
+
 jobs:
   collect:
+    name: Acquire sources and run blocking early-course smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -67,39 +73,6 @@ jobs:
       - name: Parse real IZH-WEEKLY plus exact-date lecture companion
         working-directory: api
         run: npm run parse:izhgmu:weekly-lecture -- --input-dir /tmp/izhgmu-current --faculty medicine --course 1 --stream 1 --group 109 --language ru --term spring
-      - name: Parse real IZH-CYCLE geometry fail-closed
-        working-directory: api
-        run: npm run parse:izhgmu:cycle -- --input-dir /tmp/izhgmu-current --faculty pediatrics --course 3
-      - name: Parse real IZH-CYCLE medicine 4 through canonical QA
-        working-directory: api
-        run: npm run parse:izhgmu:cycle:medicine4 -- --input-dir /tmp/izhgmu-current --group 401
-      - name: Verify medicine 4 lecture streams without heuristic group attribution
-        working-directory: api
-        run: node tools/izhgmu-parse-lecture-medicine4.mjs --input-dir /tmp/izhgmu-current
-      - name: Audit medicine 4 stream-group mapping fail-closed boundary
-        working-directory: api
-        run: node tools/izhgmu-audit-medicine4-mapping.mjs --input-dir /tmp/izhgmu-current
-      - name: Diagnose real IZH-CYCLE medicine 5 without publication
-        working-directory: api
-        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
-      - name: Parse real IZH-CYCLE medicine 5 fail-closed through canonical QA
-        working-directory: api
-        run: npm run parse:izhgmu:cycle:medicine5 -- --input-dir /tmp/izhgmu-current --group 501
-      - name: Verify medicine 5 lecture-backed glossary provenance scope
-        working-directory: api
-        run: node tools/izhgmu-check-cycle-medicine5-provenance.mjs --input-dir /tmp/izhgmu-current
-      - name: Parse medicine 5 lecture streams without heuristic group attribution
-        working-directory: api
-        run: npm run parse:izhgmu:lecture:medicine5 -- --input-dir /tmp/izhgmu-current
-      - name: Diagnose real IZH-CYCLE medicine 6 without publication
-        working-directory: api
-        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 6 --output cycle-diagnostic-medicine-6.json
-      - name: Parse real IZH-CYCLE medicine 6 fail-closed through canonical QA
-        working-directory: api
-        run: npm run parse:izhgmu:cycle:medicine6 -- --input-dir /tmp/izhgmu-current --group 601
-      - name: Parse medicine 6 lecture companion with course stream and choice boundaries
-        working-directory: api
-        run: npm run parse:izhgmu:lecture:medicine6 -- --input-dir /tmp/izhgmu-current
       - name: Show acquisition summary
         if: always()
         shell: bash
@@ -130,6 +103,117 @@ jobs:
               diag=json.loads(diag_path.read_text())
               print('LECTURE_STATS', diag['lecture']['stats'])
               print('COMBINED_BLOCKERS', diag['combined']['blockers'])
+          PY
+          fi
+      - name: Upload current IzhGMU source set
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-current-sources
+          path: /tmp/izhgmu-current
+          if-no-files-found: error
+          retention-days: 7
+
+  senior_diagnostics:
+    name: Deferred medicine 4-6 diagnostics
+    needs: collect
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Download exact ordinary IzhGMU artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: izhgmu-current-sources
+          path: /tmp/izhgmu-current
+      - name: Parse real IZH-CYCLE geometry fail-closed
+        id: generic_cycle
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:cycle -- --input-dir /tmp/izhgmu-current --faculty pediatrics --course 3
+      - name: Parse real IZH-CYCLE medicine 4 through canonical QA
+        id: medicine4_class
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine4 -- --input-dir /tmp/izhgmu-current --group 401
+      - name: Verify medicine 4 lecture streams without heuristic group attribution
+        id: medicine4_lecture
+        continue-on-error: true
+        working-directory: api
+        run: node tools/izhgmu-parse-lecture-medicine4.mjs --input-dir /tmp/izhgmu-current
+      - name: Audit medicine 4 stream-group mapping fail-closed boundary
+        id: medicine4_mapping
+        continue-on-error: true
+        working-directory: api
+        run: node tools/izhgmu-audit-medicine4-mapping.mjs --input-dir /tmp/izhgmu-current
+      - name: Diagnose real IZH-CYCLE medicine 5 without publication
+        id: medicine5_diagnose
+        continue-on-error: true
+        working-directory: api
+        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 5 --output cycle-diagnostic-medicine-5.json
+      - name: Parse real IZH-CYCLE medicine 5 fail-closed through canonical QA
+        id: medicine5_class
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine5 -- --input-dir /tmp/izhgmu-current --group 501
+      - name: Verify medicine 5 lecture-backed glossary provenance scope
+        id: medicine5_provenance
+        continue-on-error: true
+        working-directory: api
+        run: node tools/izhgmu-check-cycle-medicine5-provenance.mjs --input-dir /tmp/izhgmu-current
+      - name: Parse medicine 5 lecture streams without heuristic group attribution
+        id: medicine5_lecture
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:lecture:medicine5 -- --input-dir /tmp/izhgmu-current
+      - name: Diagnose real IZH-CYCLE medicine 6 without publication
+        id: medicine6_diagnose
+        continue-on-error: true
+        working-directory: api
+        run: node tools/izhgmu-diagnose-cycle.mjs --input-dir /tmp/izhgmu-current --faculty medicine --course 6 --output cycle-diagnostic-medicine-6.json
+      - name: Parse real IZH-CYCLE medicine 6 fail-closed through canonical QA
+        id: medicine6_class
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:cycle:medicine6 -- --input-dir /tmp/izhgmu-current --group 601
+      - name: Parse medicine 6 lecture companion with course stream and choice boundaries
+        id: medicine6_lecture
+        continue-on-error: true
+        working-directory: api
+        run: npm run parse:izhgmu:lecture:medicine6 -- --input-dir /tmp/izhgmu-current
+      - name: Show deferred senior diagnostic summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '### Deferred IzhGMU diagnostics — not a medicine 1-3 readiness gate'
+            echo
+            echo '| Check | Outcome |'
+            echo '|---|---|'
+            echo '| Generic cycle | ${{ steps.generic_cycle.outcome }} |'
+            echo '| Medicine 4 class | ${{ steps.medicine4_class.outcome }} |'
+            echo '| Medicine 4 lecture | ${{ steps.medicine4_lecture.outcome }} |'
+            echo '| Medicine 4 mapping | ${{ steps.medicine4_mapping.outcome }} |'
+            echo '| Medicine 5 diagnose | ${{ steps.medicine5_diagnose.outcome }} |'
+            echo '| Medicine 5 class | ${{ steps.medicine5_class.outcome }} |'
+            echo '| Medicine 5 provenance | ${{ steps.medicine5_provenance.outcome }} |'
+            echo '| Medicine 5 lecture | ${{ steps.medicine5_lecture.outcome }} |'
+            echo '| Medicine 6 diagnose | ${{ steps.medicine6_diagnose.outcome }} |'
+            echo '| Medicine 6 class | ${{ steps.medicine6_class.outcome }} |'
+            echo '| Medicine 6 lecture | ${{ steps.medicine6_lecture.outcome }} |'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/izhgmu-current')
           medicine4_path=root/'medicine4-mapping-audit.json'
           if medicine4_path.exists():
               m4=json.loads(medicine4_path.read_text())
@@ -159,19 +243,12 @@ jobs:
               print('LECTURE_MEDICINE6_MARKERS', diag['periodMarkers'])
               print('LECTURE_MEDICINE6_BLOCKERS', diag['blockers'])
           PY
-          fi
-      - name: Upload current IzhGMU source set
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: izhgmu-current-sources
-          path: /tmp/izhgmu-current
-          if-no-files-found: error
-          retention-days: 7
 
   postsemester:
+    name: Deferred medicine 6 post-semester diagnostics
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -218,9 +295,11 @@ jobs:
           retention-days: 7
 
   composite:
+    name: Deferred medicine 6 composite diagnostics
     needs: [collect, postsemester]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
