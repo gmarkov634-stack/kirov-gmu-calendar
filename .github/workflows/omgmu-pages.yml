@@ -65,8 +65,8 @@ jobs:
               throw new Error(`Static commercial authority must not exist in OmGMU config: ${forbidden}`);
             }
           }
-          if (!configCode.includes('mobile.css') || !configCode.includes('document.currentScript')) {
-            throw new Error('ОмГМУ mobile stylesheet loader is missing');
+          if (configCode.includes('mobile.css') || configCode.includes('document.currentScript')) {
+            throw new Error('OmGMU config must not dynamically inject the mobile stylesheet');
           }
 
           const mobileCss = fs.readFileSync('site/omgmu/mobile.css', 'utf8');
@@ -75,6 +75,9 @@ jobs:
           }
 
           const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
+          if ((html.match(/mobile\.css/g) || []).length !== 1) {
+            throw new Error('OmGMU mobile stylesheet must be linked exactly once in HTML');
+          }
           for (const requiredId of ['how', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'runtime-price', 'restore-order', 'faq']) {
             if (!html.includes(`id="${requiredId}"`)) throw new Error(`Landing UX element missing: ${requiredId}`);
           }
