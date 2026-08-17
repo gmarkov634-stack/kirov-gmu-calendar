@@ -5,10 +5,35 @@ import {
   stageIzhgmuCanonicalReviewPackage,
 } from "./canonical-reviewed.mjs";
 
+function createInput(value) {
+  if (!value || value.university !== "izhgmu") throw Object.assign(new Error("Invalid IzhGMU review input"), { code: "IZHGMU_SOURCE_SET_INVALID" });
+  const academicYear = String(value.academicYear || "");
+  const semester = String(value.semester || "");
+  const program = String(value.program || "");
+  const courses = [...new Set((value.courses || []).map(Number))].sort((a, b) => a - b);
+  if (!new Set(["2026-2027", "2026/2027"]).has(academicYear) || semester !== "autumn" || program !== "medicine") {
+    throw Object.assign(new Error("IzhGMU review must target medicine 2026/2027 autumn"), { code: "IZHGMU_CURRENT_PERIOD_REQUIRED" });
+  }
+  if (!courses.length || courses.some((course) => ![1, 2, 3].includes(course))) {
+    throw Object.assign(new Error("IzhGMU review courses must be within active scope 1-3"), { code: "IZHGMU_SOURCE_SET_INVALID" });
+  }
+  return {
+    metadata: { program, courses, academicYear: "2026/2027", semester: "autumn" },
+    sourceSet: value.sourceSet,
+    observation: value.observation || null,
+    reason: "IZHGMU_CURRENT_SOURCE_SET_REVIEW_REQUIRED",
+  };
+}
+
 export class IzhgmuReviewedService {
   constructor({ queue, scheduleStore }) {
+    this.university = "izhgmu";
     this.queue = queue;
     this.scheduleStore = scheduleStore;
+  }
+
+  async createReview(input) {
+    return this.queue.createSourceSetReview(createInput(input));
   }
 
   async findReview(reviewId) {
