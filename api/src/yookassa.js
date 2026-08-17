@@ -2,6 +2,7 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import { resolveCommercialOffer } from "./offer-registry.js";
 import { scheduleContext } from "./order-context.js";
 import { semesterEndFromSchedule } from "./subscription-period.js";
+import { isUniversityCommercialEnabled } from "./universities/registry.mjs";
 
 const API_URL = "https://api.yookassa.ru/v3";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -59,33 +60,6 @@ function publicApiBaseUrl(config) {
   const value = normalizedHttpsBaseUrl(config.publicApiUrl);
   if (!value) throw new Error("PUBLIC_API_URL is not configured");
   return value;
-}
-
-function configuredOffer(config, plan) {
-  if (!PLAN_IDS.has(plan)) {
-    const error = new Error("Invalid subscription plan");
-    error.code = "invalid_plan";
-    throw error;
-  }
-  const offer = config.offers?.[plan];
-  if (!offer || !/^\d+\.\d{2}$/.test(String(offer.price || "")) || Number(offer.price) <= 0) {
-    const error = new Error(`Offer is not configured for ${plan}`);
-    error.code = "offer_not_configured";
-    throw error;
-  }
-  if (plan === "year") {
-    if (!Number.isFinite(Date.parse(offer.expiresAt))) {
-      const error = new Error("Year offer end is not configured");
-      error.code = "offer_not_configured";
-      throw error;
-    }
-    if (Date.now() >= Date.parse(offer.expiresAt)) {
-      const error = new Error("Year offer has expired");
-      error.code = "offer_expired";
-      throw error;
-    }
-  }
-  return { id: plan, price: String(offer.price), expiresAt: offer.expiresAt ? String(offer.expiresAt) : undefined };
 }
 
 function paymentDescription(order) {
@@ -152,6 +126,12 @@ function trialContextError() {
   return error;
 }
 
+function commercialGateError() {
+  const error = new Error("University commercial launch is closed");
+  error.code = "university_commercial_not_open";
+  return error;
+}
+
 function sameTrialContext(trial, context) {
   return trial?.status === "active" &&
     trial.university === context.university &&
@@ -212,6 +192,7 @@ export class YooKassaService {
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
     }
+    if (!isUniversityCommercialEnabled(context.university)) throw commercialGateError();
     const offer = resolveCommercialOffer(this.config, { ...context, plan });
     assertSchedulePeriodForSale(this.config, context);
     const returnSiteUrl = universitySiteUrl(this.config, context.university);
