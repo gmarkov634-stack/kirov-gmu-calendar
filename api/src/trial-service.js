@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { normalizeAcademicYear, scheduleContext } from "./order-context.js";
 import { semesterEndFromSchedule } from "./subscription-period.js";
 import { trialWindowFromSchedule } from "./trial-projection.js";
+import { universityTrialsEnabled } from "./university-commerce-policy.mjs";
 
 function fail(code, message = code) {
   const error = new Error(message);
@@ -114,6 +115,7 @@ export class TrialService {
     if (typeof this.store?.putTrialConversion !== "function") throw fail("trial_not_ready", "trial conversion storage is unavailable");
 
     const requested = requestContext(input, this.config);
+    if (!universityTrialsEnabled(requested.university)) throw fail("university_trials_not_open");
     const schedule = await this.store.getSchedule({
       ...requested,
       academicYear: this.config.offerAcademicYear,

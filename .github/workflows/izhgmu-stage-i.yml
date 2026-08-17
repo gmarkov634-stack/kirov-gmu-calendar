@@ -1,0 +1,46 @@
+name: IzhGMU stage I commercial boundary
+
+on:
+  pull_request:
+    paths:
+      - "api/src/offer-catalog.js"
+      - "api/src/offer-sku.mjs"
+      - "api/src/university-commerce-policy.mjs"
+      - "api/src/trial-service.js"
+      - "api/src/trial-http-handler.js"
+      - "api/src/config.js"
+      - "api/test/izhgmu-commercial-*.test.js"
+      - "api/test/offer-catalog.test.js"
+      - "api/test/trial-service.test.js"
+      - "api/test/shared-config.test.js"
+      - "izhgmu/**"
+      - ".github/workflows/izhgmu-stage-i.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage-i:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - name: Izh policy and catalog regression
+        run: node --test test/izhgmu-commercial-policy.test.js
+      - name: Izh trial payment and landing gates
+        run: node --test test/izhgmu-commercial-gates.test.js
+      - name: Existing catalog compatibility
+        run: node --test test/offer-catalog.test.js
+      - name: Existing trial compatibility
+        run: node --test test/trial-service.test.js
+      - name: Shared config hard-close contract
+        run: node --test test/shared-config.test.js

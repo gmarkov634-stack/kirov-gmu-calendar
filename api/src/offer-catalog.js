@@ -1,4 +1,12 @@
 import { listOfferProgramAvailability } from "./offer-availability.js";
+import { offerSku } from "./offer-sku.mjs";
+import {
+  catalogContextAllowed,
+  filterCatalogAvailability,
+  universityCatalogEnabled,
+  universitySalesEnabled,
+  universityTrialsEnabled,
+} from "./university-commerce-policy.mjs";
 
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PROGRAM_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -31,6 +39,25 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
+function tenantState(config, university) {
+  if (university !== "izhgmu") return {};
+  return {
+    commercial: config.commercialSalesEnabled === true && universitySalesEnabled(university) ? "open" : "closed",
+    trials: config.trialsEnabled === true && universityTrialsEnabled(university) ? "open" : "closed",
+  };
+}
+
+function withOfferIdentity(university, item) {
+  if (university !== "izhgmu") return item;
+  return {
+    ...item,
+    offers: {
+      semester: { sku: offerSku({ university, program: item.program }, "semester") },
+      year: { sku: offerSku({ university, program: item.program }, "year") },
+    },
+  };
+}
+
 export function createOfferCatalogHandler({ store, config, listProgramAvailability = listOfferProgramAvailability }) {
   return async function offerCatalogHandler(request, response) {
     allowCors(request, response, config);
@@ -48,17 +75,19 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (programSummaryMatch) {
       const university = decodeURIComponent(programSummaryMatch[1]);
       if (!UNIVERSITY_ID.test(university)) return send(response, 400, { error: "invalid_catalog_context" });
+      if (!universityCatalogEnabled(university)) return send(response, 404, { error: "catalog_not_available" });
       try {
-        const programs = await listProgramAvailability({
+        const programs = filterCatalogAvailability(university, await listProgramAvailability({
           store,
           university,
           academicYear: period.academicYear,
           semester: period.semester,
-        });
+        })).map((item) => withOfferIdentity(university, item));
         return send(response, 200, {
           university,
           academicYear: period.academicYear,
           semester: period.semester,
+          ...tenantState(config, university),
           programs,
         }, "public, max-age=60");
       } catch (error) {
@@ -72,6 +101,9 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     const course = Number(groupMatch[3]);
     if (!UNIVERSITY_ID.test(university) || !PROGRAM_ID.test(program) || !Number.isInteger(course) || course < 1 || course > 9) {
       return send(response, 400, { error: "invalid_catalog_context" });
+    }
+    if (!catalogContextAllowed({ university, program, course })) {
+      return send(response, 404, { error: "catalog_not_available" });
     }
 
     try {
@@ -88,6 +120,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
         course,
         academicYear: period.academicYear,
         semester: period.semester,
+        ...tenantState(config, university),
         groups: groups.map(({ groupId, groupCode, displayName, stream }) => ({
           groupId,
           groupCode,
