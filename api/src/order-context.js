@@ -15,6 +15,15 @@ function semesterNumber(value) {
   return [1, 2].includes(numeric) ? numeric : Number.NaN;
 }
 
+function canonicalEventStream(events) {
+  const streams = new Set();
+  for (const event of events || []) {
+    const stream = stringOrNull(event?.audience?.stream);
+    if (stream) streams.add(stream);
+  }
+  return streams.size === 1 ? [...streams][0] : null;
+}
+
 function canonicalMetadata(value) {
   if (value?.schema_version !== "1.0" || !value?.schedule || !Array.isArray(value?.events)) return null;
   const schedule = value.schedule;
@@ -22,7 +31,7 @@ function canonicalMetadata(value) {
     university: schedule.university_code,
     program: schedule.faculty_code,
     course: schedule.course,
-    stream: schedule.stream ?? null,
+    stream: schedule.stream ?? canonicalEventStream(value.events),
     groupCode: schedule.group,
     groupId: schedule.group_id ?? null,
     groupDisplayName: schedule.group_display_name ?? null,
