@@ -1,6 +1,6 @@
 # ИжГМУ — launch gate
 
-Статус: **STRUCTURALLY READY / CURRENT DATA WAITING / PRODUCTION CLOSED**
+Статус: **BACKEND DEPLOYED / CURRENT DATA WAITING / SALES CLOSED**
 
 Дата фиксации: 2026-08-17.
 
@@ -94,6 +94,18 @@ University commercial gate должен оставаться закрытым в
 - university commercial gate closed;
 - sales/trials closed для ИжГМУ;
 - historical data не используются как current offer.
+
+## Production deployment boundary
+
+PR #225 merged в `main` commit `8f5826f30ecbbe31e625cb0def8b03c87a61f133`.
+
+Cloud.ru deploy run `32047650200` успешно развернул exact immutable image:
+
+`kgmu-calendar-api.cr.cloud.ru/api@sha256:b5ba9a858d201e31e62cd229f03d19852e1a82974c0f6a294724ca7330b86cd2`.
+
+Deployment изменил только image; protected production template fingerprint остался `ae0c556d35845739182c31c7068f88c0e75fb3ef4f9746190e363d835cd227a8`. После deploy контейнер `running`, production smoke PASS, `/health` корректен, `/api/v2/meta` подтверждает `sales=closed`, `trials=closed`, `paymentMode=test`, а unauthenticated `/api/v1/schedule-review/control` остаётся защищённым (`401`).
+
+Это означает, что source-set review и explicit publication boundary доступны в production backend, но само расписание ИжГМУ 2026/2027 ещё не опубликовано и коммерческие gates не открыты.
 
 ## Текущий результат
 
