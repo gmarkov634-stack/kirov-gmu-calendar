@@ -150,12 +150,20 @@ export function extractOmgmuSources(html, sourceUrl = OMG_MU_SOURCE) {
     const direct = classifyOmgmuLabel(label, url);
     const program = direct.program || state.program;
     const course = direct.course || state.course;
-    const stream = direct.stream || state.stream;
+    const stream = direct.stream || (direct.course ? null : state.stream);
     links.push({ label, url, program, course, stream, part: direct.part });
 
-    if (direct.program) state.program = direct.program;
-    if (direct.course) state.course = direct.course;
-    if (direct.stream) state.stream = direct.stream;
+    if (direct.program && direct.program !== state.program) {
+      state.program = direct.program;
+      state.course = null;
+      state.stream = null;
+    }
+    if (direct.course) {
+      state.course = direct.course;
+      state.stream = direct.stream || null;
+    } else if (direct.stream) {
+      state.stream = direct.stream;
+    }
   }
   return links;
 }
