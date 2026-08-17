@@ -27,7 +27,8 @@
     "current source watch is observation/review-only and never publishes",
     "current canonical review is bound to the exact URL+SHA source-set digest",
     "IzhGMU is wired only into the shared protected review-control publication plane",
-    "historical 2025/2026 and deferred medicine 4-6 are rejected by the current publication boundary"
+    "historical 2025/2026 and deferred medicine 4-6 are rejected by the current publication boundary",
+    "READY_TO_PUBLISH preserves last-known-good until explicit publication"
   ],
   "tests": [
     "test/izhgmu-acquisition.test.mjs",
@@ -45,6 +46,9 @@
     "test/izhgmu-target-watch.test.mjs",
     "test/izhgmu-source-watch-workflow.test.mjs",
     "test/izhgmu-current-review-boundary.test.mjs",
+    "test/izhgmu-current-publication-boundary.test.mjs",
+    "test/izhgmu-schedule-review-control.test.mjs",
+    "test/izhgmu-server-review-wiring.test.mjs",
     "test/izhgmu-review-main-wiring.test.mjs"
   ]
 }
