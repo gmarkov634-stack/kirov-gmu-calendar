@@ -15,6 +15,7 @@ import { createTrialHttpHandler } from "./trial-http-handler.js";
 import { TrialService } from "./trial-service.js";
 import { createVkCallbackHandler } from "./vk-callback.js";
 import { createVkControlHandler } from "./vk-control.js";
+import { createVkControlTenantEnv } from "./vk-control-tenant-env.js";
 import { createVkOauthCallbackHandler } from "./vk-oauth-callback.js";
 import { createVkOauthStartHandler } from "./vk-oauth-start.js";
 import { VkTokenManager } from "./vk-token-manager.js";
@@ -55,6 +56,8 @@ const vkTokenManager = new VkTokenManager({ vault: vkTokenVault });
 const vkCallbackHandler = createVkCallbackHandler(process.env, { store });
 const vkWallHandler = createVkWallHandler(process.env, { tokenManager: vkTokenManager });
 const vkControlHandler = createVkControlHandler(process.env, { tokenManager: vkTokenManager });
+const omgmuVkControlEnv = createVkControlTenantEnv(process.env, "OMGMU");
+const omgmuVkControlHandler = createVkControlHandler(omgmuVkControlEnv);
 const vkOauthCallbackHandler = createVkOauthCallbackHandler(process.env, { tokenManager: vkTokenManager });
 const vkOauthStartHandler = createVkOauthStartHandler();
 const izhgmuSourceProbeHandler = createIzhgmuSourceProbeHandler();
@@ -119,6 +122,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v1/vk/control") {
     return vkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/omgmu/control") {
+    return omgmuVkControlHandler(request, response);
   }
   if (url.pathname === "/api/v1/schedule-review/control") {
     return scheduleReviewControlHandler(request, response);
