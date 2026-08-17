@@ -68,17 +68,43 @@ const omgmuSourceProbeHandler = createOmgmuSourceProbeHandler();
 const schedulePublishHandler = createSchedulePublishHandler({ store, config });
 const parserReviewQueue = new ParserReviewQueue(config);
 const parserNotifier = new EmailReviewNotifier(config);
-const kgmuIngestService = new KgmuIngestServiceV2({ queue: parserReviewQueue, notifier: parserNotifier, config, scheduleStore: store });
-const kgmuReviewedService = new KgmuReviewedService({ queue: parserReviewQueue, notifier: parserNotifier, config, scheduleStore: store });
+const kgmuIngestService = new KgmuIngestServiceV2({
+  queue: parserReviewQueue,
+  notifier: parserNotifier,
+  config,
+  scheduleStore: store,
+});
+const kgmuReviewedService = new KgmuReviewedService({
+  queue: parserReviewQueue,
+  notifier: parserNotifier,
+  config,
+  scheduleStore: store,
+});
 const kgmuWatchStore = new KgmuWatchStore(config);
-const kgmuWatcher = new KgmuSourceWatcher({ config, ingestService: kgmuIngestService, sourceObserver: kgmuReviewedService, stateStore: kgmuWatchStore });
+const kgmuWatcher = new KgmuSourceWatcher({
+  config,
+  ingestService: kgmuIngestService,
+  sourceObserver: kgmuReviewedService,
+  stateStore: kgmuWatchStore,
+});
 const kgmuWatchStatusHandler = createKgmuWatchStatusHandler({ stateStore: kgmuWatchStore, config });
-const kgmuParserHandler = createKgmuParserHandler({ service: kgmuIngestService, reviewedService: kgmuReviewedService, queue: parserReviewQueue, watcher: kgmuWatcher, notifier: parserNotifier, config });
+const kgmuParserHandler = createKgmuParserHandler({
+  service: kgmuIngestService,
+  reviewedService: kgmuReviewedService,
+  queue: parserReviewQueue,
+  watcher: kgmuWatcher,
+  notifier: parserNotifier,
+  config,
+});
 const omgmuReviewQueue = new OmgmuReviewQueue(config);
 const omgmuReviewedService = new OmgmuReviewedService({ queue: omgmuReviewQueue, scheduleStore: store });
 const omgmuSourceObserver = new OmgmuSourceObserver({ queue: omgmuReviewQueue });
 const omgmuWatchStore = new OmgmuWatchStore(config);
-const omgmuWatcher = new OmgmuSourceWatcher({ config, observer: omgmuSourceObserver, stateStore: omgmuWatchStore });
+const omgmuWatcher = new OmgmuSourceWatcher({
+  config,
+  observer: omgmuSourceObserver,
+  stateStore: omgmuWatchStore,
+});
 const omgmuWatchStatusHandler = createOmgmuWatchStatusHandler({ stateStore: omgmuWatchStore, reviewQueue: omgmuReviewQueue, config });
 const omgmuReviewHandler = createOmgmuReviewHandler({ queue: omgmuReviewQueue, watcher: omgmuWatcher, config });
 const izhgmuReviewQueue = new IzhgmuReviewQueue(config);
@@ -88,27 +114,76 @@ const scheduleReviewControlHandler = createScheduleReviewControlHandler({ review
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, "http://localhost");
-  if (request.method === "POST" && url.pathname === "/api/v1/vk/callback") return vkCallbackHandler(request, response);
-  if (url.pathname === "/api/v1/vk/oauth/start" || url.pathname === "/api/v1/vk/oauth/begin") return vkOauthStartHandler(request, response);
-  if (url.pathname === "/api/v1/vk/oauth/callback") return vkOauthCallbackHandler(request, response);
-  if (url.pathname === "/api/v1/vk/wall") return vkWallHandler(request, response);
-  if (url.pathname === "/api/v1/vk/control") return vkControlHandler(request, response);
-  if (url.pathname === "/api/v1/vk/omgmu/control") return omgmuVkControlHandler(request, response);
-  if (url.pathname === "/api/v1/schedule-review/control") return scheduleReviewControlHandler(request, response);
-  if (url.pathname === "/api/v1/admin/izhgmu/source-probe") return izhgmuSourceProbeHandler(request, response);
-  if (url.pathname === "/api/v1/admin/omgmu/source-probe") return omgmuSourceProbeHandler(request, response);
-  if (url.pathname === "/api/v1/admin/funnel") return funnelAnalyticsHandler(request, response);
-  if (url.pathname === "/api/v2/analytics") return funnelEventHandler(request, response);
-  if (url.pathname === "/api/v2/status/kgmu-watcher") return kgmuWatchStatusHandler(request, response);
-  if (url.pathname === "/api/v2/status/omgmu-watcher") return omgmuWatchStatusHandler(request, response);
-  if (url.pathname.match(/^\/api\/v2\/catalog\/[^/]+\/[^/]+\/\d+\/[^/]+\/preview$/)) return offerPreviewHandler(request, response);
-  if (url.pathname.startsWith("/api/v2/catalog/")) return offerCatalogHandler(request, response);
-  if (url.pathname === "/api/v2/trials" || url.pathname.startsWith("/api/v2/trials/continue/")) return trialHttpHandler.handleApi(request, response);
-  if (url.pathname === "/api/v1/admin/payments/test-archive") return archivePaymentTestHandler(request, response);
-  if (url.pathname === "/api/v1/admin/subscriptions/preview") return previewSubscriptionHandler(request, response);
-  if (url.pathname === "/api/v1/admin/schedules/publish") return schedulePublishHandler(request, response);
-  if (url.pathname === "/api/v1/admin/omgmu/watch" || url.pathname.startsWith("/api/v1/admin/omgmu/parser-reviews")) return omgmuReviewHandler(request, response);
-  if (url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" || url.pathname === "/api/v1/admin/kgmu/dry-run" || url.pathname === "/api/v1/admin/kgmu/ingest" || url.pathname === "/api/v1/admin/kgmu/watch" || url.pathname === "/api/v1/admin/kgmu/email-test" || url.pathname.startsWith("/api/v1/admin/parser-reviews")) return kgmuParserHandler(request, response);
+  if (request.method === "POST" && url.pathname === "/api/v1/vk/callback") {
+    return vkCallbackHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/oauth/start" || url.pathname === "/api/v1/vk/oauth/begin") {
+    return vkOauthStartHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/oauth/callback") {
+    return vkOauthCallbackHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/wall") {
+    return vkWallHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/control") {
+    return vkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/omgmu/control") {
+    return omgmuVkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/schedule-review/control") {
+    return scheduleReviewControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/izhgmu/source-probe") {
+    return izhgmuSourceProbeHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/omgmu/source-probe") {
+    return omgmuSourceProbeHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/funnel") {
+    return funnelAnalyticsHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/analytics") {
+    return funnelEventHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/status/kgmu-watcher") {
+    return kgmuWatchStatusHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/status/omgmu-watcher") {
+    return omgmuWatchStatusHandler(request, response);
+  }
+  if (url.pathname.match(/^\/api\/v2\/catalog\/[^/]+\/[^/]+\/\d+\/[^/]+\/preview$/)) {
+    return offerPreviewHandler(request, response);
+  }
+  if (url.pathname.startsWith("/api/v2/catalog/")) {
+    return offerCatalogHandler(request, response);
+  }
+  if (url.pathname === "/api/v2/trials" || url.pathname.startsWith("/api/v2/trials/continue/")) {
+    return trialHttpHandler.handleApi(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/payments/test-archive") {
+    return archivePaymentTestHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/subscriptions/preview") {
+    return previewSubscriptionHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/schedules/publish") {
+    return schedulePublishHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/admin/omgmu/watch" || url.pathname.startsWith("/api/v1/admin/omgmu/parser-reviews")) {
+    return omgmuReviewHandler(request, response);
+  }
+  if (
+    url.pathname === "/api/v1/admin/kgmu/reviewed-bundle" ||
+    url.pathname === "/api/v1/admin/kgmu/dry-run" ||
+    url.pathname === "/api/v1/admin/kgmu/ingest" ||
+    url.pathname === "/api/v1/admin/kgmu/watch" ||
+    url.pathname === "/api/v1/admin/kgmu/email-test" ||
+    url.pathname.startsWith("/api/v1/admin/parser-reviews")
+  ) {
+    return kgmuParserHandler(request, response);
+  }
   if (url.pathname.match(/^\/api\/v1\/subscriptions\/[A-Za-z0-9_-]{43}\/calendar\.ics$/)) {
     const handled = await trialHttpHandler.handleSubscription(request, response);
     if (handled) return;
@@ -122,23 +197,51 @@ let omgmuWatchTimer = null;
 async function runKgmuWatch(reason) {
   try {
     const result = await kgmuWatcher.run();
-    console.log("KGMU source watch", reason, JSON.stringify({ status: result.status, mode: result.mode, targetCount: result.targetCount, observedCount: result.observedCount, ingestedCount: result.ingestedCount, unchangedCount: result.unchangedCount, errorCount: result.errorCount }));
-  } catch (error) { console.error("KGMU source watch failed", reason, error); }
+    console.log("KGMU source watch", reason, JSON.stringify({
+      status: result.status,
+      mode: result.mode,
+      targetCount: result.targetCount,
+      observedCount: result.observedCount,
+      ingestedCount: result.ingestedCount,
+      unchangedCount: result.unchangedCount,
+      errorCount: result.errorCount,
+    }));
+  } catch (error) {
+    console.error("KGMU source watch failed", reason, error);
+  }
 }
 
 async function runOmgmuWatch(reason) {
   try {
     const result = await omgmuWatcher.run();
-    console.log("OMGMU source watch", reason, JSON.stringify({ status: result.status, targetCount: result.targetCount, newReviewCount: result.newReviewCount, changedReviewCount: result.changedReviewCount, unchangedCount: result.unchangedCount, missingCount: result.missingCount, errorCount: result.errorCount }));
-  } catch (error) { console.error("OMGMU source watch failed", reason, error); }
+    console.log("OMGMU source watch", reason, JSON.stringify({
+      status: result.status,
+      targetCount: result.targetCount,
+      newReviewCount: result.newReviewCount,
+      changedReviewCount: result.changedReviewCount,
+      unchangedCount: result.unchangedCount,
+      missingCount: result.missingCount,
+      errorCount: result.errorCount,
+    }));
+  } catch (error) {
+    console.error("OMGMU source watch failed", reason, error);
+  }
 }
 
 server.listen(config.port, "0.0.0.0", () => {
   console.log(`medical-calendar-api listening on :${config.port}`);
-  console.log(parserNotifier.enabled ? "KGMU schedule notifications: Email" : "KGMU schedule email notifications are not configured");
-  console.log(config.kgmuManualNormalization ? "KGMU normalization mode: reviewed JSON (server XLSX parsing disabled)" : "KGMU normalization mode: legacy server parser");
-  console.log(config.trialsEnabled ? "Trial subscriptions enabled" : "Trial subscriptions disabled");
-  console.log(config.funnelAnalyticsEnabled ? "Funnel analytics enabled" : "Funnel analytics disabled");
+  console.log(parserNotifier.enabled
+    ? "KGMU schedule notifications: Email"
+    : "KGMU schedule email notifications are not configured");
+  console.log(config.kgmuManualNormalization
+    ? "KGMU normalization mode: reviewed JSON (server XLSX parsing disabled)"
+    : "KGMU normalization mode: legacy server parser");
+  console.log(config.trialsEnabled
+    ? "Trial subscriptions enabled"
+    : "Trial subscriptions disabled");
+  console.log(config.funnelAnalyticsEnabled
+    ? "Funnel analytics enabled"
+    : "Funnel analytics disabled");
   console.log("IzhGMU review control: source-set-bound / explicit publication only");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
