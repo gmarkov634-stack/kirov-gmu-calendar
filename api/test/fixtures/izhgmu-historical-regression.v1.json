@@ -26,6 +26,7 @@
     "target watch cannot treat historical spring data as autumn 2026/2027",
     "current source watch is observation/review-only and never publishes",
     "current canonical review is bound to the exact URL+SHA source-set digest",
+    "IzhGMU is wired only into the shared protected review-control publication plane",
     "historical 2025/2026 and deferred medicine 4-6 are rejected by the current publication boundary"
   ],
   "tests": [
@@ -43,6 +44,7 @@
     "test/izhgmu-medicine3-publication-contract.test.mjs",
     "test/izhgmu-target-watch.test.mjs",
     "test/izhgmu-source-watch-workflow.test.mjs",
-    "test/izhgmu-current-review-boundary.test.mjs"
+    "test/izhgmu-current-review-boundary.test.mjs",
+    "test/izhgmu-review-main-wiring.test.mjs"
   ]
 }
