@@ -42,39 +42,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate landing files and catalog
+      - name: Validate landing files and server-owned catalog contract
         run: |
           for file in index.html styles.css landing-v1.css data.js app.js app-utils.js; do
             test -f "$file"
           done
-          for file in index.html styles.css mobile.css app.js config.js groups.js; do
+          for file in index.html styles.css mobile.css app.js config.js; do
             test -f "site/omgmu/$file"
           done
           node - <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          const groupCode = fs.readFileSync('site/omgmu/groups.js', 'utf8');
           const configCode = fs.readFileSync('site/omgmu/config.js', 'utf8');
-          const sandbox = { window: {} };
-          vm.runInNewContext(groupCode, sandbox);
+          const sandbox = { window: {}, document: undefined };
           vm.runInNewContext(configCode, sandbox);
-          const catalog = sandbox.window.OMGMU_GROUPS;
           const config = sandbox.window.OMGMU_CONFIG;
-          if (!Array.isArray(catalog)) throw new Error('OMGMU_GROUPS is not an array');
-          const groups = catalog.flatMap(item => item.groups || []);
-          const unique = new Set(groups);
-          const approvedManual = ['2113', '2114', '389', '393'];
-          if (groups.length !== 43) throw new Error(`Expected 43 groups, got ${groups.length}`);
-          if (unique.size !== groups.length) throw new Error('Duplicate ОмГМУ groups are exposed');
-          for (const group of approvedManual) {
-            if (!groups.includes(group)) throw new Error(`Approved group ${group} is missing`);
+          if (config.university !== 'omgmu') throw new Error('ОмГМУ university id is missing');
+          for (const forbidden of ['program', 'priceRub', 'testMode', 'checkoutEnabled']) {
+            if (Object.prototype.hasOwnProperty.call(config, forbidden)) {
+              throw new Error(`Commercial truth must not be static in config: ${forbidden}`);
+            }
           }
-          if (config.checkoutEnabled === true && config.testMode !== true) {
-            throw new Error('Production ОмГМУ checkout requires an explicit rollout change');
-          }
-          if (!configCode.includes('mobile.css') || !configCode.includes('document.currentScript')) {
-            throw new Error('ОмГМУ mobile stylesheet loader is missing');
-          }
+          if (!config.apiBaseUrl?.startsWith('https://')) throw new Error('HTTPS API base is required');
+          if (config.paymentPath !== '/api/v2/payments') throw new Error('Payment path mismatch');
 
           const mobileCss = fs.readFileSync('site/omgmu/mobile.css', 'utf8');
           for (const marker of ['max-width: 760px', 'font-size: 16px', 'safe-area-inset-bottom', 'prefers-reduced-motion']) {
@@ -82,26 +72,35 @@ jobs:
           }
 
           const html = fs.readFileSync('site/omgmu/index.html', 'utf8');
-          for (const requiredId of ['how', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'restore-order', 'faq']) {
+          for (const requiredId of ['program-grid', 'program', 'course', 'group', 'order-form', 'order-result', 'selection-summary', 'price-summary', 'hero-price-value', 'restore-order', 'faq']) {
             if (!html.includes(`id="${requiredId}"`)) throw new Error(`Landing UX element missing: ${requiredId}`);
           }
           for (const requiredCopy of ['Оплата проходит через ЮKassa', 'Без автосписаний', 'Открыть последний заказ', 'Это официальный сервис ОмГМУ?']) {
             if (!html.includes(requiredCopy)) throw new Error(`Trust/FAQ copy missing: ${requiredCopy}`);
           }
-          if (/name=["']calendar["']/.test(html)) {
-            throw new Error('Calendar provider must not be selected before payment; subscription URL is universal');
-          }
-          if (html.includes('Email для получения ссылки')) {
-            throw new Error('Landing must not claim that the subscription URL is delivered by email');
-          }
+          if (html.includes('groups.js')) throw new Error('Static groups.js must not be loaded by the commercial landing');
+          if (/\b490\s*₽/.test(html)) throw new Error('Static commercial price must not be embedded in HTML');
+          if (/name=["']calendar["']/.test(html)) throw new Error('Calendar provider must not be selected before payment');
+          if (html.includes('Email для получения ссылки')) throw new Error('Landing must not claim that the subscription URL is delivered by email');
 
           const app = fs.readFileSync('site/omgmu/app.js', 'utf8');
-          for (const required of ['email:', 'groupId:', 'stream,', 'confirmationUrl', 'checkoutEnabled', 'restoreOrderForm', 'resultPanel', 'enableSavedOrderRecovery', 'restoreOrderButton']) {
-            if (!app.includes(required)) throw new Error(`Checkout contract marker missing: ${required}`);
+          for (const required of [
+            '/offer',
+            '/programs',
+            '/groups',
+            'selectedGroup.groupId',
+            "state.offer?.sales !== 'open'",
+            "plan: 'semester'",
+            'confirmationUrl',
+            'restoreOrderForm',
+            'enableSavedOrderRecovery',
+          ]) {
+            if (!app.includes(required)) throw new Error(`Server-owned checkout marker missing: ${required}`);
           }
-          if (!app.includes("window.location.hash === '#order'")) {
-            throw new Error('Return-to-group reset guard is missing');
+          for (const forbidden of ['window.OMGMU_GROUPS', 'buildGroupId(', 'config.priceRub', 'config.checkoutEnabled', 'config.testMode']) {
+            if (app.includes(forbidden)) throw new Error(`Legacy static checkout marker remains: ${forbidden}`);
           }
+          if (!app.includes("window.location.hash === '#order'")) throw new Error('Return-to-group reset guard is missing');
           console.log('Landing validation passed');
           NODE
       - name: Prepare production artifact
