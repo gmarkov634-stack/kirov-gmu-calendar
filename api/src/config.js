@@ -42,6 +42,9 @@ export function loadConfig(env = process.env) {
     universitySiteUrls: {
       kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
+      // IzhGMU is intentionally not provisionable for paid redirects in stage I.
+      // Opening this requires a separate launch change after current-source E2E.
+      izhgmu: "",
       pgmu: env.PGMU_SITE_URL || "",
     },
     publicApiUrl: env.PUBLIC_API_URL || "",
