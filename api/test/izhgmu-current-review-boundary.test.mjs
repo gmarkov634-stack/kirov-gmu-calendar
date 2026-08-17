@@ -46,6 +46,15 @@ async function exampleBatch() {
   return batch;
 }
 
+async function canonicalInput() {
+  return {
+    format: "canonical-reviewed/v1",
+    source_set_digest: SOURCE_SET_DIGEST,
+    rules_revision: "izhgmu-2026-08-17",
+    batches: [await exampleBatch()],
+  };
+}
+
 test("source-set review creation is idempotent and digest-bound", async () => {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "izh-review-"));
   const queue = new IzhgmuReviewQueue({ dataDir });
@@ -63,8 +72,7 @@ test("canonical review accepts exact source set and rejects SHA drift", async ()
   const queue = new IzhgmuReviewQueue({ dataDir });
   const service = new IzhgmuReviewedService({ queue, scheduleStore: {} });
   const review = await service.createReview(reviewInput());
-  const batch = await exampleBatch();
-  const input = { format: "canonical-reviewed/v1", source_set_digest: SOURCE_SET_DIGEST, rules_revision: "izhgmu-2026-08-17", batches: [batch] };
+  const input = await canonicalInput();
   const normalized = validateIzhgmuCanonicalReviewPackage(input, review);
   assert.equal(normalized.qa.status, "PASS");
   assert.equal(normalized.qa.groupCount, 1);
@@ -75,13 +83,31 @@ test("canonical review accepts exact source set and rejects SHA drift", async ()
   assert.throws(() => validateIzhgmuCanonicalReviewPackage(drift, review), (error) => error.code === "IZHGMU_CANONICAL_SOURCE_MISMATCH");
 });
 
+test("review.submit reaches READY_TO_PUBLISH without any current/store write", async () => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "izh-review-"));
+  let getCalls = 0;
+  let putCalls = 0;
+  const scheduleStore = {
+    async getSchedule() { getCalls += 1; return null; },
+    async putSchedule() { putCalls += 1; throw new Error("must not write during submit"); },
+  };
+  const queue = new IzhgmuReviewQueue({ dataDir });
+  const service = new IzhgmuReviewedService({ queue, scheduleStore });
+  const review = await service.createReview(reviewInput());
+  const result = await service.submitCanonical(review.reviewId, await canonicalInput());
+  assert.equal(result.status, "READY_TO_PUBLISH");
+  assert.equal(result.publicationBlocked, true);
+  assert.equal(result.currentPublishedSchedulePreserved, true);
+  assert.equal(getCalls, 0);
+  assert.equal(putCalls, 0);
+});
+
 test("current boundary rejects historical or deferred course publication", async () => {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "izh-review-"));
   const queue = new IzhgmuReviewQueue({ dataDir });
   const service = new IzhgmuReviewedService({ queue, scheduleStore: {} });
   const review = await service.createReview(reviewInput());
-  const batch = await exampleBatch();
-  const input = { format: "canonical-reviewed/v1", source_set_digest: SOURCE_SET_DIGEST, rules_revision: "izhgmu-2026-08-17", batches: [batch] };
+  const input = await canonicalInput();
 
   const historical = structuredClone(input);
   historical.batches[0].schedule.academic_year = "2025/2026";
