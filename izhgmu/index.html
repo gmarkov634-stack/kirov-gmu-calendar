@@ -1,164 +1,157 @@
 <!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Расписание ИжГМУ в Apple Calendar и Google Calendar: учебные занятия в привычном календаре телефона.">
-  <meta name="robots" content="index,follow">
-  <meta name="theme-color" content="#164f86">
-  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="ru_RU">
-  <meta property="og:site_name" content="Расписание ИжГМУ в календаре">
-  <meta property="og:title" content="Расписание ИжГМУ — сразу в календаре">
-  <meta property="og:description" content="Подключите расписание ИжГМУ к Apple Calendar или Google Calendar и смотрите занятия как обычные события календаря.">
-  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/">
-  <meta name="twitter:card" content="summary">
-  <title>Расписание ИжГМУ в Apple и Google Calendar</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1559d6" />
+    <meta name="description" content="Расписание Ижевского ГМУ в Apple Calendar и Google Calendar: смотрите пары своей группы в обычном календаре телефона." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/" />
+    <title>Расписание ИжГМУ в Apple и Google Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css?v=landing-1" />
+    <link rel="stylesheet" href="../pricing.css?v=landing-1" />
+    <link rel="stylesheet" href="../landing-v1.css?v=landing-4" />
+    <link rel="stylesheet" href="../landing-feed.css?v=feed-6" data-calendar-feed-styles />
+    <link rel="stylesheet" href="../program-status.css?v=landing-2" />
+    <link rel="stylesheet" href="../trial.css?v=trial-1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./" aria-label="На главную">
+          <span class="brand-mark" aria-hidden="true">И</span>
+          <span><strong>Календарь ИжГМУ</strong><small>Расписание в телефоне</small></span>
+        </a>
+        <nav class="topnav" aria-label="Навигация">
+          <a href="#directions">Направления</a>
+          <a href="#how">Как работает</a>
+          <a href="#selector">Выбрать группу</a>
+          <a href="#questions">Вопросы</a>
+        </nav>
+      </div>
+    </header>
 
-  <header class="hero">
-    <div class="shell hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Ижевский государственный медицинский университет</p>
-        <h1>Расписание ИжГМУ — сразу в календаре</h1>
-        <p class="lead">Занятия, лекции и изменения расписания — в Apple Calendar или Google Calendar без ручного переноса.</p>
-
-        <div class="hero-features" aria-label="Преимущества">
-          <div><span class="feature-icon">✓</span><span>Apple и<br>Google</span></div>
-          <div><span class="feature-icon">↻</span><span>Обновления<br>по подписке</span></div>
-          <div><span class="feature-icon">🔗</span><span>Персональный<br>календарь</span></div>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Ижевский государственный медицинский университет</p>
+          <h1>Не ищи расписание каждый день</h1>
+          <p>Пары вашей группы уже в календаре телефона. Откройте привычный Apple Calendar или Google Calendar — и учебный день будет перед глазами.</p>
+          <div class="hero-features" aria-label="Главные преимущества">
+            <span class="hero-feature">Apple и Google</span>
+            <span class="hero-feature">Проверенное расписание</span>
+            <span class="hero-feature">Без автосписаний</span>
+          </div>
+          <div class="hero-actions">
+            <a class="hero-cta" id="hero-primary-cta" href="#selector">Выбрать свою группу →</a>
+          </div>
+          <span class="hero-runtime-note" id="hero-runtime-note">Сейчас готовим расписание лечебного факультета ИжГМУ к публикации.</span>
         </div>
-
-        <div class="hero-actions">
-          <a class="primary" href="#availability">Проверить статус запуска <span aria-hidden="true">→</span></a>
-          <div class="hero-status">
-            <strong>Готовим ИжГМУ к запуску</strong>
-            <span>Сейчас подключаем расписание лечебного факультета</span>
+        <div class="hero-visual">
+          <div class="calendar-preview">
+            <div class="preview-head"><span>Сегодня</span><strong>Расписание</strong></div>
+            <div class="preview-event"><time>08:00</time><div><strong>ЛЕКЦ. ПРОПЕДЕВТИКА ВНУТРЕННИХ БОЛЕЗНЕЙ</strong><span>Лекция</span></div></div>
+            <div class="preview-event"><time>09:40</time><div><strong>Биохимия</strong><span>Учебное занятие</span></div></div>
+            <div class="preview-event"><time>11:20</time><div><strong>Гистология, эмбриология, цитология</strong><span>Учебное занятие</span></div></div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="calendar-demo" aria-label="Интерактивный пример календаря">
-        <div class="demo-head">
-          <button id="prev-day" type="button" aria-label="Предыдущий день">‹</button>
-          <div><span id="demo-weekday">Понедельник</span><strong id="demo-date">7 сентября</strong></div>
-          <button id="next-day" type="button" aria-label="Следующий день">›</button>
+      <section class="comparison-section" aria-label="Сравнение способов просмотра расписания">
+        <article class="comparison-card">
+          <strong>Обычно</strong>
+          <p>Открыть PDF, таблицу, сайт или чат → найти свою группу → определить неделю → найти день → прочитать расписание.</p>
+        </article>
+        <article class="comparison-card is-calendar">
+          <strong>С календарём</strong>
+          <p>Открыть календарь телефона → увидеть сегодняшние и следующие пары среди остальных событий дня.</p>
+        </article>
+        <p class="comparison-note">Мы не сделали ещё одно место, где можно посмотреть расписание. Мы убрали необходимость каждый раз его искать.</p>
+      </section>
+
+      <section class="availability" aria-label="Статус расписания 2026/27">
+        <div>
+          <strong>Доступ появляется только после проверки расписания</strong>
+          <p>Для учебного года 2026/27 группа появится в выборе после публикации официального расписания ИжГМУ и проверки дат, времени занятий и состава групп.</p>
         </div>
-        <div id="demo-events" class="demo-events"></div>
-        <p class="demo-hint">Нажмите на занятие, чтобы открыть детали</p>
-      </div>
-    </div>
-  </header>
+        <span class="availability-badge">2026/27 · осенний семестр</span>
+      </section>
 
-  <main id="main" tabindex="-1">
-    <section id="availability" class="shell section">
-      <div class="section-heading">
-        <p class="eyebrow">Подключение ИжГМУ</p>
-        <h2>Начинаем с лечебного факультета</h2>
-        <p>Расписание подключается поэтапно. В продажу попадут только группы, для которых исходные данные полностью разобраны и проверены.</p>
-      </div>
+      <section id="directions" class="info-section" aria-labelledby="directions-title">
+        <div class="section-heading">
+          <p class="eyebrow">Направления ИжГМУ</p>
+          <h2 id="directions-title">Начинаем с лечебного факультета</h2>
+          <p>В выборе появляются только группы с опубликованным и проверенным расписанием. Если расписание ещё не опубликовано или требует уточнения, группа остаётся недоступной.</p>
+        </div>
+        <div class="program-grid">
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">В подготовке</span></div><h3>Лечебное дело</h3><p>Курсы 1–6</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Следующий этап</span></div><h3>Педиатрия</h3><p>После стабилизации лечебного факультета</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Следующий этап</span></div><h3>Стоматология</h3><p>После стабилизации лечебного факультета</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Следующий этап</span></div><h3>Другие направления</h3><p>Будут подключаться по мере подготовки источников</p></article>
+        </div>
+      </section>
 
-      <div class="availability-grid">
-        <article class="availability-card active-card">
-          <div class="card-top"><span class="badge">В работе</span><span class="program-code">31.05.01</span></div>
-          <h3>Лечебное дело</h3>
-          <p>Подключаем структуру курсов и групп и готовим автоматическое обновление расписания.</p>
-          <div class="progress" aria-label="Этап подготовки"><span style="width:38%"></span></div>
-          <small>Текущий этап: разбор источников и парсинг</small>
-        </article>
-
-        <article class="availability-card muted-card">
-          <div class="card-top"><span class="badge muted">Следующий этап</span></div>
-          <h3>Другие направления</h3>
-          <p>Будут подключаться после стабилизации лечебного факультета и проверки качества данных.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="how-section">
-      <div class="shell section">
-        <div class="section-heading compact">
-          <p class="eyebrow">Как это будет работать</p>
-          <h2>Один раз подключили — дальше календарь живёт сам</h2>
+      <section id="how" class="info-section" aria-labelledby="how-title">
+        <div class="section-heading">
+          <p class="eyebrow">Как это работает</p>
+          <h2 id="how-title">Сначала увидьте результат — потом решайте</h2>
         </div>
         <div class="how-grid">
-          <article><span>1</span><h3>Выберите свою группу</h3><p>На странице будут доступны только проверенные группы текущего учебного периода.</p></article>
-          <article><span>2</span><h3>Получите персональную ссылку</h3><p>Ссылка подключается к Apple Calendar или Google Calendar как подписной календарь.</p></article>
-          <article><span>3</span><h3>Смотрите расписание</h3><p>Занятия отображаются рядом с обычными делами, встречами и напоминаниями.</p></article>
+          <article class="how-card"><span class="how-number">1</span><h3>Выберите свою группу</h3><p>Показываем только группы из уже опубликованного и проверенного расписания.</p></article>
+          <article class="how-card"><span class="how-number">2</span><h3>Посмотрите реальные пары</h3><p>Перед оплатой вы увидите несколько занятий именно своей группы.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3>Подключите календарь</h3><p>Если формат подходит, выберите полный период и подключите персональную ссылку.</p></article>
         </div>
+        <div class="trust-strip" aria-label="О сервисе">
+          <div><strong>Официальный источник</strong><span>Расписание берётся из опубликованных материалов ИжГМУ.</span></div>
+          <div><strong>Проверено перед публикацией</strong><span>Перед выдачей проверяем даты, время занятий и состав групп.</span></div>
+          <div><strong>Одна paid-ссылка</strong><span>После проверки новой версии изменения приходят по той же оплаченной ссылке.</span></div>
+        </div>
+      </section>
+
+      <section id="selector" class="selector selector-anchor" aria-labelledby="selector-title">
+        <div class="steps" aria-label="Выбор группы">
+          <div class="step is-active"><span>1</span><strong>Факультет</strong></div>
+          <div class="step"><span>2</span><strong>Курс</strong></div>
+          <div class="step"><span>3</span><strong>Группа</strong></div>
+        </div>
+        <div class="panel-head">
+          <div><p class="section-kicker">Шаг 1 из 3</p><h2 id="selector-title">Выберите факультет</h2></div>
+        </div>
+        <div class="choice-grid">
+          <article class="program-card">
+            <div class="program-card-top"><span class="program-badge">В подготовке</span></div>
+            <h3>Лечебный факультет</h3>
+            <p>Выбор курса и группы появится после завершения проверки расписания.</p>
+          </article>
+        </div>
+        <div class="notice">ИжГМУ пока работает в предзапускном режиме: оплату не принимаем, пока расписание выбранных групп не пройдёт полную проверку.</div>
+      </section>
+
+      <section class="schedule-policy" aria-label="Важная информация о расписании">
+        <strong>Важно</strong>
+        <p>Календарь составляется по официально опубликованному расписанию ИжГМУ. Переносы, замены и другие изменения, согласованные группой с преподавателем вне опубликованного расписания, в календаре не отображаются.</p>
+      </section>
+
+      <section id="questions" class="faq" aria-labelledby="questions-title">
+        <div class="section-heading"><p class="eyebrow">Вопросы и ответы</p><h2 id="questions-title">О календаре</h2></div>
+        <div class="faq-list">
+          <details><summary>Что будет, если расписание на сайте изменится?</summary><p>После проверки и публикации новой версии изменения попадут в подписной календарь по той же персональной ссылке. Заново добавлять календарь не нужно.</p></details>
+          <details><summary>Нужно ли снова платить после изменения расписания?</summary><p>Нет. Обновления уже приобретённого периода входят в доступ и приходят по той же ссылке.</p></details>
+          <details><summary>Почему моей группы пока нет в списке?</summary><p>Группа появляется только после публикации официального расписания ИжГМУ и прохождения проверки. Сейчас первым подключается лечебный факультет.</p></details>
+          <details><summary>Одна ссылка подходит для Apple и Google?</summary><p>Да. После оплаты создаётся одна персональная подписная ссылка. На iPhone её можно подключить как подписной календарь, а в Google Calendar — добавить по URL.</p></details>
+          <details><summary>Это официальный сервис ИжГМУ?</summary><p>Нет. Это неофициальный сервис электронных календарей. Для подготовки календарей используются официально опубликованные расписания ИжГМУ.</p></details>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <p>Неофициальный сервис электронного расписания студентов Ижевского ГМУ</p>
+        <nav aria-label="Ссылки в подвале"><a href="#directions">Направления</a><a href="#how">Как работает</a><a href="#questions">Вопросы</a></nav>
       </div>
-    </section>
-
-    <section class="shell section comparison">
-      <div class="section-heading compact">
-        <p class="eyebrow">Зачем переносить расписание</p>
-        <h2>Вместо постоянного просмотра таблицы</h2>
-      </div>
-      <div class="comparison-grid">
-        <article class="before">
-          <span class="comparison-label">Обычное расписание</span>
-          <h3>Нужно каждый раз искать нужный день</h3>
-          <ul>
-            <li>Открыть файл или страницу расписания</li>
-            <li>Найти свою группу и нужную дату</li>
-            <li>Отдельно помнить о времени и аудитории</li>
-            <li>Снова проверять изменения</li>
-          </ul>
-        </article>
-        <article class="after">
-          <span class="comparison-label">Календарь</span>
-          <h3>Открыли день — занятия уже на месте</h3>
-          <ul>
-            <li>Все пары собраны по времени</li>
-            <li>Дисциплина и тип занятия видны сразу</li>
-            <li>Можно пользоваться календарём телефона</li>
-            <li>Обновления приходят по той же подписке</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="launch shell section">
-      <div>
-        <p class="eyebrow">Статус</p>
-        <h2>ИжГМУ ещё не открыт для покупки</h2>
-        <p>Мы не показываем неготовые группы и не принимаем оплату до завершения проверки расписания. Когда лечебный факультет будет готов, здесь появится выбор курса и группы.</p>
-      </div>
-      <a class="secondary" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/">Посмотреть основной сервис</a>
-    </section>
-
-    <section class="shell section faq">
-      <div class="section-heading compact"><p class="eyebrow">Вопросы</p></div>
-      <details><summary>Это официальный сайт ИжГМУ?</summary><p>Нет. Это независимый сервис календарей расписания. Для подготовки календарей используются опубликованные университетом материалы.</p></details>
-      <details><summary>Когда появится выбор группы?</summary><p>После того как расписание лечебного факультета будет разобрано, проверено и подключено к обновляемому календарю.</p></details>
-      <details><summary>Нужно будет заново импортировать календарь после изменения расписания?</summary><p>Нет. Подписной календарь обновляется по той же ссылке после публикации обновлённых данных в сервисе.</p></details>
-    </section>
-  </main>
-
-  <footer>
-    <div class="shell footer-inner">
-      <strong>Расписание ИжГМУ в календаре</strong>
-      <nav aria-label="Ссылки"><a href="#availability">Статус</a><a href="#main">О сервисе</a></nav>
-    </div>
-  </footer>
-
-  <div id="event-dialog" class="dialog-backdrop" hidden>
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
-      <button id="dialog-close" class="dialog-close" type="button" aria-label="Закрыть">×</button>
-      <span id="dialog-type" class="dialog-type"></span>
-      <h3 id="dialog-title"></h3>
-      <dl>
-        <div><dt>Время</dt><dd id="dialog-time"></dd></div>
-        <div><dt>Место</dt><dd id="dialog-place"></dd></div>
-        <div><dt>Заметка</dt><dd id="dialog-note"></dd></div>
-      </dl>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    </footer>
+  </body>
 </html>
