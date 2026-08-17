@@ -7,6 +7,7 @@ test("shared API has no primary university site", () => {
     KGMU_SITE_URL: "https://kgmu.example.test/",
     OMGMU_SITE_URL: "https://omgmu.example.test/",
     PGMU_SITE_URL: "https://pgmu.example.test/",
+    IZHGMU_SITE_URL: "https://izhgmu.example.test/",
     PUBLIC_API_URL: "https://api.example.test",
   });
 
@@ -15,13 +16,14 @@ test("shared API has no primary university site", () => {
     kgmu: "https://kgmu.example.test/",
     omgmu: "https://omgmu.example.test/",
     pgmu: "https://pgmu.example.test/",
+    izhgmu: "https://izhgmu.example.test/",
   });
   assert.equal(config.publicApiUrl, "https://api.example.test");
 });
 
 test("unconfigured university landings stay empty instead of falling back to KGMU", () => {
   const config = loadConfig({ PUBLIC_API_URL: "https://api.example.test" });
-  assert.deepEqual(config.universitySiteUrls, { kgmu: "", omgmu: "", pgmu: "" });
+  assert.deepEqual(config.universitySiteUrls, { kgmu: "", omgmu: "", pgmu: "", izhgmu: "" });
 });
 
 test("schedule cache stays disabled even if an old CACHE_TTL_MS value remains in deployment env", () => {
