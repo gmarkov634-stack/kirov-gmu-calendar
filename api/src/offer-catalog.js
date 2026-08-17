@@ -40,6 +40,7 @@ function validOfferPeriod(config) {
 }
 
 function tenantState(config, university) {
+  if (university !== "izhgmu") return {};
   return {
     commercial: config.commercialSalesEnabled === true && universitySalesEnabled(university) ? "open" : "closed",
     trials: config.trialsEnabled === true && universityTrialsEnabled(university) ? "open" : "closed",
@@ -47,6 +48,7 @@ function tenantState(config, university) {
 }
 
 function withOfferIdentity(university, item) {
+  if (university !== "izhgmu") return item;
   return {
     ...item,
     offers: {
