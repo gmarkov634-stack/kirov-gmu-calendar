@@ -1,12 +1,14 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
+import { publicCommercialOffers } from "./offer-registry.js";
 import { scheduleContext } from "./order-context.js";
 import { effectiveSubscriptionEnd } from "./subscription-period.js";
 import { isUniversityCommercialEnabled } from "./universities/registry.mjs";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const PROGRAM_ID = /^[a-z][a-z0-9_]{1,63}$/;
 const PLAN_IDS = new Set(["semester", "year"]);
 
 function send(response, status, body, type = "application/json; charset=utf-8", cacheControl) {
@@ -129,13 +131,8 @@ function paymentMode(config) {
   return config?.yookassaTestMode === true ? "test" : "live";
 }
 
-function publicOfferPrices(config) {
-  const result = {};
-  for (const plan of PLAN_IDS) {
-    const price = String(config?.offers?.[plan]?.price || "");
-    if (/^\d+\.\d{2}$/.test(price) && Number(price) > 0) result[plan] = { price };
-  }
-  return result;
+function publicOfferPrices(config, context = null) {
+  return publicCommercialOffers(config, context);
 }
 
 export function createHandler({ store, config, payments }) {
@@ -248,7 +245,12 @@ export function createHandler({ store, config, payments }) {
     if (url.pathname === "/health") return send(response, 200, { status: "ok", service: "medical-calendar-api" });
     if (url.pathname === "/api/v2/meta") {
       const requestedUniversity = url.searchParams.get("university");
+      const requestedProgram = url.searchParams.get("program");
       const scopedUniversity = requestedUniversity && UNIVERSITY_ID.test(requestedUniversity) ? requestedUniversity : "";
+      const scopedProgram = requestedProgram && PROGRAM_ID.test(requestedProgram) ? requestedProgram : "";
+      const offerContext = scopedUniversity && scopedProgram
+        ? { university: scopedUniversity, program: scopedProgram }
+        : null;
       return send(response, 200, {
         service: "Календари медицинских вузов",
         version: 2,
@@ -256,11 +258,12 @@ export function createHandler({ store, config, payments }) {
         sales: salesState(config),
         trials: trialState(config),
         paymentMode: paymentMode(config),
-        offers: publicOfferPrices(config),
+        offers: publicOfferPrices(config, offerContext),
         ...(scopedUniversity ? {
           university: scopedUniversity,
           universityCommercial: universityCommercialState(scopedUniversity),
         } : {}),
+        ...(offerContext ? { program: scopedProgram } : {}),
       }, "application/json; charset=utf-8", "no-store");
     }
 
