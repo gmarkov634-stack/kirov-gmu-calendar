@@ -16,6 +16,7 @@ const historicalReportPath = path.resolve(
 const readinessTests = [
   "test/omgmu-main-merge-safety.test.js",
   "test/omgmu-commerce-live.test.js",
+  "test/omgmu-prelaunch-landing.test.js",
   "test/omgmu-watch-review-issue-workflow.test.js",
   "test/omgmu-watch-status.test.js",
   "test/vk-omgmu-tenant-wiring.test.js",
