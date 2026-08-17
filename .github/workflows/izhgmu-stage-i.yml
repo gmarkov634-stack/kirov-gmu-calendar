@@ -12,6 +12,7 @@ on:
       - "api/test/izhgmu-commercial-*.test.js"
       - "api/test/offer-catalog.test.js"
       - "api/test/trial-service.test.js"
+      - "api/test/shared-config.test.js"
       - "izhgmu/**"
       - ".github/workflows/izhgmu-stage-i.yml"
   workflow_dispatch:
@@ -41,3 +42,5 @@ jobs:
         run: node --test test/offer-catalog.test.js
       - name: Existing trial compatibility
         run: node --test test/trial-service.test.js
+      - name: Shared config hard-close contract
+        run: node --test test/shared-config.test.js
