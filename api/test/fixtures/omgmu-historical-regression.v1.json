@@ -64,6 +64,7 @@
   ],
   "sharedCoreTests": [
     "test/omgmu-canonical-pipeline.test.js",
+    "test/omgmu-storage-subscription-e2e.test.js",
     "test/schedule-pipeline.test.js",
     "test/schedule-ics.test.js",
     "test/schedule-versioning.test.js",
