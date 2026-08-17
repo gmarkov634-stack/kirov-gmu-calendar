@@ -1,4 +1,5 @@
 import { createPublicKey, verify as verifySignature } from "node:crypto";
+import { BRANDING_ACTIONS, COMMUNITY_BRANDING_ACTIONS, executeVkGroupBrandingAction } from "./vk-group-branding.js";
 
 const GITHUB_OIDC_ISSUER = "https://token.actions.githubusercontent.com";
 const GITHUB_JWKS_URL = `${GITHUB_OIDC_ISSUER}/.well-known/jwks`;
@@ -11,8 +12,14 @@ const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 16000;
 const MAX_GROUP_DESCRIPTION_LENGTH = 10000;
 const MAX_GROUP_WEBSITE_LENGTH = 2048;
-const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit"]);
+const MAX_GROUP_LINK_URL_LENGTH = 2048;
+const MAX_GROUP_LINK_TEXT_LENGTH = 256;
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
+const PHOTO_SOURCE_HOST = "raw.githubusercontent.com";
+const PHOTO_SOURCE_PREFIX = "/gmarkov634-stack/kirov-gmu-calendar/";
+const COMMUNITY_TOKEN_ACTIONS = new Set(["wall.post", "group.info", "group.edit", "group.links.list", "photo.importMessages", ...COMMUNITY_BRANDING_ACTIONS]);
 const UNSUPPORTED_WALL_ACTIONS = new Set(["wall.pin", "wall.unpin"]);
+const UNSUPPORTED_BRANDING_MUTATIONS = new Set(["group.cover.set", "group.avatar.set"]);
 const GROUP_EDIT_ALLOWED_FIELDS = new Set(["description", "website"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
@@ -130,6 +137,12 @@ function positivePostId(value) {
   return postId;
 }
 
+function positiveLinkId(value, errorName = "invalid_group_link_id") {
+  const linkId = Number(value);
+  if (!Number.isInteger(linkId) || linkId <= 0) throw new Error(errorName);
+  return linkId;
+}
+
 function cleanGroupEditPayload(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_group_edit_payload");
   const keys = Object.keys(value);
@@ -161,6 +174,175 @@ function cleanGroupEditPayload(value) {
     fields.website = website;
   }
   return fields;
+}
+
+function cleanGroupLinkUrl(value) {
+  if (typeof value !== "string" || !value.trim() || value.length > MAX_GROUP_LINK_URL_LENGTH) {
+    throw new Error("invalid_group_link_url");
+  }
+  let url;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    throw new Error("invalid_group_link_url");
+  }
+  if (url.protocol !== "https:") throw new Error("invalid_group_link_url");
+  return url.toString();
+}
+
+function cleanGroupLinkText(value) {
+  if (value == null) return "";
+  if (typeof value !== "string" || value.length > MAX_GROUP_LINK_TEXT_LENGTH) throw new Error("invalid_group_link_text");
+  return value.trim();
+}
+
+function cleanGroupLinkAddPayload(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_group_link_payload");
+  const keys = Object.keys(value);
+  if (!keys.length || keys.some((key) => !["url", "text"].includes(key))) throw new Error("invalid_group_link_payload");
+  return {
+    url: cleanGroupLinkUrl(value.url),
+    text: cleanGroupLinkText(value.text),
+  };
+}
+
+function cleanPhotoSourceUrl(value) {
+  const raw = String(value || "").trim();
+  let url;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("invalid_photo_source_url");
+  }
+  if (url.protocol !== "https:" || url.hostname !== PHOTO_SOURCE_HOST) throw new Error("invalid_photo_source_url");
+  if (!url.pathname.startsWith(PHOTO_SOURCE_PREFIX) || !url.pathname.includes("/ops/vk/assets/")) {
+    throw new Error("invalid_photo_source_url");
+  }
+  if (!/\.(?:jpe?g|png)$/i.test(url.pathname)) throw new Error("invalid_photo_source_url");
+  if (url.search || url.hash) throw new Error("invalid_photo_source_url");
+  return url.toString();
+}
+
+function photoContentType(buffer, declaredType = "") {
+  const type = String(declaredType || "").split(";", 1)[0].trim().toLowerCase();
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+  if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (["image/jpeg", "image/png"].includes(type)) return type;
+  throw new Error("invalid_photo_source_content");
+}
+
+async function importWallPhoto({ sourceUrl, groupId, token, apiVersion, fetchImpl }) {
+  const sourceResponse = await fetchImpl(sourceUrl, {
+    method: "GET",
+    headers: { Accept: "image/jpeg,image/png" },
+    redirect: "error",
+  });
+  if (!sourceResponse.ok) throw new Error("photo_source_unavailable");
+  const bytes = Buffer.from(await sourceResponse.arrayBuffer());
+  if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("invalid_photo_source_content");
+  const contentType = photoContentType(bytes, sourceResponse.headers?.get?.("content-type"));
+
+  const uploadServer = await vkMethod({
+    method: "photos.getWallUploadServer",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { group_id: groupId },
+  });
+  let uploadUrl;
+  try {
+    uploadUrl = new URL(String(uploadServer?.upload_url || ""));
+  } catch {
+    throw new Error("vk_photo_upload_failed");
+  }
+  if (uploadUrl.protocol !== "https:") throw new Error("vk_photo_upload_failed");
+
+  const form = new FormData();
+  form.append("photo", new Blob([bytes], { type: contentType }), contentType === "image/png" ? "post.png" : "post.jpg");
+  const uploadResponse = await fetchImpl(uploadUrl.toString(), { method: "POST", body: form });
+  if (!uploadResponse.ok) throw new Error("vk_photo_upload_failed");
+  const uploaded = await uploadResponse.json();
+  const server = String(uploaded?.server ?? "").trim();
+  const photo = typeof uploaded?.photo === "string" ? uploaded.photo : JSON.stringify(uploaded?.photo ?? "");
+  const hash = String(uploaded?.hash ?? "").trim();
+  if (!/^-?\d+$/.test(server) || !photo || photo.length > 20000 || !hash || hash.length > 2048) {
+    throw new Error("vk_photo_upload_failed");
+  }
+
+  const saved = await vkMethod({
+    method: "photos.saveWallPhoto",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { group_id: groupId, server, photo, hash },
+  });
+  const photos = Array.isArray(saved) ? saved : (Array.isArray(saved?.photos) ? saved.photos : []);
+  const item = photos[0];
+  const id = Number(item?.id || 0);
+  const ownerId = Number(item?.owner_id || 0);
+  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(ownerId) || ownerId === 0) throw new Error("vk_photo_save_failed");
+  return {
+    attachment: `photo${ownerId}_${id}`,
+    photo: { id, ownerId, imageUrl: bestPhotoUrl(item) },
+  };
+}
+
+async function importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl }) {
+  const sourceResponse = await fetchImpl(sourceUrl, {
+    method: "GET",
+    headers: { Accept: "image/jpeg,image/png" },
+    redirect: "error",
+  });
+  if (!sourceResponse.ok) throw new Error("photo_source_unavailable");
+  const bytes = Buffer.from(await sourceResponse.arrayBuffer());
+  if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("invalid_photo_source_content");
+  const contentType = photoContentType(bytes, sourceResponse.headers?.get?.("content-type"));
+
+  const uploadServer = await vkMethod({
+    method: "photos.getMessagesUploadServer",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: {},
+  });
+  let uploadUrl;
+  try {
+    uploadUrl = new URL(String(uploadServer?.upload_url || ""));
+  } catch {
+    throw new Error("vk_photo_upload_failed");
+  }
+  if (uploadUrl.protocol !== "https:") throw new Error("vk_photo_upload_failed");
+
+  const form = new FormData();
+  form.append("photo", new Blob([bytes], { type: contentType }), contentType === "image/png" ? "post.png" : "post.jpg");
+  const uploadResponse = await fetchImpl(uploadUrl.toString(), { method: "POST", body: form });
+  if (!uploadResponse.ok) throw new Error("vk_photo_upload_failed");
+  const uploaded = await uploadResponse.json();
+  const server = String(uploaded?.server ?? "").trim();
+  const photo = typeof uploaded?.photo === "string" ? uploaded.photo : JSON.stringify(uploaded?.photo ?? "");
+  const hash = String(uploaded?.hash ?? "").trim();
+  if (!/^-?\d+$/.test(server) || !photo || photo.length > 20000 || !hash || hash.length > 2048) {
+    throw new Error("vk_photo_upload_failed");
+  }
+
+  const saved = await vkMethod({
+    method: "photos.saveMessagesPhoto",
+    token,
+    apiVersion,
+    fetchImpl,
+    params: { server, photo, hash },
+  });
+  const photos = Array.isArray(saved) ? saved : (Array.isArray(saved?.photos) ? saved.photos : []);
+  const item = photos[0];
+  const id = Number(item?.id || 0);
+  const ownerId = Number(item?.owner_id || 0);
+  const accessKey = String(item?.access_key || "").trim();
+  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(ownerId) || ownerId === 0) throw new Error("vk_photo_save_failed");
+  if (accessKey && (accessKey.length > 512 || !/^[A-Za-z0-9_-]+$/.test(accessKey))) throw new Error("vk_photo_save_failed");
+  return {
+    attachment: `photo${ownerId}_${id}${accessKey ? `_${accessKey}` : ""}`,
+    photo: { id, ownerId, imageUrl: bestPhotoUrl(item) },
+  };
 }
 
 function bestPhotoUrl(photo) {
@@ -216,6 +398,17 @@ function sanitizePost(post) {
   };
 }
 
+function sanitizeGroupLink(link) {
+  return {
+    id: Number(link?.id || 0),
+    name: String(link?.name || ""),
+    description: String(link?.desc || ""),
+    url: typeof link?.url === "string" ? link.url : null,
+    photo50: typeof link?.photo_50 === "string" ? link.photo_50 : null,
+    photo100: typeof link?.photo_100 === "string" ? link.photo_100 : null,
+  };
+}
+
 function sanitizeGroup(group) {
   return {
     id: Number(group?.id || 0),
@@ -257,6 +450,11 @@ async function vkMethod({ method, token, apiVersion, params, fetchImpl }) {
 
 async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }) {
   const ownerId = `-${groupId}`;
+
+  if (BRANDING_ACTIONS.has(command.action)) {
+    return executeVkGroupBrandingAction(command, { groupId, token, apiVersion, fetchImpl });
+  }
+
   if (command.action === "wall.list") {
     const result = await vkMethod({
       method: "wall.get",
@@ -286,6 +484,21 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
     return sanitizeGroup(group);
   }
 
+  if (command.action === "group.links.list") {
+    const result = await vkMethod({
+      method: "groups.getById",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_ids: groupId, fields: "links" },
+    });
+    const groups = Array.isArray(result?.groups) ? result.groups : (Array.isArray(result) ? result : []);
+    const group = groups.find((item) => Number(item?.id || 0) === Number(groupId)) || groups[0];
+    if (!group) throw new Error("vk_group_not_found");
+    const links = Array.isArray(group?.links) ? group.links.map(sanitizeGroupLink) : [];
+    return { links };
+  }
+
   if (command.action === "group.edit") {
     const fields = cleanGroupEditPayload(command.payload);
     const result = await vkMethod({
@@ -296,6 +509,68 @@ async function executeCommand(command, { groupId, token, apiVersion, fetchImpl }
       params: { group_id: groupId, ...fields },
     });
     return { updated: Number(result || 0) === 1, fields: Object.keys(fields) };
+  }
+
+  if (command.action === "group.link.add") {
+    const { url, text } = cleanGroupLinkAddPayload(command.payload);
+    const result = await vkMethod({
+      method: "groups.addLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link: url, ...(text ? { text } : {}) },
+    });
+    return { link: sanitizeGroupLink(result) };
+  }
+
+  if (command.action === "group.link.edit") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const text = cleanGroupLinkText(command.payload?.text);
+    const result = await vkMethod({
+      method: "groups.editLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId), text },
+    });
+    return { linkId, updated: Number(result || 0) === 1 };
+  }
+
+  if (command.action === "group.link.delete") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const result = await vkMethod({
+      method: "groups.deleteLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId) },
+    });
+    return { linkId, deleted: Number(result || 0) === 1 };
+  }
+
+  if (command.action === "group.link.reorder") {
+    const linkId = positiveLinkId(command.payload?.linkId);
+    const after = command.payload?.after == null || Number(command.payload.after) === 0
+      ? 0
+      : positiveLinkId(command.payload.after, "invalid_group_link_after");
+    const result = await vkMethod({
+      method: "groups.reorderLink",
+      token,
+      apiVersion,
+      fetchImpl,
+      params: { group_id: groupId, link_id: String(linkId), after: String(after) },
+    });
+    return { linkId, after, reordered: Number(result || 0) === 1 };
+  }
+
+  if (command.action === "photo.importMessages") {
+    const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
+    return importMessagePhoto({ sourceUrl, token, apiVersion, fetchImpl });
+  }
+
+  if (command.action === "photo.importWall") {
+    const sourceUrl = cleanPhotoSourceUrl(command.payload?.sourceUrl);
+    return importWallPhoto({ sourceUrl, groupId, token, apiVersion, fetchImpl });
   }
 
   if (command.action === "wall.post") {
@@ -383,6 +658,9 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
       const input = await readJson(request);
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
+      if (UNSUPPORTED_BRANDING_MUTATIONS.has(command.action)) {
+        return sendJson(response, 501, { error: "vk_group_branding_not_supported" });
+      }
       if (command.action === "wall.delete") {
         return sendJson(response, 501, { error: "vk_wall_delete_not_supported" });
       }
@@ -427,10 +705,20 @@ export function createVkControlHandler(env = process.env, dependencies = {}) {
         "invalid_group_edit_payload",
         "invalid_group_description",
         "invalid_group_website",
+        "invalid_group_link_payload",
+        "invalid_group_link_url",
+        "invalid_group_link_text",
+        "invalid_group_link_id",
+        "invalid_group_link_after",
+        "invalid_photo_source_url",
+        "invalid_photo_source_content",
         "unsupported_action",
         "vk_group_not_found",
       ].includes(error?.message)) {
         return sendJson(response, 400, { error: error.message });
+      }
+      if (["photo_source_unavailable", "vk_photo_upload_failed", "vk_photo_save_failed"].includes(error?.message)) {
+        return sendJson(response, 502, { error: error.message });
       }
       if (["vk_oauth_vault_not_configured", "vk_oauth_credentials_missing"].includes(error?.message)) {
         return sendJson(response, 503, { error: "vk_control_not_configured" });

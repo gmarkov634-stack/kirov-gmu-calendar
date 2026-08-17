@@ -1,8 +1,6 @@
 # VK control plane
 
-`ops/vk/command.json` — временный служебный файл для выполнения одной команды через GitHub Actions.
-
-Командный файл не хранится в `main`: для операции создаётся отдельная ветка и pull request, workflow получает GitHub OIDC token и передаёт команду в `calendar-api`. После получения результата pull request закрывается без слияния.
+`ops/vk/command.json` — временный служебный файл для выполнения одной команды через GitHub Actions. Для operational-команды создаётся отдельная ветка и PR; workflow получает GitHub OIDC token и передаёт команду в production `calendar-api`. После получения результата PR закрывается без merge.
 
 ## Production capability matrix
 
@@ -11,87 +9,115 @@
 | Action | Credential path | Production status |
 | --- | --- | --- |
 | `wall.list` | managed VK ID user OAuth | **PASS** |
-| `wall.post` | community `VK_ACCESS_TOKEN` | **PASS**; посты #64 и #65 созданы через control plane |
-| `wall.edit` | managed VK ID user OAuth | маршрут реализован, отдельный production mutation-test ещё не выполнен |
-| `wall.delete` | unsupported | **fail-closed HTTP 501**; VK ID → error 1051, community token → error 27 |
-| `wall.pin` | unsupported | **fail-closed HTTP 501**; VK ID → error 1051, community token → error 27 |
+| `wall.post` | community `VK_ACCESS_TOKEN` | **PASS**; посты #64, #65 и #66 созданы через control plane |
+| `wall.edit` | managed VK ID user OAuth | **UNSUPPORTED with current managed token**; production #66 probe → VK error 1051 |
+| `wall.delete` | unsupported | **fail-closed HTTP 501**; VK ID → 1051, community → 27 |
+| `wall.pin` | unsupported | **fail-closed HTTP 501**; VK ID → 1051, community → 27 |
 | `wall.unpin` | unsupported | **fail-closed HTTP 501** вместе с `wall.pin` |
-| `group.info` | community `VK_ACCESS_TOKEN` | **PASS**; read-only `groups.getById`, production verified 16.08.2026 |
-| `group.edit` | community `VK_ACCESS_TOKEN` | **PASS**; только allowlist `description` + `website`, production verified 16.08.2026 |
+| `group.info` | community `VK_ACCESS_TOKEN` | **PASS**; read-only `groups.getById` |
+| `group.edit` | community `VK_ACCESS_TOKEN` | **PASS**; только allowlist `description` + `website` |
+| `photo.importWall` | managed VK ID user OAuth | **UNSUPPORTED with current managed token**; после reauth со scope `wall groups photos` production probe всё равно → VK error 15 |
+| `photo.importMessages` | community `VK_ACCESS_TOKEN` | **PASS as photo storage only**; VK photo сохраняется, но message-photo attachment не прикрепляется к wall post |
 
-Автоматические fallback между классами токенов запрещены. Успех одного `wall.*` или `groups.*` метода не считается доказательством поддержки другого.
+Автоматические fallback между классами токенов запрещены. Успех одного `wall.*`, `photos.*` или `groups.*` метода не считается доказательством поддержки другого.
 
-Практический operational contract: ChatGPT может через GitHub OIDC безопасно читать стену, публиковать новые текстовые записи, читать allowlisted публичные метаданные сообщества и — только после явного подтверждения пользователя — менять `description` и `website`. Закрепление и удаление выполняются вручную в интерфейсе VK. `wall.edit` нельзя считать production-подтверждённым до отдельного контролируемого теста.
+Практический operational contract на текущих credentials: ChatGPT может безопасно читать стену, публиковать **текстовые** записи, читать allowlisted metadata сообщества и после явного подтверждения менять `description`/`website`. Закрепление, удаление и добавление изображения к wall post выполняются вручную в VK. После ручного добавления изображения результат проверяется через `wall.list`. `wall.edit` не использовать повторно с managed VK ID после подтверждённого error 1051.
+
+## Wall photo boundary
+
+PR #151 добавил защищённый `photo.importWall`: источник изображения ограничен HTTPS URL из `raw.githubusercontent.com/gmarkov634-stack/kirov-gmu-calendar/.../ops/vk/assets/`, только JPEG/PNG до 8 МБ. Flow использует managed user OAuth: `photos.getWallUploadServer → multipart upload → photos.saveWallPhoto`.
+
+После первоначального error 15 OAuth scope был расширен PR #156 до `wall groups photos`, администратор заново прошёл штатный OAuth flow, credentials были сохранены. Повторный production probe после reauth снова вернул VK error 15. Поэтому `photo.importWall` считается неподдерживаемым текущей современной VK ID user-сессией.
+
+PR #159 добавил отдельный community-token `photo.importMessages` через `photos.getMessagesUploadServer → upload → photos.saveMessagesPhoto`. Этот путь production-подтверждён только как **storage capability**. Operational PR #160 сохранил ранний JPEG поста #66 как photo `ownerId=-191574528`, `id=457239087`.
+
+Operational PR #161 затем передал message-photo attachment в `wall.post`, и VK создал #66. Независимый `wall.list` PR #162 показал `attachments=[]`: VK не использовал message-photo как wall attachment. Попытка исправить #66 через `wall.edit` завершилась production VK error 1051.
+
+После этого пользователь вручную прикрепил финальный visual к #66. Read-only PR #165 подтвердил фактический production-результат: у #66 одно attachment типа `photo`, `ownerId=-191574528`, `id=457239089`; текст не изменён; #64 сохранил `isPinned=true`.
+
+Следовательно текущий безопасный процесс для wall-изображений: **согласовать visual → прикрепить вручную в VK → проверить read-only `wall.list`**. Точный контент и статус #66 ведутся в `ops/vk/CONTENT.md`.
 
 ## Group metadata read/write
 
-`group.info` использует официальный `groups.getById` и community token. Managed VK ID token для этой команды не запрашивается. Ответ намеренно ограничен allowlist: `id`, `name`, `screenName`, `type`, `isClosed`, `description`, `website`, `activity`, `status`, `membersCount`, `verified`, `city`, `country`. Admin/service metadata не возвращаются.
+`group.info` использует community token и официальный `groups.getById`. Ответ ограничен allowlist: `id`, `name`, `screenName`, `type`, `isClosed`, `description`, `website`, `activity`, `status`, `membersCount`, `verified`, `city`, `country`.
 
-Первый production read выполнен 16.08.2026 через operational PR #144. Он выявил устаревшее описание с ценой `490 ₽` и пустой website; никаких настроек на этом шаге не менялось.
+PR #146 добавил `group.edit` как отдельную community-token mutation-команду. Writable allowlist — только `description` и `website`; пустой payload, посторонние поля, слишком длинные значения и не-HTTPS website блокируются до VK. User-token fallback отсутствует.
 
-PR #146 добавил `group.edit` как отдельную community-token mutation-команду. Writable allowlist намеренно ограничен ровно двумя полями: `description` и `website`. Пустой payload, любые посторонние поля, слишком длинные значения и не-HTTPS website блокируются до обращения к VK. При отсутствии community token команда fail-closed и не переключается на managed/static user token.
-
-После явного подтверждения пользователя operational PR #147 передал только согласованные `description` и `website`. Production ответ: `updated=true`, `fields=[description, website]`. PR закрыт без merge. Затем operational PR #148 выполнил независимый read-only `group.info`, подтвердил точный результат и также был закрыт без merge.
-
-Итоговое состояние после проверки:
+После явного подтверждения operational PR #147 изменил только `description` и `website`; PR #148 read-only проверил итог:
 
 - name: `Расписание в телефоне | Киров ГМУ`;
 - screenName: `calendarksmu`;
-- group access: open (`isClosed=0`);
+- open group (`isClosed=0`);
 - website: `https://gmarkov634-stack.github.io/kirov-gmu-calendar`;
 - activity: `Объявления`;
 - status: `Для Apple и Google календаря`;
-- membersCount на момент проверки: `24`;
-- description: актуальная версия без цены, с объяснением ценности календаря и ожидания официального расписания 2026/27; точная публичная копия хранится в `ops/vk/CONTENT.md`.
+- description: актуальная версия без цены; точная копия — в `ops/vk/CONTENT.md`.
 
-Название, короткий адрес, тип/доступ группы, activity и status при mutation #147 не менялись. Перед любым будущим изменением метаданных пользователь должен увидеть точный diff «было → станет» и явно подтвердить его.
+Перед будущим изменением metadata пользователь должен увидеть точный diff «было → станет» и явно подтвердить его.
 
 ## VK tokens
 
-Интеграция разделяет два контура авторизации:
+Интеграция разделяет два контура:
 
-- `VK_ACCESS_TOKEN` — токен сообщества для Callback API, сообщений, подтверждённого `wall.post`, read-only `group.info` и строго allowlisted `group.edit`;
-- пользовательская OAuth-сессия администратора VK ID — для подтверждённого чтения стены и user-token маршрутов.
+- `VK_ACCESS_TOKEN` — community token для Callback API/сообщений, `wall.post`, `group.info`, allowlisted `group.edit` и `photo.importMessages` storage flow;
+- managed VK ID OAuth session администратора — для `wall.list` и других user-token маршрутов.
 
-Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback для user-token операций, но основной путь — VK ID OAuth с encrypted vault и автоматическим refresh.
-
-Community token никогда не используется как fallback для user-token операций; managed user token никогда не используется как fallback для community-only операций.
+Legacy `VK_USER_ACCESS_TOKEN` остаётся совместимым статическим fallback для user-token операций, но основной user path — encrypted VK ID OAuth. Community token никогда не используется как автоматический fallback user-token маршрута; managed user token не используется как fallback community-only маршрута.
 
 ## VK ID OAuth
 
-Зарегистрировано отдельное Web-приложение VK ID для административной авторизации стены:
+Web-приложение VK ID:
 
 - public Client ID: `54722093`;
 - base domain: `kgmu-calendar-api.containerapps.ru`;
-- trusted redirect URL: `https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback`.
+- redirect: `https://kgmu-calendar-api.containerapps.ru/api/v1/vk/oauth/callback`;
+- current requested scope: `wall groups photos`.
 
-`/api/v1/vk/oauth/start` — стартовая страница без client-side JavaScript. `/api/v1/vk/oauth/begin` создаёт свежие `state` и PKCE verifier/challenge на сервере, сохраняет state/verifier только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie и перенаправляет в VK ID с минимальным scope `wall groups`.
-
-`/api/v1/vk/oauth/callback` проверяет обязательные параметры и совпадение `state`, обменивает одноразовый authorization code на пользовательский token через OAuth 2.1/PKCE и сначала выполняет `wall.get` для `VK_CALLBACK_GROUP_ID`. Только после успешного `wall.get` разрешено постоянное сохранение.
+`/api/v1/vk/oauth/start` и `/api/v1/vk/oauth/begin` используют OAuth 2.1/PKCE. `state`/verifier хранятся только в короткоживущих `HttpOnly; Secure; SameSite=Lax` cookie. Callback проверяет state, обменивает code, выполняет `wall.get` probe и только после успеха допускает сохранение credentials.
 
 ## Encrypted token vault
 
-Для постоянной OAuth-сессии используется отдельный secret `VK_OAUTH_ENCRYPTION_KEY`. Допустимые представления: ровно 32 байта в base64url/base64 или 64 hex-символа.
+Managed OAuth access token, refresh token и `device_id` шифруются AES-256-GCM до записи в object storage. В хранилище находится только encrypted envelope `secure/vk/oauth-credentials.v1.json`; мастер-ключ — отдельный Cloud.ru secret `VK_OAUTH_ENCRYPTION_KEY`. При отсутствии/ошибке ключа managed path fail-closed. `VkTokenManager` обновляет истекающие credentials через VK ID refresh и атомарно перезаписывает encrypted bundle.
 
-Access token, refresh token и `device_id` шифруются AES-256-GCM до записи в object storage. В S3 хранится только envelope `secure/vk/oauth-credentials.v1.json` с `iv`, authentication tag и ciphertext; plaintext-токены не записываются. Для локальной разработки используется тот же encrypted envelope в `DATA_DIR` с режимом файла `0600`.
+Защищённый ключ приложения, сервисный ключ, `VK_OAUTH_ENCRYPTION_KEY`, access token, refresh token, authorization code и PKCE verifier никогда не должны попадать в GitHub, command-файлы, issue/PR, логи или чат.
 
-При отсутствии или некорректной длине `VK_OAUTH_ENCRYPTION_KEY` vault fail-closed: OAuth probe может подтвердить `wall.get`, но access/refresh token не сохраняются и managed wall endpoint остаётся не настроенным.
+## Cloud.ru deploy boundary
 
-После сохранения `VkTokenManager` использует access token до истечения срока. За 2 минуты до expiry он выполняет VK ID refresh flow через `https://id.vk.ru/oauth2/auth` с `grant_type=refresh_token`, тем же `device_id`, свежим `state` и зарегистрированным redirect URI. Ответный `state` проверяется, refresh token ротируется и новый bundle атомарно перезаписывается в encrypted vault.
+Runtime-изменения проходят постоянную цепочку test → immutable image → guarded Cloud.ru image-only deploy → production smoke. Во время внедрения photo flow PR #153/#154 сделали проверку deploy устойчивой к временному состоянию revisions API без `active`, сохранив проверку exact image, production template и полный smoke (`catalog`, auth guards, funnel v2). PR #159 также прошёл эту штатную цепочку.
 
-`/api/v1/vk/wall` и `wall.list` через GitHub OIDC используют managed token manager и автоматически refresh-ят пользовательский access token. `wall.post`, `group.info` и строго allowlisted `group.edit` используют community token.
+## Current wall state
 
-## Current wall state after cleanup
+Read-only PR #165 после ручного прикрепления финального visual вернул `total=3`:
 
-16.08.2026 read-only cleanup verification через `wall.list` вернула `total=1`:
+- #64 — закреплён, `isPinned=true`;
+- #66 — точный утверждённый текст + одно photo attachment `ownerId=-191574528`, `id=457239089`;
+- #65 — предыдущая образовательная публикация.
 
-- пост #64 «Расписание Кировского ГМУ — прямо в календаре телефона 📅»;
-- `isPinned=true`;
-- старые посты #59 и #60 удалены вручную;
-- operational PR #139 после проверки закрыт без merge.
+#59/#60 ранее удалены вручную. #64 был закреплён вручную. Пост #66 считается **полностью завершённым и проверенным**.
 
-После этой cleanup-проверки через production `wall.post` дополнительно опубликован пост #65 о неудобстве Excel/распечаток/скриншотов как ежедневного интерфейса расписания. Operational PR #141 закрыт без merge после успешной публикации.
+## Community branding boundary
 
-Пост #64 был создан через `wall.post`; закрепление выполнено вручную, поскольку `wall.pin` не поддерживается текущими credential classes. Устаревшие #59/#60 удалены вручную, поскольку `wall.delete` не поддерживается текущими credential classes.
+Итог production-диагностики 16–17.08.2026 для аватара и обложки:
 
-Защищённый ключ приложения, сервисный ключ, `VK_OAUTH_ENCRYPTION_KEY`, access token и refresh token никогда не должны попадать в GitHub, command-файлы, issue/PR, логи или чат.
+| Branding path | Credential path | Production result |
+| --- | --- | --- |
+| `group.branding.info` | community `VK_ACCESS_TOKEN` | **PASS**, read-only avatar/cover snapshot |
+| cover upload (`photos.getOwnerCoverPhotoUploadServer` + upload) | community `VK_ACCESS_TOKEN` | **PASS** |
+| cover save (`photos.saveOwnerCoverPhoto`) | community `VK_ACCESS_TOKEN` | **UNSUPPORTED**; VK error 129 (`Invalid photo`) на проверенных save/crop вариантах |
+| cover upload-server | managed VK ID user OAuth | **UNSUPPORTED**; VK error 1051 |
+| avatar upload-server (`photos.getOwnerPhotoUploadServer`) | managed VK ID user OAuth | **UNSUPPORTED**; VK error 1051 |
+| avatar save (`photos.saveOwnerPhoto`) | managed VK ID user OAuth | **NOT EXECUTED in production**; путь остановлен до save, чтобы не создавать потенциальный service `post_id` |
+
+Подготовленные независимые исходники версионированы в `ops/vk/assets/group-avatar-independent-20260816.jpg` и `ops/vk/assets/group-cover-independent-1590x530-20260816.jpg`; официальная эмблема Кировского ГМУ в них не используется.
+
+Read-only baseline до branding-экспериментов и итоговая проверка PR #182 вернули те же avatar/cover URL. Следовательно ни одна cover-попытка фактически не изменила оформление сообщества. Avatar mutation в production не запускалась вообще.
+
+PR #183 добавил безопасный upload-only `group.avatar.probe`; после deploy/smoke operational PR #184 показал VK error 1051 ещё на `photos.getOwnerPhotoUploadServer`. `photos.saveOwnerPhoto` не вызывался, поэтому служебный wall post не создавался. Все branding operational PR закрыты без merge.
+
+**Operational rule:** с текущими классами credentials автоматическую смену аватара и обложки не считать поддерживаемой и не повторять mutation-пробы. Оформление меняется вручную через интерфейс VK, а результат при необходимости проверяется read-only `group.branding.info`. Автоматический fallback между community token и managed VK ID запрещён.
+
+### Production fail-closed guard
+
+PR #186 (`d3b24d11d76a47d4350a6e4253772d1627778a2c`) перевёл `group.cover.set` и `group.avatar.set` в явный production fail-closed. После успешной GitHub OIDC-проверки и валидации command оба action немедленно возвращают HTTP 501 `vk_group_branding_not_supported` **до** выбора credential class, чтения community/managed token и любого обращения к VK или upload-server. Regression-тесты фиксируют zero managed-token calls и zero network calls для обеих mutations.
+
+Этот SHA прошёл полный test → immutable image publish → guarded Cloud.ru image-only deploy → production smoke. Дополнительный operational PR #187 после deploy отправил `group.cover.set` с пустым payload и успешно подтвердил точный production-ответ HTTP 501 `vk_group_branding_not_supported`; PR #187 закрыт без merge. Read-only `group.branding.info` и non-mutating probes сохранены.
