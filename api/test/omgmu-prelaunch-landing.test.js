@@ -46,7 +46,7 @@ test("OmGMU mobile contract protects iPhone/Safari layout before launch", async 
 
   assert.match(mobile, /overflow-x:\s*hidden/);
   assert.match(mobile, /-webkit-text-size-adjust:\s*100%/);
-  assert.match(mobile, /\.order-panel input[\s\S]*font-size:\s*16px/);
+  assert.match(mobile, /select, input\[type=email\][^}]*font-size:\s*16px/);
   assert.match(mobile, /env\(safe-area-inset-bottom\)/);
   assert.match(mobile, /touch-action:\s*manipulation/);
   assert.match(mobile, /@media \(max-width:\s*390px\)/);
