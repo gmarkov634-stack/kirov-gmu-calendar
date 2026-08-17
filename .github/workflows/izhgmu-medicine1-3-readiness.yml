@@ -1,5 +1,6 @@
 name: IzhGMU medicine 1-3 readiness
 
+# Rerun marker: validate the active 1-3 scope after synchronizing current main.
 on:
   push:
     branches:
