@@ -58,3 +58,46 @@ test("reads publication context from canonical schedule-batch v1", () => {
   assert.equal(context.timezone, "Europe/Moscow");
   assert.match(scheduleStorageKey(batch), /2026-2027\/semester-1\/kgmu%3Apediatrics%3A4%3A401\.json$/);
 });
+
+test("canonical publication context derives one uniform audience stream without changing the batch schema", () => {
+  const batch = {
+    schema_version: "1.0",
+    schedule: {
+      university_code: "omgmu",
+      academic_year: "2025/2026",
+      semester: "spring",
+      faculty_code: "medicine-international",
+      course: 2,
+      group: "2101",
+    },
+    events: [
+      { audience: { stream: "1" } },
+      { audience: { stream: "1" } },
+    ],
+  };
+  const context = scheduleContext(batch);
+  assert.equal(context.stream, "1");
+  assert.equal(context.groupId, "omgmu:medicine-international:2:stream-1:2101");
+  assert.match(scheduleStorageKey(batch), /omgmu%3Amedicine-international%3A2%3Astream-1%3A2101\.json$/);
+});
+
+test("canonical publication context never guesses a stream from mixed event audiences", () => {
+  const batch = {
+    schema_version: "1.0",
+    schedule: {
+      university_code: "omgmu",
+      academic_year: "2025/2026",
+      semester: "spring",
+      faculty_code: "medicine-international",
+      course: 2,
+      group: "2101",
+    },
+    events: [
+      { audience: { stream: "1" } },
+      { audience: { stream: "2" } },
+    ],
+  };
+  const context = scheduleContext(batch);
+  assert.equal(context.stream, null);
+  assert.equal(context.groupId, "omgmu:medicine-international:2:2101");
+});
