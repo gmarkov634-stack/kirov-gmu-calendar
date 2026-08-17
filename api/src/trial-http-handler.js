@@ -132,7 +132,7 @@ export function createTrialHttpHandler({ store, config, trials }) {
       } catch (error) {
         if (["invalid_json", "request_too_large"].includes(error.message)) send(response, 400, { error: error.message });
         else if (error.code === "invalid_trial_context") send(response, 400, { error: error.code });
-        else if (["trials_not_open", "trial_window_closed"].includes(error.code)) send(response, 409, { error: error.code });
+        else if (["trials_not_open", "university_trials_not_open", "trial_window_closed"].includes(error.code)) send(response, 409, { error: error.code });
         else if (["offer_not_found", "trial_not_ready"].includes(error.code)) send(response, 409, { error: error.code });
         else {
           console.error(error);
