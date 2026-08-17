@@ -59,8 +59,8 @@ const UNIVERSITIES = Object.freeze({
     }),
     programs: Object.freeze([
       Object.freeze({ id: "medicine", name: "Лечебный факультет", initialScope: true }),
-      Object.freeze({ id: "pediatrics", name: "Педиатрический факультет", initialScope: true }),
-      Object.freeze({ id: "dentistry", name: "Стоматологический факультет", initialScope: true }),
+      Object.freeze({ id: "pediatrics", name: "Педиатрический факультет", initialScope: false }),
+      Object.freeze({ id: "dentistry", name: "Стоматологический факультет", initialScope: false }),
     ]),
     sitePath: "/izhgmu/",
     active: false,
