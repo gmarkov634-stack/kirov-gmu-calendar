@@ -24,6 +24,8 @@ import { VkTokenVault } from "./vk-token-vault.js";
 import { createVkWallHandler } from "./vk-wall.js";
 import { YooKassaService } from "./yookassa.js";
 import { createIzhgmuSourceProbeHandler } from "./adapters/izhgmu/source-probe.mjs";
+import { IzhgmuReviewQueue } from "./adapters/izhgmu/review-queue.mjs";
+import { IzhgmuReviewedService } from "./adapters/izhgmu/reviewed-service.mjs";
 import { ParserReviewQueue } from "./adapters/kgmu/review-queue.mjs";
 import { EmailReviewNotifier } from "./adapters/kgmu/email-notifier.mjs";
 import { KgmuIngestServiceV2 } from "./adapters/kgmu/ingest-service-v2.mjs";
@@ -105,7 +107,9 @@ const omgmuWatcher = new OmgmuSourceWatcher({
 });
 const omgmuWatchStatusHandler = createOmgmuWatchStatusHandler({ stateStore: omgmuWatchStore, reviewQueue: omgmuReviewQueue, config });
 const omgmuReviewHandler = createOmgmuReviewHandler({ queue: omgmuReviewQueue, watcher: omgmuWatcher, config });
-const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService]);
+const izhgmuReviewQueue = new IzhgmuReviewQueue(config);
+const izhgmuReviewedService = new IzhgmuReviewedService({ queue: izhgmuReviewQueue, scheduleStore: store });
+const reviewServiceRouter = new ScheduleReviewServiceRouter([kgmuReviewedService, omgmuReviewedService, izhgmuReviewedService]);
 const scheduleReviewControlHandler = createScheduleReviewControlHandler({ reviewedService: reviewServiceRouter });
 
 const server = http.createServer(async (request, response) => {
@@ -238,6 +242,7 @@ server.listen(config.port, "0.0.0.0", () => {
   console.log(config.funnelAnalyticsEnabled
     ? "Funnel analytics enabled"
     : "Funnel analytics disabled");
+  console.log("IzhGMU review control: source-set-bound / explicit publication only");
   if (config.kgmuWatchEnabled) {
     void runKgmuWatch("startup");
     kgmuWatchTimer = setInterval(() => { void runKgmuWatch("interval"); }, config.kgmuWatchIntervalMs);

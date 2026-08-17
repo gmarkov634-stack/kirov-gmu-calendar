@@ -1,6 +1,6 @@
 # ИжГМУ — parser coverage
 
-Статус: **HISTORICAL CONTENT READY / CURRENT DATA WAITING / PRODUCTION CLOSED**
+Статус: **STRUCTURALLY READY / CURRENT DATA WAITING / PRODUCTION CLOSED**
 
 Дата фиксации: 2026-08-17.
 
@@ -67,10 +67,44 @@
 - failures: 0;
 - containers: 47 XLSX + 1 legacy XLS;
 - fingerprints: 12 IZH-WEEKLY / 10 IZH-CYCLE / 25 IZH-LECTURE / 1 IZH-LEGACY-XLS;
-- source identity: official schedule entrypoint + exact URL + SHA-256;
+- source identity каждого файла: official schedule entrypoint + exact URL + SHA-256;
+- source-set identity текущего оффера: SHA-256 от отсортированных `URL + NUL + file SHA-256` всех exact target members;
 - Cloud.ru не является authoritative downloader ИжГМУ; acquisition выполняется GitHub Actions из-за подтверждённой сетевой недоступности igma.ru из production runtime.
 
 Unknown structure, invalid container, metadata conflict, SHA drift или изменившийся source invariant не маршрутизируются на ближайший parser автоматически и остаются fail-closed.
+
+## Current-period source watch
+
+Workflow `.github/workflows/izhgmu-source-watch.yml` выполняет hourly observation для exact target `medicine + courses 1–3 + 2026/2027 + autumn`.
+
+Он может вернуть:
+
+- `waiting` — exact target отсутствует;
+- `review-required` — target наблюдается, но полный validated/downloaded source set не получен;
+- `candidate` — полный exact source set загружен и имеет deterministic digest.
+
+При `candidate` сохраняется immutable observation artifact и создаётся дедуплицированная source-bound GitHub issue. Watcher не выполняет semantic parsing, не вызывает schedule publication и не меняет catalog/trials/sales.
+
+Контрольный live run 2026-08-17: official discovery 48 sources, validation `ok`, download 48/48, failures 0; page context `2025-2026 + spring`; exact target `2026/2027 + autumn` sources = 0; status `waiting`. Поэтому review issue не создавалась.
+
+## Current-period reviewed publication boundary
+
+Protected shared `/api/v1/schedule-review/control` поддерживает IzhGMU `review.create`, после которого создаётся только `REVIEW_REQUIRED` для exact source-set digest текущего периода.
+
+Semantic review выполняет ChatGPT. Package `canonical-reviewed/v1` обязан содержать `source_set_digest`. Каждый batch и event проверяются против exact reviewed members: `schedule.source_files`, `source.file_name` и `source.file_hash` должны принадлежать reviewed source set и совпадать по SHA.
+
+Source-set digest не добавляется в shared `schedule-batch/v1`, поэтому общий canonical schema КГМУ/ОмГМУ не меняется.
+
+`review.submit` выполняет canonical QA и даёт только `READY_TO_PUBLISH`. Изменение `current` возможно только отдельной explicit `review.publish` / `review.submit_publish`, которая использует общий `prepareSchedulePublication()` и `YearAwareStore`.
+
+Current publication boundary отдельно отклоняет:
+
+- historical `2025/2026`;
+- semester кроме autumn;
+- program кроме medicine;
+- medicine courses 4–6.
+
+Исчезновение/ошибка source не проходит через publication plane и поэтому не может очистить last-known-good `current`.
 
 ## Current-period rule
 
@@ -78,9 +112,9 @@ Historical spring 2025/2026 используется только для regress
 
 До текущей публикации каждый курс должен пройти повторно на exact official source:
 
-`2026/2027 + autumn → download → SHA-256 → structural fingerprint → semantic review → full group batch → canonical QA → explicit publication`.
+`2026/2027 + autumn → download → SHA-256 → source-set digest → structural fingerprint → ChatGPT semantic review → full group batch → canonical QA → explicit publication`.
 
-Coverage 2026/27 считается подтверждённым только после прохождения этого пути для конкретного официального source version.
+Coverage 2026/27 считается подтверждённым только после прохождения этого пути для конкретного официального source set.
 
 ## Regression authority
 
@@ -90,7 +124,7 @@ Immutable/offline baseline запускается через:
 
 Workflow: `.github/workflows/izhgmu-historical-regression.yml`.
 
-Gate намеренно не обращается к текущему сайту ИжГМУ. Live source acquisition/watch является отдельным контуром и не может переписать historical expectations.
+Gate включает current-source watcher safety, source-set-bound canonical review и main wiring к единственному shared protected publication control. Он намеренно не обращается к текущему сайту ИжГМУ. Live source acquisition/watch является отдельным контуром и не может переписать historical expectations.
 
 ## Production state
 
@@ -102,3 +136,5 @@ Gate намеренно не обращается к текущему сайту
 - trials/sales не открываются этим coverage;
 - historical data не публикуются как current offer;
 - deferred medicine 4–6 не блокируют и не расширяют active readiness scope.
+
+Подробные gates: `docs/izhgmu-launch-gate.md`. Операционный путь первого текущего source: `docs/izhgmu-current-source-runbook.md`.

@@ -23,7 +23,12 @@
     "course 1 elective catalog is explicit and personalization-ready",
     "course 2 normalization remains narrow and auditable",
     "course 3 Stomatology publication exclusion is cardinality-guarded and fail-closed",
-    "target watch cannot treat historical spring data as autumn 2026/2027"
+    "target watch cannot treat historical spring data as autumn 2026/2027",
+    "current source watch is observation/review-only and never publishes",
+    "current canonical review is bound to the exact URL+SHA source-set digest",
+    "IzhGMU is wired only into the shared protected review-control publication plane",
+    "historical 2025/2026 and deferred medicine 4-6 are rejected by the current publication boundary",
+    "READY_TO_PUBLISH preserves last-known-good until explicit publication"
   ],
   "tests": [
     "test/izhgmu-acquisition.test.mjs",
@@ -38,6 +43,12 @@
     "test/izhgmu-weekly-lecture-personalization-readiness.test.mjs",
     "test/izhgmu-medicine2-normalization.test.mjs",
     "test/izhgmu-medicine3-publication-contract.test.mjs",
-    "test/izhgmu-target-watch.test.mjs"
+    "test/izhgmu-target-watch.test.mjs",
+    "test/izhgmu-source-watch-workflow.test.mjs",
+    "test/izhgmu-current-review-boundary.test.mjs",
+    "test/izhgmu-current-publication-boundary.test.mjs",
+    "test/izhgmu-schedule-review-control.test.mjs",
+    "test/izhgmu-server-review-wiring.test.mjs",
+    "test/izhgmu-review-main-wiring.test.mjs"
   ]
 }

@@ -10,6 +10,14 @@ export class ScheduleReviewServiceRouter {
     return null;
   }
 
+  async createReview(input) {
+    const university = String(input?.university || "").trim().toLowerCase();
+    for (const service of this.services) {
+      if (service?.university === university && typeof service.createReview === "function") return service.createReview(input);
+    }
+    return null;
+  }
+
   async submitCanonical(reviewId, input, options) {
     const service = await this.#resolve(reviewId);
     return service ? service.submitCanonical(reviewId, input, options) : null;

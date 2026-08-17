@@ -8,7 +8,7 @@ const EXPECTED_ACTOR = "gmarkov634-stack";
 const MAX_BODY_BYTES = 20 * 1024 * 1024;
 const MAX_COMMAND_AGE_MS = 30 * 60 * 1000;
 const REVIEW_ID_RE = /^[a-f0-9-]{36}$/;
-const ACTIONS = new Set(["review.submit", "review.submit_publish", "review.publish"]);
+const ACTIONS = new Set(["review.create", "review.submit", "review.submit_publish", "review.publish"]);
 
 let jwksCache = { expiresAt: 0, keys: [] };
 
@@ -102,17 +102,32 @@ function validCommand(input, now) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const id = String(input.id || "").trim();
   const action = String(input.action || "").trim();
-  const reviewId = String(input.reviewId || "").trim().toLowerCase();
   const createdAt = Date.parse(input.createdAt);
   if (!/^[A-Za-z0-9._:-]{8,100}$/.test(id)) return null;
-  if (!ACTIONS.has(action) || !REVIEW_ID_RE.test(reviewId)) return null;
+  if (!ACTIONS.has(action)) return null;
   if (!Number.isFinite(createdAt) || Math.abs(now - createdAt) > MAX_COMMAND_AGE_MS) return null;
+
+  if (action === "review.create") {
+    if (!input.review || typeof input.review !== "object" || Array.isArray(input.review)) return null;
+    return {
+      id,
+      action,
+      reviewId: null,
+      createdAt: new Date(createdAt).toISOString(),
+      review: input.review,
+      package: null,
+    };
+  }
+
+  const reviewId = String(input.reviewId || "").trim().toLowerCase();
+  if (!REVIEW_ID_RE.test(reviewId)) return null;
   if (action !== "review.publish" && (!input.package || typeof input.package !== "object" || Array.isArray(input.package))) return null;
   return {
     id,
     action,
     reviewId,
     createdAt: new Date(createdAt).toISOString(),
+    review: null,
     package: input.package || null,
   };
 }
@@ -121,8 +136,10 @@ function compactResult(result) {
   if (!result) return null;
   return {
     reviewId: result.reviewId ?? null,
+    university: result.university ?? null,
     status: result.status ?? null,
     reason: result.reason ?? null,
+    sourceSetDigest: result.sourceSet?.digest ?? null,
     parserType: result.parserType ?? null,
     publicationBlocked: result.publicationBlocked ?? null,
     qa: result.qa ? {
@@ -149,6 +166,7 @@ function compactResult(result) {
 }
 
 async function executeCommand(command, reviewedService) {
+  if (command.action === "review.create") return reviewedService.createReview(command.review);
   if (command.action === "review.publish") return reviewedService.publishReview(command.reviewId);
   return reviewedService.submitCanonical(command.reviewId, command.package, {
     publish: command.action === "review.submit_publish",
@@ -177,10 +195,17 @@ export function createScheduleReviewControlHandler({ reviewedService, fetchImpl 
       const input = await readJson(request);
       const command = validCommand(input, nowFactory());
       if (!command) return sendJson(response, 400, { error: "invalid_command" });
+      if (command.action === "review.create" && typeof reviewedService.createReview !== "function") {
+        return sendJson(response, 503, { error: "schedule_review_create_not_configured" });
+      }
 
       const result = await executeCommand(command, reviewedService);
       if (!result) return sendJson(response, 404, { error: "parser_review_not_found" });
-      console.log("schedule review control command completed", { id: command.id, action: command.action, reviewId: command.reviewId });
+      console.log("schedule review control command completed", {
+        id: command.id,
+        action: command.action,
+        reviewId: result.reviewId || command.reviewId,
+      });
       return sendJson(response, 200, {
         ok: true,
         id: command.id,
@@ -199,6 +224,12 @@ export function createScheduleReviewControlHandler({ reviewedService, fetchImpl 
         "CANONICAL_REVIEW_CONTEXT_MISMATCH",
         "CANONICAL_REVIEW_GROUPS_INVALID",
         "CANONICAL_REVIEW_QA_FAILED",
+        "IZHGMU_SOURCE_SET_INVALID",
+        "IZHGMU_CURRENT_PERIOD_REQUIRED",
+        "IZHGMU_CANONICAL_SOURCE_MISMATCH",
+        "IZHGMU_CANONICAL_CONTEXT_MISMATCH",
+        "IZHGMU_CANONICAL_GROUPS_INVALID",
+        "IZHGMU_CANONICAL_QA_FAILED",
       ].includes(error?.code)) {
         return sendJson(response, 409, { error: String(error.code).toLowerCase(), message: String(error.message || error).slice(0, 500) });
       }

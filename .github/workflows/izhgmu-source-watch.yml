@@ -1,0 +1,109 @@
+name: IzhGMU source watch
+
+on:
+  schedule:
+    - cron: "37 * * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/adapters/izhgmu/discover.mjs"
+      - "api/src/adapters/izhgmu/download.mjs"
+      - "api/src/adapters/izhgmu/target-watch.mjs"
+      - "api/tools/izhgmu-collect.mjs"
+      - "api/tools/izhgmu-current-source-watch.mjs"
+      - "api/test/izhgmu-target-watch.test.mjs"
+      - "api/test/izhgmu-source-watch-workflow.test.mjs"
+      - ".github/workflows/izhgmu-source-watch.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: izhgmu-source-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        working-directory: api
+        run: npm ci
+      - name: Validate watch contracts
+        working-directory: api
+        run: node --test test/izhgmu-target-watch.test.mjs test/izhgmu-source-watch-workflow.test.mjs
+      - name: Acquire exact official source bytes
+        working-directory: api
+        run: node tools/izhgmu-collect.mjs --output /tmp/izhgmu-current --concurrency 4
+      - name: Evaluate exact 2026/2027 autumn target
+        id: target
+        working-directory: api
+        shell: bash
+        run: |
+          node tools/izhgmu-current-source-watch.mjs --input-dir /tmp/izhgmu-current
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/izhgmu-current/current-target-report.json').read_text())
+          print('status='+r['status'])
+          print('digest='+(r.get('sourceSetDigest') or ''))
+          print('count='+str(r['candidateSourceCount']))
+          PY
+      - name: Upload immutable observation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-current-source-observation
+          path: /tmp/izhgmu-current
+          if-no-files-found: error
+          retention-days: 30
+      - name: Create deduplicated source-bound review issue
+        if: steps.target.outputs.status == 'candidate' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DIGEST: ${{ steps.target.outputs.digest }}
+          COUNT: ${{ steps.target.outputs.count }}
+        shell: bash
+        run: |
+          marker="IZHGMU-SOURCESET-${DIGEST:0:16}"
+          existing=$(gh issue list --state all --search "$marker in:body" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "Review issue already exists: #$existing"
+            exit 0
+          fi
+          python3 - <<'PY' > /tmp/issue.md
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path('/tmp/izhgmu-current/current-target-report.json').read_text())
+          digest=r['sourceSetDigest']
+          print(f"<!-- IZHGMU-SOURCESET-{digest[:16]} -->")
+          print("## IzhGMU current-period source set detected")
+          print()
+          print("Observation only. **Do not publish automatically.**")
+          print()
+          print(f"- Academic year: `{r['target']['academicYear']}`")
+          print(f"- Semester: `{r['target']['term']}`")
+          print(f"- Scope: medicine courses `{','.join(map(str,r['target']['courses']))}`")
+          print(f"- Source-set SHA-256: `{digest}`")
+          print(f"- Exact source members: `{r['candidateSourceCount']}`")
+          print(f"- Workflow run: `{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}`")
+          print()
+          print("### Exact members")
+          for s in r['sources']:
+              print(f"- course={s['course']} stream={s.get('stream') or '-'} role={s['sourceKind']} file=`{s['filename']}` sha256=`{s['sha256']}` url={s['url']}")
+          print()
+          print("### Required next boundary")
+          print("Exact source set + SHA → ChatGPT semantic review → source-set-bound canonical-reviewed/v1 → shared QA → explicit OIDC publication. Sales/trials/catalog activation remain separate gates.")
+          PY
+          gh issue create --title "IzhGMU: review current 2026/2027 autumn source set ${DIGEST:0:12}" --body-file /tmp/issue.md
+
+# Safety boundary: this workflow never calls a publication endpoint, never writes
+# current schedules, and never changes catalog/commercial/trial/sales gates.
