@@ -1,8 +1,8 @@
 const config = window.OMGMU_CONFIG;
-const catalog = window.OMGMU_GROUPS;
 
+const programGrid = document.querySelector('#program-grid');
+const programSelect = document.querySelector('#program');
 const courseSelect = document.querySelector('#course');
-const streamSelect = document.querySelector('#stream');
 const groupSelect = document.querySelector('#group');
 const emailInput = document.querySelector('#email');
 const form = document.querySelector('#order-form');
@@ -12,12 +12,24 @@ const orderIntro = orderSection.querySelector('.order-copy');
 const resultPanel = document.querySelector('#order-result');
 const selectionSummary = document.querySelector('#selection-summary');
 const priceSummary = document.querySelector('#price-summary');
+const heroPriceValue = document.querySelector('#hero-price-value');
+const offerPeriod = document.querySelector('#offer-period');
 const restoreOrderButton = document.querySelector('#restore-order');
+const testBanner = document.querySelector('#test-banner');
+const submit = form.querySelector('button[type="submit"]');
 const savedOrderKey = 'omgmu-calendar-orders-v2';
 
-const initialIntroTitle = orderIntro.querySelector('h2')?.textContent || 'Выберите курс и группу';
+const initialIntroTitle = orderIntro.querySelector('h2')?.textContent || 'Выберите направление, курс и группу';
 const introParagraphs = orderIntro.querySelectorAll('p');
 const initialIntroText = introParagraphs[introParagraphs.length - 1]?.textContent || '';
+
+const state = {
+  offer: null,
+  programs: [],
+  groups: [],
+  semesterPlan: null,
+  ready: false,
+};
 
 function validOrderId(value) {
   return typeof value === 'string' && /^[A-Za-z0-9_-]{32}$/.test(value);
@@ -55,69 +67,176 @@ function orderHeaders(accessToken) {
   return validAccessToken(accessToken) ? { 'X-Order-Token': accessToken } : {};
 }
 
-const courses = [...new Set(catalog.map((item) => item.course))].sort((a, b) => a - b);
-for (const course of courses) courseSelect.add(new Option(`${course} курс`, String(course)));
-
 function reset(select, label) {
   select.replaceChildren(new Option(label, ''));
   select.disabled = true;
 }
 
-function entriesForCourse() {
-  return catalog.filter((item) => String(item.course) === courseSelect.value);
+function programLabel(program) {
+  return config.programLabels?.[program] || { title: program };
 }
 
-function fillGroups(entries) {
-  reset(groupSelect, 'Выберите группу');
-  const groups = entries.flatMap((item) => item.groups).sort((a, b) => a.localeCompare(b, 'ru', { numeric: true }));
-  for (const group of groups) groupSelect.add(new Option(`Группа ${group}`, group));
-  groupSelect.disabled = groups.length === 0;
-  updateSelectionSummary();
+function formatPrice(plan) {
+  const amount = Number(plan?.price);
+  return Number.isFinite(amount) ? `${amount.toLocaleString('ru-RU')} ₽` : '—';
+}
+
+async function fetchJson(path) {
+  const response = await fetch(`${config.apiBaseUrl}${path}`, { cache: 'no-store' });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || 'catalog_unavailable');
+  return body;
 }
 
 function updateSelectionSummary() {
   if (!selectionSummary) return;
-  if (!courseSelect.value) {
-    selectionSummary.textContent = 'Выберите курс и группу';
-    return;
-  }
-
-  const parts = [`${courseSelect.value} курс`];
-  if (streamSelect.value) parts.push(`${streamSelect.value} поток`);
-  parts.push(groupSelect.value ? `группа ${groupSelect.value}` : 'выберите группу');
-  selectionSummary.textContent = parts.join(' · ');
+  const parts = [];
+  if (programSelect.value) parts.push(programLabel(programSelect.value).title);
+  if (courseSelect.value) parts.push(`${courseSelect.value} курс`);
+  const selected = state.groups.find((item) => item.groupId === groupSelect.value);
+  if (selected) parts.push(selected.displayName || `Группа ${selected.groupCode}`);
+  selectionSummary.textContent = parts.length ? parts.join(' · ') : 'Выберите направление, курс и группу';
 }
 
-courseSelect.addEventListener('change', () => {
-  reset(streamSelect, 'Не требуется');
-  reset(groupSelect, 'Выберите группу');
-  const entries = entriesForCourse();
-  const streams = [...new Set(entries.map((item) => item.stream).filter(Boolean))];
-  if (streams.length > 1) {
-    streamSelect.replaceChildren(new Option('Выберите поток', ''));
-    for (const stream of streams) streamSelect.add(new Option(`${stream} поток`, String(stream)));
-    streamSelect.disabled = false;
-    updateSelectionSummary();
-  } else {
-    fillGroups(entries);
+function renderProgramGrid() {
+  const available = new Map(state.programs.map((item) => [item.program, item]));
+  const known = Object.keys(config.programLabels || {});
+  for (const program of available.keys()) if (!known.includes(program)) known.push(program);
+  programGrid.replaceChildren();
+
+  for (const program of known) {
+    const info = programLabel(program);
+    const published = available.get(program);
+    const card = document.createElement('article');
+    card.className = published ? 'program-card program-card-active' : 'program-card program-card-soon';
+
+    const top = document.createElement('div');
+    top.className = 'program-card-top';
+    const badge = document.createElement('span');
+    badge.className = published ? 'badge' : 'badge badge-muted';
+    badge.textContent = published ? 'Доступно' : 'Ожидаем расписание';
+    top.append(badge);
+    if (info.code) {
+      const code = document.createElement('span');
+      code.className = 'program-code';
+      code.textContent = info.code;
+      top.append(code);
+    }
+    card.append(top);
+
+    const title = document.createElement('h3');
+    title.textContent = info.title;
+    card.append(title);
+    if (info.subtitle) {
+      const subtitle = document.createElement('p');
+      subtitle.className = 'program-subtitle';
+      subtitle.textContent = info.subtitle;
+      card.append(subtitle);
+    }
+    if (published) {
+      const description = document.createElement('p');
+      description.className = 'program-description';
+      description.textContent = `Доступные курсы: ${published.courses.join(', ')}`;
+      card.append(description);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'secondary program-select';
+      button.textContent = 'Выбрать курс и группу →';
+      button.addEventListener('click', () => {
+        programSelect.value = program;
+        programSelect.dispatchEvent(new Event('change'));
+        orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      card.append(button);
+    }
+    programGrid.append(card);
   }
+}
+
+function renderCheckoutState() {
+  const price = formatPrice(state.semesterPlan);
+  priceSummary.textContent = price;
+  heroPriceValue.textContent = price;
+  testBanner.hidden = state.offer?.paymentMode !== 'test';
+  const salesOpen = state.offer?.sales === 'open';
+  const canCheckout = state.ready && salesOpen && Boolean(state.semesterPlan) && state.programs.length > 0;
+  submit.disabled = !canCheckout;
+  if (!state.ready) submit.textContent = 'Проверяем доступность…';
+  else if (!salesOpen) submit.textContent = 'Продажи временно приостановлены';
+  else if (!state.semesterPlan) submit.textContent = 'Тариф семестра недоступен';
+  else if (state.offer.paymentMode === 'test') submit.textContent = `Провести тестовую оплату · ${price}`;
+  else submit.textContent = `Перейти к оплате · ${price}`;
+}
+
+async function loadCatalog() {
+  try {
+    const [offer, catalog] = await Promise.all([
+      fetchJson(`/api/v2/catalog/${encodeURIComponent(config.university)}/offer`),
+      fetchJson(`/api/v2/catalog/${encodeURIComponent(config.university)}/programs`),
+    ]);
+    if (offer.university !== config.university || catalog.university !== config.university) throw new Error('catalog_context_mismatch');
+    if (offer.academicYear !== catalog.academicYear || offer.semester !== catalog.semester) throw new Error('catalog_period_mismatch');
+    state.offer = offer;
+    state.programs = Array.isArray(catalog.programs) ? catalog.programs : [];
+    state.semesterPlan = Array.isArray(offer.plans) ? offer.plans.find((item) => item.id === 'semester') || null : null;
+    state.ready = true;
+    offerPeriod.textContent = `${offer.academicYear} · ${offer.semester} семестр`;
+
+    reset(programSelect, 'Выберите направление');
+    for (const entry of state.programs) {
+      programSelect.add(new Option(programLabel(entry.program).title, entry.program));
+    }
+    programSelect.disabled = state.programs.length === 0;
+    renderProgramGrid();
+    renderCheckoutState();
+    if (state.programs.length === 0) status.textContent = 'Для текущего периода пока нет опубликованных групп ОмГМУ.';
+  } catch {
+    state.ready = false;
+    reset(programSelect, 'Расписание пока недоступно');
+    reset(courseSelect, 'Выберите курс');
+    reset(groupSelect, 'Выберите группу');
+    programGrid.replaceChildren();
+    const note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = 'Не удалось подтвердить актуальный каталог. Продажа недоступна до восстановления проверки.';
+    programGrid.append(note);
+    offerPeriod.textContent = 'Каталог недоступен';
+    status.textContent = 'Продажа закрыта: не удалось получить подтверждённый каталог.';
+    renderCheckoutState();
+  }
+}
+
+programSelect.addEventListener('change', () => {
+  reset(courseSelect, 'Выберите курс');
+  reset(groupSelect, 'Выберите группу');
+  state.groups = [];
+  const entry = state.programs.find((item) => item.program === programSelect.value);
+  if (entry) {
+    for (const course of entry.courses) courseSelect.add(new Option(`${course} курс`, String(course)));
+    courseSelect.disabled = entry.courses.length === 0;
+  }
+  updateSelectionSummary();
 });
 
-streamSelect.addEventListener('change', () => {
-  fillGroups(entriesForCourse().filter((item) => String(item.stream || '') === streamSelect.value));
+courseSelect.addEventListener('change', async () => {
+  reset(groupSelect, 'Выберите группу');
+  state.groups = [];
+  updateSelectionSummary();
+  if (!programSelect.value || !courseSelect.value) return;
+  try {
+    const body = await fetchJson(`/api/v2/catalog/${encodeURIComponent(config.university)}/${encodeURIComponent(programSelect.value)}/${encodeURIComponent(courseSelect.value)}/groups`);
+    if (body.university !== config.university || body.program !== programSelect.value || String(body.course) !== courseSelect.value) throw new Error('catalog_context_mismatch');
+    if (body.academicYear !== state.offer.academicYear || body.semester !== state.offer.semester) throw new Error('catalog_period_mismatch');
+    state.groups = Array.isArray(body.groups) ? body.groups.filter((item) => item.groupId && item.groupCode) : [];
+    for (const group of state.groups) groupSelect.add(new Option(group.displayName || `Группа ${group.groupCode}`, group.groupId));
+    groupSelect.disabled = state.groups.length === 0;
+    if (state.groups.length === 0) status.textContent = 'Для выбранного курса опубликованных групп пока нет.';
+  } catch {
+    status.textContent = 'Не удалось подтвердить список опубликованных групп.';
+  }
 });
 
 groupSelect.addEventListener('change', updateSelectionSummary);
-
-function buildGroupId({ course, stream, groupCode }) {
-  return [
-    config.university,
-    config.program,
-    String(course),
-    stream ? `stream-${stream}` : null,
-    groupCode,
-  ].filter(Boolean).join(':');
-}
 
 function setIntro(title, text) {
   const heading = orderIntro.querySelector('h2');
@@ -182,15 +301,11 @@ async function copySubscriptionUrl(url, button) {
 function showSucceededOrder(order) {
   showResultShell(
     order.testMode ? 'Тестовая оплата прошла' : 'Календарь оплачен',
-    order.testMode
-      ? 'Тестовый платёж завершён. Деньги не списывались.'
-      : 'Оплата подтверждена. Персональная ссылка на календарь готова.',
+    order.testMode ? 'Тестовый платёж завершён. Деньги не списывались.' : 'Оплата подтверждена. Персональная ссылка на календарь готова.',
   );
-
   addText('Готово', 'result-kicker');
   addText(`Группа ${order.groupCode || order.group}`, 'result-group');
   addText('Персональная ссылка создана. Не пересылайте её другим людям.');
-
   const webcalUrl = order.subscriptionUrl.replace(/^https:/, 'webcal:');
   addLink('Подключить на iPhone / Apple Calendar', webcalUrl);
   const copyButton = addButton('Скопировать ссылку для Google Calendar', () => copySubscriptionUrl(order.subscriptionUrl, copyButton));
@@ -200,44 +315,31 @@ function showSucceededOrder(order) {
 }
 
 function showCanceledOrder() {
-  showResultShell('Платёж отменён', 'Доступ не выдан. В тестовом режиме деньги не списываются.');
+  showResultShell('Платёж отменён', 'Доступ не выдан.');
   addText('Платёж не завершён. Можно вернуться к форме и попробовать ещё раз.');
   addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
 }
 
 function showPendingOrder(orderId, accessToken) {
   showResultShell('Платёж ещё обрабатывается', 'Если оплата уже завершена, повторно платить не нужно.');
-  addText('Подождите несколько секунд и проверьте статус ещё раз.');
+  addText('Проверьте статус ещё раз.');
   addButton('Проверить статус', () => renderOrderResult(orderId, accessToken));
   addButton('Вернуться к выбору группы', () => restoreOrderForm(), 'secondary');
 }
 
 async function renderOrderResult(orderId, accessToken) {
-  showResultShell('Проверяем платёж', 'Обычно подтверждение занимает несколько секунд.');
+  showResultShell('Проверяем платёж', 'Получаем актуальный статус заказа.');
   addText('Получаем статус заказа…', 'result-loading');
-
   for (let attempt = 0; attempt < 15; attempt += 1) {
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/v1/orders/${orderId}`, {
-        cache: 'no-store',
-        headers: orderHeaders(accessToken),
-      });
+      const response = await fetch(`${config.apiBaseUrl}/api/v1/orders/${orderId}`, { cache: 'no-store', headers: orderHeaders(accessToken) });
       const order = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(order.error || 'order_unavailable');
-      if (order.status === 'succeeded' && order.subscriptionUrl) {
-        showSucceededOrder(order);
-        return;
-      }
-      if (order.status === 'canceled') {
-        showCanceledOrder();
-        return;
-      }
-    } catch {
-      // A transient API error is retried below.
-    }
+      if (order.status === 'succeeded' && order.subscriptionUrl) return showSucceededOrder(order);
+      if (order.status === 'canceled') return showCanceledOrder();
+    } catch { /* transient status failures are retried */ }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-
   showPendingOrder(orderId, accessToken);
 }
 
@@ -246,14 +348,12 @@ function handlePaymentReturn() {
   const params = new URLSearchParams(hash);
   const orderId = params.get('order');
   const accessToken = params.get('access');
-
   if (validOrderId(orderId) && validAccessToken(accessToken)) {
     saveOrder(orderId, accessToken);
     history.replaceState(null, '', `${window.location.pathname}${window.location.search}#order-status`);
     renderOrderResult(orderId, accessToken);
     return true;
   }
-
   if (hash === 'order-status') {
     const saved = latestSavedOrder();
     if (saved) {
@@ -265,10 +365,8 @@ function handlePaymentReturn() {
 }
 
 function enableSavedOrderRecovery() {
-  if (!restoreOrderButton) return;
   const saved = latestSavedOrder();
-  if (!saved) return;
-
+  if (!restoreOrderButton || !saved) return;
   restoreOrderButton.hidden = false;
   restoreOrderButton.addEventListener('click', () => {
     history.replaceState(null, '', `${window.location.pathname}${window.location.search}#order-status`);
@@ -276,32 +374,16 @@ function enableSavedOrderRecovery() {
   });
 }
 
-priceSummary.textContent = `${config.priceRub} ₽`;
-updateSelectionSummary();
-enableSavedOrderRecovery();
-
-const submit = form.querySelector('button[type="submit"]');
-if (config.checkoutEnabled !== true) {
-  submit.disabled = true;
-  submit.textContent = 'Продажи временно приостановлены';
-} else if (config.testMode === true) {
-  submit.textContent = `Провести тестовую оплату · ${config.priceRub} ₽`;
-  const testNote = document.createElement('p');
-  testNote.className = 'test-note';
-  testNote.textContent = 'Тестовый магазин ЮKassa · реальные деньги не списываются';
-  submit.before(testNote);
-}
-
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
-
-  if (config.checkoutEnabled !== true) {
+  if (!state.ready || state.offer?.sales !== 'open' || !state.semesterPlan) {
     status.textContent = 'Продажи временно приостановлены до завершения проверки.';
     return;
   }
-  if (!courseSelect.value || !groupSelect.value) {
-    status.textContent = 'Выберите курс и группу.';
+  const selectedGroup = state.groups.find((item) => item.groupId === groupSelect.value);
+  if (!programSelect.value || !courseSelect.value || !selectedGroup) {
+    status.textContent = 'Выберите направление, курс и группу.';
     return;
   }
   if (!emailInput.validity.valid) {
@@ -309,28 +391,18 @@ form.addEventListener('submit', async (event) => {
     emailInput.focus();
     return;
   }
-  if (config.apiBaseUrl.includes('REPLACE_WITH')) {
-    status.textContent = 'Адрес API Cloud.ru ещё не настроен.';
-    return;
-  }
-
-  const course = Number(courseSelect.value);
-  const stream = streamSelect.value || null;
-  const groupCode = groupSelect.value;
   const payload = {
     email: emailInput.value.trim(),
     university: config.university,
-    program: config.program,
-    course,
-    stream,
-    groupCode,
-    groupId: buildGroupId({ course, stream, groupCode }),
-    timezone: config.timezone,
+    program: programSelect.value,
+    course: Number(courseSelect.value),
+    stream: null,
+    groupCode: selectedGroup.groupCode,
+    groupId: selectedGroup.groupId,
+    plan: 'semester',
   };
-
   submit.disabled = true;
   submit.textContent = 'Создаём оплату…';
-
   try {
     const response = await fetch(`${config.apiBaseUrl}${config.paymentPath}`, {
       method: 'POST',
@@ -339,25 +411,21 @@ form.addEventListener('submit', async (event) => {
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Не удалось создать оплату');
-    if (!result.confirmationUrl || !validOrderId(result.orderId) || !validAccessToken(result.accessToken)) {
-      throw new Error('API вернул неполные данные оплаты');
-    }
+    if (!result.confirmationUrl || !validOrderId(result.orderId) || !validAccessToken(result.accessToken)) throw new Error('API вернул неполные данные оплаты');
     saveOrder(result.orderId, result.accessToken);
     window.location.assign(result.confirmationUrl);
   } catch (error) {
     status.textContent = error.message;
-    submit.disabled = false;
-    submit.textContent = config.testMode === true
-      ? `Провести тестовую оплату · ${config.priceRub} ₽`
-      : 'Перейти к оплате';
+    renderCheckoutState();
   }
 });
 
+updateSelectionSummary();
+enableSavedOrderRecovery();
+renderCheckoutState();
+void loadCatalog();
 handlePaymentReturn();
 window.addEventListener('hashchange', () => {
-  if (window.location.hash === '#order-status') {
-    handlePaymentReturn();
-    return;
-  }
+  if (window.location.hash === '#order-status') return void handlePaymentReturn();
   if (window.location.hash === '#order' && form.hidden) restoreOrderForm({ scroll: false });
 });
