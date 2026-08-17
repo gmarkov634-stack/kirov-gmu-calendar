@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Расписание ИжГМУ в Apple Calendar и Google Calendar: учебные занятия в привычном календаре телефона.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#164f86">
+  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Расписание ИжГМУ в календаре">
+  <meta property="og:title" content="Расписание ИжГМУ — сразу в календаре">
+  <meta property="og:description" content="Подключите расписание ИжГМУ к Apple Calendar или Google Calendar и смотрите занятия как обычные события календаря.">
+  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/">
+  <meta name="twitter:card" content="summary">
+  <title>Расписание ИжГМУ в Apple и Google Calendar</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+  <header class="hero">
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Ижевский государственный медицинский университет</p>
+        <h1>Расписание ИжГМУ — сразу в календаре</h1>
+        <p class="lead">Занятия, лекции и изменения расписания — в Apple Calendar или Google Calendar без ручного переноса.</p>
+
+        <div class="hero-features" aria-label="Преимущества">
+          <div><span class="feature-icon">✓</span><span>Apple и<br>Google</span></div>
+          <div><span class="feature-icon">↻</span><span>Обновления<br>по подписке</span></div>
+          <div><span class="feature-icon">🔗</span><span>Персональный<br>календарь</span></div>
+        </div>
+
+        <div class="hero-actions">
+          <a class="primary" href="#availability">Проверить статус запуска <span aria-hidden="true">→</span></a>
+          <div class="hero-status">
+            <strong>Готовим ИжГМУ к запуску</strong>
+            <span>Сейчас подключаем расписание лечебного факультета</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-demo" aria-label="Интерактивный пример календаря">
+        <div class="demo-head">
+          <button id="prev-day" type="button" aria-label="Предыдущий день">‹</button>
+          <div><span id="demo-weekday">Понедельник</span><strong id="demo-date">7 сентября</strong></div>
+          <button id="next-day" type="button" aria-label="Следующий день">›</button>
+        </div>
+        <div id="demo-events" class="demo-events"></div>
+        <p class="demo-hint">Нажмите на занятие, чтобы открыть детали</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section id="availability" class="shell section">
+      <div class="section-heading">
+        <p class="eyebrow">Подключение ИжГМУ</p>
+        <h2>Начинаем с лечебного факультета</h2>
+        <p>Расписание подключается поэтапно. В продажу попадут только группы, для которых исходные данные полностью разобраны и проверены.</p>
+      </div>
+
+      <div class="availability-grid">
+        <article class="availability-card active-card">
+          <div class="card-top"><span class="badge">В работе</span><span class="program-code">31.05.01</span></div>
+          <h3>Лечебное дело</h3>
+          <p>Подключаем структуру курсов и групп и готовим автоматическое обновление расписания.</p>
+          <div class="progress" aria-label="Этап подготовки"><span style="width:38%"></span></div>
+          <small>Текущий этап: разбор источников и парсинг</small>
+        </article>
+
+        <article class="availability-card muted-card">
+          <div class="card-top"><span class="badge muted">Следующий этап</span></div>
+          <h3>Другие направления</h3>
+          <p>Будут подключаться после стабилизации лечебного факультета и проверки качества данных.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="how-section">
+      <div class="shell section">
+        <div class="section-heading compact">
+          <p class="eyebrow">Как это будет работать</p>
+          <h2>Один раз подключили — дальше календарь живёт сам</h2>
+        </div>
+        <div class="how-grid">
+          <article><span>1</span><h3>Выберите свою группу</h3><p>На странице будут доступны только проверенные группы текущего учебного периода.</p></article>
+          <article><span>2</span><h3>Получите персональную ссылку</h3><p>Ссылка подключается к Apple Calendar или Google Calendar как подписной календарь.</p></article>
+          <article><span>3</span><h3>Смотрите расписание</h3><p>Занятия отображаются рядом с обычными делами, встречами и напоминаниями.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell section comparison">
+      <div class="section-heading compact">
+        <p class="eyebrow">Зачем переносить расписание</p>
+        <h2>Вместо постоянного просмотра таблицы</h2>
+      </div>
+      <div class="comparison-grid">
+        <article class="before">
+          <span class="comparison-label">Обычное расписание</span>
+          <h3>Нужно каждый раз искать нужный день</h3>
+          <ul>
+            <li>Открыть файл или страницу расписания</li>
+            <li>Найти свою группу и нужную дату</li>
+            <li>Отдельно помнить о времени и аудитории</li>
+            <li>Снова проверять изменения</li>
+          </ul>
+        </article>
+        <article class="after">
+          <span class="comparison-label">Календарь</span>
+          <h3>Открыли день — занятия уже на месте</h3>
+          <ul>
+            <li>Все пары собраны по времени</li>
+            <li>Дисциплина и тип занятия видны сразу</li>
+            <li>Можно пользоваться календарём телефона</li>
+            <li>Обновления приходят по той же подписке</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="launch shell section">
+      <div>
+        <p class="eyebrow">Статус</p>
+        <h2>ИжГМУ ещё не открыт для покупки</h2>
+        <p>Мы не показываем неготовые группы и не принимаем оплату до завершения проверки расписания. Когда лечебный факультет будет готов, здесь появится выбор курса и группы.</p>
+      </div>
+      <a class="secondary" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/">Посмотреть основной сервис</a>
+    </section>
+
+    <section class="shell section faq">
+      <div class="section-heading compact"><p class="eyebrow">Вопросы</p></div>
+      <details><summary>Это официальный сайт ИжГМУ?</summary><p>Нет. Это независимый сервис календарей расписания. Для подготовки календарей используются опубликованные университетом материалы.</p></details>
+      <details><summary>Когда появится выбор группы?</summary><p>После того как расписание лечебного факультета будет разобрано, проверено и подключено к обновляемому календарю.</p></details>
+      <details><summary>Нужно будет заново импортировать календарь после изменения расписания?</summary><p>Нет. Подписной календарь обновляется по той же ссылке после публикации обновлённых данных в сервисе.</p></details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <strong>Расписание ИжГМУ в календаре</strong>
+      <nav aria-label="Ссылки"><a href="#availability">Статус</a><a href="#main">О сервисе</a></nav>
+    </div>
+  </footer>
+
+  <div id="event-dialog" class="dialog-backdrop" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <button id="dialog-close" class="dialog-close" type="button" aria-label="Закрыть">×</button>
+      <span id="dialog-type" class="dialog-type"></span>
+      <h3 id="dialog-title"></h3>
+      <dl>
+        <div><dt>Время</dt><dd id="dialog-time"></dd></div>
+        <div><dt>Место</dt><dd id="dialog-place"></dd></div>
+        <div><dt>Заметка</dt><dd id="dialog-note"></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
