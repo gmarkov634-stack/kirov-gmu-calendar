@@ -42,6 +42,30 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/omgmu/",
     active: false,
   }),
+  izhgmu: Object.freeze({
+    id: "izhgmu",
+    code: "izhgmu",
+    name: "Ижевский государственный медицинский университет",
+    shortName: "Ижевский ГМУ",
+    timezone: "Europe/Samara",
+    timeMode: "floating",
+    source: Object.freeze({
+      kind: "excel",
+      formats: Object.freeze(["xlsx", "xls"]),
+      primaryPage: "https://igma.ru/component/content/article/647-raspisanie?Itemid=108&catid=132",
+      adapter: "izhgmu",
+      productionLanguage: "ru",
+      versionIdentity: Object.freeze(["source_page", "source_url", "sha256"]),
+    }),
+    programs: Object.freeze([
+      Object.freeze({ id: "medicine", name: "Лечебное дело", language: "ru", initialScope: true }),
+      Object.freeze({ id: "medicine_english", name: "Лечебное дело на английском языке", language: "en", initialScope: true }),
+      Object.freeze({ id: "pediatrics", name: "Педиатрия", language: "ru", initialScope: true }),
+      Object.freeze({ id: "dentistry", name: "Стоматология", language: "ru", initialScope: true }),
+    ]),
+    sitePath: "/izhgmu/",
+    active: false,
+  }),
 });
 
 export function listUniversities() {

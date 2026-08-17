@@ -3,13 +3,15 @@ import assert from "node:assert/strict";
 
 import { getUniversityConfig, hasUniversity, listUniversities } from "../src/universities/registry.mjs";
 
-test("registry contains kgmu and omgmu as isolated university configurations", () => {
+test("registry contains kgmu, omgmu and izhgmu as isolated university configurations", () => {
   assert.equal(hasUniversity("kgmu"), true);
   assert.equal(hasUniversity("omgmu"), true);
+  assert.equal(hasUniversity("izhgmu"), true);
   assert.equal(hasUniversity("unknown"), false);
 
   const kgmu = getUniversityConfig("kgmu");
   const omgmu = getUniversityConfig("omgmu");
+  const izhgmu = getUniversityConfig("izhgmu");
 
   assert.equal(kgmu.id, "kgmu");
   assert.equal(kgmu.source.adapter, "kgmu");
@@ -27,8 +29,21 @@ test("registry contains kgmu and omgmu as isolated university configurations", (
   assert.equal(omgmu.sitePath, "/omgmu/");
   assert.equal(omgmu.active, false);
 
+  assert.equal(izhgmu.id, "izhgmu");
+  assert.equal(izhgmu.shortName, "Ижевский ГМУ");
+  assert.equal(izhgmu.timezone, "Europe/Samara");
+  assert.equal(izhgmu.timeMode, "floating");
+  assert.equal(izhgmu.source.kind, "excel");
+  assert.deepEqual(izhgmu.source.formats, ["xlsx", "xls"]);
+  assert.equal(izhgmu.source.adapter, "izhgmu");
+  assert.deepEqual(izhgmu.source.versionIdentity, ["source_page", "source_url", "sha256"]);
+  assert.equal(izhgmu.sitePath, "/izhgmu/");
+  assert.equal(izhgmu.active, false);
+
   assert.notEqual(kgmu.source, omgmu.source);
-  assert.equal(listUniversities().length >= 2, true);
+  assert.notEqual(omgmu.source, izhgmu.source);
+  assert.notEqual(kgmu.source, izhgmu.source);
+  assert.equal(listUniversities().length >= 3, true);
 });
 
 test("OMGmu initial commercial parsing scope excludes masters until separately activated", () => {
@@ -45,6 +60,19 @@ test("OMGmu initial commercial parsing scope excludes masters until separately a
     "pharmacy",
   ]);
   assert.deepEqual(deferred, ["public_health_master", "psychology_master"]);
+});
+
+test("IZHGMU initial scope keeps English medicine separate from Russian medicine", () => {
+  const izhgmu = getUniversityConfig("izhgmu");
+  assert.deepEqual(
+    izhgmu.programs.map(({ id, language, initialScope }) => ({ id, language, initialScope })),
+    [
+      { id: "medicine", language: "ru", initialScope: true },
+      { id: "medicine_english", language: "en", initialScope: true },
+      { id: "pediatrics", language: "ru", initialScope: true },
+      { id: "dentistry", language: "ru", initialScope: true },
+    ],
+  );
 });
 
 test("unknown university fails explicitly", () => {

@@ -43,6 +43,7 @@ export function loadConfig(env = process.env) {
       kgmu: env.KGMU_SITE_URL || "",
       omgmu: env.OMGMU_SITE_URL || "",
       pgmu: env.PGMU_SITE_URL || "",
+      izhgmu: env.IZHGMU_SITE_URL || "",
     },
     publicApiUrl: env.PUBLIC_API_URL || "",
     enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
@@ -82,6 +83,7 @@ export function loadConfig(env = process.env) {
     omgmuPdfMaxBytes: Number(env.OMGMU_PDF_MAX_BYTES || 25 * 1024 * 1024),
     omgmuSchedulePage: env.OMGMU_SCHEDULE_PAGE || "https://omsk-osma.ru/studentam/raspisanie-zanyatiy",
     omgmuWatchPrograms: parsePrograms(env.OMGMU_WATCH_PROGRAMS, ["medicine", "pediatrics", "dentistry", "preventive-medicine", "pharmacy"]),
+    izhgmuSchedulePage: env.IZHGMU_SCHEDULE_PAGE || "https://igma.ru/component/content/article/647-raspisanie?Itemid=108&catid=132",
     offerAcademicYear: env.OFFER_ACADEMIC_YEAR || "2026/27",
     offerSemester: Number(env.OFFER_SEMESTER || 1),
     offers: {
