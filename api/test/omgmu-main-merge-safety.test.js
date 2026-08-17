@@ -32,6 +32,17 @@ test("server starts OmGMU observation only behind the explicit watcher gate", ()
   assert.doesNotMatch(server, /\/api\/v1\/admin\/omgmu\/[^"'\n]*publish/);
 });
 
+test("server exposes only a read-only OmGMU watcher status surface", () => {
+  const server = readRepo("api/src/server.js");
+  const statusHandler = readRepo("api/src/omgmu-watch-status.js");
+
+  assert.match(server, /createOmgmuWatchStatusHandler/);
+  assert.match(server, /\/api\/v2\/status\/omgmu-watcher/);
+  assert.match(statusHandler, /request\.method !== "GET"/);
+  assert.match(statusHandler, /publicationMode: "explicit-only"/);
+  assert.doesNotMatch(statusHandler, /publishScheduleBatch|review\.publish|review\.submit_publish/);
+});
+
 test("scheduled OmGMU source watch is read-only and cannot publish", () => {
   const workflow = readRepo(".github/workflows/omgmu-source-watch.yml");
 
