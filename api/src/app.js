@@ -3,6 +3,7 @@ import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
 import { effectiveSubscriptionEnd } from "./subscription-period.js";
+import { isUniversityCommercialEnabled } from "./universities/registry.mjs";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -120,6 +121,10 @@ function trialState(config) {
   return config?.trialsEnabled === true ? "open" : "closed";
 }
 
+function universityCommercialState(university) {
+  return isUniversityCommercialEnabled(university) ? "open" : "closed";
+}
+
 function paymentMode(config) {
   return config?.yookassaTestMode === true ? "test" : "live";
 }
@@ -160,6 +165,9 @@ export function createHandler({ store, config, payments }) {
         if (!validEmail(input.email) || !PLAN_IDS.has(plan)) return send(response, 400, { error: "invalid_checkout" });
         const context = validateContext(input);
         if (!context) return send(response, 400, { error: "invalid_checkout" });
+        if (!isUniversityCommercialEnabled(context.university)) {
+          return send(response, 409, { error: "university_commercial_not_open" }, "application/json; charset=utf-8", "no-store");
+        }
         const schedule = await store.getSchedule(context);
         if (!schedule || !sameSchedule(schedule, { ...context, academicYear: scheduleContext(schedule).academicYear, semester: scheduleContext(schedule).semester })) {
           return send(response, 400, { error: "offer_not_found" });
@@ -239,6 +247,8 @@ export function createHandler({ store, config, payments }) {
 
     if (url.pathname === "/health") return send(response, 200, { status: "ok", service: "medical-calendar-api" });
     if (url.pathname === "/api/v2/meta") {
+      const requestedUniversity = url.searchParams.get("university");
+      const scopedUniversity = requestedUniversity && UNIVERSITY_ID.test(requestedUniversity) ? requestedUniversity : "";
       return send(response, 200, {
         service: "Календари медицинских вузов",
         version: 2,
@@ -247,6 +257,10 @@ export function createHandler({ store, config, payments }) {
         trials: trialState(config),
         paymentMode: paymentMode(config),
         offers: publicOfferPrices(config),
+        ...(scopedUniversity ? {
+          university: scopedUniversity,
+          universityCommercial: universityCommercialState(scopedUniversity),
+        } : {}),
       }, "application/json; charset=utf-8", "no-store");
     }
 
