@@ -88,6 +88,8 @@ Legacy direct-S3 path не допускается.
 
 Этот smoke не должен открывать массовые продажи.
 
+Historical сценарий 2101 закреплён как code-level regression в `api/test/omgmu-storage-subscription-e2e.test.js` и включён в immutable historical gate.
+
 ## 7. Gate F — payment/fulfillment
 
 Перед реальными продажами ОмГМУ:
@@ -125,34 +127,41 @@ Trial не является обязательным условием самой
 
 Перед launch:
 
-- [ ] hourly source-watch workflow зелёный;
-- [ ] exact target `2026/2027 + autumn` распознаётся без ослабления period gate;
-- [ ] unchanged URL+SHA не создаёт duplicate review;
-- [ ] same URL/new SHA создаёт новый candidate;
-- [ ] new URL создаёт новый candidate;
-- [ ] 404/5xx/network failure diagnostic-only;
-- [ ] исчезновение source link не меняет current;
-- [ ] unknown structural source создаёт review issue и не публикуется;
-- [ ] historical regression workflow зелёный.
+- [x] hourly source-watch workflow существует и работает только как observation/review layer;
+- [x] exact target `2026/2027 + autumn` закреплён fail-closed period gate;
+- [x] unchanged URL+SHA не создаёт duplicate review;
+- [x] same URL/new SHA создаёт новый candidate;
+- [x] 404/5xx/network failure diagnostic-only;
+- [x] исчезновение source link не меняет current;
+- [x] source review не публикуется watcher-ом;
+- [x] historical regression workflow зелёный на зафиксированных sources;
+- [ ] первый реальный current-period target проверен на live source page;
+- [ ] unknown structural source 2026/27, если появится, прошёл отдельный semantic profile review.
+
+Read-only status: `GET /api/v2/status/omgmu-watcher`.
 
 ## 10. Gate I — tenant isolation
 
-- [ ] OmGMU source/review/publication context всегда имеет `university=omgmu`;
-- [ ] KGMU и IzhGMU schedules не могут попасть в OmGMU catalog/subscription;
-- [ ] stream/groupId не теряются между canonical batch, storage, catalog и checkout;
-- [ ] OmGMU VK tenant credentials не fallback-ятся на KGMU credentials;
-- [ ] общие изменения проходят multi-university regression.
+Структурно уже закреплено тестами:
+
+- [x] OmGMU source/review/publication context использует `university=omgmu`;
+- [x] multi-university storage/catalog tests предотвращают смешивание контекстов;
+- [x] stream/groupId сохраняются в server-owned catalog/checkout wiring;
+- [x] OmGMU VK tenant credentials не fallback-ятся на KGMU credentials;
+- [x] общие изменения входят в structural readiness regression.
+
+Перед current-period launch остаётся smoke на фактической опубликованной группе.
 
 ## 11. Gate J — landing и коммуникации
 
-Технический launch landing:
+Технический launch landing структурно:
 
-- [ ] current groups берутся только из live catalog;
-- [ ] при пустом catalog UI работает fail-closed;
-- [ ] цена не является authoritative frontend-константой;
-- [ ] mobile/iPhone/Safari smoke PASS;
-- [ ] payment return path PASS;
-- [ ] wording не заявляет доступность групп, которых нет в current catalog.
+- [x] current groups берутся только из live catalog;
+- [x] при пустом catalog UI работает fail-closed;
+- [x] цена не является authoritative frontend-константой;
+- [ ] mobile/iPhone/Safari smoke на фактическом current catalog PASS;
+- [ ] payment return path на current-period checkout PASS;
+- [ ] wording финально проверен после появления фактических групп.
 
 VK не является техническим prerequisite для выдачи календаря, но launch-коммуникация считается готовой, если:
 
@@ -174,8 +183,8 @@ VK не является техническим prerequisite для выдачи
 4. Gate D — группа присутствует в live catalog с exact identity.
 5. Gate E — current-period subscription smoke PASS.
 6. Gate F — controlled OmGMU payment/fulfillment E2E PASS.
-7. Gate H — watcher/recovery healthy.
-8. Gate I — isolation PASS.
+7. Gate H — watcher/recovery healthy на current source.
+8. Gate I — isolation smoke PASS.
 9. Gate J — landing не вводит пользователя в заблуждение.
 
 Trial gate открывается независимо и только если нужен product/marketing flow.
@@ -189,6 +198,10 @@ Trial gate открывается независимо и только если 
 | Source-bound review | **PASS** |
 | Direct legacy publication retired | **PASS** |
 | Historical regression | **PASS** |
+| Historical storage/subscription update regression 2101 | **PASS / restored in main** |
+| Structural launch-readiness workflow | **PASS / GitHub Actions success** |
+| Watcher status endpoint | **PASS / read-only contract** |
+| Operations runbook | **DONE** |
 | Production publication/current/subscription mechanics | **PASS on historical group 2101** |
 | Live server-owned catalog/checkout wiring | **PASS structurally** |
 | Source watcher/review issue boundary | **PASS; waiting for target source** |
@@ -199,13 +212,19 @@ Trial gate открывается независимо и только если 
 | Mass sales | **CLOSED** |
 | VK launch readiness | **READY except final launch post** |
 
-## 14. Что можно делать до появления 2026/27
+## 14. Что ещё можно делать до появления 2026/27
 
-Не требуется переписывать parsers или коммерческий backend. До появления source полезны только structural readiness задачи:
+Основные structural readiness задачи, не требующие current source, **закрыты**:
 
-1. поддерживать `omgmu-parser-coverage.md` и этот launch gate актуальными;
-2. создать автоматический launch-readiness report/smoke, который проверяет уже существующие invariants без current source;
-3. закрепить state/reporting так, чтобы появление первого target PDF сразу переводило процесс из `WAITING_SOURCE` в `REVIEW_REQUIRED`, но никогда напрямую в publication;
-4. не открывать sales/trial gates и не использовать historical schedule как current offer.
+- [x] authoritative parser coverage;
+- [x] launch gate;
+- [x] source-bound reviewed architecture без второго source of truth;
+- [x] restored historical 2101 publish/subscription/update regression;
+- [x] aggregate `npm run readiness:omgmu` + GitHub Actions artifact;
+- [x] watcher state/reporting через `/api/v2/status/omgmu-watcher`;
+- [x] operations runbook;
+- [x] fail-closed policy: historical schedule не становится current offer.
 
-После появления источника работа начинается с Gate A, а не с нового проектирования платформы.
+До появления официального source остаётся только поддерживать CI/gates зелёными и не расширять parsers без source evidence. Следующий функциональный шаг возникает только при появлении exact `2026/2027 + autumn` PDF и начинается с Gate A.
+
+Operational procedure: `docs/omgmu-runbook.md`.
