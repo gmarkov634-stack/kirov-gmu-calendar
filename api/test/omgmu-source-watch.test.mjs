@@ -48,6 +48,21 @@ test("classifies ordinary faculty PDF links when they become active", () => {
   ]);
 });
 
+test("direct course labels do not inherit a previous stream", () => {
+  const html = `
+    <h2>Лечебное дело для иностранных граждан</h2>
+    <a href="/files/r/UU/bilingva/2026/1.2.pdf">1 курс 2 поток</a>
+    <a href="/files/r/UU/bilingva/2026/3.pdf">3 курс</a>
+    <a href="/files/r/UU/bilingva/2026/4lek.pdf">4 курс лекции</a>
+  `;
+  const sources = extractOmgmuSources(html);
+  assert.deepEqual(sources.map((item) => [item.course, item.stream]), [
+    [1, "2"],
+    [3, null],
+    [4, null],
+  ]);
+});
+
 test("classifies generic master links from explicit section/course context", () => {
   const html = `
     <h2>ОБЩЕСТВЕННОЕ ЗДРАВООХРАНЕНИЕ</h2>
