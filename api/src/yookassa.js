@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { resolveCommercialOffer } from "./offer-registry.js";
 import { scheduleContext } from "./order-context.js";
 import { semesterEndFromSchedule } from "./subscription-period.js";
 
@@ -109,6 +110,7 @@ function publicOrder(order) {
     academicYear: order.academicYear,
     semester: order.semester,
     plan: order.plan || "semester",
+    sku: order.sku || undefined,
     amount: order.amount,
     expiresAt: order.expiresAt,
     testMode: order.testMode === true,
@@ -206,11 +208,11 @@ export class YooKassaService {
 
   async create({ email, schedule, plan = "semester", conversionId = "" }) {
     if (!this.enabled) throw new Error("Payments are not configured");
-    const offer = configuredOffer(this.config, plan);
     const context = scheduleContext(schedule);
     if (!context.university || !context.program || !context.groupCode || !context.groupId) {
       throw new Error("Schedule context is incomplete");
     }
+    const offer = resolveCommercialOffer(this.config, { ...context, plan });
     assertSchedulePeriodForSale(this.config, context);
     const returnSiteUrl = universitySiteUrl(this.config, context.university);
     const expiresAt = plan === "semester" ? semesterEndFromSchedule(schedule) : offer.expiresAt;
@@ -242,6 +244,7 @@ export class YooKassaService {
       status: "creating",
       ...context,
       plan: offer.id,
+      sku: offer.sku,
       expiresAt,
       amount: offer.price,
       currency: "RUB",
@@ -267,6 +270,7 @@ export class YooKassaService {
         university: order.university,
         group_id: order.groupId,
         plan: order.plan,
+        sku: order.sku,
       },
     };
     if (this.config.yookassaSendReceipt) {
@@ -347,6 +351,7 @@ export class YooKassaService {
       academicYear: order.academicYear,
       semester: order.semester,
       plan: order.plan || "semester",
+      sku: order.sku || undefined,
       expiresAt: order.expiresAt,
       orderId,
       paymentId: payment.id,
