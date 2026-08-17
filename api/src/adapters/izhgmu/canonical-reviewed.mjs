@@ -30,7 +30,7 @@ function semesterNumber(value) {
   return [1, 2].includes(number) ? number : null;
 }
 
-function sourceMemberMap(review) {
+function sourceMembers(review) {
   const digest = clean(review?.sourceSet?.digest, 64).toLowerCase();
   if (!SHA_RE.test(digest)) fail("Review has no valid source-set digest", "IZHGMU_SOURCE_SET_INVALID");
   const members = review?.sourceSet?.members;
@@ -50,9 +50,9 @@ function sourceMemberMap(review) {
 function validateContext(batch, review) {
   const context = scheduleContext(batch);
   const metadata = review.metadata || {};
-  if (context.university !== "izhgmu") fail("Canonical review accepts only IzhGMU batches", "IZHGMU_CANONICAL_CONTEXT_MISMATCH");
-  if (context.program !== "medicine") fail("Only active IzhGMU medicine scope may be reviewed", "IZHGMU_CANONICAL_CONTEXT_MISMATCH");
-  if (!ACTIVE_COURSES.has(Number(context.course))) fail("Only medicine courses 1-3 are active", "IZHGMU_CANONICAL_CONTEXT_MISMATCH");
+  if (context.university !== "izhgmu" || context.program !== "medicine" || !ACTIVE_COURSES.has(Number(context.course))) {
+    fail("Batch is outside active IzhGMU medicine 1-3 scope", "IZHGMU_CANONICAL_CONTEXT_MISMATCH");
+  }
   if (metadata.academicYear && normalizeAcademicYear(context.academicYear) !== normalizeAcademicYear(metadata.academicYear)) {
     fail("Batch academic year does not match source review", "IZHGMU_CANONICAL_CONTEXT_MISMATCH");
   }
@@ -68,11 +68,7 @@ function validateContext(batch, review) {
 
 function bindSourceSet(rawBatch, review) {
   const batch = structuredClone(rawBatch);
-  const { digest, map } = sourceMemberMap(review);
-  const declaredDigest = clean(batch.schedule?.source_set_digest || "", 64).toLowerCase();
-  if (declaredDigest && declaredDigest !== digest) fail("Batch source-set digest does not match review", "IZHGMU_CANONICAL_SOURCE_MISMATCH");
-  batch.schedule.source_set_digest = digest;
-
+  const { map } = sourceMembers(review);
   const sourceFiles = Array.isArray(batch.schedule?.source_files) ? batch.schedule.source_files.map((item) => clean(item, 200)) : [];
   if (!sourceFiles.length) fail("schedule.source_files is required", "IZHGMU_CANONICAL_SOURCE_MISMATCH");
   for (const filename of sourceFiles) if (!map.has(filename)) fail("Batch references file outside reviewed source set", "IZHGMU_CANONICAL_SOURCE_MISMATCH", { filename });
@@ -88,7 +84,7 @@ function bindSourceSet(rawBatch, review) {
     boundEventCount += 1;
   }
   if (!boundEventCount) fail("Canonical batch contains no source-bound events", "IZHGMU_CANONICAL_SOURCE_MISMATCH");
-  return { batch, boundEventCount, digest };
+  return { batch, boundEventCount };
 }
 
 export function validateIzhgmuCanonicalReviewPackage(input, review) {
@@ -131,6 +127,7 @@ export function validateIzhgmuCanonicalReviewPackage(input, review) {
       groupCount: batches.length,
       eventCount: batches.reduce((sum, batch) => sum + batch.events.length, 0),
       sourceBoundEventCount,
+      groups: batches.map((batch) => batch.schedule.group),
       reports: qaReports,
     },
   };
@@ -145,43 +142,26 @@ export async function stageIzhgmuCanonicalReviewPackage({ input, review, queue }
 
 async function previousFor(scheduleStore, batch) {
   const context = scheduleContext(batch);
-  return scheduleStore.getSchedule({
-    university: context.university,
-    program: context.program,
-    course: context.course,
-    stream: context.stream,
-    groupCode: context.groupCode,
-    groupId: context.groupId,
-    academicYear: context.academicYear,
-    semester: context.semester,
-    plan: "semester",
-  });
+  return scheduleStore.getSchedule({ university: context.university, program: context.program, course: context.course, stream: context.stream, groupCode: context.groupCode, groupId: context.groupId, academicYear: context.academicYear, semester: context.semester, plan: "semester" });
 }
 
 export async function publishStagedIzhgmuCanonicalReview({ queue, scheduleStore, review, now }) {
-  if (!review?.normalizedKey || review?.qa?.status !== "PASS" || review?.parserType !== PARSER_TYPE || review?.normalizer?.format !== FORMAT) {
-    fail("IzhGMU canonical review is not publishable", "REVIEW_NOT_PUBLISHABLE");
-  }
+  if (!review?.normalizedKey || review?.qa?.status !== "PASS" || review?.parserType !== PARSER_TYPE || review?.normalizer?.format !== FORMAT) fail("IzhGMU canonical review is not publishable", "REVIEW_NOT_PUBLISHABLE");
   const normalized = await queue.getNormalized(review.normalizedKey);
-  if (!normalized || normalized.parserType !== PARSER_TYPE || normalized.sourceSetDigest !== review.sourceSet?.digest || normalized.qa?.status !== "PASS") {
-    fail("Canonical normalized result does not match source-set review", "NORMALIZED_RESULT_INVALID");
-  }
+  if (!normalized || normalized.parserType !== PARSER_TYPE || normalized.sourceSetDigest !== review.sourceSet?.digest || normalized.qa?.status !== "PASS") fail("Canonical normalized result does not match source-set review", "NORMALIZED_RESULT_INVALID");
   if (typeof scheduleStore?.getSchedule !== "function" || typeof scheduleStore?.putSchedule !== "function") fail("Schedule store unavailable", "CANONICAL_PUBLICATION_UNAVAILABLE");
 
   const prepared = [];
   for (const batch of normalized.batches || []) {
     const previous = await previousFor(scheduleStore, batch);
-    prepared.push(prepareSchedulePublication(batch, {
-      previousBatch: previous?.schema_version === "1.0" && previous?.schedule && Array.isArray(previous?.events) ? previous : null,
-      now,
-    }));
+    prepared.push(prepareSchedulePublication(batch, { previousBatch: previous?.schema_version === "1.0" && previous?.schedule && Array.isArray(previous?.events) ? previous : null, now }));
   }
 
   const publications = [];
   try {
     for (const item of prepared) {
       const publication = await scheduleStore.putSchedule(item.batch);
-      publications.push({ group: item.context.groupCode, course: item.context.course, scheduleVersionId: item.batch.schedule.schedule_version_id, contentFingerprint: item.batch.schedule.content_fingerprint, diff: item.diff, publication });
+      publications.push({ group: item.context.groupCode, course: item.context.course, scheduleVersionId: item.batch.schedule.schedule_version_id, previousScheduleVersionId: item.batch.schedule.previous_schedule_version_id, contentFingerprint: item.batch.schedule.content_fingerprint, diff: item.diff, publication });
     }
   } catch (error) {
     const wrapped = new Error(`IzhGMU canonical publication stopped after ${publications.length} group(s): ${error?.message || error}`);
@@ -190,7 +170,7 @@ export async function publishStagedIzhgmuCanonicalReview({ queue, scheduleStore,
     wrapped.details = { publishedGroups: publications.map((item) => item.group) };
     throw wrapped;
   }
-  return { groupCount: publications.length, eventCount: prepared.reduce((sum, item) => sum + item.batch.events.length, 0), publications };
+  return { groupCount: publications.length, eventCount: prepared.reduce((sum, item) => sum + item.batch.events.length, 0), groups: publications.map((item) => item.group), publications };
 }
 
 export { FORMAT as IZHGMU_CANONICAL_REVIEW_FORMAT, PARSER_TYPE as IZHGMU_CANONICAL_REVIEW_PARSER_TYPE };
