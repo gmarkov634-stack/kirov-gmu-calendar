@@ -1,4 +1,5 @@
 import { listOfferProgramAvailability } from "./offer-availability.js";
+import { listUniversities } from "./universities/registry.mjs";
 
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
 const PROGRAM_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -31,6 +32,29 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
+export function isRegisteredUniversityInactive(id) {
+  const normalized = String(id || "").trim().toLowerCase();
+  if (!normalized) return false;
+
+  const university = listUniversities().find((entry) =>
+    [entry.id, entry.code]
+      .filter(Boolean)
+      .some((value) => String(value).trim().toLowerCase() === normalized),
+  );
+
+  return university?.active === false;
+}
+
+function rejectInactiveUniversity(response, university) {
+  if (!isRegisteredUniversityInactive(university)) return false;
+  send(response, 404, {
+    error: "catalog_not_available",
+    university,
+    available: false,
+  });
+  return true;
+}
+
 export function createOfferCatalogHandler({ store, config, listProgramAvailability = listOfferProgramAvailability }) {
   return async function offerCatalogHandler(request, response) {
     allowCors(request, response, config);
@@ -48,6 +72,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (programSummaryMatch) {
       const university = decodeURIComponent(programSummaryMatch[1]);
       if (!UNIVERSITY_ID.test(university)) return send(response, 400, { error: "invalid_catalog_context" });
+      if (rejectInactiveUniversity(response, university)) return;
       try {
         const programs = await listProgramAvailability({
           store,
@@ -73,6 +98,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
     if (!UNIVERSITY_ID.test(university) || !PROGRAM_ID.test(program) || !Number.isInteger(course) || course < 1 || course > 9) {
       return send(response, 400, { error: "invalid_catalog_context" });
     }
+    if (rejectInactiveUniversity(response, university)) return;
 
     try {
       const groups = await store.listScheduleGroups({
