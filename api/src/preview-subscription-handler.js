@@ -2,8 +2,10 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { normalizeAcademicYear, scheduleContext } from "./order-context.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const PROGRAMS = new Set(["medicine", "pediatrics", "dentistry", "foreign"]);
-const GROUP_RE = /^\d{3}(?:и)?$/i;
+const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const PROGRAM_ID = /^[a-z][a-z0-9-]{1,31}$/;
+const LEGACY_KGMU_PROGRAMS = new Set(["medicine", "pediatrics", "dentistry", "foreign"]);
+const LEGACY_KGMU_GROUP_RE = /^\d{3}(?:и)?$/i;
 
 function send(response, status, body) {
   response.writeHead(status, {
@@ -59,6 +61,59 @@ function applyCors(request, response, config) {
   response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token");
 }
 
+function normalizedGroupCode(value, university) {
+  const groupCode = String(value || "").trim();
+  return university === "kgmu" ? groupCode.replace(/i$/i, "и") : groupCode;
+}
+
+function requestedContext(input) {
+  const university = String(input.university || "kgmu").trim();
+  const program = String(input.program || "").trim();
+  const course = Number(input.course);
+  const groupCode = normalizedGroupCode(input.groupCode || input.group, university);
+  const stream = typeof input.stream === "string" && input.stream.trim() ? input.stream.trim() : null;
+  const academicYear = normalizeAcademicYear(input.academicYear);
+  const semester = Number(input.semester);
+  const explicitGroupId = typeof input.groupId === "string" && input.groupId.trim() ? input.groupId.trim() : null;
+
+  if (
+    !UNIVERSITY_ID.test(university) ||
+    !PROGRAM_ID.test(program) ||
+    !Number.isInteger(course) || course < 1 || course > 9 ||
+    !groupCode || groupCode.length > 128 ||
+    !academicYear ||
+    ![1, 2].includes(semester)
+  ) return null;
+
+  if (university === "kgmu" && !explicitGroupId) {
+    if (!LEGACY_KGMU_PROGRAMS.has(program) || course > 6 || !LEGACY_KGMU_GROUP_RE.test(groupCode)) return null;
+    return {
+      university,
+      program,
+      course,
+      stream: null,
+      groupCode,
+      groupId: `kgmu:${program}:${course}:${groupCode}`,
+      academicYear,
+      semester,
+    };
+  }
+
+  if (!explicitGroupId || explicitGroupId.length > 256) return null;
+  return { university, program, course, stream, groupCode, groupId: explicitGroupId, academicYear, semester };
+}
+
+function exactScheduleMatch(actual, requested) {
+  return actual.university === requested.university &&
+    actual.program === requested.program &&
+    actual.course === requested.course &&
+    actual.stream === requested.stream &&
+    actual.groupCode === requested.groupCode &&
+    actual.groupId === requested.groupId &&
+    normalizeAcademicYear(actual.academicYear) === requested.academicYear &&
+    Number(actual.semester) === requested.semester;
+}
+
 export function createPreviewSubscriptionHandler({ store, config }) {
   return async function previewSubscriptionHandler(request, response) {
     applyCors(request, response, config);
@@ -72,38 +127,18 @@ export function createPreviewSubscriptionHandler({ store, config }) {
 
     try {
       const input = await readJson(request);
-      const university = String(input.university || "kgmu").trim();
-      const program = String(input.program || "").trim();
-      const course = Number(input.course);
-      const groupCode = String(input.groupCode || input.group || "").trim().replace(/i$/i, "и");
-      const academicYear = normalizeAcademicYear(input.academicYear);
-      const semester = Number(input.semester);
+      const requested = requestedContext(input);
       const days = Math.min(30, Math.max(1, Number(input.days || 7)));
+      if (!requested) return send(response, 400, { error: "invalid_preview_context" });
 
-      if (
-        university !== "kgmu" ||
-        !PROGRAMS.has(program) ||
-        !Number.isInteger(course) || course < 1 || course > 6 ||
-        !GROUP_RE.test(groupCode) ||
-        !academicYear ||
-        ![1, 2].includes(semester)
-      ) {
-        return send(response, 400, { error: "invalid_preview_context" });
-      }
-
-      const groupId = `kgmu:${program}:${course}:${groupCode}`;
-      const schedule = await store.getSchedule({
-        university,
-        program,
-        course,
-        groupId,
-        groupCode,
-        academicYear,
-        semester,
-      });
+      const schedule = await store.getSchedule(requested);
       if (!schedule) return send(response, 404, { error: "schedule_not_published" });
 
-      const context = scheduleContext(schedule);
+      const context = scheduleContext(schedule, requested.university);
+      if (!exactScheduleMatch(context, requested)) {
+        return send(response, 409, { error: "preview_context_mismatch" });
+      }
+
       const baseUrl = publicApiBaseUrl(config);
       if (!baseUrl) return send(response, 503, { error: "public_api_not_configured" });
 
@@ -126,7 +161,9 @@ export function createPreviewSubscriptionHandler({ store, config }) {
         university: context.university,
         program: context.program,
         course: context.course,
+        stream: context.stream,
         groupCode: context.groupCode,
+        groupId: context.groupId,
         academicYear: context.academicYear,
         semester: context.semester,
         expiresAt,
