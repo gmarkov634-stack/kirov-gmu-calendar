@@ -1,0 +1,221 @@
+function norm(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeHyphenClockRange(value) {
+  const text = norm(value);
+  const match = text.match(/^(\d{1,2})-(\d{2})-(\d{1,2})-(\d{2})$/);
+  if (!match) return null;
+  const startHour = Number(match[1]);
+  const startMinute = Number(match[2]);
+  const endHour = Number(match[3]);
+  const endMinute = Number(match[4]);
+  if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) return null;
+  const startTotal = startHour * 60 + startMinute;
+  const endTotal = endHour * 60 + endMinute;
+  if (endTotal <= startTotal) return null;
+  return `${String(startHour).padStart(2, '0')}.${String(startMinute).padStart(2, '0')}-${String(endHour).padStart(2, '0')}.${String(endMinute).padStart(2, '0')}`;
+}
+
+function isAssessmentSummary(value) {
+  return /^зач[её]ты\s*:/i.test(norm(value));
+}
+
+function isMedicine2Stream1PhysicalEducationDuplicateDate(sheet) {
+  const byRef = new Map((sheet.cells || []).map((cell) => [String(cell.ref || '').toUpperCase(), cell]));
+  const discipline = byRef.get('C8');
+  const firstNine = byRef.get('G8');
+  const secondNine = byRef.get('H8');
+  return /^физвоспитание$/i.test(norm(discipline?.value))
+    && norm(firstNine?.value) === '9'
+    && norm(secondNine?.value) === '9';
+}
+
+export function normalizeIzhgmuMedicine2LectureStructure(lectureStructure) {
+  if (!lectureStructure?.sheets) throw new TypeError('IzhGMU lecture structure is required');
+  return {
+    ...lectureStructure,
+    sheets: lectureStructure.sheets.map((sheet) => {
+      if (!isMedicine2Stream1PhysicalEducationDuplicateDate(sheet)) return sheet;
+      return {
+        ...sheet,
+        cells: sheet.cells.map((cell) => {
+          if (String(cell.ref || '').toUpperCase() !== 'H8') return cell;
+          return {
+            ...cell,
+            value: 16,
+            sourceNormalization: {
+              kind: 'izh_medicine2_stream1_physical_education_duplicate_date_correction',
+              raw: cell.value,
+              corrected: 16,
+              ruleId: 'IZH-M2-04',
+              rationale: 'user_verified_second_09_february_is_typo; corrected_to_16_matching_adjacent_row_and_weekly_sequence',
+            },
+          };
+        }),
+      };
+    }),
+  };
+}
+
+export function normalizeIzhgmuMedicine2ClassStructure(classStructure) {
+  if (!classStructure?.sheets) throw new TypeError('IzhGMU class structure is required');
+  return {
+    ...classStructure,
+    sheets: classStructure.sheets.map((sheet) => ({
+      ...sheet,
+      cells: sheet.cells.map((cell) => {
+        if (cell.col !== 2) return cell;
+        const normalized = normalizeHyphenClockRange(cell.value);
+        if (!normalized) return cell;
+        return {
+          ...cell,
+          value: normalized,
+          sourceNormalization: {
+            kind: 'izh_medicine2_hyphen_clock_range',
+            raw: cell.value,
+            corrected: normalized,
+            ruleId: 'IZH-M2-01',
+          },
+        };
+      }),
+    })),
+  };
+}
+
+export function normalizeIzhgmuMedicine2CompanionForWeekly(lectureStructure) {
+  const normalized = normalizeIzhgmuMedicine2LectureStructure(lectureStructure);
+  if (normalized.sheets.some((sheet) => sheet.name.toLowerCase().includes('расписание'))) return normalized;
+  if (normalized.sheets.length !== 1) return normalized;
+  return {
+    ...normalized,
+    sheets: [{
+      ...normalized.sheets[0],
+      name: `расписание (${normalized.sheets[0].name})`,
+      sourceNormalization: {
+        kind: 'izh_medicine2_sole_sheet_companion_alias',
+        rawName: normalized.sheets[0].name,
+      },
+    }],
+  };
+}
+
+function stripWarning(item, warning) {
+  const warnings = (item.warnings || []).filter((value) => value !== warning);
+  const next = { ...item, warnings };
+  if (next.warning === warning) next.warning = warnings[0] || null;
+  if (!warnings.length && next.status === 'needs_review') next.status = 'ok';
+  return next;
+}
+
+function resolveDeclaredCountRow(item) {
+  if (item?.warning !== 'declared_lecture_count_scope_ambiguous') return item;
+  if (!Number.isInteger(item.declaredCount) || !Array.isArray(item.dates)) return item;
+  if (item.declaredCount !== item.dates.length) return {
+    ...item,
+    warning: 'declared_lecture_count_mismatch',
+    warnings: [...new Set((item.warnings || []).map((value) => (
+      value === 'declared_lecture_count_scope_ambiguous' ? 'declared_lecture_count_mismatch' : value
+    )))],
+    declaredCountScope: 'row',
+    ruleIds: [...new Set([...(item.ruleIds || []), 'IZH-M2-03'])],
+  };
+  const resolved = stripWarning(item, 'declared_lecture_count_scope_ambiguous');
+  return {
+    ...resolved,
+    declaredCountScope: 'row',
+    ruleIds: [...new Set([...(resolved.ruleIds || []), 'IZH-M2-03'])],
+  };
+}
+
+function normalizationRulesByReference(structures) {
+  const result = new Map();
+  for (const structure of structures.filter(Boolean)) {
+    for (const sheet of structure.sheets || []) {
+      for (const cell of sheet.cells || []) {
+        const ruleId = norm(cell.sourceNormalization?.ruleId);
+        if (!ruleId) continue;
+        result.set(`${sheet.name}!${cell.ref}`, ruleId);
+      }
+    }
+  }
+  return result;
+}
+
+function attachNormalizationRules(item, rulesByReference) {
+  const inherited = [];
+  for (const reference of item.references || []) {
+    const ruleId = rulesByReference.get(reference.range);
+    if (ruleId) inherited.push(ruleId);
+  }
+  if (!inherited.length) return item;
+  return {
+    ...item,
+    ruleIds: [...new Set([...(item.ruleIds || []), ...inherited])],
+  };
+}
+
+export function normalizeIzhgmuMedicine2Combined(combined, context = {}) {
+  if (combined?.profile !== 'IZH-WEEKLY+LECTURE') throw new TypeError('IZH-WEEKLY+LECTURE result is required');
+
+  const rulesByReference = normalizationRulesByReference([
+    context.classStructure,
+    context.lectureStructure,
+  ]);
+  const annotations = [];
+  const promoted = [];
+  const reviewRequired = [];
+  for (const sourceItem of combined.reviewRequired || []) {
+    if (sourceItem.warning === 'stream_wide_class_block_unmapped'
+      && isAssessmentSummary(sourceItem.discipline || sourceItem.rawSource)
+      && !sourceItem.weekday && !sourceItem.startTime && !sourceItem.endTime) {
+      annotations.push({
+        kind: 'assessment_summary',
+        value: sourceItem.rawSource || sourceItem.discipline,
+        references: sourceItem.references || [],
+        ruleIds: [...new Set([...(sourceItem.ruleIds || []), 'IZH-M2-02'])],
+      });
+      continue;
+    }
+    const item = attachNormalizationRules(resolveDeclaredCountRow(sourceItem), rulesByReference);
+    if (item.status === 'ok' && !item.warning && !(item.warnings || []).length) promoted.push(item);
+    else reviewRequired.push(item);
+  }
+
+  const deferred = (combined.deferred || []).filter((item) => !(
+    item.reason === 'stream_wide_class_block_unmapped'
+    && isAssessmentSummary(item.value || item.rawSource)
+    && !item.weekday && !item.startTime && !item.endTime
+  ));
+
+  const series = [...(combined.series || []), ...promoted]
+    .map(resolveDeclaredCountRow)
+    .map((item) => attachNormalizationRules(item, rulesByReference));
+  const sourceCoverage = combined.sourceCoverage ? {
+    ...combined.sourceCoverage,
+    unmapped: (combined.sourceCoverage.unmapped || []).filter((item) => !(
+      isAssessmentSummary(item.value)
+      && !item.weekday && !item.startTime && !item.endTime
+    )),
+  } : combined.sourceCoverage;
+
+  return {
+    ...combined,
+    series,
+    reviewRequired,
+    deferred,
+    sourceCoverage,
+    informationalAnnotations: [...(combined.informationalAnnotations || []), ...annotations],
+    publishable: reviewRequired.length === 0
+      && (combined.unresolvedChoices || []).length === 0
+      && deferred.length === 0,
+  };
+}
+
+export const __medicine2NormalizationTest = {
+  normalizeHyphenClockRange,
+  isAssessmentSummary,
+  isMedicine2Stream1PhysicalEducationDuplicateDate,
+  normalizationRulesByReference,
+  attachNormalizationRules,
+};

@@ -33,9 +33,12 @@ test("registry contains isolated university configurations", () => {
   assert.equal(izhgmu.shortName, "ИжГМУ");
   assert.equal(izhgmu.timezone, "Europe/Samara");
   assert.equal(izhgmu.timeMode, "floating");
-  assert.equal(izhgmu.source.kind, "xls");
+  assert.equal(izhgmu.source.kind, "spreadsheet");
+  assert.deepEqual(izhgmu.source.acceptedContainers, ["xlsx", "xls"]);
   assert.equal(izhgmu.source.adapter, "izhgmu");
-  assert.deepEqual(izhgmu.source.versionIdentity, ["source_url", "sha256"]);
+  assert.equal(izhgmu.source.acquisition, "github-actions");
+  assert.equal(izhgmu.source.productionLanguage, "ru");
+  assert.deepEqual(izhgmu.source.versionIdentity, ["source_page", "source_url", "sha256"]);
   assert.equal(izhgmu.sitePath, "/izhgmu/");
   assert.equal(izhgmu.active, false);
 
@@ -63,7 +66,9 @@ test("OMGmu initial commercial parsing scope excludes masters until separately a
 test("IzhGMU starts with medicine as the initial parsing scope", () => {
   const izhgmu = getUniversityConfig("izhgmu");
   const enabled = izhgmu.programs.filter((program) => program.initialScope).map((program) => program.id);
+  const deferred = izhgmu.programs.filter((program) => !program.initialScope).map((program) => program.id);
   assert.deepEqual(enabled, ["medicine"]);
+  assert.deepEqual(deferred, ["pediatrics", "dentistry"]);
 });
 
 test("unknown university fails explicitly", () => {

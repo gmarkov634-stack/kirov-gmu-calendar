@@ -1,0 +1,50 @@
+name: IzhGMU historical regression
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'api/src/adapters/izhgmu/**'
+      - 'api/test/izhgmu-*.test.*'
+      - 'api/test/fixtures/izhgmu-historical-regression.v1.json'
+      - 'api/tools/izhgmu-historical-regression.mjs'
+      - 'api/package.json'
+      - '.github/workflows/izhgmu-historical-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'api/src/adapters/izhgmu/**'
+      - 'api/test/izhgmu-*.test.*'
+      - 'api/test/fixtures/izhgmu-historical-regression.v1.json'
+      - 'api/tools/izhgmu-historical-regression.mjs'
+      - 'api/package.json'
+      - '.github/workflows/izhgmu-historical-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  historical-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install API dependencies
+        working-directory: api
+        run: npm ci
+      - name: Run immutable IzhGMU historical regression
+        working-directory: api
+        run: npm run regression:izhgmu:historical
+      - name: Upload regression report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izhgmu-historical-regression
+          path: api/data/imports/izhgmu-historical-regression-report.json
+          if-no-files-found: error
+          retention-days: 90
