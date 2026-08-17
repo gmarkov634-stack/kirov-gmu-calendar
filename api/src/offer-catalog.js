@@ -1,8 +1,11 @@
 import { listOfferProgramAvailability } from "./offer-availability.js";
+import { offerSku } from "./offer-sku.mjs";
 import {
   catalogContextAllowed,
   filterCatalogAvailability,
   universityCatalogEnabled,
+  universitySalesEnabled,
+  universityTrialsEnabled,
 } from "./university-commerce-policy.mjs";
 
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -36,6 +39,23 @@ function validOfferPeriod(config) {
   return { academicYear, semester };
 }
 
+function tenantState(config, university) {
+  return {
+    commercial: config.commercialSalesEnabled === true && universitySalesEnabled(university) ? "open" : "closed",
+    trials: config.trialsEnabled === true && universityTrialsEnabled(university) ? "open" : "closed",
+  };
+}
+
+function withOfferIdentity(university, item) {
+  return {
+    ...item,
+    offers: {
+      semester: { sku: offerSku({ university, program: item.program }, "semester") },
+      year: { sku: offerSku({ university, program: item.program }, "year") },
+    },
+  };
+}
+
 export function createOfferCatalogHandler({ store, config, listProgramAvailability = listOfferProgramAvailability }) {
   return async function offerCatalogHandler(request, response) {
     allowCors(request, response, config);
@@ -60,11 +80,12 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
           university,
           academicYear: period.academicYear,
           semester: period.semester,
-        }));
+        })).map((item) => withOfferIdentity(university, item));
         return send(response, 200, {
           university,
           academicYear: period.academicYear,
           semester: period.semester,
+          ...tenantState(config, university),
           programs,
         }, "public, max-age=60");
       } catch (error) {
@@ -97,6 +118,7 @@ export function createOfferCatalogHandler({ store, config, listProgramAvailabili
         course,
         academicYear: period.academicYear,
         semester: period.semester,
+        ...tenantState(config, university),
         groups: groups.map(({ groupId, groupCode, displayName, stream }) => ({
           groupId,
           groupCode,
