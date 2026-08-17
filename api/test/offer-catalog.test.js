@@ -89,6 +89,41 @@ test("offer catalog exposes one server-scoped program availability summary", () 
   });
 });
 
+test("public offer metadata is server-owned and university-scoped", () => withServer(
+  createOfferCatalogHandler({
+    config: {
+      allowedOrigin: "https://example.test",
+      offerAcademicYear: "2026/27",
+      offerSemester: 1,
+      commercialSalesEnabled: false,
+      yookassaTestMode: true,
+      offers: {
+        semester: { price: "490.00" },
+        year: { price: "790.00", expiresAt: "2027-08-31T23:59:59+06:00" },
+      },
+    },
+    store: {},
+  }),
+  async (base) => {
+    const response = await fetch(`${base}/api/v2/catalog/omgmu/offer`, {
+      headers: { Origin: "https://example.test" },
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.deepEqual(await response.json(), {
+      university: "omgmu",
+      academicYear: "2026/27",
+      semester: 1,
+      sales: "closed",
+      paymentMode: "test",
+      plans: [
+        { id: "semester", price: "490.00" },
+        { id: "year", price: "790.00", expiresAt: "2027-08-31T23:59:59+06:00" },
+      ],
+    });
+  },
+));
+
 test("offer catalog rejects invalid course context", () => withServer(
   createOfferCatalogHandler({
     config: { offerAcademicYear: "2026/27", offerSemester: 1 },
