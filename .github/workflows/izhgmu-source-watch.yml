@@ -105,5 +105,5 @@ jobs:
           PY
           gh issue create --title "IzhGMU: review current 2026/2027 autumn source set ${DIGEST:0:12}" --body-file /tmp/issue.md
 
-# Safety boundary: this workflow never calls schedule-review/control, never writes
+# Safety boundary: this workflow never calls a publication endpoint, never writes
 # current schedules, and never changes catalog/commercial/trial/sales gates.
