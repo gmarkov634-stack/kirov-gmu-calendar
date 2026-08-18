@@ -61,6 +61,8 @@ const vkWallHandler = createVkWallHandler(process.env, { tokenManager: vkTokenMa
 const vkControlHandler = createVkControlHandler(process.env, { tokenManager: vkTokenManager });
 const omgmuVkControlEnv = createVkControlTenantEnv(process.env, "OMGMU");
 const omgmuVkControlHandler = createVkControlHandler(omgmuVkControlEnv);
+const izhgmuVkControlEnv = createVkControlTenantEnv(process.env, "IZHGMU");
+const izhgmuVkControlHandler = createVkControlHandler(izhgmuVkControlEnv);
 const vkOauthCallbackHandler = createVkOauthCallbackHandler(process.env, { tokenManager: vkTokenManager });
 const vkOauthStartHandler = createVkOauthStartHandler();
 const izhgmuSourceProbeHandler = createIzhgmuSourceProbeHandler();
@@ -131,6 +133,9 @@ const server = http.createServer(async (request, response) => {
   }
   if (url.pathname === "/api/v1/vk/omgmu/control") {
     return omgmuVkControlHandler(request, response);
+  }
+  if (url.pathname === "/api/v1/vk/izhgmu/control") {
+    return izhgmuVkControlHandler(request, response);
   }
   if (url.pathname === "/api/v1/schedule-review/control") {
     return scheduleReviewControlHandler(request, response);
