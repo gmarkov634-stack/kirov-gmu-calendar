@@ -1,8 +1,6 @@
 {
-  "id": "izhgmu-group-edit-website-20260818-2248",
-  "action": "group.edit",
-  "createdAt": "2026-08-18T19:48:00Z",
-  "payload": {
-    "website": "https://gmarkov634-stack.github.io/kirov-gmu-calendar/izhgmu/"
-  }
+  "id": "izhgmu-group-info-after-website-20260818-2250",
+  "action": "group.info",
+  "createdAt": "2026-08-18T19:50:00Z",
+  "payload": {}
 }
