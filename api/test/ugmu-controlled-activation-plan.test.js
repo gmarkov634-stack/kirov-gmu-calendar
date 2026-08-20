@@ -34,9 +34,12 @@ test("launch target opens only paid UGMU checkout while public ICS and trials st
   assert.equal(plan.launchTarget.paymentMode, "live");
 });
 
-test("plan blocks activation until schedules, tenant isolation, live landing and live YooKassa are ready", () => {
+test("plan records storage staging as complete and leaves three real preactivation boundaries", () => {
+  assert.equal(blocker("stage-first-stream-production-schedules")?.state, "completed");
+  assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951498/);
+  assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951401/);
+
   for (const id of [
-    "stage-first-stream-production-schedules",
     "isolate-global-sales-gate",
     "wire-live-ugmu-landing",
     "validate-live-yookassa-mode",
@@ -44,13 +47,19 @@ test("plan blocks activation until schedules, tenant isolation, live landing and
     assert.equal(blocker(id)?.state, "required", `${id} must remain required`);
     assert.ok(blocker(id)?.completion, `${id} must define completion criteria`);
   }
-  assert.equal(plan.nextRequiredBoundary, "preactivation-schedule-staging");
+  assert.equal(plan.nextRequiredBoundary, "fail-closed-commercial-isolation-deploy");
+});
+
+test("backend activation uses the dedicated UGMU gate rather than opening the legacy global gate", () => {
+  const phase = plan.phases.find((item) => item.id === "activate-backend-ugmu-checkout");
+  assert.ok(phase.mutations.some((item) => item.includes("UGMU_SALES_ENABLED false -> true")));
+  assert.equal(phase.mutations.some((item) => item.includes("global commercial sales gate -> open")), false);
 });
 
 test("rollback closes access first and keeps staged schedules inert instead of deleting data", () => {
   assert.equal(plan.rollback.strategy, "close-access-first-keep-data-inert");
   assert.equal(plan.rollback.dataDeletionRequired, false);
-  assert.ok(plan.rollback.order[0].includes("checkoutEnabled=false"));
+  assert.ok(plan.rollback.order[0].includes("UGMU_SALES_ENABLED=false"));
   assert.ok(plan.rollback.order.some((step) => step.includes("Keep already staged schedule objects")));
   assert.ok(plan.rollback.subscriptionSafety.includes("must not be deleted"));
 });
