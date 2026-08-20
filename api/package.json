@@ -36,6 +36,7 @@
     "readiness:ugmu": "node tools/ugmu-launch-readiness.mjs",
     "readiness:ugmu:final": "node tools/ugmu-final-launch-readiness.mjs",
     "plan:ugmu:activation": "node tools/ugmu-controlled-activation-plan.mjs",
+    "gate:ugmu:sales-isolation": "node tools/ugmu-sales-isolation-gate.mjs",
     "dry-run:ugmu:production-stage": "node tools/ugmu-first-stream-production-dry-run.mjs",
     "stage:ugmu:production-storage": "node tools/ugmu-production-storage-stage.mjs",
     "e2e:ugmu:payment": "node tools/ugmu-payment-e2e.mjs",
