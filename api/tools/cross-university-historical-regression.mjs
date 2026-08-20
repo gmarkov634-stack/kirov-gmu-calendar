@@ -49,6 +49,17 @@ function runNode(relativeScript, extraEnv = {}) {
   };
 }
 
+export function runWithRetry(run, attempts = 3) {
+  const limit = Math.max(1, Number(attempts) || 1);
+  let last = null;
+  for (let attempt = 1; attempt <= limit; attempt += 1) {
+    const result = run(attempt);
+    last = { ...result, attempts: attempt };
+    if (result?.status === 0) return last;
+  }
+  return last;
+}
+
 function parseJsonObject(text) {
   const source = String(text || "").trim();
   const start = source.indexOf("{");
@@ -136,6 +147,7 @@ function kgmuSummary(processResult) {
     actual: payload,
     checks,
     passed: Object.values(checks).every(Boolean),
+    attempts: processResult.attempts || 1,
     exitCode: processResult.status,
     error: processResult.error,
   };
@@ -191,7 +203,10 @@ export async function runCrossUniversityHistoricalRegression() {
   await fs.mkdir(path.dirname(reportPath), { recursive: true });
   await fs.mkdir(path.dirname(omgmuReportPath), { recursive: true });
 
-  const kgmuProcess = runNode("tools/kgmu-verify-mixed.mjs");
+  // KGMU is the only incumbent regression that intentionally reads a pinned
+  // historical source over the network. Retry transport failures without
+  // changing any baseline/digest assertion; all attempts failing is still FAIL.
+  const kgmuProcess = runWithRetry(() => runNode("tools/kgmu-verify-mixed.mjs"), 3);
   const omgmuProcess = runNode("tools/omgmu-historical-regression.mjs", {
     OMGMU_HISTORICAL_REPORT: path.relative(apiRoot, omgmuReportPath),
   });
@@ -216,7 +231,7 @@ export async function runCrossUniversityHistoricalRegression() {
   await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
   console.log(`Cross-university historical regression: ${report.status}`);
-  console.log(`KGMU=${kgmu.passed ? "PASS" : "FAIL"}; OmGMU=${omgmu.passed ? "PASS" : "FAIL"}; IzhGMU=${izhgmu.passed ? "PASS" : "FAIL"}; UGMU fail-closed=${ugmuBoundary.passed ? "PASS" : "FAIL"}`);
+  console.log(`KGMU=${kgmu.passed ? "PASS" : "FAIL"} (${kgmu.attempts} attempt${kgmu.attempts === 1 ? "" : "s"}); OmGMU=${omgmu.passed ? "PASS" : "FAIL"}; IzhGMU=${izhgmu.passed ? "PASS" : "FAIL"}; UGMU fail-closed=${ugmuBoundary.passed ? "PASS" : "FAIL"}`);
   console.log(`Report: ${reportPath}`);
   if (!report.allPassed) process.exitCode = 1;
   return report;
