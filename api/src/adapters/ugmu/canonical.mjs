@@ -1,3 +1,5 @@
+const FIRST_STREAM_GROUPS = new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`));
+
 function emptyDerived() {
   return {
     academic_week: null,
@@ -71,12 +73,13 @@ function sourceNote(rawEvent) {
   return notes.length ? notes.join("; ") : null;
 }
 
-function parserRules(rawEvent) {
+function parserRules(rawEvent, rawSchedule) {
   const rules = [
     "UGMU-WEEKLY-GRID-V1",
     "UGMU-I-II-WEEK-ANCHORS",
     "UGMU-REFERENCE-TABLE-NORMALIZATION",
   ];
+  if (rawSchedule.sourceReview?.scope === "first-stream") rules.push("UGMU-FIRST-STREAM-MERGED-CELL-GEOMETRY");
   if (rawEvent.lessonType === "lecture") rules.push("UGMU-LECTURE-L-PREFIX");
   if (rawEvent.location === "Онлайн") rules.push("UGMU-LECTURES-ONLINE");
   if (rawEvent.locationNote) rules.push("UGMU-NO-FABRICATED-ADDRESS");
@@ -148,7 +151,7 @@ function canonicalEvent(rawEvent, rawSchedule, source) {
     },
     parse: {
       status: "ok",
-      rule_ids: parserRules(rawEvent),
+      rule_ids: parserRules(rawEvent, rawSchedule),
       warnings: [],
     },
     derived: emptyDerived(),
@@ -160,25 +163,23 @@ function canonicalEvent(rawEvent, rawSchedule, source) {
   };
 }
 
-export function canonicalizeUgmuWeeklyPilot(rawSchedule) {
-  if (!rawSchedule || rawSchedule.university !== "ugmu") throw new Error("Invalid UGMU pilot schedule");
-  if (rawSchedule.group?.code !== "ОЛД 101") throw new Error("UGMU canonical pilot is fail-closed to ОЛД 101");
+function requireCommonBoundary(rawSchedule) {
+  if (!rawSchedule || rawSchedule.university !== "ugmu") throw new Error("Invalid UGMU weekly-grid schedule");
   if (rawSchedule.course !== 1 || String(rawSchedule.stream) !== "1") {
-    throw new Error("UGMU canonical pilot requires course 1, stream 1");
-  }
-  if (rawSchedule.sourceReview?.status !== "semantic-reviewed-pilot") {
-    throw new Error("UGMU source must pass semantic review before canonicalization");
+    throw new Error("UGMU weekly-grid scope requires course 1, stream 1");
   }
   if (rawSchedule.sourceReview?.publicationAllowed !== false) {
-    throw new Error("UGMU pilot source boundary must remain fail-closed");
+    throw new Error("UGMU source boundary must remain fail-closed");
   }
   if (!Array.isArray(rawSchedule.events) || !rawSchedule.events.length) {
-    throw new Error("UGMU pilot contains no events");
+    throw new Error("UGMU weekly-grid schedule contains no events");
   }
-
   const source = rawSchedule.sources?.[0];
-  if (!source?.url || !source?.sha256) throw new Error("UGMU pilot requires exact source URL and SHA-256");
+  if (!source?.url || !source?.sha256) throw new Error("UGMU weekly-grid schedule requires exact source URL and SHA-256");
+  return source;
+}
 
+function buildCanonical(rawSchedule, source, parserName) {
   return {
     schema_version: "1.0",
     schedule: {
@@ -195,8 +196,30 @@ export function canonicalizeUgmuWeeklyPilot(rawSchedule) {
       },
       source_files: [source.url],
       generated_at: null,
-      parser: "ugmu-weekly-grid/pilot-v1",
+      parser: parserName,
     },
     events: rawSchedule.events.map((event) => canonicalEvent(event, rawSchedule, source)),
   };
 }
+
+export function canonicalizeUgmuWeeklyPilot(rawSchedule) {
+  const source = requireCommonBoundary(rawSchedule);
+  if (rawSchedule.group?.code !== "ОЛД 101") throw new Error("UGMU canonical pilot is fail-closed to ОЛД 101");
+  if (rawSchedule.sourceReview?.status !== "semantic-reviewed-pilot") {
+    throw new Error("UGMU pilot source must pass pilot semantic review before canonicalization");
+  }
+  return buildCanonical(rawSchedule, source, "ugmu-weekly-grid/pilot-v1");
+}
+
+export function canonicalizeUgmuWeeklyFirstStream(rawSchedule) {
+  const source = requireCommonBoundary(rawSchedule);
+  if (!FIRST_STREAM_GROUPS.has(rawSchedule.group?.code)) {
+    throw new Error("UGMU first-stream canonicalization is fail-closed to ОЛД 101–112");
+  }
+  if (rawSchedule.sourceReview?.status !== "semantic-reviewed-first-stream") {
+    throw new Error("UGMU first-stream source must pass first-stream semantic review before canonicalization");
+  }
+  return buildCanonical(rawSchedule, source, "ugmu-weekly-grid/first-stream-v1");
+}
+
+export { FIRST_STREAM_GROUPS };
