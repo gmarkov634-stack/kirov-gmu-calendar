@@ -1,0 +1,156 @@
+name: UGMU source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 * * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/**"
+      - "api/tools/ugmu-*.mjs"
+      - "api/test/ugmu-*.test.js"
+      - "api/package.json"
+      - "universities/ugmu/source-watch.json"
+      - ".github/workflows/ugmu-source-watch.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test UGMU source discovery and watcher boundary
+        run: >-
+          node --test
+          test/ugmu-source-registry.test.js
+          test/ugmu-discover.test.js
+          test/ugmu-download.test.js
+          test/ugmu-source-watch.test.js
+
+      - name: Discover official UGMU medicine sources
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-source-manifest.json
+
+      - name: Capture official autumn PDFs and SHA-256
+        run: >-
+          npm run download:ugmu --
+          --manifest=data/imports/ugmu-source-manifest.json
+          --semester=autumn
+          --output=data/imports/ugmu-watched-pdfs
+
+      - name: Build fail-closed watch report
+        id: watch
+        run: |
+          set -euo pipefail
+          npm run watch:ugmu -- \
+            --manifest=data/imports/ugmu-source-manifest.json \
+            --download=data/imports/ugmu-watched-pdfs/download-report.json \
+            --config=../universities/ugmu/source-watch.json \
+            --output=data/imports/ugmu-source-watch-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/ugmu-source-watch-report.json', 'utf8'));
+          console.log(`candidate_count=${report.candidateCount}`);
+          console.log(`review_required=${report.candidateCount > 0 ? 'true' : 'false'}`);
+          NODE
+
+      - name: Create deduplicated source-bound review issues
+        if: steps.watch.outputs.review_required == 'true' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-source-watch-report.json'
+          while IFS= read -r item; do
+            sha="$(jq -r '.sha256' <<<"$item")"
+            short="${sha:0:12}"
+            course="$(jq -r '.course // "unknown"' <<<"$item")"
+            stream="$(jq -r '.stream // "—"' <<<"$item")"
+            part="$(jq -r '.part // "combined"' <<<"$item")"
+            label="$(jq -r '.label // "—"' <<<"$item")"
+            url="$(jq -r '.url' <<<"$item")"
+            filename="$(jq -r '.filename' <<<"$item")"
+            existing="$(gh issue list --state all --limit 100 --search "UGMU-SOURCE-$short in:title" --json number --jq 'length')"
+            if [ "$existing" -gt 0 ]; then
+              echo "Known UGMU PDF SHA: $sha"
+              continue
+            fi
+            title="UGMU-SOURCE-$short: новое/измененное расписание, ${course} курс"
+            body="$(cat <<EOF
+          Обнаружена ранее не зарегистрированная SHA-256 версия официального PDF УГМУ.
+
+          - Program: medicine
+          - Expected period: 2026/2027, autumn
+          - Course: $course
+          - Stream: $stream
+          - Part: $part
+          - Source label: $label
+          - SHA-256: $sha
+          - Official URL: $url
+          - Artifact file: $filename
+          - Watch run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Это только source-bound задача. Watcher **не интерпретировал расписание и не публиковал события**.
+
+          Следующий этап: semantic review точного PDF/SHA. Нужно подтвердить учебный год/семестр, группы, структуру таблицы и parser shape. Только после QA-approved canonical schedule-batch допускаются последующие publication gates.
+          EOF
+          )"
+            gh issue create --title "$title" --body "$body"
+          done < <(jq -c '.candidates[]' "$report")
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const reportPath = 'data/imports/ugmu-source-watch-report.json';
+          console.log('## UGMU source watch');
+          console.log('');
+          if (!fs.existsSync(reportPath)) {
+            console.log('Watch report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          console.log(`Expected period: **${report.expectedAcademicYear || 'semantic review'} / ${report.expectedSemester}**`);
+          console.log(`Candidates captured: **${report.candidateCount}**`);
+          console.log(`Download failures: **${report.failedCount}**`);
+          console.log(`Unresolved metadata: **${report.unresolvedCount}**`);
+          console.log(`Status: **${report.status}**`);
+          console.log(`Publication allowed: **${report.publicationAllowed ? 'yes' : 'no'}**`);
+          console.log('');
+          console.log('| Course | Stream | Part | SHA-256 |');
+          console.log('|---:|---|---|---|');
+          for (const item of report.candidates) {
+            console.log(`| ${item.course ?? '—'} | ${item.stream ?? '—'} | ${item.part ?? '—'} | ${(item.sha256 || '').slice(0, 12)} |`);
+          }
+          NODE
+
+      - name: Upload watcher evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-source-watch
+          path: |
+            api/data/imports/ugmu-source-manifest.json
+            api/data/imports/ugmu-source-watch-report.json
+            api/data/imports/ugmu-watched-pdfs
+          if-no-files-found: error
+          retention-days: 30
