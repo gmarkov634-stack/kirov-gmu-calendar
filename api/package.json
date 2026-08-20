@@ -24,7 +24,8 @@
     "readiness:omgmu": "node tools/omgmu-launch-readiness.mjs",
     "regression:izhgmu:historical": "node tools/izhgmu-historical-regression.mjs",
     "collect:izhgmu": "node tools/izhgmu-collect.mjs",
-    "watch:izhgmu:current": "node tools/izhgmu-current-source-watch.mjs"
+    "watch:izhgmu:current": "node tools/izhgmu-current-source-watch.mjs",
+    "discover:ugmu": "node tools/ugmu-discover.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0"
