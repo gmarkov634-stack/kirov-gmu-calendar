@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { canonicalizeUgmuWeeklyPilot } from "../src/adapters/ugmu/canonical.mjs";
+import {
+  canonicalizeUgmuWeeklyFirstStream,
+  canonicalizeUgmuWeeklyPilot,
+} from "../src/adapters/ugmu/canonical.mjs";
 import { postprocessSchedule } from "../src/schedule/postprocess.js";
 import { validatePostprocessedSchedule, validateScheduleBatch } from "../src/schedule/validate.js";
 
@@ -97,5 +100,26 @@ test("UGMU canonical pilot remains fail-closed to OLD 101", () => {
   assert.throws(
     () => canonicalizeUgmuWeeklyPilot({ ...RAW, group: { code: "ОЛД 102" } }),
     /fail-closed to ОЛД 101/,
+  );
+});
+
+test("UGMU first-stream canonicalization accepts reviewed OLD 101-112 only", () => {
+  const firstStreamRaw = {
+    ...RAW,
+    group: { code: "ОЛД 112" },
+    sourceReview: {
+      status: "semantic-reviewed-first-stream",
+      publicationAllowed: false,
+      scope: "first-stream",
+    },
+  };
+  const batch = canonicalizeUgmuWeeklyFirstStream(firstStreamRaw);
+  assert.equal(batch.schedule.group, "ОЛД 112");
+  assert.equal(batch.schedule.parser, "ugmu-weekly-grid/first-stream-v1");
+  assert.ok(batch.events[0].parse.rule_ids.includes("UGMU-FIRST-STREAM-MERGED-CELL-GEOMETRY"));
+
+  assert.throws(
+    () => canonicalizeUgmuWeeklyFirstStream({ ...firstStreamRaw, group: { code: "ОЛД 113" } }),
+    /fail-closed to ОЛД 101–112/,
   );
 });
