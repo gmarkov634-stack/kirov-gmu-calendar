@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "university": "ugmu",
+  "program": "medicine",
+  "expectedAcademicYear": "2026/2027",
+  "expectedSemester": "autumn",
+  "targetCourses": [1, 2, 3, 4, 5, 6],
+  "semanticReviewRequired": true,
+  "autoPublish": false
+}
