@@ -1,0 +1,127 @@
+name: UGMU purchased calendar update E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/yookassa.js"
+      - "api/src/subscription-period.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-purchased-calendar-update-e2e.mjs"
+      - "api/test/ugmu-purchased-calendar-update-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-purchased-calendar-update-e2e.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/yookassa.js"
+      - "api/src/subscription-period.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-purchased-calendar-update-e2e.mjs"
+      - "api/test/ugmu-purchased-calendar-update-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-purchased-calendar-update-e2e.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  purchased-update-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Run UGMU purchased calendar update E2E
+        run: npm run e2e:ugmu:purchased-update
+      - name: Validate update evidence
+        run: |
+          jq -e '
+            .passed == true and
+            .university == "ugmu" and
+            .mode == "isolated-purchased-calendar-update-e2e" and
+            .scope.group == "ОЛД 101" and
+            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .payment.externalRequests == 0 and
+            .payment.paymentsCreated == 1 and
+            .update.checkoutStatus == 201 and
+            .update.webhookStatus == 200 and
+            .update.initialIcsStatus == 200 and
+            .update.updatedIcsStatus == 200 and
+            .update.subscriptionUrlStable == true and
+            .update.targetInitialSequence == 0 and
+            .update.targetUpdatedSequence == 1 and
+            .update.unchangedInitialSequence == 0 and
+            .update.unchangedUpdatedSequence == 0 and
+            .update.initialEventCount == .update.updatedEventCount and
+            .update.publicScheduleStatusAfterUpdate == 404 and
+            .checks.onePaymentOnly == true and
+            .checks.sameSubscriptionUrlAfterUpdate == true and
+            .checks.sameUidAfterUpdate == true and
+            .checks.sequenceAdvancedExactlyOnce == true and
+            .checks.unchangedEventSequenceStable == true and
+            .checks.noDuplicateVevent == true and
+            .checks.changedLocationServedThroughOldSubscription == true and
+            .checks.noProviderCallOnCalendarRefresh == true and
+            .checks.productionRegistryInactive == true and
+            .checks.productionCheckoutFailClosed == true and
+            .checks.productionPublicFailClosed == true and
+            .checks.productionPaidRedirectEmpty == true and
+            .launchAuthority.productionSalesAllowedByThisE2e == false and
+            .launchAuthority.productionPublicationAllowedByThisE2e == false and
+            .launchAuthority.nextRequiredBoundary == "subscription-revoke-e2e"
+          ' data/regression/ugmu-purchased-update-e2e-report.json >/dev/null
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/regression/ugmu-purchased-update-e2e-report.json';
+          console.log('## UGMU purchased calendar update E2E');
+          console.log('');
+          if (!fs.existsSync(file)) {
+            console.log('Update E2E report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${report.passed ? 'PASS' : 'FAIL'}**`);
+          console.log(`Same subscription URL: **${report.update.subscriptionUrlStable ? 'yes' : 'no'}**`);
+          console.log(`Target UID: **${report.update.targetUid}**`);
+          console.log(`Target SEQUENCE: **${report.update.targetInitialSequence} → ${report.update.targetUpdatedSequence}**`);
+          console.log(`Payment POST count: **${report.payment.providerCalls.filter((call) => call.method === 'POST').length}**`);
+          console.log(`Production UGMU checkout/public/site redirect: **closed**`);
+          NODE
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-purchased-calendar-update-e2e
+          path: api/data/regression/ugmu-purchased-update-e2e-report.json
+          if-no-files-found: error
+          retention-days: 90
