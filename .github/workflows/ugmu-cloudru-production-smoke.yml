@@ -37,6 +37,17 @@ jobs:
         with:
           ref: main
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install API dependencies
+        working-directory: api
+        run: npm ci
+
       - name: Verify deploy and UGMU fail-closed contracts
         working-directory: api
         run: |
