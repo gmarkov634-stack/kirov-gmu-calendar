@@ -16,6 +16,14 @@ const UNIVERSITY_POLICIES = Object.freeze({
       Object.freeze({ program: "medicine", courses: Object.freeze([1, 2, 3]) }),
     ]),
   }),
+  ugmu: Object.freeze({
+    // Preactivation storage may contain QA-approved schedule objects while the
+    // university remains completely hidden from the public offer catalog.
+    catalogEnabled: false,
+    salesEnabled: false,
+    trialsEnabled: false,
+    scopes: null,
+  }),
 });
 
 function normalizedUniversity(value) {
