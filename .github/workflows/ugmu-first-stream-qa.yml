@@ -8,8 +8,10 @@ on:
       - "api/tools/ugmu-parse-weekly-pdf.py"
       - "api/tools/ugmu-parse-first-stream-pdf.py"
       - "api/tools/ugmu-first-stream-qa.mjs"
+      - "api/tools/ugmu-first-stream-versioning-regression.mjs"
       - "api/tools/requirements-ugmu.txt"
       - "api/test/ugmu-canonical-pilot.test.js"
+      - "api/test/fixtures/ugmu/**"
       - "api/package.json"
       - ".github/workflows/ugmu-first-stream-qa.yml"
 
@@ -19,7 +21,7 @@ permissions:
 jobs:
   first-stream:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: api
@@ -48,6 +50,7 @@ jobs:
         run: |
           python3 tools/ugmu-parse-first-stream-pdf.py --self-test
           node --test test/ugmu-canonical-pilot.test.js
+          node --check tools/ugmu-first-stream-versioning-regression.mjs
 
       - name: Discover and capture exact official PDF
         run: |
@@ -106,19 +109,48 @@ jobs:
             ([.groups[] | select((.group == "ОЛД 111" or .group == "ОЛД 112") and .semanticDecisions != 1)] | length) == 0
           ' "$report" >/dev/null
 
+      - name: Verify fixtures and stable UID SEQUENCE for OLD 101-112
+        run: |
+          set -euo pipefail
+          npm run regression:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --fixture=test/fixtures/ugmu/first-stream-2026-autumn.json \
+            --output=data/imports/ugmu-first-stream/regression/first-stream-regression.json
+          report='data/imports/ugmu-first-stream/regression/first-stream-regression.json'
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .totals.groups == 12 and
+            .totals.events == 4286 and
+            .totals.fixtureControls == 36 and
+            .totals.specialControls == 3 and
+            .totals.exactUnchanged == 4286 and
+            .totals.simulatedChanged == 12 and
+            .totals.simulatedUnchanged == 4274 and
+            .totals.stableUidGroups == 12 and
+            .totals.sequenceAdvancedGroups == 12 and
+            ([.groups[] | select(.passed != true)] | length) == 0 and
+            ([.groups[] | select(.exactReimport.scheduleVersionStable != true)] | length) == 0 and
+            ([.groups[] | select(.simulatedChange.eventIdStable != true)] | length) == 0 and
+            ([.groups[] | select(.simulatedChange.revisionV1 != 1 or .simulatedChange.revisionV2 != 2)] | length) == 0 and
+            ([.groups[] | select(.simulatedChange.sequenceV1 != "0" or .simulatedChange.sequenceV2 != "1")] | length) == 0
+          ' "$report" >/dev/null
+
       - name: Write summary
         if: always()
         run: |
           node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
           const fs = require('fs');
-          const file = 'data/imports/ugmu-first-stream/qa/first-stream-qa.json';
+          const qaFile = 'data/imports/ugmu-first-stream/qa/first-stream-qa.json';
+          const regressionFile = 'data/imports/ugmu-first-stream/regression/first-stream-regression.json';
           console.log('## UGMU first-stream QA');
           console.log('');
-          if (!fs.existsSync(file)) {
+          if (!fs.existsSync(qaFile)) {
             console.log('QA report not generated.');
             process.exit(0);
           }
-          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const report = JSON.parse(fs.readFileSync(qaFile, 'utf8'));
           console.log(`QA-approved groups: **${report.groups.filter((item) => item.approved).length}/12**`);
           console.log(`Events: **${report.totals.events}**; lecture events: **${report.totals.lectures}**`);
           console.log(`Source SHA-256: \`${report.sourceSha256}\``);
@@ -128,6 +160,16 @@ jobs:
           console.log('|---|---:|---:|---:|---:|---:|---|');
           for (const item of report.groups) {
             console.log(`| ${item.group} | ${item.patterns} | ${item.events} | ${item.importWarnings} | ${item.sourceOverlaps} | ${item.semanticDecisions} | ${item.approved ? 'PASS' : 'FAIL'} |`);
+          }
+          if (fs.existsSync(regressionFile)) {
+            const regression = JSON.parse(fs.readFileSync(regressionFile, 'utf8'));
+            console.log('');
+            console.log('### First-stream regression');
+            console.log(`Fixture controls: **${regression.totals.fixtureControls} + ${regression.totals.specialControls} special**`);
+            console.log(`Exact re-import unchanged: **${regression.totals.exactUnchanged}/${regression.totals.events}**`);
+            console.log(`Synthetic corrections: **${regression.totals.simulatedChanged} changed**, **${regression.totals.simulatedUnchanged} unchanged**`);
+            console.log(`Stable UID: **${regression.totals.stableUidGroups}/12**; SEQUENCE 0→1: **${regression.totals.sequenceAdvancedGroups}/12**`);
+            console.log(`Regression: **${regression.passed ? 'PASS' : 'FAIL'}**`);
           }
           NODE
 
@@ -141,5 +183,6 @@ jobs:
             api/data/imports/ugmu-first-stream/watched-pdfs/download-report.json
             api/data/imports/ugmu-first-stream/raw
             api/data/imports/ugmu-first-stream/qa
+            api/data/imports/ugmu-first-stream/regression
           if-no-files-found: warn
           retention-days: 30
