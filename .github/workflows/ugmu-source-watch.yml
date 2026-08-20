@@ -51,7 +51,7 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: python3 -m pip install -r tools/requirements-ugmu.txt
 
-      - name: Test UGMU source, parser and canonical boundaries
+      - name: Test UGMU source, parser and publication boundaries
         run: >-
           node --test
           test/ugmu-source-registry.test.js
@@ -59,6 +59,7 @@ jobs:
           test/ugmu-download.test.js
           test/ugmu-source-watch.test.js
           test/ugmu-canonical-pilot.test.js
+          test/ugmu-publication-package.test.js
 
       - name: Test UGMU weekly-grid parser core
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
@@ -146,6 +147,46 @@ jobs:
             .qa.v2 == true
           ' data/imports/ugmu-pilot/versioning/OLD-101.versioning-report.json >/dev/null
           grep -F 'X-WR-CALNAME:УГМУ · Группа ОЛД 101' data/imports/ugmu-pilot/versioning/OLD-101.v1.ics >/dev/null
+
+      - name: Build production-like ICS current pointer and fail-closed live catalog
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run package:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/package
+          jq -e '
+            .eventCount == 357 and
+            .inputQa == true and
+            .outputQa == true and
+            .currentPointerValid == true and
+            .catalogPointerValid == true and
+            .failClosed == true and
+            .publicationAllowed == false
+          ' data/imports/ugmu-pilot/package/package-report.json >/dev/null
+          jq -e '
+            .groupCode == "ОЛД 101" and
+            .eventCount == 357 and
+            .state == "qa-approved-fail-closed" and
+            .publicationAllowed == false and
+            .active == false and
+            .catalogVisible == false and
+            .checkoutEnabled == false and
+            .salesEnabled == false
+          ' data/imports/ugmu-pilot/package/current.json >/dev/null
+          jq -e '
+            .mode == "internal-fail-closed" and
+            .groupCount == 1 and
+            .groups[0].code == "ОЛД 101" and
+            .groups[0].qaStatus == "approved" and
+            .groups[0].calendarReady == true and
+            .groups[0].active == false and
+            .groups[0].public == false and
+            .groups[0].checkoutEnabled == false and
+            .groups[0].salesEnabled == false
+          ' data/imports/ugmu-pilot/package/live-catalog.json >/dev/null
+          grep -F 'X-WR-CALNAME:УГМУ · Группа ОЛД 101' data/imports/ugmu-pilot/package/calendar.ics >/dev/null
+          grep -F 'UID:evt_ugmu_old101_0001@ugmu-calendar' data/imports/ugmu-pilot/package/calendar.ics >/dev/null
 
       - name: Build fail-closed watch report
         id: watch
@@ -246,5 +287,6 @@ jobs:
             api/data/imports/ugmu-pilot/OLD-101.json
             api/data/imports/ugmu-pilot/canonical
             api/data/imports/ugmu-pilot/versioning
+            api/data/imports/ugmu-pilot/package
           if-no-files-found: warn
           retention-days: 30
