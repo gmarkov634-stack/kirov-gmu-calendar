@@ -15,6 +15,9 @@ const firstStreamQaPath = path.resolve(apiDir, process.env.UGMU_FIRST_STREAM_QA_
 const firstStreamRegressionPath = path.resolve(apiDir, process.env.UGMU_FIRST_STREAM_REGRESSION_REPORT || "data/imports/ugmu-readiness/regression/first-stream-regression.json");
 const fixturePath = path.resolve(apiDir, process.env.UGMU_FIRST_STREAM_FIXTURE || "test/fixtures/ugmu/first-stream-2026-autumn.json");
 const watchConfigPath = path.resolve(apiDir, process.env.UGMU_SOURCE_WATCH_CONFIG || "../universities/ugmu/source-watch.json");
+const landingHtmlPath = path.resolve(apiDir, process.env.UGMU_LANDING_HTML || "../site/ugmu/index.html");
+const landingConfigPath = path.resolve(apiDir, process.env.UGMU_LANDING_CONFIG || "../site/ugmu/config.js");
+const landingAppPath = path.resolve(apiDir, process.env.UGMU_LANDING_APP || "../site/ugmu/app.js");
 
 async function readJson(filename) {
   try {
@@ -24,18 +27,29 @@ async function readJson(filename) {
   }
 }
 
+async function readText(filename) {
+  try {
+    return await fs.readFile(filename, "utf8");
+  } catch (error) {
+    return `__READ_ERROR__:${error}`;
+  }
+}
+
 function addCheck(checks, errors, name, passed, detail) {
   checks[name] = { status: passed ? "PASS" : "FAIL", detail };
   if (!passed) errors.push(`${name}: ${detail}`);
 }
 
 const startedAt = new Date().toISOString();
-const [watchConfig, watchReport, firstStreamQa, regression, fixture] = await Promise.all([
+const [watchConfig, watchReport, firstStreamQa, regression, fixture, landingHtml, landingConfig, landingApp] = await Promise.all([
   readJson(watchConfigPath),
   readJson(sourceWatchReportPath),
   readJson(firstStreamQaPath),
   readJson(firstStreamRegressionPath),
   readJson(fixturePath),
+  readText(landingHtmlPath),
+  readText(landingConfigPath),
+  readText(landingAppPath),
 ]);
 
 const university = getUniversityConfig("ugmu");
@@ -139,6 +153,27 @@ addCheck(checks, errors, "fixtureScope",
   `fixture groups=${fixtureGroups.length}`,
 );
 
+const landingGroupsPresent = EXPECTED_GROUPS.every((group) => landingConfig.includes(`code: "${group}"`));
+const siteFailClosed = landingHtml.includes("Предварительный запуск")
+  && landingHtml.includes("Подключение откроется после финального запуска")
+  && landingHtml.includes("meta name=\"robots\" content=\"noindex,follow\"")
+  && landingConfig.includes('university: "ugmu"')
+  && landingConfig.includes("previewOnly: true")
+  && landingConfig.includes("checkoutEnabled: false")
+  && landingConfig.includes("publicIcsEnabled: false")
+  && landingConfig.includes(EXPECTED_SHA)
+  && landingGroupsPresent
+  && !landingHtml.includes("/api/v2/payments")
+  && !landingHtml.includes("calendar.ics")
+  && !landingConfig.includes("/api/v2/payments")
+  && !landingConfig.includes("calendar.ics")
+  && !landingApp.includes("fetch(")
+  && !landingApp.includes("/api/v2/payments")
+  && !landingApp.includes("calendar.ics");
+addCheck(checks, errors, "sitePreviewBoundary", siteFailClosed,
+  `preview=${landingConfig.includes("previewOnly: true")}; groups=${landingGroupsPresent ? 12 : "missing"}; checkout/public=false`,
+);
+
 const failClosed = university.active === false
   && runtimeConfig.universitySiteUrls?.ugmu === ""
   && ugmuAccess.apiRoutingEnabled === true
@@ -148,7 +183,8 @@ const failClosed = university.active === false
   && watchConfig.autoPublish === false
   && watchReport.publicationAllowed === false
   && firstStreamQa.publicationAllowed === false
-  && regression.publicationAllowed === false;
+  && regression.publicationAllowed === false
+  && siteFailClosed;
 addCheck(checks, errors, "commercialPublicationBoundary", failClosed, `failClosed=${failClosed}`);
 
 const structuralReady = errors.length === 0;
@@ -182,12 +218,20 @@ const report = {
     checkoutEnabled: ugmuAccess.checkoutEnabled === true,
     trialsEnabled: ugmuAccess.trialsEnabled === true,
   },
+  siteState: {
+    path: "/ugmu/",
+    previewOnly: siteFailClosed,
+    groupsVisibleInPreview: landingGroupsPresent ? 12 : 0,
+    checkoutEnabled: false,
+    publicIcsEnabled: false,
+    searchIndexingEnabled: false,
+  },
   launchAuthority: {
     publicationAllowedByThisGate: false,
     salesAllowedByThisGate: false,
     trialsAllowedByThisGate: false,
     catalogVisibilityAllowedByThisGate: false,
-    nextRequiredBoundary: "site-ugmu-flow",
+    nextRequiredBoundary: "yookassa-paid-e2e",
   },
   checks,
   evidence: {
@@ -196,6 +240,9 @@ const report = {
     firstStreamRegressionReport: path.relative(apiDir, firstStreamRegressionPath),
     fixture: path.relative(apiDir, fixturePath),
     watchConfig: path.relative(apiDir, watchConfigPath),
+    landingHtml: path.relative(apiDir, landingHtmlPath),
+    landingConfig: path.relative(apiDir, landingConfigPath),
+    landingApp: path.relative(apiDir, landingAppPath),
   },
   errors,
 };
