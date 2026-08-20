@@ -73,6 +73,11 @@ export function buildUgmuSourceWatchReport(manifest, downloadReport, config = {}
     targetCourses.has(Number(file.course))
   ));
 
+  const availableCourses = [...new Set(candidates.map((item) => Number(item.course)).filter(Number.isInteger))]
+    .sort((a, b) => a - b);
+  const missingCourses = [...targetCourses]
+    .filter((course) => !availableCourses.includes(course))
+    .sort((a, b) => a - b);
   const failures = downloadReport.files.filter((file) => file.status === "failed");
   const unresolved = manifest.sources.filter((source) => (
     source.program === expectedProgram &&
@@ -86,8 +91,13 @@ export function buildUgmuSourceWatchReport(manifest, downloadReport, config = {}
   let status = "ok";
   if (failures.length || unresolved.length) status = "needs-review";
   else if (!candidates.length) status = "waiting";
-  else if (!baselineAvailable) status = "captured-needs-semantic-review";
-  else if (newOrChanged.length) status = "changed-needs-semantic-review";
+  else if (!baselineAvailable) status = missingCourses.length
+    ? "partial-captured-needs-semantic-review"
+    : "captured-needs-semantic-review";
+  else if (newOrChanged.length) status = missingCourses.length
+    ? "partial-changed-needs-semantic-review"
+    : "changed-needs-semantic-review";
+  else if (missingCourses.length) status = "partial-waiting";
 
   return {
     version: 1,
@@ -98,6 +108,8 @@ export function buildUgmuSourceWatchReport(manifest, downloadReport, config = {}
     expectedAcademicYear: config.expectedAcademicYear || null,
     expectedSemester,
     targetCourses: [...targetCourses].sort((a, b) => a - b),
+    availableCourses,
+    missingCourses,
     semanticReviewRequired: config.semanticReviewRequired !== false,
     autoPublish: false,
     baselineAvailable,
