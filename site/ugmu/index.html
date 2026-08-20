@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Предварительный просмотр проверенного расписания УГМУ для Apple Calendar и Google Calendar. Доступен 1 курс лечебного дела, I поток, группы ОЛД 101–112.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="theme-color" content="#123b6d">
+  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Расписание УГМУ в календаре">
+  <meta property="og:title" content="Расписание УГМУ — сразу в календаре">
+  <meta property="og:description" content="Проверенный preview расписания УГМУ: лечебное дело, 1 курс, I поток, ОЛД 101–112. Подключение откроется после финальных проверок.">
+  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
+  <title>Расписание УГМУ в Apple и Google Calendar</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ugmu.css">
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+  <header class="hero">
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Уральский государственный медицинский университет</p>
+        <h1>Расписание УГМУ — сразу в календаре</h1>
+        <p class="lead">Проверяем расписание по официальным материалам УГМУ и готовим подписку для Apple Calendar и Google Calendar.</p>
+        <div class="hero-features" aria-label="Текущий статус">
+          <div><span class="hero-feature-icon" aria-hidden="true">12</span><span>групп уже<br>проверены</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">✓</span><span>точный PDF<br>и QA</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">🔒</span><span>оплата пока<br>закрыта</span></div>
+        </div>
+        <div class="hero-actions"><a class="primary" href="#preview">Посмотреть свою группу <span aria-hidden="true">→</span></a><div class="hero-price"><strong>Preview УГМУ</strong><span>Лечебное дело · 1 курс · I поток</span></div></div>
+      </div>
+      <div class="calendar-preview" aria-hidden="true">
+        <div class="preview-top"><span>ОЛД 101 · 1 сентября</span><strong>Проверенный фрагмент</strong></div>
+        <div class="preview-event"><time>08:50</time><div><strong>ЛЕКЦ. ХИМИЯ</strong><span>Лекция · Онлайн</span></div></div>
+        <div class="preview-event"><time>13:50</time><div><strong>Химия</strong><span>Декабристов, 32</span></div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="launch-strip" role="status"><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>Предварительный запуск</strong><span>Проверены группы ОЛД 101–112 первого курса I потока. Публичная подписка, ICS и оплата УГМУ пока закрыты до следующих production-gates.</span></div></div></div>
+
+  <main id="main-content" tabindex="-1">
+    <section id="programs" class="programs shell">
+      <div class="section-heading compact-heading"><p class="eyebrow">Направления УГМУ</p><h2>Начинаем с лечебного дела</h2><p>На лендинге появляется только то расписание, которое уже прошло разбор, QA и regression. Остальные направления подключаются по мере проверки источников.</p></div>
+      <div class="program-grid">
+        <article class="program-card program-card-active"><div class="program-card-top"><span class="badge">Preview доступен</span><span class="program-code">31.05.01</span></div><h3>Лечебное дело</h3><p class="program-description">1 курс · I поток · ОЛД 101–112. Проверено 12 групп и 4286 событий осеннего семестра 2026/2027.</p><a class="secondary program-select" href="#preview">Выбрать группу <span aria-hidden="true">→</span></a></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.02</span></div><h3>Педиатрия</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.03</span></div><h3>Стоматология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">33.05.01</span></div><h3>Фармация</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">32.05.01</span></div><h3>Медико-профилактическое дело</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span></div><h3>Клиническая психология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+      </div>
+    </section>
+
+    <section id="how" class="how shell"><div class="section-heading compact-heading"><p class="eyebrow">Как будет работать</p><h2>Расписание без ежедневного поиска PDF</h2></div><div class="how-grid"><article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Показываем только группы из проверенного расписания текущего периода.</p></article><article class="how-card"><span class="how-number">2</span><h3>Посмотрите реальные пары</h3><p>Preview построен по контрольным событиям из QA того же официального PDF.</p></article><article class="how-card"><span class="how-number">3</span><h3>Подключите календарь после запуска</h3><p>После прохождения payment E2E появится персональная подписная ссылка для Apple и Google.</p></article></div><div class="trust-strip" aria-label="О сервисе"><div><strong>Официальный источник</strong><span>Расписание берётся с usma.ru из опубликованных материалов УГМУ.</span></div><div><strong>Проверено перед показом</strong><span>Текущий первый поток прошёл QA и regression для всех 12 групп.</span></div><div><strong>Fail-closed</strong><span>Готовый preview не открывает оплату или публичный календарь автоматически.</span></div></div></section>
+
+    <section id="preview" class="order shell">
+      <div class="order-copy"><p class="eyebrow">Проверенный preview</p><h2>Выберите свою группу</h2><p>Сейчас доступен первый курс лечебного дела, I поток. Ниже — контрольные события из проверенной версии расписания.</p><ol class="steps" aria-label="Статус подготовки"><li><span>1</span>Источник и SHA проверены</li><li><span>2</span>12 групп прошли QA</li><li><span>3</span>Оплата откроется после E2E</li></ol><div class="order-trust"><strong>Осень 2026/2027</strong><span>Период расписания: 01.09.2026–10.01.2027.</span></div></div>
+      <div class="order-panel"><div class="preview-panel"><div class="form-title"><strong>Параметры расписания</strong><span>Лечебное дело</span></div><label>Курс<select disabled><option>1 курс</option></select></label><label>Поток<select disabled><option>I поток</option></select></label><label>Группа<select id="group-select" aria-label="Группа"></select></label><div class="purchase-summary"><div class="summary-row"><span class="summary-label">Выбрано</span><strong id="group-summary">—</strong></div><div class="summary-row"><span class="summary-label">Событий в семестре</span><strong id="event-count">—</strong></div><div class="summary-row summary-price"><span class="summary-label">Лекций</span><strong id="lecture-count">—</strong></div></div><div class="preview-meta"><div><span>Статус</span><strong>QA-approved preview</strong></div><div><span>Подключение</span><strong>Пока закрыто</strong></div></div><div class="qa-preview"><div class="qa-preview-head"><strong>Контрольные события</strong><span>из regression fixture</span></div><div id="group-preview"></div></div><button class="primary" type="button" disabled>Подключение откроется после финального запуска</button><p class="preview-lock">На этом этапе лендинг ничего не продаёт и не выдаёт публичную ICS-ссылку. Следующий gate — платёжный E2E и проверка полного пользовательского пути.</p><p id="source-state" class="source-state"></p></div></div>
+    </section>
+
+    <section id="faq" class="faq shell"><div class="section-heading compact-heading"><p class="eyebrow">Вопросы и ответы</p><h2>О календаре УГМУ</h2></div><div class="faq-list"><details><summary>Почему сейчас нельзя купить календарь?</summary><p>Первый поток уже технически готов, но продажи откроются только после проверки сайта, ЮKassa, выдачи подписки и production smoke.</p></details><details><summary>Что уже проверено?</summary><p>Для лечебного дела, 1 курса, I потока проверены группы ОЛД 101–112: источник, разбор PDF, постобработка, QA, UID/SEQUENCE и regression.</p></details><details><summary>Что будет, если УГМУ изменит расписание?</summary><p>Watcher обнаружит новую версию источника по SHA-256. Перед публикацией изменений новая версия снова должна пройти semantic review и QA.</p></details><details><summary>Одна ссылка будет работать в Apple и Google?</summary><p>Да. После коммерческого запуска планируется одна персональная подписная ссылка, которую можно добавить в Apple Calendar или Google Calendar.</p></details><details><summary>Это официальный сервис УГМУ?</summary><p>Нет. Это независимый сервис электронных календарей. Расписание готовится по официально опубликованным материалам УГМУ.</p></details></div></section>
+  </main>
+
+  <footer class="shell"><div><strong>Расписание УГМУ в календаре</strong><span>Независимый сервис · предварительный запуск</span></div><nav aria-label="Ссылки в подвале"><a href="#programs">Направления</a><a href="#how">Как работает</a><a href="#preview">Выбрать группу</a><a href="#faq">Вопросы</a></nav></footer>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
