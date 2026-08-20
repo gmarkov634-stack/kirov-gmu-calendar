@@ -68,14 +68,16 @@ jobs:
             .activationPerformed == false and
             .productionMutationPerformed == false and
             .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
-            .blockerCount == 4 and
+            .blockerCount == 3 and
+            (.completedBlocks | length) == 1 and
+            .completedBlocks[0].id == "stage-first-stream-production-schedules" and
             .launchTarget.productionSchedulesRequired == 12 and
             .launchTarget.checkoutEnabled == true and
             .launchTarget.publicEndpointsEnabled == false and
             .launchTarget.publicIcsEnabled == false and
             .launchTarget.trialsEnabled == false and
             .launchTarget.paymentMode == "live" and
-            .nextRequiredBoundary == "preactivation-schedule-staging" and
+            .nextRequiredBoundary == "fail-closed-commercial-isolation-deploy" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-controlled-activation-plan-report.json >/dev/null
 
@@ -91,7 +93,8 @@ jobs:
           const report = JSON.parse(fs.readFileSync(file, 'utf8'));
           console.log(`Status: **${report.status}**`);
           console.log(`Plan checks: **${Object.values(report.checks).filter((v) => v.status === 'PASS').length}/${Object.keys(report.checks).length} PASS**`);
-          console.log(`Mandatory preactivation blocks: **${report.blockerCount}**`);
+          console.log(`Completed preactivation blocks: **${(report.completedBlocks || []).length}**`);
+          console.log(`Remaining preactivation blocks: **${report.blockerCount}**`);
           console.log('Activation / production mutation performed: **no**');
           console.log(`Next boundary: **${report.nextRequiredBoundary}**`);
           console.log('');
