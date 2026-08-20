@@ -66,6 +66,31 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/izhgmu/",
     active: false,
   }),
+  ugmu: Object.freeze({
+    id: "ugmu",
+    code: "ugmu",
+    name: "Уральский государственный медицинский университет",
+    shortName: "УГМУ",
+    timezone: "Asia/Yekaterinburg",
+    timeMode: "floating",
+    source: Object.freeze({
+      kind: "pdf",
+      primaryPage: null,
+      adapter: "ugmu",
+      productionLanguage: "ru",
+      versionIdentity: Object.freeze(["source_page", "source_url", "sha256"]),
+    }),
+    programs: Object.freeze([
+      Object.freeze({ id: "medicine", name: "Лечебное дело", initialScope: true }),
+      Object.freeze({ id: "pediatrics", name: "Педиатрия", initialScope: false }),
+      Object.freeze({ id: "dentistry", name: "Стоматология", initialScope: false }),
+      Object.freeze({ id: "pharmacy", name: "Фармация", initialScope: false }),
+      Object.freeze({ id: "preventive_medicine", name: "Медико-профилактическое дело", initialScope: false }),
+      Object.freeze({ id: "clinical_psychology", name: "Клиническая психология", initialScope: false }),
+    ]),
+    sitePath: "/ugmu/",
+    active: false,
+  }),
 });
 
 export function listUniversities() {
