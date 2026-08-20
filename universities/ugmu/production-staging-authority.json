@@ -36,5 +36,7 @@
     "academicYear": "2026/2027",
     "semester": 1
   },
-  "issuedAt": "2026-08-20T21:21:00.000Z"
+  "credentialPath": "github-actions-s3-secrets",
+  "stagingAttempt": 2,
+  "issuedAt": "2026-08-20T21:38:00.000Z"
 }
