@@ -36,6 +36,7 @@ const globalOnlyConfig = loadConfig({ COMMERCIAL_SALES_ENABLED: "true" });
 const ugmuOnlyConfig = loadConfig({ UGMU_SALES_ENABLED: "true" });
 const stageBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "stage-first-stream-production-schedules");
 const salesBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "isolate-global-sales-gate");
+const isolationPhase = plan.phases?.find((item) => item.id === "deploy-isolation-guards");
 
 check("scopeFrozen",
   plan.university === "ugmu"
@@ -63,7 +64,7 @@ check("currentApiFailClosed",
     && closedConfig.commercialSalesEnabled === false,
   "default runtime: routing=true; public=false; checkout=false; trials=false; paid URL blank; sales closed",
 );
-check("dedicatedSalesIsolationPrepared",
+check("dedicatedSalesIsolationDeployed",
   app.includes('if (salesState(config) !== "open")')
     && app.includes('universityCapability(config, context.university, "checkoutEnabled")')
     && globalOnlyConfig.universityAccess?.ugmu?.checkoutEnabled === false
@@ -71,8 +72,11 @@ check("dedicatedSalesIsolationPrepared",
     && ugmuOnlyConfig.universityAccess?.kgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.omgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.izhgmu?.checkoutEnabled === false
-    && salesBlock?.state === "required",
-  "UGMU has a dedicated opt-in while global-only cannot open UGMU and UGMU-only cannot open incumbent tenants",
+    && salesBlock?.state === "completed"
+    && String(salesBlock?.completion || "").includes("32424944030")
+    && String(salesBlock?.completion || "").includes("2c3d6d63a6d8102c7f45dcba29619e75c5f991b760198bd770ca823f2e94faae")
+    && isolationPhase?.state === "completed",
+  "dedicated UGMU sales isolation is implemented and recorded as fail-closed deployed in production",
 );
 check("landingStillPreviewOnly",
   landingConfig.includes("previewOnly: true")
@@ -113,7 +117,7 @@ const completedBlocks = allBlocks
 const planValid = errors.length === 0;
 const executableNow = planValid && blockers.length === 0;
 const report = {
-  version: 2,
+  version: 3,
   university: "ugmu",
   mode: "controlled-activation-plan-evidence-only",
   generatedAt: new Date().toISOString(),
