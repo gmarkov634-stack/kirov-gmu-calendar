@@ -51,6 +51,11 @@ export function classifyUgmuScheduleLabel(label = "") {
   };
 }
 
+function looksLikeScheduleAnchor(label, classified) {
+  if (classified.course || classified.stream || classified.part !== "combined") return true;
+  return /(?:^|\s)\d{3}\s*(?:олд\s*)?фм(?:\s|$)/i.test(normalizeText(label));
+}
+
 function lastCourseContext(value = "") {
   const normalized = normalizeText(decodeHtml(value));
   let result = null;
@@ -62,24 +67,25 @@ function lastCourseContext(value = "") {
 
 function updateSectionState(value, state) {
   const normalized = normalizeText(decodeHtml(value));
+  const markers = [
+    { phrase: "расписание занятий на осенний семестр", area: "classes", semester: "autumn" },
+    { phrase: "расписание занятий на весенний семестр", area: "classes", semester: "spring" },
+    { phrase: "расписание зимней сессии", area: "other", semester: null },
+    { phrase: "расписание летней сессии", area: "other", semester: null },
+    { phrase: "расписание государственной итоговой аттестации", area: "other", semester: null },
+    { phrase: "график учебных недель", area: "other", semester: null },
+    { phrase: "график ликвидации академической задолженности", area: "other", semester: null },
+  ];
 
-  if (normalized.includes("расписание занятий на осенний семестр")) {
-    state.area = "classes";
-    state.semester = "autumn";
-    state.course = null;
-  } else if (normalized.includes("расписание занятий на весенний семестр")) {
-    state.area = "classes";
-    state.semester = "spring";
-    state.course = null;
-  } else if (
-    normalized.includes("расписание зимней сессии") ||
-    normalized.includes("расписание летней сессии") ||
-    normalized.includes("расписание государственной итоговой аттестации") ||
-    normalized.includes("график учебных недель") ||
-    normalized.includes("график ликвидации академической задолженности")
-  ) {
-    state.area = "other";
-    state.semester = null;
+  let latest = null;
+  for (const marker of markers) {
+    const index = normalized.lastIndexOf(marker.phrase);
+    if (index >= 0 && (!latest || index > latest.index)) latest = { ...marker, index };
+  }
+
+  if (latest) {
+    state.area = latest.area;
+    state.semester = latest.semester;
     state.course = null;
   }
 
@@ -119,6 +125,8 @@ export function extractUgmuScheduleSources(html, {
     if (!isTrustedUgmuArtifactUrl(url)) continue;
 
     const classified = classifyUgmuScheduleLabel(label);
+    if (!looksLikeScheduleAnchor(label, classified)) continue;
+
     const course = classified.course || state.course;
     if (classified.course) state.course = classified.course;
 
