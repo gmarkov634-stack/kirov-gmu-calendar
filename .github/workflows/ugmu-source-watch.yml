@@ -8,6 +8,8 @@ on:
     paths:
       - "api/src/adapters/ugmu/**"
       - "api/tools/ugmu-*.mjs"
+      - "api/tools/ugmu-*.py"
+      - "api/tools/requirements-ugmu.txt"
       - "api/test/ugmu-*.test.js"
       - "api/package.json"
       - "universities/ugmu/source-watch.json"
@@ -35,8 +37,18 @@ jobs:
           cache: npm
           cache-dependency-path: api/package-lock.json
 
+      - name: Setup Python for parser validation
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Install UGMU parser dependency
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
 
       - name: Test UGMU source discovery and watcher boundary
         run: >-
@@ -45,6 +57,10 @@ jobs:
           test/ugmu-discover.test.js
           test/ugmu-download.test.js
           test/ugmu-source-watch.test.js
+
+      - name: Test UGMU weekly-grid parser core
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: python3 tools/ugmu-parse-weekly-pdf.py --self-test
 
       - name: Discover official UGMU medicine sources
         run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-source-manifest.json
@@ -55,6 +71,24 @@ jobs:
           --manifest=data/imports/ugmu-source-manifest.json
           --semester=autumn
           --output=data/imports/ugmu-watched-pdfs
+
+      - name: Validate OLD 101 against exact watched PDF
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          npm run parse:ugmu:weekly -- \
+            --input="data/imports/ugmu-watched-pdfs/$filename" \
+            --group="ОЛД 101" \
+            --source="$source_url" \
+            --sha256="$sha" \
+            --output=data/imports/ugmu-pilot/OLD-101.json
+          jq -e '.sourceReview.status == "semantic-reviewed-pilot" and .sourceReview.publicationAllowed == false and (.patterns | length) == 23 and (.events | length) == 357 and (.validationErrors | length) == 0' data/imports/ugmu-pilot/OLD-101.json >/dev/null
 
       - name: Build fail-closed watch report
         id: watch
@@ -152,5 +186,6 @@ jobs:
             api/data/imports/ugmu-source-manifest.json
             api/data/imports/ugmu-source-watch-report.json
             api/data/imports/ugmu-watched-pdfs
-          if-no-files-found: error
+            api/data/imports/ugmu-pilot/OLD-101.json
+          if-no-files-found: warn
           retention-days: 30
