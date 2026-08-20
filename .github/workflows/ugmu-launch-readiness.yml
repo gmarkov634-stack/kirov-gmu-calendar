@@ -87,6 +87,7 @@ jobs:
             test/ugmu-source-watch.test.js \
             test/ugmu-canonical-pilot.test.js \
             test/ugmu-publication-package.test.js \
+            test/ugmu-api-routing.test.js \
             test/university-registry.test.js \
             test/shared-config.test.js
           python3 tools/ugmu-parse-weekly-pdf.py --self-test
@@ -155,11 +156,16 @@ jobs:
             .structuralReady == true and
             .status == "STRUCTURALLY_READY_FIRST_STREAM_FAIL_CLOSED" and
             .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .apiState.universityId == "ugmu" and
+            .apiState.routingEnabled == true and
+            .apiState.publicEndpointsEnabled == false and
+            .apiState.checkoutEnabled == false and
+            .apiState.trialsEnabled == false and
             .launchAuthority.publicationAllowedByThisGate == false and
             .launchAuthority.salesAllowedByThisGate == false and
             .launchAuthority.trialsAllowedByThisGate == false and
             .launchAuthority.catalogVisibilityAllowedByThisGate == false and
-            .launchAuthority.nextRequiredBoundary == "api-university-id-ugmu" and
+            .launchAuthority.nextRequiredBoundary == "site-ugmu-flow" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-launch-readiness-report.json >/dev/null
 
@@ -181,6 +187,7 @@ jobs:
           console.log(`Checks: **${checks.filter(([, value]) => value.status === 'PASS').length}/${checks.length} PASS**`);
           console.log(`Scope: **medicine · 1 курс · I поток · ОЛД 101–112**`);
           console.log(`Source SHA-256: \`${report.scope.sourceSha256}\``);
+          console.log(`API routing: **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/checkout/trials: **closed**`);
           console.log(`Missing courses on source page: **${(report.sourceState.missingCourses || []).join(', ') || 'none'}**`);
           console.log('Publication / sales / trials / catalog visibility granted by this gate: **no**');
           console.log(`Next boundary: **${report.launchAuthority.nextRequiredBoundary}**`);
