@@ -50,13 +50,14 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: python3 -m pip install -r tools/requirements-ugmu.txt
 
-      - name: Test UGMU source discovery and watcher boundary
+      - name: Test UGMU source, parser and canonical boundaries
         run: >-
           node --test
           test/ugmu-source-registry.test.js
           test/ugmu-discover.test.js
           test/ugmu-download.test.js
           test/ugmu-source-watch.test.js
+          test/ugmu-canonical-pilot.test.js
 
       - name: Test UGMU weekly-grid parser core
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
@@ -89,6 +90,28 @@ jobs:
             --sha256="$sha" \
             --output=data/imports/ugmu-pilot/OLD-101.json
           jq -e '.sourceReview.status == "semantic-reviewed-pilot" and .sourceReview.publicationAllowed == false and (.patterns | length) == 23 and (.events | length) == 357 and (.validationErrors | length) == 0' data/imports/ugmu-pilot/OLD-101.json >/dev/null
+
+      - name: Canonicalize and postprocess OLD 101
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run canonical:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/canonical
+          jq -e '
+            .qaApproved == true and
+            .publicationAllowed == false and
+            .canonicalSchema == "1.0" and
+            .inputQa.publishable == true and
+            .outputQa.publishable == true and
+            .customQa.stats.reviewedPatterns == 23 and
+            .customQa.stats.events == 357 and
+            .customQa.stats.lectures == 112 and
+            .customQa.stats.nonLectures == 245 and
+            .customQa.stats.overlaps == 0 and
+            .customQa.stats.serviceSignatures == 0 and
+            .customQa.stats.sourceHashMismatch == 0
+          ' data/imports/ugmu-pilot/canonical/OLD-101.qa.json >/dev/null
 
       - name: Build fail-closed watch report
         id: watch
@@ -187,5 +210,6 @@ jobs:
             api/data/imports/ugmu-source-watch-report.json
             api/data/imports/ugmu-watched-pdfs
             api/data/imports/ugmu-pilot/OLD-101.json
+            api/data/imports/ugmu-pilot/canonical
           if-no-files-found: warn
           retention-days: 30
