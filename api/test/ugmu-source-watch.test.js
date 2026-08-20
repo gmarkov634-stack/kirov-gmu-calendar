@@ -47,8 +47,10 @@ const config = {
 
 test("UGMU watch is fail-closed without a previous version baseline", () => {
   const report = buildUgmuSourceWatchReport(manifest, downloaded, config);
-  assert.equal(report.status, "captured-needs-semantic-review");
+  assert.equal(report.status, "partial-captured-needs-semantic-review");
   assert.equal(report.candidateCount, 1);
+  assert.deepEqual(report.availableCourses, [1]);
+  assert.deepEqual(report.missingCourses, [2, 3, 4, 5, 6]);
   assert.equal(report.publicationAllowed, false);
   assert.equal(report.autoPublish, false);
   assert.equal(report.baselineAvailable, false);
