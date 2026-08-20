@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { evaluateAggregate, ugmuFailClosedBoundary } from "../tools/cross-university-historical-regression.mjs";
+import {
+  evaluateAggregate,
+  runWithRetry,
+  ugmuFailClosedBoundary,
+} from "../tools/cross-university-historical-regression.mjs";
 
 function pass(university) {
   return { university, passed: true };
@@ -59,4 +63,26 @@ test("cross-university gate fails closed if UGMU commercial boundary opens", () 
   assert.equal(result.status, "FAIL");
   assert.equal(result.allPassed, false);
   assert.equal(result.nextRequiredBoundary, "cross-university-historical-regression");
+});
+
+test("bounded retry returns the first successful KGMU-style attempt", () => {
+  let calls = 0;
+  const result = runWithRetry(() => {
+    calls += 1;
+    return { status: calls < 3 ? 1 : 0, stdout: "", stderr: "", error: null };
+  }, 3);
+  assert.equal(calls, 3);
+  assert.equal(result.status, 0);
+  assert.equal(result.attempts, 3);
+});
+
+test("bounded retry remains fail-closed after every attempt fails", () => {
+  let calls = 0;
+  const result = runWithRetry(() => {
+    calls += 1;
+    return { status: 1, stdout: "", stderr: "fetch failed", error: null };
+  }, 3);
+  assert.equal(calls, 3);
+  assert.equal(result.status, 1);
+  assert.equal(result.attempts, 3);
 });
