@@ -50,6 +50,16 @@ export function loadConfig(env = process.env) {
       ugmu: "",
       pgmu: env.PGMU_SITE_URL || "",
     },
+    // Per-university API capabilities are opt-in overrides. Missing entries keep
+    // existing behavior so current KGMU/OmGMU contracts are not changed.
+    universityAccess: {
+      ugmu: {
+        apiRoutingEnabled: true,
+        publicEndpointsEnabled: false,
+        checkoutEnabled: false,
+        trialsEnabled: false,
+      },
+    },
     publicApiUrl: env.PUBLIC_API_URL || "",
     enablePublicEndpoints: env.ENABLE_PUBLIC_ENDPOINTS === "true",
     yookassaShopId: env.YOOKASSA_SHOP_ID || "",
