@@ -6,6 +6,9 @@ on:
       - agent/ugmu-scaffold-20260820
     paths:
       - "universities/ugmu/production-staging-authority.json"
+  pull_request:
+    paths:
+      - "universities/ugmu/production-staging-execute.json"
   workflow_dispatch:
     inputs:
       confirm:
@@ -25,6 +28,7 @@ env:
   EXPECTED_MANIFEST_ID: ugmu-first-stream-34612248bba2
   EXPECTED_MANIFEST_SHA256: 2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5
   EXPECTED_AUTHORITY_SHA256: 039acbfd41090676994776625a9ba41f23141a9aea1cfd299e9e5ef723206101
+  EXPECTED_EXECUTE_SHA256: 11a5e12bb58a84514279eab69d0b9cb4feed74c8d53b9555714de756c5bb3700
   EXPECTED_SOURCE_SHA256: 34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8
   S3_BUCKET: kgmu-calendar-data-gmarkov634
   S3_ENDPOINT: https://s3.cloud.ru
@@ -71,6 +75,22 @@ jobs:
             .stagingAttempt == 2 and
             (.groups | length) == 12
           ' "$authority" >/dev/null
+
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            execute='universities/ugmu/production-staging-execute.json'
+            test -f "$execute"
+            test "$(sha256sum "$execute" | cut -d' ' -f1)" = "$EXPECTED_EXECUTE_SHA256"
+            jq -e --arg manifest "$EXPECTED_MANIFEST_ID" --arg manifest_sha "$EXPECTED_MANIFEST_SHA256" --arg authority_sha "$EXPECTED_AUTHORITY_SHA256" '
+              .version == 1 and
+              .kind == "ugmu-production-storage-stage-execute" and
+              .authorizedStep == 23 and
+              .manifestId == $manifest and
+              .manifestSha256 == $manifest_sha and
+              .authoritySha256 == $authority_sha and
+              .stagingAttempt == 2 and
+              .productionStorageWrite == true
+            ' "$execute" >/dev/null
+          fi
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             test "$MANUAL_CONFIRM" = "$EXPECTED_MANIFEST_ID"
           fi
@@ -236,5 +256,6 @@ jobs:
             api/data/imports/ugmu-production-storage-stage/report.json
             api/data/imports/ugmu-preactivation-dry-run/manifest.json
             universities/ugmu/production-staging-authority.json
+            universities/ugmu/production-staging-execute.json
           if-no-files-found: warn
           retention-days: 90
