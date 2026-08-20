@@ -75,7 +75,9 @@ const UNIVERSITIES = Object.freeze({
     timeMode: "floating",
     source: Object.freeze({
       kind: "pdf",
-      primaryPage: null,
+      indexPage: "https://usma.ru/obrazovatelnaya-deyatelnost/uchebno-metodicheskoe-upravlenie/raspisanie/",
+      primaryPage: "https://usma.ru/obrazovatelnaya-deyatelnost/uchebno-metodicheskoe-upravlenie/raspisanie/raspisanie-dlya-studentov-specialnosti-lechebnoe-delo/",
+      pageStrategy: "per-program",
       adapter: "ugmu",
       productionLanguage: "ru",
       versionIdentity: Object.freeze(["source_page", "source_url", "sha256"]),
