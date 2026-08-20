@@ -45,6 +45,9 @@ export function loadConfig(env = process.env) {
       // IzhGMU is intentionally not provisionable for paid redirects in stage I.
       // Opening this requires a separate launch change after current-source E2E.
       izhgmu: "",
+      // UGMU starts fail-closed. A paid redirect is enabled only by a separate
+      // launch change after source, parser, QA and production readiness gates.
+      ugmu: "",
       pgmu: env.PGMU_SITE_URL || "",
     },
     publicApiUrl: env.PUBLIC_API_URL || "",
