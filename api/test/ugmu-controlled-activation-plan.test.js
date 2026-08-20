@@ -34,20 +34,21 @@ test("launch target opens only paid UGMU checkout while public ICS and trials st
   assert.equal(plan.launchTarget.paymentMode, "live");
 });
 
-test("plan records storage staging as complete and leaves three real preactivation boundaries", () => {
+test("plan records staging and isolation deployment as complete and leaves two real preactivation boundaries", () => {
   assert.equal(blocker("stage-first-stream-production-schedules")?.state, "completed");
   assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951498/);
   assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951401/);
 
-  for (const id of [
-    "isolate-global-sales-gate",
-    "wire-live-ugmu-landing",
-    "validate-live-yookassa-mode",
-  ]) {
+  assert.equal(blocker("isolate-global-sales-gate")?.state, "completed");
+  assert.match(blocker("isolate-global-sales-gate")?.completion || "", /32424944030/);
+  assert.match(blocker("isolate-global-sales-gate")?.completion || "", /2c3d6d63a6d8102c7f45dcba29619e75c5f991b760198bd770ca823f2e94faae/);
+
+  for (const id of ["wire-live-ugmu-landing", "validate-live-yookassa-mode"]) {
     assert.equal(blocker(id)?.state, "required", `${id} must remain required`);
     assert.ok(blocker(id)?.completion, `${id} must define completion criteria`);
   }
-  assert.equal(plan.nextRequiredBoundary, "fail-closed-commercial-isolation-deploy");
+  assert.equal(plan.phases.find((item) => item.id === "deploy-isolation-guards")?.state, "completed");
+  assert.equal(plan.nextRequiredBoundary, "ugmu-live-checkout-ui");
 });
 
 test("backend activation uses the dedicated UGMU gate rather than opening the legacy global gate", () => {
