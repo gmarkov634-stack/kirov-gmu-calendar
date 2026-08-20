@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "university": "ugmu",
   "scope": {
     "program": "medicine",
@@ -33,14 +33,14 @@
     {
       "id": "stage-first-stream-production-schedules",
       "state": "completed",
-      "reason": "The 12 QA-approved first-stream schedule objects are now staged in production storage behind closed access guards.",
+      "reason": "The 12 QA-approved first-stream schedule objects are staged in production storage behind closed access guards.",
       "completion": "Completed by production staging run 32421951498 and independent read-back run 32421951401: schedules 12/12, hashes 12/12, rollback snapshots 12/12."
     },
     {
       "id": "isolate-global-sales-gate",
-      "state": "required",
-      "reason": "The branch now implements a dedicated UGMU_SALES_ENABLED gate and explicit checkout policies for all registered tenants, but this commercial-isolation revision is not yet deployed to Cloud.ru production.",
-      "completion": "Deploy the exact tested commercial-isolation API revision with UGMU_SALES_ENABLED absent/false, preserve COMMERCIAL_SALES_ENABLED=false, and verify UGMU plus all non-target checkout boundaries remain closed before wiring the live landing."
+      "state": "completed",
+      "reason": "The dedicated UGMU_SALES_ENABLED gate and explicit per-university checkout policies are deployed to Cloud.ru production without opening sales.",
+      "completion": "Step 25 independent production verification run 32424944030 confirmed active code SHA 68ae6a0362794003f12323a4705b6723ffcde09d as image sha256:2c3d6d63a6d8102c7f45dcba29619e75c5f991b760198bd770ca823f2e94faae; COMMERCIAL_SALES_ENABLED=false; UGMU_SALES_ENABLED unset/false; UGMU catalog/schedule remain 404 and checkout remains 409."
     },
     {
       "id": "wire-live-ugmu-landing",
@@ -67,10 +67,15 @@
     {
       "order": 2,
       "id": "deploy-isolation-guards",
-      "state": "implementation-ready",
+      "state": "completed",
       "mutations": ["dedicated UGMU_SALES_ENABLED gate", "explicit per-university checkout policy for every registered tenant"],
       "mustRemainClosed": ["UGMU checkout", "UGMU public endpoints", "UGMU trials"],
-      "successChecks": ["UGMU flag absent/false after deploy", "COMMERCIAL_SALES_ENABLED remains false", "KGMU/OmGMU/IzhGMU behavior unchanged", "UGMU-only sales mode cannot open a non-target university"]
+      "successChecks": ["UGMU flag absent/false after deploy", "COMMERCIAL_SALES_ENABLED remains false", "KGMU/OmGMU/IzhGMU behavior unchanged", "UGMU-only sales mode cannot open a non-target university"],
+      "completionEvidence": {
+        "productionVerifyRun": 32424944030,
+        "codeCommitSha": "68ae6a0362794003f12323a4705b6723ffcde09d",
+        "activeImageDigest": "sha256:2c3d6d63a6d8102c7f45dcba29619e75c5f991b760198bd770ca823f2e94faae"
+      }
     },
     {
       "order": 3,
@@ -109,5 +114,5 @@
     "dataDeletionRequired": false,
     "subscriptionSafety": "Existing paid subscription tokens must not be deleted during ordinary launch rollback; access/revoke is handled by the existing subscription controls."
   },
-  "nextRequiredBoundary": "fail-closed-commercial-isolation-deploy"
+  "nextRequiredBoundary": "ugmu-live-checkout-ui"
 }
