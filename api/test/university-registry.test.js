@@ -49,7 +49,8 @@ test("registry contains isolated university configurations", () => {
   assert.equal(ugmu.timezone, "Asia/Yekaterinburg");
   assert.equal(ugmu.timeMode, "floating");
   assert.equal(ugmu.source.kind, "pdf");
-  assert.equal(ugmu.source.primaryPage, null);
+  assert.match(ugmu.source.primaryPage, /^https:\/\/usma\.ru\//);
+  assert.equal(ugmu.source.pageStrategy, "per-program");
   assert.equal(ugmu.source.adapter, "ugmu");
   assert.equal(ugmu.source.productionLanguage, "ru");
   assert.deepEqual(ugmu.source.versionIdentity, ["source_page", "source_url", "sha256"]);
@@ -91,7 +92,7 @@ test("UGMU starts fail-closed with medicine as the only initial parsing scope", 
   const enabled = ugmu.programs.filter((program) => program.initialScope).map((program) => program.id);
   const deferred = ugmu.programs.filter((program) => !program.initialScope).map((program) => program.id);
   assert.equal(ugmu.active, false);
-  assert.equal(ugmu.source.primaryPage, null);
+  assert.match(ugmu.source.primaryPage, /lechebnoe-delo\/$/);
   assert.deepEqual(enabled, ["medicine"]);
   assert.deepEqual(deferred, [
     "pediatrics",
