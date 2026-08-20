@@ -90,6 +90,7 @@ jobs:
             test/ugmu-canonical-pilot.test.js \
             test/ugmu-publication-package.test.js \
             test/ugmu-api-routing.test.js \
+            test/ugmu-live-checkout-ui.test.js \
             test/university-registry.test.js \
             test/shared-config.test.js
           python3 tools/ugmu-parse-weekly-pdf.py --self-test
@@ -164,16 +165,17 @@ jobs:
             .apiState.checkoutEnabled == false and
             .apiState.trialsEnabled == false and
             .siteState.path == "/ugmu/" and
-            .siteState.previewOnly == true and
-            .siteState.groupsVisibleInPreview == 12 and
-            .siteState.checkoutEnabled == false and
-            .siteState.publicIcsEnabled == false and
+            .siteState.liveCheckoutPrepared == true and
+            .siteState.deployedByThisGate == false and
+            .siteState.groupsPrepared == 12 and
+            .siteState.startsDisabled == true and
+            .siteState.requiresLivePaymentMode == true and
             .siteState.searchIndexingEnabled == false and
             .launchAuthority.publicationAllowedByThisGate == false and
             .launchAuthority.salesAllowedByThisGate == false and
             .launchAuthority.trialsAllowedByThisGate == false and
             .launchAuthority.catalogVisibilityAllowedByThisGate == false and
-            .launchAuthority.nextRequiredBoundary == "yookassa-paid-e2e" and
+            .launchAuthority.nextRequiredBoundary == "validate-live-yookassa-mode" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-launch-readiness-report.json >/dev/null
 
@@ -196,7 +198,7 @@ jobs:
           console.log(`Scope: **medicine · 1 курс · I поток · ОЛД 101–112**`);
           console.log(`Source SHA-256: \`${report.scope.sourceSha256}\``);
           console.log(`API routing: **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/checkout/trials: **closed**`);
-          console.log(`Landing: **${report.siteState?.path || 'missing'}**; preview groups: **${report.siteState?.groupsVisibleInPreview || 0}**; checkout/ICS/indexing: **closed**`);
+          console.log(`Landing: **${report.siteState?.path || 'missing'}**; live checkout prepared: **${report.siteState?.liveCheckoutPrepared ? 'yes' : 'no'}**; production deploy by this gate: **no**`);
           console.log(`Missing courses on source page: **${(report.sourceState.missingCourses || []).join(', ') || 'none'}**`);
           console.log('Publication / sales / trials / catalog visibility granted by this gate: **no**');
           console.log(`Next boundary: **${report.launchAuthority.nextRequiredBoundary}**`);

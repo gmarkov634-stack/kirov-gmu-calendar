@@ -154,24 +154,27 @@ addCheck(checks, errors, "fixtureScope",
 );
 
 const landingGroupsPresent = EXPECTED_GROUPS.every((group) => landingConfig.includes(`code: "${group}"`));
-const siteFailClosed = landingHtml.includes("Предварительный запуск")
-  && landingHtml.includes("Подключение откроется после финального запуска")
-  && landingHtml.includes("meta name=\"robots\" content=\"noindex,follow\"")
+const siteLaunchReadyFailClosed = landingHtml.includes("Предзапусковый режим")
+  && landingHtml.includes('name="robots" content="noindex,follow"')
+  && landingHtml.includes('type="submit" disabled')
   && landingConfig.includes('university: "ugmu"')
-  && landingConfig.includes("previewOnly: true")
-  && landingConfig.includes("checkoutEnabled: false")
-  && landingConfig.includes("publicIcsEnabled: false")
+  && landingConfig.includes('paymentPath: "/api/v2/payments"')
+  && landingConfig.includes('defaultPlan: "semester"')
   && landingConfig.includes(EXPECTED_SHA)
   && landingGroupsPresent
-  && !landingHtml.includes("/api/v2/payments")
-  && !landingHtml.includes("calendar.ics")
-  && !landingConfig.includes("/api/v2/payments")
-  && !landingConfig.includes("calendar.ics")
-  && !landingApp.includes("fetch(")
-  && !landingApp.includes("/api/v2/payments")
-  && !landingApp.includes("calendar.ics");
-addCheck(checks, errors, "sitePreviewBoundary", siteFailClosed,
-  `preview=${landingConfig.includes("previewOnly: true")}; groups=${landingGroupsPresent ? 12 : "missing"}; checkout/public=false`,
+  && !landingConfig.includes("previewOnly")
+  && !landingConfig.includes("checkoutEnabled")
+  && !landingConfig.includes("publicIcsEnabled")
+  && landingApp.includes('/api/v2/meta')
+  && landingApp.includes('config.paymentPath')
+  && landingApp.includes('runtime.sales === "open"')
+  && landingApp.includes('runtime.paymentMode === "live"')
+  && landingApp.includes('confirmationUrl')
+  && landingApp.includes('order.subscriptionUrl')
+  && !landingApp.includes('/api/v2/catalog/ugmu')
+  && !landingApp.includes('/api/v2/schedules/ugmu');
+addCheck(checks, errors, "siteLaunchReadyBoundary", siteLaunchReadyFailClosed,
+  `runtimeGated=${landingApp.includes('runtime.sales === "open"')}; liveModeRequired=${landingApp.includes('runtime.paymentMode === "live"')}; groups=${landingGroupsPresent ? 12 : "missing"}; noindex=true`,
 );
 
 const failClosed = university.active === false
@@ -184,7 +187,7 @@ const failClosed = university.active === false
   && watchReport.publicationAllowed === false
   && firstStreamQa.publicationAllowed === false
   && regression.publicationAllowed === false
-  && siteFailClosed;
+  && siteLaunchReadyFailClosed;
 addCheck(checks, errors, "commercialPublicationBoundary", failClosed, `failClosed=${failClosed}`);
 
 const structuralReady = errors.length === 0;
@@ -220,10 +223,11 @@ const report = {
   },
   siteState: {
     path: "/ugmu/",
-    previewOnly: siteFailClosed,
-    groupsVisibleInPreview: landingGroupsPresent ? 12 : 0,
-    checkoutEnabled: false,
-    publicIcsEnabled: false,
+    liveCheckoutPrepared: siteLaunchReadyFailClosed,
+    deployedByThisGate: false,
+    groupsPrepared: landingGroupsPresent ? 12 : 0,
+    startsDisabled: landingHtml.includes('type="submit" disabled'),
+    requiresLivePaymentMode: landingApp.includes('runtime.paymentMode === "live"'),
     searchIndexingEnabled: false,
   },
   launchAuthority: {
@@ -231,7 +235,7 @@ const report = {
     salesAllowedByThisGate: false,
     trialsAllowedByThisGate: false,
     catalogVisibilityAllowedByThisGate: false,
-    nextRequiredBoundary: "yookassa-paid-e2e",
+    nextRequiredBoundary: "validate-live-yookassa-mode",
   },
   checks,
   evidence: {

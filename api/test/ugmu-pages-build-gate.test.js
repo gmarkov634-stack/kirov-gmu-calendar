@@ -31,18 +31,24 @@ test("Pages production artifact is built on pull requests but deployment remains
   assert.match(workflow, /uses:\s*actions\/deploy-pages@v4/);
 });
 
-test("UGMU artifact gate remains preview-only and source-bound", () => {
+test("UGMU artifact gate is live-checkout-ready but remains noindex and runtime fail-closed", () => {
   const prepare = stepBlock("Prepare production artifact");
   for (const marker of [
-    "grep -q 'previewOnly: true' dist/site/ugmu/config.js",
-    "grep -q 'checkoutEnabled: false' dist/site/ugmu/config.js",
-    "grep -q 'publicIcsEnabled: false' dist/site/ugmu/config.js",
+    "grep -q \"apiBaseUrl: \\\"$CLOUD_RU_API_URL\\\"\" dist/site/ugmu/config.js",
+    "grep -q 'paymentPath: \"/api/v2/payments\"' dist/site/ugmu/config.js",
+    "grep -q 'defaultPlan: \"semester\"' dist/site/ugmu/config.js",
     "grep -q '34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8' dist/site/ugmu/config.js",
     "grep -q 'name=\"robots\" content=\"noindex,follow\"' dist/site/ugmu/index.html",
-    "! grep -R '/api/v2/payments' dist/site/ugmu",
-    "! grep -R 'calendar.ics' dist/site/ugmu",
-    "! grep -R 'fetch(' dist/site/ugmu",
+    "grep -q '/api/v2/meta' dist/site/ugmu/app.js",
+    "grep -q 'config.paymentPath' dist/site/ugmu/app.js",
+    "grep -q 'runtime.sales === \"open\"' dist/site/ugmu/app.js",
+    "grep -q 'runtime.paymentMode === \"live\"' dist/site/ugmu/app.js",
+    "! grep -q 'previewOnly' dist/site/ugmu/config.js",
+    "! grep -q 'checkoutEnabled' dist/site/ugmu/config.js",
+    "! grep -q 'publicIcsEnabled' dist/site/ugmu/config.js",
+    "! grep -R '/api/v2/catalog/ugmu' dist/site/ugmu",
+    "! grep -R '/api/v2/schedules/ugmu' dist/site/ugmu",
   ]) {
-    assert.ok(prepare.includes(marker), `UGMU Pages fail-closed marker missing: ${marker}`);
+    assert.ok(prepare.includes(marker), `UGMU Pages live-checkout marker missing: ${marker}`);
   }
 });

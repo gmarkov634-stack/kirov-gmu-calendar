@@ -34,27 +34,29 @@ test("launch target opens only paid UGMU checkout while public ICS and trials st
   assert.equal(plan.launchTarget.paymentMode, "live");
 });
 
-test("plan records staging and isolation deployment as complete and leaves two real preactivation boundaries", () => {
-  assert.equal(blocker("stage-first-stream-production-schedules")?.state, "completed");
+test("plan records staging, commercial isolation and live checkout UI as complete", () => {
+  for (const id of [
+    "stage-first-stream-production-schedules",
+    "isolate-global-sales-gate",
+    "wire-live-ugmu-landing",
+  ]) assert.equal(blocker(id)?.state, "completed", `${id} must be completed`);
   assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951498/);
-  assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951401/);
-
-  assert.equal(blocker("isolate-global-sales-gate")?.state, "completed");
   assert.match(blocker("isolate-global-sales-gate")?.completion || "", /32424944030/);
-  assert.match(blocker("isolate-global-sales-gate")?.completion || "", /2c3d6d63a6d8102c7f45dcba29619e75c5f991b760198bd770ca823f2e94faae/);
-
-  for (const id of ["wire-live-ugmu-landing", "validate-live-yookassa-mode"]) {
-    assert.equal(blocker(id)?.state, "required", `${id} must remain required`);
-    assert.ok(blocker(id)?.completion, `${id} must define completion criteria`);
-  }
-  assert.equal(plan.phases.find((item) => item.id === "deploy-isolation-guards")?.state, "completed");
-  assert.equal(plan.nextRequiredBoundary, "ugmu-live-checkout-ui");
+  assert.equal(blocker("validate-live-yookassa-mode")?.state, "required");
+  assert.equal(plan.nextRequiredBoundary, "validate-live-yookassa-mode");
 });
 
 test("backend activation uses the dedicated UGMU gate rather than opening the legacy global gate", () => {
   const phase = plan.phases.find((item) => item.id === "activate-backend-ugmu-checkout");
   assert.ok(phase.mutations.some((item) => item.includes("UGMU_SALES_ENABLED false -> true")));
-  assert.equal(phase.mutations.some((item) => item.includes("global commercial sales gate -> open")), false);
+  assert.ok(phase.mustRemainClosed.some((item) => item.includes("legacy global sales gate")));
+});
+
+test("prepared landing stays noindex/unpublished until explicit activation", () => {
+  const phase = plan.phases.find((item) => item.id === "prepare-user-facing-landing");
+  assert.equal(phase.state, "completed-not-deployed");
+  assert.ok(phase.mustRemainClosed.includes("production Pages deployment"));
+  assert.ok(phase.successChecks.some((item) => item.includes("sales=open and paymentMode=live")));
 });
 
 test("rollback closes access first and keeps staged schedules inert instead of deleting data", () => {
@@ -71,7 +73,6 @@ test("activation-plan validator is evidence-only and contains no cloud or paymen
     "DeleteObjectCommand",
     "publishScheduleBatch(",
     "containers.api.cloud.ru",
-    "\/api\/v2\/payments\"",
     "fetch(\"https://api.yookassa.ru",
   ]) {
     assert.equal(tool.includes(forbidden), false, `validator must not contain mutation primitive: ${forbidden}`);

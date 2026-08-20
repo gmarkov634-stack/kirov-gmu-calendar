@@ -81,17 +81,26 @@ addCheck(checks, errors, "crossUniversityHistoricalRegression",
 
 const pagesGroupsPresent = EXPECTED_GROUPS.every((group) => pagesConfig.includes(`code: "${group}"`));
 const pagesSafe = pagesConfig.includes('university: "ugmu"')
-  && pagesConfig.includes("previewOnly: true")
-  && pagesConfig.includes("checkoutEnabled: false")
-  && pagesConfig.includes("publicIcsEnabled: false")
+  && pagesConfig.includes('paymentPath: "/api/v2/payments"')
+  && pagesConfig.includes('defaultPlan: "semester"')
   && pagesConfig.includes(EXPECTED_SHA)
   && pagesGroupsPresent
+  && !pagesConfig.includes("previewOnly")
+  && !pagesConfig.includes("checkoutEnabled")
+  && !pagesConfig.includes("publicIcsEnabled")
   && pagesHtml.includes('name="robots" content="noindex,follow"')
-  && !pagesHtml.includes("/api/v2/payments")
-  && !pagesConfig.includes("/api/v2/payments")
-  && !pagesApp.includes("fetch(")
-  && !pagesApp.includes("calendar.ics");
-addCheck(checks, errors, "productionIdenticalPagesArtifact", pagesSafe, `previewOnly=${pagesConfig.includes("previewOnly: true")}; groups=${pagesGroupsPresent ? 12 : 0}; commercial/public markers absent=${pagesSafe}`);
+  && pagesHtml.includes('type="submit" disabled')
+  && pagesApp.includes('/api/v2/meta')
+  && pagesApp.includes('config.paymentPath')
+  && pagesApp.includes('runtime.sales === "open"')
+  && pagesApp.includes('runtime.paymentMode === "live"')
+  && pagesApp.includes('confirmationUrl')
+  && pagesApp.includes('order.subscriptionUrl')
+  && !pagesApp.includes('/api/v2/catalog/ugmu')
+  && !pagesApp.includes('/api/v2/schedules/ugmu');
+addCheck(checks, errors, "productionIdenticalPagesArtifact", pagesSafe,
+  `liveCheckoutPrepared=${pagesApp.includes('config.paymentPath')}; startsDisabled=${pagesHtml.includes('type="submit" disabled')}; liveModeRequired=${pagesApp.includes('runtime.paymentMode === "live"')}; groups=${pagesGroupsPresent ? 12 : 0}; noindex=true`,
+);
 
 const deploySafe = deployWorkflow.includes("workflow_run.head_branch == 'main'")
   && deployWorkflow.includes("git merge-base --is-ancestor")
@@ -150,7 +159,7 @@ const liveSafe = production.health?.status === "ok"
   && production.checkoutStatus === 409
   && production.checkoutError === "sales_not_open";
 addCheck(checks, errors, "liveCloudRuProductionSmoke", liveSafe,
-  `health=${production.health?.status}; sales=${production.meta?.sales}; trials=${production.meta?.trials}; cors=${production.cors}; schedule=${production.scheduleStatus}/${production.scheduleError}; checkout=${production.checkoutStatus}/${production.checkoutError}`,
+  `health=${production.health?.status}; sales=${production.meta?.sales}; trials=${production.meta?.trials}; paymentMode=${production.meta?.paymentMode}; cors=${production.cors}; schedule=${production.scheduleStatus}/${production.scheduleError}; checkout=${production.checkoutStatus}/${production.checkoutError}`,
 );
 
 const launchReady = errors.length === 0;
@@ -173,7 +182,7 @@ const report = {
     salesActivatedByThisGate: false,
     trialsActivatedByThisGate: false,
     catalogVisibilityActivatedByThisGate: false,
-    nextRequiredBoundary: launchReady ? "controlled-launch-activation" : "resolve-final-readiness-gaps",
+    nextRequiredBoundary: launchReady ? "validate-live-yookassa-mode" : "resolve-final-readiness-gaps",
   },
   evidence: Object.fromEntries(Object.entries(files).map(([key, value]) => [key, path.relative(rootDir, value)])),
   errors,

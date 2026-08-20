@@ -50,7 +50,7 @@ jobs:
       - name: Test final readiness contract
         run: |
           cd api
-          node --test test/ugmu-final-launch-readiness.test.js test/ugmu-api-routing.test.js test/cloudru-deploy-workflow.test.js test/ugmu-pages-build-gate.test.js
+          node --test test/ugmu-final-launch-readiness.test.js test/ugmu-api-routing.test.js test/cloudru-deploy-workflow.test.js test/ugmu-pages-build-gate.test.js test/ugmu-live-checkout-ui.test.js
           python3 tools/ugmu-parse-first-stream-pdf.py --self-test
 
       - name: Rebuild live structural readiness evidence
@@ -115,6 +115,7 @@ jobs:
           const targets = [
             { path: 'dist/site/data.js', pattern: /apiBase:\s*"https:\/\/[^\"]+"/, replacement: `apiBase: "${apiUrl}"` },
             { path: 'dist/site/omgmu/config.js', pattern: /apiBaseUrl:\s*"https:\/\/[^\"]+"/, replacement: `apiBaseUrl: "${apiUrl}"` },
+            { path: 'dist/site/ugmu/config.js', pattern: /apiBaseUrl:\s*"https:\/\/[^\"]+"/, replacement: `apiBaseUrl: "${apiUrl}"` },
           ];
           for (const target of targets) {
             const source = fs.readFileSync(target.path, 'utf8');
@@ -122,14 +123,21 @@ jobs:
             fs.writeFileSync(target.path, source.replace(target.pattern, target.replacement));
           }
           NODE
-          grep -q 'previewOnly: true' dist/site/ugmu/config.js
-          grep -q 'checkoutEnabled: false' dist/site/ugmu/config.js
-          grep -q 'publicIcsEnabled: false' dist/site/ugmu/config.js
+          grep -q "apiBaseUrl: \"$API_URL\"" dist/site/ugmu/config.js
+          grep -q 'paymentPath: "/api/v2/payments"' dist/site/ugmu/config.js
+          grep -q 'defaultPlan: "semester"' dist/site/ugmu/config.js
           grep -q '34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8' dist/site/ugmu/config.js
           grep -q 'name="robots" content="noindex,follow"' dist/site/ugmu/index.html
-          ! grep -R '/api/v2/payments' dist/site/ugmu
-          ! grep -R 'calendar.ics' dist/site/ugmu
-          ! grep -R 'fetch(' dist/site/ugmu
+          grep -q 'type="submit" disabled' dist/site/ugmu/index.html
+          grep -q '/api/v2/meta' dist/site/ugmu/app.js
+          grep -q 'config.paymentPath' dist/site/ugmu/app.js
+          grep -q 'runtime.sales === "open"' dist/site/ugmu/app.js
+          grep -q 'runtime.paymentMode === "live"' dist/site/ugmu/app.js
+          ! grep -q 'previewOnly' dist/site/ugmu/config.js
+          ! grep -q 'checkoutEnabled' dist/site/ugmu/config.js
+          ! grep -q 'publicIcsEnabled' dist/site/ugmu/config.js
+          ! grep -R '/api/v2/catalog/ugmu' dist/site/ugmu
+          ! grep -R '/api/v2/schedules/ugmu' dist/site/ugmu
 
       - name: Run final launch readiness aggregator and live Cloud.ru smoke
         env:
@@ -152,7 +160,7 @@ jobs:
             .launchAuthority.salesActivatedByThisGate == false and
             .launchAuthority.trialsActivatedByThisGate == false and
             .launchAuthority.catalogVisibilityActivatedByThisGate == false and
-            .launchAuthority.nextRequiredBoundary == "controlled-launch-activation"
+            .launchAuthority.nextRequiredBoundary == "validate-live-yookassa-mode"
           ' data/regression/ugmu-final-launch-readiness-report.json >/dev/null
 
       - name: Write summary

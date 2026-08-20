@@ -137,8 +137,13 @@ jobs:
           vm.runInNewContext(ugmuConfigCode, ugmuSandbox);
           const ugmu = ugmuSandbox.window.UGMU_CONFIG;
           if (!ugmu || ugmu.university !== 'ugmu') throw new Error('UGMU identity config is missing');
-          if (ugmu.previewOnly !== true || ugmu.checkoutEnabled !== false || ugmu.publicIcsEnabled !== false) {
-            throw new Error('UGMU landing must remain preview-only and fail-closed');
+          if (ugmu.defaultPlan !== 'semester' || ugmu.paymentPath !== '/api/v2/payments' || !/^https:\/\//.test(ugmu.apiBaseUrl || '')) {
+            throw new Error('UGMU live checkout runtime config is incomplete');
+          }
+          for (const forbidden of ['previewOnly', 'checkoutEnabled', 'publicIcsEnabled', 'testMode', 'priceRub']) {
+            if (Object.prototype.hasOwnProperty.call(ugmu, forbidden) || ugmuConfigCode.includes(forbidden)) {
+              throw new Error(`UGMU config must not contain static commercial authority: ${forbidden}`);
+            }
           }
           if (ugmu.academicYear !== '2026/2027' || ugmu.semester !== 1 || ugmu.program?.id !== 'medicine' || ugmu.program?.course !== 1 || String(ugmu.program?.stream) !== '1') {
             throw new Error('UGMU landing scope drifted from approved first-stream scope');
@@ -151,20 +156,38 @@ jobs:
             throw new Error('UGMU landing group scope must be OLD 101-112');
           }
           const ugmuHtml = fs.readFileSync('site/ugmu/index.html', 'utf8');
-          for (const requiredId of ['programs', 'how', 'preview', 'group-select', 'group-preview', 'faq']) {
+          for (const requiredId of ['programs', 'how', 'order', 'order-form', 'order-result', 'group-select', 'group-preview', 'email', 'selection-summary', 'price-summary', 'runtime-price', 'restore-order', 'faq']) {
             if (!ugmuHtml.includes(`id="${requiredId}"`)) throw new Error(`UGMU landing UX element missing: ${requiredId}`);
           }
-          for (const requiredCopy of ['Предварительный запуск', 'ОЛД 101–112', 'Подключение откроется после финального запуска', 'Это официальный сервис УГМУ?']) {
-            if (!ugmuHtml.includes(requiredCopy)) throw new Error(`UGMU fail-closed copy missing: ${requiredCopy}`);
+          for (const requiredCopy of ['Предзапусковый режим', 'ОЛД 101–112', 'Оплата проходит через ЮKassa', 'Без автосписаний', 'Это официальный сервис УГМУ?']) {
+            if (!ugmuHtml.includes(requiredCopy)) throw new Error(`UGMU checkout copy missing: ${requiredCopy}`);
           }
-          for (const forbidden of ['/api/v2/payments', 'calendar.ics', 'type="email"', '>Оплатить<', 'webcal://']) {
-            if (ugmuHtml.includes(forbidden) || ugmuConfigCode.includes(forbidden)) {
-              throw new Error(`UGMU landing contains premature commercial/publication marker: ${forbidden}`);
-            }
-          }
+          if (!ugmuHtml.includes('type="submit" disabled')) throw new Error('UGMU checkout must start disabled');
+          if (!ugmuHtml.includes('name="robots" content="noindex,follow"')) throw new Error('UGMU remains noindex until explicit launch');
+          if (ugmuHtml.includes('calendar.ics') || ugmuHtml.includes('webcal://')) throw new Error('UGMU HTML must not expose a public calendar URL');
+
           const ugmuApp = fs.readFileSync('site/ugmu/app.js', 'utf8');
-          for (const forbidden of ['fetch(', 'XMLHttpRequest', '/api/v2/payments', 'calendar.ics']) {
-            if (ugmuApp.includes(forbidden)) throw new Error(`UGMU preview app must not call live commercial/public endpoints: ${forbidden}`);
+          for (const required of [
+            'email:',
+            'university_id: config.university',
+            'groupId: groupId(group)',
+            'plan: config.defaultPlan',
+            'confirmationUrl',
+            '/api/v2/meta',
+            'config.paymentPath',
+            'runtime.sales === "open"',
+            'runtime.paymentMode === "live"',
+            'meta.paymentMode',
+            'meta.offers?.[config.defaultPlan]?.price',
+            'restoreOrderForm',
+            'resultPanel',
+            'enableSavedOrderRecovery',
+            'restoreOrderButton',
+          ]) {
+            if (!ugmuApp.includes(required)) throw new Error(`UGMU live checkout contract marker missing: ${required}`);
+          }
+          for (const forbidden of ['/api/v2/catalog/ugmu', '/api/v2/schedules/ugmu', 'checkoutEnabled', 'config.testMode', 'config.priceRub']) {
+            if (ugmuApp.includes(forbidden)) throw new Error(`UGMU paid-only boundary violation: ${forbidden}`);
           }
           console.log('Landing commercial/fail-closed validation passed');
           NODE
@@ -220,6 +243,11 @@ jobs:
               pattern: /apiBaseUrl:\s*"https:\/\/[^\"]+"/,
               replacement: `apiBaseUrl: "${apiUrl}"`,
             },
+            {
+              path: 'dist/site/ugmu/config.js',
+              pattern: /apiBaseUrl:\s*"https:\/\/[^\"]+"/,
+              replacement: `apiBaseUrl: "${apiUrl}"`,
+            },
           ];
           for (const target of targets) {
             const source = fs.readFileSync(target.path, 'utf8');
@@ -229,14 +257,20 @@ jobs:
           NODE
           grep -q "apiBase: \"$CLOUD_RU_API_URL\"" dist/site/data.js
           grep -q "apiBaseUrl: \"$CLOUD_RU_API_URL\"" dist/site/omgmu/config.js
-          grep -q 'previewOnly: true' dist/site/ugmu/config.js
-          grep -q 'checkoutEnabled: false' dist/site/ugmu/config.js
-          grep -q 'publicIcsEnabled: false' dist/site/ugmu/config.js
+          grep -q "apiBaseUrl: \"$CLOUD_RU_API_URL\"" dist/site/ugmu/config.js
+          grep -q 'paymentPath: "/api/v2/payments"' dist/site/ugmu/config.js
+          grep -q 'defaultPlan: "semester"' dist/site/ugmu/config.js
           grep -q '34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8' dist/site/ugmu/config.js
           grep -q 'name="robots" content="noindex,follow"' dist/site/ugmu/index.html
-          ! grep -R '/api/v2/payments' dist/site/ugmu
-          ! grep -R 'calendar.ics' dist/site/ugmu
-          ! grep -R 'fetch(' dist/site/ugmu
+          grep -q '/api/v2/meta' dist/site/ugmu/app.js
+          grep -q 'config.paymentPath' dist/site/ugmu/app.js
+          grep -q 'runtime.sales === "open"' dist/site/ugmu/app.js
+          grep -q 'runtime.paymentMode === "live"' dist/site/ugmu/app.js
+          ! grep -q 'previewOnly' dist/site/ugmu/config.js
+          ! grep -q 'checkoutEnabled' dist/site/ugmu/config.js
+          ! grep -q 'publicIcsEnabled' dist/site/ugmu/config.js
+          ! grep -R '/api/v2/catalog/ugmu' dist/site/ugmu
+          ! grep -R '/api/v2/schedules/ugmu' dist/site/ugmu
           ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
       - name: Upload PR Pages build evidence
         if: github.event_name == 'pull_request'

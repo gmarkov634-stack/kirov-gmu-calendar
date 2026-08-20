@@ -10,6 +10,7 @@ on:
       - "api/src/adapters/ugmu/publication-package.mjs"
       - "api/tools/ugmu-controlled-activation-plan.mjs"
       - "api/test/ugmu-controlled-activation-plan.test.js"
+      - "api/test/ugmu-live-checkout-ui.test.js"
       - "api/package.json"
       - "site/ugmu/**"
       - "universities/ugmu/controlled-activation-plan.json"
@@ -24,6 +25,7 @@ on:
       - "api/src/adapters/ugmu/publication-package.mjs"
       - "api/tools/ugmu-controlled-activation-plan.mjs"
       - "api/test/ugmu-controlled-activation-plan.test.js"
+      - "api/test/ugmu-live-checkout-ui.test.js"
       - "api/package.json"
       - "site/ugmu/**"
       - "universities/ugmu/controlled-activation-plan.json"
@@ -54,7 +56,7 @@ jobs:
         run: npm ci
 
       - name: Test activation-plan safety contract
-        run: node --test test/ugmu-controlled-activation-plan.test.js
+        run: node --test test/ugmu-controlled-activation-plan.test.js test/ugmu-live-checkout-ui.test.js
 
       - name: Build evidence-only activation plan
         env:
@@ -68,16 +70,17 @@ jobs:
             .activationPerformed == false and
             .productionMutationPerformed == false and
             .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
-            .blockerCount == 2 and
-            (.completedBlocks | length) == 2 and
-            ([.completedBlocks[].id] | sort) == ["isolate-global-sales-gate","stage-first-stream-production-schedules"] and
+            .blockerCount == 1 and
+            (.completedBlocks | length) == 3 and
+            ([.completedBlocks[].id] | sort) == ["isolate-global-sales-gate","stage-first-stream-production-schedules","wire-live-ugmu-landing"] and
+            .blockers[0].id == "validate-live-yookassa-mode" and
             .launchTarget.productionSchedulesRequired == 12 and
             .launchTarget.checkoutEnabled == true and
             .launchTarget.publicEndpointsEnabled == false and
             .launchTarget.publicIcsEnabled == false and
             .launchTarget.trialsEnabled == false and
             .launchTarget.paymentMode == "live" and
-            .nextRequiredBoundary == "ugmu-live-checkout-ui" and
+            .nextRequiredBoundary == "validate-live-yookassa-mode" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-controlled-activation-plan-report.json >/dev/null
 
