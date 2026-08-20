@@ -29,16 +29,17 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           text = Path('.github/workflows/ugmu-yookassa-live-readiness.yml').read_text(encoding='utf-8')
-          for forbidden in [
-              '--request PATCH',
-              'containers.api.cloud.ru/v2/',
-              'aws s3',
-              'PutObject',
-              'DeleteObject',
-              'UGMU_SALES_ENABLED=true',
-              'COMMERCIAL_SALES_ENABLED=true',
-          ]:
-              assert forbidden not in text, forbidden
+          forbidden = [
+              '--request ' + 'PATCH',
+              'containers.api.cloud.ru/' + 'v2/',
+              'aws ' + 's3',
+              'Put' + 'Object',
+              'Delete' + 'Object',
+              'UGMU_SALES_ENABLED=' + 'true',
+              'COMMERCIAL_SALES_ENABLED=' + 'true',
+          ]
+          for marker in forbidden:
+              assert marker not in text, marker
           assert 'https://api.yookassa.ru/v3/me' in text
           assert 'https://api.yookassa.ru/v3/payments?limit=1' in text
           assert '--request GET' in text
@@ -88,7 +89,7 @@ jobs:
             --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = "200"
 
           python3 - <<'PY'
-          import json, os
+          import json
           app=json.load(open('/tmp/current-container.json', encoding='utf-8'))
           assert app.get('name') == 'kgmu-calendar-api', app.get('name')
           assert app.get('status') == 'running', app.get('status')
