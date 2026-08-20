@@ -74,6 +74,24 @@ test("extracts only semester class PDFs and carries course context between strea
   assert.equal(sources[4].stream, "3");
 });
 
+test("uses the latest section marker and never treats footer PDFs as schedules", () => {
+  const html = `
+    <h3>Расписание занятий на осенний семестр</h3>
+    <div>6 курс <a href="/wp-content/uploads/2026/08/6-lek.pdf">6 курс лекции</a></div>
+    <h3>Расписание занятий на весенний семестр</h3>
+    <div>6 курс</div>
+    <h3>Расписание государственной итоговой аттестации</h3>
+    <div>6 курс</div>
+    <footer>
+      <a href="/wp-content/uploads/2023/12/privacy.pdf">Положение об обработке и обеспечении безопасности ПДн в УГМУ</a>
+    </footer>
+  `;
+  const sources = extractUgmuScheduleSources(html, { sourceUrl: SOURCE, program: "medicine" });
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].label, "6 курс лекции");
+  assert.equal(sources[0].semester, "autumn");
+});
+
 test("discovery returns a validated fail-closed manifest without publishing", async () => {
   const html = `
     <h3>Расписание занятий на осенний семестр</h3>
