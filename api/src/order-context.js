@@ -1,6 +1,7 @@
 const UNIVERSITY_DEFAULTS = {
   kgmu: { name: "КГМУ", timezone: "Europe/Moscow" },
   omgmu: { name: "ОмГМУ", timezone: "Asia/Omsk" },
+  ugmu: { name: "УГМУ", timezone: "Asia/Yekaterinburg" },
   pgmu: { name: "ПГМУ", timezone: "Asia/Yekaterinburg" },
 };
 
