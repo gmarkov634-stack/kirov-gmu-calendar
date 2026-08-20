@@ -62,7 +62,11 @@ export function academicYearStorageSegment(value) {
 
 export function scheduleContext(schedule = {}, requestedUniversity) {
   const canonical = canonicalMetadata(schedule);
-  const university = stringOrNull(canonical?.university) || stringOrNull(schedule.university) || stringOrNull(requestedUniversity) || "kgmu";
+  const university = stringOrNull(canonical?.university)
+    || stringOrNull(schedule.university)
+    || stringOrNull(schedule.university_id)
+    || stringOrNull(requestedUniversity)
+    || "kgmu";
   const defaults = UNIVERSITY_DEFAULTS[university] || {};
   const program = stringOrNull(canonical?.program) || stringOrNull(schedule.program) || stringOrNull(schedule.faculty);
   const stream = stringOrNull(canonical?.stream) || stringOrNull(schedule.stream);
