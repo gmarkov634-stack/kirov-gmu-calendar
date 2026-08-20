@@ -28,7 +28,8 @@
     "discover:ugmu": "node tools/ugmu-discover.mjs",
     "download:ugmu": "node tools/ugmu-download.mjs",
     "watch:ugmu": "node tools/ugmu-watch-sources.mjs",
-    "parse:ugmu:weekly": "python3 tools/ugmu-parse-weekly-pdf.py"
+    "parse:ugmu:weekly": "python3 tools/ugmu-parse-weekly-pdf.py",
+    "canonical:ugmu:pilot": "node tools/ugmu-pilot-canonical.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0"
