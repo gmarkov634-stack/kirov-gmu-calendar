@@ -32,6 +32,7 @@
     "parse:ugmu:first-stream": "python3 tools/ugmu-parse-first-stream-pdf.py",
     "qa:ugmu:first-stream": "node tools/ugmu-first-stream-qa.mjs",
     "regression:ugmu:first-stream": "node tools/ugmu-first-stream-versioning-regression.mjs",
+    "readiness:ugmu": "node tools/ugmu-launch-readiness.mjs",
     "canonical:ugmu:pilot": "node tools/ugmu-pilot-canonical.mjs",
     "versioning:ugmu:pilot": "node tools/ugmu-versioning-regression.mjs",
     "package:ugmu:pilot": "node tools/ugmu-pilot-package.mjs"
