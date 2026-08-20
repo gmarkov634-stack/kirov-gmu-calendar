@@ -1,0 +1,249 @@
+name: UGMU YooKassa live readiness
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-yookassa-live-readiness.yml"
+      - "universities/ugmu/controlled-activation-plan.json"
+
+permissions:
+  contents: read
+
+env:
+  CONTAINER_NAME: kgmu-calendar-api
+  PRODUCTION_BASE_URL: https://kgmu-calendar-api.containerapps.ru
+
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify read-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/ugmu-yookassa-live-readiness.yml').read_text(encoding='utf-8')
+          for forbidden in [
+              '--request PATCH',
+              'containers.api.cloud.ru/v2/',
+              'aws s3',
+              'PutObject',
+              'DeleteObject',
+              'UGMU_SALES_ENABLED=true',
+              'COMMERCIAL_SALES_ENABLED=true',
+          ]:
+              assert forbidden not in text, forbidden
+          assert 'https://api.yookassa.ru/v3/me' in text
+          assert 'https://api.yookassa.ru/v3/payments?limit=1' in text
+          assert '--request GET' in text
+          print('READ_ONLY_CONTRACT_SAFE')
+          PY
+
+      - name: Inspect production and probe YooKassa without creating a payment
+        env:
+          CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
+          CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+
+          auth_payload="$(python3 - <<'PY'
+          import json, os
+          print(json.dumps({'keyId': os.environ['CLOUDRU_KEY_ID'], 'secret': os.environ['CLOUDRU_KEY_SECRET']}))
+          PY
+          )"
+          test "$(curl --silent --show-error --output /tmp/cloud-token.json --write-out '%{http_code}' \
+            --request POST --header 'Content-Type: application/json' --data "$auth_payload" \
+            'https://iam.api.cloud.ru/api/v1/auth/token')" = "200"
+
+          readarray -t auth < <(python3 - <<'PY'
+          import base64, json
+          body=json.load(open('/tmp/cloud-token.json', encoding='utf-8'))
+          token=body.get('access_token')
+          assert isinstance(token, str) and token
+          parts=token.split('.')
+          assert len(parts) == 3
+          payload=parts[1] + '='*((4-len(parts[1])%4)%4)
+          claims=json.loads(base64.urlsafe_b64decode(payload.encode()).decode())
+          project_id=claims.get('project_id')
+          assert isinstance(project_id, str) and project_id
+          print(token)
+          print(project_id)
+          PY
+          )
+          token="${auth[0]}"
+          project_id="${auth[1]}"
+          rm -f /tmp/cloud-token.json
+          echo "::add-mask::$token"
+
+          get_url="https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project_id"
+          test "$(curl --silent --show-error --output /tmp/current-container.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = "200"
+
+          python3 - <<'PY'
+          import json, os
+          app=json.load(open('/tmp/current-container.json', encoding='utf-8'))
+          assert app.get('name') == 'kgmu-calendar-api', app.get('name')
+          assert app.get('status') == 'running', app.get('status')
+          containers=app.get('template',{}).get('containers',[])
+          assert len(containers) == 1, len(containers)
+          env={item.get('name'):item.get('value') for item in containers[0].get('env',[]) if isinstance(item,dict)}
+          shop=str(env.get('YOOKASSA_SHOP_ID') or '')
+          secret=str(env.get('YOOKASSA_SECRET_KEY') or '')
+          if shop:
+              print(f'::add-mask::{shop}')
+          if secret:
+              print(f'::add-mask::{secret}')
+          open('/tmp/yookassa-shop-id','w',encoding='utf-8').write(shop)
+          open('/tmp/yookassa-secret','w',encoding='utf-8').write(secret)
+          state={
+              'containerStatus': app.get('status'),
+              'globalSalesEnabled': env.get('COMMERCIAL_SALES_ENABLED') == 'true',
+              'ugmuSalesEnabled': env.get('UGMU_SALES_ENABLED') == 'true',
+              'trialsEnabled': env.get('TRIALS_ENABLED') == 'true',
+              'testModeEnv': env.get('YOOKASSA_TEST_MODE'),
+              'credentialsPresent': bool(shop and secret),
+          }
+          json.dump(state, open('/tmp/runtime-state.json','w',encoding='utf-8'))
+          print('CLOUD_RUNTIME_SAFE', {
+              'containerStatus': state['containerStatus'],
+              'globalSalesEnabled': state['globalSalesEnabled'],
+              'ugmuSalesEnabled': state['ugmuSalesEnabled'],
+              'trialsEnabled': state['trialsEnabled'],
+              'testModeEnv': state['testModeEnv'],
+              'credentialsPresent': state['credentialsPresent'],
+          })
+          PY
+          rm -f /tmp/current-container.json
+
+          shop="$(cat /tmp/yookassa-shop-id)"
+          secret="$(cat /tmp/yookassa-secret)"
+          test -n "$shop"
+          test -n "$secret"
+
+          meta="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "$PRODUCTION_BASE_URL/api/v2/meta")"
+          printf '%s' "$meta" > /tmp/public-meta.json
+
+          me_code="$(curl --silent --show-error --output /tmp/yookassa-me.json --write-out '%{http_code}' \
+            --request GET --user "$shop:$secret" \
+            'https://api.yookassa.ru/v3/me')"
+
+          payments_code='not-called'
+          if [ "$me_code" != "200" ]; then
+            payments_code="$(curl --silent --show-error --output /tmp/yookassa-payments.json --write-out '%{http_code}' \
+              --request GET --user "$shop:$secret" \
+              'https://api.yookassa.ru/v3/payments?limit=1')"
+          fi
+
+          ME_CODE="$me_code" PAYMENTS_CODE="$payments_code" python3 - <<'PY'
+          import json, os
+          runtime=json.load(open('/tmp/runtime-state.json', encoding='utf-8'))
+          meta=json.load(open('/tmp/public-meta.json', encoding='utf-8'))
+          me_code=os.environ['ME_CODE']
+          payments_code=os.environ['PAYMENTS_CODE']
+
+          provider={
+              'authenticated': False,
+              'modeEvidence': 'unknown',
+              'accountStatus': None,
+              'itemCount': None,
+          }
+
+          if me_code == '200':
+              body=json.load(open('/tmp/yookassa-me.json', encoding='utf-8'))
+              provider['authenticated']=True
+              provider['accountStatus']=body.get('status')
+              if body.get('test') is False:
+                  provider['modeEvidence']='live'
+              elif body.get('test') is True:
+                  provider['modeEvidence']='test'
+          elif payments_code == '200':
+              body=json.load(open('/tmp/yookassa-payments.json', encoding='utf-8'))
+              items=body.get('items') if body.get('type') == 'list' else None
+              if isinstance(items, list):
+                  provider['authenticated']=True
+                  provider['itemCount']=len(items)
+                  flags={item.get('test') for item in items if isinstance(item,dict) and isinstance(item.get('test'), bool)}
+                  if flags == {False}:
+                      provider['modeEvidence']='live'
+                  elif flags == {True}:
+                      provider['modeEvidence']='test'
+                  elif not items:
+                      provider['modeEvidence']='empty-list'
+
+          checks={
+              'containerRunning': runtime['containerStatus'] == 'running',
+              'globalSalesClosed': runtime['globalSalesEnabled'] is False,
+              'ugmuSalesClosed': runtime['ugmuSalesEnabled'] is False,
+              'trialsClosed': runtime['trialsEnabled'] is False,
+              'credentialsPresent': runtime['credentialsPresent'] is True,
+              'explicitLiveEnv': runtime['testModeEnv'] == 'false',
+              'publicMetaLive': meta.get('paymentMode') == 'live',
+              'publicSalesClosed': meta.get('sales') == 'closed',
+              'publicTrialsClosed': meta.get('trials') == 'closed',
+              'providerAuthenticated': provider['authenticated'] is True,
+              'providerLiveEvidence': provider['modeEvidence'] == 'live',
+          }
+          ready=all(checks.values())
+          report={
+              'version': 1,
+              'university': 'ugmu',
+              'mode': 'production-yookassa-live-readiness-read-only',
+              'status': 'PASS' if ready else 'BLOCKED',
+              'ready': ready,
+              'runtime': {
+                  'testModeEnv': runtime['testModeEnv'],
+                  'credentialsPresent': runtime['credentialsPresent'],
+              },
+              'publicMeta': {
+                  'sales': meta.get('sales'),
+                  'trials': meta.get('trials'),
+                  'paymentMode': meta.get('paymentMode'),
+              },
+              'provider': provider,
+              'checks': checks,
+              'productionMutationPerformed': False,
+              'paymentCreated': False,
+              'nextRequiredBoundary': 'controlled-launch-activation' if ready else 'configure-live-yookassa-with-sales-closed',
+          }
+          os.makedirs('api/data/imports/ugmu-yookassa-live-readiness', exist_ok=True)
+          json.dump(report, open('api/data/imports/ugmu-yookassa-live-readiness/report.json','w',encoding='utf-8'), ensure_ascii=False, indent=2)
+          print('YOOKASSA_READINESS_SAFE', json.dumps({
+              'status': report['status'],
+              'paymentMode': report['publicMeta']['paymentMode'],
+              'testModeEnv': report['runtime']['testModeEnv'],
+              'providerAuthenticated': provider['authenticated'],
+              'providerModeEvidence': provider['modeEvidence'],
+              'paymentCreated': False,
+          }, ensure_ascii=False))
+          PY
+
+          rm -f /tmp/yookassa-shop-id /tmp/yookassa-secret /tmp/runtime-state.json /tmp/public-meta.json /tmp/yookassa-me.json /tmp/yookassa-payments.json
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-yookassa-live-readiness-${{ github.sha }}
+          path: api/data/imports/ugmu-yookassa-live-readiness/report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce live readiness
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          report=json.load(open('api/data/imports/ugmu-yookassa-live-readiness/report.json', encoding='utf-8'))
+          assert report['productionMutationPerformed'] is False
+          assert report['paymentCreated'] is False
+          assert report['ready'] is True, report
+          print('UGMU_YOOKASSA_LIVE_READY')
+          PY
