@@ -1,0 +1,145 @@
+name: UGMU first-stream QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/canonical.mjs"
+      - "api/tools/ugmu-parse-weekly-pdf.py"
+      - "api/tools/ugmu-parse-first-stream-pdf.py"
+      - "api/tools/ugmu-first-stream-qa.mjs"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/test/ugmu-canonical-pilot.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-first-stream-qa.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  first-stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Test first-stream parser core
+        run: |
+          python3 tools/ugmu-parse-first-stream-pdf.py --self-test
+          node --test test/ugmu-canonical-pilot.test.js
+
+      - name: Discover and capture exact official PDF
+        run: |
+          set -euo pipefail
+          npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-first-stream/source-manifest.json
+          npm run download:ugmu -- \
+            --manifest=data/imports/ugmu-first-stream/source-manifest.json \
+            --semester=autumn \
+            --output=data/imports/ugmu-first-stream/watched-pdfs
+
+      - name: Parse OLD 101-112 from the same watched artifact
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-first-stream/watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8"
+          mkdir -p data/imports/ugmu-first-stream/raw
+          for number in $(seq 101 112); do
+            npm run parse:ugmu:first-stream -- \
+              --input="data/imports/ugmu-first-stream/watched-pdfs/$filename" \
+              --group="ОЛД $number" \
+              --source="$source_url" \
+              --sha256="$sha" \
+              --output="data/imports/ugmu-first-stream/raw/OLD-$number.json"
+          done
+
+      - name: Canonicalize postprocess and QA every group
+        run: |
+          set -euo pipefail
+          npm run qa:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --output-dir=data/imports/ugmu-first-stream/qa
+          report='data/imports/ugmu-first-stream/qa/first-stream-qa.json'
+          jq -e '
+            .allApproved == true and
+            .publicationAllowed == false and
+            .sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .totals.groups == 12 and
+            .totals.patterns == 276 and
+            .totals.events == 4286 and
+            .totals.lectures == 1344 and
+            .totals.semanticDecisions == 2 and
+            .totals.sourceAnomalies == 1 and
+            .totals.sourceOverlaps == 19 and
+            .crossGroupPassed == true and
+            ([.groups[] | select(.approved != true)] | length) == 0 and
+            ([.groups[] | select(.patterns != 23)] | length) == 0 and
+            ([.groups[] | select(.sourceHashMismatch != 0)] | length) == 0 and
+            ([.groups[] | select(.serviceSignatures != 0)] | length) == 0 and
+            ([.groups[] | select(.group == "ОЛД 102" and (.events != 358 or .sourceOverlaps != 19 or .sourceAnomalies != 1))] | length) == 0 and
+            ([.groups[] | select(.group == "ОЛД 105" and .events != 358)] | length) == 0 and
+            ([.groups[] | select((.group == "ОЛД 111" or .group == "ОЛД 112") and .semanticDecisions != 1)] | length) == 0
+          ' "$report" >/dev/null
+
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/imports/ugmu-first-stream/qa/first-stream-qa.json';
+          console.log('## UGMU first-stream QA');
+          console.log('');
+          if (!fs.existsSync(file)) {
+            console.log('QA report not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`QA-approved groups: **${report.groups.filter((item) => item.approved).length}/12**`);
+          console.log(`Events: **${report.totals.events}**; lecture events: **${report.totals.lectures}**`);
+          console.log(`Source SHA-256: \`${report.sourceSha256}\``);
+          console.log(`Publication allowed: **${report.publicationAllowed ? 'yes' : 'no'}**`);
+          console.log('');
+          console.log('| Group | Patterns | Events | Warnings | Source overlaps | Semantic decisions | QA |');
+          console.log('|---|---:|---:|---:|---:|---:|---|');
+          for (const item of report.groups) {
+            console.log(`| ${item.group} | ${item.patterns} | ${item.events} | ${item.importWarnings} | ${item.sourceOverlaps} | ${item.semanticDecisions} | ${item.approved ? 'PASS' : 'FAIL'} |`);
+          }
+          NODE
+
+      - name: Upload first-stream evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-first-stream-qa
+          path: |
+            api/data/imports/ugmu-first-stream/source-manifest.json
+            api/data/imports/ugmu-first-stream/watched-pdfs/download-report.json
+            api/data/imports/ugmu-first-stream/raw
+            api/data/imports/ugmu-first-stream/qa
+          if-no-files-found: warn
+          retention-days: 30
