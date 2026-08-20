@@ -52,7 +52,7 @@ export function classifyUgmuScheduleLabel(label = "") {
 }
 
 function lastCourseContext(value = "") {
-  const normalized = normalizeText(value);
+  const normalized = normalizeText(decodeHtml(value));
   let result = null;
   for (const match of normalized.matchAll(/(?:^|\s)([1-6])\s*курс(?:а|у|ом|е)?(?=\s|$|[,:;])/g)) {
     result = Number(match[1]);
@@ -61,7 +61,7 @@ function lastCourseContext(value = "") {
 }
 
 function updateSectionState(value, state) {
-  const normalized = normalizeText(value);
+  const normalized = normalizeText(decodeHtml(value));
 
   if (normalized.includes("расписание занятий на осенний семестр")) {
     state.area = "classes";
@@ -140,6 +140,7 @@ export function validateUgmuManifest(manifest) {
   const errors = [];
   const seen = new Set();
   const allowedParts = new Set(["combined", "lectures", "practice"]);
+  const allowedSemesters = new Set(["autumn", "spring"]);
 
   if (manifest?.university !== "ugmu") errors.push("invalid university");
   if (!manifest?.program) errors.push("missing program");
@@ -153,7 +154,7 @@ export function validateUgmuManifest(manifest) {
     if (!Number.isInteger(item.course) || item.course < 1 || item.course > 6) {
       errors.push(`unclassified course: ${item.label}`);
     }
-    if (!new Set(["autumn", "spring"]).has(item.semester)) {
+    if (!allowedSemesters.has(item.semester)) {
       errors.push(`unclassified semester: ${item.label}`);
     }
     if (!allowedParts.has(item.part)) errors.push(`unclassified part: ${item.label}`);
