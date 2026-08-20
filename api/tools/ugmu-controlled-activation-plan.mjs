@@ -34,6 +34,8 @@ function check(name, passed, detail) {
 const closedConfig = loadConfig({});
 const globalOnlyConfig = loadConfig({ COMMERCIAL_SALES_ENABLED: "true" });
 const ugmuOnlyConfig = loadConfig({ UGMU_SALES_ENABLED: "true" });
+const stageBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "stage-first-stream-production-schedules");
+const salesBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "isolate-global-sales-gate");
 
 check("scopeFrozen",
   plan.university === "ugmu"
@@ -69,7 +71,7 @@ check("dedicatedSalesIsolationPrepared",
     && ugmuOnlyConfig.universityAccess?.kgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.omgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.izhgmu?.checkoutEnabled === false
-    && plan.mandatoryPreactivationBlocks?.some((item) => item.id === "isolate-global-sales-gate"),
+    && salesBlock?.state === "required",
   "UGMU has a dedicated opt-in while global-only cannot open UGMU and UGMU-only cannot open incumbent tenants",
 );
 check("landingStillPreviewOnly",
@@ -79,10 +81,12 @@ check("landingStillPreviewOnly",
     && !landingApp.includes("fetch("),
   "previewOnly=true; checkout=false; publicIcs=false; no fetch()",
 );
-check("firstStreamProductionStagingMissing",
+check("firstStreamProductionStagingRecorded",
   publicationPackage.includes("fail-closed to ОЛД 101")
-    && plan.mandatoryPreactivationBlocks?.some((item) => item.id === "stage-first-stream-production-schedules"),
-  "historical activation plan still records the 12-group staging prerequisite; production storage is verified by the dedicated storage gate",
+    && stageBlock?.state === "completed"
+    && String(stageBlock?.completion || "").includes("32421951498")
+    && String(stageBlock?.completion || "").includes("32421951401"),
+  "12-group production staging and independent read-back are recorded as completed prerequisites",
 );
 check("publicIcsStaysClosedAtLaunch",
   plan.launchTarget?.publicEndpointsEnabled === false
@@ -94,17 +98,22 @@ check("rollbackClosesAccessBeforeData",
   plan.rollback?.strategy === "close-access-first-keep-data-inert"
     && plan.rollback?.dataDeletionRequired === false
     && Array.isArray(plan.rollback?.order)
-    && plan.rollback.order.length >= 5,
+    && plan.rollback.order.length >= 5
+    && plan.rollback.order[0].includes("UGMU_SALES_ENABLED=false"),
   `rollbackSteps=${plan.rollback?.order?.length}; dataDeletionRequired=${plan.rollback?.dataDeletionRequired}`,
 );
 
-const blockers = Array.isArray(plan.mandatoryPreactivationBlocks)
-  ? plan.mandatoryPreactivationBlocks.map((item) => ({ id: item.id, state: item.state, completion: item.completion }))
-  : [];
+const allBlocks = Array.isArray(plan.mandatoryPreactivationBlocks) ? plan.mandatoryPreactivationBlocks : [];
+const blockers = allBlocks
+  .filter((item) => item.state !== "completed")
+  .map((item) => ({ id: item.id, state: item.state, completion: item.completion }));
+const completedBlocks = allBlocks
+  .filter((item) => item.state === "completed")
+  .map((item) => ({ id: item.id, state: item.state, completion: item.completion }));
 const planValid = errors.length === 0;
 const executableNow = planValid && blockers.length === 0;
 const report = {
-  version: 1,
+  version: 2,
   university: "ugmu",
   mode: "controlled-activation-plan-evidence-only",
   generatedAt: new Date().toISOString(),
@@ -115,6 +124,7 @@ const report = {
   productionMutationPerformed: false,
   scope: plan.scope,
   launchTarget: plan.launchTarget,
+  completedBlocks,
   blockers,
   blockerCount: blockers.length,
   phases: plan.phases,
@@ -128,7 +138,8 @@ await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
 console.log(`UGMU controlled activation plan: ${report.status}`);
 console.log(`Checks: ${Object.values(checks).filter((item) => item.status === "PASS").length}/${Object.keys(checks).length} PASS`);
-console.log(`Mandatory preactivation blocks: ${blockers.length}`);
+console.log(`Completed preactivation blocks: ${completedBlocks.length}`);
+console.log(`Remaining preactivation blocks: ${blockers.length}`);
 console.log("Activation performed: no");
 console.log(`Next boundary: ${report.nextRequiredBoundary}`);
 console.log(`Report: ${outputPath}`);
