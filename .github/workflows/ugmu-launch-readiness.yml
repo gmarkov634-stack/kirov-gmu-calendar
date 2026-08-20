@@ -22,6 +22,7 @@ on:
       - "api/tools/requirements-ugmu.txt"
       - "api/package.json"
       - "universities/ugmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/ugmu-source-watch.yml"
       - ".github/workflows/ugmu-first-stream-qa.yml"
       - ".github/workflows/ugmu-launch-readiness.yml"
@@ -43,6 +44,7 @@ on:
       - "api/tools/requirements-ugmu.txt"
       - "api/package.json"
       - "universities/ugmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/ugmu-source-watch.yml"
       - ".github/workflows/ugmu-first-stream-qa.yml"
       - ".github/workflows/ugmu-launch-readiness.yml"
@@ -161,11 +163,17 @@ jobs:
             .apiState.publicEndpointsEnabled == false and
             .apiState.checkoutEnabled == false and
             .apiState.trialsEnabled == false and
+            .siteState.path == "/ugmu/" and
+            .siteState.previewOnly == true and
+            .siteState.groupsVisibleInPreview == 12 and
+            .siteState.checkoutEnabled == false and
+            .siteState.publicIcsEnabled == false and
+            .siteState.searchIndexingEnabled == false and
             .launchAuthority.publicationAllowedByThisGate == false and
             .launchAuthority.salesAllowedByThisGate == false and
             .launchAuthority.trialsAllowedByThisGate == false and
             .launchAuthority.catalogVisibilityAllowedByThisGate == false and
-            .launchAuthority.nextRequiredBoundary == "site-ugmu-flow" and
+            .launchAuthority.nextRequiredBoundary == "yookassa-paid-e2e" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-launch-readiness-report.json >/dev/null
 
@@ -188,6 +196,7 @@ jobs:
           console.log(`Scope: **medicine · 1 курс · I поток · ОЛД 101–112**`);
           console.log(`Source SHA-256: \`${report.scope.sourceSha256}\``);
           console.log(`API routing: **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/checkout/trials: **closed**`);
+          console.log(`Landing: **${report.siteState?.path || 'missing'}**; preview groups: **${report.siteState?.groupsVisibleInPreview || 0}**; checkout/ICS/indexing: **closed**`);
           console.log(`Missing courses on source page: **${(report.sourceState.missingCourses || []).join(', ') || 'none'}**`);
           console.log('Publication / sales / trials / catalog visibility granted by this gate: **no**');
           console.log(`Next boundary: **${report.launchAuthority.nextRequiredBoundary}**`);
