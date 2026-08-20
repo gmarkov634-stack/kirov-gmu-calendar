@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "ugmu-production-storage-staging-authority",
+  "authorizedStep": 23,
+  "manifestId": "ugmu-first-stream-34612248bba2",
+  "manifestSha256": "2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5",
+  "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+  "groups": [
+    "ОЛД 101",
+    "ОЛД 102",
+    "ОЛД 103",
+    "ОЛД 104",
+    "ОЛД 105",
+    "ОЛД 106",
+    "ОЛД 107",
+    "ОЛД 108",
+    "ОЛД 109",
+    "ОЛД 110",
+    "ОЛД 111",
+    "ОЛД 112"
+  ],
+  "productionStorageWrite": true,
+  "registryActive": false,
+  "catalogEnabled": false,
+  "checkoutEnabled": false,
+  "publicEndpointsEnabled": false,
+  "publicIcsEnabled": false,
+  "trialsEnabled": false,
+  "canonicalPublicationWrite": false,
+  "salesActivation": false,
+  "scope": {
+    "university": "ugmu",
+    "program": "medicine",
+    "course": 1,
+    "stream": "1",
+    "academicYear": "2026/2027",
+    "semester": 1
+  },
+  "issuedAt": "2026-08-20T21:21:00.000Z"
+}
