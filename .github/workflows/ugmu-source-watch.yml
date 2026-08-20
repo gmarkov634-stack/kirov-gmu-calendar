@@ -12,6 +12,7 @@ on:
       - "api/tools/requirements-ugmu.txt"
       - "api/test/ugmu-*.test.js"
       - "api/package.json"
+      - "api/src/schedule/ics.js"
       - "universities/ugmu/source-watch.json"
       - ".github/workflows/ugmu-source-watch.yml"
 
@@ -113,6 +114,39 @@ jobs:
             .customQa.stats.sourceHashMismatch == 0
           ' data/imports/ugmu-pilot/canonical/OLD-101.qa.json >/dev/null
 
+      - name: Verify stable UID and SEQUENCE for OLD 101
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run versioning:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/versioning
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .eventCount == 357 and
+            .exactReimport.sameContent == true and
+            .exactReimport.scheduleVersionStable == true and
+            .exactReimport.counts.unchanged == 357 and
+            .exactReimport.counts.added == 0 and
+            .exactReimport.counts.changed == 0 and
+            .exactReimport.counts.removed == 0 and
+            .simulatedChange.synthetic == true and
+            .simulatedChange.eventIdStable == true and
+            .simulatedChange.revisionV1 == 1 and
+            .simulatedChange.revisionV2 == 2 and
+            .simulatedChange.sequenceV1 == "0" and
+            .simulatedChange.sequenceV2 == "1" and
+            .simulatedChange.counts.changed == 1 and
+            .simulatedChange.counts.unchanged == 356 and
+            .simulatedChange.counts.added == 0 and
+            .simulatedChange.counts.removed == 0 and
+            .qa.v1 == true and
+            .qa.exactReimport == true and
+            .qa.v2 == true
+          ' data/imports/ugmu-pilot/versioning/OLD-101.versioning-report.json >/dev/null
+          grep -F 'X-WR-CALNAME:УГМУ · Группа ОЛД 101' data/imports/ugmu-pilot/versioning/OLD-101.v1.ics >/dev/null
+
       - name: Build fail-closed watch report
         id: watch
         run: |
@@ -211,5 +245,6 @@ jobs:
             api/data/imports/ugmu-watched-pdfs
             api/data/imports/ugmu-pilot/OLD-101.json
             api/data/imports/ugmu-pilot/canonical
+            api/data/imports/ugmu-pilot/versioning
           if-no-files-found: warn
           retention-days: 30
