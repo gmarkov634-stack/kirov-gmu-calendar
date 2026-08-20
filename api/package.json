@@ -34,6 +34,7 @@
     "regression:ugmu:first-stream": "node tools/ugmu-first-stream-versioning-regression.mjs",
     "readiness:ugmu": "node tools/ugmu-launch-readiness.mjs",
     "e2e:ugmu:payment": "node tools/ugmu-payment-e2e.mjs",
+    "e2e:ugmu:purchased-update": "node tools/ugmu-purchased-calendar-update-e2e.mjs",
     "canonical:ugmu:pilot": "node tools/ugmu-pilot-canonical.mjs",
     "versioning:ugmu:pilot": "node tools/ugmu-versioning-regression.mjs",
     "package:ugmu:pilot": "node tools/ugmu-pilot-package.mjs"
