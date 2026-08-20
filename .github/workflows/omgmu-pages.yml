@@ -12,6 +12,7 @@ on:
       - "app-utils.js"
       - "omgmu/**"
       - "site/omgmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/omgmu-pages.yml"
   push:
     branches:
@@ -25,6 +26,7 @@ on:
       - "app-utils.js"
       - "omgmu/**"
       - "site/omgmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/omgmu-pages.yml"
 
 permissions:
@@ -50,7 +52,11 @@ jobs:
           for file in index.html styles.css mobile.css app.js config.js ui.js; do
             test -f "site/omgmu/$file"
           done
+          for file in index.html styles.css mobile.css ugmu.css app.js config.js; do
+            test -f "site/ugmu/$file"
+          done
           test ! -f site/omgmu/groups.js
+          test ! -f site/ugmu/groups.js
           node - <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
@@ -125,7 +131,42 @@ jobs:
           if (!app.includes("window.location.hash === '#order'")) {
             throw new Error('Return-to-group reset guard is missing');
           }
-          console.log('Landing live commercial boundary validation passed');
+
+          const ugmuConfigCode = fs.readFileSync('site/ugmu/config.js', 'utf8');
+          const ugmuSandbox = { window: {} };
+          vm.runInNewContext(ugmuConfigCode, ugmuSandbox);
+          const ugmu = ugmuSandbox.window.UGMU_CONFIG;
+          if (!ugmu || ugmu.university !== 'ugmu') throw new Error('UGMU identity config is missing');
+          if (ugmu.previewOnly !== true || ugmu.checkoutEnabled !== false || ugmu.publicIcsEnabled !== false) {
+            throw new Error('UGMU landing must remain preview-only and fail-closed');
+          }
+          if (ugmu.academicYear !== '2026/2027' || ugmu.semester !== 1 || ugmu.program?.id !== 'medicine' || ugmu.program?.course !== 1 || String(ugmu.program?.stream) !== '1') {
+            throw new Error('UGMU landing scope drifted from approved first-stream scope');
+          }
+          if (ugmu.sourceSha256 !== '34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8') {
+            throw new Error('UGMU landing is not bound to the approved source SHA');
+          }
+          const expectedGroups = Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`);
+          if (JSON.stringify(ugmu.groups.map((group) => group.code)) !== JSON.stringify(expectedGroups)) {
+            throw new Error('UGMU landing group scope must be OLD 101-112');
+          }
+          const ugmuHtml = fs.readFileSync('site/ugmu/index.html', 'utf8');
+          for (const requiredId of ['programs', 'how', 'preview', 'group-select', 'group-preview', 'faq']) {
+            if (!ugmuHtml.includes(`id="${requiredId}"`)) throw new Error(`UGMU landing UX element missing: ${requiredId}`);
+          }
+          for (const requiredCopy of ['Предварительный запуск', 'ОЛД 101–112', 'Подключение откроется после финального запуска', 'Это официальный сервис УГМУ?']) {
+            if (!ugmuHtml.includes(requiredCopy)) throw new Error(`UGMU fail-closed copy missing: ${requiredCopy}`);
+          }
+          for (const forbidden of ['/api/v2/payments', 'calendar.ics', 'type="email"', '>Оплатить<', 'webcal://']) {
+            if (ugmuHtml.includes(forbidden) || ugmuConfigCode.includes(forbidden)) {
+              throw new Error(`UGMU landing contains premature commercial/publication marker: ${forbidden}`);
+            }
+          }
+          const ugmuApp = fs.readFileSync('site/ugmu/app.js', 'utf8');
+          for (const forbidden of ['fetch(', 'XMLHttpRequest', '/api/v2/payments', 'calendar.ics']) {
+            if (ugmuApp.includes(forbidden)) throw new Error(`UGMU preview app must not call live commercial/public endpoints: ${forbidden}`);
+          }
+          console.log('Landing commercial/fail-closed validation passed');
           NODE
       - name: Prepare production artifact
         if: github.event_name != 'pull_request'
@@ -160,9 +201,10 @@ jobs:
           }
 
           rm -rf dist/site
-          mkdir -p dist/site/omgmu
+          mkdir -p dist/site/omgmu dist/site/ugmu
           cp index.html styles.css landing-v1.css data.js app.js app-utils.js dist/site/
           cp -R site/omgmu/. dist/site/omgmu/
+          cp -R site/ugmu/. dist/site/ugmu/
           touch dist/site/.nojekyll
 
           API_URL="$CLOUD_RU_API_URL" node - <<'NODE'
@@ -188,6 +230,10 @@ jobs:
           NODE
           grep -q "apiBase: \"$CLOUD_RU_API_URL\"" dist/site/data.js
           grep -q "apiBaseUrl: \"$CLOUD_RU_API_URL\"" dist/site/omgmu/config.js
+          grep -q 'checkoutEnabled: false' dist/site/ugmu/config.js
+          grep -q 'publicIcsEnabled: false' dist/site/ugmu/config.js
+          ! grep -R '/api/v2/payments' dist/site/ugmu
+          ! grep -R 'calendar.ics' dist/site/ugmu
           ! grep -R "REPLACE_WITH_CLOUD_RU_API" dist/site
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
