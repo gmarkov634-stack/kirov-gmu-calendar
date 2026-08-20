@@ -25,6 +25,8 @@ export function loadConfig(env = process.env) {
     .map((value) => value.trim())
     .filter(Boolean);
   const yearExpiresAt = env.OFFER_YEAR_EXPIRES_AT || "2027-08-31T23:59:59+03:00";
+  const globalCommercialSalesEnabled = env.COMMERCIAL_SALES_ENABLED === "true";
+  const ugmuSalesEnabled = env.UGMU_SALES_ENABLED === "true";
 
   return {
     port: Number(env.PORT || 8080),
@@ -50,13 +52,25 @@ export function loadConfig(env = process.env) {
       ugmu: "",
       pgmu: env.PGMU_SITE_URL || "",
     },
-    // Per-university API capabilities are opt-in overrides. Missing entries keep
-    // existing behavior so current KGMU/OmGMU contracts are not changed.
+    // Every registered tenant now has an explicit checkout policy. This lets
+    // UGMU use its dedicated UGMU_SALES_ENABLED gate without requiring the
+    // global COMMERCIAL_SALES_ENABLED flag and without opening other tenants.
+    // Missing capability keys preserve the existing behavior for API/public
+    // routing; only checkout is frozen here for non-target universities.
     universityAccess: {
+      kgmu: {
+        checkoutEnabled: globalCommercialSalesEnabled,
+      },
+      omgmu: {
+        checkoutEnabled: globalCommercialSalesEnabled,
+      },
+      izhgmu: {
+        checkoutEnabled: false,
+      },
       ugmu: {
         apiRoutingEnabled: true,
         publicEndpointsEnabled: false,
-        checkoutEnabled: false,
+        checkoutEnabled: ugmuSalesEnabled,
         trialsEnabled: false,
       },
     },
@@ -65,7 +79,12 @@ export function loadConfig(env = process.env) {
     yookassaShopId: env.YOOKASSA_SHOP_ID || "",
     yookassaSecretKey: env.YOOKASSA_SECRET_KEY || "",
     yookassaTestMode: env.YOOKASSA_TEST_MODE === "true",
-    commercialSalesEnabled: env.COMMERCIAL_SALES_ENABLED === "true",
+    // The process-level payment route must be reachable when either the legacy
+    // global gate or the dedicated UGMU gate is open. Per-university checkout
+    // policies above then restrict the request to the intended tenant.
+    commercialSalesEnabled: globalCommercialSalesEnabled || ugmuSalesEnabled,
+    globalCommercialSalesEnabled,
+    ugmuSalesEnabled,
     trialsEnabled: env.TRIALS_ENABLED === "true",
     funnelAnalyticsEnabled: env.FUNNEL_ANALYTICS_ENABLED === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
