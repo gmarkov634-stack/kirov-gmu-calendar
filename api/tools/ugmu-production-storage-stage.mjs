@@ -13,6 +13,7 @@ import {
 const EXPECTED_MANIFEST_ID = "ugmu-first-stream-34612248bba2";
 const EXPECTED_MANIFEST_SHA256 = "2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5";
 const EXPECTED_SOURCE_SHA256 = "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8";
+const EXPECTED_SOURCE_FILE_HASH = `sha256:${EXPECTED_SOURCE_SHA256}`;
 const EXPECTED_GROUPS = Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`);
 const EXPECTED_TOTAL_EVENTS = 4286;
 
@@ -142,6 +143,34 @@ function validateManifest(manifest, manifestDigest) {
   return checks;
 }
 
+export function validateApprovedUgmuScheduleObject(parsed, item) {
+  const expectedGroupId = `ugmu:medicine:1:stream-1:${item?.group || ""}`;
+  const events = Array.isArray(parsed?.events) ? parsed.events : [];
+  const checks = {
+    schemaVersion: parsed?.schema_version === "1.0",
+    university: parsed?.schedule?.university_code === "ugmu",
+    faculty: parsed?.schedule?.faculty_code === "medicine",
+    course: parsed?.schedule?.course === 1,
+    academicYear: parsed?.schedule?.academic_year === "2026/2027",
+    semester: parsed?.schedule?.semester === "autumn",
+    group: parsed?.schedule?.group === item?.group,
+    groupId: item?.groupId === expectedGroupId,
+    version: parsed?.schedule?.schedule_version_id === item?.versionId,
+    eventCount: events.length === item?.eventCount,
+    eventUniversities: events.length > 0 && events.every((event) => event?.university?.code === "ugmu"),
+    eventGroups: events.length > 0 && events.every((event) => event?.audience?.group === item?.group),
+    eventAcademicScope: events.length > 0 && events.every((event) =>
+      event?.academic?.faculty_code === "medicine" &&
+      event?.academic?.course === 1 &&
+      event?.academic?.academic_year === "2026/2027" &&
+      event?.academic?.semester === "autumn"),
+    eventSourceHash: events.length > 0 && events.every((event) => event?.source?.file_hash === EXPECTED_SOURCE_FILE_HASH),
+    uniqueEventIds: new Set(events.map((event) => event?.system?.event_id).filter(Boolean)).size === item?.uniqueEventIds,
+    versionOnEvents: events.length > 0 && events.every((event) => event?.system?.schedule_version_id === item?.versionId),
+  };
+  return { checks, passed: Object.values(checks).every(Boolean) };
+}
+
 async function jsonResponse(fetchImpl, url, options = {}) {
   const response = await fetchImpl(url, { ...options, signal: options.signal || AbortSignal.timeout(15000) });
   let body = null;
@@ -200,7 +229,7 @@ export async function checkUgmuPublicBoundary(baseUrl, fetchImpl = fetch) {
 async function rollbackTouched({ s3, bucket, touched, capturedSnapshots }) {
   const results = [];
   for (const item of [...touched].reverse()) {
-    const snapshot = capturedSnapshots.get(item.snapshotKey) || await readObject(s3, bucket, item.snapshotKey);
+    const snapshot = capturedSnapshots.get(item.rollback.snapshotKey) || await readObject(s3, bucket, item.rollback.snapshotKey);
     const kind = snapshotKind(snapshot);
     if (kind === "absent") {
       await removeObject(s3, bucket, item.storageKey);
@@ -263,11 +292,10 @@ export async function stageUgmuProductionStorage({
       if (desiredSha !== item.hashes?.scheduleSha256) throw new Error(`${item.group}: local schedule hash differs from manifest`);
 
       const parsed = JSON.parse(desiredBody.toString("utf8"));
-      if (parsed?.schedule?.university?.id !== "ugmu") throw new Error(`${item.group}: schedule university is not ugmu`);
-      if (parsed?.schedule?.group?.id !== item.groupId) throw new Error(`${item.group}: schedule group identity mismatch`);
-      if (parsed?.events?.length !== item.eventCount) throw new Error(`${item.group}: schedule event count mismatch`);
-      if (parsed?.schedule?.source?.sha256 && parsed.schedule.source.sha256 !== EXPECTED_SOURCE_SHA256) {
-        throw new Error(`${item.group}: schedule source SHA mismatch`);
+      const scheduleValidation = validateApprovedUgmuScheduleObject(parsed, item);
+      if (!scheduleValidation.passed) {
+        const failed = Object.entries(scheduleValidation.checks).filter(([, value]) => !value).map(([key]) => key).join(", ");
+        throw new Error(`${item.group}: approved schedule identity mismatch (${failed})`);
       }
 
       const before = await readObject(s3, bucket, item.storageKey);
