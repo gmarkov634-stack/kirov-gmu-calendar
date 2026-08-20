@@ -41,6 +41,7 @@ const [watchConfig, watchReport, firstStreamQa, regression, fixture] = await Pro
 const university = getUniversityConfig("ugmu");
 const medicineSource = getUgmuSourcePage("medicine");
 const runtimeConfig = loadConfig(process.env);
+const ugmuAccess = runtimeConfig.universityAccess?.ugmu || {};
 const checks = {};
 const errors = [];
 
@@ -50,6 +51,13 @@ addCheck(checks, errors, "registryIdentity",
 );
 addCheck(checks, errors, "registryFailClosed", university.active === false, `active=${university.active}`);
 addCheck(checks, errors, "paidRedirectFailClosed", runtimeConfig.universitySiteUrls?.ugmu === "", `UGMU site URL=${JSON.stringify(runtimeConfig.universitySiteUrls?.ugmu)}`);
+addCheck(checks, errors, "apiRoutingBoundary",
+  ugmuAccess.apiRoutingEnabled === true
+    && ugmuAccess.publicEndpointsEnabled === false
+    && ugmuAccess.checkoutEnabled === false
+    && ugmuAccess.trialsEnabled === false,
+  `routing=${ugmuAccess.apiRoutingEnabled}; public=${ugmuAccess.publicEndpointsEnabled}; checkout=${ugmuAccess.checkoutEnabled}; trials=${ugmuAccess.trialsEnabled}`,
+);
 addCheck(checks, errors, "sourceRegistry",
   Boolean(medicineSource?.initialScope)
     && university.source?.adapter === "ugmu"
@@ -133,6 +141,10 @@ addCheck(checks, errors, "fixtureScope",
 
 const failClosed = university.active === false
   && runtimeConfig.universitySiteUrls?.ugmu === ""
+  && ugmuAccess.apiRoutingEnabled === true
+  && ugmuAccess.publicEndpointsEnabled === false
+  && ugmuAccess.checkoutEnabled === false
+  && ugmuAccess.trialsEnabled === false
   && watchConfig.autoPublish === false
   && watchReport.publicationAllowed === false
   && firstStreamQa.publicationAllowed === false
@@ -163,12 +175,19 @@ const report = {
     missingCourses: watchReport.missingCourses || [],
     firstStreamCaptured: Boolean(firstStreamSource),
   },
+  apiState: {
+    universityId: "ugmu",
+    routingEnabled: ugmuAccess.apiRoutingEnabled === true,
+    publicEndpointsEnabled: ugmuAccess.publicEndpointsEnabled === true,
+    checkoutEnabled: ugmuAccess.checkoutEnabled === true,
+    trialsEnabled: ugmuAccess.trialsEnabled === true,
+  },
   launchAuthority: {
     publicationAllowedByThisGate: false,
     salesAllowedByThisGate: false,
     trialsAllowedByThisGate: false,
     catalogVisibilityAllowedByThisGate: false,
-    nextRequiredBoundary: "api-university-id-ugmu",
+    nextRequiredBoundary: "site-ugmu-flow",
   },
   checks,
   evidence: {
