@@ -1,0 +1,170 @@
+name: UGMU preactivation production dry-run
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/**"
+      - "api/src/order-context.js"
+      - "api/src/schedule/**"
+      - "api/tools/ugmu-parse-first-stream-pdf.py"
+      - "api/tools/ugmu-first-stream-qa.mjs"
+      - "api/tools/ugmu-first-stream-versioning-regression.mjs"
+      - "api/tools/ugmu-first-stream-production-dry-run.mjs"
+      - "api/test/ugmu-first-stream-production-dry-run.test.js"
+      - "api/test/fixtures/ugmu/**"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/package.json"
+      - ".github/workflows/ugmu-preactivation-production-dry-run.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Test dry-run safety contract
+        run: node --test test/ugmu-first-stream-production-dry-run.test.js
+
+      - name: Discover and capture exact official PDF
+        run: |
+          set -euo pipefail
+          npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-first-stream/source-manifest.json
+          npm run download:ugmu -- \
+            --manifest=data/imports/ugmu-first-stream/source-manifest.json \
+            --semester=autumn \
+            --output=data/imports/ugmu-first-stream/watched-pdfs
+
+      - name: Parse OLD 101-112 from reviewed source
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-first-stream/watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8"
+          mkdir -p data/imports/ugmu-first-stream/raw
+          for number in $(seq 101 112); do
+            npm run parse:ugmu:first-stream -- \
+              --input="data/imports/ugmu-first-stream/watched-pdfs/$filename" \
+              --group="ОЛД $number" \
+              --source="$source_url" \
+              --sha256="$sha" \
+              --output="data/imports/ugmu-first-stream/raw/OLD-$number.json"
+          done
+
+      - name: Rebuild QA and versioning evidence
+        run: |
+          set -euo pipefail
+          npm run qa:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --output-dir=data/imports/ugmu-first-stream/qa
+          npm run regression:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --fixture=test/fixtures/ugmu/first-stream-2026-autumn.json \
+            --output=data/imports/ugmu-first-stream/regression/first-stream-regression.json
+
+      - name: Build deterministic production dry-run
+        run: |
+          set -euo pipefail
+          npm run dry-run:ugmu:production-stage -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --qa-report=data/imports/ugmu-first-stream/qa/first-stream-qa.json \
+            --regression-report=data/imports/ugmu-first-stream/regression/first-stream-regression.json \
+            --output-dir=data/imports/ugmu-preactivation-dry-run
+          report='data/imports/ugmu-preactivation-dry-run/manifest.json'
+          jq -e '
+            .passed == true and
+            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .totals.groups == 12 and
+            .totals.events == 4286 and
+            .totals.storageObjectsPlanned == 12 and
+            .totals.rollbackPointers == 12 and
+            .safety.dryRun == true and
+            .safety.productionMutationPerformed == false and
+            .safety.s3WritePerformed == false and
+            .activationAuthority.granted == false and
+            .activationAuthority.stagingWriteAuthority == false and
+            .activationAuthority.salesAuthority == false and
+            .nextRequiredBoundary == "preactivation-production-storage-staging" and
+            ([.checks[] | select(. != true)] | length) == 0 and
+            ([.groups[] | select(.qa.inputPublishable != true or .qa.outputPublishable != true)] | length) == 0 and
+            ([.groups[] | select(.uniqueEventIds != .eventCount)] | length) == 0
+          ' "$report" >/dev/null
+
+      - name: Verify dry-run is reproducible
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-preactivation-dry-run/manifest.json'
+          before="$(sha256sum "$report" | cut -d' ' -f1)"
+          npm run dry-run:ugmu:production-stage -- \
+            --input-dir=data/imports/ugmu-first-stream/raw \
+            --qa-report=data/imports/ugmu-first-stream/qa/first-stream-qa.json \
+            --regression-report=data/imports/ugmu-first-stream/regression/first-stream-regression.json \
+            --output-dir=data/imports/ugmu-preactivation-dry-run >/dev/null
+          after="$(sha256sum "$report" | cut -d' ' -f1)"
+          test "$before" = "$after"
+          echo "$after" > data/imports/ugmu-preactivation-dry-run/manifest.sha256
+
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/imports/ugmu-preactivation-dry-run/manifest.json';
+          console.log('## UGMU preactivation production dry-run');
+          console.log('');
+          if (!fs.existsSync(file)) { console.log('Manifest was not generated.'); process.exit(0); }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${report.passed ? 'PASS' : 'FAIL'}**`);
+          console.log(`Groups: **${report.totals.groups}/12**; events: **${report.totals.events}**`);
+          console.log(`Planned schedule objects: **${report.totals.storageObjectsPlanned}**`);
+          console.log(`Rollback pointers: **${report.totals.rollbackPointers}**`);
+          console.log('Production/S3 mutation performed: **no**');
+          console.log(`Next boundary: **${report.nextRequiredBoundary}**`);
+          console.log('');
+          console.log('| Group | Events | Storage key | Schedule SHA-256 | Rollback key |');
+          console.log('|---|---:|---|---|---|');
+          for (const item of report.groups) {
+            console.log(`| ${item.group} | ${item.eventCount} | \`${item.storageKey}\` | \`${item.hashes.scheduleSha256.slice(0, 12)}…\` | \`${item.rollback.snapshotKey}\` |`);
+          }
+          NODE
+
+      - name: Upload dry-run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-preactivation-production-dry-run
+          path: |
+            api/data/imports/ugmu-preactivation-dry-run
+            api/data/imports/ugmu-first-stream/qa/first-stream-qa.json
+            api/data/imports/ugmu-first-stream/regression/first-stream-regression.json
+          if-no-files-found: error
+          retention-days: 90
