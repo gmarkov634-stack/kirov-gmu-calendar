@@ -1,21 +1,21 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { loadConfig } from "../src/config.js";
+
 const apiDir = path.resolve(process.cwd());
 const repoRoot = path.resolve(apiDir, "..");
 const planPath = path.resolve(repoRoot, "universities/ugmu/controlled-activation-plan.json");
 const registryPath = path.resolve(apiDir, "src/universities/registry.mjs");
-const configPath = path.resolve(apiDir, "src/config.js");
 const appPath = path.resolve(apiDir, "src/app.js");
 const landingConfigPath = path.resolve(repoRoot, "site/ugmu/config.js");
 const landingAppPath = path.resolve(repoRoot, "site/ugmu/app.js");
 const packagePath = path.resolve(apiDir, "src/adapters/ugmu/publication-package.mjs");
 const outputPath = path.resolve(apiDir, process.env.UGMU_CONTROLLED_ACTIVATION_PLAN_REPORT || "data/regression/ugmu-controlled-activation-plan-report.json");
 
-const [plan, registry, config, app, landingConfig, landingApp, publicationPackage] = await Promise.all([
+const [plan, registry, app, landingConfig, landingApp, publicationPackage] = await Promise.all([
   fs.readFile(planPath, "utf8").then(JSON.parse),
   fs.readFile(registryPath, "utf8"),
-  fs.readFile(configPath, "utf8"),
   fs.readFile(appPath, "utf8"),
   fs.readFile(landingConfigPath, "utf8"),
   fs.readFile(landingAppPath, "utf8"),
@@ -30,6 +30,10 @@ function check(name, passed, detail) {
   checks[name] = { status: passed ? "PASS" : "FAIL", detail };
   if (!passed) errors.push(`${name}: ${detail}`);
 }
+
+const closedConfig = loadConfig({});
+const globalOnlyConfig = loadConfig({ COMMERCIAL_SALES_ENABLED: "true" });
+const ugmuOnlyConfig = loadConfig({ UGMU_SALES_ENABLED: "true" });
 
 check("scopeFrozen",
   plan.university === "ugmu"
@@ -49,15 +53,24 @@ check("currentRegistryFailClosed",
   "UGMU registry active=false",
 );
 check("currentApiFailClosed",
-  /ugmu:\s*\{[\s\S]*?apiRoutingEnabled:\s*true[\s\S]*?publicEndpointsEnabled:\s*false[\s\S]*?checkoutEnabled:\s*false[\s\S]*?trialsEnabled:\s*false/.test(config)
-    && /ugmu:\s*""/.test(config),
-  "routing=true; public=false; checkout=false; trials=false; paid URL blank",
+  closedConfig.universityAccess?.ugmu?.apiRoutingEnabled === true
+    && closedConfig.universityAccess?.ugmu?.publicEndpointsEnabled === false
+    && closedConfig.universityAccess?.ugmu?.checkoutEnabled === false
+    && closedConfig.universityAccess?.ugmu?.trialsEnabled === false
+    && closedConfig.universitySiteUrls?.ugmu === ""
+    && closedConfig.commercialSalesEnabled === false,
+  "default runtime: routing=true; public=false; checkout=false; trials=false; paid URL blank; sales closed",
 );
-check("globalSalesBlastRadiusRecognized",
+check("dedicatedSalesIsolationPrepared",
   app.includes('if (salesState(config) !== "open")')
     && app.includes('universityCapability(config, context.university, "checkoutEnabled")')
+    && globalOnlyConfig.universityAccess?.ugmu?.checkoutEnabled === false
+    && ugmuOnlyConfig.universityAccess?.ugmu?.checkoutEnabled === true
+    && ugmuOnlyConfig.universityAccess?.kgmu?.checkoutEnabled === false
+    && ugmuOnlyConfig.universityAccess?.omgmu?.checkoutEnabled === false
+    && ugmuOnlyConfig.universityAccess?.izhgmu?.checkoutEnabled === false
     && plan.mandatoryPreactivationBlocks?.some((item) => item.id === "isolate-global-sales-gate"),
-  "global sales check precedes per-university checkout capability and plan includes isolation block",
+  "UGMU has a dedicated opt-in while global-only cannot open UGMU and UGMU-only cannot open incumbent tenants",
 );
 check("landingStillPreviewOnly",
   landingConfig.includes("previewOnly: true")
@@ -69,7 +82,7 @@ check("landingStillPreviewOnly",
 check("firstStreamProductionStagingMissing",
   publicationPackage.includes("fail-closed to ОЛД 101")
     && plan.mandatoryPreactivationBlocks?.some((item) => item.id === "stage-first-stream-production-schedules"),
-  "existing production-like package remains pilot-only and plan requires 12-group staging",
+  "historical activation plan still records the 12-group staging prerequisite; production storage is verified by the dedicated storage gate",
 );
 check("publicIcsStaysClosedAtLaunch",
   plan.launchTarget?.publicEndpointsEnabled === false
