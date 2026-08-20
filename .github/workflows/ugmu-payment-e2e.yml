@@ -1,0 +1,112 @@
+name: UGMU payment E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/yookassa.js"
+      - "api/src/subscription-period.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-payment-e2e.mjs"
+      - "api/test/ugmu-payment-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-payment-e2e.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/yookassa.js"
+      - "api/src/subscription-period.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-payment-e2e.mjs"
+      - "api/test/ugmu-payment-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-payment-e2e.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  payment-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Run isolated UGMU YooKassa E2E
+        run: npm run e2e:ugmu:payment
+      - name: Validate payment evidence
+        run: |
+          jq -e '
+            .passed == true and
+            .university == "ugmu" and
+            .mode == "isolated-http-yookassa-e2e" and
+            .scope.group == "ОЛД 101" and
+            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .payment.externalRequests == 0 and
+            .http.checkoutStatus == 201 and
+            .http.webhookStatus == 200 and
+            .http.orderStatus == "succeeded" and
+            .http.icsStatus == 200 and
+            .http.publicScheduleStatus == 404 and
+            .http.unauthorizedOrderStatus == 403 and
+            .checks.ugmuSemesterOffsetApplied == true and
+            .checks.productionRegistryInactive == true and
+            .checks.productionCheckoutFailClosed == true and
+            .checks.productionPublicFailClosed == true and
+            .checks.productionPaidRedirectEmpty == true and
+            .checks.noExternalYooKassaNetwork == true and
+            .launchAuthority.productionSalesAllowedByThisE2e == false and
+            .launchAuthority.productionPublicationAllowedByThisE2e == false
+          ' data/regression/ugmu-payment-e2e-report.json >/dev/null
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/regression/ugmu-payment-e2e-report.json';
+          console.log('## UGMU isolated YooKassa E2E');
+          console.log('');
+          if (!fs.existsSync(file)) {
+            console.log('Payment E2E report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${report.passed ? 'PASS' : 'FAIL'}**`);
+          console.log(`Flow: **checkout ${report.http.checkoutStatus} → webhook ${report.http.webhookStatus} → ${report.http.orderStatus} → ICS ${report.http.icsStatus}**`);
+          console.log(`Provider calls: **${report.payment.providerCalls.length}**; external YooKassa network: **${report.payment.externalRequests}**`);
+          console.log(`Production UGMU checkout/public/site redirect: **closed**`);
+          NODE
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-payment-e2e
+          path: api/data/regression/ugmu-payment-e2e-report.json
+          if-no-files-found: error
+          retention-days: 90
