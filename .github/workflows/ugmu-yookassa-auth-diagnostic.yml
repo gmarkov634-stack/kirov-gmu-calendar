@@ -1,107 +1,18 @@
-name: UGMU YooKassa auth diagnostic
+name: UGMU YooKassa auth diagnostic (retired)
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/ugmu-yookassa-auth-diagnostic.yml"
 
 permissions:
   contents: read
 
-env:
-  CONTAINER_NAME: kgmu-calendar-api
-
 jobs:
-  diagnose:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+  retired:
     runs-on: ubuntu-latest
     steps:
-      - name: Read current Cloud.ru credentials and probe YooKassa with GET only
-        env:
-          CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
-          CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
-        shell: bash
+      - name: Preserve superseded auth diagnostic
         run: |
-          set -euo pipefail
-          umask 077
-
-          auth_payload="$(python3 - <<'PY'
-          import json, os
-          print(json.dumps({'keyId': os.environ['CLOUDRU_KEY_ID'], 'secret': os.environ['CLOUDRU_KEY_SECRET']}))
-          PY
-          )"
-          test "$(curl --silent --show-error --output /tmp/cloud-token.json --write-out '%{http_code}' \
-            --request POST --header 'Content-Type: application/json' --data "$auth_payload" \
-            'https://iam.api.cloud.ru/api/v1/auth/token')" = "200"
-
-          readarray -t auth < <(python3 - <<'PY'
-          import base64, json
-          body=json.load(open('/tmp/cloud-token.json', encoding='utf-8'))
-          token=body['access_token']
-          parts=token.split('.')
-          payload=parts[1] + '='*((4-len(parts[1])%4)%4)
-          claims=json.loads(base64.urlsafe_b64decode(payload.encode()).decode())
-          print(token)
-          print(claims['project_id'])
-          PY
-          )
-          token="${auth[0]}"
-          project_id="${auth[1]}"
-          rm -f /tmp/cloud-token.json
-          echo "::add-mask::$token"
-
-          get_url="https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project_id"
-          test "$(curl --silent --show-error --output /tmp/container.json --write-out '%{http_code}' \
-            --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = "200"
-
-          python3 - <<'PY'
-          import json
-          app=json.load(open('/tmp/container.json', encoding='utf-8'))
-          env={item.get('name'):item.get('value') for item in app.get('template',{}).get('containers',[{}])[0].get('env',[]) if isinstance(item,dict)}
-          shop=str(env.get('YOOKASSA_SHOP_ID') or '')
-          secret=str(env.get('YOOKASSA_SECRET_KEY') or '')
-          assert shop and secret
-          print(f'::add-mask::{shop}')
-          print(f'::add-mask::{secret}')
-          open('/tmp/shop','w',encoding='utf-8').write(shop)
-          open('/tmp/secret','w',encoding='utf-8').write(secret)
-          print('RUNTIME_SAFE', {
-            'testModeEnv': env.get('YOOKASSA_TEST_MODE'),
-            'globalSalesEnabled': env.get('COMMERCIAL_SALES_ENABLED') == 'true',
-            'ugmuSalesEnabled': env.get('UGMU_SALES_ENABLED') == 'true',
-            'trialsEnabled': env.get('TRIALS_ENABLED') == 'true',
-          })
-          PY
-          rm -f /tmp/container.json
-
-          shop="$(cat /tmp/shop)"
-          secret="$(cat /tmp/secret)"
-          code="$(curl --silent --show-error --output /tmp/payments.json --write-out '%{http_code}' \
-            --request GET --user "$shop:$secret" \
-            'https://api.yookassa.ru/v3/payments?limit=1')"
-
-          HTTP_CODE="$code" python3 - <<'PY'
-          import json, os
-          code=os.environ['HTTP_CODE']
-          try:
-              body=json.load(open('/tmp/payments.json', encoding='utf-8'))
-          except Exception:
-              body={}
-          safe={'httpCode': code}
-          if code == '200':
-              items=body.get('items') if body.get('type') == 'list' else None
-              safe['type']=body.get('type')
-              safe['itemCount']=len(items) if isinstance(items,list) else None
-              if isinstance(items,list):
-                  flags={item.get('test') for item in items if isinstance(item,dict) and isinstance(item.get('test'),bool)}
-                  safe['paymentTestFlags']=sorted(flags)
-          else:
-              safe['type']=body.get('type')
-              safe['code']=body.get('code')
-          print('YOOKASSA_BASIC_AUTH_SAFE', json.dumps(safe, ensure_ascii=False))
-          assert code == '200', safe
-          assert body.get('type') == 'list' and isinstance(body.get('items'), list), body
-          PY
-
-          rm -f /tmp/shop /tmp/secret /tmp/payments.json
+          echo "This early YooKassa auth diagnostic is retired."
+          echo "It treated the container secret reference as a direct Basic-auth secret and was superseded by Secret Manager aware read-only verification."
+          echo "Live provider authentication was subsequently verified after restoring ShopID 1258890."
+          echo "No credentials, provider calls, payments, or production mutations are performed by this retired workflow."
