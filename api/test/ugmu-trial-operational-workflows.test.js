@@ -15,13 +15,22 @@ test("production deploy asserts the dedicated UGMU trial gate closed", () => {
   assert.match(deploy, /ugmu_trial_status/);
 });
 
-test("proxy contract probe is manual, read-only and privacy-safe", () => {
+test("proxy contract probe verifies deployed backend and Pages without production mutation", () => {
   assert.match(proxyProbe, /workflow_dispatch:/);
+  assert.match(proxyProbe, /pull_request:/);
+  assert.match(proxyProbe, /github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
   assert.doesNotMatch(proxyProbe, /schedule:/);
+  assert.match(proxyProbe, /meta\.get\('universityTrials',\{\}\)\.get\('ugmu'\) == 'closed'/);
+  assert.match(proxyProbe, /UGMU_PRODUCTION_BACKEND_READY_SAFE/);
+  assert.match(proxyProbe, /id=\"trial-start\"/);
+  assert.match(proxyProbe, /Попробовать бесплатно/);
+  assert.match(proxyProbe, /meta\.universityTrials\?\.ugmu === \"open\"/);
+  assert.match(proxyProbe, /UGMU_PRODUCTION_PAGES_READY_SAFE/);
   assert.match(proxyProbe, /\/api\/v1\/admin\/proxy-contract/);
   assert.match(proxyProbe, /X-Proxy-Probe-Expected-Client/);
   assert.match(proxyProbe, /X-Proxy-Probe-Sentinel/);
   assert.match(proxyProbe, /UGMU_PROXY_CONTRACT_SAFE/);
+  assert.doesNotMatch(proxyProbe, /--request\s+PATCH/);
   assert.doesNotMatch(proxyProbe, /UGMU_TRIALS_ENABLED.*true/);
 });
 
