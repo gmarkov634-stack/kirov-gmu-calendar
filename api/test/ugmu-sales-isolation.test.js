@@ -98,22 +98,23 @@ test("legacy global gate preserves KGMU and OmGMU while it cannot open UGMU", ()
   assert.equal(config.universityAccess.ugmu.checkoutEnabled, false);
 });
 
-test("UGMU dedicated flag is exact and does not open public/trials/paid redirect", () => {
+test("UGMU dedicated flag is exact and only then provisions its paid return URL", () => {
   for (const value of [undefined, "false", "TRUE", "1", "yes"]) {
-    const config = loadConfig({ ...(value == null ? {} : { UGMU_SALES_ENABLED: value }), UGMU_SITE_URL: "https://must-stay-closed.example" });
+    const config = loadConfig({ ...(value == null ? {} : { UGMU_SALES_ENABLED: value }), UGMU_SITE_URL: "https://ugmu.example.test/" });
     assert.equal(config.ugmuSalesEnabled, false, String(value));
     assert.equal(config.universityAccess.ugmu.checkoutEnabled, false, String(value));
+    assert.equal(config.universitySiteUrls.ugmu, "", String(value));
   }
   const open = loadConfig({
     UGMU_SALES_ENABLED: "true",
     ENABLE_PUBLIC_ENDPOINTS: "true",
     TRIALS_ENABLED: "true",
-    UGMU_SITE_URL: "https://must-stay-closed.example",
+    UGMU_SITE_URL: "https://ugmu.example.test/",
   });
   assert.equal(open.universityAccess.ugmu.checkoutEnabled, true);
   assert.equal(open.universityAccess.ugmu.publicEndpointsEnabled, false);
   assert.equal(open.universityAccess.ugmu.trialsEnabled, false);
-  assert.equal(open.universitySiteUrls.ugmu, "");
+  assert.equal(open.universitySiteUrls.ugmu, "https://ugmu.example.test/");
 });
 
 test("UGMU checkout can pass its tenant gate with global sales off", async () => {
