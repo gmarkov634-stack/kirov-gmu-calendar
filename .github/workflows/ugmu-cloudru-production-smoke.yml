@@ -8,6 +8,7 @@ on:
       - "api/test/**"
       - "api/tools/**"
       - "site/ugmu/**"
+      - "ugmu/**"
       - "universities/ugmu/**"
       - ".github/workflows/deploy-api-cloudru.yml"
       - ".github/workflows/ugmu-cloudru-production-smoke.yml"
@@ -76,12 +77,14 @@ jobs:
           health=json.loads(sys.argv[1])
           meta=json.loads(sys.argv[2])
           assert health == {'status':'ok','service':'medical-calendar-api'}, health
-          assert meta.get('sales') == 'open', meta
+          assert meta.get('sales') == 'closed', meta
           assert meta.get('trials') == 'closed', meta
+          assert meta.get('universityTrials',{}).get('ugmu') == 'open', meta
           assert meta.get('paymentMode') == 'live', meta
           print('UGMU_POST_LAUNCH_META_SAFE', {
               'sales': meta.get('sales'),
               'trials': meta.get('trials'),
+              'ugmuTrials': meta.get('universityTrials',{}).get('ugmu'),
               'paymentMode': meta.get('paymentMode'),
           })
           PY
@@ -129,16 +132,17 @@ jobs:
           python3 - <<'PY'
           import json, os
           report = {
-            'version': 2,
+            'version': 3,
             'status': 'PASS',
-            'mode': 'post-launch-production-read-only',
+            'mode': 'post-launch-production-read-only-trial-only',
             'productionBaseUrl': os.environ['PRODUCTION_BASE_URL'],
             'ugmuSiteUrl': os.environ['UGMU_SITE_URL'],
             'eventName': os.environ['GITHUB_EVENT_NAME'],
             'checks': {
               'health': True,
-              'metaSalesOpen': True,
+              'metaSalesClosed': True,
               'metaTrialsClosed': True,
+              'metaUgmuTrialsOpen': True,
               'metaPaymentModeLive': True,
               'cors': True,
               'kgmuControl': True,
@@ -149,7 +153,7 @@ jobs:
             },
             'productionMutationPerformed': False,
             'paymentCreated': False,
-            'nextRequiredBoundary': 'ongoing-post-launch-monitoring',
+            'nextRequiredBoundary': 'trial-only-ux-validation',
           }
           os.makedirs('api/data/imports/ugmu-production-smoke', exist_ok=True)
           json.dump(report, open('api/data/imports/ugmu-production-smoke/report.json','w', encoding='utf-8'), ensure_ascii=False, indent=2)
