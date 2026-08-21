@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "kind": "ugmu-post-launch-repository-stabilization",
+  "boundary": "post-launch-repository-and-pr-stabilization",
+  "status": "ACTIVE",
+  "effectiveDate": "2026-08-21",
+  "productionScopeChangeAllowed": false,
+  "livePaymentCanary": {
+    "status": "DEFERRED_BY_USER",
+    "nonBlocking": true,
+    "paymentCreationAllowed": false
+  },
+  "pullRequest": {
+    "number": 237,
+    "draftRequired": true,
+    "mergeAllowed": false,
+    "readyForReviewAllowed": false,
+    "mergeabilityAtStart": false,
+    "mergeBase": "3aae9e3365640995c214a4283ca2d17dfc2a1137",
+    "mainHeadAtStart": "c6aaf1913ad4cd5a2d105967af3977335c4620b8",
+    "branchHeadAtStart": "34a29507441c37cefeab1ac89fc3f487090631bd",
+    "branchOnlyCommitsAtStart": 242,
+    "mainOnlyCommitsAtStart": 12
+  },
+  "mainOnlyPostLaunchAssets": [
+    ".github/workflows/pages-source-actions-authority.yml",
+    ".github/workflows/ugmu-controlled-pages-main-v2.yml",
+    ".github/workflows/ugmu-controlled-pages-main.yml",
+    ".github/workflows/ugmu-legacy-pages-bridge.yml",
+    ".github/workflows/ugmu-post-launch-operational-monitor.yml",
+    "ugmu/app.js",
+    "ugmu/config.js",
+    "ugmu/index.html",
+    "ugmu/mobile.css",
+    "ugmu/styles.css",
+    "ugmu/ugmu.css",
+    "universities/ugmu/baselines/post-launch-first-stream-manifest.json"
+  ],
+  "sharedConflictCandidates": [
+    ".github/workflows/omgmu-pages.yml"
+  ],
+  "cleanupCompleted": [
+    "remove-closed-site-ugmu-test-checkout"
+  ],
+  "requiredBeforeMergeCandidate": [
+    "synchronize-shared-pages-workflow-with-main-post-launch-authority",
+    "preserve-main-operational-monitor-and-durable-baseline",
+    "repeat-main-vs-branch-compare",
+    "confirm-github-mergeable-true",
+    "run-current-pr-ci-and-classify-any-failures",
+    "confirm-public-schedule-public-ics-trials-remain-closed",
+    "confirm-global-commercial-sales-remains-false"
+  ],
+  "safety": {
+    "mergeNowAllowed": false,
+    "scopeExpansionAllowed": false,
+    "realPaymentAllowed": false,
+    "publicScheduleChangeAllowed": false,
+    "publicIcsChangeAllowed": false,
+    "trialsChangeAllowed": false,
+    "globalSalesChangeAllowed": false,
+    "productionMutationAllowed": false
+  },
+  "nextRequiredSubBoundary": "synchronize-shared-pages-workflow"
+}
