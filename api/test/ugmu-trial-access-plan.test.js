@@ -38,6 +38,8 @@ test("UGMU trial production operations remain prepared but not activation-ready"
   assert.equal(plan.landingUx.paymentRequired, false);
   assert.equal(plan.landingUx.serverGateAuthoritative, true);
   assert.equal(plan.landingUx.legacyMetaTrialsGateUsed, false);
+  assert.equal(plan.landingUx.dedicatedUgmuMetaStateUsedForCta, true);
+  assert.equal(plan.landingUx.ctaFailClosedWhenDedicatedGateClosed, true);
   assert.equal(plan.landingUx.approvedScopeOnly, true);
   assert.equal(plan.landingUx.subscriptionUrlRenderedOnlyAfterSuccessfulCreate, true);
   assert.equal(plan.landingUx.continuationContextRestoredByConversionId, true);
@@ -80,6 +82,8 @@ test("UGMU trial production operations remain prepared but not activation-ready"
   assert.equal(plan.verification.operationsPreparationStructuralRunId, 32501924832);
   assert.equal(plan.verification.operationsPreparationStructuralConclusion, "success");
   assert.equal(plan.verification.operationsPreparationObservedAllChecksConclusion, "success");
+  assert.ok(plan.verification.coverage.includes("ugmu-landing-dedicated-meta-gate-cta"));
+  assert.ok(plan.verification.coverage.includes("ugmu-landing-cta-fail-closed-before-activation"));
   assert.ok(plan.verification.coverage.includes("privacy-safe-admin-proxy-contract-observation"));
   assert.ok(plan.verification.coverage.includes("manual-proxy-contract-probe"));
   assert.ok(plan.verification.coverage.includes("guarded-identity-secret-provisioning"));
