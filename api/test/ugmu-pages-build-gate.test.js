@@ -11,16 +11,20 @@ function stepBlock(name) {
   return match[0];
 }
 
-test("shared Pages workflow is synchronized with the post-launch main authority", () => {
+test("shared Pages workflow uses current main UGMU source without historical pinning", () => {
   assert.match(workflow, /concurrency:\n  group: medical-calendar-pages\n  cancel-in-progress: false/);
-  assert.match(workflow, /UGMU_LAUNCH_SOURCE_SHA: 11c37ac0a6513c6621c297aec5c6dbceb42ede3b/);
-
-  const checkout = stepBlock("Checkout exact UGMU launch source");
-  assert.match(checkout, /ref: \$\{\{ env\.UGMU_LAUNCH_SOURCE_SHA \}\}/);
-  assert.match(checkout, /path: ugmu-feature/);
+  assert.doesNotMatch(workflow, /UGMU_LAUNCH_SOURCE_SHA/);
+  assert.doesNotMatch(workflow, /ugmu-feature/);
+  assert.match(workflow, /- "site\/ugmu\/\*\*"/);
+  assert.match(workflow, /- "ugmu\/\*\*"/);
 });
 
-test("pull requests validate the pinned UGMU source but cannot publish Pages", () => {
+test("pull requests validate UGMU source/root sync but cannot publish Pages", () => {
+  const validate = stepBlock("Validate landing files and live commercial boundary");
+  assert.match(validate, /cmp -s "site\/ugmu\/\$file" "ugmu\/\$file"/);
+  assert.match(validate, /UGMU canonical source drift/);
+  assert.match(validate, /UGMU site source and root launch copy must be identical/);
+
   const prepare = stepBlock("Prepare production artifact");
   assert.match(prepare, /if:\s*github\.event_name != 'pull_request'/);
 
@@ -30,21 +34,22 @@ test("pull requests validate the pinned UGMU source but cannot publish Pages", (
 
   assert.match(workflow, /deploy:\n    if: github\.event_name != 'pull_request'/);
   assert.match(workflow, /uses:\s*actions\/deploy-pages@v4/);
-  assert.doesNotMatch(workflow, /Upload PR Pages build evidence/);
 });
 
-test("production artifact always preserves the launched UGMU landing", () => {
+test("production artifact uses the canonical launched UGMU source directly", () => {
   const prepare = stepBlock("Prepare production artifact");
   for (const marker of [
-    "cp -R ugmu-feature/site/ugmu/. dist/site/ugmu/",
-    "'name=\"robots\" content=\"noindex,follow\"':'name=\"robots\" content=\"index,follow\"'",
-    "'Предзапусковый режим':'Календарь доступен'",
+    "cp -R site/ugmu/. dist/site/ugmu/",
     "assert 'runtime.sales === \"open\"' in app",
     "assert 'runtime.paymentMode === \"live\"' in app",
     "assert '/api/v2/catalog/ugmu' not in app and '/api/v2/schedules/ugmu' not in app",
+    "assert 'name=\"robots\" content=\"index,follow\"' in h",
+    "assert 'Календарь доступен' in h and 'Предзапусковый режим' not in h",
     "grep -q 'name=\"robots\" content=\"index,follow\"' dist/site/ugmu/index.html",
     "grep -q 'Календарь доступен' dist/site/ugmu/index.html",
   ]) assert.ok(prepare.includes(marker), `post-launch UGMU Pages marker missing: ${marker}`);
+  assert.doesNotMatch(prepare, /replacements=\{/);
+  assert.doesNotMatch(prepare, /noindex,follow/);
 });
 
 test("post-deploy verification requires all three public landing paths", () => {

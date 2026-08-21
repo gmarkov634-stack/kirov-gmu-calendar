@@ -9,6 +9,7 @@ const root = path.resolve(apiDir, "..");
 const configCode = fs.readFileSync(path.join(root, "site/ugmu/config.js"), "utf8");
 const app = fs.readFileSync(path.join(root, "site/ugmu/app.js"), "utf8");
 const html = fs.readFileSync(path.join(root, "site/ugmu/index.html"), "utf8");
+const rootHtml = fs.readFileSync(path.join(root, "ugmu/index.html"), "utf8");
 const sandbox = { window: {} };
 vm.runInNewContext(configCode, sandbox);
 const config = sandbox.window.UGMU_CONFIG;
@@ -34,11 +35,25 @@ test("UGMU config contains routing metadata but no static sales authority", () =
   }
 });
 
+test("UGMU launch source is public, student-facing and synchronized with the durable root copy", () => {
+  assert.equal(html, rootHtml);
+  assert.match(html, /name="robots" content="index,follow"/);
+  for (const marker of [
+    "Календарь доступен",
+    "Разовая оплата",
+    "Официальный источник расписания",
+    "Обновления без новой покупки",
+    "Без автосписаний",
+  ]) assert.ok(html.includes(marker), marker);
+  for (const forbidden of ["Предзапусковый режим", "production storage", "утверждённый scope", "regression"]) {
+    assert.equal(html.includes(forbidden), false, forbidden);
+  }
+});
+
 test("UGMU live UI starts disabled and requires runtime sales plus live YooKassa", () => {
   assert.match(html, /id="order-form"/);
   assert.match(html, /type="submit" disabled/);
   assert.match(html, /id="email"[^>]*type="email"/);
-  assert.match(html, /name="robots" content="noindex,follow"/);
   assert.ok(app.includes('fetch(`${config.apiBaseUrl}/api/v2/meta`'));
   assert.ok(app.includes('runtime.sales === "open"'));
   assert.ok(app.includes('runtime.paymentMode === "live"'));

@@ -12,6 +12,8 @@ on:
       - "app-utils.js"
       - "omgmu/**"
       - "site/omgmu/**"
+      - "ugmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/omgmu-pages.yml"
   push:
     branches:
@@ -25,6 +27,8 @@ on:
       - "app-utils.js"
       - "omgmu/**"
       - "site/omgmu/**"
+      - "ugmu/**"
+      - "site/ugmu/**"
       - ".github/workflows/omgmu-pages.yml"
 
 permissions:
@@ -36,9 +40,6 @@ concurrency:
   group: medical-calendar-pages
   cancel-in-progress: false
 
-env:
-  UGMU_LAUNCH_SOURCE_SHA: 11c37ac0a6513c6621c297aec5c6dbceb42ede3b
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -46,22 +47,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout exact UGMU launch source
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.UGMU_LAUNCH_SOURCE_SHA }}
-          path: ugmu-feature
-
       - name: Validate landing files and live commercial boundary
         run: |
+          set -euo pipefail
           for file in index.html styles.css landing-v1.css data.js app.js app-utils.js; do
             test -f "$file"
           done
           for file in index.html styles.css mobile.css app.js config.js ui.js; do
             test -f "site/omgmu/$file"
           done
-          for file in index.html styles.css mobile.css app.js config.js; do
-            test -f "ugmu-feature/site/ugmu/$file"
+          for file in index.html styles.css mobile.css app.js config.js ugmu.css; do
+            test -f "site/ugmu/$file"
+            test -f "ugmu/$file"
+            cmp -s "site/ugmu/$file" "ugmu/$file" || {
+              echo "UGMU canonical source drift: $file" >&2
+              exit 2
+            }
           done
           test ! -f site/omgmu/groups.js
           node - <<'NODE'
@@ -139,16 +140,30 @@ jobs:
             throw new Error('Return-to-group reset guard is missing');
           }
 
-          const ugmuHtml = fs.readFileSync('ugmu-feature/site/ugmu/index.html', 'utf8');
-          const ugmuApp = fs.readFileSync('ugmu-feature/site/ugmu/app.js', 'utf8');
-          const ugmuConfig = fs.readFileSync('ugmu-feature/site/ugmu/config.js', 'utf8');
-          for (const marker of ['name="robots" content="noindex,follow"', 'Предзапусковый режим', 'type="submit" disabled']) {
-            if (!ugmuHtml.includes(marker)) throw new Error(`Pinned UGMU source marker missing: ${marker}`);
+          const ugmuHtml = fs.readFileSync('site/ugmu/index.html', 'utf8');
+          const ugmuRootHtml = fs.readFileSync('ugmu/index.html', 'utf8');
+          const ugmuApp = fs.readFileSync('site/ugmu/app.js', 'utf8');
+          const ugmuConfig = fs.readFileSync('site/ugmu/config.js', 'utf8');
+          if (ugmuHtml !== ugmuRootHtml) throw new Error('UGMU site source and root launch copy must be identical');
+          for (const marker of [
+            'name="robots" content="index,follow"',
+            'Календарь доступен',
+            'Разовая оплата',
+            'Официальный источник расписания',
+            'type="submit" disabled',
+          ]) {
+            if (!ugmuHtml.includes(marker)) throw new Error(`UGMU launch marker missing: ${marker}`);
+          }
+          for (const forbidden of ['Предзапусковый режим', 'production storage', 'утверждённый scope', 'regression']) {
+            if (ugmuHtml.includes(forbidden)) throw new Error(`UGMU student landing contains internal copy: ${forbidden}`);
           }
           for (const marker of ['runtime.sales === "open"', 'runtime.paymentMode === "live"', '/api/v2/meta', '/api/v2/payments']) {
-            if (!ugmuApp.includes(marker)) throw new Error(`Pinned UGMU checkout marker missing: ${marker}`);
+            if (!ugmuApp.includes(marker)) throw new Error(`UGMU checkout marker missing: ${marker}`);
           }
-          if (!ugmuConfig.includes('university: "ugmu"')) throw new Error('Pinned UGMU identity missing');
+          if (ugmuApp.includes('/api/v2/catalog/ugmu') || ugmuApp.includes('/api/v2/schedules/ugmu')) {
+            throw new Error('UGMU paid landing must not depend on public schedule/catalog endpoints');
+          }
+          if (!ugmuConfig.includes('university: "ugmu"')) throw new Error('UGMU identity missing');
           console.log('Landing live commercial boundary validation passed');
           NODE
 
@@ -189,7 +204,7 @@ jobs:
           mkdir -p dist/site/omgmu dist/site/ugmu
           cp index.html styles.css landing-v1.css data.js app.js app-utils.js dist/site/
           cp -R site/omgmu/. dist/site/omgmu/
-          cp -R ugmu-feature/site/ugmu/. dist/site/ugmu/
+          cp -R site/ugmu/. dist/site/ugmu/
           touch dist/site/.nojekyll
 
           API_URL="$CLOUD_RU_API_URL" python3 - <<'PY'
@@ -202,26 +217,12 @@ jobs:
             (Path('dist/site/ugmu/config.js'), r'apiBaseUrl:\s*"https://[^\"]+"', f'apiBaseUrl: "{api}"'),
           ]
           for p,pattern,replacement in targets:
-            text=p.read_text(encoding='utf-8'); text,n=re.subn(pattern,replacement,text,count=1); assert n==1,p; p.write_text(text,encoding='utf-8')
+            text=p.read_text(encoding='utf-8')
+            text,n=re.subn(pattern,replacement,text,count=1)
+            assert n==1,p
+            p.write_text(text,encoding='utf-8')
 
-          hp=Path('dist/site/ugmu/index.html'); h=hp.read_text(encoding='utf-8')
-          replacements={
-            'name="robots" content="noindex,follow"':'name="robots" content="index,follow"',
-            'Проверенное расписание УГМУ для ОЛД 101–112. Checkout подготовлен и откроется только после production-разрешения продаж и live-проверки ЮKassa.':'Проверенное расписание УГМУ для ОЛД 101–112. Оплата доступна через ЮKassa, после оплаты выдаётся персональная ссылка на календарь.',
-            'можно будет подключить одной персональной ссылкой':'можно подключить одной персональной ссылкой',
-            'продажи пока<br>закрыты':'оплата<br>доступна',
-            'Предзапусковый режим':'Календарь доступен',
-            'Интерфейс checkout уже подключён к production API, но сам сервер пока держит продажи УГМУ закрытыми. GitHub Pages на этом этапе не публикуется.':'Оплата для утверждённых групп ОЛД 101–112 доступна через ЮKassa. Публичное бесплатное расписание и trials остаются закрытыми.',
-            '<span class="badge">Подготовлено</span>':'<span class="badge">Доступно</span>',
-            'Форма уже работает с production API. Кнопка оплаты включится только когда сервер разрешит продажи УГМУ и ЮKassa будет подтверждена в live-режиме.':'Форма работает с production API и включает оплату только при подтверждённом live-режиме ЮKassa.',
-            'Осталась live-проверка ЮKassa и финальная активация':'ЮKassa подтверждена в live-режиме; оплата доступна',
-            'Независимый сервис · предзапусковая подготовка':'Независимый сервис электронных календарей',
-          }
-          for a,b in replacements.items():
-            assert a in h,a
-            h=h.replace(a,b)
-          hp.write_text(h,encoding='utf-8')
-
+          h=Path('dist/site/ugmu/index.html').read_text(encoding='utf-8')
           app=Path('dist/site/ugmu/app.js').read_text(encoding='utf-8')
           cfg=Path('dist/site/ugmu/config.js').read_text(encoding='utf-8')
           assert 'runtime.sales === "open"' in app
@@ -230,7 +231,7 @@ jobs:
           assert 'name="robots" content="index,follow"' in h
           assert 'Календарь доступен' in h and 'Предзапусковый режим' not in h
           assert f'apiBaseUrl: "{api}"' in cfg
-          print('UGMU_PRESERVED_IN_SHARED_PAGES_ARTIFACT')
+          print('UGMU_CANONICAL_SOURCE_IN_SHARED_PAGES_ARTIFACT')
           PY
 
           grep -q "apiBase: \"$CLOUD_RU_API_URL\"" dist/site/data.js
