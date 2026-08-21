@@ -5,7 +5,9 @@ import {
   trialServiceEnabled,
   ugmuTrialScopeAllowed,
 } from "../src/trial-access-policy.mjs";
-import { TrialService } from "../src/trial-service.js";
+import { TrialService, trialIdentityClaimHash } from "../src/trial-service.js";
+
+const IDENTITY_HASH = "c".repeat(64);
 
 function ugmuContext(overrides = {}) {
   return {
@@ -88,6 +90,7 @@ function fakeStore(schedule = ugmuSchedule()) {
     schedule,
     subscriptions: [],
     conversions: new Map(),
+    identityClaims: new Set(),
     reads: 0,
     async getSchedule() {
       this.reads += 1;
@@ -101,6 +104,11 @@ function fakeStore(schedule = ugmuSchedule()) {
     },
     async getTrialConversion(id) {
       return this.conversions.get(id) || null;
+    },
+    async claimTrialIdentityByHash(hash) {
+      if (this.identityClaims.has(hash)) return false;
+      this.identityClaims.add(hash);
+      return true;
     },
   };
 }
@@ -162,7 +170,7 @@ test("UGMU exact-scope trial creates a tokenized subscription without payment", 
     now: () => new Date("2026-08-21T12:00:00.000Z"),
   });
 
-  const result = await service.create(ugmuContext());
+  const result = await service.create(ugmuContext(), { identityHash: IDENTITY_HASH });
   assert.equal(result.status, "active");
   assert.equal(result.groupCode, "ОЛД 101");
   assert.equal(result.trialStartDate, "2026-09-01");
@@ -172,6 +180,68 @@ test("UGMU exact-scope trial creates a tokenized subscription without payment", 
   assert.equal(store.subscriptions[0].value.entitlement, "trial");
   assert.equal(store.subscriptions[0].value.university, "ugmu");
   assert.equal(store.subscriptions[0].value.groupId, "ugmu:medicine:1:stream-1:ОЛД 101");
+  assert.equal(store.identityClaims.size, 1);
+});
+
+test("UGMU trial fails closed when request identity is unavailable", async () => {
+  const store = fakeStore();
+  const service = new TrialService({
+    store,
+    config: serviceConfig(),
+    now: () => new Date("2026-08-21T12:00:00.000Z"),
+  });
+
+  await assert.rejects(service.create(ugmuContext()), (error) => error.code === "trial_not_ready");
+  assert.equal(store.subscriptions.length, 0);
+  assert.equal(store.conversions.size, 0);
+  assert.equal(store.identityClaims.size, 0);
+});
+
+test("UGMU duplicate anonymous identity is blocked before a second entitlement is written", async () => {
+  const store = fakeStore();
+  const service = new TrialService({
+    store,
+    config: serviceConfig(),
+    now: () => new Date("2026-08-21T12:00:00.000Z"),
+  });
+
+  await service.create(ugmuContext(), { identityHash: IDENTITY_HASH });
+  await assert.rejects(
+    service.create(ugmuContext(), { identityHash: IDENTITY_HASH }),
+    (error) => error.code === "trial_already_claimed",
+  );
+  assert.equal(store.subscriptions.length, 1);
+  assert.equal(store.conversions.size, 1);
+  assert.equal(store.identityClaims.size, 1);
+});
+
+test("UGMU semester claim hash is independent of selected group", () => {
+  const common = {
+    university: "ugmu",
+    academicYear: "2026/2027",
+    semester: 1,
+  };
+  assert.equal(
+    trialIdentityClaimHash({ ...common, groupId: "ugmu:medicine:1:stream-1:ОЛД 101" }, IDENTITY_HASH),
+    trialIdentityClaimHash({ ...common, groupId: "ugmu:medicine:1:stream-1:ОЛД 112" }, IDENTITY_HASH),
+  );
+});
+
+test("UGMU concurrent duplicate requests result in exactly one trial entitlement", async () => {
+  const store = fakeStore();
+  const service = new TrialService({
+    store,
+    config: serviceConfig(),
+    now: () => new Date("2026-08-21T12:00:00.000Z"),
+  });
+
+  const outcomes = await Promise.allSettled(
+    Array.from({ length: 16 }, () => service.create(ugmuContext(), { identityHash: IDENTITY_HASH })),
+  );
+  assert.equal(outcomes.filter((item) => item.status === "fulfilled").length, 1);
+  assert.equal(outcomes.filter((item) => item.status === "rejected" && item.reason?.code === "trial_already_claimed").length, 15);
+  assert.equal(store.subscriptions.length, 1);
+  assert.equal(store.conversions.size, 1);
 });
 
 test("UGMU out-of-scope trial fails before schedule storage is read", async () => {
