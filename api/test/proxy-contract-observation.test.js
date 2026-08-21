@@ -5,31 +5,53 @@ import { proxyContractObservation } from "../src/proxy-contract-observation.js";
 test("proxy observation reveals only structure, never raw addresses", () => {
   const result = proxyContractObservation({
     headers: {
-      "x-real-ip": "203.0.113.10",
-      "x-forwarded-for": "203.0.113.10, 198.51.100.7",
+      "x-real-ip": "192.0.2.10",
+      "x-forwarded-for": "192.0.2.10, 192.0.2.20",
     },
-    socket: { remoteAddress: "::ffff:198.51.100.7" },
+    socket: { remoteAddress: "::ffff:192.0.2.20" },
   });
 
-  assert.deepEqual(result, {
-    version: 1,
-    xRealIpPresent: true,
-    xForwardedForPresent: true,
-    xForwardedForHopCount: 2,
-    socketAddressPresent: true,
-    xRealIpEqualsFirstXff: true,
-    xRealIpEqualsLastXff: false,
-    socketEqualsFirstXff: false,
-    socketEqualsLastXff: true,
-    policyResolution: "x-real-ip",
+  assert.equal(result.version, 2);
+  assert.equal(result.xRealIpPresent, true);
+  assert.equal(result.xForwardedForPresent, true);
+  assert.equal(result.xForwardedForHopCount, 2);
+  assert.equal(result.socketAddressPresent, true);
+  assert.equal(result.xRealIpEqualsFirstXff, true);
+  assert.equal(result.xRealIpEqualsLastXff, false);
+  assert.equal(result.socketEqualsFirstXff, false);
+  assert.equal(result.socketEqualsLastXff, true);
+  assert.equal(result.expectedClientProvided, false);
+  assert.equal(result.probeSentinelProvided, false);
+  assert.equal(result.policyResolution, "x-real-ip");
+  assert.doesNotMatch(JSON.stringify(result), /192\.0\.2\.10|192\.0\.2\.20/);
+});
+
+test("probe compares ingress values to expected client and sentinel without returning either", () => {
+  const result = proxyContractObservation({
+    headers: {
+      "x-real-ip": "192.0.2.10",
+      "x-forwarded-for": "192.0.2.30, 192.0.2.10",
+      "x-proxy-probe-expected-client": "192.0.2.10",
+      "x-proxy-probe-sentinel": "192.0.2.30",
+    },
+    socket: { remoteAddress: "192.0.2.40" },
   });
-  assert.doesNotMatch(JSON.stringify(result), /203\.0\.113\.10|198\.51\.100\.7/);
+
+  assert.equal(result.expectedClientProvided, true);
+  assert.equal(result.xRealIpEqualsExpectedClient, true);
+  assert.equal(result.firstXffEqualsExpectedClient, false);
+  assert.equal(result.lastXffEqualsExpectedClient, true);
+  assert.equal(result.probeSentinelProvided, true);
+  assert.equal(result.xRealIpEqualsProbeSentinel, false);
+  assert.equal(result.firstXffEqualsProbeSentinel, true);
+  assert.equal(result.lastXffEqualsProbeSentinel, false);
+  assert.doesNotMatch(JSON.stringify(result), /192\.0\.2\.10|192\.0\.2\.30/);
 });
 
 test("single XFF is recognized by the current trial identity policy", () => {
   const result = proxyContractObservation({
-    headers: { "x-forwarded-for": "203.0.113.10" },
-    socket: { remoteAddress: "10.0.0.4" },
+    headers: { "x-forwarded-for": "192.0.2.10" },
+    socket: { remoteAddress: "192.0.2.40" },
   });
   assert.equal(result.xForwardedForHopCount, 1);
   assert.equal(result.policyResolution, "single-x-forwarded-for");
@@ -37,8 +59,8 @@ test("single XFF is recognized by the current trial identity policy", () => {
 
 test("multi-hop XFF without X-Real-IP remains explicitly ambiguous", () => {
   const result = proxyContractObservation({
-    headers: { "x-forwarded-for": "203.0.113.10, 198.51.100.7" },
-    socket: { remoteAddress: "198.51.100.7" },
+    headers: { "x-forwarded-for": "192.0.2.10, 192.0.2.20" },
+    socket: { remoteAddress: "192.0.2.20" },
   });
   assert.equal(result.xForwardedForHopCount, 2);
   assert.equal(result.socketEqualsLastXff, true);
