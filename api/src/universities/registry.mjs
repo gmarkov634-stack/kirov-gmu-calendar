@@ -91,7 +91,9 @@ const UNIVERSITIES = Object.freeze({
       Object.freeze({ id: "clinical_psychology", name: "Клиническая психология", initialScope: false }),
     ]),
     sitePath: "/ugmu/",
-    active: false,
+    // Default remains fail-closed for CI, previews and ordinary deployments.
+    // Controlled production launch must opt in with the exact runtime flag.
+    active: process.env.UGMU_ACTIVE === "true",
   }),
 });
 
