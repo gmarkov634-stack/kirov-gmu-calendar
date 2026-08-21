@@ -22,7 +22,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: ugmu-controlled-pages-main-v2
+  group: medical-calendar-pages
   cancel-in-progress: false
 
 env:
