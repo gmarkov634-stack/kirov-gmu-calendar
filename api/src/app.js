@@ -133,6 +133,12 @@ function trialState(config) {
   return config?.trialsEnabled === true ? "open" : "closed";
 }
 
+function universityTrialStates(config) {
+  return {
+    ugmu: config?.ugmuTrialsEnabled === true ? "open" : "closed",
+  };
+}
+
 function paymentMode(config) {
   return config?.yookassaTestMode === true ? "test" : "live";
 }
@@ -263,6 +269,7 @@ export function createHandler({ store, config, payments }) {
         disclaimer: DISCLAIMER,
         sales: salesState(config),
         trials: trialState(config),
+        universityTrials: universityTrialStates(config),
         paymentMode: paymentMode(config),
         offers: publicOfferPrices(config),
       }, "application/json; charset=utf-8", "no-store");
@@ -360,7 +367,7 @@ export function createHandler({ store, config, payments }) {
       return send(response, 200, { ...schedule, disclaimer: DISCLAIMER });
     } catch (error) {
       console.error(error);
-      return send(response, 503, { error: "schedule_storage_unavailable" });
+      return send(response, 503, { error: "schedule_unavailable" });
     }
   };
 }
