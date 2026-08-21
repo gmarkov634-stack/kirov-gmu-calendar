@@ -73,7 +73,9 @@ jobs:
           app=(root/'app.js').read_text(encoding='utf-8'); cfg=p.read_text(encoding='utf-8')
           assert 'runtime.sales === "open"' in app
           assert 'runtime.paymentMode === "live"' in app
-          assert '/api/v2/meta' in app and '/api/v2/payments' in app
+          assert '/api/v2/meta' in app
+          assert 'config.paymentPath' in app
+          assert 'paymentPath: "/api/v2/payments"' in cfg
           assert '/api/v2/catalog/ugmu' not in app and '/api/v2/schedules/ugmu' not in app
           assert 'type="submit" disabled' in h
           assert 'name="robots" content="index,follow"' in h
