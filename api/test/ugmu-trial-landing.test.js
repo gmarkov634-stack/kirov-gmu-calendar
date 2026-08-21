@@ -32,8 +32,12 @@ test("UGMU landing exposes a payment-independent trial entry point", () => {
   assert.match(app, /\/continue\/\$\{encodeURIComponent\(conversionId\)\}/);
 });
 
-test("UGMU trial landing does not reuse the legacy global trials metadata gate", () => {
+test("UGMU trial CTA uses only the dedicated read-only UGMU meta state", () => {
   assert.doesNotMatch(app, /meta\.trials/);
+  assert.match(app, /meta\.universityTrials\?\.ugmu === "open"/);
+  assert.match(app, /runtime\.trial === "open"/);
+  assert.match(app, /Пробный доступ пока закрыт/);
+  assert.match(app, /if \(!trialReady\(\) \|\| activeConversionId\) return/);
   assert.doesNotMatch(app, /TRIALS_ENABLED/);
   assert.doesNotMatch(app, /UGMU_TRIALS_ENABLED/);
   assert.match(app, /friendlyTrialError/);
