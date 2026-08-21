@@ -44,15 +44,20 @@ test("trial identity secret provisioning is explicit and keeps trial gates close
   assert.match(secretProvision, /UGMU_TRIAL_SECRET_PROVISIONED_SAFE gates=closed/);
 });
 
-test("UGMU trial activation is explicit, preflighted and rolls the gate back on error", () => {
+test("UGMU trial activation is explicit, preflighted and exits nonzero after guarded rollback", () => {
   assert.match(activate, /workflow_dispatch:/);
   assert.doesNotMatch(activate, /schedule:/);
   assert.match(activate, /ACTIVATE_UGMU_TRIAL/);
   assert.match(activate, /TRIAL_IDENTITY_HMAC_SECRET/);
   assert.match(activate, /\/api\/v1\/admin\/proxy-contract/);
   assert.match(activate, /UGMU_TRIAL_ACTIVATION_PROXY_PREFLIGHT_SAFE/);
-  assert.match(activate, /trap rollback ERR/);
+  assert.match(activate, /trap 'rollback \$\?' ERR/);
+  assert.match(activate, /local exit_code="\$\{1:-1\}"/);
+  assert.match(activate, /UGMU_TRIAL_ABORT_BEFORE_ACTIVATION_SAFE/);
   assert.match(activate, /UGMU_TRIAL_ROLLBACK_REQUESTED_SAFE/);
+  assert.match(activate, /exit "\$exit_code"/);
+  assert.match(activate, /preflight_ready='false'/);
+  assert.match(activate, /app\.get\('status'\) != 'running'/);
   assert.match(activate, /rows\.append\(\{'name':'UGMU_TRIALS_ENABLED','value':'true'\}\)/);
   assert.match(activate, /body\.get\('trials'\) == 'closed'/);
   assert.match(activate, /body\.get\('universityTrials',\{\}\)\.get\('ugmu'\) == 'open'/);
