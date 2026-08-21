@@ -27,6 +27,8 @@ export function loadConfig(env = process.env) {
   const yearExpiresAt = env.OFFER_YEAR_EXPIRES_AT || "2027-08-31T23:59:59+03:00";
   const globalCommercialSalesEnabled = env.COMMERCIAL_SALES_ENABLED === "true";
   const ugmuSalesEnabled = env.UGMU_SALES_ENABLED === "true";
+  const globalTrialsEnabled = env.TRIALS_ENABLED === "true";
+  const ugmuTrialsEnabled = env.UGMU_TRIALS_ENABLED === "true";
 
   return {
     port: Number(env.PORT || 8080),
@@ -47,9 +49,9 @@ export function loadConfig(env = process.env) {
       // IzhGMU is intentionally not provisionable for paid redirects in stage I.
       // Opening this requires a separate launch change after current-source E2E.
       izhgmu: "",
-      // UGMU return URLs remain fail-closed unless the dedicated tenant sales
-      // gate is explicitly open. A global sales flag can never provision it.
-      ugmu: ugmuSalesEnabled ? (env.UGMU_SITE_URL || "") : "",
+      // UGMU return/continue URLs are provisioned only when a dedicated UGMU
+      // capability is open. A global sales/trial flag cannot provision them.
+      ugmu: (ugmuSalesEnabled || ugmuTrialsEnabled) ? (env.UGMU_SITE_URL || "") : "",
       pgmu: env.PGMU_SITE_URL || "",
     },
     // Every registered tenant now has an explicit checkout policy. This lets
@@ -71,7 +73,7 @@ export function loadConfig(env = process.env) {
         apiRoutingEnabled: true,
         publicEndpointsEnabled: false,
         checkoutEnabled: ugmuSalesEnabled,
-        trialsEnabled: false,
+        trialsEnabled: ugmuTrialsEnabled,
       },
     },
     publicApiUrl: env.PUBLIC_API_URL || "",
@@ -85,7 +87,12 @@ export function loadConfig(env = process.env) {
     commercialSalesEnabled: globalCommercialSalesEnabled || ugmuSalesEnabled,
     globalCommercialSalesEnabled,
     ugmuSalesEnabled,
-    trialsEnabled: env.TRIALS_ENABLED === "true",
+    // Preserve legacy/global trial semantics for existing UI/meta while the
+    // service itself can also route a dedicated, isolated UGMU trial request.
+    trialsEnabled: globalTrialsEnabled,
+    globalTrialsEnabled,
+    ugmuTrialsEnabled,
+    trialServiceEnabled: globalTrialsEnabled || ugmuTrialsEnabled,
     funnelAnalyticsEnabled: env.FUNNEL_ANALYTICS_ENABLED === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     adminToken: env.ADMIN_TOKEN || "",
