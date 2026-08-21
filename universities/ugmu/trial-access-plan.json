@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "kind": "ugmu-trial-access-plan",
+  "boundary": "ugmu-trial-isolation-design",
+  "status": "DESIGNED_FAIL_CLOSED",
+  "scope": {
+    "university": "ugmu",
+    "program": "medicine",
+    "course": 1,
+    "stream": "1",
+    "groups": [
+      "ОЛД 101",
+      "ОЛД 102",
+      "ОЛД 103",
+      "ОЛД 104",
+      "ОЛД 105",
+      "ОЛД 106",
+      "ОЛД 107",
+      "ОЛД 108",
+      "ОЛД 109",
+      "ОЛД 110",
+      "ОЛД 111",
+      "ОЛД 112"
+    ],
+    "academicYear": "2026/2027",
+    "semester": 1
+  },
+  "runtimeIsolation": {
+    "legacyGlobalFlag": "TRIALS_ENABLED",
+    "ugmuFlag": "UGMU_TRIALS_ENABLED",
+    "ugmuFlagDefault": false,
+    "globalFlagAloneCanOpenUgmu": false,
+    "ugmuFlagCanOpenOtherUniversities": false,
+    "exactScopeRequired": true
+  },
+  "trialProduct": {
+    "entitlement": "trial",
+    "paymentRequired": false,
+    "publicScheduleRequired": false,
+    "publicIcsRequired": false,
+    "tokenizedSubscriptionIcs": true,
+    "window": {
+      "days": 7,
+      "anchor": "first-schedule-event-date",
+      "fixed": true
+    },
+    "continuationEventAfterWindow": true
+  },
+  "activation": {
+    "allowedNow": false,
+    "productionFlagMutationAllowedByThisPlan": false,
+    "automaticActivationAllowed": false,
+    "explicitDecisionRequired": true,
+    "blockers": [
+      "anti-abuse-policy-not-finalized",
+      "ugmu-landing-trial-ux-not-wired",
+      "ugmu-trial-production-e2e-not-completed",
+      "explicit-trial-activation-decision-not-given"
+    ]
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "trialSubscriptionCreated": false,
+    "paymentCreationAllowed": false,
+    "publicScheduleAllowed": false,
+    "publicIcsAllowed": false,
+    "scopeExpansionAllowed": false,
+    "globalTrialsActivationAllowed": false,
+    "globalSalesMutationAllowed": false
+  },
+  "nextRequiredBoundary": "ugmu-trial-anti-abuse-and-e2e-design"
+}
