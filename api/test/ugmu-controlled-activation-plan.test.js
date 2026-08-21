@@ -13,7 +13,7 @@ function blocker(id) {
   return plan.mandatoryPreactivationBlocks.find((item) => item.id === id);
 }
 
-test("controlled activation plan freezes the approved first-stream scope and cannot activate production", () => {
+test("controlled activation plan freezes the approved first-stream scope and requires explicit authority", () => {
   assert.equal(plan.university, "ugmu");
   assert.equal(plan.scope.sourceSha256, "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8");
   assert.deepEqual(plan.scope.groups, expectedGroups);
@@ -21,6 +21,8 @@ test("controlled activation plan freezes the approved first-stream scope and can
   assert.equal(plan.authority.activationPerformedByPlan, false);
   assert.equal(plan.authority.productionMutationAllowedByPlan, false);
   assert.equal(plan.authority.requiresExplicitLaunchAuthorization, true);
+  assert.equal(plan.authority.explicitLaunchAuthorizationReceived, true);
+  assert.equal(plan.authority.authorizationCommand, "Далее");
 });
 
 test("launch target opens only paid UGMU checkout while public ICS and trials stay closed", () => {
@@ -34,29 +36,31 @@ test("launch target opens only paid UGMU checkout while public ICS and trials st
   assert.equal(plan.launchTarget.paymentMode, "live");
 });
 
-test("plan records staging, commercial isolation and live checkout UI as complete", () => {
+test("all four preactivation blocks are completed after Step 27 PASS", () => {
   for (const id of [
     "stage-first-stream-production-schedules",
     "isolate-global-sales-gate",
     "wire-live-ugmu-landing",
+    "validate-live-yookassa-mode",
   ]) assert.equal(blocker(id)?.state, "completed", `${id} must be completed`);
   assert.match(blocker("stage-first-stream-production-schedules")?.completion || "", /32421951498/);
   assert.match(blocker("isolate-global-sales-gate")?.completion || "", /32424944030/);
-  assert.equal(blocker("validate-live-yookassa-mode")?.state, "required");
-  assert.equal(plan.nextRequiredBoundary, "validate-live-yookassa-mode");
+  assert.match(blocker("validate-live-yookassa-mode")?.completion || "", /32433470703/);
+  assert.equal(plan.nextRequiredBoundary, "controlled-launch-activation");
 });
 
 test("backend activation uses the dedicated UGMU gate rather than opening the legacy global gate", () => {
   const phase = plan.phases.find((item) => item.id === "activate-backend-ugmu-checkout");
+  assert.equal(phase.state, "authorized");
   assert.ok(phase.mutations.some((item) => item.includes("UGMU_SALES_ENABLED false -> true")));
   assert.ok(phase.mustRemainClosed.some((item) => item.includes("legacy global sales gate")));
 });
 
-test("prepared landing stays noindex/unpublished until explicit activation", () => {
-  const phase = plan.phases.find((item) => item.id === "prepare-user-facing-landing");
-  assert.equal(phase.state, "completed-not-deployed");
-  assert.ok(phase.mustRemainClosed.includes("production Pages deployment"));
-  assert.ok(phase.successChecks.some((item) => item.includes("sales=open and paymentMode=live")));
+test("prepared landing is authorized only after backend smoke", () => {
+  const phase = plan.phases.find((item) => item.id === "activate-user-facing-landing");
+  assert.equal(phase.state, "authorized-after-backend-smoke");
+  assert.ok(phase.mustRemainClosed.includes("public ICS"));
+  assert.ok(phase.mustRemainClosed.includes("trials"));
 });
 
 test("rollback closes access first and keeps staged schedules inert instead of deleting data", () => {
