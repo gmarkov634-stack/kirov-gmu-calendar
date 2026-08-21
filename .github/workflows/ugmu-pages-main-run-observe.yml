@@ -1,0 +1,33 @@
+name: UGMU main Pages run observe
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-pages-main-run-observe.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read latest main-only Pages run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ugmu-controlled-pages-main-v2.yml/runs?branch=main&per_page=5"
+          test "$(curl -sS -o /tmp/runs.json -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "$url")" = 200
+          python3 - <<'PY'
+          import json
+          b=json.load(open('/tmp/runs.json')); runs=b.get('workflow_runs') or []
+          assert runs, 'no main pages runs'
+          r=runs[0]
+          print('UGMU_MAIN_PAGES_RUN_SAFE', {'id':r.get('id'),'event':r.get('event'),'headSha':r.get('head_sha'),'status':r.get('status'),'conclusion':r.get('conclusion'),'runNumber':r.get('run_number')})
+          if r.get('status') == 'completed' and r.get('conclusion') != 'success':
+              raise SystemExit(2)
+          PY
