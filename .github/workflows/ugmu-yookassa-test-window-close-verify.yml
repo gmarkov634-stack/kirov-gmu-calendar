@@ -1,0 +1,99 @@
+name: UGMU YooKassa test window close verify
+
+on:
+  push:
+    branches: [agent/ugmu-scaffold-20260820]
+    paths: ["universities/ugmu/yookassa-test-window-close-verify.json"]
+
+permissions:
+  contents: read
+
+env:
+  CONTAINER_NAME: kgmu-calendar-api
+  PRODUCTION_BASE_URL: https://kgmu-calendar-api.containerapps.ru
+  UGMU_SITE_URL: https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/
+  LIVE_SHOP_ID: "1258890"
+  LIVE_SECRET: yookassa-secret-key
+  EXPECTED_IMAGE: kgmu-calendar-api.cr.cloud.ru/api@sha256:1eb443926c40e705ee8d758d8479552576deb735d54fe86a18ec300895929829
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
+      CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 2}
+      - name: Verify read-only authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,subprocess
+          p='universities/ugmu/yookassa-test-window-close-verify.json';a=json.load(open(p))
+          assert a['kind']=='ugmu-yookassa-test-window-close-verify';assert a['readOnly'] is True;assert a['productionMutationAllowed'] is False;assert a['paymentCreationAllowed'] is False;assert a['liveShopId']=='1258890'
+          assert subprocess.check_output(['git','diff','--name-only',a['preparedWorkflowHead'],'HEAD'],text=True).splitlines()==[p]
+          PY
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.x
+          cache: false
+      - name: Verify settled live state read-only
+        shell: bash
+        run: |
+          set -euo pipefail; umask 077
+          payload="$(python3 - <<'PY'
+          import json,os
+          print(json.dumps({'keyId':os.environ['CLOUDRU_KEY_ID'],'secret':os.environ['CLOUDRU_KEY_SECRET']}))
+          PY
+          )"
+          test "$(curl -sS -o /tmp/t.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' --data "$payload" https://iam.api.cloud.ru/api/v1/auth/token)" = 200
+          readarray -t a < <(python3 - <<'PY'
+          import json,base64
+          t=json.load(open('/tmp/t.json'))['access_token'];p=t.split('.')[1];p+='='*((4-len(p)%4)%4);x=json.loads(base64.urlsafe_b64decode(p));print(t);print(x['project_id'])
+          PY
+          );token="${a[0]}";project="${a[1]}";rm /tmp/t.json;echo "::add-mask::$token"
+          test "$(curl -sS -o /tmp/c.json -w '%{http_code}' -H "Authorization: Bearer $token" "https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project")" = 200
+          EXPECTED_IMAGE="$EXPECTED_IMAGE" LIVE_SHOP_ID="$LIVE_SHOP_ID" LIVE_SECRET="$LIVE_SECRET" python3 - <<'PY'
+          import json,os
+          a=json.load(open('/tmp/c.json'));c=a['template']['containers'][0];e={x.get('name'):x for x in c.get('env',[]) if isinstance(x,dict)}
+          safe={'status':a.get('status'),'imageMatched':c.get('image')==os.environ['EXPECTED_IMAGE'],'globalSales':e.get('COMMERCIAL_SALES_ENABLED',{}).get('value')=='true','ugmuSales':e.get('UGMU_SALES_ENABLED',{}).get('value')=='true','active':e.get('UGMU_ACTIVE',{}).get('value')=='true','trials':e.get('TRIALS_ENABLED',{}).get('value')=='true','testModeEnv':e.get('YOOKASSA_TEST_MODE',{}).get('value'),'liveShopMatched':e.get('YOOKASSA_SHOP_ID',{}).get('value')==os.environ['LIVE_SHOP_ID'],'liveSecretRefMatched':e.get('YOOKASSA_SECRET_KEY',{}).get('type')=='secret' and e.get('YOOKASSA_SECRET_KEY',{}).get('value')==os.environ['LIVE_SECRET']}
+          print('UGMU_CLOSE_VERIFY_RUNTIME_SAFE',safe)
+          assert safe['status']=='running';assert safe['imageMatched'];assert safe['globalSales'] is False;assert safe['ugmuSales'];assert safe['active'];assert safe['trials'] is False;assert safe['testModeEnv']=='false';assert safe['liveShopMatched'];assert safe['liveSecretRefMatched']
+          PY
+          meta="$(curl -fsS "$PRODUCTION_BASE_URL/api/v2/meta")"
+          python3 - "$meta" <<'PY'
+          import json,sys
+          m=json.loads(sys.argv[1]);print('UGMU_CLOSE_VERIFY_META_SAFE',{'sales':m.get('sales'),'trials':m.get('trials'),'paymentMode':m.get('paymentMode')});assert m.get('sales')=='open' and m.get('trials')=='closed' and m.get('paymentMode')=='live'
+          PY
+          mkdir -p /tmp/p && cd /tmp/p
+          cat > go.mod <<'EOF'
+          module ugmucloseverify
+          go 1.23.0
+          require github.com/cloudru-tech/secret-manager-sdk v1.1.1
+          require google.golang.org/grpc v1.70.0
+          EOF
+          cat > main.go <<'EOF'
+          package main
+          import("context";"encoding/json";"fmt";"io";"net/http";"os";"strings";"time";sm "github.com/cloudru-tech/secret-manager-sdk";v2 "github.com/cloudru-tech/secret-manager-sdk/api/v2";"google.golang.org/grpc/metadata")
+          func m(n string)string{v:=os.Getenv(n);if v==""{panic(n)};return v}
+          func main(){cl,e:=sm.New(&sm.Config{Host:"secretmanager.api.cloud.ru:443"});if e!=nil{panic(e)};defer cl.Close();ctx,c:=context.WithTimeout(context.Background(),30*time.Second);defer c();ctx=metadata.AppendToOutgoingContext(ctx,"authorization","Bearer "+m("TOKEN"));sr,e:=cl.V2.SecretService.Search(ctx,&v2.SearchSecretRequest{ProjectId:m("PROJECT"),Depth:-1});if e!=nil{panic(e)};paths:=[]string{};for _,s:=range sr.GetSecrets(){p:=s.GetPath();if p==m("SECRET")||strings.HasSuffix(p,"/"+m("SECRET")){paths=append(paths,p)}};if len(paths)!=1{panic("secret match count")};sec,e:=cl.V2.SecretService.Access(ctx,&v2.AccessSecretRequest{ProjectId:m("PROJECT"),Path:paths[0]});if e!=nil{panic(e)};req,_:=http.NewRequest(http.MethodGet,"https://api.yookassa.ru/v3/payments?limit=10",nil);req.SetBasicAuth(m("SHOP"),string(sec.GetPayload().GetValue()));r,e:=(&http.Client{Timeout:20*time.Second}).Do(req);if e!=nil{panic(e)};defer r.Body.Close();b,_:=io.ReadAll(io.LimitReader(r.Body,2<<20));if r.StatusCode!=200{panic(fmt.Sprintf("http %d",r.StatusCode))};var x struct{Type string `json:"type"`;Items []struct{Test bool `json:"test"`} `json:"items"`};if e=json.Unmarshal(b,&x);e!=nil{panic(e)};live,test:=0,0;for _,p:=range x.Items{if p.Test{test++}else{live++}};fmt.Printf("UGMU_CLOSE_VERIFY_PROVIDER_SAFE http=200 type=%s items=%d liveItems=%d testItems=%d paymentCreated=false\n",x.Type,len(x.Items),live,test);if x.Type!="list"||len(x.Items)==0||live==0||test!=0{os.Exit(4)}}
+          EOF
+          go mod tidy
+          TOKEN="$token" PROJECT="$project" SECRET="$LIVE_SECRET" SHOP="$LIVE_SHOP_ID" go run .
+          cd "$GITHUB_WORKSPACE";rm -rf /tmp/p
+          sched="$(curl -sS -o /tmp/s.json -w '%{http_code}' "$PRODUCTION_BASE_URL/api/v2/schedules/ugmu/medicine/1/2026-2027/semester-1/ugmu%3Amedicine%3A1%3Astream-1%3A%D0%9E%D0%9B%D0%94%20101")";ics="$(curl -sS -o /tmp/i.ics -w '%{http_code}' "$PRODUCTION_BASE_URL/api/v2/schedules/ugmu/medicine/1/2026-2027/semester-1/ugmu%3Amedicine%3A1%3Astream-1%3A%D0%9E%D0%9B%D0%94%20101/calendar.ics")";test "$sched" = 404;test "$ics" = 404
+          page="$(curl -fsS "$UGMU_SITE_URL")";printf '%s' "$page"|grep -q 'Календарь доступен';printf '%s' "$page"|grep -q 'index,follow'
+          echo "UGMU_CLOSE_VERIFY_PASS schedule=$sched publicIcs=$ics paymentCreated=false productionMutation=false"
+          mkdir -p evidence
+          python3 - <<'PY'
+          import json
+          json.dump({'status':'PASS','boundary':'temporary-yookassa-test-window','testWindowClosed':True,'liveShopId':'1258890','liveSecretPath':'yookassa-secret-key','paymentMode':'live','providerAuthenticated':True,'providerModeEvidence':'live','paymentCreated':False,'productionMutationPerformed':False,'publicScheduleStatus':404,'publicIcsStatus':404,'nextFormalBoundary':'post-launch-ci-mode-transition'},open('evidence/report.json','w'),indent=2)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-yookassa-test-window-close-verify-${{ github.run_id }}
+          path: evidence/report.json
+          retention-days: 90
