@@ -1,7 +1,7 @@
 {
-  "version": 5,
+  "version": 6,
   "kind": "ugmu-trial-access-plan",
-  "boundary": "ugmu-trial-deploy-safety-complete",
+  "boundary": "ugmu-trial-production-operations-prepared",
   "status": "IMPLEMENTED_BRANCH_ONLY_NOT_ACTIVATION_READY",
   "scope": {
     "university": "ugmu",
@@ -50,6 +50,43 @@
     "ugmuSpecificClosedGateSmoke": true,
     "requiredFix": null
   },
+  "productionOperations": {
+    "proxyContract": {
+      "adminEndpoint": "/api/v1/admin/proxy-contract",
+      "rawAddressesReturned": false,
+      "manualWorkflow": ".github/workflows/ugmu-proxy-contract-probe.yml",
+      "workflowPrepared": true,
+      "verifiedInProduction": false
+    },
+    "identitySecret": {
+      "env": "TRIAL_IDENTITY_HMAC_SECRET",
+      "minimumLength": 32,
+      "manualWorkflow": ".github/workflows/ugmu-trial-secret-provision.yml",
+      "explicitConfirmation": "PROVISION_UGMU_TRIAL_SECRET",
+      "workflowPrepared": true,
+      "provisionedInProduction": false,
+      "keepsTrialGatesClosed": true
+    },
+    "activation": {
+      "manualWorkflow": ".github/workflows/ugmu-trial-activate.yml",
+      "explicitConfirmation": "ACTIVATE_UGMU_TRIAL",
+      "workflowPrepared": true,
+      "executed": false,
+      "requiresProxyPreflight": true,
+      "requiresIdentitySecret": true,
+      "requiresLegacyGlobalTrialsClosed": true,
+      "enablesOnlyUgmuTrialGate": true,
+      "runsProductionTrialE2e": true,
+      "automaticGateRollbackOnFailure": true
+    },
+    "deactivation": {
+      "manualWorkflow": ".github/workflows/ugmu-trial-deactivate.yml",
+      "explicitConfirmation": "DEACTIVATE_UGMU_TRIAL",
+      "workflowPrepared": true,
+      "executed": false,
+      "closesOnlyUgmuTrialGate": true
+    }
+  },
   "antiAbuse": {
     "policyFinalized": false,
     "policy": "one-anonymous-trial-per-university-semester",
@@ -96,6 +133,12 @@
     "deploySafetyProductionSmokeRunId": 32501035001,
     "deploySafetyProductionSmokeConclusion": "success",
     "deploySafetyAllPrChecksConclusion": "success",
+    "operationsPreparationHead": "692faf69a65ee3d1274844e3f9765fb0c5813bc4",
+    "operationsPreparationApiTestsRunId": 32501924764,
+    "operationsPreparationApiTestsConclusion": "success",
+    "operationsPreparationStructuralRunId": 32501924832,
+    "operationsPreparationStructuralConclusion": "success",
+    "operationsPreparationObservedAllChecksConclusion": "success",
     "coverage": [
       "opaque-deterministic-request-fingerprint",
       "x-real-ip-preferred",
@@ -118,7 +161,14 @@
       "ugmu-deployment-gate-review",
       "ugmu-deploy-pre-post-closed-gate-assertions",
       "ugmu-meta-dedicated-trial-state",
-      "ugmu-specific-closed-gate-production-smoke"
+      "ugmu-specific-closed-gate-production-smoke",
+      "privacy-safe-admin-proxy-contract-observation",
+      "manual-proxy-contract-probe",
+      "guarded-identity-secret-provisioning",
+      "explicit-activation-with-proxy-and-secret-preflight",
+      "production-trial-e2e-on-activation",
+      "automatic-ugmu-gate-rollback-on-activation-failure",
+      "explicit-ugmu-trial-deactivation"
     ]
   },
   "activation": {
@@ -143,5 +193,5 @@
     "globalTrialsActivationAllowed": false,
     "globalSalesMutationAllowed": false
   },
-  "nextRequiredBoundary": "ugmu-trial-proxy-contract-secret-and-production-e2e"
+  "nextRequiredBoundary": "deploy-branch-then-proxy-probe-secret-provision-and-explicit-activation"
 }
