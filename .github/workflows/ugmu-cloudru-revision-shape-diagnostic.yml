@@ -1,0 +1,92 @@
+name: UGMU Cloud.ru revision shape diagnostic
+
+on:
+  push:
+    branches: [agent/ugmu-scaffold-20260820]
+    paths: ["universities/ugmu/cloudru-revision-shape-diagnostic.json"]
+
+permissions:
+  contents: read
+
+env:
+  CONTAINER_NAME: kgmu-calendar-api
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
+      CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 2}
+      - name: Verify authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,subprocess
+          p='universities/ugmu/cloudru-revision-shape-diagnostic.json';a=json.load(open(p));assert a['readOnly'] is True;assert a['productionMutationAllowed'] is False
+          assert subprocess.check_output(['git','diff','--name-only',a['preparedWorkflowHead'],'HEAD'],text=True).splitlines()==[p]
+          PY
+      - name: Inspect revision metadata safely
+        shell: bash
+        run: |
+          set -euo pipefail; umask 077
+          payload="$(python3 - <<'PY'
+          import json,os
+          print(json.dumps({'keyId':os.environ['CLOUDRU_KEY_ID'],'secret':os.environ['CLOUDRU_KEY_SECRET']}))
+          PY
+          )"
+          test "$(curl -sS -o /tmp/t.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' --data "$payload" https://iam.api.cloud.ru/api/v1/auth/token)" = 200
+          readarray -t a < <(python3 - <<'PY'
+          import json,base64
+          t=json.load(open('/tmp/t.json'))['access_token'];p=t.split('.')[1];p+='='*((4-len(p)%4)%4);x=json.loads(base64.urlsafe_b64decode(p));print(t);print(x['project_id'])
+          PY
+          ); token="${a[0]}";project="${a[1]}";rm /tmp/t.json;echo "::add-mask::$token"
+          TOKEN="$token" PROJECT="$project" python3 - <<'PY'
+          import json,os,urllib.request,urllib.error,urllib.parse
+          base='https://containers.api.cloud.ru';n=os.environ['CONTAINER_NAME'];q=urllib.parse.quote(os.environ['PROJECT'],safe='');h={'Authorization':'Bearer '+os.environ['TOKEN']}
+          def get(p):
+            try:
+              with urllib.request.urlopen(urllib.request.Request(base+p,headers=h),timeout=20) as r:return r.status,json.loads(r.read().decode() or '{}')
+            except urllib.error.HTTPError as e:
+              try:b=json.loads(e.read().decode() or '{}')
+              except:b={}
+              return e.code,b
+          code,b=get(f'/v1/containers/{n}/revisions?projectId={q}');assert code==200
+          rows=b.get('data') if isinstance(b,dict) else None;assert isinstance(rows,list) and rows
+          print('UGMU_REVISION_LIST_SAFE',{'count':len(rows),'total':b.get('total'),'itemKeys':sorted(rows[0].keys()) if isinstance(rows[0],dict) else []})
+          def safe_row(r):
+            return {k:r.get(k) for k in ('id','name','revisionId','revisionName','status','createdAt','updatedAt','containerId','containerName') if k in r}
+          for i,r in enumerate(rows[:8]):
+            if isinstance(r,dict): print('UGMU_REVISION_ROW_SAFE',i,safe_row(r))
+          ids=[]
+          for r in rows:
+            if not isinstance(r,dict):continue
+            for k in ('id','name','revisionId','revisionName'):
+              v=r.get(k)
+              if isinstance(v,str) and v and v not in ids:ids.append(v)
+          candidates=[]
+          for rid in ids[:20]:
+            rr=urllib.parse.quote(rid,safe='')
+            candidates += [f'/v1/containers/{n}/revisions/{rr}?projectId={q}',f'/v1/revisions/{rr}?projectId={q}',f'/v1/containers/{n}/revision/{rr}?projectId={q}']
+          def envs(x):
+            if isinstance(x,dict):
+              if isinstance(x.get('env'),list):yield x['env']
+              for v in x.values():yield from envs(v)
+            elif isinstance(x,list):
+              for v in x:yield from envs(v)
+          found=[]
+          for p in candidates:
+            c,d=get(p)
+            if c==200:
+              print('UGMU_REVISION_DETAIL_ENDPOINT_SAFE',{'path':p.split('?')[0],'keys':sorted(d.keys())[:15] if isinstance(d,dict) else []})
+              for env in envs(d):
+                m={e.get('name'):e for e in env if isinstance(e,dict) and e.get('name')}
+                sec=m.get('YOOKASSA_SECRET_KEY',{});mode=m.get('YOOKASSA_TEST_MODE',{}).get('value');shop=str(m.get('YOOKASSA_SHOP_ID',{}).get('value') or '')
+                if sec.get('type')=='secret' and sec.get('value')=='yookassa-secret-key' and mode=='false' and shop and shop!='1259975':found.append(shop)
+          u=list(dict.fromkeys(found));print('UGMU_REVISION_SHAPE_RECOVERY_SAFE',{'uniqueMatches':len(u),'liveShopId':u[0] if len(u)==1 else None,'productionMutation':False})
+          if len(u)!=1:raise SystemExit(4)
+          PY
