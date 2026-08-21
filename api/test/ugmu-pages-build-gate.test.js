@@ -6,7 +6,7 @@ const workflow = fs.readFileSync("../.github/workflows/omgmu-pages.yml", "utf8")
 
 function stepBlock(name) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = workflow.match(new RegExp(`      - name: ${escaped}\\n([\\s\\S]*?)(?=\\n      - name:|\\n  deploy:)`));
+  const match = workflow.match(new RegExp(`      - name: ${escaped}\\n([\\s\\S]*?)(?=\\n      - name:|\\n  deploy:|$)`));
   assert.ok(match, `workflow step is missing: ${name}`);
   return match[0];
 }

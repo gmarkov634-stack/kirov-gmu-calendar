@@ -66,8 +66,8 @@ test("KGMU landing and Pages artifact use the same production API base", async (
   assert.match(data, /apiBase:\s*"https:\/\/kgmu-calendar-api\.containerapps\.ru"/);
   assert.doesNotMatch(data, /student-calendar-api\.containerapps\.ru/);
   assert.match(workflow, /DEFAULT_API_URL:\s*https:\/\/kgmu-calendar-api\.containerapps\.ru/);
-  assert.match(workflow, /path:\s*'dist\/site\/data\.js'/);
-  assert.match(workflow, /replacement:\s*`apiBase: "\$\{apiUrl\}"`/);
+  assert.ok(workflow.includes("Path('dist/site/data.js')"));
+  assert.ok(workflow.includes("f'apiBase: \"{api}\"'"));
 });
 
 test("an existing year purchase prevents a narrower duplicate purchase", async () => {

@@ -34,11 +34,16 @@ test('final readiness can declare controlled eligibility but cannot activate lau
   assert.match(tool, /catalogVisibilityActivatedByThisGate: false/);
 });
 
-test('final readiness workflow is evidence-only and contains no production mutation primitive', () => {
+test('final readiness workflow is a retired manual-only prelaunch stub with no production mutation primitive', () => {
   assert.doesNotMatch(workflow, /actions\/deploy-pages/);
   assert.doesNotMatch(workflow, /--request PATCH/);
   assert.doesNotMatch(workflow, /EVO_CR_LOGIN|EVO_CR_PWD|CLOUDRU_KEY_SECRET/);
   assert.doesNotMatch(workflow, /aws s3|PutObject|publish:ugmu/);
-  assert.match(workflow, /UGMU final launch readiness/);
-  assert.match(workflow, /ugmu-final-launch-readiness-report\.json/);
+  assert.match(workflow, /name: UGMU final launch readiness \(retired\)/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /pull_request:|push:|schedule:/);
+  assert.match(workflow, /Preserve completed prelaunch boundary/);
+  assert.match(workflow, /retired after the controlled production launch/);
+  assert.match(workflow, /post-launch production smoke/);
+  assert.doesNotMatch(workflow, /ugmu-final-launch-readiness-report\.json/);
 });
