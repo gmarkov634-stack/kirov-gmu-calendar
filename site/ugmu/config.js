@@ -4,6 +4,8 @@ window.UGMU_CONFIG = Object.freeze({
   timezone: "Asia/Yekaterinburg",
   apiBaseUrl: "https://kgmu-calendar-api.containerapps.ru",
   paymentPath: "/api/v2/payments",
+  trialPath: "/api/v2/trials",
+  trialDays: 7,
   defaultPlan: "semester",
   academicYear: "2026/2027",
   semester: 1,
