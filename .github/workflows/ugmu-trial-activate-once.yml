@@ -6,6 +6,11 @@ on:
       - ops/ugmu-activate-trial-20260821
     paths:
       - .github/workflows/ugmu-trial-activate-once.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/ugmu-trial-activate-once.yml
 
 permissions:
   actions: write
@@ -13,6 +18,7 @@ permissions:
 
 jobs:
   dispatch:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch guarded production activation and verify completion
