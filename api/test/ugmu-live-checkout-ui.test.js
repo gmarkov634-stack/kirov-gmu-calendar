@@ -24,35 +24,44 @@ test("UGMU checkout UI is frozen to the approved first-stream scope", () => {
   assert.deepEqual(Array.from(config.groups, (group) => group.code), Array.from({ length: 12 }, (_, i) => `ОЛД ${101 + i}`));
 });
 
-test("UGMU config contains routing metadata but no static sales authority", () => {
+test("UGMU config contains routing metadata but no static runtime authority", () => {
   assert.match(config.apiBaseUrl, /^https:\/\//);
   assert.equal(config.paymentPath, "/api/v2/payments");
+  assert.equal(config.trialPath, "/api/v2/trials");
+  assert.equal(config.trialDays, 7);
   assert.equal(config.defaultPlan, "semester");
-  for (const forbidden of ["previewOnly", "checkoutEnabled", "publicIcsEnabled", "testMode", "priceRub"]) {
+  for (const forbidden of ["previewOnly", "checkoutEnabled", "publicIcsEnabled", "testMode", "priceRub", "trialsEnabled"]) {
     assert.equal(Object.hasOwn(config, forbidden), false, forbidden);
     assert.equal(configCode.includes(forbidden), false, forbidden);
   }
 });
 
-test("UGMU live UI starts disabled and requires runtime sales plus live YooKassa", () => {
+test("UGMU launch UI starts fail-closed and uses separate runtime sales and trial gates", () => {
   assert.match(html, /id="order-form"/);
   assert.match(html, /type="submit" disabled/);
+  assert.match(html, /id="trial-start"[^>]*disabled/);
   assert.match(html, /id="email"[^>]*type="email"/);
-  assert.match(html, /name="robots" content="noindex,follow"/);
+  assert.match(html, /name="robots" content="index,follow"/);
   assert.ok(app.includes('fetch(`${config.apiBaseUrl}/api/v2/meta`'));
+  assert.ok(app.includes('meta.universityTrials?.ugmu === "open"'));
+  assert.ok(app.includes('runtime.trial === "open"'));
   assert.ok(app.includes('runtime.sales === "open"'));
   assert.ok(app.includes('runtime.paymentMode === "live"'));
+  assert.ok(app.includes('trialReady()'));
   assert.ok(app.includes('checkoutReady()'));
+  assert.ok(app.includes('Пробный доступ пока закрыт'));
+  assert.ok(app.includes('fetch(`${config.apiBaseUrl}${config.trialPath}`'));
   assert.ok(app.includes('fetch(`${config.apiBaseUrl}${config.paymentPath}`'));
   assert.ok(app.includes('university_id: config.university'));
   assert.ok(app.includes('groupId: groupId(group)'));
   assert.ok(app.includes('plan: config.defaultPlan'));
 });
 
-test("UGMU UI remains paid-only and does not depend on public catalog or schedule endpoints", () => {
+test("UGMU UI does not depend on public catalog or public schedule endpoints", () => {
   assert.doesNotMatch(app, /\/api\/v2\/catalog\/ugmu/);
   assert.doesNotMatch(app, /\/api\/v2\/schedules\/ugmu/);
   assert.doesNotMatch(html, /calendar\.ics|webcal:\/\//);
+  assert.ok(app.includes('trial.subscriptionUrl'));
   assert.ok(app.includes('order.subscriptionUrl'));
   assert.ok(app.includes('replace(/^https:/, "webcal:")'));
 });
