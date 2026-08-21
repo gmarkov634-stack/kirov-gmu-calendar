@@ -25,17 +25,22 @@ test("proxy contract endpoint returns structure without raw IP values", () => wi
   const response = await fetch(`${base}/api/v1/admin/proxy-contract`, {
     headers: {
       "X-Admin-Token": adminToken,
-      "X-Real-IP": "203.0.113.10",
-      "X-Forwarded-For": "203.0.113.10, 198.51.100.7",
+      "X-Real-IP": "192.0.2.10",
+      "X-Forwarded-For": "192.0.2.10, 192.0.2.20",
+      "X-Proxy-Probe-Expected-Client": "192.0.2.10",
+      "X-Proxy-Probe-Sentinel": "192.0.2.30",
     },
   });
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.version, 1);
+  assert.equal(body.version, 2);
   assert.equal(body.xRealIpPresent, true);
   assert.equal(body.xForwardedForHopCount, 2);
   assert.equal(body.xRealIpEqualsFirstXff, true);
+  assert.equal(body.expectedClientProvided, true);
+  assert.equal(body.xRealIpEqualsExpectedClient, true);
+  assert.equal(body.xRealIpEqualsProbeSentinel, false);
   assert.equal(body.policyResolution, "x-real-ip");
-  assert.doesNotMatch(JSON.stringify(body), /203\.0\.113\.10|198\.51\.100\.7/);
+  assert.doesNotMatch(JSON.stringify(body), /192\.0\.2\.10|192\.0\.2\.20|192\.0\.2\.30/);
   assert.equal(response.headers.get("cache-control"), "no-store");
 }));
