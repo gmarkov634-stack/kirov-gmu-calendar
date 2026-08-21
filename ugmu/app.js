@@ -32,6 +32,7 @@
 
   const runtime = {
     ready: false,
+    trial: "closed",
     sales: "closed",
     paymentMode: "unknown",
     price: "",
@@ -181,21 +182,26 @@
     return runtime.ready && runtime.sales === "open" && runtime.paymentMode === "live";
   }
 
+  function trialReady() {
+    return runtime.ready && runtime.trial === "open";
+  }
+
   function updateRuntimeUi() {
     const priceLabel = rubleLabel(runtime.price);
     if (runtimePrice) runtimePrice.textContent = priceLabel || (runtime.ready ? "Полный доступ пока закрыт" : "Проверяем доступность");
     if (priceSummary) priceSummary.textContent = priceLabel || "—";
     if (testBanner) testBanner.hidden = runtime.paymentMode !== "test";
 
-    trialStart.disabled = !runtime.ready || Boolean(activeConversionId);
+    trialStart.disabled = !trialReady() || Boolean(activeConversionId);
     if (!runtime.ready) trialStart.textContent = "Проверяем trial…";
     else if (activeConversionId) trialStart.textContent = "Пробная неделя уже использована";
+    else if (runtime.trial !== "open") trialStart.textContent = "Пробный доступ пока закрыт";
     else trialStart.textContent = `Попробовать бесплатно · ${Number(config.trialDays) || 7} дней`;
 
     if (availabilityCopy) {
-      availabilityCopy.textContent = runtime.ready
-        ? "Бесплатная первая неделя проверяется отдельным trial-gate при запросе; полный доступ — отдельным sales-gate."
-        : "Проверяем доступность бесплатной первой недели и полного календаря.";
+      if (!runtime.ready) availabilityCopy.textContent = "Проверяем доступность бесплатной первой недели и полного календаря.";
+      else if (runtime.trial === "open") availabilityCopy.textContent = "Бесплатная первая неделя доступна для утверждённых групп; полный доступ управляется отдельным sales-gate.";
+      else availabilityCopy.textContent = "Пробный доступ пока закрыт; полный календарь управляется отдельным sales-gate.";
     }
 
     if (!runtime.ready) {
@@ -209,27 +215,34 @@
     if (runtime.sales !== "open") {
       submit.disabled = true;
       submit.textContent = "Продажи УГМУ пока закрыты";
-      if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · checkout закрыт";
-      if (runtimeSaleNote) runtimeSaleNote.textContent = "Бесплатная неделя не зависит от sales-gate; платный доступ сейчас закрыт";
+      if (runtimeState) runtimeState.textContent = `${runtime.trial === "open" ? "Trial открыт" : "Trial закрыт"} · checkout закрыт`;
+      if (runtimeSaleNote) runtimeSaleNote.textContent = runtime.trial === "open"
+        ? "Бесплатная неделя доступна; платный доступ сейчас закрыт"
+        : "Бесплатная неделя и платный доступ сейчас закрыты";
       return;
     }
 
     if (runtime.paymentMode !== "live") {
       submit.disabled = true;
       submit.textContent = "Оплата ещё не переведена в live-режим";
-      if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · ЮKassa: тестовый режим";
-      if (runtimeSaleNote) runtimeSaleNote.textContent = "Trial не требует оплаты; реальная оплата пока заблокирована";
+      if (runtimeState) runtimeState.textContent = `${runtime.trial === "open" ? "Trial открыт" : "Trial закрыт"} · ЮKassa: тестовый режим`;
+      if (runtimeSaleNote) runtimeSaleNote.textContent = runtime.trial === "open"
+        ? "Trial не требует оплаты; реальная оплата пока заблокирована"
+        : "Trial пока закрыт; реальная оплата тоже заблокирована";
       return;
     }
 
     submit.disabled = false;
     submit.textContent = priceLabel ? `Перейти к оплате · ${priceLabel}` : "Перейти к оплате";
-    if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · checkout готов";
-    if (runtimeSaleNote) runtimeSaleNote.textContent = "Бесплатная первая неделя без карты · полный доступ оплачивается разово";
+    if (runtimeState) runtimeState.textContent = `${runtime.trial === "open" ? "Trial открыт" : "Trial закрыт"} · checkout готов`;
+    if (runtimeSaleNote) runtimeSaleNote.textContent = runtime.trial === "open"
+      ? "Бесплатная первая неделя без карты · полный доступ оплачивается разово"
+      : "Пробная неделя пока закрыта · полный доступ оплачивается разово";
   }
 
   async function loadRuntime() {
     runtime.ready = false;
+    runtime.trial = "closed";
     runtime.sales = "closed";
     runtime.paymentMode = "unknown";
     runtime.price = "";
@@ -238,6 +251,7 @@
       const response = await fetch(`${config.apiBaseUrl}/api/v2/meta`, { cache: "no-store" });
       const meta = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error("runtime_unavailable");
+      runtime.trial = meta.universityTrials?.ugmu === "open" ? "open" : "closed";
       runtime.sales = meta.sales === "open" ? "open" : "closed";
       runtime.paymentMode = meta.paymentMode === "live" ? "live" : meta.paymentMode === "test" ? "test" : "unknown";
       runtime.price = String(meta.offers?.[config.defaultPlan]?.price || "");
@@ -245,6 +259,7 @@
       status.textContent = "";
     } catch {
       runtime.ready = false;
+      runtime.trial = "closed";
       runtime.sales = "closed";
       runtime.paymentMode = "unknown";
       runtime.price = "";
@@ -342,7 +357,7 @@
   }
 
   async function startTrial() {
-    if (!runtime.ready || activeConversionId) return;
+    if (!trialReady() || activeConversionId) return;
     const group = selectedGroup();
     if (!group) return;
     if (trialStatus) trialStatus.textContent = "";
