@@ -8,7 +8,7 @@ const deployPath = fileURLToPath(new URL("../../.github/workflows/deploy-api-clo
 const smoke = readFileSync(smokePath, "utf8");
 const deploy = readFileSync(deployPath, "utf8");
 
-test("UGMU production smoke follows Cloud.ru deploy and is also runnable before merge", () => {
+test("UGMU post-launch production smoke follows Cloud.ru deploy and is also runnable before merge", () => {
   assert.match(smoke, /workflow_run:/);
   assert.match(smoke, /Deploy API to Cloud\.ru/);
   assert.match(smoke, /pull_request:/);
@@ -16,35 +16,49 @@ test("UGMU production smoke follows Cloud.ru deploy and is also runnable before 
   assert.match(smoke, /github\.event\.workflow_run\.conclusion == 'success'/);
 });
 
-test("PR smoke never receives Cloud.ru write credentials or mutates the container", () => {
-  for (const forbidden of ["EVO_CR_LOGIN", "EVO_CR_PWD", "containers.api.cloud.ru", "--request PATCH", "serverless-containers.admin"]) {
+test("post-launch smoke is read-only and never receives payment or Cloud.ru mutation credentials", () => {
+  for (const forbidden of [
+    "EVO_CR_LOGIN",
+    "EVO_CR_PWD",
+    "YOOKASSA_SECRET_KEY",
+    "containers.api.cloud.ru/v2/",
+    "--request PATCH",
+    "https://api.yookassa.ru/v3/payments",
+  ]) {
     assert.doesNotMatch(smoke, new RegExp(forbidden.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-  assert.match(smoke, /noCloudRuWriteCredentialsUsed/);
   assert.match(smoke, /productionMutationPerformed': False/);
+  assert.match(smoke, /paymentCreated': False/);
+  assert.match(smoke, /UGMU_POST_LAUNCH_SMOKE_READ_ONLY/);
 });
 
-test("UGMU production smoke verifies shared production and fail-closed UGMU boundaries", () => {
+test("UGMU production smoke verifies the launched commercial boundary without opening public feeds", () => {
   for (const marker of [
     "/health",
     "/api/v2/meta",
     "/api/v2/catalog/kgmu/programs",
     "/api/v2/schedules/ugmu/medicine/1/",
-    "/api/v2/payments",
+    "calendar.ics",
     "schedule_not_published",
-    "sales_not_open",
-    "access-control-allow-origin",
-    "final-launch-readiness-gate",
+    "metaSalesOpen",
+    "metaTrialsClosed",
+    "metaPaymentModeLive",
+    "ugmuPublicScheduleClosed",
+    "ugmuPublicIcsClosed",
+    "ongoing-post-launch-monitoring",
   ]) {
     assert.match(smoke, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+  assert.match(smoke, /meta\.get\('sales'\) == 'open'/);
+  assert.match(smoke, /meta\.get\('trials'\) == 'closed'/);
+  assert.match(smoke, /meta\.get\('paymentMode'\) == 'live'/);
+  assert.doesNotMatch(smoke, /sales_not_open/);
 });
 
-test("post-deploy UGMU feed check is stricter than pre-merge production baseline", () => {
-  assert.match(smoke, /STRICT_AFTER_DEPLOY/);
-  assert.match(smoke, /if os\.environ\['STRICT_AFTER_DEPLOY'\] == 'true'/);
-  assert.match(smoke, /assert error == 'schedule_not_published'/);
-  assert.match(smoke, /assert error in \{'schedule_not_published','not_found'\}/);
+test("post-launch smoke does not create a checkout payment", () => {
+  assert.doesNotMatch(smoke, /--data '\{\"university_id\"/);
+  assert.doesNotMatch(smoke, /UGMU_PRODUCTION_CHECKOUT_CLOSED/);
+  assert.match(smoke, /Access-Control-Request-Method: POST/);
 });
 
 test("actual Cloud.ru deploy remains main-only immutable-image deployment", () => {
