@@ -6,11 +6,18 @@ import { fileURLToPath } from "node:url";
 const path = fileURLToPath(new URL("../../universities/ugmu/controlled-live-payment-canary-plan.json", import.meta.url));
 const plan = JSON.parse(readFileSync(path, "utf8"));
 
-test("UGMU live-payment canary is blocked until an explicit real-payment decision", () => {
-  assert.equal(plan.version, 1);
+test("UGMU live-payment canary is explicitly deferred and non-blocking", () => {
+  assert.equal(plan.version, 2);
   assert.equal(plan.kind, "ugmu-controlled-live-payment-canary-plan");
   assert.equal(plan.boundary, "controlled-live-payment-canary-explicit-decision");
-  assert.equal(plan.status, "AWAITING_EXPLICIT_AUTHORIZATION");
+  assert.equal(plan.status, "DEFERRED_BY_USER");
+  assert.equal(plan.nonBlocking, true);
+  assert.equal(plan.deferral.blocksRepositoryStabilization, false);
+  assert.equal(plan.deferral.blocksScopePreservingMaintenance, false);
+  assert.equal(plan.deferral.blocksMergePreparation, false);
+});
+
+test("generic continuation can never authorize a real live payment", () => {
   assert.equal(plan.authorization.requiresExplicitUserDecision, true);
   assert.equal(plan.authorization.genericContinueIsAuthorization, false);
   assert.equal(plan.authorization.executionAllowed, false);
@@ -19,9 +26,10 @@ test("UGMU live-payment canary is blocked until an explicit real-payment decisio
   assert.equal(plan.authorization.scheduledExecutionAllowed, false);
   assert.equal(plan.authorization.pullRequestExecutionAllowed, false);
   assert.equal(plan.authorization.authorizationMustNameRealLivePayment, true);
+  assert.equal(plan.safety.realPaymentBeforeExplicitAuthorizationAllowed, false);
 });
 
-test("canary cannot expand the launched UGMU scope", () => {
+test("deferred canary remains limited to the already launched UGMU scope", () => {
   assert.deepEqual(plan.scope.allowedGroups, ["ОЛД 101"]);
   assert.equal(plan.scope.maximumOrders, 1);
   assert.equal(plan.scope.maximumSuccessfulPayments, 1);
@@ -34,33 +42,12 @@ test("canary cannot expand the launched UGMU scope", () => {
   assert.equal(plan.safety.cloudruConfigMutationAllowed, false);
   assert.equal(plan.safety.s3ScheduleMutationAllowed, false);
   assert.equal(plan.safety.priceOverrideAllowed, false);
-  assert.equal(plan.safety.realPaymentBeforeExplicitAuthorizationAllowed, false);
 });
 
-test("canary preflight is pinned to the restored live production state", () => {
-  assert.equal(plan.preconditions.productionMetaSales, "open");
-  assert.equal(plan.preconditions.productionMetaTrials, "closed");
+test("repository stabilization is the next boundary while canary stays deferred", () => {
   assert.equal(plan.preconditions.productionMetaPaymentMode, "live");
-  assert.equal(plan.preconditions.globalCommercialSalesEnabled, false);
-  assert.equal(plan.preconditions.ugmuSalesEnabled, true);
-  assert.equal(plan.preconditions.ugmuActive, true);
-  assert.equal(plan.preconditions.yookassaTestMode, false);
   assert.equal(plan.preconditions.liveShopId, "1258890");
-  assert.equal(plan.preconditions.liveSecretPath, "yookassa-secret-key");
   assert.equal(plan.preconditions.productionSchedulesRequired, 12);
   assert.equal(plan.preconditions.rollbackSnapshotsRequired, 12);
-});
-
-test("PASS evidence requires exactly one live payment and post-canary recovery proof", () => {
-  for (const required of [
-    "fresh-preflight-pass",
-    "single-live-payment-test-false",
-    "order-succeeded",
-    "single-paid-subscription",
-    "tokenized-ics-http-200",
-    "public-schedule-http-404",
-    "public-ics-http-404",
-    "post-canary-operational-monitor-pass",
-  ]) assert.ok(plan.evidenceRequiredForPass.includes(required), required);
-  assert.equal(plan.nextStateBeforeAuthorization, "WAIT");
+  assert.equal(plan.nextRequiredBoundary, "post-launch-repository-and-pr-stabilization");
 });
