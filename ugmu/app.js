@@ -13,6 +13,8 @@
   const form = document.querySelector("#order-form");
   const status = document.querySelector("#form-status");
   const submit = form?.querySelector('button[type="submit"]');
+  const trialStart = document.querySelector("#trial-start");
+  const trialStatus = document.querySelector("#trial-status");
   const resultPanel = document.querySelector("#order-result");
   const orderSection = document.querySelector("#order");
   const restoreOrderButton = document.querySelector("#restore-order");
@@ -20,11 +22,13 @@
   const runtimePrice = document.querySelector("#runtime-price");
   const runtimeSaleNote = document.querySelector("#runtime-sale-note");
   const runtimeState = document.querySelector("#runtime-state");
+  const availabilityCopy = document.querySelector("#availability-copy");
   const testBanner = document.querySelector("#test-banner");
   const groupMap = new Map(config.groups.map((group) => [group.code, group]));
   const savedOrderKey = "ugmu-calendar-orders-v1";
+  const trialSessionKey = "ugmu-calendar-trial-v1";
 
-  if (!groupSelect || !form || !submit || !resultPanel || !orderSection) return;
+  if (!groupSelect || !form || !submit || !trialStart || !resultPanel || !orderSection) return;
 
   const runtime = {
     ready: false,
@@ -32,6 +36,7 @@
     paymentMode: "unknown",
     price: "",
   };
+  let activeConversionId = "";
 
   function groupId(group) {
     return `${config.university}:${config.program.id}:${config.program.course}:stream-${config.program.stream}:${group.code}`;
@@ -41,8 +46,21 @@
     return typeof value === "string" && /^[A-Za-z0-9_-]{32}$/.test(value);
   }
 
-  function validAccessToken(value) {
+  function validToken(value) {
     return typeof value === "string" && /^[A-Za-z0-9_-]{43}$/.test(value);
+  }
+
+  function validAccessToken(value) {
+    return validToken(value);
+  }
+
+  function validHttpsUrl(value) {
+    try {
+      const url = new URL(String(value || ""));
+      return url.protocol === "https:" && !url.username && !url.password;
+    } catch {
+      return false;
+    }
   }
 
   function readSavedOrders() {
@@ -69,6 +87,28 @@
     return readSavedOrders()[0] || null;
   }
 
+  function saveTrialSession(group, result) {
+    if (!group || !validToken(result?.conversionId) || !validHttpsUrl(result?.subscriptionUrl)) return;
+    try {
+      sessionStorage.setItem(trialSessionKey, JSON.stringify({ groupCode: group.code, result }));
+    } catch { /* storage can be unavailable */ }
+  }
+
+  function readTrialSession() {
+    try {
+      const value = JSON.parse(sessionStorage.getItem(trialSessionKey) || "null");
+      if (!groupMap.has(value?.groupCode)) return null;
+      if (!validToken(value?.result?.conversionId) || !validHttpsUrl(value?.result?.subscriptionUrl)) return null;
+      return value;
+    } catch {
+      return null;
+    }
+  }
+
+  function clearTrialSession() {
+    try { sessionStorage.removeItem(trialSessionKey); } catch { /* ignore */ }
+  }
+
   function orderHeaders(accessToken) {
     return validAccessToken(accessToken) ? { "X-Order-Token": accessToken } : {};
   }
@@ -76,6 +116,15 @@
   function humanDate(value) {
     const date = new Date(`${value}T00:00:00`);
     return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  }
+
+  function trialWindowLabel(start, endExclusive) {
+    const startDate = new Date(`${start}T12:00:00Z`);
+    const endDate = new Date(`${endExclusive}T12:00:00Z`);
+    if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime())) return "";
+    endDate.setUTCDate(endDate.getUTCDate() - 1);
+    const formatter = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", timeZone: "UTC" });
+    return `${formatter.format(startDate)} — ${formatter.format(endDate)}`;
   }
 
   function eventMarkup(date, start, end, title, location, type) {
@@ -91,6 +140,18 @@
 
   function selectedGroup() {
     return groupMap.get(groupSelect.value) || null;
+  }
+
+  function attributionContext() {
+    const params = new URLSearchParams(window.location.search);
+    const value = (name, fallback = "") => String(params.get(name) || fallback).slice(0, 160);
+    return {
+      source: value("utm_source", value("source")),
+      medium: value("utm_medium", value("medium")),
+      campaign: value("utm_campaign", value("campaign")),
+      content: value("utm_content", value("content")),
+      referral: value("ref", value("referral")),
+    };
   }
 
   function renderGroup(code, { updateUrl = true } = {}) {
@@ -110,8 +171,9 @@
     if (updateUrl) {
       const params = new URLSearchParams(window.location.search);
       params.set("group", group.code.replace("ОЛД ", ""));
+      const query = params.toString();
       const hash = window.location.hash && window.location.hash !== "#preview" ? window.location.hash : "#order";
-      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}${hash}`);
+      window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${hash}`);
     }
   }
 
@@ -121,38 +183,49 @@
 
   function updateRuntimeUi() {
     const priceLabel = rubleLabel(runtime.price);
-    if (runtimePrice) runtimePrice.textContent = priceLabel || (runtime.ready ? "Продажи пока закрыты" : "Проверяем доступность");
+    if (runtimePrice) runtimePrice.textContent = priceLabel || (runtime.ready ? "Полный доступ пока закрыт" : "Проверяем доступность");
     if (priceSummary) priceSummary.textContent = priceLabel || "—";
     if (testBanner) testBanner.hidden = runtime.paymentMode !== "test";
+
+    trialStart.disabled = !runtime.ready || Boolean(activeConversionId);
+    if (!runtime.ready) trialStart.textContent = "Проверяем trial…";
+    else if (activeConversionId) trialStart.textContent = "Пробная неделя уже использована";
+    else trialStart.textContent = `Попробовать бесплатно · ${Number(config.trialDays) || 7} дней`;
+
+    if (availabilityCopy) {
+      availabilityCopy.textContent = runtime.ready
+        ? "Бесплатная первая неделя проверяется отдельным trial-gate при запросе; полный доступ — отдельным sales-gate."
+        : "Проверяем доступность бесплатной первой недели и полного календаря.";
+    }
 
     if (!runtime.ready) {
       submit.disabled = true;
       submit.textContent = "Проверяем доступность…";
       if (runtimeState) runtimeState.textContent = "Проверяем production API";
-      if (runtimeSaleNote) runtimeSaleNote.textContent = "Оплата откроется только после подтверждения production-gates";
+      if (runtimeSaleNote) runtimeSaleNote.textContent = "Trial и оплата разрешаются сервером независимо";
       return;
     }
 
     if (runtime.sales !== "open") {
       submit.disabled = true;
       submit.textContent = "Продажи УГМУ пока закрыты";
-      if (runtimeState) runtimeState.textContent = "Checkout закрыт";
-      if (runtimeSaleNote) runtimeSaleNote.textContent = "Интерфейс готов, но сервер ещё не разрешает продажи";
+      if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · checkout закрыт";
+      if (runtimeSaleNote) runtimeSaleNote.textContent = "Бесплатная неделя не зависит от sales-gate; платный доступ сейчас закрыт";
       return;
     }
 
     if (runtime.paymentMode !== "live") {
       submit.disabled = true;
       submit.textContent = "Оплата ещё не переведена в live-режим";
-      if (runtimeState) runtimeState.textContent = "ЮKassa: тестовый режим";
-      if (runtimeSaleNote) runtimeSaleNote.textContent = "Реальная оплата заблокирована до отдельной проверки ЮKassa";
+      if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · ЮKassa: тестовый режим";
+      if (runtimeSaleNote) runtimeSaleNote.textContent = "Trial не требует оплаты; реальная оплата пока заблокирована";
       return;
     }
 
     submit.disabled = false;
     submit.textContent = priceLabel ? `Перейти к оплате · ${priceLabel}` : "Перейти к оплате";
-    if (runtimeState) runtimeState.textContent = "Checkout готов";
-    if (runtimeSaleNote) runtimeSaleNote.textContent = "Разовый платёж · обновления календаря входят в подписку";
+    if (runtimeState) runtimeState.textContent = "Trial проверяется при запросе · checkout готов";
+    if (runtimeSaleNote) runtimeSaleNote.textContent = "Бесплатная первая неделя без карты · полный доступ оплачивается разово";
   }
 
   async function loadRuntime() {
@@ -171,11 +244,11 @@
       runtime.ready = true;
       status.textContent = "";
     } catch {
-      runtime.ready = true;
+      runtime.ready = false;
       runtime.sales = "closed";
       runtime.paymentMode = "unknown";
       runtime.price = "";
-      status.textContent = "Не удалось подтвердить production-состояние. Оплата остаётся закрытой.";
+      status.textContent = "Не удалось подтвердить production-состояние. Новые подключения остаются закрытыми.";
     }
     updateRuntimeUi();
   }
@@ -198,7 +271,12 @@
     resultPanel.replaceChildren();
     form.hidden = false;
     status.textContent = "";
-    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#order`);
+    if (trialStatus) trialStatus.textContent = activeConversionId ? "Пробная неделя уже выдана. Ниже можно подключить полный календарь." : "";
+    const params = new URLSearchParams(window.location.search);
+    if (!activeConversionId) params.delete("continue");
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}#order`);
+    updateRuntimeUi();
     if (scroll) orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -238,7 +316,66 @@
     }
   }
 
+  function showTrialResult(group, trial) {
+    activeConversionId = trial.conversionId;
+    updateRuntimeUi();
+    showResultShell("Пробный календарь готов", "Банковская карта и email не требуются. Подключите персональную ссылку один раз.");
+    addText("Бесплатная первая учебная неделя", "result-kicker");
+    addText(group.code, "result-group");
+    const windowLabel = trialWindowLabel(trial.trialStartDate, trial.trialEndDateExclusive);
+    if (windowLabel) addText(`В календаре будут занятия за ${windowLabel}.`);
+    addText("Пробная ссылка персональная и действует только в пределах фиксированного trial-окна. Не пересылайте её другим людям.");
+    const webcalUrl = trial.subscriptionUrl.replace(/^https:/, "webcal:");
+    addLink("Подключить на iPhone / Apple Calendar", webcalUrl);
+    const copyButton = addButton("Скопировать ссылку для Google Calendar", () => copySubscriptionUrl(trial.subscriptionUrl, copyButton));
+    addText("В Google Calendar откройте «Другие календари → Добавить по URL» и вставьте скопированную ссылку.");
+    addButton("Перейти к полному доступу", () => restoreOrderForm());
+  }
+
+  function friendlyTrialError(code) {
+    if (code === "trials_not_open" || code === "university_trials_not_open") return "Пробный доступ УГМУ пока закрыт сервером.";
+    if (code === "trial_already_claimed") return "Пробный доступ на текущий семестр уже выдавался. Можно подключить полный календарь.";
+    if (code === "trial_window_closed") return "Пробная первая учебная неделя уже закончилась, поэтому новый trial больше не выдаётся.";
+    if (code === "offer_not_found") return "Для выбранной группы сейчас нет утверждённого расписания trial.";
+    if (code === "trial_not_ready") return "Пробный доступ пока не готов к выдаче.";
+    return "Не удалось создать пробный календарь. Доступ не выдан.";
+  }
+
+  async function startTrial() {
+    if (!runtime.ready || activeConversionId) return;
+    const group = selectedGroup();
+    if (!group) return;
+    if (trialStatus) trialStatus.textContent = "";
+    trialStart.disabled = true;
+    trialStart.textContent = "Создаём пробный календарь…";
+    try {
+      const response = await fetch(`${config.apiBaseUrl}${config.trialPath}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          university: config.university,
+          program: config.program.id,
+          course: config.program.course,
+          stream: config.program.stream,
+          groupCode: group.code,
+          groupId: groupId(group),
+          ...attributionContext(),
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "trial_unavailable");
+      if (!validHttpsUrl(result.subscriptionUrl) || !validToken(result.conversionId)) throw new Error("trial_unavailable");
+      saveTrialSession(group, result);
+      showTrialResult(group, result);
+    } catch (error) {
+      if (trialStatus) trialStatus.textContent = friendlyTrialError(error.message);
+      updateRuntimeUi();
+    }
+  }
+
   function showSucceededOrder(order) {
+    clearTrialSession();
+    activeConversionId = "";
     showResultShell("Календарь оплачен", "Оплата подтверждена. Персональная подписная ссылка готова.");
     addText("Готово", "result-kicker");
     addText(order.groupDisplayName || `Группа ${order.groupCode || order.group}`, "result-group");
@@ -319,11 +456,38 @@
     });
   }
 
+  async function restoreContinueContext(conversionId) {
+    if (!validToken(conversionId)) return false;
+    try {
+      const response = await fetch(`${config.apiBaseUrl}${config.trialPath}/continue/${encodeURIComponent(conversionId)}`, { cache: "no-store" });
+      const context = await response.json().catch(() => ({}));
+      if (!response.ok) return false;
+      const group = groupMap.get(String(context.groupCode || ""));
+      if (!group) return false;
+      if (
+        context.university !== config.university ||
+        context.program !== config.program.id ||
+        Number(context.course) !== Number(config.program.course) ||
+        String(context.stream || "") !== String(config.program.stream) ||
+        String(context.groupId || "") !== groupId(group)
+      ) return false;
+      activeConversionId = conversionId;
+      renderGroup(group.code);
+      if (trialStatus) trialStatus.textContent = "Пробная неделя уже использована. Можно подключить полный календарь для этой же группы.";
+      if (status) status.textContent = "Вы вернулись из пробного календаря. Для продолжения укажите email и оформите полный доступ.";
+      updateRuntimeUi();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   function friendlyCheckoutError(code) {
     if (code === "sales_not_open" || code === "university_sales_not_open") return "Продажи УГМУ пока закрыты.";
     if (code === "offer_not_found") return "Эта группа сейчас не доступна для покупки.";
     if (code === "offer_not_ready" || code === "offer_expired") return "Текущий оффер пока недоступен.";
     if (code === "payments_not_configured") return "Платёжный контур ещё не готов.";
+    if (code === "trial_context_invalid") return "Не удалось связать оплату с пробной неделей. Обновите страницу и попробуйте снова.";
     return "Не удалось создать оплату. Попробуйте ещё раз позднее.";
   }
 
@@ -357,6 +521,7 @@
       groupId: groupId(group),
       timezone: config.timezone,
       plan: config.defaultPlan,
+      ...(activeConversionId ? { conversionId: activeConversionId } : {}),
     };
 
     submit.disabled = true;
@@ -383,6 +548,8 @@
     }
   });
 
+  trialStart.addEventListener("click", () => { void startTrial(); });
+
   for (const group of config.groups) {
     const option = document.createElement("option");
     option.value = group.code;
@@ -393,12 +560,44 @@
   sourceState.textContent = `Источник проверен · ${config.academicYear} · SHA-256 ${config.sourceSha256.slice(0, 12)}…`;
   const requested = new URLSearchParams(window.location.search).get("group");
   const requestedCode = requested && /^(10[1-9]|11[0-2])$/.test(requested) ? `ОЛД ${requested}` : config.groups[0].code;
-  renderGroup(requestedCode, { updateUrl: !window.location.hash.startsWith("#order=") });
-  groupSelect.addEventListener("change", () => renderGroup(groupSelect.value));
+  renderGroup(requestedCode, { updateUrl: false });
+
+  groupSelect.addEventListener("change", () => {
+    activeConversionId = "";
+    clearTrialSession();
+    if (trialStatus) trialStatus.textContent = "";
+    const params = new URLSearchParams(window.location.search);
+    params.delete("continue");
+    const query = params.toString();
+    history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}#order`);
+    renderGroup(groupSelect.value);
+    updateRuntimeUi();
+  });
+
   enableSavedOrderRecovery();
   const paymentReturnHandled = handlePaymentReturn();
   void loadRuntime();
-  if (!paymentReturnHandled && !window.location.hash) history.replaceState(null, "", `${window.location.pathname}${window.location.search}#order`);
+
+  if (!paymentReturnHandled) {
+    const query = new URLSearchParams(window.location.search);
+    const continueId = query.get("continue") || "";
+    if (continueId) {
+      void restoreContinueContext(continueId).then((restored) => {
+        if (!restored && status) status.textContent = "Не удалось восстановить контекст пробной недели. Выберите группу вручную.";
+      });
+    } else {
+      const savedTrial = readTrialSession();
+      if (savedTrial) {
+        const group = groupMap.get(savedTrial.groupCode);
+        if (group) {
+          renderGroup(group.code, { updateUrl: false });
+          showTrialResult(group, savedTrial.result);
+        }
+      } else if (!window.location.hash) {
+        history.replaceState(null, "", `${window.location.pathname}${window.location.search}#order`);
+      }
+    }
+  }
 
   window.addEventListener("hashchange", () => {
     if (window.location.hash === "#order-status" || window.location.hash.startsWith("#order=")) {
