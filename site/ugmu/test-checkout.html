@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#123b6d">
+  <title>Тестовая оплата УГМУ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ugmu.css">
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+  <main class="shell" style="max-width:760px;padding-top:48px;padding-bottom:64px">
+    <p class="eyebrow">Служебная проверка</p>
+    <h1>Тестовая оплата УГМУ</h1>
+    <p class="lead">Эта страница работает только когда production API переведён на тестовый магазин ЮKassa. Деньги по тестовым платежам не списываются.</p>
+
+    <div class="launch-strip" style="margin:24px 0" role="status">
+      <div class="shell" style="padding-left:0;padding-right:0">
+        <span class="launch-dot" aria-hidden="true"></span>
+        <div class="launch-copy"><strong id="mode-title">Проверяем режим…</strong><span id="mode-note">Оплата заблокирована до подтверждения test-mode.</span></div>
+      </div>
+    </div>
+
+    <section class="order" style="display:block;margin:0;padding:0">
+      <div class="order-panel">
+        <form id="test-order-form" novalidate>
+          <div class="form-title"><strong>Тестовый заказ</strong><span>Лечебное дело · 1 курс · I поток</span></div>
+          <label>Группа<select id="test-group" aria-label="Группа"></select></label>
+          <label>Email<input id="test-email" type="email" autocomplete="email" required placeholder="test@example.com"></label>
+          <p class="note">Используйте только тестовые данные ЮKassa. После проверки тестовую подписку нужно отозвать.</p>
+          <button id="test-submit" class="primary" type="submit" disabled>Проверяем test-mode…</button>
+          <p id="test-status" class="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <p class="note" style="margin-top:24px"><a href="./">Вернуться на обычный лендинг УГМУ</a></p>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+  (() => {
+    const config = window.UGMU_CONFIG;
+    const form = document.querySelector('#test-order-form');
+    const groupSelect = document.querySelector('#test-group');
+    const email = document.querySelector('#test-email');
+    const submit = document.querySelector('#test-submit');
+    const status = document.querySelector('#test-status');
+    const title = document.querySelector('#mode-title');
+    const note = document.querySelector('#mode-note');
+    if (!config || config.university !== 'ugmu' || !form || !groupSelect || !submit) return;
+
+    let enabled = false;
+    let price = '';
+    for (const group of config.groups) {
+      const option = document.createElement('option');
+      option.value = group.code;
+      option.textContent = group.code;
+      groupSelect.append(option);
+    }
+
+    const groupId = (code) => `${config.university}:${config.program.id}:${config.program.course}:stream-${config.program.stream}:${code}`;
+    const rubles = (value) => {
+      const amount = Number(value);
+      return Number.isFinite(amount) && amount > 0 ? `${new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(amount)} ₽` : '';
+    };
+
+    async function loadMode() {
+      enabled = false;
+      submit.disabled = true;
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/api/v2/meta`, { cache: 'no-store' });
+        const meta = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error('meta_unavailable');
+        price = String(meta.offers?.[config.defaultPlan]?.price || '');
+        if (meta.sales === 'open' && meta.paymentMode === 'test') {
+          enabled = true;
+          title.textContent = 'ЮKassa: тестовый магазин активен';
+          note.textContent = 'Разрешена только тестовая оплата. Реальные деньги не списываются.';
+          submit.disabled = false;
+          submit.textContent = rubles(price) ? `Создать тестовую оплату · ${rubles(price)}` : 'Создать тестовую оплату';
+          return;
+        }
+        title.textContent = meta.paymentMode === 'live' ? 'Сейчас включён боевой магазин' : 'Тестовая оплата недоступна';
+        note.textContent = 'Страница намеренно блокирует оплату, пока API не сообщает sales=open и paymentMode=test.';
+        submit.textContent = 'Test-mode не активен';
+      } catch {
+        title.textContent = 'Не удалось проверить API';
+        note.textContent = 'Оплата остаётся заблокированной.';
+        submit.textContent = 'Test-mode не подтверждён';
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.textContent = '';
+      if (!enabled) {
+        status.textContent = 'Тестовый режим не подтверждён.';
+        return;
+      }
+      if (!email.validity.valid) {
+        status.textContent = 'Укажите корректный email.';
+        email.focus();
+        return;
+      }
+      const groupCode = groupSelect.value;
+      const payload = {
+        email: email.value.trim(),
+        university_id: config.university,
+        program: config.program.id,
+        course: config.program.course,
+        stream: config.program.stream,
+        groupCode,
+        groupId: groupId(groupCode),
+        timezone: config.timezone,
+        plan: config.defaultPlan,
+      };
+      submit.disabled = true;
+      submit.textContent = 'Создаём тестовую оплату…';
+      try {
+        const response = await fetch(`${config.apiBaseUrl}${config.paymentPath}`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.confirmationUrl) throw new Error(result.error || 'payment_unavailable');
+        window.location.assign(result.confirmationUrl);
+      } catch (error) {
+        status.textContent = `Не удалось создать тестовую оплату: ${error.message || 'ошибка'}`;
+        await loadMode();
+      }
+    });
+
+    void loadMode();
+  })();
+  </script>
+</body>
+</html>
