@@ -168,7 +168,7 @@ jobs:
           EOF
           go mod tidy
           TOKEN="$token" PROJECT="$project_id" SECRET_NAME="$YOOKASSA_SECRET_NAME" SHOP="$shop" go run .
-          cd /
+          cd "$GITHUB_WORKSPACE"
 
           python3 - <<'PY'
           import json, os
