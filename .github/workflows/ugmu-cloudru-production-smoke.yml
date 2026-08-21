@@ -50,12 +50,12 @@ jobs:
           forbidden = [
               '--request ' + 'PATCH',
               '--request ' + 'POST',
-              "-X " + "POST",
+              '-X ' + 'POST',
               'containers.api.cloud.ru/' + 'v2/',
-              'EVO_CR_LOGIN',
-              'EVO_CR_PWD',
-              'YOOKASSA_SECRET_KEY',
-              'https://api.yookassa.ru/v3/payments',
+              'EVO_' + 'CR_LOGIN',
+              'EVO_' + 'CR_PWD',
+              'YOOKASSA_' + 'SECRET_KEY',
+              'https://api.yookassa.ru/v3/' + 'payments',
               'aws ' + 's3',
           ]
           for marker in forbidden:
