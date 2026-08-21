@@ -1,8 +1,8 @@
 {
   "version": 8,
   "kind": "ugmu-trial-access-plan",
-  "boundary": "ugmu-production-trial-active-window-fix-prepared",
-  "status": "PRODUCTION_TRIAL_ACTIVE_MID_SEMESTER_WINDOW_FIX_PENDING_DEPLOY",
+  "boundary": "ugmu-production-trial-active-maintenance-hardening-prepared",
+  "status": "PRODUCTION_TRIAL_ACTIVE_MAINTENANCE_HARDENING_PREPARED_NOT_MERGED",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -28,17 +28,7 @@
     "publicScheduleRequired": false,
     "publicIcsRequired": false,
     "tokenizedSubscriptionIcs": true,
-    "window": {
-      "days": 7,
-      "fixed": true,
-      "intendedAnchor": "activation-local-date-not-before-first-schedule-event",
-      "deployedAnchor": "first-schedule-event-date",
-      "beforeSemester": "first-schedule-event-date",
-      "duringSemester": "activation-local-date",
-      "afterLastScheduleEvent": "closed",
-      "sourceCorrectionPrepared": true,
-      "correctionDeployed": false
-    },
+    "window": { "days": 7, "anchor": "first-schedule-event-date", "fixed": true },
     "continuationEventAfterWindow": true
   },
   "landingUx": {
@@ -62,8 +52,10 @@
     "workflow": ".github/workflows/deploy-api-cloudru.yml",
     "globalTrialsGateMustRemainClosed": true,
     "activeUgmuGateMustBePreserved": true,
-    "currentWorkflowStillAssumesUgmuClosed": true,
-    "activeGatePreservingDeployFixPrepared": false,
+    "sourceWorkflowStillAssumesUgmuClosed": false,
+    "activeGatePreservingDeployFixPrepared": true,
+    "activeGatePreservingDeployFixMerged": false,
+    "activeUgmuSmokeCreatesTrial": false,
     "productionDeployAllowedByThisPlan": false
   },
   "productionOperations": {
@@ -119,7 +111,7 @@
       "productionTrialE2eCompleted": true,
       "automaticGateRollbackOnFailure": true,
       "preflightFailureHandlingHardeningPrepared": true,
-      "hardeningDeployed": false
+      "hardeningMerged": false
     },
     "deactivation": {
       "manualWorkflow": ".github/workflows/ugmu-trial-deactivate.yml",
@@ -175,50 +167,63 @@
       "legacyTrials": "closed",
       "ugmuTrials": "open"
     },
-    "sourceCorrectionsPrepared": [
-      "activation-local-seven-calendar-day-window",
-      "timezone-aware-activation-date",
-      "after-last-schedule-date-closed",
-      "empty-activation-window-unavailable",
+    "sourceHardeningPrepared": [
       "activation-preflight-nonzero-failure-propagation",
-      "activation-preflight-waits-for-running-container"
+      "activation-preflight-waits-for-running-container",
+      "api-deploy-preserves-current-ugmu-trial-gate",
+      "api-deploy-keeps-legacy-global-trials-closed",
+      "active-ugmu-post-deploy-smoke-does-not-create-trial"
     ],
     "coverage": [
       "opaque-deterministic-request-fingerprint",
       "x-real-ip-preferred",
       "ambiguous-multi-hop-x-forwarded-for-fails-closed",
       "missing-secret-or-trusted-address-fails-closed",
+      "ipv4-mapped-address-normalization",
       "atomic-filesystem-claim-race",
       "s3-if-none-match-conditional-create",
+      "s3-precondition-conflict-treated-as-duplicate",
+      "unsafe-claim-key-rejected",
+      "ugmu-missing-identity-fails-closed",
       "ugmu-duplicate-identity-blocked",
       "ugmu-claim-group-independent",
+      "ugmu-concurrent-service-requests-single-entitlement",
+      "http-handler-opaque-identity-handoff",
+      "http-handler-duplicate-conflict",
       "ugmu-landing-payment-independent-trial-entry-point",
+      "ugmu-landing-no-legacy-meta-trials-gate",
+      "ugmu-landing-dedicated-meta-gate-cta",
+      "ugmu-landing-cta-fail-closed-before-activation",
       "ugmu-trial-to-paid-conversion-context",
+      "ugmu-meta-dedicated-trial-state",
+      "privacy-safe-admin-proxy-contract-observation",
       "canonical-ugmu-pages-source",
       "production-backend-readiness-probe",
       "production-pages-trial-ui-probe",
       "production-cloudru-x-real-ip-contract-verification",
       "guarded-identity-secret-provisioning",
+      "explicit-activation-with-proxy-and-secret-preflight",
       "production-trial-e2e-on-activation",
       "automatic-ugmu-gate-rollback-on-activation-failure",
-      "activation-local-mid-semester-window-unit-tests"
+      "explicit-ugmu-trial-deactivation",
+      "active-ugmu-gate-preserving-api-deploy-source-guard",
+      "active-ugmu-post-deploy-smoke-without-trial-mutation"
     ]
   },
   "activation": {
-    "allowedNow": true,
     "currentlyActiveInProduction": true,
+    "additionalActivationRequired": false,
     "productionFlagMutationAllowedByThisPlan": false,
     "automaticActivationAllowed": false,
     "explicitDecisionRequiredForFutureActivation": true,
     "blockers": []
   },
-  "pendingProductionCorrection": {
-    "issue": "deployed-trial-window-is-anchored-to-first-schedule-event-instead-of-mid-semester-activation-date",
-    "studentImpact": "after-the-first-seven-schedule-days-new-mid-semester-trials-can-be-rejected-as-trial_window_closed",
-    "sourceFixPrepared": true,
-    "productionDeploymentPerformed": false,
-    "requiresActiveGatePreservingDeployGuard": true,
-    "requiresExplicitProductionDeployAuthorization": true
+  "pendingMaintenance": {
+    "activationWorkflowFailurePropagationPrepared": true,
+    "apiDeployActiveGatePreservationPrepared": true,
+    "trialWindowSemanticsChanged": false,
+    "changesMerged": false,
+    "productionMutationPerformed": false
   },
   "safety": {
     "productionCodeDeploymentPerformed": true,
@@ -234,5 +239,5 @@
     "globalSalesMutationAllowed": false,
     "sourceBranchChangesDoNotMutateProduction": true
   },
-  "nextRequiredBoundary": "prepare-active-gate-preserving-deploy-then-request-explicit-production-deploy-authorization"
+  "nextRequiredBoundary": "merge-maintenance-hardening-before-next-api-runtime-deploy"
 }
