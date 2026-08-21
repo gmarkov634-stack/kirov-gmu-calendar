@@ -1,8 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
   "kind": "ugmu-trial-access-plan",
-  "boundary": "ugmu-trial-isolation-design",
-  "status": "DESIGNED_FAIL_CLOSED",
+  "boundary": "ugmu-trial-anti-abuse",
+  "status": "IMPLEMENTED_BRANCH_ONLY",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -46,13 +46,66 @@
     },
     "continuationEventAfterWindow": true
   },
+  "antiAbuse": {
+    "policyFinalized": true,
+    "policy": "one-anonymous-trial-per-university-semester",
+    "identity": {
+      "method": "HMAC-SHA256",
+      "secretEnv": "TRIAL_IDENTITY_HMAC_SECRET",
+      "minimumSecretLength": 32,
+      "requestTraits": [
+        "trusted-proxy-client-address",
+        "user-agent",
+        "accept-language"
+      ],
+      "rawRequestTraitsPersisted": false,
+      "fingerprintPersisted": false
+    },
+    "claim": {
+      "scope": [
+        "university",
+        "academic-year",
+        "semester"
+      ],
+      "groupIndependent": true,
+      "storageKeyContainsOnlyScopedSha256": true,
+      "s3AtomicCreate": "If-None-Match:*",
+      "filesystemAtomicCreate": "writeFile-flag-wx",
+      "duplicateError": "trial_already_claimed",
+      "downstreamFailurePolicy": "retain-claim-fail-closed"
+    },
+    "limitations": [
+      "anonymous-request-identity-is-not-proof-of-personhood",
+      "network-or-browser-profile-changes-can-produce-a-new-identity",
+      "x-forwarded-for-last-hop-requires-trusted-ingress-append-semantics"
+    ]
+  },
+  "verification": {
+    "headBeforeAuthorityUpdate": "55d4847ef8c28debf4e946d4106f9b1d1df86956",
+    "apiTestsRunId": 32498525546,
+    "apiTestsConclusion": "success",
+    "coverage": [
+      "opaque-deterministic-request-fingerprint",
+      "spoofable-leading-x-forwarded-for-hop-ignored",
+      "missing-secret-or-address-fails-closed",
+      "ipv4-mapped-address-normalization",
+      "atomic-filesystem-claim-race",
+      "unsafe-claim-key-rejected",
+      "ugmu-missing-identity-fails-closed",
+      "ugmu-duplicate-identity-blocked",
+      "ugmu-claim-group-independent",
+      "ugmu-concurrent-service-requests-single-entitlement",
+      "http-handler-opaque-identity-handoff",
+      "http-handler-duplicate-conflict"
+    ]
+  },
   "activation": {
     "allowedNow": false,
     "productionFlagMutationAllowedByThisPlan": false,
     "automaticActivationAllowed": false,
     "explicitDecisionRequired": true,
     "blockers": [
-      "anti-abuse-policy-not-finalized",
+      "trial-identity-hmac-secret-not-provisioned-in-production",
       "ugmu-landing-trial-ux-not-wired",
       "ugmu-trial-production-e2e-not-completed",
       "explicit-trial-activation-decision-not-given"
@@ -68,5 +121,5 @@
     "globalTrialsActivationAllowed": false,
     "globalSalesMutationAllowed": false
   },
-  "nextRequiredBoundary": "ugmu-trial-anti-abuse-and-e2e-design"
+  "nextRequiredBoundary": "ugmu-trial-landing-ux-and-production-e2e"
 }
