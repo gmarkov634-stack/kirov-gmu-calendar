@@ -1,10 +1,10 @@
 name: TEMP API test failure diagnostic
 
 on:
-  push:
-    branches:
-      - agent/ugmu-scaffold-20260820
-  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-test-diagnostic-temp.yml"
 
 permissions:
   contents: read
