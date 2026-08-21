@@ -157,9 +157,10 @@ jobs:
           for (const forbidden of ['Предзапусковый режим', 'production storage', 'утверждённый scope', 'regression']) {
             if (ugmuHtml.includes(forbidden)) throw new Error(`UGMU student landing contains internal copy: ${forbidden}`);
           }
-          for (const marker of ['runtime.sales === "open"', 'runtime.paymentMode === "live"', '/api/v2/meta', '/api/v2/payments']) {
+          for (const marker of ['runtime.sales === "open"', 'runtime.paymentMode === "live"', '/api/v2/meta', 'config.paymentPath']) {
             if (!ugmuApp.includes(marker)) throw new Error(`UGMU checkout marker missing: ${marker}`);
           }
+          if (!ugmuConfig.includes('paymentPath: "/api/v2/payments"')) throw new Error('UGMU payment route missing from config');
           if (ugmuApp.includes('/api/v2/catalog/ugmu') || ugmuApp.includes('/api/v2/schedules/ugmu')) {
             throw new Error('UGMU paid landing must not depend on public schedule/catalog endpoints');
           }
