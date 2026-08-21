@@ -93,6 +93,9 @@ export function loadConfig(env = process.env) {
     globalTrialsEnabled,
     ugmuTrialsEnabled,
     trialServiceEnabled: globalTrialsEnabled || ugmuTrialsEnabled,
+    // Used only to HMAC request traits for anonymous trial de-duplication.
+    // Raw IP/user-agent values are never persisted by the trial path.
+    trialIdentityHmacSecret: env.TRIAL_IDENTITY_HMAC_SECRET || "",
     funnelAnalyticsEnabled: env.FUNNEL_ANALYTICS_ENABLED === "true",
     subscriptionSigningSecret: env.SUBSCRIPTION_SIGNING_SECRET || "",
     adminToken: env.ADMIN_TOKEN || "",
