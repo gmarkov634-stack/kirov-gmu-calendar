@@ -39,12 +39,17 @@ test('Cloud.ru deploy remains fail-closed for global launch gates and smokes new
   assert.match(deploy, /FUNNEL_V2_SAFE/);
 });
 
-test('Cloud.ru deploy preserves the dedicated UGMU trial gate without creating a trial during active smoke', () => {
+test('Cloud.ru deploy preserves dedicated UGMU sales and trial gates and keeps active smoke read-only', () => {
+  assert.match(deploy, /ugmuSalesGateOpen/);
   assert.match(deploy, /ugmuTrialGateOpen/);
+  assert.match(deploy, /UGMU_SALES_ENABLED changed during image-only deploy/);
   assert.match(deploy, /UGMU_TRIALS_ENABLED changed during image-only deploy/);
-  assert.match(deploy, /expected_ugmu_state/);
-  assert.match(deploy, /universityTrials',\{\}\)\.get\('ugmu'\) == expected_ugmu_state/);
+  assert.match(deploy, /expected_sales_state/);
+  assert.match(deploy, /expected_ugmu_trial_state/);
+  assert.match(deploy, /meta\.get\('sales'\) == expected_sales_state/);
+  assert.match(deploy, /universityTrials',\{\}\)\.get\('ugmu'\) == expected_ugmu_trial_state/);
   assert.match(deploy, /UGMU_TRIAL_SMOKE_SAFE gate=open mutation=skipped/);
+  assert.doesNotMatch(deploy, /assert meta\.get\('sales'\) == 'closed'/);
   assert.doesNotMatch(deploy, /for gate in \('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','UGMU_TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'\)/);
 });
 

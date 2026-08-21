@@ -11,7 +11,7 @@ const deactivate = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-d
 test("production deploy preserves the dedicated UGMU trial gate while global trials remain closed", () => {
   assert.match(deploy, /ugmuTrialGateOpen/);
   assert.match(deploy, /UGMU_TRIALS_ENABLED changed during image-only deploy/);
-  assert.match(deploy, /expected_ugmu_state/);
+  assert.match(deploy, /expected_ugmu_trial_state/);
   assert.match(deploy, /body\.get\('trials'\) == 'closed'|meta\.get\('trials'\) == 'closed'/);
   assert.match(deploy, /UGMU_TRIAL_SMOKE_SAFE gate=open mutation=skipped/);
 });
