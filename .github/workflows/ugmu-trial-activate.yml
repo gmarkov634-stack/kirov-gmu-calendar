@@ -40,7 +40,7 @@ jobs:
           patch_url=''
 
           rollback() {
-            local exit_code="${1:-1}"
+            local exit_code=$?
             trap - ERR
             set +e
             if [ "$activated" != 'true' ] || [ -z "$token" ] || [ -z "$get_url" ] || [ -z "$patch_url" ]; then
@@ -69,7 +69,7 @@ jobs:
             echo 'UGMU_TRIAL_ROLLBACK_REQUESTED_SAFE'
             exit "$exit_code"
           }
-          trap 'rollback $?' ERR
+          trap rollback ERR
 
           auth_payload="$(python3 - <<'PY'
           import json, os
