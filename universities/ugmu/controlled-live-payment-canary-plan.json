@@ -1,18 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "kind": "ugmu-controlled-live-payment-canary-plan",
   "boundary": "controlled-live-payment-canary-explicit-decision",
-  "status": "AWAITING_EXPLICIT_AUTHORIZATION",
+  "status": "DEFERRED_BY_USER",
   "effectiveDate": "2026-08-21",
-  "purpose": "Prove one real end-to-end UGMU purchase against the already launched live YooKassa configuration without expanding production scope.",
+  "decisionDate": "2026-08-21",
+  "nonBlocking": true,
+  "purpose": "Optional future proof of one real end-to-end UGMU purchase against the already launched live YooKassa configuration without expanding production scope.",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
     "course": 1,
     "stream": "1",
-    "allowedGroups": [
-      "ОЛД 101"
-    ],
+    "allowedGroups": ["ОЛД 101"],
     "academicYear": "2026/2027",
     "semester": 1,
     "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
@@ -46,28 +46,27 @@
     "pullRequestExecutionAllowed": false,
     "authorizationMustNameRealLivePayment": true
   },
-  "executionPlanAfterAuthorization": [
+  "deferral": {
+    "reason": "User chose to skip the real live-payment canary for now and return to it later.",
+    "blocksRepositoryStabilization": false,
+    "blocksScopePreservingMaintenance": false,
+    "blocksMergePreparation": false,
+    "revisitWhen": [
+      "user explicitly returns to real live-payment verification",
+      "before materially changing the payment integration",
+      "before relying on a new live YooKassa credential or checkout implementation"
+    ]
+  },
+  "executionPlanAfterFutureAuthorization": [
     "Run a fresh read-only operational preflight immediately before creating any order.",
     "Create at most one live UGMU order for ОЛД 101 using the current runtime semester offer; do not hardcode or override the production price.",
     "Return the YooKassa confirmation URL for user-controlled payment completion; do not enter payment credentials or confirm the financial transaction on the user's behalf.",
     "After the user completes payment, verify the provider payment is succeeded, paid=true and test=false.",
     "Verify the protected order becomes succeeded and exactly one paid subscription is issued.",
-    "Verify the tokenized subscription calendar returns HTTP 200 and contains the expected UGMU schedule while public schedule and public ICS remain HTTP 404.",
+    "Verify the tokenized subscription calendar returns HTTP 200 while public schedule and public ICS remain HTTP 404.",
     "Verify no second payment/order is created and no non-UGMU sales capability changes.",
-    "Revoke the canary subscription after evidence capture unless the user explicitly asks to keep that subscription active.",
+    "Revoke the canary subscription after evidence capture unless the user explicitly asks to keep it active.",
     "Run the full read-only operational monitor again and confirm the production invariants remain unchanged."
-  ],
-  "abortConditions": [
-    "paymentMode is not live",
-    "ShopID is not 1258890",
-    "YooKassa provider read-only authentication fails",
-    "COMMERCIAL_SALES_ENABLED is not false",
-    "UGMU_SALES_ENABLED is not true",
-    "UGMU_ACTIVE is not true",
-    "trials are not closed",
-    "public UGMU schedule or public ICS becomes available",
-    "any of the 12 schedule hashes or rollback snapshots fails verification",
-    "more than one canary order or payment is observed"
   ],
   "safety": {
     "scopeExpansionAllowed": false,
@@ -80,15 +79,5 @@
     "priceOverrideAllowed": false,
     "realPaymentBeforeExplicitAuthorizationAllowed": false
   },
-  "evidenceRequiredForPass": [
-    "fresh-preflight-pass",
-    "single-live-payment-test-false",
-    "order-succeeded",
-    "single-paid-subscription",
-    "tokenized-ics-http-200",
-    "public-schedule-http-404",
-    "public-ics-http-404",
-    "post-canary-operational-monitor-pass"
-  ],
-  "nextStateBeforeAuthorization": "WAIT"
+  "nextRequiredBoundary": "post-launch-repository-and-pr-stabilization"
 }
