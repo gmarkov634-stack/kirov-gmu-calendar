@@ -1,0 +1,45 @@
+name: UGMU post-launch production verify PR observe
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-post-launch-production-verify-pr-observe.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AUTHORITY_SHA: ca197aeb19bedd74838d7e5807347cbc8575a8c4
+    steps:
+      - name: Resolve exact read-only verifier run
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GITHUB_REPOSITORY}/actions/workflows/ugmu-post-launch-production-verify.yml/runs?branch=agent%2Fugmu-scaffold-20260820&event=push&per_page=30"
+          gh api "$api" > /tmp/runs.json
+          python3 - <<'PY'
+          import json, os
+          rows=json.load(open('/tmp/runs.json')).get('workflow_runs',[])
+          exact=[r for r in rows if r.get('head_sha')==os.environ['AUTHORITY_SHA']]
+          assert len(exact)==1, [(r.get('id'),r.get('head_sha'),r.get('status'),r.get('conclusion')) for r in rows[:10]]
+          r=exact[0]
+          print('UGMU_POST_LAUNCH_EXACT_RUN_SAFE', {'id':r['id'],'status':r.get('status'),'conclusion':r.get('conclusion'),'head':r.get('head_sha')})
+          assert r.get('status')=='completed'
+          assert r.get('conclusion')=='success'
+          open('/tmp/run-id','w').write(str(r['id']))
+          PY
+          run_id="$(cat /tmp/run-id)"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" > /tmp/jobs.json
+          python3 - <<'PY'
+          import json
+          jobs=json.load(open('/tmp/jobs.json')).get('jobs',[])
+          print('UGMU_POST_LAUNCH_EXACT_JOBS_SAFE', [(j.get('id'),j.get('name'),j.get('status'),j.get('conclusion')) for j in jobs])
+          assert jobs
+          assert all(j.get('status')=='completed' and j.get('conclusion')=='success' for j in jobs)
+          PY
