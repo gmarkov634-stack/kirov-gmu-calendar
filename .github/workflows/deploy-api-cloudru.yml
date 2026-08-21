@@ -159,6 +159,7 @@ jobs:
           env={item.get('name'):item.get('value') for item in container.get('env',[]) if isinstance(item,dict)}
           for gate in ('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'):
               assert env.get(gate) != 'true', f'{gate} unexpectedly open; deploy remains fail-closed for global launch gates'
+          ugmu_sales_gate_open=env.get('UGMU_SALES_ENABLED') == 'true'
           ugmu_trial_gate_open=env.get('UGMU_TRIALS_ENABLED') == 'true'
 
           protected=copy.deepcopy(app.get('template') or {})
@@ -170,6 +171,7 @@ jobs:
               'oldImage': current_image,
               'targetImage': os.environ['TARGET_IMAGE'],
               'needsPatch': current_image != os.environ['TARGET_IMAGE'],
+              'ugmuSalesGateOpen': ugmu_sales_gate_open,
               'ugmuTrialGateOpen': ugmu_trial_gate_open,
               'protectedTemplateFingerprint': fingerprint,
           }
@@ -181,6 +183,8 @@ jobs:
               'oldImage':state['oldImage'],
               'targetImage':state['targetImage'],
               'needsPatch':state['needsPatch'],
+              'globalSales':'closed',
+              'ugmuSales':'open' if ugmu_sales_gate_open else 'closed',
               'legacyTrials':'closed',
               'ugmuTrials':'open' if ugmu_trial_gate_open else 'closed',
               'protectedTemplateFingerprint':fingerprint,
@@ -256,7 +260,9 @@ jobs:
           env={item.get('name'):item.get('value') for item in container.get('env',[]) if isinstance(item,dict)}
           for gate in ('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'):
               assert env.get(gate) != 'true', f'{gate} unexpectedly open after deploy'
+          ugmu_sales_gate_open=env.get('UGMU_SALES_ENABLED') == 'true'
           ugmu_trial_gate_open=env.get('UGMU_TRIALS_ENABLED') == 'true'
+          assert ugmu_sales_gate_open == state['ugmuSalesGateOpen'], 'UGMU_SALES_ENABLED changed during image-only deploy'
           assert ugmu_trial_gate_open == state['ugmuTrialGateOpen'], 'UGMU_TRIALS_ENABLED changed during image-only deploy'
           protected=copy.deepcopy(app.get('template') or {})
           protected['containers'][0]['image']='<DEPLOY_IMAGE>'
@@ -265,6 +271,8 @@ jobs:
           print('DEPLOY_RESULT_SAFE', {
               'status':app.get('status'),
               'image':container.get('image'),
+              'globalSales':'closed',
+              'ugmuSales':'open' if ugmu_sales_gate_open else 'closed',
               'legacyTrials':'closed',
               'ugmuTrials':'open' if ugmu_trial_gate_open else 'closed',
               'protectedTemplateFingerprint':fingerprint,
@@ -278,17 +286,18 @@ jobs:
         run: |
           set -euo pipefail
           base="$PRODUCTION_BASE_URL"
-          expected_ugmu_state="$(python3 -c "import json; print('open' if json.load(open('/tmp/deploy-state.json'))['ugmuTrialGateOpen'] else 'closed')")"
+          expected_sales_state="$(python3 -c "import json; print('open' if json.load(open('/tmp/deploy-state.json'))['ugmuSalesGateOpen'] else 'closed')")"
+          expected_ugmu_trial_state="$(python3 -c "import json; print('open' if json.load(open('/tmp/deploy-state.json'))['ugmuTrialGateOpen'] else 'closed')")"
 
           health="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/health")"
           meta="$(curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 3 "$base/api/v2/meta")"
-          python3 - "$health" "$meta" "$expected_ugmu_state" <<'PY'
+          python3 - "$health" "$meta" "$expected_sales_state" "$expected_ugmu_trial_state" <<'PY'
           import json, sys
-          health=json.loads(sys.argv[1]); meta=json.loads(sys.argv[2]); expected_ugmu_state=sys.argv[3]
+          health=json.loads(sys.argv[1]); meta=json.loads(sys.argv[2]); expected_sales_state=sys.argv[3]; expected_ugmu_trial_state=sys.argv[4]
           assert health == {'status':'ok','service':'medical-calendar-api'}, health
-          assert meta.get('sales') == 'closed', meta
+          assert meta.get('sales') == expected_sales_state, meta
           assert meta.get('trials') == 'closed', meta
-          assert meta.get('universityTrials',{}).get('ugmu') == expected_ugmu_state, meta
+          assert meta.get('universityTrials',{}).get('ugmu') == expected_ugmu_trial_state, meta
           assert meta.get('paymentMode') in {'test','live'}, meta
           print('PRODUCTION_META_SAFE', {
               'sales':meta.get('sales'),
@@ -298,7 +307,7 @@ jobs:
           })
           PY
 
-          if [ "$expected_ugmu_state" = "closed" ]; then
+          if [ "$expected_ugmu_trial_state" = "closed" ]; then
             trial_status="$(curl --silent --show-error --output /tmp/trial.json --write-out '%{http_code}' \
               --request POST --header 'Content-Type: application/json' --data '{}' "$base/api/v2/trials")"
             test "$trial_status" = "409"
