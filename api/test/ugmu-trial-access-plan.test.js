@@ -4,10 +4,10 @@ import test from "node:test";
 
 const plan = JSON.parse(fs.readFileSync(new URL("../../universities/ugmu/trial-access-plan.json", import.meta.url), "utf8"));
 
-test("UGMU trial anti-abuse boundary remains branch-only and fail-closed", () => {
-  assert.equal(plan.version, 2);
+test("UGMU trial landing boundary remains branch-only and fail-closed", () => {
+  assert.equal(plan.version, 3);
   assert.equal(plan.kind, "ugmu-trial-access-plan");
-  assert.equal(plan.boundary, "ugmu-trial-anti-abuse");
+  assert.equal(plan.boundary, "ugmu-trial-landing-ux");
   assert.equal(plan.status, "IMPLEMENTED_BRANCH_ONLY_NOT_ACTIVATION_READY");
 
   assert.deepEqual(plan.scope.groups, Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`));
@@ -32,6 +32,17 @@ test("UGMU trial anti-abuse boundary remains branch-only and fail-closed", () =>
   assert.equal(plan.trialProduct.window.anchor, "first-schedule-event-date");
   assert.equal(plan.trialProduct.window.fixed, true);
 
+  assert.equal(plan.landingUx.wired, true);
+  assert.equal(plan.landingUx.trialPath, "/api/v2/trials");
+  assert.equal(plan.landingUx.emailRequired, false);
+  assert.equal(plan.landingUx.paymentRequired, false);
+  assert.equal(plan.landingUx.serverGateAuthoritative, true);
+  assert.equal(plan.landingUx.legacyMetaTrialsGateUsed, false);
+  assert.equal(plan.landingUx.approvedScopeOnly, true);
+  assert.equal(plan.landingUx.subscriptionUrlRenderedOnlyAfterSuccessfulCreate, true);
+  assert.equal(plan.landingUx.continuationContextRestoredByConversionId, true);
+  assert.equal(plan.landingUx.conversionIdPassedToPayment, true);
+
   assert.equal(plan.antiAbuse.policyFinalized, false);
   assert.equal(plan.antiAbuse.identity.method, "HMAC-SHA256");
   assert.equal(plan.antiAbuse.identity.ambiguousMultiHopForwardedFor, "fail-closed");
@@ -40,6 +51,12 @@ test("UGMU trial anti-abuse boundary remains branch-only and fail-closed", () =>
   assert.equal(plan.antiAbuse.claim.s3AtomicCreate, "If-None-Match:*");
   assert.ok(plan.antiAbuse.limitations.includes("cloudru-container-apps-forwarded-client-address-contract-not-verified"));
 
+  assert.equal(plan.verification.landingApiTestsRunId, 32499805855);
+  assert.equal(plan.verification.landingApiTestsConclusion, "success");
+  assert.ok(plan.verification.coverage.includes("ugmu-landing-payment-independent-trial-entry-point"));
+  assert.ok(plan.verification.coverage.includes("ugmu-landing-no-legacy-meta-trials-gate"));
+  assert.ok(plan.verification.coverage.includes("ugmu-trial-to-paid-conversion-context"));
+
   assert.equal(plan.activation.allowedNow, false);
   assert.equal(plan.activation.productionFlagMutationAllowedByThisPlan, false);
   assert.equal(plan.activation.automaticActivationAllowed, false);
@@ -47,11 +64,10 @@ test("UGMU trial anti-abuse boundary remains branch-only and fail-closed", () =>
   assert.deepEqual(plan.activation.blockers, [
     "anti-abuse-proxy-contract-not-verified",
     "trial-identity-hmac-secret-not-provisioned-in-production",
-    "ugmu-landing-trial-ux-not-wired",
     "ugmu-trial-production-e2e-not-completed",
     "explicit-trial-activation-decision-not-given",
   ]);
 
   for (const value of Object.values(plan.safety)) assert.equal(value, false);
-  assert.equal(plan.nextRequiredBoundary, "ugmu-trial-proxy-contract-and-landing-e2e");
+  assert.equal(plan.nextRequiredBoundary, "ugmu-trial-proxy-contract-and-production-e2e");
 });
