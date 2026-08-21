@@ -6,6 +6,7 @@ on:
       - "api/tools/ugmu-production-storage-stage.mjs"
       - "api/tools/ugmu-production-storage-verify.mjs"
       - "api/test/ugmu-production-storage-stage.test.js"
+      - "api/test/ugmu-production-storage-verify.test.js"
       - "api/src/university-commerce-policy.mjs"
       - "universities/ugmu/production-staging-authority.json"
       - ".github/workflows/ugmu-production-storage-stage.yml"
@@ -44,8 +45,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test read-only boundary contract
-        run: node --test test/ugmu-production-storage-stage.test.js
+      - name: Test storage and post-launch read-only boundary contracts
+        run: node --test test/ugmu-production-storage-stage.test.js test/ugmu-production-storage-verify.test.js
 
       - name: Download the approved step-22 manifest
         working-directory: .
@@ -93,14 +94,24 @@ jobs:
           jq -e '
             .passed == true and
             .status == "PASS" and
+            .mode == "post-launch-production-read-only" and
             .totals.groups == 12 and
             .totals.events == 4286 and
             .totals.schedulesPresent == 12 and
             .totals.hashesMatched == 12 and
             .totals.rollbackSnapshotsPresent == 12 and
             .boundary.passed == true and
+            .boundary.checks.health == true and
+            .boundary.checks.meta == true and
+            .boundary.checks.salesOpen == true and
+            .boundary.checks.trialsClosed == true and
+            .boundary.checks.paymentModeLive == true and
+            .boundary.checks.publicScheduleClosed == true and
+            .boundary.checks.publicIcsClosed == true and
+            .boundary.checks.getOnly == true and
             .mutationPerformed == false and
-            .nextRequiredBoundary == "deploy-isolation-guards"
+            .paymentCreated == false and
+            .nextRequiredBoundary == "current-pr-ci-green"
           ' data/imports/ugmu-production-storage-verify/report.json >/dev/null
 
       - name: Write read-back summary
@@ -114,11 +125,13 @@ jobs:
           if (!fs.existsSync(file)) { console.log('Read-back report was not generated.'); process.exit(0); }
           const r=JSON.parse(fs.readFileSync(file,'utf8'));
           console.log(`Status: **${r.status}**`);
+          console.log(`Mode: **${r.mode}**`);
           console.log(`Schedules present: **${r.totals.schedulesPresent}/12**`);
           console.log(`Schedule hashes matched: **${r.totals.hashesMatched}/12**`);
           console.log(`Rollback snapshots present: **${r.totals.rollbackSnapshotsPresent}/12**`);
-          console.log(`Public boundary closed: **${r.boundary.passed ? 'yes' : 'no'}**`);
+          console.log(`Post-launch public boundary safe: **${r.boundary.passed ? 'yes' : 'no'}**`);
           console.log('Production mutation by this verification: **no**');
+          console.log('Payment/order creation by this verification: **no**');
           NODE
 
       - name: Upload read-back evidence

@@ -2,9 +2,8 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { checkUgmuPublicBoundary } from "./ugmu-production-storage-stage.mjs";
 
 const EXPECTED_MANIFEST_SHA256 = "2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5";
 
@@ -40,6 +39,52 @@ async function getObject(s3, bucket, key) {
   }
 }
 
+export async function checkUgmuPostLaunchReadbackBoundary(baseUrl, fetchFn = fetch) {
+  const base = String(baseUrl || "").replace(/\/+$/, "");
+  const groupId = encodeURIComponent("ugmu:medicine:1:stream-1:ОЛД 101");
+  const groupCode = encodeURIComponent("ОЛД 101");
+  const scheduleBase = `${base}/api/v2/schedules/ugmu/medicine/1/${groupId}`;
+
+  const [healthResponse, metaResponse, scheduleResponse, icsResponse] = await Promise.all([
+    fetchFn(`${base}/health`, { method: "GET" }),
+    fetchFn(`${base}/api/v2/meta`, { method: "GET" }),
+    fetchFn(`${scheduleBase}/schedule?groupCode=${groupCode}&stream=1`, { method: "GET" }),
+    fetchFn(`${scheduleBase}/calendar.ics?groupCode=${groupCode}&stream=1`, { method: "GET" }),
+  ]);
+
+  let meta = null;
+  if (metaResponse.status === 200) {
+    try {
+      meta = await metaResponse.json();
+    } catch {
+      meta = null;
+    }
+  }
+
+  const checks = {
+    health: healthResponse.status === 200,
+    meta: metaResponse.status === 200,
+    salesOpen: meta?.sales === "open",
+    trialsClosed: meta?.trials === "closed",
+    paymentModeLive: meta?.paymentMode === "live",
+    publicScheduleClosed: scheduleResponse.status === 404,
+    publicIcsClosed: icsResponse.status === 404,
+    getOnly: true,
+  };
+
+  return {
+    mode: "post-launch-production-read-only",
+    checks,
+    healthStatus: healthResponse.status,
+    metaStatus: metaResponse.status,
+    scheduleStatus: scheduleResponse.status,
+    icsStatus: icsResponse.status,
+    passed: Object.values(checks).every(Boolean),
+    mutationPerformed: false,
+    paymentCreated: false,
+  };
+}
+
 export async function verifyUgmuProductionStorage({ s3, bucket, manifest, manifestText, productionBaseUrl }) {
   const manifestSha256 = sha256(manifestText);
   if (manifestSha256 !== EXPECTED_MANIFEST_SHA256 || manifest?.passed !== true || manifest?.groups?.length !== 12) {
@@ -64,20 +109,22 @@ export async function verifyUgmuProductionStorage({ s3, bucket, manifest, manife
     });
   }
 
-  const boundary = await checkUgmuPublicBoundary(productionBaseUrl);
+  const boundary = await checkUgmuPostLaunchReadbackBoundary(productionBaseUrl);
   const checks = {
     allSchedulesPresent: groups.every((item) => item.scheduleExists),
     allScheduleHashesMatch: groups.every((item) => item.scheduleHashMatches),
     allRollbackSnapshotsPresent: groups.every((item) => item.rollbackSnapshotExists),
     exactGroups: groups.length === 12,
     exactEvents: groups.reduce((sum, item) => sum + item.eventCount, 0) === 4286,
-    publicBoundaryClosed: boundary.passed === true,
+    postLaunchBoundarySafe: boundary.passed === true,
   };
+  const passed = Object.values(checks).every(Boolean);
 
   return {
-    version: 1,
+    version: 2,
     kind: "ugmu-production-storage-readback-report",
-    status: Object.values(checks).every(Boolean) ? "PASS" : "FAIL",
+    status: passed ? "PASS" : "FAIL",
+    mode: "post-launch-production-read-only",
     verifiedAt: new Date().toISOString(),
     manifestId: manifest.manifestId,
     manifestSha256,
@@ -93,8 +140,9 @@ export async function verifyUgmuProductionStorage({ s3, bucket, manifest, manife
     boundary,
     checks,
     mutationPerformed: false,
-    nextRequiredBoundary: Object.values(checks).every(Boolean) ? "deploy-isolation-guards" : "production-storage-staging-recovery",
-    passed: Object.values(checks).every(Boolean),
+    paymentCreated: false,
+    nextRequiredBoundary: passed ? "current-pr-ci-green" : "production-storage-readback-recovery",
+    passed,
   };
 }
 
