@@ -27,7 +27,7 @@ test('Cloud.ru deploy is immutable-image-only and requires the observed write ro
   assert.match(deploy, /non-image production template drift detected/);
 });
 
-test('Cloud.ru deploy remains fail-closed for launch gates and smokes new runtime', () => {
+test('Cloud.ru deploy remains fail-closed for global launch gates and smokes new runtime', () => {
   for (const gate of ['FUNNEL_ANALYTICS_ENABLED', 'TRIALS_ENABLED', 'COMMERCIAL_SALES_ENABLED']) {
     assert.match(deploy, new RegExp(gate));
   }
@@ -37,6 +37,15 @@ test('Cloud.ru deploy remains fail-closed for launch gates and smokes new runtim
   assert.match(deploy, /trials_not_open/);
   assert.match(deploy, /api\/v1\/admin\/funnel/);
   assert.match(deploy, /FUNNEL_V2_SAFE/);
+});
+
+test('Cloud.ru deploy preserves the dedicated UGMU trial gate without creating a trial during active smoke', () => {
+  assert.match(deploy, /ugmuTrialGateOpen/);
+  assert.match(deploy, /UGMU_TRIALS_ENABLED changed during image-only deploy/);
+  assert.match(deploy, /expected_ugmu_state/);
+  assert.match(deploy, /universityTrials',\{\}\)\.get\('ugmu'\) == expected_ugmu_state/);
+  assert.match(deploy, /UGMU_TRIAL_SMOKE_SAFE gate=open mutation=skipped/);
+  assert.doesNotMatch(deploy, /for gate in \('FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','UGMU_TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED'\)/);
 });
 
 test('API image publication is limited to Docker runtime inputs', () => {
