@@ -1,0 +1,43 @@
+name: UGMU YooKassa test window close observe
+
+on:
+  pull_request:
+    branches: [main]
+    paths: [".github/workflows/ugmu-yookassa-test-window-close-observe.yml"]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_SHA: bd8a3ae2cdf3d40fd7ce1e6528471aa32e082e21
+      TARGET_WORKFLOW: UGMU YooKassa test window close
+    steps:
+      - name: Wait for exact restore run
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${TARGET_SHA}&event=push&per_page=50"
+          run='';status='';conclusion=''
+          for i in $(seq 1 240); do
+            curl -fsS -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "$api" >/tmp/runs.json
+            readarray -t x < <(python3 - <<'PY'
+          import json,os
+          rows=json.load(open('/tmp/runs.json')).get('workflow_runs',[])
+          a=[r for r in rows if r.get('name')==os.environ['TARGET_WORKFLOW'] and r.get('head_sha')==os.environ['TARGET_SHA']]
+          if a:r=a[0];print(r['id']);print(r.get('status',''));print(r.get('conclusion') or '')
+          else:print('');print('');print('')
+          PY
+          )
+            run="${x[0]}";status="${x[1]}";conclusion="${x[2]}"
+            if [ -n "$run" ] && [ "$status" = completed ]; then break; fi
+            sleep 5
+          done
+          echo "UGMU_TEST_WINDOW_CLOSE_RUN_SAFE run=$run conclusion=$conclusion"
+          test -n "$run"
+          test "$conclusion" = success
