@@ -11,21 +11,22 @@ permissions:
   contents: read
 
 env:
-  EXPECTED_MAIN_SHA: ce42184a3e21f01920299542ea350d22cffbe6ba
+  EXPECTED_MAIN_SHA: 1f4c2ef5681f704ebc051330ed580c222215c0f7
+  EXPECTED_WORKFLOW: omgmu-pages.yml
 
 jobs:
   observe:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Find exact post-launch Pages recovery run
+      - name: Find exact shared Pages preservation run
         id: run
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ugmu-controlled-pages-main-v2.yml/runs?branch=main&per_page=10"
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${EXPECTED_WORKFLOW}/runs?branch=main&per_page=10"
           test "$(curl -sS -o /tmp/runs.json -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "$url")" = 200
           run_id="$(python3 - <<'PY'
           import json,os
@@ -36,15 +37,15 @@ jobs:
           PY
           )"
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
-          echo "UGMU_PAGES_RECOVERY_RUN_FOUND=$run_id"
+          echo "UGMU_SHARED_PAGES_RUN_FOUND=$run_id"
 
-      - name: Wait for exact recovery run
+      - name: Wait for exact shared Pages run
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ steps.run.outputs.run_id }}
         run: gh run watch "$RUN_ID" --repo "$GITHUB_REPOSITORY" --exit-status
 
-      - name: Verify exact launch recovery result
+      - name: Verify exact shared deployment and live paths
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ steps.run.outputs.run_id }}
@@ -56,7 +57,14 @@ jobs:
             .status=="completed" and .conclusion=="success" and .headSha==$sha and .event=="push" and
             ([.jobs[]|select(.name=="deploy" and .conclusion=="success")]|length)==1
           ' /tmp/run.json >/dev/null
-          page="$(curl --fail --silent --show-error --location --retry 12 --retry-all-errors --retry-delay 5 "https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/?recovery=$RUN_ID")"
-          printf '%s' "$page" | grep -q 'name="robots" content="index,follow"'
-          printf '%s' "$page" | grep -q 'Календарь доступен'
-          echo "UGMU_PAGES_POST_LAUNCH_RECOVERY_PASS run=$RUN_ID"
+          for attempt in $(seq 1 24); do
+            root="$(curl -sS -o /tmp/root -w '%{http_code}' --max-time 20 "https://gmarkov634-stack.github.io/kirov-gmu-calendar/?observe=$RUN_ID&attempt=$attempt" || true)"
+            omgmu="$(curl -sS -o /tmp/omgmu -w '%{http_code}' --max-time 20 "https://gmarkov634-stack.github.io/kirov-gmu-calendar/omgmu/?observe=$RUN_ID&attempt=$attempt" || true)"
+            ugmu="$(curl -sS -o /tmp/ugmu -w '%{http_code}' --max-time 20 "https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/?observe=$RUN_ID&attempt=$attempt" || true)"
+            if [ "$root" = 200 ] && [ "$omgmu" = 200 ] && [ "$ugmu" = 200 ] && grep -q 'name="robots" content="index,follow"' /tmp/ugmu && grep -q 'Календарь доступен' /tmp/ugmu; then
+              echo "UGMU_SHARED_PAGES_PRESERVATION_PASS run=$RUN_ID root=$root omgmu=$omgmu ugmu=$ugmu"
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 2
