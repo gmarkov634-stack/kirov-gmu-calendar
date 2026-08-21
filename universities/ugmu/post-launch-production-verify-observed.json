@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "kind": "ugmu-post-launch-production-verify-observed",
+  "authoritySha": "ca197aeb19bedd74838d7e5807347cbc8575a8c4",
+  "runId": 32459064976,
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 96702122398,
+      "name": "verify",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "productionMutationPerformed": false
+}
