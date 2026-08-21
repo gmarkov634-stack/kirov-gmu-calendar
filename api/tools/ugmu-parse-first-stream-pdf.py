@@ -51,8 +51,8 @@ EXPECTED_PATTERN_COUNTS = {
     "Элективные курсы по физической культуре и спорту": 1,
 }
 SOURCE_SPECIFIC_TITLE_OVERRIDES = {
-    ("ОЛД 111", 4, "10:30", "Основы"): "Основы военной подготовки",
-    ("ОЛД 112", 3, "08:50", "Основы"): "Основы военной подготовки",
+    ("ОЛД 111", 4, "10:30", "12:00", "Основы"): "Основы военной подготовки",
+    ("ОЛД 112", 3, "08:50", "10:20", "Основы"): "Основы военной подготовки",
 }
 
 
@@ -131,7 +131,13 @@ def apply_source_specific_resolution(
 ) -> tuple[dict[str, Any], list[str], dict[str, Any] | None]:
     if source_sha256 != REVIEWED_SOURCE_SHA256:
         return pattern, warnings, None
-    key = (group, pattern["weekday"], pattern["startTime"], pattern["sourceTitle"])
+    key = (
+        group,
+        pattern["weekday"],
+        pattern["startTime"],
+        pattern["endTime"],
+        pattern["sourceTitle"],
+    )
     target = SOURCE_SPECIFIC_TITLE_OVERRIDES.get(key)
     if not target:
         return pattern, warnings, None
@@ -161,6 +167,7 @@ def apply_source_specific_resolution(
         "group": group,
         "weekday": pattern["weekday"],
         "startTime": pattern["startTime"],
+        "endTime": pattern["endTime"],
         "rawTitle": pattern["sourceTitle"],
         "resolvedTitle": reference["title"],
         "evidence": [
@@ -363,6 +370,9 @@ def self_test() -> None:
     assert FIRST_STREAM_GROUPS[-1] == "ОЛД 112"
     assert sum(EXPECTED_EVENTS.values()) == 4286
     assert sum(EXPECTED_PATTERN_COUNTS.values()) == 23
+    assert SOURCE_SPECIFIC_TITLE_OVERRIDES[("ОЛД 111", 4, "10:30", "12:00", "Основы")] == "Основы военной подготовки"
+    assert SOURCE_SPECIFIC_TITLE_OVERRIDES[("ОЛД 112", 3, "08:50", "10:20", "Основы")] == "Основы военной подготовки"
+    assert ("ОЛД 111", 4, "10:30", "12:10", "Основы") not in SOURCE_SPECIFIC_TITLE_OVERRIDES
     print("UGMU first-stream parser self-test passed")
 
 
