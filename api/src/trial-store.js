@@ -15,6 +15,15 @@ function isMissingObject(error) {
   return error?.name === "NoSuchKey" || error?.Code === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404;
 }
 
+function isConditionalConflict(error) {
+  return error?.name === "PreconditionFailed" ||
+    error?.name === "ConditionalRequestConflict" ||
+    error?.Code === "PreconditionFailed" ||
+    error?.Code === "ConditionalRequestConflict" ||
+    error?.$metadata?.httpStatusCode === 412 ||
+    error?.$metadata?.httpStatusCode === 409;
+}
+
 export class TrialEnabledStore extends YearAwareStore {
   async putTrialConversion(conversionId, value) {
     if (!TOKEN.test(String(conversionId || ""))) throw new Error("Invalid trial conversion id");
@@ -34,6 +43,38 @@ export class TrialEnabledStore extends YearAwareStore {
   async getTrialConversionByHash(conversionHash) {
     if (!SHA256.test(String(conversionHash || ""))) return null;
     return this.#readTrialJson(`trial-conversions/${conversionHash}.json`);
+  }
+
+  async claimTrialIdentityByHash(identityClaimHash, value) {
+    if (!SHA256.test(String(identityClaimHash || ""))) throw new Error("Invalid trial identity claim hash");
+    const key = `trial-identity-claims/${identityClaimHash}.json`;
+    const body = JSON.stringify(value);
+    if (this.s3) {
+      try {
+        await this.s3.send(new PutObjectCommand({
+          Bucket: this.config.bucket,
+          Key: key,
+          Body: body,
+          ContentType: "application/json; charset=utf-8",
+          CacheControl: "no-store",
+          IfNoneMatch: "*",
+        }));
+        return true;
+      } catch (error) {
+        if (isConditionalConflict(error)) return false;
+        throw error;
+      }
+    }
+
+    const filename = path.join(this.config.dataDir, key);
+    await fs.mkdir(path.dirname(filename), { recursive: true });
+    try {
+      await fs.writeFile(filename, body, { flag: "wx", mode: 0o600 });
+      return true;
+    } catch (error) {
+      if (error?.code === "EEXIST") return false;
+      throw error;
+    }
   }
 
   async markTrialConversionUpgradedByHash(conversionHash, upgradedAt = new Date().toISOString()) {

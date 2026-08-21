@@ -1,0 +1,201 @@
+{
+  "version": 6,
+  "kind": "ugmu-trial-access-plan",
+  "boundary": "ugmu-trial-production-operations-prepared",
+  "status": "IMPLEMENTED_BRANCH_ONLY_NOT_ACTIVATION_READY",
+  "scope": {
+    "university": "ugmu",
+    "program": "medicine",
+    "course": 1,
+    "stream": "1",
+    "groups": ["ОЛД 101", "ОЛД 102", "ОЛД 103", "ОЛД 104", "ОЛД 105", "ОЛД 106", "ОЛД 107", "ОЛД 108", "ОЛД 109", "ОЛД 110", "ОЛД 111", "ОЛД 112"],
+    "academicYear": "2026/2027",
+    "semester": 1
+  },
+  "runtimeIsolation": {
+    "legacyGlobalFlag": "TRIALS_ENABLED",
+    "ugmuFlag": "UGMU_TRIALS_ENABLED",
+    "ugmuFlagDefault": false,
+    "globalFlagAloneCanOpenUgmu": false,
+    "ugmuFlagCanOpenOtherUniversities": false,
+    "exactScopeRequired": true
+  },
+  "trialProduct": {
+    "entitlement": "trial",
+    "paymentRequired": false,
+    "publicScheduleRequired": false,
+    "publicIcsRequired": false,
+    "tokenizedSubscriptionIcs": true,
+    "window": { "days": 7, "anchor": "first-schedule-event-date", "fixed": true },
+    "continuationEventAfterWindow": true
+  },
+  "landingUx": {
+    "wired": true,
+    "trialPath": "/api/v2/trials",
+    "emailRequired": false,
+    "paymentRequired": false,
+    "serverGateAuthoritative": true,
+    "legacyMetaTrialsGateUsed": false,
+    "dedicatedUgmuMetaStateUsedForCta": true,
+    "ctaFailClosedWhenDedicatedGateClosed": true,
+    "approvedScopeOnly": true,
+    "subscriptionUrlRenderedOnlyAfterSuccessfulCreate": true,
+    "continuationContextRestoredByConversionId": true,
+    "conversionIdPassedToPayment": true
+  },
+  "deploymentSafety": {
+    "reviewed": true,
+    "workflow": ".github/workflows/deploy-api-cloudru.yml",
+    "globalTrialsGateAssertedClosed": true,
+    "ugmuTrialsGateAssertedClosed": true,
+    "productionMetaCanProveUgmuGateClosed": true,
+    "ugmuSpecificClosedGateSmoke": true,
+    "requiredFix": null
+  },
+  "productionOperations": {
+    "proxyContract": {
+      "adminEndpoint": "/api/v1/admin/proxy-contract",
+      "rawAddressesReturned": false,
+      "manualWorkflow": ".github/workflows/ugmu-proxy-contract-probe.yml",
+      "workflowPrepared": true,
+      "verifiedInProduction": false
+    },
+    "identitySecret": {
+      "env": "TRIAL_IDENTITY_HMAC_SECRET",
+      "minimumLength": 32,
+      "manualWorkflow": ".github/workflows/ugmu-trial-secret-provision.yml",
+      "explicitConfirmation": "PROVISION_UGMU_TRIAL_SECRET",
+      "workflowPrepared": true,
+      "provisionedInProduction": false,
+      "keepsTrialGatesClosed": true
+    },
+    "activation": {
+      "manualWorkflow": ".github/workflows/ugmu-trial-activate.yml",
+      "explicitConfirmation": "ACTIVATE_UGMU_TRIAL",
+      "workflowPrepared": true,
+      "executed": false,
+      "requiresProxyPreflight": true,
+      "requiresIdentitySecret": true,
+      "requiresLegacyGlobalTrialsClosed": true,
+      "enablesOnlyUgmuTrialGate": true,
+      "runsProductionTrialE2e": true,
+      "automaticGateRollbackOnFailure": true
+    },
+    "deactivation": {
+      "manualWorkflow": ".github/workflows/ugmu-trial-deactivate.yml",
+      "explicitConfirmation": "DEACTIVATE_UGMU_TRIAL",
+      "workflowPrepared": true,
+      "executed": false,
+      "closesOnlyUgmuTrialGate": true
+    }
+  },
+  "antiAbuse": {
+    "policyFinalized": false,
+    "policy": "one-anonymous-trial-per-university-semester",
+    "identity": {
+      "method": "HMAC-SHA256",
+      "secretEnv": "TRIAL_IDENTITY_HMAC_SECRET",
+      "minimumSecretLength": 32,
+      "requestTraits": ["trusted-proxy-client-address", "user-agent", "accept-language"],
+      "addressResolution": "x-real-ip-preferred-single-x-forwarded-for-only",
+      "ambiguousMultiHopForwardedFor": "fail-closed",
+      "socketAddressFallback": false,
+      "rawRequestTraitsPersisted": false,
+      "fingerprintPersisted": false
+    },
+    "claim": {
+      "scope": ["university", "academic-year", "semester"],
+      "groupIndependent": true,
+      "storageKeyContainsOnlyScopedSha256": true,
+      "s3AtomicCreate": "If-None-Match:*",
+      "filesystemAtomicCreate": "writeFile-flag-wx",
+      "duplicateError": "trial_already_claimed",
+      "downstreamFailurePolicy": "retain-claim-fail-closed"
+    },
+    "limitations": [
+      "anonymous-request-identity-is-not-proof-of-personhood",
+      "network-or-browser-profile-changes-can-produce-a-new-identity",
+      "cloudru-container-apps-forwarded-client-address-contract-not-verified"
+    ]
+  },
+  "verification": {
+    "headBeforeProxyHardening": "e59b793f64acbdfa5f3a573c0e2b2379ae8063bf",
+    "previousApiTestsRunId": 32498525546,
+    "previousApiTestsConclusion": "success",
+    "landingApiTestsHead": "70656f20a6a51c057f3b420e0b73e82b78040d58",
+    "landingApiTestsRunId": 32499805855,
+    "landingApiTestsConclusion": "success",
+    "landingAndUiHead": "a598b46ce27b188b927af70bf853cca22fe8352c",
+    "landingAndUiApiTestsRunId": 32500088599,
+    "landingAndUiApiTestsConclusion": "success",
+    "landingAndUiAllPrChecksConclusion": "success",
+    "deploySafetyHead": "96c2c6a0bac2d9239f01c3cf3f732de169feada3",
+    "deploySafetyApiTestsRunId": 32501035002,
+    "deploySafetyApiTestsConclusion": "success",
+    "deploySafetyProductionSmokeRunId": 32501035001,
+    "deploySafetyProductionSmokeConclusion": "success",
+    "deploySafetyAllPrChecksConclusion": "success",
+    "operationsPreparationHead": "692faf69a65ee3d1274844e3f9765fb0c5813bc4",
+    "operationsPreparationApiTestsRunId": 32501924764,
+    "operationsPreparationApiTestsConclusion": "success",
+    "operationsPreparationStructuralRunId": 32501924832,
+    "operationsPreparationStructuralConclusion": "success",
+    "operationsPreparationObservedAllChecksConclusion": "success",
+    "coverage": [
+      "opaque-deterministic-request-fingerprint",
+      "x-real-ip-preferred",
+      "ambiguous-multi-hop-x-forwarded-for-fails-closed",
+      "missing-secret-or-trusted-address-fails-closed",
+      "ipv4-mapped-address-normalization",
+      "atomic-filesystem-claim-race",
+      "s3-if-none-match-conditional-create",
+      "s3-precondition-conflict-treated-as-duplicate",
+      "unsafe-claim-key-rejected",
+      "ugmu-missing-identity-fails-closed",
+      "ugmu-duplicate-identity-blocked",
+      "ugmu-claim-group-independent",
+      "ugmu-concurrent-service-requests-single-entitlement",
+      "http-handler-opaque-identity-handoff",
+      "http-handler-duplicate-conflict",
+      "ugmu-landing-payment-independent-trial-entry-point",
+      "ugmu-landing-no-legacy-meta-trials-gate",
+      "ugmu-landing-dedicated-meta-gate-cta",
+      "ugmu-landing-cta-fail-closed-before-activation",
+      "ugmu-trial-to-paid-conversion-context",
+      "ugmu-deployment-gate-review",
+      "ugmu-deploy-pre-post-closed-gate-assertions",
+      "ugmu-meta-dedicated-trial-state",
+      "ugmu-specific-closed-gate-production-smoke",
+      "privacy-safe-admin-proxy-contract-observation",
+      "manual-proxy-contract-probe",
+      "guarded-identity-secret-provisioning",
+      "explicit-activation-with-proxy-and-secret-preflight",
+      "production-trial-e2e-on-activation",
+      "automatic-ugmu-gate-rollback-on-activation-failure",
+      "explicit-ugmu-trial-deactivation"
+    ]
+  },
+  "activation": {
+    "allowedNow": false,
+    "productionFlagMutationAllowedByThisPlan": false,
+    "automaticActivationAllowed": false,
+    "explicitDecisionRequired": true,
+    "blockers": [
+      "anti-abuse-proxy-contract-not-verified",
+      "trial-identity-hmac-secret-not-provisioned-in-production",
+      "ugmu-trial-production-e2e-not-completed",
+      "explicit-trial-activation-decision-not-given"
+    ]
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "trialSubscriptionCreated": false,
+    "paymentCreationAllowed": false,
+    "publicScheduleAllowed": false,
+    "publicIcsAllowed": false,
+    "scopeExpansionAllowed": false,
+    "globalTrialsActivationAllowed": false,
+    "globalSalesMutationAllowed": false
+  },
+  "nextRequiredBoundary": "deploy-branch-then-proxy-probe-secret-provision-and-explicit-activation"
+}

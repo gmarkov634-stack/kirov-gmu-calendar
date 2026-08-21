@@ -1,6 +1,7 @@
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
+import { trialIdentityFingerprint } from "./trial-identity.js";
 import { projectTrialSchedule } from "./trial-projection.js";
 
 const TOKEN = /^[A-Za-z0-9_-]{43}$/;
@@ -127,12 +128,14 @@ export function createTrialHttpHandler({ store, config, trials }) {
     if (isCreate && request.method === "POST") {
       try {
         const input = await readJson(request);
-        const result = await trials.create(input);
+        const result = await trials.create(input, {
+          identityHash: trialIdentityFingerprint(request, config.trialIdentityHmacSecret),
+        });
         send(response, 201, result);
       } catch (error) {
         if (["invalid_json", "request_too_large"].includes(error.message)) send(response, 400, { error: error.message });
         else if (error.code === "invalid_trial_context") send(response, 400, { error: error.code });
-        else if (["trials_not_open", "university_trials_not_open", "trial_window_closed"].includes(error.code)) send(response, 409, { error: error.code });
+        else if (["trials_not_open", "university_trials_not_open", "trial_window_closed", "trial_already_claimed"].includes(error.code)) send(response, 409, { error: error.code });
         else if (["offer_not_found", "trial_not_ready"].includes(error.code)) send(response, 409, { error: error.code });
         else {
           console.error(error);
