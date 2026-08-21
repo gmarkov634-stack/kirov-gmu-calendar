@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = push ]; then mode=prelaunch; source="$INITIAL_SOURCE_SHA"; else mode='${{ inputs.mode }}'; source='${{ inputs.source_sha }}'; fi
+          if [ "${{ github.event_name }}" = push ]; then mode=launch; source="$INITIAL_SOURCE_SHA"; else mode='${{ inputs.mode }}'; source='${{ inputs.source_sha }}'; fi
           test "$mode" = prelaunch -o "$mode" = launch
           [[ "$source" =~ ^[0-9a-f]{40}$ ]]
           echo "mode=$mode" >> "$GITHUB_OUTPUT"; echo "source=$source" >> "$GITHUB_OUTPUT"
