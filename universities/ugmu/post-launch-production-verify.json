@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "kind": "ugmu-post-launch-production-verify",
+  "boundary": "post-launch-production-verification",
+  "authorizedBranch": "agent/ugmu-scaffold-20260820",
+  "preparedWorkflowHead": "fdb86b844816a58014ee11eed757cf1765854de3",
+  "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+  "expectedImage": "kgmu-calendar-api.cr.cloud.ru/api@sha256:1eb443926c40e705ee8d758d8479552576deb735d54fe86a18ec300895929829",
+  "groups": ["ОЛД 101", "ОЛД 102", "ОЛД 103", "ОЛД 104", "ОЛД 105", "ОЛД 106", "ОЛД 107", "ОЛД 108", "ОЛД 109", "ОЛД 110", "ОЛД 111", "ОЛД 112"],
+  "userAuthorization": "Далее",
+  "readOnly": true,
+  "paymentCreationAllowed": false,
+  "productionMutationAllowed": false
+}
