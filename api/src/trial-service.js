@@ -137,27 +137,13 @@ export class TrialService {
       plan: "semester",
     });
     const actual = assertOfferSchedule(schedule, requested, this.config);
-    const now = this.now();
-    const windowState = actual.university === "ugmu"
-      ? trialWindowFromSchedule(schedule, { activationAt: now, timezone: actual.timezone })
-      : trialWindowFromSchedule(schedule);
-    if (!windowState) throw fail("trial_not_ready");
-    if (actual.university === "ugmu") {
-      if (windowState.trialWindowClosed) throw fail("trial_window_closed");
-      if (!Number.isInteger(windowState.scheduleEventCount) || windowState.scheduleEventCount < 1) {
-        throw fail("trial_schedule_unavailable");
-      }
-    } else if (localDate(now, actual.timezone) >= windowState.trialEndDateExclusive) {
-      throw fail("trial_window_closed");
-    }
-    const window = {
-      trialStartDate: windowState.trialStartDate,
-      trialEndDateExclusive: windowState.trialEndDateExclusive,
-    };
+    const window = trialWindowFromSchedule(schedule);
+    if (!window) throw fail("trial_not_ready");
+    if (localDate(this.now(), actual.timezone) >= window.trialEndDateExclusive) throw fail("trial_window_closed");
 
     const token = randomId();
     const conversionId = randomId();
-    const createdAt = now.toISOString();
+    const createdAt = this.now().toISOString();
     const expiresAt = semesterEndFromSchedule(schedule);
     const attribution = safeAttribution(input);
 
