@@ -4,10 +4,10 @@ import test from "node:test";
 
 const plan = JSON.parse(fs.readFileSync(new URL("../../universities/ugmu/trial-access-plan.json", import.meta.url), "utf8"));
 
-test("UGMU trial landing and deploy review remain branch-only and fail-closed", () => {
-  assert.equal(plan.version, 4);
+test("UGMU trial deploy safety remains branch-only and fail-closed", () => {
+  assert.equal(plan.version, 5);
   assert.equal(plan.kind, "ugmu-trial-access-plan");
-  assert.equal(plan.boundary, "ugmu-trial-landing-ux-and-deploy-safety-review");
+  assert.equal(plan.boundary, "ugmu-trial-deploy-safety-complete");
   assert.equal(plan.status, "IMPLEMENTED_BRANCH_ONLY_NOT_ACTIVATION_READY");
 
   assert.deepEqual(plan.scope.groups, Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`));
@@ -46,12 +46,10 @@ test("UGMU trial landing and deploy review remain branch-only and fail-closed", 
   assert.equal(plan.deploymentSafety.reviewed, true);
   assert.equal(plan.deploymentSafety.workflow, ".github/workflows/deploy-api-cloudru.yml");
   assert.equal(plan.deploymentSafety.globalTrialsGateAssertedClosed, true);
-  assert.equal(plan.deploymentSafety.ugmuTrialsGateAssertedClosed, false);
-  assert.equal(plan.deploymentSafety.productionMetaCanProveUgmuGateClosed, false);
-  assert.equal(
-    plan.deploymentSafety.requiredFix,
-    "add-UGMU_TRIALS_ENABLED-to-pre-and-post-deploy-closed-gate-assertions-and-ugmu-specific-production-smoke",
-  );
+  assert.equal(plan.deploymentSafety.ugmuTrialsGateAssertedClosed, true);
+  assert.equal(plan.deploymentSafety.productionMetaCanProveUgmuGateClosed, true);
+  assert.equal(plan.deploymentSafety.ugmuSpecificClosedGateSmoke, true);
+  assert.equal(plan.deploymentSafety.requiredFix, null);
 
   assert.equal(plan.antiAbuse.policyFinalized, false);
   assert.equal(plan.antiAbuse.identity.method, "HMAC-SHA256");
@@ -61,22 +59,20 @@ test("UGMU trial landing and deploy review remain branch-only and fail-closed", 
   assert.equal(plan.antiAbuse.claim.s3AtomicCreate, "If-None-Match:*");
   assert.ok(plan.antiAbuse.limitations.includes("cloudru-container-apps-forwarded-client-address-contract-not-verified"));
 
-  assert.equal(plan.verification.landingApiTestsRunId, 32499805855);
-  assert.equal(plan.verification.landingApiTestsConclusion, "success");
-  assert.equal(plan.verification.landingAndUiApiTestsRunId, 32500088599);
-  assert.equal(plan.verification.landingAndUiApiTestsConclusion, "success");
-  assert.equal(plan.verification.landingAndUiAllPrChecksConclusion, "success");
-  assert.ok(plan.verification.coverage.includes("ugmu-landing-payment-independent-trial-entry-point"));
-  assert.ok(plan.verification.coverage.includes("ugmu-landing-no-legacy-meta-trials-gate"));
-  assert.ok(plan.verification.coverage.includes("ugmu-trial-to-paid-conversion-context"));
-  assert.ok(plan.verification.coverage.includes("ugmu-deployment-gate-review"));
+  assert.equal(plan.verification.deploySafetyApiTestsRunId, 32501035002);
+  assert.equal(plan.verification.deploySafetyApiTestsConclusion, "success");
+  assert.equal(plan.verification.deploySafetyProductionSmokeRunId, 32501035001);
+  assert.equal(plan.verification.deploySafetyProductionSmokeConclusion, "success");
+  assert.equal(plan.verification.deploySafetyAllPrChecksConclusion, "success");
+  assert.ok(plan.verification.coverage.includes("ugmu-deploy-pre-post-closed-gate-assertions"));
+  assert.ok(plan.verification.coverage.includes("ugmu-meta-dedicated-trial-state"));
+  assert.ok(plan.verification.coverage.includes("ugmu-specific-closed-gate-production-smoke"));
 
   assert.equal(plan.activation.allowedNow, false);
   assert.equal(plan.activation.productionFlagMutationAllowedByThisPlan, false);
   assert.equal(plan.activation.automaticActivationAllowed, false);
   assert.equal(plan.activation.explicitDecisionRequired, true);
   assert.deepEqual(plan.activation.blockers, [
-    "production-deploy-guard-does-not-enforce-ugmu-trials-closed",
     "anti-abuse-proxy-contract-not-verified",
     "trial-identity-hmac-secret-not-provisioned-in-production",
     "ugmu-trial-production-e2e-not-completed",
@@ -84,5 +80,5 @@ test("UGMU trial landing and deploy review remain branch-only and fail-closed", 
   ]);
 
   for (const value of Object.values(plan.safety)) assert.equal(value, false);
-  assert.equal(plan.nextRequiredBoundary, "ugmu-trial-deploy-guard-proxy-contract-and-production-e2e");
+  assert.equal(plan.nextRequiredBoundary, "ugmu-trial-proxy-contract-secret-and-production-e2e");
 });
