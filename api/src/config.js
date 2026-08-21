@@ -47,9 +47,9 @@ export function loadConfig(env = process.env) {
       // IzhGMU is intentionally not provisionable for paid redirects in stage I.
       // Opening this requires a separate launch change after current-source E2E.
       izhgmu: "",
-      // UGMU starts fail-closed. A paid redirect is enabled only by a separate
-      // launch change after source, parser, QA and production readiness gates.
-      ugmu: "",
+      // UGMU return URLs remain fail-closed unless the dedicated tenant sales
+      // gate is explicitly open. A global sales flag can never provision it.
+      ugmu: ugmuSalesEnabled ? (env.UGMU_SITE_URL || "") : "",
       pgmu: env.PGMU_SITE_URL || "",
     },
     // Every registered tenant now has an explicit checkout policy. This lets
@@ -110,7 +110,7 @@ export function loadConfig(env = process.env) {
     kgmuParserRevision: env.KGMU_PARSER_REVISION || "g20-reviewed-json-v1",
     kgmuMedicineSchedulePage: env.KGMU_MEDICINE_SCHEDULE_PAGE || "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
     kgmuPediatricsSchedulePage: env.KGMU_PEDIATRICS_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
-    kgmuDentistrySchedulePage: env.KGMU_DENTISTRY_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+    kgmuDentistrySchedulePage: env.KGMU_DENTISTRY_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-stomatologicheskogo-fakulteta",
     kgmuForeignSchedulePage: env.KGMU_FOREIGN_SCHEDULE_PAGE || "https://kirovgma.ru/raspisanie-fakultet-inostrannyh-obuchayushchihsya",
     omgmuWatchEnabled: env.OMGMU_WATCH_ENABLED === "true",
     omgmuWatchIntervalMs: Math.max(60000, Number(env.OMGMU_WATCH_INTERVAL_MS || 900000)),
