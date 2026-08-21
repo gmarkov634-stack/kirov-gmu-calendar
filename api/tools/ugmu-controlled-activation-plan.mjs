@@ -34,30 +34,30 @@ function check(name, passed, detail) {
 }
 
 const closedConfig = loadConfig({});
-const globalOnlyConfig = loadConfig({ COMMERCIAL_SALES_ENABLED: "true" });
-const ugmuOnlyConfig = loadConfig({ UGMU_SALES_ENABLED: "true" });
-const stageBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "stage-first-stream-production-schedules");
-const salesBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "isolate-global-sales-gate");
-const landingBlock = plan.mandatoryPreactivationBlocks?.find((item) => item.id === "wire-live-ugmu-landing");
+const globalOnlyConfig = loadConfig({ COMMERCIAL_SALES_ENABLED: "true", UGMU_SITE_URL: "https://ugmu.example.test/" });
+const ugmuOnlyConfig = loadConfig({ UGMU_SALES_ENABLED: "true", UGMU_SITE_URL: "https://ugmu.example.test/" });
+const blocks = Object.fromEntries((plan.mandatoryPreactivationBlocks || []).map((item) => [item.id, item]));
 
 check("scopeFrozen",
-  plan.university === "ugmu"
-    && plan.scope?.sourceSha256 === expectedSha
-    && JSON.stringify(plan.scope?.groups) === JSON.stringify(expectedGroups),
+  plan.university === "ugmu" && plan.scope?.sourceSha256 === expectedSha && JSON.stringify(plan.scope?.groups) === JSON.stringify(expectedGroups),
   `groups=${plan.scope?.groups?.length}; sha=${plan.scope?.sourceSha256}`,
 );
-check("planHasNoLaunchAuthority",
+check("planAuthorityExplicitAndNonAutomatic",
   plan.authority?.automaticActivationAllowed === false
     && plan.authority?.activationPerformedByPlan === false
     && plan.authority?.productionMutationAllowedByPlan === false
-    && plan.authority?.requiresExplicitLaunchAuthorization === true,
+    && plan.authority?.requiresExplicitLaunchAuthorization === true
+    && plan.authority?.explicitLaunchAuthorizationReceived === true
+    && plan.authority?.authorizationCommand === "Далее",
   JSON.stringify(plan.authority),
 );
-check("currentRegistryFailClosed",
-  registry.includes('id: "ugmu"') && registry.includes('sitePath: "/ugmu/"') && /ugmu:[\s\S]*?active:\s*false/.test(registry),
-  "UGMU registry active=false",
+check("registryRuntimeOptIn",
+  registry.includes('id: "ugmu"')
+    && registry.includes('sitePath: "/ugmu/"')
+    && registry.includes('active: process.env.UGMU_ACTIVE === "true"'),
+  "UGMU stays inactive by default and requires exact UGMU_ACTIVE=true at runtime",
 );
-check("currentApiFailClosed",
+check("defaultRuntimeFailClosed",
   closedConfig.universityAccess?.ugmu?.apiRoutingEnabled === true
     && closedConfig.universityAccess?.ugmu?.publicEndpointsEnabled === false
     && closedConfig.universityAccess?.ugmu?.checkoutEnabled === false
@@ -66,71 +66,70 @@ check("currentApiFailClosed",
     && closedConfig.commercialSalesEnabled === false,
   "default runtime: routing=true; public=false; checkout=false; trials=false; paid URL blank; sales closed",
 );
-check("dedicatedSalesIsolationDeployed",
+check("dedicatedSalesIsolation",
   app.includes('if (salesState(config) !== "open")')
     && app.includes('universityCapability(config, context.university, "checkoutEnabled")')
     && globalOnlyConfig.universityAccess?.ugmu?.checkoutEnabled === false
+    && globalOnlyConfig.universitySiteUrls?.ugmu === ""
     && ugmuOnlyConfig.universityAccess?.ugmu?.checkoutEnabled === true
     && ugmuOnlyConfig.universityAccess?.kgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.omgmu?.checkoutEnabled === false
     && ugmuOnlyConfig.universityAccess?.izhgmu?.checkoutEnabled === false
-    && salesBlock?.state === "completed"
-    && String(salesBlock?.completion || "").includes("32424944030"),
-  "dedicated UGMU sales isolation is code-complete and recorded as deployed fail-closed",
+    && ugmuOnlyConfig.universitySiteUrls?.ugmu === "https://ugmu.example.test/"
+    && blocks["isolate-global-sales-gate"]?.state === "completed",
+  "dedicated UGMU flag controls both tenant checkout and paid return URL without opening non-target tenants",
 );
-check("landingLiveCheckoutPrepared",
-  landingConfig.includes('apiBaseUrl: "https://')
-    && landingConfig.includes('paymentPath: "/api/v2/payments"')
+check("landingPreparedRuntimeGated",
+  landingConfig.includes('paymentPath: "/api/v2/payments"')
     && landingConfig.includes('defaultPlan: "semester"')
     && !landingConfig.includes("previewOnly")
     && !landingConfig.includes("checkoutEnabled")
     && !landingConfig.includes("publicIcsEnabled")
     && landingApp.includes('/api/v2/meta')
-    && landingApp.includes('config.paymentPath')
     && landingApp.includes('runtime.sales === "open"')
     && landingApp.includes('runtime.paymentMode === "live"')
-    && landingApp.includes('confirmationUrl')
     && landingApp.includes('order.subscriptionUrl')
     && !landingApp.includes('/api/v2/catalog/ugmu')
     && !landingApp.includes('/api/v2/schedules/ugmu')
     && landingHtml.includes('type="submit" disabled')
     && landingHtml.includes('name="robots" content="noindex,follow"')
-    && landingBlock?.state === "completed",
-  "live checkout is prepared in code, starts fail-closed, remains noindex and does not depend on public UGMU catalog/schedule routes",
+    && blocks["wire-live-ugmu-landing"]?.state === "completed",
+  "source landing remains rollback-ready/noindex while launch deployment may transform its production copy after backend smoke",
 );
 check("firstStreamProductionStagingRecorded",
   publicationPackage.includes("fail-closed to ОЛД 101")
-    && stageBlock?.state === "completed"
-    && String(stageBlock?.completion || "").includes("32421951498")
-    && String(stageBlock?.completion || "").includes("32421951401"),
-  "12-group production staging and independent read-back are recorded as completed prerequisites",
+    && blocks["stage-first-stream-production-schedules"]?.state === "completed"
+    && String(blocks["stage-first-stream-production-schedules"]?.completion || "").includes("32421951498")
+    && String(blocks["stage-first-stream-production-schedules"]?.completion || "").includes("32421951401"),
+  "12-group production staging and independent read-back are recorded",
 );
-check("publicIcsStaysClosedAtLaunch",
+check("liveYooKassaReadinessRecorded",
+  blocks["validate-live-yookassa-mode"]?.state === "completed"
+    && String(blocks["validate-live-yookassa-mode"]?.completion || "").includes("32433470703"),
+  "Step 27 live provider proof is completed without a diagnostic payment",
+);
+check("publicIcsAndTrialsStayClosedAtLaunch",
   plan.launchTarget?.publicEndpointsEnabled === false
     && plan.launchTarget?.publicIcsEnabled === false
-    && plan.launchTarget?.trialsEnabled === false,
-  "paid tokenized subscription launch does not expose free public schedule/ICS or trials",
+    && plan.launchTarget?.trialsEnabled === false
+    && plan.launchTarget?.paymentMode === "live",
+  "paid launch does not expose free public schedule/ICS or trials",
 );
 check("rollbackClosesAccessBeforeData",
   plan.rollback?.strategy === "close-access-first-keep-data-inert"
     && plan.rollback?.dataDeletionRequired === false
     && Array.isArray(plan.rollback?.order)
-    && plan.rollback.order.length >= 5
-    && plan.rollback.order[0].includes("UGMU_SALES_ENABLED=false"),
+    && plan.rollback.order[0]?.includes("UGMU_SALES_ENABLED=false"),
   `rollbackSteps=${plan.rollback?.order?.length}; dataDeletionRequired=${plan.rollback?.dataDeletionRequired}`,
 );
 
 const allBlocks = Array.isArray(plan.mandatoryPreactivationBlocks) ? plan.mandatoryPreactivationBlocks : [];
-const blockers = allBlocks
-  .filter((item) => item.state !== "completed")
-  .map((item) => ({ id: item.id, state: item.state, completion: item.completion }));
-const completedBlocks = allBlocks
-  .filter((item) => item.state === "completed")
-  .map((item) => ({ id: item.id, state: item.state, completion: item.completion }));
+const blockers = allBlocks.filter((item) => item.state !== "completed").map(({ id, state, completion }) => ({ id, state, completion }));
+const completedBlocks = allBlocks.filter((item) => item.state === "completed").map(({ id, state, completion }) => ({ id, state, completion }));
 const planValid = errors.length === 0;
-const executableNow = planValid && blockers.length === 0;
+const executableNow = planValid && blockers.length === 0 && plan.nextRequiredBoundary === "controlled-launch-activation";
 const report = {
-  version: 2,
+  version: 3,
   university: "ugmu",
   mode: "controlled-activation-plan-evidence-only",
   generatedAt: new Date().toISOString(),
