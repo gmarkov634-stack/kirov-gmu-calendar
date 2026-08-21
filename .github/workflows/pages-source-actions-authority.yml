@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   pages: write
+  issues: write
 
 concurrency:
   group: medical-calendar-pages-source-authority
@@ -21,6 +22,7 @@ jobs:
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
+      RESULT_ISSUE_TITLE: "[UGMU OPS] Pages source authority migration"
     steps:
       - name: Read current Pages source
         id: before
@@ -59,3 +61,21 @@ jobs:
           done
           cat /tmp/pages-after.json
           exit 2
+
+      - name: Record source-authority result
+        if: always()
+        env:
+          STEP_RESULT: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          issue="$(gh issue list --repo "$GITHUB_REPOSITORY" --state all --search "\"$RESULT_ISSUE_TITLE\" in:title" --json number,title --limit 20 | jq -r --arg t "$RESULT_ISSUE_TITLE" '.[]|select(.title==$t)|.number' | head -n1)"
+          body="Pages source-authority run https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID for main SHA $GITHUB_SHA. Result: $STEP_RESULT."
+          if [ -z "$issue" ]; then
+            issue="$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$RESULT_ISSUE_TITLE" --body "$body" | sed 's#.*/##')"
+          else
+            gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "$body"
+          fi
+          if [ "$STEP_RESULT" = "success" ]; then
+            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "GitHub Pages source authority is workflow."
+          fi
