@@ -15,7 +15,7 @@ test("UGMU Pages v2 publishes the canonical trial landing", () => {
   assert.match(pagesV2, /source="\$GITHUB_SHA"/);
   assert.match(pagesV2, /meta\.universityTrials\?\.ugmu === "open"/);
   assert.match(pagesV2, /\/api\/v2\/trials/);
-  assert.match(pagesV2, /id=\\"trial-start\\"/);
+  assert.match(pagesV2, /id="trial-start"/);
   assert.match(pagesV2, /trial-ui=present/);
 });
 
