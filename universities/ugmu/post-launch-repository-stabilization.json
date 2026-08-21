@@ -2,7 +2,7 @@
   "version": 2,
   "kind": "ugmu-post-launch-repository-stabilization",
   "boundary": "post-launch-repository-and-pr-stabilization",
-  "status": "ACTIVE",
+  "status": "PASS",
   "effectiveDate": "2026-08-21",
   "productionScopeChangeAllowed": false,
   "livePaymentCanary": {
@@ -21,10 +21,11 @@
     "mergeBaseNow": "c6aaf1913ad4cd5a2d105967af3977335c4620b8",
     "mainHead": "c6aaf1913ad4cd5a2d105967af3977335c4620b8",
     "mainMergedIntoFeatureCommit": "f78657bd7064c9e7b3ae8d0613eb49023a53854a",
-    "currentBranchHead": "f09613c767385b509105bb193b8c81d9b635ce36",
-    "behindMainNow": 0,
-    "branchOnlyCommitsNow": 249,
-    "changedFilesNow": 112
+    "currentBranchHeadAtCiVerification": "41fb0528835ba7735e9b8ef8683497c807f42a9e",
+    "behindMainAtCiVerification": 0,
+    "branchOnlyCommitsAtCiVerification": 255,
+    "changedFilesAtCiVerification": 114,
+    "technicalStabilizationPassed": true
   },
   "mainAuthorityPreserved": {
     "sharedPagesWorkflowExactMainBlob": "9d7bb53099b838a5a9267800e2985b46f07f2f89",
@@ -38,25 +39,57 @@
     "historicalObserversRemoved": 15,
     "oneShotLaunchTestWindowAndDiagnosticsRemoved": 21,
     "totalWorkflowFilesRemovedFromMergeCandidate": 36,
-    "retiredStep29ManualOnlyStubsPreserved": true
+    "retiredStep29ManualOnlyStubsPreserved": true,
+    "temporaryApiTestDiagnosticRemoved": true
+  },
+  "resolvedCiBlockers": {
+    "storageReadbackPostLaunchGetOnlyCommit": "16cac4e0e32a38b3fec7001b6e056d414a55cd64",
+    "apiRegressionAlignmentCommit": "41fb0528835ba7735e9b8ef8683497c807f42a9e",
+    "apiDiagnosticRun": 32485510511,
+    "apiDiagnosticFailedTests": 3,
+    "apiDiagnosticTotalTests": 694,
+    "storageReadbackNoLongerPostsPayments": true
   },
   "currentCi": {
-    "head": "f09613c767385b509105bb193b8c81d9b635ce36",
+    "head": "41fb0528835ba7735e9b8ef8683497c807f42a9e",
     "meaningfulWorkflowCount": 17,
-    "failuresAtLastRead": 0,
-    "stateAtLastRead": "in-progress",
-    "historicalObserverFailuresEliminated": true
+    "failuresAtFinalRead": 0,
+    "stateAtFinalRead": "completed-success",
+    "allMeaningfulWorkflowsPassed": true,
+    "historicalObserverFailuresEliminated": true,
+    "runs": {
+      "apiTests": 32485846660,
+      "productionStorageReadback": 32485846578,
+      "postLaunchProductionSmoke": 32485846650,
+      "postLaunchOperationalMonitorObserve": 32485846596,
+      "firstStreamQa": 32485846641,
+      "structuralLaunchReadiness": 32485846584,
+      "preactivationProductionDryRun": 32485846637,
+      "paymentE2e": 32485846683,
+      "purchasedCalendarUpdateE2e": 32485846707,
+      "subscriptionRevokeE2e": 32485846691,
+      "crossUniversityHistoricalRegression": 32485846749,
+      "ugmuSourceWatch": 32485846726,
+      "izhGmuHistoricalRegression": 32485846674,
+      "izhGmuCommercialBoundary": 32485846795,
+      "omgmuHistoricalRegression": 32485846702,
+      "omgmuStructuralLaunchReadiness": 32485846731,
+      "omgmuSourceWatch": 32485846636
+    }
   },
-  "requiredBeforeMergeCandidate": [
-    "complete-current-pr-ci",
-    "classify-and-fix-any-current-head-failures",
+  "completedForStabilization": [
+    "merge-current-main-into-feature",
+    "preserve-post-launch-main-authority",
+    "remove-historical-observer-and-one-shot-workflow-debt",
+    "preserve-eight-retired-step29-manual-only-stubs",
+    "make-production-storage-readback-post-launch-get-only",
+    "align-stale-regression-tests-with-preserved-post-launch-authority",
     "confirm-post-launch-production-smoke-pass",
     "confirm-production-storage-read-back-pass",
     "confirm-cross-university-regression-pass",
     "confirm-api-tests-pass",
     "confirm-public-schedule-public-ics-trials-remain-closed",
-    "confirm-global-commercial-sales-remains-false",
-    "update-pr-description-to-final-stabilized-state"
+    "confirm-global-commercial-sales-remains-false"
   ],
   "safety": {
     "mergeNowAllowed": false,
@@ -68,5 +101,5 @@
     "globalSalesChangeAllowed": false,
     "productionMutationAllowed": false
   },
-  "nextRequiredSubBoundary": "current-pr-ci-green"
+  "nextRequiredSubBoundary": "explicit-merge-decision"
 }
