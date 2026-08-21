@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { accessObservation } from "./access-monitor.js";
 import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
+import { proxyContractObservation } from "./proxy-contract-observation.js";
 import { effectiveSubscriptionEnd } from "./subscription-period.js";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
@@ -273,6 +274,12 @@ export function createHandler({ store, config, payments }) {
         paymentMode: paymentMode(config),
         offers: publicOfferPrices(config),
       }, "application/json; charset=utf-8", "no-store");
+    }
+
+    if (url.pathname === "/api/v1/admin/proxy-contract") {
+      if (!config.adminToken || config.adminToken.length < 32) return send(response, 503, { error: "admin_not_configured" });
+      if (!adminAllowed(request, config)) return send(response, 403, { error: "admin_forbidden" });
+      return send(response, 200, proxyContractObservation(request), "application/json; charset=utf-8", "no-store");
     }
 
     if (url.pathname === "/api/v1/admin/subscriptions") {
