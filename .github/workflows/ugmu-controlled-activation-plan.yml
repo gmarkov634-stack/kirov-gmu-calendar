@@ -65,22 +65,21 @@ jobs:
           npm run plan:ugmu:activation
           jq -e '
             .planValid == true and
-            .executableNow == false and
-            .status == "PREACTIVATION_WORK_REQUIRED" and
+            .executableNow == true and
+            .status == "READY_FOR_EXPLICIT_CONTROLLED_ACTIVATION" and
             .activationPerformed == false and
             .productionMutationPerformed == false and
             .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
-            .blockerCount == 1 and
-            (.completedBlocks | length) == 3 and
-            ([.completedBlocks[].id] | sort) == ["isolate-global-sales-gate","stage-first-stream-production-schedules","wire-live-ugmu-landing"] and
-            .blockers[0].id == "validate-live-yookassa-mode" and
+            .blockerCount == 0 and
+            (.completedBlocks | length) == 4 and
+            ([.completedBlocks[].id] | sort) == ["isolate-global-sales-gate","stage-first-stream-production-schedules","validate-live-yookassa-mode","wire-live-ugmu-landing"] and
             .launchTarget.productionSchedulesRequired == 12 and
             .launchTarget.checkoutEnabled == true and
             .launchTarget.publicEndpointsEnabled == false and
             .launchTarget.publicIcsEnabled == false and
             .launchTarget.trialsEnabled == false and
             .launchTarget.paymentMode == "live" and
-            .nextRequiredBoundary == "validate-live-yookassa-mode" and
+            .nextRequiredBoundary == "controlled-launch-activation" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-controlled-activation-plan-report.json >/dev/null
 
@@ -100,8 +99,6 @@ jobs:
           console.log(`Remaining preactivation blocks: **${report.blockerCount}**`);
           console.log('Activation / production mutation performed: **no**');
           console.log(`Next boundary: **${report.nextRequiredBoundary}**`);
-          console.log('');
-          for (const blocker of report.blockers || []) console.log(`- ${blocker.id}: ${blocker.state}`);
           NODE
 
       - name: Upload activation-plan evidence
