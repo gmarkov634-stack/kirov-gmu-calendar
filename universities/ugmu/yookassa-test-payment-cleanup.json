@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "kind": "ugmu-yookassa-test-payment-cleanup",
+  "boundary": "temporary-yookassa-test-window",
+  "authorizedBranch": "agent/ugmu-scaffold-20260820",
+  "preparedWorkflowHead": "3ee484d118b94511cac9cb8fd4192d58e287835d",
+  "testShopId": "1259975",
+  "userAuthorization": "Оплатил",
+  "verifyWebhookFulfillment": true,
+  "revokeTestSubscription": true,
+  "restoreLiveInThisRun": false
+}
