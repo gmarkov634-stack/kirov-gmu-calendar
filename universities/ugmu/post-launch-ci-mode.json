@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "ugmu-post-launch-ci-mode",
+  "boundary": "post-launch-ci-mode-transition",
+  "status": "ACTIVE",
+  "effectiveDate": "2026-08-21",
+  "productionInvariants": {
+    "globalSalesEnabled": false,
+    "ugmuSalesEnabled": true,
+    "ugmuActive": true,
+    "trialsEnabled": false,
+    "yookassaTestMode": false,
+    "paymentMode": "live",
+    "publicScheduleEnabled": false,
+    "publicIcsEnabled": false
+  },
+  "currentProductionSignal": {
+    "workflow": ".github/workflows/ugmu-cloudru-production-smoke.yml",
+    "mode": "post-launch-production-read-only",
+    "paymentCreationAllowed": false,
+    "productionMutationAllowed": false
+  },
+  "retiredPrelaunchWorkflows": [
+    ".github/workflows/ugmu-final-launch-readiness.yml",
+    ".github/workflows/ugmu-controlled-activation-plan.yml",
+    ".github/workflows/ugmu-yookassa-live-readiness.yml",
+    ".github/workflows/ugmu-rollback-state-verify.yml",
+    ".github/workflows/ugmu-sales-isolation.yml",
+    ".github/workflows/ugmu-cloud-env-secret-shape.yml",
+    ".github/workflows/ugmu-yookassa-runtime-secret-verify.yml",
+    ".github/workflows/ugmu-yookassa-auth-diagnostic.yml"
+  ],
+  "evidence": {
+    "firstPassingPostLaunchSmokeRun": 32468965673,
+    "liveShopId": "1258890",
+    "temporaryTestWindowClosed": true,
+    "productionMutationPerformedByTransition": false,
+    "paymentCreatedByTransition": false
+  },
+  "scopeGuards": {
+    "globalCommercialSalesRemainClosed": true,
+    "publicUgmuScheduleRemainsClosed": true,
+    "publicUgmuIcsRemainsClosed": true,
+    "trialsRemainClosed": true,
+    "scopeExpansionPerformed": false
+  },
+  "nextRequiredBoundary": "post-launch-operational-monitoring"
+}

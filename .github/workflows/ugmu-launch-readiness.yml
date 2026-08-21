@@ -1,0 +1,226 @@
+name: UGMU structural launch readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/src/adapters/ugmu/**"
+      - "api/src/schedule/**"
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/university-store.js"
+      - "api/src/universities/**"
+      - "api/test/ugmu-*.test.js"
+      - "api/test/shared-config.test.js"
+      - "api/test/university-registry.test.js"
+      - "api/test/fixtures/ugmu/**"
+      - "api/tools/ugmu-*.mjs"
+      - "api/tools/ugmu-*.py"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/package.json"
+      - "universities/ugmu/**"
+      - "site/ugmu/**"
+      - ".github/workflows/ugmu-source-watch.yml"
+      - ".github/workflows/ugmu-first-stream-qa.yml"
+      - ".github/workflows/ugmu-launch-readiness.yml"
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/**"
+      - "api/src/schedule/**"
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/university-store.js"
+      - "api/src/universities/**"
+      - "api/test/ugmu-*.test.js"
+      - "api/test/shared-config.test.js"
+      - "api/test/university-registry.test.js"
+      - "api/test/fixtures/ugmu/**"
+      - "api/tools/ugmu-*.mjs"
+      - "api/tools/ugmu-*.py"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/package.json"
+      - "universities/ugmu/**"
+      - "site/ugmu/**"
+      - ".github/workflows/ugmu-source-watch.yml"
+      - ".github/workflows/ugmu-first-stream-qa.yml"
+      - ".github/workflows/ugmu-launch-readiness.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Test UGMU structural contracts
+        run: |
+          node --test \
+            test/ugmu-source-registry.test.js \
+            test/ugmu-discover.test.js \
+            test/ugmu-download.test.js \
+            test/ugmu-source-watch.test.js \
+            test/ugmu-canonical-pilot.test.js \
+            test/ugmu-publication-package.test.js \
+            test/ugmu-api-routing.test.js \
+            test/ugmu-live-checkout-ui.test.js \
+            test/university-registry.test.js \
+            test/shared-config.test.js
+          python3 tools/ugmu-parse-weekly-pdf.py --self-test
+          python3 tools/ugmu-parse-first-stream-pdf.py --self-test
+
+      - name: Discover and capture exact official source
+        run: |
+          set -euo pipefail
+          mkdir -p data/imports/ugmu-readiness
+          npm run discover:ugmu -- \
+            --program=medicine \
+            --output=data/imports/ugmu-readiness/source-manifest.json
+          npm run download:ugmu -- \
+            --manifest=data/imports/ugmu-readiness/source-manifest.json \
+            --semester=autumn \
+            --output=data/imports/ugmu-readiness/watched-pdfs
+          npm run watch:ugmu -- \
+            --manifest=data/imports/ugmu-readiness/source-manifest.json \
+            --download=data/imports/ugmu-readiness/watched-pdfs/download-report.json \
+            --config=../universities/ugmu/source-watch.json \
+            --output=data/imports/ugmu-readiness/source-watch-report.json
+
+      - name: Parse OLD 101-112 from exact first-stream PDF
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-readiness/watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8"
+          mkdir -p data/imports/ugmu-readiness/raw
+          for number in $(seq 101 112); do
+            npm run parse:ugmu:first-stream -- \
+              --input="data/imports/ugmu-readiness/watched-pdfs/$filename" \
+              --group="ОЛД $number" \
+              --source="$source_url" \
+              --sha256="$sha" \
+              --output="data/imports/ugmu-readiness/raw/OLD-$number.json"
+          done
+
+      - name: Run first-stream QA and regression fixtures
+        run: |
+          set -euo pipefail
+          npm run qa:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-readiness/raw \
+            --output-dir=data/imports/ugmu-readiness/qa
+          npm run regression:ugmu:first-stream -- \
+            --input-dir=data/imports/ugmu-readiness/raw \
+            --fixture=test/fixtures/ugmu/first-stream-2026-autumn.json \
+            --output=data/imports/ugmu-readiness/regression/first-stream-regression.json
+
+      - name: Run structural readiness gate
+        env:
+          UGMU_SOURCE_WATCH_REPORT: data/imports/ugmu-readiness/source-watch-report.json
+          UGMU_FIRST_STREAM_QA_REPORT: data/imports/ugmu-readiness/qa/first-stream-qa.json
+          UGMU_FIRST_STREAM_REGRESSION_REPORT: data/imports/ugmu-readiness/regression/first-stream-regression.json
+          UGMU_FIRST_STREAM_FIXTURE: test/fixtures/ugmu/first-stream-2026-autumn.json
+          UGMU_SOURCE_WATCH_CONFIG: ../universities/ugmu/source-watch.json
+          UGMU_LAUNCH_READINESS_REPORT: data/regression/ugmu-launch-readiness-report.json
+        run: |
+          set -euo pipefail
+          npm run readiness:ugmu
+          jq -e '
+            .structuralReady == true and
+            .status == "STRUCTURALLY_READY_FIRST_STREAM_FAIL_CLOSED" and
+            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .apiState.universityId == "ugmu" and
+            .apiState.routingEnabled == true and
+            .apiState.publicEndpointsEnabled == false and
+            .apiState.checkoutEnabled == false and
+            .apiState.trialsEnabled == false and
+            .siteState.path == "/ugmu/" and
+            .siteState.liveCheckoutPrepared == true and
+            .siteState.deployedByThisGate == false and
+            .siteState.groupsPrepared == 12 and
+            .siteState.startsDisabled == true and
+            .siteState.requiresLivePaymentMode == true and
+            .siteState.searchIndexingEnabled == false and
+            .launchAuthority.publicationAllowedByThisGate == false and
+            .launchAuthority.salesAllowedByThisGate == false and
+            .launchAuthority.trialsAllowedByThisGate == false and
+            .launchAuthority.catalogVisibilityAllowedByThisGate == false and
+            .launchAuthority.nextRequiredBoundary == "validate-live-yookassa-mode" and
+            ([.checks[] | select(.status != "PASS")] | length) == 0
+          ' data/regression/ugmu-launch-readiness-report.json >/dev/null
+
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/regression/ugmu-launch-readiness-report.json';
+          console.log('## UGMU structural launch readiness');
+          console.log('');
+          if (!fs.existsSync(file)) {
+            console.log('Readiness report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const checks = Object.entries(report.checks || {});
+          console.log(`Status: **${report.status}**`);
+          console.log(`Checks: **${checks.filter(([, value]) => value.status === 'PASS').length}/${checks.length} PASS**`);
+          console.log(`Scope: **medicine · 1 курс · I поток · ОЛД 101–112**`);
+          console.log(`Source SHA-256: \`${report.scope.sourceSha256}\``);
+          console.log(`API routing: **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/checkout/trials: **closed**`);
+          console.log(`Landing: **${report.siteState?.path || 'missing'}**; live checkout prepared: **${report.siteState?.liveCheckoutPrepared ? 'yes' : 'no'}**; production deploy by this gate: **no**`);
+          console.log(`Missing courses on source page: **${(report.sourceState.missingCourses || []).join(', ') || 'none'}**`);
+          console.log('Publication / sales / trials / catalog visibility granted by this gate: **no**');
+          console.log(`Next boundary: **${report.launchAuthority.nextRequiredBoundary}**`);
+          console.log('');
+          console.log('| Check | Status | Detail |');
+          console.log('|---|---|---|');
+          for (const [name, value] of checks) {
+            console.log(`| ${name} | ${value.status} | ${String(value.detail || '').replace(/\|/g, '\\|')} |`);
+          }
+          NODE
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-launch-readiness
+          path: |
+            api/data/regression/ugmu-launch-readiness-report.json
+            api/data/imports/ugmu-readiness/source-manifest.json
+            api/data/imports/ugmu-readiness/source-watch-report.json
+            api/data/imports/ugmu-readiness/watched-pdfs/download-report.json
+            api/data/imports/ugmu-readiness/qa/first-stream-qa.json
+            api/data/imports/ugmu-readiness/regression/first-stream-regression.json
+          if-no-files-found: error
+          retention-days: 90

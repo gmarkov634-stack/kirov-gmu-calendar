@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "kind": "ugmu-yookassa-test-window-close-verify",
+  "boundary": "temporary-yookassa-test-window",
+  "preparedWorkflowHead": "86ea5510d69cf5cd6c88d89622c4dd421310cd89",
+  "readOnly": true,
+  "productionMutationAllowed": false,
+  "paymentCreationAllowed": false,
+  "liveShopId": "1258890"
+}

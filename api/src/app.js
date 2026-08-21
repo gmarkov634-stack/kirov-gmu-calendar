@@ -49,8 +49,15 @@ function adminAllowed(request, config) {
   );
 }
 
+function nonEmptyString(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
 function validateContext(value) {
-  const context = scheduleContext(value, value?.university);
+  const university = nonEmptyString(value?.university);
+  const universityId = nonEmptyString(value?.university_id);
+  if (university && universityId && university !== universityId) return null;
+  const context = scheduleContext(value, university || universityId);
   if (
     !UNIVERSITY_ID.test(context.university || "") ||
     !context.program ||
@@ -60,6 +67,12 @@ function validateContext(value) {
     !context.groupId
   ) return null;
   return context;
+}
+
+function universityCapability(config, university, capability) {
+  const policy = config?.universityAccess?.[university];
+  if (!policy || typeof policy !== "object") return true;
+  return policy[capability] !== false;
 }
 
 function validateSubscription(value) {
@@ -159,7 +172,12 @@ export function createHandler({ store, config, payments }) {
         const plan = input.plan || "semester";
         if (!validEmail(input.email) || !PLAN_IDS.has(plan)) return send(response, 400, { error: "invalid_checkout" });
         const context = validateContext(input);
-        if (!context) return send(response, 400, { error: "invalid_checkout" });
+        if (!context || !universityCapability(config, context.university, "apiRoutingEnabled")) {
+          return send(response, 400, { error: "invalid_checkout" });
+        }
+        if (!universityCapability(config, context.university, "checkoutEnabled")) {
+          return send(response, 409, { error: "university_sales_not_open" }, "application/json; charset=utf-8", "no-store");
+        }
         const schedule = await store.getSchedule(context);
         if (!schedule || !sameSchedule(schedule, { ...context, academicYear: scheduleContext(schedule).academicYear, semester: scheduleContext(schedule).semester })) {
           return send(response, 400, { error: "offer_not_found" });
@@ -327,7 +345,12 @@ export function createHandler({ store, config, payments }) {
         groupCode: url.searchParams.get("groupCode") || decodeURIComponent(publicMatch[4]),
         stream: url.searchParams.get("stream"),
       });
-      if (!context) return send(response, 400, { error: "invalid_schedule_context" });
+      if (!context || !universityCapability(config, context.university, "apiRoutingEnabled")) {
+        return send(response, 400, { error: "invalid_schedule_context" });
+      }
+      if (!universityCapability(config, context.university, "publicEndpointsEnabled")) {
+        return send(response, 404, { error: "schedule_not_published" }, "application/json; charset=utf-8", "no-store");
+      }
       const schedule = await store.getSchedule(context);
       if (!schedule) return send(response, 404, { error: "schedule_not_published" });
       if (publicMatch[5] === "calendar.ics") {

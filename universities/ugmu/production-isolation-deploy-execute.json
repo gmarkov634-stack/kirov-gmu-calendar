@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "kind": "ugmu-preactivation-isolation-deploy-execute",
+  "authorizedStep": 24,
+  "codeCommitSha": "c5fde38148ce8136c1582f7c504a90706ce5118b",
+  "productionApiImageDeploy": true,
+  "patchOnlyImage": true,
+  "automaticRollbackOnSmokeFailure": true,
+  "registryActive": false,
+  "catalogEnabled": false,
+  "checkoutEnabled": false,
+  "publicEndpointsEnabled": false,
+  "trialsEnabled": false,
+  "salesActivation": false,
+  "pagesDeploy": false,
+  "storageWrite": false,
+  "reason": "Deploy per-university UGMU isolation guards before production storage staging; Step23 rollback proved old production backend exposed staged schedule objects."
+}

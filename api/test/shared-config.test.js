@@ -7,6 +7,7 @@ test("shared API has no primary university site", () => {
     KGMU_SITE_URL: "https://kgmu.example.test/",
     OMGMU_SITE_URL: "https://omgmu.example.test/",
     IZHGMU_SITE_URL: "https://izhgmu.example.test/",
+    UGMU_SITE_URL: "https://ugmu.example.test/",
     PGMU_SITE_URL: "https://pgmu.example.test/",
     PUBLIC_API_URL: "https://api.example.test",
   });
@@ -15,6 +16,7 @@ test("shared API has no primary university site", () => {
     kgmu: "https://kgmu.example.test/",
     omgmu: "https://omgmu.example.test/",
     izhgmu: "",
+    ugmu: "",
     pgmu: "https://pgmu.example.test/",
   });
   assert.equal(config.publicApiUrl, "https://api.example.test");
@@ -22,11 +24,15 @@ test("shared API has no primary university site", () => {
 
 test("unconfigured university landings stay empty instead of falling back to KGMU", () => {
   const config = loadConfig({ PUBLIC_API_URL: "https://api.example.test" });
-  assert.deepEqual(config.universitySiteUrls, { kgmu: "", omgmu: "", izhgmu: "", pgmu: "" });
+  assert.deepEqual(config.universitySiteUrls, { kgmu: "", omgmu: "", izhgmu: "", ugmu: "", pgmu: "" });
 });
 
 test("IzhGMU paid return provisioning remains hard closed during stage I", () => {
   assert.equal(loadConfig({ IZHGMU_SITE_URL: "https://izhgmu.example.test/" }).universitySiteUrls.izhgmu, "");
+});
+
+test("UGMU paid return provisioning remains hard closed before launch readiness", () => {
+  assert.equal(loadConfig({ UGMU_SITE_URL: "https://ugmu.example.test/" }).universitySiteUrls.ugmu, "");
 });
 
 test("schedule cache stays disabled even if an old CACHE_TTL_MS value remains in deployment env", () => {

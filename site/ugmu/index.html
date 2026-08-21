@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Расписание УГМУ в Apple Calendar и Google Calendar. Лечебное дело, 1 курс, I поток, группы ОЛД 101–112.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="theme-color" content="#123b6d">
+  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Расписание УГМУ в календаре">
+  <meta property="og:title" content="Расписание УГМУ — сразу в календаре">
+  <meta property="og:description" content="Проверенное расписание УГМУ для ОЛД 101–112. Checkout подготовлен и откроется только после production-разрешения продаж и live-проверки ЮKassa.">
+  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
+  <title>Расписание УГМУ в Apple и Google Calendar</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ugmu.css">
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+  <div id="test-banner" class="launch-strip" role="status" hidden><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>ЮKassa ещё в тестовом режиме</strong><span>Реальная оплата автоматически заблокирована до отдельной live-проверки.</span></div></div></div>
+  <header class="hero">
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Уральский государственный медицинский университет</p>
+        <h1>Расписание УГМУ — сразу в календаре</h1>
+        <p class="lead">Проверенное расписание первого курса лечебного дела можно будет подключить одной персональной ссылкой в Apple Calendar или Google Calendar.</p>
+        <div class="hero-features" aria-label="Текущий статус">
+          <div><span class="hero-feature-icon" aria-hidden="true">12</span><span>групп ОЛД<br>101–112</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">✓</span><span>4286 событий<br>прошли QA</span></div>
+          <div><span class="hero-feature-icon" aria-hidden="true">🔒</span><span>продажи пока<br>закрыты</span></div>
+        </div>
+        <div class="hero-actions"><a class="primary" href="#order">Выбрать группу <span aria-hidden="true">→</span></a><div class="hero-price"><strong id="runtime-price">Проверяем доступность</strong><span id="runtime-sale-note">Оплата откроется только после подтверждения production-gates</span></div></div>
+      </div>
+      <div class="calendar-preview" aria-hidden="true">
+        <div class="preview-top"><span>ОЛД 101 · 1 сентября</span><strong>Проверенный фрагмент</strong></div>
+        <div class="preview-event"><time>08:50</time><div><strong>ЛЕКЦ. ХИМИЯ</strong><span>Лекция · Онлайн</span></div></div>
+        <div class="preview-event"><time>13:50</time><div><strong>Химия</strong><span>Декабристов, 32</span></div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="launch-strip" role="status"><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>Предзапусковый режим</strong><span>Интерфейс checkout уже подключён к production API, но сам сервер пока держит продажи УГМУ закрытыми. GitHub Pages на этом этапе не публикуется.</span></div></div></div>
+
+  <main id="main-content" tabindex="-1">
+    <section id="programs" class="programs shell">
+      <div class="section-heading compact-heading"><p class="eyebrow">Направления УГМУ</p><h2>Начинаем с лечебного дела</h2><p>В коммерческий контур допускается только утверждённый scope: лечебное дело, 1 курс, I поток, ОЛД 101–112.</p></div>
+      <div class="program-grid">
+        <article class="program-card program-card-active"><div class="program-card-top"><span class="badge">Подготовлено</span><span class="program-code">31.05.01</span></div><h3>Лечебное дело</h3><p class="program-description">1 курс · I поток · ОЛД 101–112. Проверено 12 групп и 4286 событий осеннего семестра 2026/2027.</p><a class="secondary program-select" href="#order">Выбрать группу <span aria-hidden="true">→</span></a></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.02</span></div><h3>Педиатрия</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.03</span></div><h3>Стоматология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">33.05.01</span></div><h3>Фармация</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">32.05.01</span></div><h3>Медико-профилактическое дело</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span></div><h3>Клиническая психология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
+      </div>
+    </section>
+
+    <section id="how" class="how shell"><div class="section-heading compact-heading"><p class="eyebrow">Как работает</p><h2>Один раз подключили — расписание обновляется по той же ссылке</h2></div><div class="how-grid"><article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Выбор ограничен утверждёнными группами ОЛД 101–112.</p></article><article class="how-card"><span class="how-number">2</span><h3>Оплата через ЮKassa</h3><p>Оплата проходит через ЮKassa. Без автосписаний и скрытых подписок.</p></article><article class="how-card"><span class="how-number">3</span><h3>Получите персональную ссылку</h3><p>После подтверждения оплаты сайт покажет одну ссылку для Apple Calendar и Google Calendar.</p></article></div><div class="trust-strip" aria-label="О сервисе"><div><strong>Официальный источник расписания</strong><span>Данные берутся из опубликованных материалов УГМУ на usma.ru.</span></div><div><strong>Проверка перед продажей</strong><span>Текущий первый поток прошёл source review, QA, versioning и regression.</span></div><div><strong>Paid-only модель</strong><span>Публичное бесплатное расписание и public ICS остаются закрытыми.</span></div></div></section>
+
+    <section id="order" class="order shell">
+      <div class="order-copy"><p class="eyebrow">Подключение календаря</p><h2>Выберите группу и проверьте доступность</h2><p>Форма уже работает с production API. Кнопка оплаты включится только когда сервер разрешит продажи УГМУ и ЮKassa будет подтверждена в live-режиме.</p><ol class="steps" aria-label="Готовность"><li><span>1</span>12 расписаний находятся в production storage</li><li><span>2</span>Коммерческий контур УГМУ изолирован от других вузов</li><li><span>3</span>Осталась live-проверка ЮKassa и финальная активация</li></ol><div class="order-trust"><strong id="runtime-state">Проверяем production API</strong><span>Осень 2026/2027 · период 01.09.2026–10.01.2027.</span></div></div>
+      <div class="order-panel">
+        <form id="order-form" novalidate>
+          <div class="form-title"><strong>Параметры календаря</strong><span>Лечебное дело · 1 курс · I поток</span></div>
+          <label>Группа<select id="group-select" aria-label="Группа"></select></label>
+          <div class="purchase-summary"><div class="summary-row"><span class="summary-label">Выбрано</span><strong id="selection-summary">—</strong></div><div class="summary-row"><span class="summary-label">Событий в семестре</span><strong id="event-count">—</strong></div><div class="summary-row"><span class="summary-label">Лекций</span><strong id="lecture-count">—</strong></div><div class="summary-row summary-price"><span class="summary-label">Стоимость</span><strong id="price-summary">—</strong></div></div>
+          <label>Email<input id="email" name="email" type="email" autocomplete="email" required placeholder="student@example.com"></label>
+          <p class="note">Email используется при оформлении заказа. Персональная ссылка показывается на сайте после подтверждения оплаты.</p>
+          <div class="qa-preview"><div class="qa-preview-head"><strong id="group-summary">Контрольные события</strong><span>из утверждённого QA scope</span></div><div id="group-preview"></div></div>
+          <button class="primary" type="submit" disabled>Проверяем доступность…</button>
+          <button id="restore-order" class="secondary" type="button" hidden>Открыть последний заказ</button>
+          <p id="form-status" class="status" aria-live="polite"></p>
+          <p id="source-state" class="source-state"></p>
+        </form>
+        <div id="order-result" class="order-result" hidden aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="faq" class="faq shell"><div class="section-heading compact-heading"><p class="eyebrow">Вопросы и ответы</p><h2>О календаре УГМУ</h2></div><div class="faq-list"><details><summary>Почему кнопка оплаты сейчас может быть выключена?</summary><p>Интерфейс намеренно fail-closed: он проверяет production API и включает оплату только при открытом sales-gate и live-режиме ЮKassa.</p></details><details><summary>Что уже проверено?</summary><p>Для лечебного дела, 1 курса, I потока проверены ОЛД 101–112: официальный источник, разбор PDF, постобработка, QA, UID/SEQUENCE, payment/update/revoke E2E и production storage.</p></details><details><summary>Что будет, если УГМУ изменит расписание?</summary><p>Watcher обнаружит новую версию источника по SHA-256. После review и QA изменения попадут в ту же персональную календарную подписку.</p></details><details><summary>Одна ссылка работает в Apple и Google?</summary><p>Да. После оплаты выдаётся одна персональная подписная ссылка. Её можно открыть через Apple Calendar или добавить по URL в Google Calendar.</p></details><details><summary>Есть ли автосписания?</summary><p>Нет. Оплата разовая, автосписаний нет.</p></details><details><summary>Это официальный сервис УГМУ?</summary><p>Нет. Это независимый сервис электронных календарей. Расписание готовится по официально опубликованным материалам УГМУ.</p></details></div></section>
+  </main>
+
+  <footer class="shell"><div><strong>Расписание УГМУ в календаре</strong><span>Независимый сервис · предзапусковая подготовка</span></div><nav aria-label="Ссылки в подвале"><a href="#programs">Направления</a><a href="#how">Как работает</a><a href="#order">Выбрать группу</a><a href="#faq">Вопросы</a></nav></footer>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

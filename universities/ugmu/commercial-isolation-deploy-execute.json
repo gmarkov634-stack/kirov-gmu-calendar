@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "kind": "ugmu-commercial-isolation-deploy-execute",
+  "authorizedStep": 25,
+  "codeCommitSha": "68ae6a0362794003f12323a4705b6723ffcde09d",
+  "productionApiImageDeploy": true,
+  "patchOnlyImage": true,
+  "automaticRollbackOnSmokeFailure": true,
+  "expectedProductionFlags": {
+    "COMMERCIAL_SALES_ENABLED": false,
+    "UGMU_SALES_ENABLED": false,
+    "TRIALS_ENABLED": false,
+    "FUNNEL_ANALYTICS_ENABLED": false
+  },
+  "registryActive": false,
+  "catalogEnabled": false,
+  "checkoutEnabled": false,
+  "publicEndpointsEnabled": false,
+  "publicIcsEnabled": false,
+  "trialsEnabled": false,
+  "salesActivation": false,
+  "pagesDeploy": false,
+  "storageWrite": false,
+  "launchAuthority": false,
+  "purpose": "Deploy the Step 24 tenant-isolated commercial gate code to Cloud.ru while all UGMU commercial and public launch gates remain closed."
+}

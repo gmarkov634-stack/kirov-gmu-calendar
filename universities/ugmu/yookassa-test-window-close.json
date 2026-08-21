@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "kind": "ugmu-yookassa-test-window-close",
+  "boundary": "temporary-yookassa-test-window",
+  "preparedWorkflowHead": "0dd034341ebd44721f270fbc67e543ade6c24992",
+  "liveShopId": "1258890",
+  "liveSecretPath": "yookassa-secret-key",
+  "restoreLive": true,
+  "paymentCreationAllowed": false,
+  "userAuthorization": "Боевой ShopID предоставлен на изображении"
+}

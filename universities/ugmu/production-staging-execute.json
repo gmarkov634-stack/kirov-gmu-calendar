@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "kind": "ugmu-production-storage-stage-execute",
+  "authorizedStep": 23,
+  "manifestId": "ugmu-first-stream-34612248bba2",
+  "manifestSha256": "2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5",
+  "authoritySha256": "039acbfd41090676994776625a9ba41f23141a9aea1cfd299e9e5ef723206101",
+  "stagingAttempt": 2,
+  "productionStorageWrite": true,
+  "issuedAt": "2026-08-20T21:42:00.000Z"
+}

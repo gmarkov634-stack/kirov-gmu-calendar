@@ -2,6 +2,7 @@ const UNIVERSITY_NAMES = {
   kgmu: "КГМУ",
   omgmu: "ОмГМУ",
   pgmu: "ПГМУ",
+  ugmu: "УГМУ",
 };
 
 function escapeText(value = "") {

@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "kind": "ugmu-controlled-live-payment-canary-plan",
+  "boundary": "controlled-live-payment-canary-explicit-decision",
+  "status": "DEFERRED_BY_USER",
+  "effectiveDate": "2026-08-21",
+  "decisionDate": "2026-08-21",
+  "nonBlocking": true,
+  "purpose": "Optional future proof of one real end-to-end UGMU purchase against the already launched live YooKassa configuration without expanding production scope.",
+  "scope": {
+    "university": "ugmu",
+    "program": "medicine",
+    "course": 1,
+    "stream": "1",
+    "allowedGroups": ["ОЛД 101"],
+    "academicYear": "2026/2027",
+    "semester": 1,
+    "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+    "maximumOrders": 1,
+    "maximumSuccessfulPayments": 1
+  },
+  "preconditions": {
+    "operationalMonitoringBoundaryMustBePass": true,
+    "productionMetaSales": "open",
+    "productionMetaTrials": "closed",
+    "productionMetaPaymentMode": "live",
+    "globalCommercialSalesEnabled": false,
+    "ugmuSalesEnabled": true,
+    "ugmuActive": true,
+    "yookassaTestMode": false,
+    "liveShopId": "1258890",
+    "liveSecretPath": "yookassa-secret-key",
+    "publicScheduleMustRemainClosed": true,
+    "publicIcsMustRemainClosed": true,
+    "productionSchedulesRequired": 12,
+    "productionScheduleHashesMustMatch": true,
+    "rollbackSnapshotsRequired": 12
+  },
+  "authorization": {
+    "requiresExplicitUserDecision": true,
+    "genericContinueIsAuthorization": false,
+    "executionAllowed": false,
+    "paymentCreationAllowed": false,
+    "automaticExecutionAllowed": false,
+    "scheduledExecutionAllowed": false,
+    "pullRequestExecutionAllowed": false,
+    "authorizationMustNameRealLivePayment": true
+  },
+  "deferral": {
+    "reason": "User chose to skip the real live-payment canary for now and return to it later.",
+    "blocksRepositoryStabilization": false,
+    "blocksScopePreservingMaintenance": false,
+    "blocksMergePreparation": false,
+    "revisitWhen": [
+      "user explicitly returns to real live-payment verification",
+      "before materially changing the payment integration",
+      "before relying on a new live YooKassa credential or checkout implementation"
+    ]
+  },
+  "executionPlanAfterFutureAuthorization": [
+    "Run a fresh read-only operational preflight immediately before creating any order.",
+    "Create at most one live UGMU order for ОЛД 101 using the current runtime semester offer; do not hardcode or override the production price.",
+    "Return the YooKassa confirmation URL for user-controlled payment completion; do not enter payment credentials or confirm the financial transaction on the user's behalf.",
+    "After the user completes payment, verify the provider payment is succeeded, paid=true and test=false.",
+    "Verify the protected order becomes succeeded and exactly one paid subscription is issued.",
+    "Verify the tokenized subscription calendar returns HTTP 200 while public schedule and public ICS remain HTTP 404.",
+    "Verify no second payment/order is created and no non-UGMU sales capability changes.",
+    "Revoke the canary subscription after evidence capture unless the user explicitly asks to keep it active.",
+    "Run the full read-only operational monitor again and confirm the production invariants remain unchanged."
+  ],
+  "safety": {
+    "scopeExpansionAllowed": false,
+    "globalSalesChangeAllowed": false,
+    "publicScheduleChangeAllowed": false,
+    "publicIcsChangeAllowed": false,
+    "trialsChangeAllowed": false,
+    "cloudruConfigMutationAllowed": false,
+    "s3ScheduleMutationAllowed": false,
+    "priceOverrideAllowed": false,
+    "realPaymentBeforeExplicitAuthorizationAllowed": false
+  },
+  "nextRequiredBoundary": "post-launch-repository-and-pr-stabilization"
+}

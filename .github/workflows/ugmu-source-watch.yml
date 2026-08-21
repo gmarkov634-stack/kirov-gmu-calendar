@@ -1,0 +1,292 @@
+name: UGMU source watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 * * * *"
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/**"
+      - "api/tools/ugmu-*.mjs"
+      - "api/tools/ugmu-*.py"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/test/ugmu-*.test.js"
+      - "api/package.json"
+      - "api/src/schedule/ics.js"
+      - "universities/ugmu/source-watch.json"
+      - ".github/workflows/ugmu-source-watch.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python for parser validation
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install UGMU parser dependency
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Test UGMU source, parser and publication boundaries
+        run: >-
+          node --test
+          test/ugmu-source-registry.test.js
+          test/ugmu-discover.test.js
+          test/ugmu-download.test.js
+          test/ugmu-source-watch.test.js
+          test/ugmu-canonical-pilot.test.js
+          test/ugmu-publication-package.test.js
+
+      - name: Test UGMU weekly-grid parser core
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: python3 tools/ugmu-parse-weekly-pdf.py --self-test
+
+      - name: Discover official UGMU medicine sources
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-source-manifest.json
+
+      - name: Capture official autumn PDFs and SHA-256
+        run: >-
+          npm run download:ugmu --
+          --manifest=data/imports/ugmu-source-manifest.json
+          --semester=autumn
+          --output=data/imports/ugmu-watched-pdfs
+
+      - name: Validate OLD 101 against exact watched PDF
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          npm run parse:ugmu:weekly -- \
+            --input="data/imports/ugmu-watched-pdfs/$filename" \
+            --group="ОЛД 101" \
+            --source="$source_url" \
+            --sha256="$sha" \
+            --output=data/imports/ugmu-pilot/OLD-101.json
+          jq -e '.sourceReview.status == "semantic-reviewed-pilot" and .sourceReview.publicationAllowed == false and (.patterns | length) == 23 and (.events | length) == 357 and (.validationErrors | length) == 0' data/imports/ugmu-pilot/OLD-101.json >/dev/null
+
+      - name: Canonicalize and postprocess OLD 101
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run canonical:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/canonical
+          jq -e '
+            .qaApproved == true and
+            .publicationAllowed == false and
+            .canonicalSchema == "1.0" and
+            .inputQa.publishable == true and
+            .outputQa.publishable == true and
+            .customQa.stats.reviewedPatterns == 23 and
+            .customQa.stats.events == 357 and
+            .customQa.stats.lectures == 112 and
+            .customQa.stats.nonLectures == 245 and
+            .customQa.stats.overlaps == 0 and
+            .customQa.stats.serviceSignatures == 0 and
+            .customQa.stats.sourceHashMismatch == 0
+          ' data/imports/ugmu-pilot/canonical/OLD-101.qa.json >/dev/null
+
+      - name: Verify stable UID and SEQUENCE for OLD 101
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run versioning:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/versioning
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .eventCount == 357 and
+            .exactReimport.sameContent == true and
+            .exactReimport.scheduleVersionStable == true and
+            .exactReimport.counts.unchanged == 357 and
+            .exactReimport.counts.added == 0 and
+            .exactReimport.counts.changed == 0 and
+            .exactReimport.counts.removed == 0 and
+            .simulatedChange.synthetic == true and
+            .simulatedChange.eventIdStable == true and
+            .simulatedChange.revisionV1 == 1 and
+            .simulatedChange.revisionV2 == 2 and
+            .simulatedChange.sequenceV1 == "0" and
+            .simulatedChange.sequenceV2 == "1" and
+            .simulatedChange.counts.changed == 1 and
+            .simulatedChange.counts.unchanged == 356 and
+            .simulatedChange.counts.added == 0 and
+            .simulatedChange.counts.removed == 0 and
+            .qa.v1 == true and
+            .qa.exactReimport == true and
+            .qa.v2 == true
+          ' data/imports/ugmu-pilot/versioning/OLD-101.versioning-report.json >/dev/null
+          grep -F 'X-WR-CALNAME:УГМУ · Группа ОЛД 101' data/imports/ugmu-pilot/versioning/OLD-101.v1.ics >/dev/null
+
+      - name: Build production-like ICS current pointer and fail-closed live catalog
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          npm run package:ugmu:pilot -- \
+            --input=data/imports/ugmu-pilot/OLD-101.json \
+            --output=data/imports/ugmu-pilot/package
+          jq -e '
+            .eventCount == 357 and
+            .inputQa == true and
+            .outputQa == true and
+            .currentPointerValid == true and
+            .catalogPointerValid == true and
+            .failClosed == true and
+            .publicationAllowed == false
+          ' data/imports/ugmu-pilot/package/package-report.json >/dev/null
+          jq -e '
+            .groupCode == "ОЛД 101" and
+            .eventCount == 357 and
+            .state == "qa-approved-fail-closed" and
+            .publicationAllowed == false and
+            .active == false and
+            .catalogVisible == false and
+            .checkoutEnabled == false and
+            .salesEnabled == false
+          ' data/imports/ugmu-pilot/package/current.json >/dev/null
+          jq -e '
+            .mode == "internal-fail-closed" and
+            .groupCount == 1 and
+            .groups[0].code == "ОЛД 101" and
+            .groups[0].qaStatus == "approved" and
+            .groups[0].calendarReady == true and
+            .groups[0].active == false and
+            .groups[0].public == false and
+            .groups[0].checkoutEnabled == false and
+            .groups[0].salesEnabled == false
+          ' data/imports/ugmu-pilot/package/live-catalog.json >/dev/null
+          grep -F 'X-WR-CALNAME:УГМУ · Группа ОЛД 101' data/imports/ugmu-pilot/package/calendar.ics >/dev/null
+          grep -F 'UID:evt_ugmu_old101_0001@ugmu-calendar' data/imports/ugmu-pilot/package/calendar.ics >/dev/null
+
+      - name: Build fail-closed watch report
+        id: watch
+        run: |
+          set -euo pipefail
+          npm run watch:ugmu -- \
+            --manifest=data/imports/ugmu-source-manifest.json \
+            --download=data/imports/ugmu-watched-pdfs/download-report.json \
+            --config=../universities/ugmu/source-watch.json \
+            --output=data/imports/ugmu-source-watch-report.json
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/imports/ugmu-source-watch-report.json', 'utf8'));
+          console.log(`candidate_count=${report.candidateCount}`);
+          console.log(`review_required=${report.candidateCount > 0 ? 'true' : 'false'}`);
+          NODE
+
+      - name: Create deduplicated source-bound review issues
+        if: steps.watch.outputs.review_required == 'true' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-source-watch-report.json'
+          while IFS= read -r item; do
+            sha="$(jq -r '.sha256' <<<"$item")"
+            short="${sha:0:12}"
+            course="$(jq -r '.course // "unknown"' <<<"$item")"
+            stream="$(jq -r '.stream // "—"' <<<"$item")"
+            part="$(jq -r '.part // "combined"' <<<"$item")"
+            label="$(jq -r '.label // "—"' <<<"$item")"
+            url="$(jq -r '.url' <<<"$item")"
+            filename="$(jq -r '.filename' <<<"$item")"
+            existing="$(gh issue list --state all --limit 100 --search "UGMU-SOURCE-$short in:title" --json number --jq 'length')"
+            if [ "$existing" -gt 0 ]; then
+              echo "Known UGMU PDF SHA: $sha"
+              continue
+            fi
+            title="UGMU-SOURCE-$short: новое/измененное расписание, ${course} курс"
+            body="$(cat <<EOF
+          Обнаружена ранее не зарегистрированная SHA-256 версия официального PDF УГМУ.
+
+          - Program: medicine
+          - Expected period: 2026/2027, autumn
+          - Course: $course
+          - Stream: $stream
+          - Part: $part
+          - Source label: $label
+          - SHA-256: $sha
+          - Official URL: $url
+          - Artifact file: $filename
+          - Watch run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Это только source-bound задача. Watcher **не интерпретировал расписание и не публиковал события**.
+
+          Следующий этап: semantic review точного PDF/SHA. Нужно подтвердить учебный год/семестр, группы, структуру таблицы и parser shape. Только после QA-approved canonical schedule-batch допускаются последующие publication gates.
+          EOF
+          )"
+            gh issue create --title "$title" --body "$body"
+          done < <(jq -c '.candidates[]' "$report")
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const reportPath = 'data/imports/ugmu-source-watch-report.json';
+          console.log('## UGMU source watch');
+          console.log('');
+          if (!fs.existsSync(reportPath)) {
+            console.log('Watch report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          console.log(`Expected period: **${report.expectedAcademicYear || 'semantic review'} / ${report.expectedSemester}**`);
+          console.log(`Candidates captured: **${report.candidateCount}**`);
+          console.log(`Download failures: **${report.failedCount}**`);
+          console.log(`Unresolved metadata: **${report.unresolvedCount}**`);
+          console.log(`Status: **${report.status}**`);
+          console.log(`Publication allowed: **${report.publicationAllowed ? 'yes' : 'no'}**`);
+          console.log('');
+          console.log('| Course | Stream | Part | SHA-256 |');
+          console.log('|---:|---|---|---|');
+          for (const item of report.candidates) {
+            console.log(`| ${item.course ?? '—'} | ${item.stream ?? '—'} | ${item.part ?? '—'} | ${(item.sha256 || '').slice(0, 12)} |`);
+          }
+          NODE
+
+      - name: Upload watcher evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-source-watch
+          path: |
+            api/data/imports/ugmu-source-manifest.json
+            api/data/imports/ugmu-source-watch-report.json
+            api/data/imports/ugmu-watched-pdfs
+            api/data/imports/ugmu-pilot/OLD-101.json
+            api/data/imports/ugmu-pilot/canonical
+            api/data/imports/ugmu-pilot/versioning
+            api/data/imports/ugmu-pilot/package
+          if-no-files-found: warn
+          retention-days: 30

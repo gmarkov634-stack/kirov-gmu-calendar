@@ -1,0 +1,19 @@
+name: UGMU final launch readiness (retired)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retired:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve completed prelaunch boundary
+        run: |
+          echo "UGMU final launch readiness is retired after the controlled production launch."
+          echo "Controlled activation completed successfully; production now intentionally has UGMU_ACTIVE=true and UGMU_SALES_ENABLED=true."
+          echo "The former readiness gate expected the prelaunch fail-closed state and must not be used as a post-launch regression signal."
+          echo "Use UGMU Cloud.ru post-launch production smoke for the current read-only production signal."
+          echo "Public UGMU schedule/ICS and trials remain outside the launched scope."

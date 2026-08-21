@@ -1,0 +1,19 @@
+name: UGMU YooKassa live readiness (retired)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retired:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve completed YooKassa readiness boundary
+        run: |
+          echo "The prelaunch UGMU YooKassa live-readiness gate is retired after controlled launch."
+          echo "It intentionally required UGMU sales to be closed, which is no longer the production invariant."
+          echo "Live ShopID 1258890 was restored after the temporary test window; YOOKASSA_TEST_MODE=false and paymentMode=live were verified read-only."
+          echo "No provider request, payment creation, Cloud.ru mutation, or secret access is performed by this retired workflow."
+          echo "Use UGMU Cloud.ru post-launch production smoke for the ongoing public production signal."

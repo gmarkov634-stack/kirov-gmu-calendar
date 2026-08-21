@@ -7,11 +7,13 @@ test("registry contains isolated university configurations", () => {
   assert.equal(hasUniversity("kgmu"), true);
   assert.equal(hasUniversity("omgmu"), true);
   assert.equal(hasUniversity("izhgmu"), true);
+  assert.equal(hasUniversity("ugmu"), true);
   assert.equal(hasUniversity("unknown"), false);
 
   const kgmu = getUniversityConfig("kgmu");
   const omgmu = getUniversityConfig("omgmu");
   const izhgmu = getUniversityConfig("izhgmu");
+  const ugmu = getUniversityConfig("ugmu");
 
   assert.equal(kgmu.id, "kgmu");
   assert.equal(kgmu.source.adapter, "kgmu");
@@ -42,9 +44,23 @@ test("registry contains isolated university configurations", () => {
   assert.equal(izhgmu.sitePath, "/izhgmu/");
   assert.equal(izhgmu.active, false);
 
+  assert.equal(ugmu.id, "ugmu");
+  assert.equal(ugmu.shortName, "УГМУ");
+  assert.equal(ugmu.timezone, "Asia/Yekaterinburg");
+  assert.equal(ugmu.timeMode, "floating");
+  assert.equal(ugmu.source.kind, "pdf");
+  assert.match(ugmu.source.primaryPage, /^https:\/\/usma\.ru\//);
+  assert.equal(ugmu.source.pageStrategy, "per-program");
+  assert.equal(ugmu.source.adapter, "ugmu");
+  assert.equal(ugmu.source.productionLanguage, "ru");
+  assert.deepEqual(ugmu.source.versionIdentity, ["source_page", "source_url", "sha256"]);
+  assert.equal(ugmu.sitePath, "/ugmu/");
+  assert.equal(ugmu.active, false);
+
   assert.notEqual(kgmu.source, omgmu.source);
   assert.notEqual(omgmu.source, izhgmu.source);
-  assert.equal(listUniversities().length >= 3, true);
+  assert.notEqual(izhgmu.source, ugmu.source);
+  assert.equal(listUniversities().length >= 4, true);
 });
 
 test("OMGmu initial commercial parsing scope excludes masters until separately activated", () => {
@@ -69,6 +85,22 @@ test("IzhGMU starts with medicine as the initial parsing scope", () => {
   const deferred = izhgmu.programs.filter((program) => !program.initialScope).map((program) => program.id);
   assert.deepEqual(enabled, ["medicine"]);
   assert.deepEqual(deferred, ["pediatrics", "dentistry"]);
+});
+
+test("UGMU starts fail-closed with medicine as the only initial parsing scope", () => {
+  const ugmu = getUniversityConfig("ugmu");
+  const enabled = ugmu.programs.filter((program) => program.initialScope).map((program) => program.id);
+  const deferred = ugmu.programs.filter((program) => !program.initialScope).map((program) => program.id);
+  assert.equal(ugmu.active, false);
+  assert.match(ugmu.source.primaryPage, /lechebnoe-delo\/$/);
+  assert.deepEqual(enabled, ["medicine"]);
+  assert.deepEqual(deferred, [
+    "pediatrics",
+    "dentistry",
+    "pharmacy",
+    "preventive_medicine",
+    "clinical_psychology",
+  ]);
 });
 
 test("unknown university fails explicitly", () => {

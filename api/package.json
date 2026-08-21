@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test && python3 tools/omgmu-parse-weekly-pdf.py --self-test && python3 tools/omgmu-parse-fourth-pdf.py --self-test",
+    "test": "node --test && python3 tools/omgmu-parse-weekly-pdf.py --self-test && python3 tools/omgmu-parse-fourth-pdf.py --self-test && python3 tools/ugmu-parse-weekly-pdf.py --self-test && python3 tools/ugmu-parse-first-stream-pdf.py --self-test",
     "create-subscription": "node tools/create-subscription.mjs",
     "discover:omgmu": "node tools/omgmu-discover.mjs",
     "watch:omgmu": "node tools/omgmu-watch-sources.mjs",
@@ -23,8 +23,28 @@
     "regression:omgmu:historical": "node tools/omgmu-historical-regression.mjs",
     "readiness:omgmu": "node tools/omgmu-launch-readiness.mjs",
     "regression:izhgmu:historical": "node tools/izhgmu-historical-regression.mjs",
+    "regression:cross-university:historical": "node tools/cross-university-historical-regression.mjs",
     "collect:izhgmu": "node tools/izhgmu-collect.mjs",
-    "watch:izhgmu:current": "node tools/izhgmu-current-source-watch.mjs"
+    "watch:izhgmu:current": "node tools/izhgmu-current-source-watch.mjs",
+    "discover:ugmu": "node tools/ugmu-discover.mjs",
+    "download:ugmu": "node tools/ugmu-download.mjs",
+    "watch:ugmu": "node tools/ugmu-watch-sources.mjs",
+    "parse:ugmu:weekly": "python3 tools/ugmu-parse-weekly-pdf.py",
+    "parse:ugmu:first-stream": "python3 tools/ugmu-parse-first-stream-pdf.py",
+    "qa:ugmu:first-stream": "node tools/ugmu-first-stream-qa.mjs",
+    "regression:ugmu:first-stream": "node tools/ugmu-first-stream-versioning-regression.mjs",
+    "readiness:ugmu": "node tools/ugmu-launch-readiness.mjs",
+    "readiness:ugmu:final": "node tools/ugmu-final-launch-readiness.mjs",
+    "plan:ugmu:activation": "node tools/ugmu-controlled-activation-plan.mjs",
+    "gate:ugmu:sales-isolation": "node tools/ugmu-sales-isolation-gate.mjs",
+    "dry-run:ugmu:production-stage": "node tools/ugmu-first-stream-production-dry-run.mjs",
+    "stage:ugmu:production-storage": "node tools/ugmu-production-storage-stage.mjs",
+    "e2e:ugmu:payment": "node tools/ugmu-payment-e2e.mjs",
+    "e2e:ugmu:purchased-update": "node tools/ugmu-purchased-calendar-update-e2e.mjs",
+    "e2e:ugmu:revoke": "node tools/ugmu-subscription-revoke-e2e.mjs",
+    "canonical:ugmu:pilot": "node tools/ugmu-pilot-canonical.mjs",
+    "versioning:ugmu:pilot": "node tools/ugmu-versioning-regression.mjs",
+    "package:ugmu:pilot": "node tools/ugmu-pilot-package.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0"

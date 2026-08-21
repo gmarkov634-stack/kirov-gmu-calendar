@@ -2,6 +2,7 @@ const UNIVERSITY_OFFSETS = {
   kgmu: "+03:00",
   omgmu: "+06:00",
   pgmu: "+05:00",
+  ugmu: "+05:00",
 };
 
 function canonicalSemesterEnd(schedule) {

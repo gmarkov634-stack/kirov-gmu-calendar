@@ -1,0 +1,86 @@
+name: UGMU post-launch operational monitor observe
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "universities/ugmu/post-launch-operational-monitoring.json"
+      - "api/test/ugmu-post-launch-operational-monitoring.test.js"
+      - ".github/workflows/ugmu-post-launch-operational-monitor-observe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  MONITOR_WORKFLOW: ugmu-post-launch-operational-monitor.yml
+  MONITOR_COMMIT: 77189c67c0c62d224043c55117a93336709ec468
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify local monitoring authority contract
+        working-directory: api
+        run: node --test test/ugmu-post-launch-operational-monitoring.test.js
+
+      - name: Find exact main monitor run
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          json="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow "$MONITOR_WORKFLOW" \
+            --branch main \
+            --commit "$MONITOR_COMMIT" \
+            --event push \
+            --limit 10 \
+            --json databaseId,status,conclusion,headSha,event,url)"
+          run_id="$(jq -r --arg sha "$MONITOR_COMMIT" '[.[]|select(.headSha==$sha)][0].databaseId // empty' <<<"$json")"
+          test -n "$run_id"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "UGMU_OPS_MAIN_RUN_FOUND=$run_id"
+
+      - name: Wait for exact main monitor run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.run.outputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run watch "$RUN_ID" --repo "$GITHUB_REPOSITORY" --exit-status
+
+      - name: Verify public and deep monitor jobs succeeded
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.run.outputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json databaseId,status,conclusion,headSha,event,url,jobs > evidence/main-monitor-run.json
+          jq -e --arg sha "$MONITOR_COMMIT" '
+            .status == "completed" and
+            .conclusion == "success" and
+            .headSha == $sha and
+            .event == "push" and
+            ([.jobs[] | select(.name == "Hourly public production boundary" and .conclusion == "success")] | length) == 1 and
+            ([.jobs[] | select(.name == "Daily deep Cloud.ru YooKassa storage read-back" and .conclusion == "success")] | length) == 1
+          ' evidence/main-monitor-run.json >/dev/null
+          echo "UGMU_POST_LAUNCH_OPERATIONAL_MONITOR_PASS run=$RUN_ID"
+
+      - name: Upload observer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-post-launch-operational-monitor-observe
+          path: evidence/main-monitor-run.json
+          if-no-files-found: error
+          retention-days: 30

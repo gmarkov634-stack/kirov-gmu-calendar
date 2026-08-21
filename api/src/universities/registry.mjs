@@ -66,6 +66,35 @@ const UNIVERSITIES = Object.freeze({
     sitePath: "/izhgmu/",
     active: false,
   }),
+  ugmu: Object.freeze({
+    id: "ugmu",
+    code: "ugmu",
+    name: "Уральский государственный медицинский университет",
+    shortName: "УГМУ",
+    timezone: "Asia/Yekaterinburg",
+    timeMode: "floating",
+    source: Object.freeze({
+      kind: "pdf",
+      indexPage: "https://usma.ru/obrazovatelnaya-deyatelnost/uchebno-metodicheskoe-upravlenie/raspisanie/",
+      primaryPage: "https://usma.ru/obrazovatelnaya-deyatelnost/uchebno-metodicheskoe-upravlenie/raspisanie/raspisanie-dlya-studentov-specialnosti-lechebnoe-delo/",
+      pageStrategy: "per-program",
+      adapter: "ugmu",
+      productionLanguage: "ru",
+      versionIdentity: Object.freeze(["source_page", "source_url", "sha256"]),
+    }),
+    programs: Object.freeze([
+      Object.freeze({ id: "medicine", name: "Лечебное дело", initialScope: true }),
+      Object.freeze({ id: "pediatrics", name: "Педиатрия", initialScope: false }),
+      Object.freeze({ id: "dentistry", name: "Стоматология", initialScope: false }),
+      Object.freeze({ id: "pharmacy", name: "Фармация", initialScope: false }),
+      Object.freeze({ id: "preventive_medicine", name: "Медико-профилактическое дело", initialScope: false }),
+      Object.freeze({ id: "clinical_psychology", name: "Клиническая психология", initialScope: false }),
+    ]),
+    sitePath: "/ugmu/",
+    // Default remains fail-closed for CI, previews and ordinary deployments.
+    // Controlled production launch must opt in with the exact runtime flag.
+    active: process.env.UGMU_ACTIVE === "true",
+  }),
 });
 
 export function listUniversities() {

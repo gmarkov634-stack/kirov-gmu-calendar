@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "kind": "ugmu-yookassa-test-window-open",
+  "boundary": "temporary-yookassa-test-window",
+  "authorizedBranch": "agent/ugmu-scaffold-20260820",
+  "preparedCodeHead": "978956e9d37cc40c3d1612b7268b5b0ddbd17d8f",
+  "testShopId": "1259975",
+  "testSecretPath": "yookassa-test-secret-key",
+  "liveSecretPath": "yookassa-secret-key",
+  "restoreLiveAfterTest": true,
+  "userAuthorization": "Готово"
+}

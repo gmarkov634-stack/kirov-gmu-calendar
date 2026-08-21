@@ -1,0 +1,121 @@
+name: UGMU subscription revoke E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-subscription-revoke-e2e.mjs"
+      - "api/test/ugmu-subscription-revoke-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-subscription-revoke-e2e.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/src/app.js"
+      - "api/src/config.js"
+      - "api/src/order-context.js"
+      - "api/src/store.js"
+      - "api/src/university-store.js"
+      - "api/src/calendar.js"
+      - "api/src/schedule/**"
+      - "api/src/universities/**"
+      - "api/tools/ugmu-subscription-revoke-e2e.mjs"
+      - "api/test/ugmu-subscription-revoke-e2e.test.js"
+      - "api/package.json"
+      - ".github/workflows/ugmu-subscription-revoke-e2e.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  revoke-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run UGMU subscription revoke E2E
+        run: npm run e2e:ugmu:revoke
+
+      - name: Validate revoke evidence
+        run: |
+          jq -e '
+            .passed == true and
+            .university == "ugmu" and
+            .mode == "isolated-subscription-revoke-e2e" and
+            .scope.group == "ОЛД 101" and
+            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
+            .http.unauthorizedRevokeStatus == 403 and
+            .http.authorizedRevokeStatus == 200 and
+            .http.revokedFeedStatus == 200 and
+            .http.activeFeedStatus == 200 and
+            .http.revokedBeforeEvents == 2 and
+            .http.revokedAfterEvents == 0 and
+            .http.otherBeforeEvents == 2 and
+            .http.otherAfterEvents == 2 and
+            .http.revokedStoredStatus == "revoked" and
+            .http.activeStoredStatus == "active" and
+            .checks.adminProtectionWorks == true and
+            .checks.oldFeedBecomesEmptyCalendar == true and
+            .checks.siblingSubscriptionUnaffected == true and
+            .checks.productionRegistryInactive == true and
+            .checks.productionCheckoutFailClosed == true and
+            .checks.productionPublicFailClosed == true and
+            .checks.productionTrialsFailClosed == true and
+            .checks.productionPaidRedirectEmpty == true and
+            .launchAuthority.productionSalesAllowedByThisE2e == false and
+            .launchAuthority.productionPublicationAllowedByThisE2e == false and
+            .nextRequiredBoundary == "cross-university-historical-regression"
+          ' data/regression/ugmu-subscription-revoke-e2e-report.json >/dev/null
+
+      - name: Write summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/regression/ugmu-subscription-revoke-e2e-report.json';
+          console.log('## UGMU subscription revoke E2E');
+          console.log('');
+          if (!fs.existsSync(file)) {
+            console.log('Revoke E2E report was not generated.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${report.passed ? 'PASS' : 'FAIL'}**`);
+          console.log(`Admin protection/revoke: **${report.http.unauthorizedRevokeStatus} → ${report.http.authorizedRevokeStatus}**`);
+          console.log(`Revoked feed VEVENT: **${report.http.revokedBeforeEvents} → ${report.http.revokedAfterEvents}**`);
+          console.log(`Sibling feed VEVENT: **${report.http.otherBeforeEvents} → ${report.http.otherAfterEvents}**`);
+          console.log('Production UGMU sales/public/trials: **closed**');
+          NODE
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-subscription-revoke-e2e
+          path: api/data/regression/ugmu-subscription-revoke-e2e-report.json
+          if-no-files-found: error
+          retention-days: 90

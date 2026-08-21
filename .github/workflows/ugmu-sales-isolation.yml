@@ -1,0 +1,18 @@
+name: UGMU commercial sales isolation (retired)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retired:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve completed sales-isolation boundary
+        run: |
+          echo "The prelaunch UGMU sales-isolation gate is retired after controlled launch."
+          echo "Its former production baseline required sales=closed and a blocked checkout; those are no longer valid launch invariants."
+          echo "The architectural isolation tests remain in the repository and can be run independently when the routing contract changes."
+          echo "No production request or mutation is performed by this retired workflow."

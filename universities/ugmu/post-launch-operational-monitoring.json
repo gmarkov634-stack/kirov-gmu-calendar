@@ -1,0 +1,100 @@
+{
+  "version": 2,
+  "kind": "ugmu-post-launch-operational-monitoring",
+  "boundary": "post-launch-operational-monitoring",
+  "boundaryStatus": "PASS",
+  "status": "ACTIVE",
+  "effectiveDate": "2026-08-21",
+  "productionInvariants": {
+    "globalSalesEnabled": false,
+    "ugmuSalesEnabled": true,
+    "ugmuActive": true,
+    "trialsEnabled": false,
+    "yookassaTestMode": false,
+    "paymentMode": "live",
+    "liveShopId": "1258890",
+    "liveSecretPath": "yookassa-secret-key",
+    "publicScheduleEnabled": false,
+    "publicIcsEnabled": false
+  },
+  "monitoring": {
+    "mainWorkflow": ".github/workflows/ugmu-post-launch-operational-monitor.yml",
+    "mainWorkflowCommit": "77189c67c0c62d224043c55117a93336709ec468",
+    "hourlyPublicCron": "17 * * * *",
+    "dailyDeepCron": "43 1 * * *",
+    "publicChecks": [
+      "health",
+      "meta-sales-open",
+      "meta-trials-closed",
+      "meta-payment-mode-live",
+      "github-pages-cors",
+      "ugmu-launch-landing",
+      "public-schedule-closed",
+      "public-ics-closed"
+    ],
+    "deepChecks": [
+      "cloudru-container-running",
+      "approved-image-digest",
+      "ugmu-only-sales-flags",
+      "live-yookassa-shop-and-secret-reference",
+      "secret-manager-read-only-resolution",
+      "yookassa-get-payments-live-only",
+      "twelve-production-schedules-present",
+      "twelve-production-schedule-hashes-match",
+      "twelve-rollback-snapshots-present"
+    ],
+    "alerting": {
+      "publicFailureIssue": "[UGMU OPS] Public production monitor failure",
+      "deepFailureIssue": "[UGMU OPS] Deep production monitor failure",
+      "closeIssueOnRecovery": true
+    }
+  },
+  "storageBaseline": {
+    "path": "universities/ugmu/baselines/post-launch-first-stream-manifest.json",
+    "mainBaselineCommit": "e7d7f620e1defa736497573cf25e406e83ee2686",
+    "sourceEvidenceManifestSha256": "2d8103b1c0a873c8cd52cc569426338342f2671ce0d740db6f3f0482590262e5",
+    "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+    "groups": 12,
+    "events": 4286
+  },
+  "evidence": {
+    "monitorRunId": 32470331508,
+    "monitorRunAttempt": 2,
+    "monitorConclusion": "success",
+    "publicJobId": 96741662372,
+    "publicJobConclusion": "success",
+    "deepJobId": 96741663779,
+    "deepJobConclusion": "success",
+    "publicIncidentIssue": 238,
+    "publicIncidentIssueClosed": true,
+    "pagesCompatibility": {
+      "pagesBuildTypeObserved": "legacy",
+      "pagesSourceObserved": "main:/",
+      "settingsMigrationRunId": 32471628881,
+      "settingsMigrationApplied": false,
+      "settingsMigrationBlocker": "github-actions-token-http-403",
+      "durableMainRootBridge": true,
+      "bridgeCommit": "c6aaf1913ad4cd5a2d105967af3977335c4620b8",
+      "bridgePath": "ugmu/",
+      "bridgeIssue": 240,
+      "bridgeIssueClosed": true,
+      "settingsMigrationIssue": 239,
+      "settingsMigrationIssueClosed": true,
+      "recoveryProvenByMonitorAttempt2": true
+    },
+    "paymentCreated": false,
+    "backendMutationPerformed": false,
+    "s3MutationPerformed": false,
+    "pagesRecoveryMutationPerformed": true,
+    "pagesRecoveryMutationScope": "main/ugmu launch content only"
+  },
+  "safety": {
+    "productionMutationAllowed": false,
+    "paymentCreationAllowed": false,
+    "s3WriteAllowed": false,
+    "cloudruMutationAllowed": false,
+    "publicScopeExpansionAllowed": false,
+    "globalSalesChangeAllowed": false
+  },
+  "nextRequiredBoundary": "controlled-live-payment-canary-explicit-decision"
+}

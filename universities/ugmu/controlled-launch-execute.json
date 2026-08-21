@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "kind": "ugmu-controlled-launch-execute",
+  "authorizedStep": 28,
+  "authorizedBranch": "agent/ugmu-scaffold-20260820",
+  "preparedCodeHead": "11c37ac0a6513c6621c297aec5c6dbceb42ede3b",
+  "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+  "groups": ["ОЛД 101", "ОЛД 102", "ОЛД 103", "ОЛД 104", "ОЛД 105", "ОЛД 106", "ОЛД 107", "ОЛД 108", "ОЛД 109", "ОЛД 110", "ОЛД 111", "ОЛД 112"],
+  "backendActivation": true,
+  "pagesActivation": true,
+  "ugmuSalesEnabled": true,
+  "ugmuActive": true,
+  "publicEndpointsEnabled": false,
+  "publicIcsEnabled": false,
+  "trialsEnabled": false,
+  "globalSalesEnabled": false,
+  "paymentMode": "live",
+  "automaticRollback": true,
+  "userAuthorization": "Далее"
+}
