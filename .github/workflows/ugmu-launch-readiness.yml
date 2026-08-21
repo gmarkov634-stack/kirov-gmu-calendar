@@ -1,4 +1,4 @@
-name: UGMU structural launch readiness
+name: UGMU structural post-launch readiness
 
 on:
   workflow_dispatch:
@@ -23,6 +23,7 @@ on:
       - "api/package.json"
       - "universities/ugmu/**"
       - "site/ugmu/**"
+      - "ugmu/**"
       - ".github/workflows/ugmu-source-watch.yml"
       - ".github/workflows/ugmu-first-stream-qa.yml"
       - ".github/workflows/ugmu-launch-readiness.yml"
@@ -45,6 +46,7 @@ on:
       - "api/package.json"
       - "universities/ugmu/**"
       - "site/ugmu/**"
+      - "ugmu/**"
       - ".github/workflows/ugmu-source-watch.yml"
       - ".github/workflows/ugmu-first-stream-qa.yml"
       - ".github/workflows/ugmu-launch-readiness.yml"
@@ -144,7 +146,7 @@ jobs:
             --fixture=test/fixtures/ugmu/first-stream-2026-autumn.json \
             --output=data/imports/ugmu-readiness/regression/first-stream-regression.json
 
-      - name: Run structural readiness gate
+      - name: Run structural post-launch readiness gate
         env:
           UGMU_SOURCE_WATCH_REPORT: data/imports/ugmu-readiness/source-watch-report.json
           UGMU_FIRST_STREAM_QA_REPORT: data/imports/ugmu-readiness/qa/first-stream-qa.json
@@ -156,26 +158,30 @@ jobs:
           set -euo pipefail
           npm run readiness:ugmu
           jq -e '
+            .version == 2 and
             .structuralReady == true and
-            .status == "STRUCTURALLY_READY_FIRST_STREAM_FAIL_CLOSED" and
+            .status == "STRUCTURALLY_READY_FIRST_STREAM_POST_LAUNCH" and
             .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
             .apiState.universityId == "ugmu" and
             .apiState.routingEnabled == true and
             .apiState.publicEndpointsEnabled == false and
-            .apiState.checkoutEnabled == false and
+            .apiState.checkoutEnabledBySourceDefault == false and
             .apiState.trialsEnabled == false and
             .siteState.path == "/ugmu/" and
-            .siteState.liveCheckoutPrepared == true and
+            .siteState.postLaunchReady == true and
             .siteState.deployedByThisGate == false and
             .siteState.groupsPrepared == 12 and
             .siteState.startsDisabled == true and
+            .siteState.requiresRuntimeSalesOpen == true and
             .siteState.requiresLivePaymentMode == true and
-            .siteState.searchIndexingEnabled == false and
-            .launchAuthority.publicationAllowedByThisGate == false and
-            .launchAuthority.salesAllowedByThisGate == false and
+            .siteState.searchIndexingEnabled == true and
+            .launchAuthority.productionMutationAllowedByThisGate == false and
+            .launchAuthority.paymentCreationAllowedByThisGate == false and
+            .launchAuthority.publicScheduleAllowedByThisGate == false and
+            .launchAuthority.publicIcsAllowedByThisGate == false and
             .launchAuthority.trialsAllowedByThisGate == false and
-            .launchAuthority.catalogVisibilityAllowedByThisGate == false and
-            .launchAuthority.nextRequiredBoundary == "validate-live-yookassa-mode" and
+            .launchAuthority.scopeExpansionAllowedByThisGate == false and
+            .launchAuthority.nextRequiredBoundary == "ongoing-post-launch-monitoring" and
             ([.checks[] | select(.status != "PASS")] | length) == 0
           ' data/regression/ugmu-launch-readiness-report.json >/dev/null
 
@@ -185,7 +191,7 @@ jobs:
           node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
           const fs = require('fs');
           const file = 'data/regression/ugmu-launch-readiness-report.json';
-          console.log('## UGMU structural launch readiness');
+          console.log('## UGMU structural post-launch readiness');
           console.log('');
           if (!fs.existsSync(file)) {
             console.log('Readiness report was not generated.');
@@ -195,12 +201,12 @@ jobs:
           const checks = Object.entries(report.checks || {});
           console.log(`Status: **${report.status}**`);
           console.log(`Checks: **${checks.filter(([, value]) => value.status === 'PASS').length}/${checks.length} PASS**`);
-          console.log(`Scope: **medicine · 1 курс · I поток · ОЛД 101–112**`);
+          console.log('Scope: **medicine · 1 курс · I поток · ОЛД 101–112**');
           console.log(`Source SHA-256: \`${report.scope.sourceSha256}\``);
-          console.log(`API routing: **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/checkout/trials: **closed**`);
-          console.log(`Landing: **${report.siteState?.path || 'missing'}**; live checkout prepared: **${report.siteState?.liveCheckoutPrepared ? 'yes' : 'no'}**; production deploy by this gate: **no**`);
+          console.log(`API safe defaults: routing **${report.apiState?.routingEnabled ? 'enabled' : 'disabled'}**; public/trials **closed**; checkout source-default **closed**`);
+          console.log(`Landing: **${report.siteState?.path || 'missing'}**; indexed: **${report.siteState?.searchIndexingEnabled ? 'yes' : 'no'}**; runtime-gated: **${report.siteState?.requiresRuntimeSalesOpen && report.siteState?.requiresLivePaymentMode ? 'yes' : 'no'}**`);
           console.log(`Missing courses on source page: **${(report.sourceState.missingCourses || []).join(', ') || 'none'}**`);
-          console.log('Publication / sales / trials / catalog visibility granted by this gate: **no**');
+          console.log('Production mutation / payment creation / public schedule / public ICS / trials / scope expansion granted by this gate: **no**');
           console.log(`Next boundary: **${report.launchAuthority.nextRequiredBoundary}**`);
           console.log('');
           console.log('| Check | Status | Detail |');

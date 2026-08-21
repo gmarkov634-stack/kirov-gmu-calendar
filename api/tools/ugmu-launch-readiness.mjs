@@ -63,9 +63,9 @@ addCheck(checks, errors, "registryIdentity",
   university.id === "ugmu" && university.shortName === "УГМУ" && university.timeMode === "floating",
   `id=${university.id}; shortName=${university.shortName}; timeMode=${university.timeMode}`,
 );
-addCheck(checks, errors, "registryFailClosed", university.active === false, `active=${university.active}`);
-addCheck(checks, errors, "paidRedirectFailClosed", runtimeConfig.universitySiteUrls?.ugmu === "", `UGMU site URL=${JSON.stringify(runtimeConfig.universitySiteUrls?.ugmu)}`);
-addCheck(checks, errors, "apiRoutingBoundary",
+addCheck(checks, errors, "registrySafeDefault", university.active === false, `source-default active=${university.active}`);
+addCheck(checks, errors, "paidRedirectSafeDefault", runtimeConfig.universitySiteUrls?.ugmu === "", `source-default UGMU site URL=${JSON.stringify(runtimeConfig.universitySiteUrls?.ugmu)}`);
+addCheck(checks, errors, "apiSafeDefaults",
   ugmuAccess.apiRoutingEnabled === true
     && ugmuAccess.publicEndpointsEnabled === false
     && ugmuAccess.checkoutEnabled === false
@@ -154,8 +154,8 @@ addCheck(checks, errors, "fixtureScope",
 );
 
 const landingGroupsPresent = EXPECTED_GROUPS.every((group) => landingConfig.includes(`code: "${group}"`));
-const siteLaunchReadyFailClosed = landingHtml.includes("Предзапусковый режим")
-  && landingHtml.includes('name="robots" content="noindex,follow"')
+const sitePostLaunchBoundary = landingHtml.includes("Календарь доступен")
+  && landingHtml.includes('name="robots" content="index,follow"')
   && landingHtml.includes('type="submit" disabled')
   && landingConfig.includes('university: "ugmu"')
   && landingConfig.includes('paymentPath: "/api/v2/payments"')
@@ -173,11 +173,11 @@ const siteLaunchReadyFailClosed = landingHtml.includes("Предзапусков
   && landingApp.includes('order.subscriptionUrl')
   && !landingApp.includes('/api/v2/catalog/ugmu')
   && !landingApp.includes('/api/v2/schedules/ugmu');
-addCheck(checks, errors, "siteLaunchReadyBoundary", siteLaunchReadyFailClosed,
-  `runtimeGated=${landingApp.includes('runtime.sales === "open"')}; liveModeRequired=${landingApp.includes('runtime.paymentMode === "live"')}; groups=${landingGroupsPresent ? 12 : "missing"}; noindex=true`,
+addCheck(checks, errors, "sitePostLaunchBoundary", sitePostLaunchBoundary,
+  `runtimeGated=${landingApp.includes('runtime.sales === "open"')}; liveModeRequired=${landingApp.includes('runtime.paymentMode === "live"')}; groups=${landingGroupsPresent ? 12 : "missing"}; indexed=${landingHtml.includes('name="robots" content="index,follow"')}`,
 );
 
-const failClosed = university.active === false
+const structuralBoundarySafe = university.active === false
   && runtimeConfig.universitySiteUrls?.ugmu === ""
   && ugmuAccess.apiRoutingEnabled === true
   && ugmuAccess.publicEndpointsEnabled === false
@@ -187,17 +187,19 @@ const failClosed = university.active === false
   && watchReport.publicationAllowed === false
   && firstStreamQa.publicationAllowed === false
   && regression.publicationAllowed === false
-  && siteLaunchReadyFailClosed;
-addCheck(checks, errors, "commercialPublicationBoundary", failClosed, `failClosed=${failClosed}`);
+  && sitePostLaunchBoundary;
+addCheck(checks, errors, "commercialPublicationBoundary", structuralBoundarySafe,
+  `safeSourceDefaults=${structuralBoundarySafe}; publicEndpoints=${ugmuAccess.publicEndpointsEnabled}; trials=${ugmuAccess.trialsEnabled}`,
+);
 
 const structuralReady = errors.length === 0;
 const report = {
-  version: 1,
+  version: 2,
   university: "ugmu",
-  mode: "live-source-structural-readiness",
+  mode: "live-source-post-launch-structural-readiness",
   startedAt,
   finishedAt: new Date().toISOString(),
-  status: structuralReady ? "STRUCTURALLY_READY_FIRST_STREAM_FAIL_CLOSED" : "STRUCTURAL_GAP",
+  status: structuralReady ? "STRUCTURALLY_READY_FIRST_STREAM_POST_LAUNCH" : "STRUCTURAL_GAP",
   structuralReady,
   scope: {
     program: "medicine",
@@ -218,24 +220,27 @@ const report = {
     universityId: "ugmu",
     routingEnabled: ugmuAccess.apiRoutingEnabled === true,
     publicEndpointsEnabled: ugmuAccess.publicEndpointsEnabled === true,
-    checkoutEnabled: ugmuAccess.checkoutEnabled === true,
+    checkoutEnabledBySourceDefault: ugmuAccess.checkoutEnabled === true,
     trialsEnabled: ugmuAccess.trialsEnabled === true,
   },
   siteState: {
     path: "/ugmu/",
-    liveCheckoutPrepared: siteLaunchReadyFailClosed,
+    postLaunchReady: sitePostLaunchBoundary,
     deployedByThisGate: false,
     groupsPrepared: landingGroupsPresent ? 12 : 0,
     startsDisabled: landingHtml.includes('type="submit" disabled'),
+    requiresRuntimeSalesOpen: landingApp.includes('runtime.sales === "open"'),
     requiresLivePaymentMode: landingApp.includes('runtime.paymentMode === "live"'),
-    searchIndexingEnabled: false,
+    searchIndexingEnabled: landingHtml.includes('name="robots" content="index,follow"'),
   },
   launchAuthority: {
-    publicationAllowedByThisGate: false,
-    salesAllowedByThisGate: false,
+    productionMutationAllowedByThisGate: false,
+    paymentCreationAllowedByThisGate: false,
+    publicScheduleAllowedByThisGate: false,
+    publicIcsAllowedByThisGate: false,
     trialsAllowedByThisGate: false,
-    catalogVisibilityAllowedByThisGate: false,
-    nextRequiredBoundary: "validate-live-yookassa-mode",
+    scopeExpansionAllowedByThisGate: false,
+    nextRequiredBoundary: "ongoing-post-launch-monitoring",
   },
   checks,
   evidence: {
@@ -255,7 +260,7 @@ await fs.mkdir(path.dirname(reportPath), { recursive: true });
 await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
 console.log(`UGMU structural readiness: ${report.status}`);
 console.log(`Checks: ${Object.values(checks).filter((item) => item.status === "PASS").length}/${Object.keys(checks).length} PASS`);
-console.log("Publication/sales/trials/catalog visibility allowed by this gate: no");
+console.log("Production mutation/payment/public feeds/trials/scope expansion allowed by this gate: no");
 console.log(`Next boundary: ${report.launchAuthority.nextRequiredBoundary}`);
 console.log(`Report: ${reportPath}`);
 if (!structuralReady) {
