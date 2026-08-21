@@ -8,11 +8,12 @@ const secretProvision = fs.readFileSync(new URL("../../.github/workflows/ugmu-tr
 const activate = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-activate.yml", import.meta.url), "utf8");
 const deactivate = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-deactivate.yml", import.meta.url), "utf8");
 
-test("production deploy asserts the dedicated UGMU trial gate closed", () => {
-  const guardMatches = deploy.match(/'UGMU_TRIALS_ENABLED'/g) || [];
-  assert.ok(guardMatches.length >= 2);
-  assert.match(deploy, /universityTrials',\{\}\)\.get\('ugmu'\) == 'closed'/);
-  assert.match(deploy, /ugmu_trial_status/);
+test("production deploy preserves the dedicated UGMU trial gate while global trials remain closed", () => {
+  assert.match(deploy, /ugmuTrialGateOpen/);
+  assert.match(deploy, /UGMU_TRIALS_ENABLED changed during image-only deploy/);
+  assert.match(deploy, /expected_ugmu_state/);
+  assert.match(deploy, /body\.get\('trials'\) == 'closed'|meta\.get\('trials'\) == 'closed'/);
+  assert.match(deploy, /UGMU_TRIAL_SMOKE_SAFE gate=open mutation=skipped/);
 });
 
 test("proxy contract probe verifies deployed backend and Pages without production mutation", () => {
@@ -44,7 +45,7 @@ test("trial identity secret provisioning is explicit and keeps trial gates close
   assert.match(secretProvision, /UGMU_TRIAL_SECRET_PROVISIONED_SAFE gates=closed/);
 });
 
-test("UGMU trial activation is explicit, preflighted and rolls the gate back on error", () => {
+test("UGMU trial activation is explicit, preflighted and exits nonzero after guarded rollback", () => {
   assert.match(activate, /workflow_dispatch:/);
   assert.doesNotMatch(activate, /schedule:/);
   assert.match(activate, /ACTIVATE_UGMU_TRIAL/);
@@ -52,7 +53,12 @@ test("UGMU trial activation is explicit, preflighted and rolls the gate back on 
   assert.match(activate, /\/api\/v1\/admin\/proxy-contract/);
   assert.match(activate, /UGMU_TRIAL_ACTIVATION_PROXY_PREFLIGHT_SAFE/);
   assert.match(activate, /trap rollback ERR/);
+  assert.match(activate, /local exit_code=\$\?/);
+  assert.match(activate, /UGMU_TRIAL_ABORT_BEFORE_ACTIVATION_SAFE/);
   assert.match(activate, /UGMU_TRIAL_ROLLBACK_REQUESTED_SAFE/);
+  assert.match(activate, /exit "\$exit_code"/);
+  assert.match(activate, /preflight_ready='false'/);
+  assert.match(activate, /app\.get\('status'\) != 'running'/);
   assert.match(activate, /rows\.append\(\{'name':'UGMU_TRIALS_ENABLED','value':'true'\}\)/);
   assert.match(activate, /body\.get\('trials'\) == 'closed'/);
   assert.match(activate, /body\.get\('universityTrials',\{\}\)\.get\('ugmu'\) == 'open'/);

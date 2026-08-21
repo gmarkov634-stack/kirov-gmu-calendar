@@ -40,10 +40,12 @@ jobs:
           patch_url=''
 
           rollback() {
+            local exit_code=$?
             trap - ERR
             set +e
             if [ "$activated" != 'true' ] || [ -z "$token" ] || [ -z "$get_url" ] || [ -z "$patch_url" ]; then
-              return 0
+              echo 'UGMU_TRIAL_ABORT_BEFORE_ACTIVATION_SAFE'
+              exit "$exit_code"
             fi
             echo 'UGMU_TRIAL_ROLLBACK_START_SAFE'
             current_code="$(curl --silent --show-error --output /tmp/rollback-current.json --write-out '%{http_code}' \
@@ -65,6 +67,7 @@ jobs:
             fi
             rm -f /tmp/rollback-current.json /tmp/rollback-patch.json /tmp/rollback-response.json
             echo 'UGMU_TRIAL_ROLLBACK_REQUESTED_SAFE'
+            exit "$exit_code"
           }
           trap rollback ERR
 
@@ -100,25 +103,35 @@ jobs:
           get_url="https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project_id"
           patch_url="https://containers.api.cloud.ru/v2/containers/${CONTAINER_NAME}?projectId=$project_id"
 
-          test "$(curl --silent --show-error --output /tmp/current.json --write-out '%{http_code}' \
-            --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")" = '200'
-
-          python3 - <<'PY'
-          import json
+          preflight_ready='false'
+          for attempt in $(seq 1 40); do
+            current_code="$(curl --silent --show-error --output /tmp/current.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $token" --header 'Accept: application/json' "$get_url")"
+            if [ "$current_code" = '200' ] && python3 - <<'PY'
+          import json, sys
           app=json.load(open('/tmp/current.json', encoding='utf-8'))
-          assert app.get('name') == 'kgmu-calendar-api', app.get('name')
-          assert app.get('status') == 'running', app.get('status')
           containers=app.get('template',{}).get('containers',[])
-          assert len(containers) == 1, len(containers)
+          if app.get('name') != 'kgmu-calendar-api' or app.get('status') != 'running' or len(containers) != 1:
+              sys.exit(1)
           env={item.get('name'):item.get('value') for item in containers[0].get('env',[]) if isinstance(item,dict)}
-          assert env.get('TRIALS_ENABLED') != 'true', 'legacy global trials must remain closed'
-          assert env.get('UGMU_TRIALS_ENABLED') != 'true', 'UGMU trial must start closed'
           secret=env.get('TRIAL_IDENTITY_HMAC_SECRET')
-          assert isinstance(secret,str) and len(secret) >= 32, 'trial identity HMAC secret is not provisioned'
-          assert str(env.get('UGMU_SITE_URL') or '').startswith('https://'), 'UGMU_SITE_URL is not configured'
-          assert str(env.get('PUBLIC_API_URL') or '').startswith('https://'), 'PUBLIC_API_URL is not configured'
-          print('UGMU_TRIAL_ACTIVATION_PREFLIGHT_ENV_SAFE')
+          ok=(
+              env.get('TRIALS_ENABLED') != 'true' and
+              env.get('UGMU_TRIALS_ENABLED') != 'true' and
+              isinstance(secret,str) and len(secret) >= 32 and
+              str(env.get('UGMU_SITE_URL') or '').startswith('https://') and
+              str(env.get('PUBLIC_API_URL') or '').startswith('https://')
+          )
+          sys.exit(0 if ok else 1)
           PY
+            then
+              preflight_ready='true'
+              break
+            fi
+            sleep 3
+          done
+          test "$preflight_ready" = 'true'
+          echo 'UGMU_TRIAL_ACTIVATION_PREFLIGHT_ENV_SAFE'
 
           expected_client="$(curl --fail --silent --show-error --retry 3 https://api.ipify.org)"
           test -n "$expected_client"

@@ -1,8 +1,8 @@
 {
-  "version": 7,
+  "version": 8,
   "kind": "ugmu-trial-access-plan",
-  "boundary": "ugmu-production-readiness-verified",
-  "status": "PRODUCTION_DEPLOYED_TRIAL_CLOSED_NOT_ACTIVATION_READY",
+  "boundary": "ugmu-production-trial-active-maintenance-hardening-prepared",
+  "status": "PRODUCTION_TRIAL_ACTIVE_MAINTENANCE_HARDENING_PREPARED_NOT_MERGED",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -18,7 +18,9 @@
     "ugmuFlagDefault": false,
     "globalFlagAloneCanOpenUgmu": false,
     "ugmuFlagCanOpenOtherUniversities": false,
-    "exactScopeRequired": true
+    "exactScopeRequired": true,
+    "productionLegacyGlobalState": "closed",
+    "productionUgmuState": "open"
   },
   "trialProduct": {
     "entitlement": "trial",
@@ -48,11 +50,13 @@
   "deploymentSafety": {
     "reviewed": true,
     "workflow": ".github/workflows/deploy-api-cloudru.yml",
-    "globalTrialsGateAssertedClosed": true,
-    "ugmuTrialsGateAssertedClosed": true,
-    "productionMetaCanProveUgmuGateClosed": true,
-    "ugmuSpecificClosedGateSmoke": true,
-    "requiredFix": null
+    "globalTrialsGateMustRemainClosed": true,
+    "activeUgmuGateMustBePreserved": true,
+    "sourceWorkflowStillAssumesUgmuClosed": false,
+    "activeGatePreservingDeployFixPrepared": true,
+    "activeGatePreservingDeployFixMerged": false,
+    "activeUgmuSmokeCreatesTrial": false,
+    "productionDeployAllowedByThisPlan": false
   },
   "productionOperations": {
     "backendDeployment": {
@@ -60,7 +64,7 @@
       "verifiedInProduction": true,
       "healthVerified": true,
       "legacyTrialsClosed": true,
-      "ugmuTrialsClosed": true
+      "ugmuTrialsOpen": true
     },
     "pagesDeployment": {
       "canonicalSource": "ugmu/",
@@ -88,20 +92,26 @@
       "manualWorkflow": ".github/workflows/ugmu-trial-secret-provision.yml",
       "explicitConfirmation": "PROVISION_UGMU_TRIAL_SECRET",
       "workflowPrepared": true,
-      "provisionedInProduction": false,
-      "keepsTrialGatesClosed": true
+      "provisionedInProduction": true,
+      "provisionRunId": 32505123452,
+      "valueExposed": false
     },
     "activation": {
       "manualWorkflow": ".github/workflows/ugmu-trial-activate.yml",
       "explicitConfirmation": "ACTIVATE_UGMU_TRIAL",
       "workflowPrepared": true,
-      "executed": false,
+      "executed": true,
+      "activationRunId": 32505547867,
+      "activationConclusion": "success",
       "requiresProxyPreflight": true,
       "requiresIdentitySecret": true,
       "requiresLegacyGlobalTrialsClosed": true,
       "enablesOnlyUgmuTrialGate": true,
       "runsProductionTrialE2e": true,
-      "automaticGateRollbackOnFailure": true
+      "productionTrialE2eCompleted": true,
+      "automaticGateRollbackOnFailure": true,
+      "preflightFailureHandlingHardeningPrepared": true,
+      "hardeningMerged": false
     },
     "deactivation": {
       "manualWorkflow": ".github/workflows/ugmu-trial-deactivate.yml",
@@ -141,34 +151,29 @@
     ]
   },
   "verification": {
-    "headBeforeProxyHardening": "e59b793f64acbdfa5f3a573c0e2b2379ae8063bf",
-    "previousApiTestsRunId": 32498525546,
-    "previousApiTestsConclusion": "success",
-    "landingApiTestsHead": "70656f20a6a51c057f3b420e0b73e82b78040d58",
-    "landingApiTestsRunId": 32499805855,
-    "landingApiTestsConclusion": "success",
-    "landingAndUiHead": "a598b46ce27b188b927af70bf853cca22fe8352c",
-    "landingAndUiApiTestsRunId": 32500088599,
-    "landingAndUiApiTestsConclusion": "success",
-    "landingAndUiAllPrChecksConclusion": "success",
-    "deploySafetyHead": "96c2c6a0bac2d9239f01c3cf3f732de169feada3",
-    "deploySafetyApiTestsRunId": 32501035002,
-    "deploySafetyApiTestsConclusion": "success",
-    "deploySafetyProductionSmokeRunId": 32501035001,
-    "deploySafetyProductionSmokeConclusion": "success",
-    "deploySafetyAllPrChecksConclusion": "success",
-    "operationsPreparationHead": "692faf69a65ee3d1274844e3f9765fb0c5813bc4",
-    "operationsPreparationApiTestsRunId": 32501924764,
-    "operationsPreparationApiTestsConclusion": "success",
-    "operationsPreparationStructuralRunId": 32501924832,
-    "operationsPreparationStructuralConclusion": "success",
-    "operationsPreparationObservedAllChecksConclusion": "success",
     "productionReadinessProbeRunId": 32504210989,
     "productionReadinessProbeConclusion": "success",
+    "productionSecretProvisionRunId": 32505123452,
+    "productionSecretProvisionConclusion": "success",
+    "productionActivationRunId": 32505547867,
+    "productionActivationConclusion": "success",
     "productionBackendVerified": true,
     "productionPagesVerified": true,
     "productionProxyContractVerified": true,
     "productionProxyPolicyResolution": "x-real-ip",
+    "productionTrialSubscriptionE2eVerified": true,
+    "productionTrialContinuationE2eVerified": true,
+    "productionPublicMetaAfterActivation": {
+      "legacyTrials": "closed",
+      "ugmuTrials": "open"
+    },
+    "sourceHardeningPrepared": [
+      "activation-preflight-nonzero-failure-propagation",
+      "activation-preflight-waits-for-running-container",
+      "api-deploy-preserves-current-ugmu-trial-gate",
+      "api-deploy-keeps-legacy-global-trials-closed",
+      "active-ugmu-post-deploy-smoke-does-not-create-trial"
+    ],
     "coverage": [
       "opaque-deterministic-request-fingerprint",
       "x-real-ip-preferred",
@@ -190,10 +195,7 @@
       "ugmu-landing-dedicated-meta-gate-cta",
       "ugmu-landing-cta-fail-closed-before-activation",
       "ugmu-trial-to-paid-conversion-context",
-      "ugmu-deployment-gate-review",
-      "ugmu-deploy-pre-post-closed-gate-assertions",
       "ugmu-meta-dedicated-trial-state",
-      "ugmu-specific-closed-gate-production-smoke",
       "privacy-safe-admin-proxy-contract-observation",
       "canonical-ugmu-pages-source",
       "production-backend-readiness-probe",
@@ -203,32 +205,39 @@
       "explicit-activation-with-proxy-and-secret-preflight",
       "production-trial-e2e-on-activation",
       "automatic-ugmu-gate-rollback-on-activation-failure",
-      "explicit-ugmu-trial-deactivation"
+      "explicit-ugmu-trial-deactivation",
+      "active-ugmu-gate-preserving-api-deploy-source-guard",
+      "active-ugmu-post-deploy-smoke-without-trial-mutation"
     ]
   },
   "activation": {
-    "allowedNow": false,
+    "currentlyActiveInProduction": true,
+    "additionalActivationRequired": false,
     "productionFlagMutationAllowedByThisPlan": false,
     "automaticActivationAllowed": false,
-    "explicitDecisionRequired": true,
-    "blockers": [
-      "trial-identity-hmac-secret-not-provisioned-in-production",
-      "ugmu-trial-production-e2e-not-completed",
-      "explicit-trial-activation-decision-not-given"
-    ]
+    "explicitDecisionRequiredForFutureActivation": true,
+    "blockers": []
+  },
+  "pendingMaintenance": {
+    "activationWorkflowFailurePropagationPrepared": true,
+    "apiDeployActiveGatePreservationPrepared": true,
+    "trialWindowSemanticsChanged": false,
+    "changesMerged": false,
+    "productionMutationPerformed": false
   },
   "safety": {
     "productionCodeDeploymentPerformed": true,
     "productionPagesDeploymentPerformed": true,
-    "trialFlagMutationPerformed": false,
-    "identitySecretMutationPerformed": false,
-    "trialSubscriptionCreated": false,
+    "trialFlagMutationPerformed": true,
+    "identitySecretMutationPerformed": true,
+    "trialSubscriptionCreated": true,
     "paymentCreationAllowed": false,
     "publicScheduleAllowed": false,
     "publicIcsAllowed": false,
     "scopeExpansionAllowed": false,
     "globalTrialsActivationAllowed": false,
-    "globalSalesMutationAllowed": false
+    "globalSalesMutationAllowed": false,
+    "sourceBranchChangesDoNotMutateProduction": true
   },
-  "nextRequiredBoundary": "provision-trial-identity-hmac-secret-with-gates-closed"
+  "nextRequiredBoundary": "merge-maintenance-hardening-before-next-api-runtime-deploy"
 }
