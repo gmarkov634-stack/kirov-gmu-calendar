@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "kind": "ugmu-cloudru-revision-live-shop-diagnostic",
+  "boundary": "temporary-yookassa-test-window",
+  "preparedWorkflowHead": "ec6474cb32df811edb2be881dc7487201e9daf36",
+  "readOnly": true,
+  "productionMutationAllowed": false,
+  "userAuthorization": "Продолжи"
+}
