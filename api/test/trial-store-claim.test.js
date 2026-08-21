@@ -43,6 +43,32 @@ test("local trial identity claim is atomic under concurrent requests", async () 
   });
 });
 
+test("S3 trial identity claim uses conditional object creation", async () => {
+  const store = new TrialEnabledStore({
+    dataDir: "/unused",
+    bucket: "test-bucket",
+    accessKeyId: "",
+    secretAccessKey: "",
+  });
+  let input;
+  store.s3 = { async send(command) { input = command.input; return {}; } };
+  assert.equal(await store.claimTrialIdentityByHash(CLAIM_HASH, { version: 1 }), true);
+  assert.equal(input.Bucket, "test-bucket");
+  assert.equal(input.Key, `trial-identity-claims/${CLAIM_HASH}.json`);
+  assert.equal(input.IfNoneMatch, "*");
+});
+
+test("S3 conditional claim conflict is treated as an existing identity", async () => {
+  const store = new TrialEnabledStore({
+    dataDir: "/unused",
+    bucket: "test-bucket",
+    accessKeyId: "",
+    secretAccessKey: "",
+  });
+  store.s3 = { async send() { const error = new Error("precondition"); error.$metadata = { httpStatusCode: 412 }; throw error; } };
+  assert.equal(await store.claimTrialIdentityByHash(CLAIM_HASH, { version: 1 }), false);
+});
+
 test("trial identity claim rejects unsafe storage keys", async () => {
   await withStore(async (store) => {
     await assert.rejects(

@@ -18,14 +18,18 @@ function normalizeAddress(value) {
 }
 
 function requestAddress(request) {
-  const forwarded = boundedHeader(request?.headers?.["x-forwarded-for"]);
-  if (forwarded) {
-    const hops = forwarded.split(",").map((value) => normalizeAddress(value)).filter(Boolean);
-    if (hops.length) return hops.at(-1);
-  }
+  // Prefer an explicit real-IP header produced by a trusted ingress. Do not
+  // guess which hop is the client in a multi-hop X-Forwarded-For chain: proxy
+  // append/prepend semantics vary, and a wrong guess can collapse many users
+  // to one identity or make the identity spoofable. Until the production
+  // Container Apps header contract is verified, ambiguous chains fail closed.
   const realIp = normalizeAddress(boundedHeader(request?.headers?.["x-real-ip"]));
   if (realIp) return realIp;
-  return normalizeAddress(request?.socket?.remoteAddress);
+
+  const forwarded = boundedHeader(request?.headers?.["x-forwarded-for"]);
+  if (!forwarded) return "";
+  const hops = forwarded.split(",").map((value) => normalizeAddress(value)).filter(Boolean);
+  return hops.length === 1 ? hops[0] : "";
 }
 
 export function trialIdentityFingerprint(request, secret) {

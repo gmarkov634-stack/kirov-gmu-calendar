@@ -34,19 +34,28 @@ test("trial identity fingerprint is deterministic, opaque and request-bound", ()
   );
 });
 
-test("trial identity ignores a spoofable leading X-Forwarded-For hop", () => {
-  const legitimate = request({ headers: { "x-forwarded-for": "198.51.100.99, 203.0.113.10" } });
-  const spoofed = request({ headers: { "x-forwarded-for": "192.0.2.44, 203.0.113.10" } });
-  assert.equal(trialRequestAddress(legitimate), "203.0.113.10");
-  assert.equal(trialIdentityFingerprint(legitimate, SECRET), trialIdentityFingerprint(spoofed, SECRET));
+test("trial identity prefers explicit X-Real-IP over X-Forwarded-For", () => {
+  const value = request({
+    headers: {
+      "x-real-ip": "198.51.100.20",
+      "x-forwarded-for": "203.0.113.10",
+    },
+  });
+  assert.equal(trialRequestAddress(value), "198.51.100.20");
 });
 
-test("trial identity fails closed without a strong secret or address", () => {
+test("ambiguous multi-hop X-Forwarded-For fails closed until ingress semantics are verified", () => {
+  const value = request({ headers: { "x-forwarded-for": "198.51.100.99, 203.0.113.10" } });
+  assert.equal(trialRequestAddress(value), "");
+  assert.equal(trialIdentityFingerprint(value, SECRET), null);
+});
+
+test("trial identity fails closed without a strong secret or trusted proxy address", () => {
   assert.equal(trialIdentityFingerprint(request(), "too-short"), null);
-  assert.equal(trialIdentityFingerprint({ headers: {}, socket: {} }, SECRET), null);
+  assert.equal(trialIdentityFingerprint({ headers: {}, socket: { remoteAddress: "203.0.113.15" } }, SECRET), null);
 });
 
-test("trial identity normalizes IPv4-mapped socket addresses", () => {
-  const value = request({ headers: { "x-forwarded-for": "" }, socket: { remoteAddress: "::ffff:203.0.113.15" } });
+test("trial identity normalizes IPv4-mapped forwarded addresses", () => {
+  const value = request({ headers: { "x-forwarded-for": "::ffff:203.0.113.15" } });
   assert.equal(trialRequestAddress(value), "203.0.113.15");
 });
