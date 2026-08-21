@@ -4,11 +4,11 @@ import test from "node:test";
 
 const plan = JSON.parse(fs.readFileSync(new URL("../../universities/ugmu/trial-access-plan.json", import.meta.url), "utf8"));
 
-test("UGMU trial is active while the mid-semester window correction remains pending deploy", () => {
+test("UGMU trial is active and maintenance hardening is prepared without production mutation", () => {
   assert.equal(plan.version, 8);
   assert.equal(plan.kind, "ugmu-trial-access-plan");
-  assert.equal(plan.boundary, "ugmu-production-trial-active-window-fix-prepared");
-  assert.equal(plan.status, "PRODUCTION_TRIAL_ACTIVE_MID_SEMESTER_WINDOW_FIX_PENDING_DEPLOY");
+  assert.equal(plan.boundary, "ugmu-production-trial-active-maintenance-hardening-prepared");
+  assert.equal(plan.status, "PRODUCTION_TRIAL_ACTIVE_MAINTENANCE_HARDENING_PREPARED_NOT_MERGED");
 
   assert.deepEqual(plan.scope.groups, Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`));
   assert.equal(plan.scope.program, "medicine");
@@ -28,14 +28,7 @@ test("UGMU trial is active while the mid-semester window correction remains pend
   assert.equal(plan.trialProduct.publicScheduleRequired, false);
   assert.equal(plan.trialProduct.publicIcsRequired, false);
   assert.equal(plan.trialProduct.tokenizedSubscriptionIcs, true);
-  assert.equal(plan.trialProduct.window.days, 7);
-  assert.equal(plan.trialProduct.window.intendedAnchor, "activation-local-date-not-before-first-schedule-event");
-  assert.equal(plan.trialProduct.window.deployedAnchor, "first-schedule-event-date");
-  assert.equal(plan.trialProduct.window.beforeSemester, "first-schedule-event-date");
-  assert.equal(plan.trialProduct.window.duringSemester, "activation-local-date");
-  assert.equal(plan.trialProduct.window.afterLastScheduleEvent, "closed");
-  assert.equal(plan.trialProduct.window.sourceCorrectionPrepared, true);
-  assert.equal(plan.trialProduct.window.correctionDeployed, false);
+  assert.deepEqual(plan.trialProduct.window, { days: 7, anchor: "first-schedule-event-date", fixed: true });
 
   assert.equal(plan.landingUx.wired, true);
   assert.equal(plan.landingUx.canonicalSource, "ugmu/");
@@ -47,8 +40,10 @@ test("UGMU trial is active while the mid-semester window correction remains pend
 
   assert.equal(plan.deploymentSafety.globalTrialsGateMustRemainClosed, true);
   assert.equal(plan.deploymentSafety.activeUgmuGateMustBePreserved, true);
-  assert.equal(plan.deploymentSafety.currentWorkflowStillAssumesUgmuClosed, true);
-  assert.equal(plan.deploymentSafety.activeGatePreservingDeployFixPrepared, false);
+  assert.equal(plan.deploymentSafety.sourceWorkflowStillAssumesUgmuClosed, false);
+  assert.equal(plan.deploymentSafety.activeGatePreservingDeployFixPrepared, true);
+  assert.equal(plan.deploymentSafety.activeGatePreservingDeployFixMerged, false);
+  assert.equal(plan.deploymentSafety.activeUgmuSmokeCreatesTrial, false);
   assert.equal(plan.deploymentSafety.productionDeployAllowedByThisPlan, false);
 
   assert.equal(plan.productionOperations.backendDeployment.verifiedInProduction, true);
@@ -75,7 +70,7 @@ test("UGMU trial is active while the mid-semester window correction remains pend
   assert.equal(plan.productionOperations.activation.productionTrialE2eCompleted, true);
   assert.equal(plan.productionOperations.activation.enablesOnlyUgmuTrialGate, true);
   assert.equal(plan.productionOperations.activation.preflightFailureHandlingHardeningPrepared, true);
-  assert.equal(plan.productionOperations.activation.hardeningDeployed, false);
+  assert.equal(plan.productionOperations.activation.hardeningMerged, false);
 
   assert.equal(plan.antiAbuse.policyFinalized, true);
   assert.equal(plan.antiAbuse.identity.method, "HMAC-SHA256");
@@ -94,19 +89,20 @@ test("UGMU trial is active while the mid-semester window correction remains pend
     legacyTrials: "closed",
     ugmuTrials: "open",
   });
-  assert.ok(plan.verification.sourceCorrectionsPrepared.includes("activation-local-seven-calendar-day-window"));
-  assert.ok(plan.verification.sourceCorrectionsPrepared.includes("timezone-aware-activation-date"));
-  assert.ok(plan.verification.sourceCorrectionsPrepared.includes("activation-preflight-nonzero-failure-propagation"));
+  assert.ok(plan.verification.sourceHardeningPrepared.includes("activation-preflight-nonzero-failure-propagation"));
+  assert.ok(plan.verification.sourceHardeningPrepared.includes("api-deploy-preserves-current-ugmu-trial-gate"));
+  assert.ok(plan.verification.sourceHardeningPrepared.includes("active-ugmu-post-deploy-smoke-does-not-create-trial"));
 
-  assert.equal(plan.activation.allowedNow, true);
   assert.equal(plan.activation.currentlyActiveInProduction, true);
+  assert.equal(plan.activation.additionalActivationRequired, false);
   assert.equal(plan.activation.productionFlagMutationAllowedByThisPlan, false);
   assert.deepEqual(plan.activation.blockers, []);
 
-  assert.equal(plan.pendingProductionCorrection.sourceFixPrepared, true);
-  assert.equal(plan.pendingProductionCorrection.productionDeploymentPerformed, false);
-  assert.equal(plan.pendingProductionCorrection.requiresActiveGatePreservingDeployGuard, true);
-  assert.equal(plan.pendingProductionCorrection.requiresExplicitProductionDeployAuthorization, true);
+  assert.equal(plan.pendingMaintenance.activationWorkflowFailurePropagationPrepared, true);
+  assert.equal(plan.pendingMaintenance.apiDeployActiveGatePreservationPrepared, true);
+  assert.equal(plan.pendingMaintenance.trialWindowSemanticsChanged, false);
+  assert.equal(plan.pendingMaintenance.changesMerged, false);
+  assert.equal(plan.pendingMaintenance.productionMutationPerformed, false);
 
   assert.equal(plan.safety.trialFlagMutationPerformed, true);
   assert.equal(plan.safety.identitySecretMutationPerformed, true);
@@ -117,5 +113,5 @@ test("UGMU trial is active while the mid-semester window correction remains pend
   assert.equal(plan.safety.globalTrialsActivationAllowed, false);
   assert.equal(plan.safety.globalSalesMutationAllowed, false);
   assert.equal(plan.safety.sourceBranchChangesDoNotMutateProduction, true);
-  assert.equal(plan.nextRequiredBoundary, "prepare-active-gate-preserving-deploy-then-request-explicit-production-deploy-authorization");
+  assert.equal(plan.nextRequiredBoundary, "merge-maintenance-hardening-before-next-api-runtime-deploy");
 });
