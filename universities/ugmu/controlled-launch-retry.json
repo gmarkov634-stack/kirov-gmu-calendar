@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "kind": "ugmu-controlled-launch-retry",
+  "boundary": "controlled-launch-activation",
+  "authorizedBranch": "agent/ugmu-scaffold-20260820",
+  "preparedCodeHead": "f1aa100331b597f30e8c3526fdf23dded6d54dae",
+  "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
+  "pagesSourceSha": "11c37ac0a6513c6621c297aec5c6dbceb42ede3b",
+  "expectedImage": "kgmu-calendar-api.cr.cloud.ru/api@sha256:67306e593288457f23233eca6f65e13edebd3cd26db579cc3c26834087fe8a1a",
+  "groups": [
+    "ОЛД 101",
+    "ОЛД 102",
+    "ОЛД 103",
+    "ОЛД 104",
+    "ОЛД 105",
+    "ОЛД 106",
+    "ОЛД 107",
+    "ОЛД 108",
+    "ОЛД 109",
+    "ОЛД 110",
+    "ОЛД 111",
+    "ОЛД 112"
+  ],
+  "userAuthorization": "Далее",
+  "automaticRollback": true
+}
