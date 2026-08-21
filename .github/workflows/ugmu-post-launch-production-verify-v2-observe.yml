@@ -1,0 +1,50 @@
+name: UGMU post-launch production verify v2 observe
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-post-launch-production-verify-v2-observe.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AUTHORITY_SHA: be0b815c2562a023fab7f8d4a0f22f91e7ce0416
+    steps:
+      - name: Wait for exact post-launch verifier v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GITHUB_REPOSITORY}/actions/workflows/ugmu-post-launch-production-verify-v2.yml/runs?branch=agent%2Fugmu-scaffold-20260820&event=push&per_page=30"
+          run_id=''
+          for attempt in $(seq 1 240); do
+            gh api "$api" > /tmp/runs.json
+            readarray -t state < <(python3 - <<'PY'
+          import json,os
+          rows=json.load(open('/tmp/runs.json')).get('workflow_runs',[])
+          r=next((x for x in rows if x.get('head_sha')==os.environ['AUTHORITY_SHA']),None)
+          if r:
+            print(r['id']); print(r.get('status') or ''); print(r.get('conclusion') or '')
+          PY
+            )
+            if [ ${#state[@]} -ge 2 ]; then
+              run_id="${state[0]}"; status="${state[1]}"; conclusion="${state[2]:-}"
+              echo "UGMU_POST_LAUNCH_V2_RUN_SAFE id=$run_id status=$status conclusion=$conclusion"
+              if [ "$status" = completed ]; then test "$conclusion" = success; break; fi
+            fi
+            sleep 5
+          done
+          test -n "$run_id"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id/jobs?per_page=100" > /tmp/jobs.json
+          python3 - <<'PY'
+          import json
+          jobs=json.load(open('/tmp/jobs.json')).get('jobs',[])
+          print('UGMU_POST_LAUNCH_V2_JOBS_SAFE',[(j.get('id'),j.get('name'),j.get('status'),j.get('conclusion')) for j in jobs])
+          assert jobs and all(j.get('status')=='completed' and j.get('conclusion')=='success' for j in jobs)
+          PY
