@@ -1,111 +1,18 @@
-name: UGMU controlled activation plan
+name: UGMU controlled activation plan (retired)
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "api/src/app.js"
-      - "api/src/config.js"
-      - "api/src/universities/**"
-      - "api/src/adapters/ugmu/publication-package.mjs"
-      - "api/tools/ugmu-controlled-activation-plan.mjs"
-      - "api/test/ugmu-controlled-activation-plan.test.js"
-      - "api/test/ugmu-live-checkout-ui.test.js"
-      - "api/package.json"
-      - "site/ugmu/**"
-      - "universities/ugmu/controlled-activation-plan.json"
-      - ".github/workflows/ugmu-controlled-activation-plan.yml"
-  push:
-    branches:
-      - main
-    paths:
-      - "api/src/app.js"
-      - "api/src/config.js"
-      - "api/src/universities/**"
-      - "api/src/adapters/ugmu/publication-package.mjs"
-      - "api/tools/ugmu-controlled-activation-plan.mjs"
-      - "api/test/ugmu-controlled-activation-plan.test.js"
-      - "api/test/ugmu-live-checkout-ui.test.js"
-      - "api/package.json"
-      - "site/ugmu/**"
-      - "universities/ugmu/controlled-activation-plan.json"
-      - ".github/workflows/ugmu-controlled-activation-plan.yml"
 
 permissions:
   contents: read
 
 jobs:
-  plan:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    defaults:
-      run:
-        working-directory: api
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: api/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Test activation-plan safety contract
-        run: node --test test/ugmu-controlled-activation-plan.test.js test/ugmu-live-checkout-ui.test.js
-
-      - name: Build evidence-only activation plan
-        env:
-          UGMU_CONTROLLED_ACTIVATION_PLAN_REPORT: data/regression/ugmu-controlled-activation-plan-report.json
+      - name: Preserve completed activation-plan boundary
         run: |
-          npm run plan:ugmu:activation
-          jq -e '
-            .planValid == true and
-            .executableNow == true and
-            .status == "READY_FOR_EXPLICIT_CONTROLLED_ACTIVATION" and
-            .activationPerformed == false and
-            .productionMutationPerformed == false and
-            .scope.sourceSha256 == "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8" and
-            .blockerCount == 0 and
-            (.completedBlocks | length) == 4 and
-            ([.completedBlocks[].id] | sort) == ["isolate-global-sales-gate","stage-first-stream-production-schedules","validate-live-yookassa-mode","wire-live-ugmu-landing"] and
-            .launchTarget.productionSchedulesRequired == 12 and
-            .launchTarget.checkoutEnabled == true and
-            .launchTarget.publicEndpointsEnabled == false and
-            .launchTarget.publicIcsEnabled == false and
-            .launchTarget.trialsEnabled == false and
-            .launchTarget.paymentMode == "live" and
-            .nextRequiredBoundary == "controlled-launch-activation" and
-            ([.checks[] | select(.status != "PASS")] | length) == 0
-          ' data/regression/ugmu-controlled-activation-plan-report.json >/dev/null
-
-      - name: Write summary
-        if: always()
-        run: |
-          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
-          const fs = require('fs');
-          const file = 'data/regression/ugmu-controlled-activation-plan-report.json';
-          console.log('## UGMU controlled activation plan');
-          console.log('');
-          if (!fs.existsSync(file)) { console.log('Plan report was not generated.'); process.exit(0); }
-          const report = JSON.parse(fs.readFileSync(file, 'utf8'));
-          console.log(`Status: **${report.status}**`);
-          console.log(`Plan checks: **${Object.values(report.checks).filter((v) => v.status === 'PASS').length}/${Object.keys(report.checks).length} PASS**`);
-          console.log(`Completed preactivation blocks: **${(report.completedBlocks || []).length}**`);
-          console.log(`Remaining preactivation blocks: **${report.blockerCount}**`);
-          console.log('Activation / production mutation performed: **no**');
-          console.log(`Next boundary: **${report.nextRequiredBoundary}**`);
-          NODE
-
-      - name: Upload activation-plan evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ugmu-controlled-activation-plan
-          path: api/data/regression/ugmu-controlled-activation-plan-report.json
-          if-no-files-found: error
-          retention-days: 90
+          echo "The UGMU controlled activation plan is retired because controlled activation has already completed."
+          echo "Its READY_FOR_EXPLICIT_CONTROLLED_ACTIVATION state is historical and must not be treated as current CI authority."
+          echo "No production mutation is performed by this retired workflow."
+          echo "Use UGMU Cloud.ru post-launch production smoke for current production regression checks."
