@@ -11,56 +11,23 @@ function eventDate(event, isCanonical) {
   return DATE.test(String(value || "")) ? String(value) : null;
 }
 
-function localPlainDate(value, timezone) {
-  const date = value instanceof Date ? value : new Date(value ?? Date.now());
-  if (!Number.isFinite(date.getTime())) throw new TypeError("valid activation time is required");
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: timezone || "UTC",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
 export function addCalendarDays(value, days) {
   if (!DATE.test(String(value || "")) || !Number.isInteger(days)) throw new TypeError("valid date and integer days are required");
   const [year, month, day] = value.split("-").map(Number);
   return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
 }
 
-export function trialWindowFromSchedule(schedule, { activationAt = null, timezone = null } = {}) {
+export function trialWindowFromSchedule(schedule) {
   const isCanonical = canonical(schedule);
   const dates = (schedule?.events || [])
     .map((event) => eventDate(event, isCanonical))
     .filter(Boolean)
     .sort();
   if (!dates.length) return null;
-
-  const firstScheduleDate = dates[0];
-  const lastScheduleDate = dates[dates.length - 1];
-  const resolvedTimezone = timezone || schedule?.schedule?.timezone || schedule?.timezone || "UTC";
-  const activationDate = activationAt == null ? firstScheduleDate : localPlainDate(activationAt, resolvedTimezone);
-
-  if (activationDate > lastScheduleDate) {
-    return {
-      trialWindowClosed: true,
-      firstScheduleDate,
-      lastScheduleDate,
-    };
-  }
-
-  const trialStartDate = activationDate < firstScheduleDate ? firstScheduleDate : activationDate;
-  const trialEndDateExclusive = addCalendarDays(trialStartDate, 7);
-  const scheduleEventCount = dates.filter((date) => date >= trialStartDate && date < trialEndDateExclusive).length;
-
+  const trialStartDate = dates[0];
   return {
     trialStartDate,
-    trialEndDateExclusive,
-    scheduleEventCount,
-    firstScheduleDate,
-    lastScheduleDate,
+    trialEndDateExclusive: addCalendarDays(trialStartDate, 7),
   };
 }
 
