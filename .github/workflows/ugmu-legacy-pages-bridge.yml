@@ -1,0 +1,134 @@
+name: UGMU legacy Pages compatibility bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ugmu-legacy-pages-bridge.yml"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: ugmu-legacy-pages-bridge
+  cancel-in-progress: false
+
+env:
+  UGMU_SOURCE_SHA: 11c37ac0a6513c6621c297aec5c6dbceb42ede3b
+  PRODUCTION_BASE_URL: https://kgmu-calendar-api.containerapps.ru
+  UGMU_SITE_URL: https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/
+  RESULT_ISSUE_TITLE: "[UGMU OPS] Legacy Pages compatibility bridge"
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: base
+          fetch-depth: 0
+
+      - name: Checkout exact reviewed UGMU source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.UGMU_SOURCE_SHA }}
+          path: feature
+
+      - name: Build durable main-root UGMU launch directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf base/ugmu
+          mkdir -p base/ugmu
+          cp -R feature/site/ugmu/. base/ugmu/
+          API_URL="$PRODUCTION_BASE_URL" python3 - <<'PY'
+          import os,re
+          from pathlib import Path
+          root=Path('base/ugmu'); api=os.environ['API_URL'].rstrip('/')
+          p=root/'config.js'; text=p.read_text(encoding='utf-8'); text,n=re.subn(r'apiBaseUrl:\s*"https://[^\"]+"',f'apiBaseUrl: "{api}"',text,count=1); assert n==1; p.write_text(text,encoding='utf-8')
+          hp=root/'index.html'; h=hp.read_text(encoding='utf-8')
+          replacements={
+            'name="robots" content="noindex,follow"':'name="robots" content="index,follow"',
+            'Проверенное расписание УГМУ для ОЛД 101–112. Checkout подготовлен и откроется только после production-разрешения продаж и live-проверки ЮKassa.':'Проверенное расписание УГМУ для ОЛД 101–112. Оплата доступна через ЮKassa, после оплаты выдаётся персональная ссылка на календарь.',
+            'можно будет подключить одной персональной ссылкой':'можно подключить одной персональной ссылкой',
+            'продажи пока<br>закрыты':'оплата<br>доступна',
+            'Предзапусковый режим':'Календарь доступен',
+            'Интерфейс checkout уже подключён к production API, но сам сервер пока держит продажи УГМУ закрытыми. GitHub Pages на этом этапе не публикуется.':'Оплата для утверждённых групп ОЛД 101–112 доступна через ЮKassa. Публичное бесплатное расписание и trials остаются закрытыми.',
+            '<span class="badge">Подготовлено</span>':'<span class="badge">Доступно</span>',
+            'Форма уже работает с production API. Кнопка оплаты включится только когда сервер разрешит продажи УГМУ и ЮKassa будет подтверждена в live-режиме.':'Форма работает с production API и включает оплату только при подтверждённом live-режиме ЮKassa.',
+            'Осталась live-проверка ЮKassa и финальная активация':'ЮKassa подтверждена в live-режиме; оплата доступна',
+            'Независимый сервис · предзапусковая подготовка':'Независимый сервис электронных календарей',
+          }
+          for old,new in replacements.items():
+            assert old in h, old
+            h=h.replace(old,new)
+          hp.write_text(h,encoding='utf-8')
+          app=(root/'app.js').read_text(encoding='utf-8'); cfg=p.read_text(encoding='utf-8')
+          assert 'runtime.sales === "open"' in app
+          assert 'runtime.paymentMode === "live"' in app
+          assert '/api/v2/meta' in app
+          assert 'config.paymentPath' in app
+          assert 'paymentPath: "/api/v2/payments"' in cfg
+          assert '/api/v2/catalog/ugmu' not in app and '/api/v2/schedules/ugmu' not in app
+          assert 'type="submit" disabled' in h
+          assert 'name="robots" content="index,follow"' in h
+          assert 'Календарь доступен' in h and 'Предзапусковый режим' not in h
+          assert f'apiBaseUrl: "{api}"' in cfg
+          print('UGMU_LEGACY_PAGES_BRIDGE_ARTIFACT_SAFE')
+          PY
+
+      - name: Commit exact launch bridge to main
+        id: commit
+        working-directory: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ugmu
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "UGMU_LEGACY_PAGES_BRIDGE_ALREADY_PRESENT"
+          else
+            git commit -m "Persist launched UGMU for legacy Pages source"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "UGMU_LEGACY_PAGES_BRIDGE_COMMITTED=$(git rev-parse HEAD)"
+          fi
+
+      - name: Verify legacy Pages now serves UGMU launch mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 48); do
+            code="$(curl -sS -o /tmp/ugmu.html -w '%{http_code}' --max-time 20 "${UGMU_SITE_URL}?bridge=${GITHUB_RUN_ID}&attempt=$attempt" || true)"
+            if [ "$code" = 200 ] && grep -q 'name="robots" content="index,follow"' /tmp/ugmu.html && grep -q 'Календарь доступен' /tmp/ugmu.html; then
+              ok=true
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = true
+          echo "UGMU_LEGACY_PAGES_BRIDGE_PASS commit=${{ steps.commit.outputs.commit }}"
+
+      - name: Record bridge result
+        if: always()
+        env:
+          STEP_RESULT: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          issue="$(gh issue list --repo "$GITHUB_REPOSITORY" --state all --search "\"$RESULT_ISSUE_TITLE\" in:title" --json number,title --limit 20 | jq -r --arg t "$RESULT_ISSUE_TITLE" '.[]|select(.title==$t)|.number' | head -n1)"
+          body="Legacy Pages bridge run https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID. Result: $STEP_RESULT."
+          if [ -z "$issue" ]; then issue="$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$RESULT_ISSUE_TITLE" --body "$body" | sed 's#.*/##')"; else gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "$body"; fi
+          if [ "$STEP_RESULT" = success ]; then gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "UGMU launch directory is durable in main/ugmu and live Pages verification passed."; fi

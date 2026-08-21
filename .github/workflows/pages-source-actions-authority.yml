@@ -1,0 +1,81 @@
+name: GitHub Pages source authority migration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pages-source-actions-authority.yml"
+
+permissions:
+  contents: read
+  pages: write
+  issues: write
+
+concurrency:
+  group: medical-calendar-pages-source-authority
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RESULT_ISSUE_TITLE: "[UGMU OPS] Pages source authority migration"
+    steps:
+      - name: Read current Pages source
+        id: before
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pages" > /tmp/pages-before.json
+          build_type="$(jq -r '.build_type // ""' /tmp/pages-before.json)"
+          source_branch="$(jq -r '.source.branch // ""' /tmp/pages-before.json)"
+          source_path="$(jq -r '.source.path // ""' /tmp/pages-before.json)"
+          echo "build_type=$build_type" >> "$GITHUB_OUTPUT"
+          echo "PAGES_SOURCE_BEFORE_SAFE buildType=$build_type sourceBranch=$source_branch sourcePath=$source_path"
+          test "$build_type" = legacy -o "$build_type" = workflow
+
+      - name: Switch Pages source to GitHub Actions
+        if: steps.before.outputs.build_type != 'workflow'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow > /tmp/pages-update.json
+          echo "PAGES_SOURCE_MUTATION_SAFE target=workflow"
+
+      - name: Verify GitHub Actions is the only Pages build source
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            gh api "repos/$GITHUB_REPOSITORY/pages" > /tmp/pages-after.json
+            current="$(jq -r '.build_type // ""' /tmp/pages-after.json)"
+            if [ "$current" = workflow ]; then
+              jq '{status,html_url,build_type,source,public,cname,https_enforced}' /tmp/pages-after.json
+              echo "PAGES_SOURCE_AUTHORITY_PASS buildType=workflow"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/pages-after.json
+          exit 2
+
+      - name: Record source-authority result
+        if: always()
+        env:
+          STEP_RESULT: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          issue="$(gh issue list --repo "$GITHUB_REPOSITORY" --state all --search "\"$RESULT_ISSUE_TITLE\" in:title" --json number,title --limit 20 | jq -r --arg t "$RESULT_ISSUE_TITLE" '.[]|select(.title==$t)|.number' | head -n1)"
+          body="Pages source-authority run https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID for main SHA $GITHUB_SHA. Result: $STEP_RESULT."
+          if [ -z "$issue" ]; then
+            issue="$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$RESULT_ISSUE_TITLE" --body "$body" | sed 's#.*/##')"
+          else
+            gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "$body"
+          fi
+          if [ "$STEP_RESULT" = "success" ]; then
+            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "GitHub Pages source authority is workflow."
+          fi
