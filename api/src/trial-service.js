@@ -4,6 +4,8 @@ import { semesterEndFromSchedule } from "./subscription-period.js";
 import { trialWindowFromSchedule } from "./trial-projection.js";
 import { runtimeTrialContextAllowed, trialServiceEnabled } from "./trial-access-policy.mjs";
 
+const SHA256 = /^[a-f0-9]{64}$/;
+
 function fail(code, message = code) {
   const error = new Error(message);
   error.code = code;
@@ -12,6 +14,18 @@ function fail(code, message = code) {
 
 function tokenHash(value) {
   return createHash("sha256").update(value).digest("hex");
+}
+
+function trialIdentityClaimHash(context, identityHash) {
+  const academicYear = normalizeAcademicYear(context.academicYear);
+  if (!academicYear || ![1, 2].includes(Number(context.semester)) || !SHA256.test(String(identityHash || ""))) return "";
+  return tokenHash([
+    "trial-identity-claim:v1",
+    context.university,
+    academicYear,
+    Number(context.semester),
+    identityHash,
+  ].join("\n"));
 }
 
 function randomId() {
@@ -110,7 +124,7 @@ export class TrialService {
     return trialServiceEnabled(this.config);
   }
 
-  async create(input = {}) {
+  async create(input = {}, requestMeta = {}) {
     if (!this.enabled) throw fail("trials_not_open");
     if (typeof this.store?.putTrialConversion !== "function") throw fail("trial_not_ready", "trial conversion storage is unavailable");
 
@@ -132,6 +146,27 @@ export class TrialService {
     const createdAt = this.now().toISOString();
     const expiresAt = semesterEndFromSchedule(schedule);
     const attribution = safeAttribution(input);
+
+    // UGMU anonymous trials are limited to one claim per privacy-preserving
+    // request identity for the whole semester, not one claim per group. The
+    // raw address/user-agent never reaches storage; only a scoped SHA-256 key
+    // derived from the handler's HMAC fingerprint is persisted as an object key.
+    if (actual.university === "ugmu") {
+      if (typeof this.store?.claimTrialIdentityByHash !== "function") throw fail("trial_not_ready", "trial identity claim storage is unavailable");
+      const identityClaimHash = trialIdentityClaimHash(actual, requestMeta.identityHash);
+      if (!identityClaimHash) throw fail("trial_not_ready", "trial identity is unavailable");
+      const claimed = await this.store.claimTrialIdentityByHash(identityClaimHash, {
+        version: 1,
+        policy: "one-anonymous-trial-per-university-semester",
+        university: actual.university,
+        academicYear: normalizeAcademicYear(actual.academicYear),
+        semester: Number(actual.semester),
+        conversionIdHash: tokenHash(conversionId),
+        createdAt,
+      });
+      if (!claimed) throw fail("trial_already_claimed");
+    }
+
     const record = {
       version: 2,
       status: "active",
@@ -155,8 +190,9 @@ export class TrialService {
     };
 
     // Store the non-privileged conversion context first. If it fails, no live
-    // subscription entitlement exists. An orphaned conversion context is safe;
-    // an orphaned live trial URL is not.
+    // subscription entitlement exists. For UGMU the identity claim deliberately
+    // remains fail-closed if a later write fails; automatic claim release would
+    // re-open a race that permits duplicate anonymous trials.
     await this.store.putTrialConversion(conversionId, conversion);
     await this.store.putSubscription(token, record);
 
@@ -184,4 +220,4 @@ export class TrialService {
   }
 }
 
-export { safeAttribution, tokenHash as trialTokenHash };
+export { safeAttribution, trialIdentityClaimHash, tokenHash as trialTokenHash };
