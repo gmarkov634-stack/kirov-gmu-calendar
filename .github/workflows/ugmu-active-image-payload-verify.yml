@@ -1,0 +1,101 @@
+name: UGMU active image payload verify
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-active-image-payload-verify.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CONTAINER_NAME: kgmu-calendar-api
+      AUTHORIZED_LAUNCH_SHA: e9a5f7fd162fd9376ee659eaeb70df40a7651f81
+      CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
+      CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
+    steps:
+      - name: Checkout exact authorized launch code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.AUTHORIZED_LAUNCH_SHA }}
+          path: authorized
+
+      - name: Read current production image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth_payload="$(python3 - <<'PY'
+          import json,os
+          print(json.dumps({'keyId':os.environ['CLOUDRU_KEY_ID'],'secret':os.environ['CLOUDRU_KEY_SECRET']}))
+          PY
+          )"
+          test "$(curl -sS -o /tmp/token.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' --data "$auth_payload" https://iam.api.cloud.ru/api/v1/auth/token)" = 200
+          readarray -t a < <(python3 - <<'PY'
+          import base64,json
+          t=json.load(open('/tmp/token.json'))['access_token'];p=t.split('.')[1];p+='='*((4-len(p)%4)%4);c=json.loads(base64.urlsafe_b64decode(p.encode()));print(t);print(c['project_id'])
+          PY
+          )
+          token="${a[0]}"; project="${a[1]}"; echo "::add-mask::$token"
+          test "$(curl -sS -o /tmp/app.json -w '%{http_code}' -H "Authorization: Bearer $token" "https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project")" = 200
+          image="$(python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/app.json')); assert a.get('status')=='running'; print(a['template']['containers'][0]['image'])
+          PY
+          )"
+          [[ "$image" =~ ^kgmu-calendar-api\.cr\.cloud\.ru/api@sha256:[0-9a-f]{64}$ ]]
+          echo "ACTIVE_IMAGE_SAFE=$image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to registry read-only
+        uses: docker/login-action@v3
+        with:
+          registry: kgmu-calendar-api.cr.cloud.ru
+          username: ${{ secrets.EVO_CR_LOGIN }}
+          password: ${{ secrets.EVO_CR_PWD }}
+
+      - name: Compare active image application payload to authorized launch code
+        env:
+          ACTIVE_IMAGE: ${{ steps.image.outputs.image }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$ACTIVE_IMAGE" >/dev/null
+          cid="$(docker create "$ACTIVE_IMAGE")"
+          trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+          mkdir -p extracted
+          docker cp "$cid:/app/src" extracted/src
+          docker cp "$cid:/app/data" extracted/data
+          docker cp "$cid:/app/schemas" extracted/schemas
+          docker cp "$cid:/app/package.json" extracted/package.json
+          docker cp "$cid:/app/package-lock.json" extracted/package-lock.json
+          python3 - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          def manifest(root):
+              root=Path(root); out={}
+              for p in sorted(root.rglob('*')):
+                  if p.is_file(): out[p.relative_to(root).as_posix()]=hashlib.sha256(p.read_bytes()).hexdigest()
+              return out
+          expected={}
+          for name in ('src','data','schemas'):
+              for k,v in manifest(Path('authorized/api')/name).items(): expected[f'{name}/{k}']=v
+          for name in ('package.json','package-lock.json'):
+              expected[name]=hashlib.sha256((Path('authorized/api')/name).read_bytes()).hexdigest()
+          actual={}
+          for name in ('src','data','schemas'):
+              for k,v in manifest(Path('extracted')/name).items(): actual[f'{name}/{k}']=v
+          for name in ('package.json','package-lock.json'):
+              actual[name]=hashlib.sha256((Path('extracted')/name).read_bytes()).hexdigest()
+          only_expected=sorted(set(expected)-set(actual)); only_actual=sorted(set(actual)-set(expected)); changed=sorted(k for k in expected.keys()&actual.keys() if expected[k]!=actual[k])
+          print('UGMU_ACTIVE_IMAGE_PAYLOAD_SAFE',{'expectedFiles':len(expected),'actualFiles':len(actual),'onlyExpected':len(only_expected),'onlyActual':len(only_actual),'changed':len(changed)})
+          if only_expected: print('ONLY_EXPECTED',only_expected[:20])
+          if only_actual: print('ONLY_ACTUAL',only_actual[:20])
+          if changed: print('CHANGED',changed[:20])
+          assert not only_expected and not only_actual and not changed
+          PY
+          echo 'UGMU_ACTIVE_IMAGE_MATCHES_AUTHORIZED_LAUNCH_CODE=true productionMutation=false'
