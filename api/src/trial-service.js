@@ -41,6 +41,19 @@ function safeAttribution(input = {}) {
   return result;
 }
 
+function localDate(now, timezone) {
+  const date = now instanceof Date ? now : new Date(now ?? Date.now());
+  if (!Number.isFinite(date.getTime())) throw new TypeError("invalid current time");
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone || "UTC",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function normalizedHttpsBaseUrl(value) {
   try {
     const url = new URL(String(value || "").trim());
@@ -125,11 +138,17 @@ export class TrialService {
     });
     const actual = assertOfferSchedule(schedule, requested, this.config);
     const now = this.now();
-    const windowState = trialWindowFromSchedule(schedule, { activationAt: now, timezone: actual.timezone });
+    const windowState = actual.university === "ugmu"
+      ? trialWindowFromSchedule(schedule, { activationAt: now, timezone: actual.timezone })
+      : trialWindowFromSchedule(schedule);
     if (!windowState) throw fail("trial_not_ready");
-    if (windowState.trialWindowClosed) throw fail("trial_window_closed");
-    if (!Number.isInteger(windowState.scheduleEventCount) || windowState.scheduleEventCount < 1) {
-      throw fail("trial_schedule_unavailable");
+    if (actual.university === "ugmu") {
+      if (windowState.trialWindowClosed) throw fail("trial_window_closed");
+      if (!Number.isInteger(windowState.scheduleEventCount) || windowState.scheduleEventCount < 1) {
+        throw fail("trial_schedule_unavailable");
+      }
+    } else if (localDate(now, actual.timezone) >= windowState.trialEndDateExclusive) {
+      throw fail("trial_window_closed");
     }
     const window = {
       trialStartDate: windowState.trialStartDate,
