@@ -1,8 +1,8 @@
 {
-  "version": 6,
+  "version": 7,
   "kind": "ugmu-trial-access-plan",
-  "boundary": "ugmu-trial-production-operations-prepared",
-  "status": "IMPLEMENTED_BRANCH_ONLY_NOT_ACTIVATION_READY",
+  "boundary": "ugmu-production-readiness-verified",
+  "status": "PRODUCTION_DEPLOYED_TRIAL_CLOSED_NOT_ACTIVATION_READY",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -31,6 +31,8 @@
   },
   "landingUx": {
     "wired": true,
+    "canonicalSource": "ugmu/",
+    "publishedInProduction": true,
     "trialPath": "/api/v2/trials",
     "emailRequired": false,
     "paymentRequired": false,
@@ -53,12 +55,32 @@
     "requiredFix": null
   },
   "productionOperations": {
+    "backendDeployment": {
+      "trialImplementationMergeCommit": "1550722ccc52d58e9adf1db501ab735bd4503ac0",
+      "verifiedInProduction": true,
+      "healthVerified": true,
+      "legacyTrialsClosed": true,
+      "ugmuTrialsClosed": true
+    },
+    "pagesDeployment": {
+      "canonicalSource": "ugmu/",
+      "pagesSourceFixMergeCommit": "2cce85a769f3efe0301b074cb1a5bde78b03b56d",
+      "verifiedInProduction": true,
+      "trialEntryPointPresent": true,
+      "dedicatedMetaGatePresent": true,
+      "legacyMetaGateAbsent": true
+    },
     "proxyContract": {
       "adminEndpoint": "/api/v1/admin/proxy-contract",
       "rawAddressesReturned": false,
       "manualWorkflow": ".github/workflows/ugmu-proxy-contract-probe.yml",
       "workflowPrepared": true,
-      "verifiedInProduction": false
+      "verifiedInProduction": true,
+      "verificationRunId": 32504210989,
+      "policyResolution": "x-real-ip",
+      "xRealIpPresent": true,
+      "xForwardedForHopCount": 0,
+      "injectedSentinelAccepted": false
     },
     "identitySecret": {
       "env": "TRIAL_IDENTITY_HMAC_SECRET",
@@ -90,7 +112,7 @@
     }
   },
   "antiAbuse": {
-    "policyFinalized": false,
+    "policyFinalized": true,
     "policy": "one-anonymous-trial-per-university-semester",
     "identity": {
       "method": "HMAC-SHA256",
@@ -98,6 +120,7 @@
       "minimumSecretLength": 32,
       "requestTraits": ["trusted-proxy-client-address", "user-agent", "accept-language"],
       "addressResolution": "x-real-ip-preferred-single-x-forwarded-for-only",
+      "verifiedProductionResolution": "x-real-ip",
       "ambiguousMultiHopForwardedFor": "fail-closed",
       "socketAddressFallback": false,
       "rawRequestTraitsPersisted": false,
@@ -114,8 +137,7 @@
     },
     "limitations": [
       "anonymous-request-identity-is-not-proof-of-personhood",
-      "network-or-browser-profile-changes-can-produce-a-new-identity",
-      "cloudru-container-apps-forwarded-client-address-contract-not-verified"
+      "network-or-browser-profile-changes-can-produce-a-new-identity"
     ]
   },
   "verification": {
@@ -141,6 +163,12 @@
     "operationsPreparationStructuralRunId": 32501924832,
     "operationsPreparationStructuralConclusion": "success",
     "operationsPreparationObservedAllChecksConclusion": "success",
+    "productionReadinessProbeRunId": 32504210989,
+    "productionReadinessProbeConclusion": "success",
+    "productionBackendVerified": true,
+    "productionPagesVerified": true,
+    "productionProxyContractVerified": true,
+    "productionProxyPolicyResolution": "x-real-ip",
     "coverage": [
       "opaque-deterministic-request-fingerprint",
       "x-real-ip-preferred",
@@ -167,7 +195,10 @@
       "ugmu-meta-dedicated-trial-state",
       "ugmu-specific-closed-gate-production-smoke",
       "privacy-safe-admin-proxy-contract-observation",
-      "manual-proxy-contract-probe",
+      "canonical-ugmu-pages-source",
+      "production-backend-readiness-probe",
+      "production-pages-trial-ui-probe",
+      "production-cloudru-x-real-ip-contract-verification",
       "guarded-identity-secret-provisioning",
       "explicit-activation-with-proxy-and-secret-preflight",
       "production-trial-e2e-on-activation",
@@ -181,14 +212,16 @@
     "automaticActivationAllowed": false,
     "explicitDecisionRequired": true,
     "blockers": [
-      "anti-abuse-proxy-contract-not-verified",
       "trial-identity-hmac-secret-not-provisioned-in-production",
       "ugmu-trial-production-e2e-not-completed",
       "explicit-trial-activation-decision-not-given"
     ]
   },
   "safety": {
-    "productionMutationPerformed": false,
+    "productionCodeDeploymentPerformed": true,
+    "productionPagesDeploymentPerformed": true,
+    "trialFlagMutationPerformed": false,
+    "identitySecretMutationPerformed": false,
     "trialSubscriptionCreated": false,
     "paymentCreationAllowed": false,
     "publicScheduleAllowed": false,
@@ -197,5 +230,5 @@
     "globalTrialsActivationAllowed": false,
     "globalSalesMutationAllowed": false
   },
-  "nextRequiredBoundary": "deploy-branch-then-proxy-probe-secret-provision-and-explicit-activation"
+  "nextRequiredBoundary": "provision-trial-identity-hmac-secret-with-gates-closed"
 }
