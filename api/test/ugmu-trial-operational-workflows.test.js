@@ -6,6 +6,7 @@ const deploy = fs.readFileSync(new URL("../../.github/workflows/deploy-api-cloud
 const proxyProbe = fs.readFileSync(new URL("../../.github/workflows/ugmu-proxy-contract-probe.yml", import.meta.url), "utf8");
 const secretProvision = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-secret-provision.yml", import.meta.url), "utf8");
 const activate = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-activate.yml", import.meta.url), "utf8");
+const trialOnly = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-only-normalize.yml", import.meta.url), "utf8");
 const deactivate = fs.readFileSync(new URL("../../.github/workflows/ugmu-trial-deactivate.yml", import.meta.url), "utf8");
 
 test("production deploy preserves the dedicated UGMU trial gate while global trials remain closed", () => {
@@ -66,6 +67,23 @@ test("UGMU trial activation is explicit, preflighted and exits nonzero after gua
   assert.match(activate, /UGMU_TRIAL_SUBSCRIPTION_E2E_SAFE/);
   assert.match(activate, /UGMU_TRIAL_CONTINUATION_E2E_SAFE/);
   assert.match(activate, /UGMU_TRIAL_ACTIVATION_COMPLETE_SAFE/);
+});
+
+test("UGMU trial-only normalization atomically closes dedicated sales and opens only dedicated trials", () => {
+  assert.match(trialOnly, /workflow_dispatch:/);
+  assert.doesNotMatch(trialOnly, /schedule:/);
+  assert.match(trialOnly, /ENFORCE_UGMU_TRIAL_ONLY/);
+  assert.match(trialOnly, /TRIAL_IDENTITY_HMAC_SECRET/);
+  assert.match(trialOnly, /FUNNEL_ANALYTICS_ENABLED','TRIALS_ENABLED','COMMERCIAL_SALES_ENABLED/);
+  assert.match(trialOnly, /rows\.append\(\{'name':'UGMU_SALES_ENABLED','value':'false'\}\)/);
+  assert.match(trialOnly, /rows\.append\(\{'name':'UGMU_TRIALS_ENABLED','value':'true'\}\)/);
+  assert.match(trialOnly, /body\.get\('sales'\) == 'closed'/);
+  assert.match(trialOnly, /body\.get\('trials'\) == 'closed'/);
+  assert.match(trialOnly, /body\.get\('universityTrials',\{\}\)\.get\('ugmu'\) == 'open'/);
+  assert.match(trialOnly, /UGMU_TRIAL_ONLY_RUNTIME_SAFE/);
+  assert.match(trialOnly, /UGMU_TRIAL_ONLY_ROLLBACK_REQUESTED_SAFE/);
+  assert.match(trialOnly, /UGMU_TRIAL_ONLY_COMPLETE_SAFE/);
+  assert.doesNotMatch(trialOnly, /\/api\/v2\/payments/);
 });
 
 test("UGMU trial deactivation is explicit and closes only the dedicated gate", () => {
