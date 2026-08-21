@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "university": "ugmu",
   "scope": {
     "program": "medicine",
@@ -14,7 +14,10 @@
     "automaticActivationAllowed": false,
     "activationPerformedByPlan": false,
     "productionMutationAllowedByPlan": false,
-    "requiresExplicitLaunchAuthorization": true
+    "requiresExplicitLaunchAuthorization": true,
+    "explicitLaunchAuthorizationReceived": true,
+    "authorizationCommand": "Далее",
+    "authorizationReceivedAt": "2026-08-21T09:28:00+03:00"
   },
   "launchTarget": {
     "registryActive": true,
@@ -45,14 +48,14 @@
     {
       "id": "wire-live-ugmu-landing",
       "state": "completed",
-      "reason": "The UGMU landing now contains the production checkout flow but remains noindex and is not deployed from the feature PR.",
-      "completion": "Step 26 prepares runtime /api/v2/meta pricing/sales checks, frozen ОЛД 101–112 group selection, POST /api/v2/payments, payment-return recovery and tokenized subscription UX. The submit button starts disabled and additionally requires sales=open plus paymentMode=live; public catalog/schedule endpoints are not used."
+      "reason": "The UGMU landing contains the production checkout flow and remains runtime-gated until the controlled launch deployment.",
+      "completion": "Step 26 prepared runtime /api/v2/meta pricing/sales checks, frozen ОЛД 101–112 group selection, POST /api/v2/payments, payment-return recovery and tokenized subscription UX. The submit button starts disabled and requires sales=open plus paymentMode=live; public catalog/schedule endpoints are not used."
     },
     {
       "id": "validate-live-yookassa-mode",
-      "state": "required",
-      "reason": "The current production payment mode has previously been test; isolated E2E uses a deterministic local YooKassa stub and does not prove live provider credentials/network readiness.",
-      "completion": "Before launch, verify production is configured with intended live YooKassa credentials and YOOKASSA_TEST_MODE=false without creating a charge; do not expose checkout if payment mode is not live."
+      "state": "completed",
+      "reason": "Production YooKassa credentials and network must be proven live without creating a charge before sales activation.",
+      "completion": "Step 27 formal live-readiness run 32433470703 PASS: YOOKASSA_TEST_MODE=false, /api/v2/meta paymentMode=live, Secret Management resolved exactly one yookassa-secret-key, provider GET /v3/payments?limit=1 returned HTTP 200 with live evidence (test=false), paymentCreated=false, productionMutationPerformed=false. Artifact 9429911815."
     }
   ],
   "phases": [
@@ -83,40 +86,38 @@
     {
       "order": 4,
       "id": "activate-backend-ugmu-checkout",
-      "state": "not-authorized",
-      "mutations": ["registry ugmu.active false -> true", "UGMU_SALES_ENABLED false -> true", "UGMU paid site URL -> /ugmu/", "production YooKassa mode -> live"],
+      "state": "authorized",
+      "mutations": ["runtime UGMU_ACTIVE false -> true", "UGMU_SALES_ENABLED false -> true", "UGMU_SITE_URL empty -> /ugmu/ production URL", "deploy launch-capable immutable API image"],
       "mustRemainClosed": ["UGMU public endpoints", "UGMU trials", "public ICS", "legacy global sales gate", "non-target university checkout when its own gate is closed"],
-      "successChecks": ["/health 200", "/api/v2/meta sales=open and paymentMode=live", "all 12 production schedules still readable internally", "KGMU/OmGMU/IzhGMU checkout policies remain unchanged"]
+      "successChecks": ["fresh read-only YooKassa live preflight PASS before mutation", "/health 200", "/api/v2/meta sales=open and paymentMode=live", "UGMU sentinel checkout passes tenant gate without creating a payment", "public UGMU schedule remains 404", "KGMU/OmGMU/IzhGMU checkout policies remain unchanged"]
     },
     {
       "order": 5,
       "id": "activate-user-facing-landing",
-      "state": "not-authorized",
-      "mutations": ["deploy already-prepared /ugmu/ production artifact", "remove noindex only after backend smoke"],
+      "state": "authorized-after-backend-smoke",
+      "mutations": ["deploy already-prepared /ugmu/ production artifact", "switch production UGMU page from noindex prelaunch copy to indexed launch copy after backend smoke"],
       "mustRemainClosed": ["public ICS", "trials"],
       "successChecks": ["/ugmu/ loads production artifact", "ОЛД 101–112 selectable", "price/payment mode loaded from API rather than static authority", "no free public schedule route exposed"]
     },
     {
       "order": 6,
       "id": "post-launch-smoke",
-      "state": "not-authorized",
+      "state": "authorized-after-user-facing-launch",
       "mutations": [],
-      "successChecks": ["health/CORS PASS", "UGMU landing/API origin match", "tokenized subscription flow remains compatible with E2E contract", "cross-university regression PASS", "no unexpected non-UGMU capability change"]
+      "successChecks": ["health/CORS PASS", "UGMU landing/API origin match", "tokenized subscription flow remains compatible with E2E contract", "cross-university regression PASS", "no unexpected non-UGMU capability change", "no diagnostic payment created"]
     }
   ],
   "rollback": {
     "strategy": "close-access-first-keep-data-inert",
     "order": [
-      "Set UGMU_SALES_ENABLED=false and blank the UGMU paid site URL; do not change the legacy global sales gate merely to disable UGMU.",
-      "Deploy backend and verify UGMU checkout is closed before touching stored schedules.",
-      "Return /ugmu/ to noindex with checkout button runtime-disabled; deploy Pages only if a user-facing rollback is required.",
-      "Set ugmu.active=false.",
+      "Set UGMU_SALES_ENABLED=false, UGMU_ACTIVE=false and blank the UGMU paid site URL; do not change the legacy global sales gate merely to disable UGMU.",
+      "Verify /api/v2/meta sales=closed and UGMU checkout is closed before touching stored schedules.",
+      "Return /ugmu/ to noindex with checkout button runtime-disabled if the user-facing launch has already deployed.",
       "Keep already staged schedule objects in storage as inert evidence unless data integrity itself is the incident; do not delete them merely to disable sales.",
-      "Verify live UGMU checkout returns a closed-state response and public schedule/ICS remain unavailable; rerun cross-university regression."
+      "Verify public schedule/ICS and trials remain unavailable; rerun cross-university regression."
     ],
     "dataDeletionRequired": false,
     "subscriptionSafety": "Existing paid subscription tokens must not be deleted during ordinary launch rollback; access/revoke is handled by the existing subscription controls."
   },
-  "nextRequiredBoundary": "validate-live-yookassa-mode"
+  "nextRequiredBoundary": "controlled-launch-activation"
 }
-
