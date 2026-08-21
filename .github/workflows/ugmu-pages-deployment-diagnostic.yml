@@ -11,6 +11,7 @@ permissions:
   actions: read
   contents: read
   deployments: read
+  pages: read
 
 jobs:
   diagnose:
@@ -19,11 +20,18 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Inspect Pages workflow and deployment ordering read-only
+      - name: Inspect Pages source configuration read-only
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p evidence
+          gh api "repos/$GITHUB_REPOSITORY/pages" > evidence/pages-config.json
+          jq '{status,html_url,build_type,source,public,cname,https_enforced}' evidence/pages-config.json
+
+      - name: Inspect Pages workflow and deployment ordering read-only
+        shell: bash
+        run: |
+          set -euo pipefail
           python3 - <<'PY'
           import json, os, subprocess
           repo=os.environ['GITHUB_REPOSITORY']
@@ -66,5 +74,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ugmu-pages-deployment-diagnostic
-          path: evidence/pages-ordering.json
+          path: evidence/*.json
           retention-days: 14
