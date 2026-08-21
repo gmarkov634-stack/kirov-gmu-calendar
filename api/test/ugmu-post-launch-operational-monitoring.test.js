@@ -6,10 +6,11 @@ import { fileURLToPath } from "node:url";
 const authorityPath = fileURLToPath(new URL("../../universities/ugmu/post-launch-operational-monitoring.json", import.meta.url));
 const authority = JSON.parse(readFileSync(authorityPath, "utf8"));
 
-test("UGMU post-launch operational monitoring is active with the launched production invariants", () => {
-  assert.equal(authority.version, 1);
+test("UGMU post-launch operational monitoring boundary passed and remains active", () => {
+  assert.equal(authority.version, 2);
   assert.equal(authority.kind, "ugmu-post-launch-operational-monitoring");
   assert.equal(authority.boundary, "post-launch-operational-monitoring");
+  assert.equal(authority.boundaryStatus, "PASS");
   assert.equal(authority.status, "ACTIVE");
   assert.deepEqual(authority.productionInvariants, {
     globalSalesEnabled: false,
@@ -56,7 +57,25 @@ test("operational monitor has a durable exact-scope storage baseline", () => {
   assert.equal(authority.storageBaseline.events, 4286);
 });
 
-test("operational monitoring is strictly read-only for production and payments", () => {
+test("step 30 evidence proves recovered public and deep production boundaries", () => {
+  assert.equal(authority.evidence.monitorRunId, 32470331508);
+  assert.equal(authority.evidence.monitorRunAttempt, 2);
+  assert.equal(authority.evidence.monitorConclusion, "success");
+  assert.equal(authority.evidence.publicJobConclusion, "success");
+  assert.equal(authority.evidence.deepJobConclusion, "success");
+  assert.equal(authority.evidence.publicIncidentIssueClosed, true);
+  assert.equal(authority.evidence.pagesCompatibility.pagesBuildTypeObserved, "legacy");
+  assert.equal(authority.evidence.pagesCompatibility.settingsMigrationApplied, false);
+  assert.equal(authority.evidence.pagesCompatibility.durableMainRootBridge, true);
+  assert.equal(authority.evidence.pagesCompatibility.bridgeCommit, "c6aaf1913ad4cd5a2d105967af3977335c4620b8");
+  assert.equal(authority.evidence.pagesCompatibility.recoveryProvenByMonitorAttempt2, true);
+  assert.equal(authority.evidence.paymentCreated, false);
+  assert.equal(authority.evidence.backendMutationPerformed, false);
+  assert.equal(authority.evidence.s3MutationPerformed, false);
+  assert.equal(authority.evidence.pagesRecoveryMutationPerformed, true);
+});
+
+test("operational monitoring stays read-only and live-payment canary requires an explicit decision", () => {
   assert.deepEqual(authority.safety, {
     productionMutationAllowed: false,
     paymentCreationAllowed: false,
