@@ -41,19 +41,6 @@ function safeAttribution(input = {}) {
   return result;
 }
 
-function localDate(now, timezone) {
-  const date = now instanceof Date ? now : new Date(now ?? Date.now());
-  if (!Number.isFinite(date.getTime())) throw new TypeError("invalid current time");
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: timezone || "UTC",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
 function normalizedHttpsBaseUrl(value) {
   try {
     const url = new URL(String(value || "").trim());
@@ -137,13 +124,21 @@ export class TrialService {
       plan: "semester",
     });
     const actual = assertOfferSchedule(schedule, requested, this.config);
-    const window = trialWindowFromSchedule(schedule);
-    if (!window) throw fail("trial_not_ready");
-    if (localDate(this.now(), actual.timezone) >= window.trialEndDateExclusive) throw fail("trial_window_closed");
+    const now = this.now();
+    const windowState = trialWindowFromSchedule(schedule, { activationAt: now, timezone: actual.timezone });
+    if (!windowState) throw fail("trial_not_ready");
+    if (windowState.trialWindowClosed) throw fail("trial_window_closed");
+    if (!Number.isInteger(windowState.scheduleEventCount) || windowState.scheduleEventCount < 1) {
+      throw fail("trial_schedule_unavailable");
+    }
+    const window = {
+      trialStartDate: windowState.trialStartDate,
+      trialEndDateExclusive: windowState.trialEndDateExclusive,
+    };
 
     const token = randomId();
     const conversionId = randomId();
-    const createdAt = this.now().toISOString();
+    const createdAt = now.toISOString();
     const expiresAt = semesterEndFromSchedule(schedule);
     const attribution = safeAttribution(input);
 
