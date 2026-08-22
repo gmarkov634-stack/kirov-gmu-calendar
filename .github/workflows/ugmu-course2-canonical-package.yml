@@ -1,0 +1,66 @@
+name: UGMU course-2 canonical package QA
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-course2-canonical-package.yml"
+      - "api/src/adapters/ugmu/**"
+      - "api/tools/ugmu-*.mjs"
+      - "api/tools/ugmu-*.py"
+      - "api/tools/requirements-ugmu.txt"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
+      - name: Discover and download current official autumn PDFs
+        run: |
+          set -euo pipefail
+          npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-course2/source-manifest.json
+          npm run download:ugmu -- --manifest=data/imports/ugmu-course2/source-manifest.json --semester=autumn --output=data/imports/ugmu-course2/watched-pdfs
+      - name: Inspect exact course-2 source set
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          import pdfplumber
+
+          root=Path('data/imports/ugmu-course2/watched-pdfs')
+          report=json.loads((root/'download-report.json').read_text(encoding='utf-8'))
+          items=[x for x in report['files'] if x.get('status')=='downloaded' and x.get('course')==2 and x.get('part')=='combined']
+          assert {x.get('stream') for x in items} == {'1','2','3','4'}, items
+          for item in sorted(items, key=lambda x: x['stream']):
+              path=root/item['filename']
+              with pdfplumber.open(path) as pdf:
+                  text='\n'.join((page.extract_text() or '') for page in pdf.pages[:2])
+              groups=sorted(set(re.findall(r'ОЛД\s*(\d{3})', text)), key=int)
+              print(json.dumps({
+                  'stream': item['stream'],
+                  'filename': item['filename'],
+                  'sha256': item['sha256'],
+                  'url': item['url'],
+                  'groups': [f'ОЛД {g}' for g in groups],
+              }, ensure_ascii=False))
+              assert groups, item
+          PY
