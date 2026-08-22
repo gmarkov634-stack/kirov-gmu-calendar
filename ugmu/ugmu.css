@@ -15,9 +15,10 @@
 .selector-context div span{color:var(--muted);font-size:13px}
 #selector .panel-head{margin-top:24px}
 #selector .choice-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-#selector .group-card{display:grid;min-height:76px;place-items:center;padding:14px 10px;text-align:center}
+#selector .group-card{display:grid;min-height:76px;place-items:center;padding:14px 10px;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(21,89,214,.1)}
 #selector .group-card .card-icon,#selector .group-card small{display:none}
 #selector .group-card strong{font-size:17px;letter-spacing:-.015em}
+#selector .group-card:active{border-color:#75a8f6;background:#eef5ff;transform:scale(.985)}
 
 .access-card,.trial-connect-card{grid-column:1/-1;padding:26px;border:1px solid var(--line);border-radius:22px;background:#f8fbff}
 .access-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.55fr);gap:26px;align-items:center}
@@ -62,15 +63,26 @@
 @media(max-width:760px){
   .comparison-section{grid-template-columns:1fr}
   .comparison-note{grid-column:1}
-  .selector-context{align-items:flex-start;flex-direction:column;gap:8px;padding:14px}
+  #selector.selector{padding:16px 12px}
+  .selector-context{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;padding:11px 12px;border-radius:15px}
+  .selector-context-badge{min-height:28px;padding:0 9px;font-size:10px}
   .selector-context div{display:block}
-  .selector-context div span{display:block;margin-top:3px}
-  #selector .panel-head{margin-top:20px}
-  #selector .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  #selector .group-card{min-height:68px;padding:12px 8px}
+  .selector-context strong{display:block;font-size:14px;line-height:1.25}
+  .selector-context div span{display:block;margin-top:2px;font-size:11px;line-height:1.35}
+  #selector .panel-head{align-items:center;margin:16px 0 14px}
+  #selector .panel-head h2{font-size:24px;line-height:1.12}
+  #selector .section-kicker{margin-bottom:4px;font-size:10px}
+  #selector .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #selector .group-card{min-height:60px;padding:10px 7px;border-radius:14px}
   #selector .group-card strong{font-size:15px}
   .access-card{grid-template-columns:1fr;padding:18px}
   .trial-connect-card{padding:18px}
   .connect-actions,.result-actions{grid-template-columns:1fr}
   .checkout-card{padding:14px}
+}
+
+@media(max-width:350px){
+  #selector .choice-grid{gap:7px}
+  #selector .group-card{min-height:58px;padding:9px 5px}
+  #selector .group-card strong{font-size:14px}
 }
