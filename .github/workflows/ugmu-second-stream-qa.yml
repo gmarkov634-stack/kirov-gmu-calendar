@@ -1,0 +1,139 @@
+name: UGMU second-stream QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-parse-second-stream-pdf.py"
+      - "api/tools/ugmu-parse-weekly-pdf.py"
+      - "api/src/adapters/ugmu/**"
+      - "api/tools/ugmu-discover.mjs"
+      - "api/tools/ugmu-download.mjs"
+      - "api/tools/requirements-ugmu.txt"
+      - ".github/workflows/ugmu-second-stream-qa.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install UGMU parser dependency
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Parser self-test
+        run: python3 tools/ugmu-parse-second-stream-pdf.py --self-test
+
+      - name: Discover official UGMU medicine sources
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-second-stream-source-manifest.json
+
+      - name: Capture official autumn PDFs and SHA-256
+        run: >-
+          npm run download:ugmu --
+          --manifest=data/imports/ugmu-second-stream-source-manifest.json
+          --semester=autumn
+          --output=data/imports/ugmu-second-stream-watched-pdfs
+
+      - name: Parse and validate exact second-stream source
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-second-stream-watched-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "2" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = '722300a869f7ecb2939aaa240463ca7b8d6c566c60a98ae90181d67d2c7e44ca'
+
+          python3 tools/ugmu-parse-second-stream-pdf.py \
+            --input="data/imports/ugmu-second-stream-watched-pdfs/$filename" \
+            --all-groups \
+            --source="$source_url" \
+            --sha256="$sha" \
+            --output=data/imports/ugmu-second-stream-qa
+
+          jq -e '
+            .sourceSha256 == "722300a869f7ecb2939aaa240463ca7b8d6c566c60a98ae90181d67d2c7e44ca" and
+            .groupCount == 12 and
+            .approvedGroups == 12 and
+            .weeklyPatterns == 275 and
+            .events == 4263 and
+            .lecturePatterns == 108 and
+            .semanticDecisions == 3 and
+            .sourceReferenceOmissions == 12 and
+            .overlaps == 0 and
+            .validationErrors == 0 and
+            .groups["ОЛД 113"].events == 358 and
+            .groups["ОЛД 114"].patterns == 22 and
+            .groups["ОЛД 114"].events == 339 and
+            .groups["ОЛД 115"].events == 356 and
+            .groups["ОЛД 116"].events == 356 and
+            .groups["ОЛД 117"].events == 357 and
+            .groups["ОЛД 118"].events == 357 and
+            .groups["ОЛД 119"].events == 357 and
+            .groups["ОЛД 120"].events == 357 and
+            .groups["ОЛД 121"].events == 357 and
+            .groups["ОЛД 122"].events == 357 and
+            .groups["ОЛД 123"].events == 356 and
+            .groups["ОЛД 124"].events == 356
+          ' data/imports/ugmu-second-stream-qa/summary.json >/dev/null
+
+          jq -e '
+            .sourceReview.status == "semantic-reviewed-second-stream" and
+            .sourceReview.publicationAllowed == false and
+            (.sourceReview.semanticDecisions | length) == 1 and
+            .sourceReview.semanticDecisions[0].rawTitle == "Основы" and
+            .sourceReview.semanticDecisions[0].resolvedTitle == "Основы военной подготовки" and
+            (.validationErrors | length) == 0
+          ' data/imports/ugmu-second-stream-qa/ОЛД-118.json >/dev/null
+
+          jq -e '
+            .sourceReview.status == "semantic-reviewed-second-stream" and
+            (.patterns | length) == 22 and
+            ([.patterns[].title] | index("НИР: получение первичных навыков научно-исследовательской работы") | not) and
+            (.validationErrors | length) == 0
+          ' data/imports/ugmu-second-stream-qa/ОЛД-114.json >/dev/null
+
+      - name: Write summary
+        if: always()
+        run: |
+          if [ -f data/imports/ugmu-second-stream-qa/summary.json ]; then
+            echo '## UGMU medicine, course 1, stream II' >> "$GITHUB_STEP_SUMMARY"
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            jq -r '"Groups: **\(.approvedGroups)/\(.groupCount)**\n\nWeekly patterns: **\(.weeklyPatterns)**\n\nDated events: **\(.events)**\n\nSemantic decisions: **\(.semanticDecisions)**\n\nReference omissions reviewed: **\(.sourceReferenceOmissions)**\n\nOverlaps: **\(.overlaps)**\n\nValidation errors: **\(.validationErrors)**"' data/imports/ugmu-second-stream-qa/summary.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-second-stream-qa
+          path: |
+            api/data/imports/ugmu-second-stream-source-manifest.json
+            api/data/imports/ugmu-second-stream-watched-pdfs/download-report.json
+            api/data/imports/ugmu-second-stream-qa
+          if-no-files-found: warn
+          retention-days: 30
