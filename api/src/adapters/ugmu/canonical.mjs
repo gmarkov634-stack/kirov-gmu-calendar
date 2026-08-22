@@ -1,4 +1,24 @@
 const FIRST_STREAM_GROUPS = new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`));
+const SECOND_STREAM_GROUPS = new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${113 + index}`));
+const THIRD_STREAM_GROUPS = new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${125 + index}`));
+const FOURTH_STREAM_GROUPS = new Set(Array.from({ length: 14 }, (_, index) => `ОЛД ${137 + index}`));
+
+const COURSE1_STREAM_GROUPS = new Map([
+  ["1", FIRST_STREAM_GROUPS],
+  ["2", SECOND_STREAM_GROUPS],
+  ["3", THIRD_STREAM_GROUPS],
+  ["4", FOURTH_STREAM_GROUPS],
+]);
+
+const COURSE1_REVIEW_STATUSES = new Map([
+  ["1", new Set(["semantic-reviewed-first-stream"])],
+  ["2", new Set(["semantic-reviewed-second-stream"])],
+  ["3", new Set([
+    "semantic-reviewed-stream-3-with-source-ambiguity",
+    "semantic-reviewed-stream-3-with-source-defect-and-ambiguity",
+  ])],
+  ["4", new Set(["semantic-reviewed-stream-4-with-source-ambiguity"])],
+]);
 
 function emptyDerived() {
   return {
@@ -165,8 +185,9 @@ function canonicalEvent(rawEvent, rawSchedule, source) {
 
 function requireCommonBoundary(rawSchedule) {
   if (!rawSchedule || rawSchedule.university !== "ugmu") throw new Error("Invalid UGMU weekly-grid schedule");
-  if (rawSchedule.course !== 1 || String(rawSchedule.stream) !== "1") {
-    throw new Error("UGMU weekly-grid scope requires course 1, stream 1");
+  const stream = String(rawSchedule.stream);
+  if (rawSchedule.course !== 1 || !COURSE1_STREAM_GROUPS.has(stream)) {
+    throw new Error("UGMU weekly-grid scope requires medicine course 1, streams 1-4");
   }
   if (rawSchedule.sourceReview?.publicationAllowed !== false) {
     throw new Error("UGMU source boundary must remain fail-closed");
@@ -204,7 +225,9 @@ function buildCanonical(rawSchedule, source, parserName) {
 
 export function canonicalizeUgmuWeeklyPilot(rawSchedule) {
   const source = requireCommonBoundary(rawSchedule);
-  if (rawSchedule.group?.code !== "ОЛД 101") throw new Error("UGMU canonical pilot is fail-closed to ОЛД 101");
+  if (String(rawSchedule.stream) !== "1" || rawSchedule.group?.code !== "ОЛД 101") {
+    throw new Error("UGMU canonical pilot is fail-closed to ОЛД 101");
+  }
   if (rawSchedule.sourceReview?.status !== "semantic-reviewed-pilot") {
     throw new Error("UGMU pilot source must pass pilot semantic review before canonicalization");
   }
@@ -213,7 +236,7 @@ export function canonicalizeUgmuWeeklyPilot(rawSchedule) {
 
 export function canonicalizeUgmuWeeklyFirstStream(rawSchedule) {
   const source = requireCommonBoundary(rawSchedule);
-  if (!FIRST_STREAM_GROUPS.has(rawSchedule.group?.code)) {
+  if (String(rawSchedule.stream) !== "1" || !FIRST_STREAM_GROUPS.has(rawSchedule.group?.code)) {
     throw new Error("UGMU first-stream canonicalization is fail-closed to ОЛД 101–112");
   }
   if (rawSchedule.sourceReview?.status !== "semantic-reviewed-first-stream") {
@@ -222,4 +245,31 @@ export function canonicalizeUgmuWeeklyFirstStream(rawSchedule) {
   return buildCanonical(rawSchedule, source, "ugmu-weekly-grid/first-stream-v1");
 }
 
-export { FIRST_STREAM_GROUPS };
+export function canonicalizeUgmuMedicineCourse1Reviewed(rawSchedule) {
+  const source = requireCommonBoundary(rawSchedule);
+  const stream = String(rawSchedule.stream);
+  const allowedGroups = COURSE1_STREAM_GROUPS.get(stream);
+  const allowedStatuses = COURSE1_REVIEW_STATUSES.get(stream);
+  const group = rawSchedule.group?.code;
+
+  if (!allowedGroups?.has(group)) {
+    throw new Error(`UGMU course-1 reviewed group is outside stream ${stream}: ${group || "missing"}`);
+  }
+  if (!allowedStatuses?.has(rawSchedule.sourceReview?.status)) {
+    throw new Error(`UGMU course-1 stream ${stream} source is not at an accepted semantic-review boundary`);
+  }
+  if (!Array.isArray(rawSchedule.validationErrors) || rawSchedule.validationErrors.length !== 0) {
+    throw new Error(`UGMU course-1 ${group} has unresolved parser validation errors`);
+  }
+
+  return buildCanonical(rawSchedule, source, `ugmu-weekly-grid/course1-stream-${stream}-reviewed-v1`);
+}
+
+export {
+  FIRST_STREAM_GROUPS,
+  SECOND_STREAM_GROUPS,
+  THIRD_STREAM_GROUPS,
+  FOURTH_STREAM_GROUPS,
+  COURSE1_STREAM_GROUPS,
+  COURSE1_REVIEW_STATUSES,
+};
