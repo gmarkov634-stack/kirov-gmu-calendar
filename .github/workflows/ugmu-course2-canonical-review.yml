@@ -9,6 +9,7 @@ on:
       - "api/tools/ugmu-course2-stream4-*.py"
       - "api/tools/ugmu-course2-canonical-review.mjs"
       - "api/tools/ugmu-course2-identity-review.mjs"
+      - "api/tools/ugmu-course2-preactivation-review.mjs"
       - "api/tools/requirements-ugmu.txt"
       - "api/src/schedule/**"
       - ".github/workflows/ugmu-course2-canonical-review.yml"
@@ -151,6 +152,50 @@ jobs:
             .summary.reviewRequired == false
           ' data/imports/course2-canonical-review/identity-report.json >/dev/null
           jq '.summary' data/imports/course2-canonical-review/identity-report.json
+
+      - name: Build ICS and preactivation package without production writes
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-preactivation-review.mjs \
+            --canonical-dir=data/imports/course2-canonical-review \
+            --output-dir=data/imports/course2-canonical-review/preactivation
+          jq -e '
+            .stage == "ics-preactivation-dry-run" and
+            .summary.groupCount == 48 and
+            .summary.eventCount == 11056 and
+            .summary.inputQaPassedGroups == 48 and
+            .summary.outputQaPassedGroups == 48 and
+            .summary.publicationContextValidatedGroups == 48 and
+            .summary.storageTargetCount == 48 and
+            .summary.versionStableGroups == 48 and
+            .summary.contentFingerprintStableGroups == 48 and
+            .summary.versionTimestampStableGroups == 48 and
+            .summary.eventIdStableCount == 11056 and
+            .summary.eventFingerprintStableCount == 11056 and
+            .summary.eventRevisionStableCount == 11056 and
+            .summary.coreEventStableCount == 11056 and
+            .summary.uniqueEventIdCount == 11056 and
+            .summary.uniqueUidCount == 11056 and
+            .summary.uidValidatedCount == 11056 and
+            .summary.sequenceValidatedCount == 11056 and
+            .summary.icsFileCount == 48 and
+            .summary.revisionMin == 1 and .summary.revisionMax == 1 and
+            .summary.sequenceMin == 0 and .summary.sequenceMax == 0 and
+            .summary.floatingTimePreserved == true and
+            .summary.icsArtifactsWritten == true and
+            .summary.icsArtifactScope == "ci-review-only" and
+            .summary.preparedBatchArtifactsWritten == true and
+            .summary.productionStoreCalls == 0 and
+            .summary.storageWritesPerformed == false and
+            .summary.catalogWritesPerformed == false and
+            .summary.accessPolicyWritesPerformed == false and
+            .summary.salesChangesPerformed == false and
+            .summary.publicIcsPublicationPerformed == false and
+            .summary.publicationAllowed == false and
+            .summary.preactivationReady == true and
+            .summary.reviewRequired == false
+          ' data/imports/course2-canonical-review/preactivation/report.json >/dev/null
+          jq '.summary' data/imports/course2-canonical-review/preactivation/report.json
 
       - name: Upload canonical review evidence
         uses: actions/upload-artifact@v4
