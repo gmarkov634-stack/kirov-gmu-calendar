@@ -4,8 +4,43 @@ import { postprocessSchedule } from "./postprocess.js";
 import { validatePostprocessedSchedule, validateScheduleBatch } from "./validate.js";
 import { versionSchedule } from "./versioning.js";
 
+const MONTHS_GENITIVE = [
+  "января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+];
+
 function isCanonicalBatch(value) {
   return value?.schema_version === "1.0" && Boolean(value?.schedule) && Array.isArray(value?.events);
+}
+
+function formatDateRu(date) {
+  const match = String(date || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return String(date || "");
+  return `${Number(match[3])} ${MONTHS_GENITIVE[Number(match[2]) - 1]}`;
+}
+
+function keepCorePostprocessing(batch) {
+  for (const event of batch.events || []) {
+    const lines = [];
+    const typeCode = event.lesson?.type?.code;
+    const isAssessment = typeCode === "exam" || typeCode === "credit";
+    const sequence = event.derived?.sequence;
+
+    if (!isAssessment && sequence?.index && sequence?.total) {
+      lines.push(`Занятие · ${sequence.index} из ${sequence.total}`);
+    }
+
+    if (event.derived?.academic_week) {
+      lines.push(`Учебная неделя · ${event.derived.academic_week}`);
+    }
+
+    if (!isAssessment && event.derived?.next_same_event?.date) {
+      lines.push(`Следующее занятие по дисциплине: ${formatDateRu(event.derived.next_same_event.date)}`);
+    }
+
+    if (event.calendar) event.calendar.description = lines.join("\n");
+  }
+  return batch;
 }
 
 function validationError(report, stage) {
@@ -52,7 +87,9 @@ export function prepareSchedulePublication(incomingBatch, options = {}) {
     eventIdFactory: options.eventIdFactory,
     versionIdFactory: options.versionIdFactory,
   });
-  const processed = postprocessSchedule(versioned, options.postprocessOptions);
+  const processed = keepCorePostprocessing(
+    postprocessSchedule(versioned, options.postprocessOptions)
+  );
   const outputQa = validatePostprocessedSchedule(processed, options.validationOptions);
   if (!outputQa.publishable) throw validationError(outputQa, "postprocessed");
 
