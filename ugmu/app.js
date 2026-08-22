@@ -17,6 +17,7 @@
   const groupMap = new Map(config.groups.map((group) => [group.code, group]));
   const savedOrderKey = "ugmu-calendar-orders-v1";
   const trialSessionKey = "ugmu-calendar-trial-v1";
+  const streamRoman = Object.freeze({ "1": "I", "2": "II", "3": "III", "4": "IV" });
 
   const state = {
     step: "faculty",
@@ -59,8 +60,12 @@
     }
   }
 
+  function groupStream(group) {
+    return String(group?.stream || config.program.stream || "");
+  }
+
   function groupId(group) {
-    return `${config.university}:${config.program.id}:${config.program.course}:stream-${config.program.stream}:${group.code}`;
+    return `${config.university}:${config.program.id}:${config.program.course}:stream-${groupStream(group)}:${group.code}`;
   }
 
   function selectedGroup() {
@@ -152,7 +157,7 @@
     grid.append(makeCard({
       icon: "Л",
       cardTitle: "Лечебное дело",
-      subtitle: "1 курс · I поток",
+      subtitle: "1 курс · I–IV потоки",
       onClick: () => setStep("course"),
     }));
   }
@@ -162,7 +167,7 @@
     grid.append(makeCard({
       icon: "1",
       cardTitle: "1 курс",
-      subtitle: "12 групп ОЛД доступны",
+      subtitle: `${config.groups.length} групп ОЛД доступны`,
       onClick: () => setStep("group"),
     }));
   }
@@ -197,8 +202,9 @@
     const card = document.createElement("section");
     card.className = "access-card";
     const copy = document.createElement("div");
+    const roman = streamRoman[groupStream(group)] || groupStream(group);
     copy.innerHTML = `
-      <p class="section-kicker">Лечебное дело · 1 курс · I поток</p>
+      <p class="section-kicker">Лечебное дело · 1 курс · ${escapeHtml(roman)} поток</p>
       <h3>${escapeHtml(group.code)}</h3>
       <p>Подключите первую учебную неделю бесплатно. Если формат понравится, полный календарь можно купить отдельно.</p>
       <div class="access-points"><span>7 дней бесплатно</span><span>Без карты</span><span>Без email</span></div>`;
@@ -421,7 +427,7 @@
           university: config.university,
           program: config.program.id,
           course: config.program.course,
-          stream: config.program.stream,
+          stream: groupStream(group),
           groupCode: group.code,
           groupId: groupId(group),
           ...attributionContext(),
@@ -473,7 +479,7 @@
           university_id: config.university,
           program: config.program.id,
           course: config.program.course,
-          stream: config.program.stream,
+          stream: groupStream(group),
           groupCode: group.code,
           groupId: groupId(group),
           timezone: config.timezone,
@@ -686,7 +692,7 @@
         context.university !== config.university ||
         context.program !== config.program.id ||
         Number(context.course) !== Number(config.program.course) ||
-        String(context.stream || "") !== String(config.program.stream) ||
+        String(context.stream || "") !== groupStream(group) ||
         String(context.groupId || "") !== groupId(group)
       ) return false;
       state.group = group.code;
@@ -712,7 +718,7 @@
       runtime.price = String(meta.offers?.[config.defaultPlan]?.price || "");
       runtime.ready = true;
       if (heroRuntimeNote) heroRuntimeNote.textContent = trialReady()
-        ? "Для ОЛД 101–112 можно бесплатно подключить первую учебную неделю."
+        ? "Для ОЛД 101–150 можно бесплатно подключить первую учебную неделю."
         : "Выберите группу, чтобы посмотреть доступные варианты подключения.";
     } catch {
       runtime.ready = false;
@@ -749,11 +755,14 @@
         state.trial = savedTrial.result;
         state.conversionId = savedTrial.result.conversionId;
         setStep("trial", { updateUrl: false });
-      } else if (/^(10[1-9]|11[0-2])$/.test(requested)) {
-        state.group = `ОЛД ${requested}`;
-        setStep("access", { updateUrl: false });
       } else {
-        setStep("faculty", { updateUrl: false });
+        const requestedGroup = groupMap.get(`ОЛД ${requested}`);
+        if (requestedGroup) {
+          state.group = requestedGroup.code;
+          setStep("access", { updateUrl: false });
+        } else {
+          setStep("faculty", { updateUrl: false });
+        }
       }
     }
   }
