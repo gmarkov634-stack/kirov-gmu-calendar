@@ -19,6 +19,10 @@ TIME_RE = re.compile(
     r"(?P<start>\d{1,2}:\d{2})\s*[-–]\s*(?P<end>\d{1,2}:\d{2})\s*(?P<rest>.*)$",
     re.IGNORECASE,
 )
+EMBEDDED_TIME_SPLIT_RE = re.compile(
+    r"\s+(?=[ЛП]\.\s*(?:ДВ\s*)?\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2})",
+    re.IGNORECASE,
+)
 WEEK_RE = re.compile(r"(?<![A-Za-zА-Яа-яЁё])(?P<week>I|II)\s*нед\.?", re.IGNORECASE)
 MONTH_QUALIFIER_RE = re.compile(r"\([^()]+\)\s*$")
 PERIOD_RE = re.compile(r"\b\d{2}\.\d{2}\.\d{4}\s*[-–—]\s*\d{2}\.\d{2}\.\d{4}\b")
@@ -130,22 +134,35 @@ def extract_group_lines(table, geometry, page, group: str) -> dict[str, list[str
     return result
 
 
-def split_segments(lines: list[str]) -> tuple[list[str], list[str]]:
-    segments: list[str] = []
+def split_embedded_times(segment: str) -> tuple[list[str], bool]:
+    parts = [compact(part) for part in EMBEDDED_TIME_SPLIT_RE.split(segment) if compact(part)]
+    return parts, len(parts) > 1
+
+
+def split_segments(lines: list[str]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
+    initial_segments: list[str] = []
     orphan_lines: list[str] = []
     current: list[str] = []
     for line in lines:
         if TIME_RE.match(line):
             if current:
-                segments.append(" ".join(current))
+                initial_segments.append(" ".join(current))
             current = [line]
         elif current:
             current.append(line)
         else:
             orphan_lines.append(line)
     if current:
-        segments.append(" ".join(current))
-    return segments, orphan_lines
+        initial_segments.append(" ".join(current))
+
+    segments: list[str] = []
+    embedded_review: list[dict[str, Any]] = []
+    for segment in initial_segments:
+        split_parts, was_split = split_embedded_times(segment)
+        if was_split:
+            embedded_review.append({"segmentRawBeforeSplit": segment, "segmentsRawAfterSplit": split_parts})
+        segments.extend(split_parts)
+    return segments, orphan_lines, embedded_review
 
 
 def parse_raw_pattern(segment: str, day: str) -> dict[str, Any]:
@@ -199,13 +216,16 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         periods, anchors = literal_source_metadata(document)
         groups: dict[str, list[dict[str, Any]]] = {}
         orphan_review: list[dict[str, Any]] = []
+        embedded_review: list[dict[str, Any]] = []
         for group in EXPECTED_GROUPS:
             lines = extract_group_lines(table, geometry, page, group)
             patterns: list[dict[str, Any]] = []
             for day in DAY_NAMES:
-                segments, orphan_lines = split_segments(lines[day])
+                segments, orphan_lines, embedded_splits = split_segments(lines[day])
                 if orphan_lines:
                     orphan_review.append({"group": group, "weekdayName": day, "lines": orphan_lines})
+                for split in embedded_splits:
+                    embedded_review.append({"group": group, "weekdayName": day, **split})
                 patterns.extend(parse_raw_pattern(segment, day) for segment in segments)
             groups[group] = patterns
 
@@ -233,7 +253,10 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         "periodsLiteral": periods,
         "weekAnchorsLiteral": anchors,
         "groups": groups,
-        "review": {"orphanSourceLines": orphan_review},
+        "review": {
+            "orphanSourceLines": orphan_review,
+            "embeddedTimeSplits": embedded_review,
+        },
         "summary": {
             "groupCount": len(groups),
             "rawPatternCount": len(all_patterns),
@@ -242,6 +265,7 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
             "weekRuleCounts": dict(week_counts),
             "monthQualifierCounts": dict(month_qualifiers),
             "orphanSourceLineCount": len(orphan_review),
+            "embeddedTimeSplitCount": len(embedded_review),
             "semanticNormalizationPerformed": False,
             "referenceTableMappingPerformed": False,
             "eventExpansionPerformed": False,
