@@ -20,6 +20,8 @@ function formatDateRu(date) {
 }
 
 function keepCorePostprocessing(batch) {
+  if (batch?.schedule?.university_code !== "ugmu") return batch;
+
   for (const event of batch.events || []) {
     const lines = [];
     const typeCode = event.lesson?.type?.code;
