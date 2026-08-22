@@ -114,7 +114,7 @@ for (const group of EXPECTED_GROUPS) {
   changedIncoming.lesson.source_note = `${changedIncoming.lesson.source_note ? `${changedIncoming.lesson.source_note}; ` : ""}QA-COURSE1-VERSIONING-CHANGE`;
   changedIncoming.source.references = [
     ...(changedIncoming.source.references || []),
-    { role: "qa", range: "synthetic-course1-versioning:source-note-change" },
+    { role: "note", range: "synthetic-course1-versioning:source-note-change" },
   ];
 
   const v2 = prepareVersion(changedCanonical, v1.batch, "2026-08-22T08:20:00.000Z", versionId(group, "v2"));
