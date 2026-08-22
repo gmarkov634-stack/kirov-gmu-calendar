@@ -1,0 +1,35 @@
+name: UGMU sales open one-shot dispatcher
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/ugmu-sales-open-once.yml
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: ugmu-sales-open-dispatch-once
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: ${{ github.event.head_commit.message == 'Dispatch UGMU sales opening' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch guarded UGMU sales workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh api \
+            --method POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/ugmu-sales-open.yml/dispatches" \
+            -f ref=main \
+            -f 'inputs[confirm]=OPEN_UGMU_SALES'
+          echo 'UGMU_SALES_OPEN_DISPATCHED_SAFE'
