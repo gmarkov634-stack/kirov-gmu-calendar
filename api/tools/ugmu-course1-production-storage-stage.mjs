@@ -157,7 +157,7 @@ export function validateCourse1StagingAuthority(authority, manifest, manifestDig
       && JSON.stringify(authority?.scope?.streams) === JSON.stringify(["1", "2", "3", "4"])
       && authority?.scope?.academicYear === "2026/2027"
       && authority?.scope?.semester === 1,
-    credentialPath: authority?.credentialPath === "github-actions-s3-secrets",
+    credentialPath: authority?.credentialPath === "cloudru-runtime-container-env",
   };
   if (!Object.values(checks).every(Boolean)) {
     const error = new Error("UGMU course-1 production storage staging authority is invalid");
