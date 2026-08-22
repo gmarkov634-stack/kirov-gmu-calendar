@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "kind": "ugmu-sales-open-plan",
+  "status": "AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "preparedAt": "2026-08-22T08:56:00+03:00",
+  "scope": {
+    "university": "ugmu",
+    "program": "medicine",
+    "course": 1,
+    "stream": "1",
+    "groups": ["ОЛД 101", "ОЛД 102", "ОЛД 103", "ОЛД 104", "ОЛД 105", "ОЛД 106", "ОЛД 107", "ОЛД 108", "ОЛД 109", "ОЛД 110", "ОЛД 111", "ОЛД 112"],
+    "academicYear": "2026/2027",
+    "semester": 1,
+    "sourceSha256": "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8"
+  },
+  "authorization": {
+    "salesOpeningRequestedInConversation": true,
+    "continuationCommand": "Далее",
+    "realLivePaymentAuthorized": false
+  },
+  "target": {
+    "globalCommercialSales": "closed",
+    "ugmuSales": "open",
+    "globalTrials": "closed",
+    "ugmuTrials": "open",
+    "paymentMode": "live",
+    "publicSchedule": "closed",
+    "publicIcs": "closed"
+  },
+  "guardedWorkflow": ".github/workflows/ugmu-sales-open.yml",
+  "rollback": "restore previous UGMU_SALES_ENABLED row on any post-mutation failure",
+  "paymentCreationAllowedByThisStep": false,
+  "nextBoundary": "execute guarded sales opening, then run read-only production smoke; real live payment remains separately authorized"
+}
