@@ -14,8 +14,9 @@
 .selector-context strong{font-size:16px}
 .selector-context div span{color:var(--muted);font-size:13px}
 #selector .panel-head{margin-top:24px}
+#selector .panel-head>div{min-width:0}
 #selector .choice-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-#selector .group-card{display:grid;min-height:76px;place-items:center;padding:14px 10px;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(21,89,214,.1)}
+#selector .group-card{display:grid;min-height:76px;place-items:center;padding:14px 10px;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(21,89,214,.1);-webkit-user-select:none;user-select:none}
 #selector .group-card .card-icon,#selector .group-card small{display:none}
 #selector .group-card strong{font-size:17px;letter-spacing:-.015em}
 #selector .group-card:active{border-color:#75a8f6;background:#eef5ff;transform:scale(.985)}
@@ -69,9 +70,10 @@
   .selector-context div{display:block}
   .selector-context strong{display:block;font-size:13px;line-height:1.2}
   .selector-context div span{display:block;margin-top:1px;font-size:10px;line-height:1.25}
-  #selector .panel-head{align-items:center;margin:12px 0 10px}
+  #selector .panel-head{align-items:flex-start;gap:8px;margin:12px 0 10px}
   #selector .panel-head h2{font-size:22px;line-height:1.08}
   #selector .section-kicker{margin-bottom:3px;font-size:9px}
+  #selector .back-button{min-height:36px;flex:0 0 auto;padding:0 10px;border-radius:10px;font-size:11px;line-height:1;white-space:nowrap}
   #selector .choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
   #selector .group-card{min-height:54px;padding:8px 4px;border-radius:13px}
   #selector .group-card strong{font-size:13px;letter-spacing:-.02em}

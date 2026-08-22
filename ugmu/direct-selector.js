@@ -15,6 +15,10 @@
   let syncing = false;
   let allGroupCards = [];
   let activeStream = "";
+  let touchCard = null;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchMoved = false;
 
   function oneCardMatching(text) {
     const cards = Array.from(grid.querySelectorAll(".choice-card"));
@@ -172,6 +176,45 @@
       syncing = false;
     }
   }
+
+  function resetTouchState() {
+    touchCard = null;
+    touchMoved = false;
+  }
+
+  grid.addEventListener("touchstart", (event) => {
+    if (event.touches.length !== 1) {
+      resetTouchState();
+      return;
+    }
+    const card = event.target.closest(".group-card");
+    if (!card || !grid.contains(card)) {
+      resetTouchState();
+      return;
+    }
+    touchCard = card;
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  grid.addEventListener("touchmove", (event) => {
+    if (!touchCard || event.touches.length !== 1) return;
+    const dx = event.touches[0].clientX - touchStartX;
+    const dy = event.touches[0].clientY - touchStartY;
+    if (Math.hypot(dx, dy) > 12) touchMoved = true;
+  }, { passive: true });
+
+  grid.addEventListener("touchend", (event) => {
+    const card = touchCard;
+    const shouldActivate = Boolean(card && !touchMoved && grid.contains(card));
+    resetTouchState();
+    if (!shouldActivate) return;
+    event.preventDefault();
+    card.click();
+  }, { passive: false });
+
+  grid.addEventListener("touchcancel", resetTouchState, { passive: true });
 
   backButton.addEventListener("click", (event) => {
     if (!activeStream || !grid.querySelector(".group-card") || !allGroupCards.length) return;
