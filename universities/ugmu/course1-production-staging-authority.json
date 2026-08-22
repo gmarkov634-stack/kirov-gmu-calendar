@@ -84,13 +84,14 @@
     "academicYear": "2026/2027",
     "semester": 1
   },
-  "credentialPath": "github-actions-s3-secrets",
+  "credentialPath": "cloudru-runtime-container-env",
   "sourceQa": {
     "workflow": "UGMU course-1 canonical package QA",
     "workflowFile": ".github/workflows/ugmu-course1-canonical-package.yml",
-    "requiredEvent": "workflow_dispatch",
-    "requiredBranch": "main",
-    "artifactName": "ugmu-course1-canonical-package",
-    "requireSameHeadSha": true
+    "runId": 32561505590,
+    "event": "pull_request",
+    "headBranch": "agent/ugmu-course1-versioning-20260822",
+    "headSha": "ae0a4a9002c89719f41290d25d8b9d22717d4fbb",
+    "artifactName": "ugmu-course1-canonical-package"
   }
 }
