@@ -19,6 +19,25 @@ PERIOD_END = date(2026, 12, 23)
 WEEK_I_START = date(2026, 9, 1)
 WEEK_II_START = date(2026, 9, 7)
 
+# Explicitly approved by the user for this exact stream-IV source SHA.
+APPROVED_OVERLAP_GROUPS = {"ОЛД 247", "ОЛД 248"}
+APPROVED_OVERLAP_TITLE = "Микробиология, вирусология, иммунология"
+APPROVED_OVERLAP_LEFT = {
+    "startTime": "16:20",
+    "endTime": "18:40",
+    "markerRaw": None,
+    "sourceTitleRaw": "Микробиология вирусология",
+    "lessonTypeSemantic": "other",
+}
+APPROVED_OVERLAP_RIGHT = {
+    "startTime": "18:00",
+    "endTime": "19:30",
+    "markerRaw": "Л.",
+    "sourceTitleRaw": "Микробиология, вирусология, иммунология",
+    "lessonTypeSemantic": "lecture",
+}
+EXPECTED_APPROVED_OVERLAP_COUNT = 32
+
 
 def minutes(value: str) -> int:
     parsed = datetime.strptime(value, "%H:%M")
@@ -76,6 +95,24 @@ def overlap_side(event: dict[str, Any]) -> dict[str, Any]:
         "titleSemantic": event["titleSemantic"],
         "lessonTypeSemantic": event["lessonTypeSemantic"],
     }
+
+
+def side_matches(side: dict[str, Any], expected: dict[str, Any]) -> bool:
+    return all(side.get(key) == value for key, value in expected.items())
+
+
+def is_approved_source_overlap(overlap: dict[str, Any]) -> bool:
+    if overlap["group"] not in APPROVED_OVERLAP_GROUPS:
+        return False
+    if date.fromisoformat(overlap["date"]).weekday() != 4:
+        return False
+    left = overlap["left"]
+    right = overlap["right"]
+    if left.get("titleSemantic") != APPROVED_OVERLAP_TITLE:
+        return False
+    if right.get("titleSemantic") != APPROVED_OVERLAP_TITLE:
+        return False
+    return side_matches(left, APPROVED_OVERLAP_LEFT) and side_matches(right, APPROVED_OVERLAP_RIGHT)
 
 
 def analyze(events: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
@@ -187,7 +224,16 @@ def build(semantic_path: Path) -> dict[str, Any]:
 
     events = [event for values in groups.values() for event in values]
     duplicates, invalid_intervals, overlaps = analyze(events)
-    review_required = bool(duplicates or invalid_intervals or overlaps)
+    approved_source_overlaps = [overlap for overlap in overlaps if is_approved_source_overlap(overlap)]
+    unresolved_overlaps = [overlap for overlap in overlaps if not is_approved_source_overlap(overlap)]
+
+    if len(approved_source_overlaps) != EXPECTED_APPROVED_OVERLAP_COUNT:
+        raise RuntimeError(
+            "Approved stream-IV overlap count changed; new source/geometry review required: "
+            f"expected {EXPECTED_APPROVED_OVERLAP_COUNT}, got {len(approved_source_overlaps)}"
+        )
+
+    review_required = bool(duplicates or invalid_intervals or unresolved_overlaps)
 
     return {
         "mode": "dated-events-review-only",
@@ -211,6 +257,19 @@ def build(semantic_path: Path) -> dict[str, Any]:
             "duplicates": duplicates,
             "invalidIntervals": invalid_intervals,
             "overlaps": overlaps,
+            "approvedSourceOverlaps": approved_source_overlaps,
+            "unresolvedOverlaps": unresolved_overlaps,
+            "approvedSourceOverlapPolicy": {
+                "sourceSha256": EXPECTED_SHA256,
+                "reason": "User-approved preservation of two overlapping official PDF rows; do not infer a correction.",
+                "groups": sorted(APPROVED_OVERLAP_GROUPS),
+                "weekday": "пятница",
+                "titleSemantic": APPROVED_OVERLAP_TITLE,
+                "left": APPROVED_OVERLAP_LEFT,
+                "right": APPROVED_OVERLAP_RIGHT,
+                "expectedOverlapCount": EXPECTED_APPROVED_OVERLAP_COUNT,
+                "newSourceShaRequiresReview": True,
+            },
         },
         "summary": {
             "groupCount": len(groups),
@@ -222,6 +281,8 @@ def build(semantic_path: Path) -> dict[str, Any]:
             "duplicateCount": len(duplicates),
             "invalidIntervalCount": len(invalid_intervals),
             "overlapCount": len(overlaps),
+            "approvedSourceOverlapCount": len(approved_source_overlaps),
+            "unresolvedOverlapCount": len(unresolved_overlaps),
             "reviewRequired": review_required,
             "sourcePeriodCorrectionApplied": True,
             "canonicalizationPerformed": False,
@@ -242,8 +303,6 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result["summary"], ensure_ascii=False))
-    if result["review"]["overlaps"]:
-        print(json.dumps({"overlaps": result["review"]["overlaps"][:40]}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
