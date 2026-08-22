@@ -27,3 +27,16 @@ window.UGMU_CONFIG = Object.freeze({
     { code: "ОЛД 112", events: 357, lectures: 112, firstClass: ["15:30", "17:00", "Химия", "Декабристов, 32"], lastClass: ["2027-01-09", "12:10", "13:40", "Иностранный язык", "Ключевская, 7"] }
   ])
 });
+
+// The group grid can be much taller than the access card that replaces it.
+// After a group click, restore the viewport to the selector instead of letting
+// the browser keep a now-invalid scroll position near the bottom of the page.
+document.addEventListener("click", (event) => {
+  const groupCard = event.target.closest?.(".group-card");
+  if (!groupCard) return;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelector("#selector")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}, true);
