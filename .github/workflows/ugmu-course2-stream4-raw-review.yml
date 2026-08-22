@@ -95,28 +95,13 @@ jobs:
                           value=' '.join(str(row[col] or '').split())
                           if cell and value and cell[0]-1e-6 <= target_center <= cell[2]+1e-6:
                               print('G247ROW',idx,'COL',col,'VALUE=',repr(value),'CELL=',tuple(round(x,2) for x in cell))
-                  print('MONDAY_NEIGHBOR_CELLS_245_248')
-                  for idx in range(1,7):
-                      row=table[idx]
-                      grow=geom.rows[idx]
-                      for group in ('ОЛД 245','ОЛД 246','ОЛД 247','ОЛД 248'):
-                          center_cell=geom.rows[0].cells[header.index(group)+1]
-                          center=(center_cell[0]+center_cell[2])/2
-                          hits=[]
-                          for col in range(1,min(len(row),len(grow.cells))):
-                              cell=grow.cells[col]
-                              value=' '.join(str(row[col] or '').split())
-                              if cell and value and cell[0]-1e-6 <= center <= cell[2]+1e-6:
-                                  hits.append((col,value,tuple(round(x,2) for x in cell)))
-                          if hits:
-                              print('NBR',idx,group,hits)
                   print('RAW_WORDS_AROUND_ORPHAN')
                   for w in page.extract_words(extra_attrs=['upright']):
                       if 155 <= w['top'] <= 195 and 430 <= w['x0'] <= 570:
                           print(w['text'], round(w['x0'],2), round(w['x1'],2), round(w['top'],2), round(w['bottom'],2))
           PY
 
-      - name: Extract only course2 stream IV raw weekly patterns
+      - name: Extract and assert complete course2 stream IV raw weekly patterns
         run: |
           set -euo pipefail
           report='data/imports/course2-pdfs/download-report.json'
@@ -133,9 +118,32 @@ jobs:
           jq -e '
             .mode == "raw-weekly-patterns-only" and
             .course == 2 and .stream == 4 and
+            .source.sha256 == "6b5f87dc7f565169105245a397996e61e94794dfe580529cc5f7398a62e21517" and
+            .periodsLiteral == ["01.09.2026 – 23.12.2027"] and
             .summary.groupCount == 12 and
-            .summary.rawPatternCount > 0 and
+            .summary.rawPatternCount == 204 and
+            ([.summary.rawPatternsByGroup[]] | all(. == 17)) and
+            ([.summary.saturdayPatternsByGroup[]] | add) == 18 and
+            .summary.saturdayPatternsByGroup["ОЛД 247"] == 0 and
+            .summary.saturdayPatternsByGroup["ОЛД 248"] == 0 and
+            .summary.markerCounts[""] == 108 and
+            .summary.markerCounts["Л."] == 84 and
+            .summary.markerCounts["Л. ДВ"] == 12 and
+            .summary.weekRuleCounts.weekly == 132 and
+            .summary.weekRuleCounts.I == 36 and
+            .summary.weekRuleCounts.II == 36 and
+            .summary.monthQualifierCounts == {} and
             .summary.orphanSourceLineCount == 0 and
+            .summary.embeddedTimeSplitCount == 0 and
+            .summary.geometryArtifactRepairCount == 1 and
+            .review.sourceHasSaturdayBlock == true and
+            .review.sourceWeekdayLayout.page2Continuation == ["суббота"] and
+            any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "10:30" and .endTime == "12:00" and .sourceTitleRaw == "Экономика") and
+            any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "12:10" and .endTime == "13:40" and .sourceTitleRaw == "Гистология, эмбриология, цитология") and
+            any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "16:20" and .endTime == "18:40" and .sourceTitleRaw == "Нормальная физиология") and
+            any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "08:50" and .endTime == "10:20" and .sourceTitleRaw == "Гистология, эмбриология, цитология") and
+            any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "10:30" and .endTime == "12:00" and .sourceTitleRaw == "Экономика") and
+            any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "16:20" and .endTime == "18:40" and .sourceTitleRaw == "Нормальная физиология") and
             .summary.semanticNormalizationPerformed == false and
             .summary.referenceTableMappingPerformed == false and
             .summary.eventExpansionPerformed == false and
@@ -143,7 +151,7 @@ jobs:
             .summary.storageWritesPerformed == false and
             .summary.publicationAllowed == false
           ' data/imports/course2-stream4/raw.json >/dev/null
-          jq '{source, periodsLiteral, weekAnchorsLiteral, summary, embeddedTimeSplits:.review.embeddedTimeSplits}' data/imports/course2-stream4/raw.json
+          jq '{source, periodsLiteral, weekAnchorsLiteral, summary, sourceWeekdayLayout:.review.sourceWeekdayLayout, geometryArtifacts:.review.geometryArtifacts}' data/imports/course2-stream4/raw.json
 
       - name: Upload read-only raw evidence
         uses: actions/upload-artifact@v4
