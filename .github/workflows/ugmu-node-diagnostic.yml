@@ -1,0 +1,59 @@
+name: UGMU Node diagnostic
+
+on:
+  push:
+    branches:
+      - agent/ugmu-course1-stream34-20260822
+
+permissions:
+  contents: read
+
+jobs:
+  ugmu-test:
+    name: ${{ matrix.test }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - ugmu-api-routing.test.js
+          - ugmu-canonical-pilot.test.js
+          - ugmu-cloudru-production-smoke-workflow.test.js
+          - ugmu-controlled-activation-plan.test.js
+          - ugmu-controlled-live-payment-canary-plan.test.js
+          - ugmu-discover.test.js
+          - ugmu-download.test.js
+          - ugmu-final-launch-readiness.test.js
+          - ugmu-first-stream-production-dry-run.test.js
+          - ugmu-live-checkout-ui.test.js
+          - ugmu-meta-trial-state.test.js
+          - ugmu-pages-build-gate.test.js
+          - ugmu-pages-source.test.js
+          - ugmu-payment-e2e.test.js
+          - ugmu-post-launch-ci-mode.test.js
+          - ugmu-post-launch-operational-monitoring.test.js
+          - ugmu-post-launch-repository-stabilization.test.js
+          - ugmu-production-storage-stage.test.js
+          - ugmu-production-storage-verify.test.js
+          - ugmu-publication-package.test.js
+          - ugmu-purchased-calendar-update-e2e.test.js
+          - ugmu-sales-isolation.test.js
+          - ugmu-source-registry.test.js
+          - ugmu-source-watch.test.js
+          - ugmu-subscription-revoke-e2e.test.js
+          - ugmu-trial-access-plan.test.js
+          - ugmu-trial-isolation.test.js
+          - ugmu-trial-landing.test.js
+          - ugmu-trial-operational-workflows.test.js
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: node --test "test/${{ matrix.test }}"
