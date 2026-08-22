@@ -14,8 +14,20 @@ const COURSE1_SCOPE = UGMU_ACCESS_SCOPES.find(
 
 export const UGMU_COURSE1_STREAMS = COURSE1_SCOPE?.streams || Object.freeze([]);
 
+// Keep the legacy course-1 export byte-for-byte compatible in shape with its
+// original public contract. Scope metadata/capabilities live only in the new
+// generic UGMU access catalog.
 export const UGMU_COURSE1_GROUPS = Object.freeze(
-  UGMU_ACCESS_GROUPS.filter((group) => group.program === "medicine" && group.course === 1),
+  UGMU_ACCESS_GROUPS
+    .filter((group) => group.program === "medicine" && group.course === 1)
+    .map(({ university, program, course, stream, groupCode, groupId }) => Object.freeze({
+      university,
+      program,
+      course,
+      stream,
+      groupCode,
+      groupId,
+    })),
 );
 
 export const UGMU_COURSE1_GROUP_CODES = Object.freeze(
