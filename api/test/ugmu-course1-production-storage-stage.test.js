@@ -204,7 +204,7 @@ async function buildFixture() {
     salesActivation: false,
     commerceState: "preserve-current-production-state",
     scope: { university: "ugmu", program: "medicine", course: 1, streams: ["1", "2", "3", "4"], academicYear: "2026/2027", semester: 1 },
-    credentialPath: "github-actions-s3-secrets",
+    credentialPath: "cloudru-runtime-container-env",
   };
   return { root, groupsDir, manifest, manifestText, authority };
 }
