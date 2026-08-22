@@ -9,6 +9,9 @@
 
   const roman = Object.freeze({ "1": "I", "2": "II", "3": "III", "4": "IV" });
   const groupByCode = new Map(config.groups.map((group) => [group.code, group]));
+  const initialRequestedNumber = new URLSearchParams(window.location.search).get("group") || "";
+  const initialRequestedGroupCode = `ОЛД ${initialRequestedNumber}`;
+  let directGroupPending = groupByCode.has(initialRequestedGroupCode);
   let syncing = false;
   let allGroupCards = [];
   let activeStream = "";
@@ -102,6 +105,7 @@
   function normalizeAccessCopy() {
     const accessKicker = grid.querySelector(".access-card .section-kicker");
     if (!accessKicker) return;
+    directGroupPending = false;
     const requested = new URLSearchParams(window.location.search).get("group") || "";
     const group = groupByCode.get(`ОЛД ${requested}`);
     if (!group) return;
@@ -113,6 +117,15 @@
     if (heroRuntimeNote.textContent.includes("ОЛД 101–112")) {
       heroRuntimeNote.textContent = heroRuntimeNote.textContent.replace("ОЛД 101–112", "ОЛД 101–150");
     }
+  }
+
+  function openInitialRequestedGroup(groupCards) {
+    if (!directGroupPending || groupCards.length !== config.groups.length) return false;
+    directGroupPending = false;
+    const requestedCard = groupCards.find((card) => groupCodeForCard(card) === initialRequestedGroupCode);
+    if (!requestedCard) return false;
+    requestedCard.click();
+    return true;
   }
 
   function normalizeSelector() {
@@ -140,6 +153,8 @@
 
       const groupCards = Array.from(grid.querySelectorAll(".group-card"));
       if (!groupCards.length) return;
+
+      if (openInitialRequestedGroup(groupCards)) return;
 
       if (groupCards.length === config.groups.length) {
         showStreamSelector(groupCards);
