@@ -1,0 +1,167 @@
+name: UGMU course2 production collision audit
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-production-collision-audit.mjs"
+      - ".github/workflows/ugmu-course2-production-collision-audit.yml"
+      - "universities/ugmu/catalog.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ugmu-course2-production-collision-audit
+  cancel-in-progress: false
+
+env:
+  COURSE1_RUN_ID: "32561505590"
+  COURSE1_HEAD_SHA: ae0a4a9002c89719f41290d25d8b9d22717d4fbb
+  COURSE1_ARTIFACT: ugmu-course1-canonical-package
+  COURSE1_ARTIFACT_DIGEST: sha256:f15f407ee32af4377bec1371d03d5773b349c043ce53215214c05255d5f75d16
+  COURSE1_MANIFEST_SHA256: bb701f0619df8f53eb3943b846be8b8ac5e815225aace15df34de051b4c194eb
+  COURSE2_RUN_ID: "32601092056"
+  COURSE2_HEAD_SHA: 44fd85214f5397ee7b2923d8d88ee6219c88e2f5
+  COURSE2_ARTIFACT: ugmu-course2-canonical-review
+  COURSE2_ARTIFACT_DIGEST: sha256:de59e655cd5ee161c6b35b4ae9cc5d9400fcb834fbf8f398ffea45e6f362e42a
+  COURSE2_STORAGE_PLAN_SHA256: 783dba66f9cf48ae47a335c9cb4c9a7a41121d2a7d008b67262b910e8db38c2e
+  S3_BUCKET: kgmu-calendar-data-gmarkov634
+  S3_ENDPOINT: https://s3.cloud.ru
+  S3_REGION: ru-central-1
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download pinned course-1 production baseline
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${COURSE1_RUN_ID}" > /tmp/course1-run.json
+          jq -e --arg sha "$COURSE1_HEAD_SHA" '.status == "completed" and .conclusion == "success" and .head_sha == $sha' /tmp/course1-run.json >/dev/null
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${COURSE1_RUN_ID}/artifacts" > /tmp/course1-artifacts.json
+          jq -e --arg name "$COURSE1_ARTIFACT" --arg digest "$COURSE1_ARTIFACT_DIGEST" '.artifacts[] | select(.name == $name) | .expired == false and .digest == $digest' /tmp/course1-artifacts.json >/dev/null
+          rm -rf /tmp/ugmu-course1-baseline
+          mkdir -p /tmp/ugmu-course1-baseline
+          gh run download "$COURSE1_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$COURSE1_ARTIFACT" --dir /tmp/ugmu-course1-baseline
+          manifest="$(find /tmp/ugmu-course1-baseline -path '*/preactivation-dry-run/manifest.json' -print -quit)"
+          test -n "$manifest"
+          test "$(sha256sum "$manifest" | cut -d' ' -f1)" = "$COURSE1_MANIFEST_SHA256"
+          echo "COURSE1_MANIFEST=$manifest" >> "$GITHUB_ENV"
+
+      - name: Download pinned course-2 preactivation review
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${COURSE2_RUN_ID}" > /tmp/course2-run.json
+          jq -e --arg sha "$COURSE2_HEAD_SHA" '.status == "completed" and .conclusion == "success" and .head_sha == $sha' /tmp/course2-run.json >/dev/null
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${COURSE2_RUN_ID}/artifacts" > /tmp/course2-artifacts.json
+          jq -e --arg name "$COURSE2_ARTIFACT" --arg digest "$COURSE2_ARTIFACT_DIGEST" '.artifacts[] | select(.name == $name) | .expired == false and .digest == $digest' /tmp/course2-artifacts.json >/dev/null
+          rm -rf /tmp/ugmu-course2-review
+          mkdir -p /tmp/ugmu-course2-review
+          gh run download "$COURSE2_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$COURSE2_ARTIFACT" --dir /tmp/ugmu-course2-review
+          report="$(find /tmp/ugmu-course2-review -path '*/preactivation/report.json' -print -quit)"
+          test -n "$report"
+          jq -e --arg plan "$COURSE2_STORAGE_PLAN_SHA256" '
+            .stage == "ics-preactivation-dry-run" and
+            .summary.groupCount == 48 and
+            .summary.eventCount == 11056 and
+            .summary.aggregateStoragePlanSha256 == $plan and
+            .summary.productionStoreCalls == 0 and
+            .summary.storageWritesPerformed == false and
+            .summary.publicationAllowed == false and
+            .summary.preactivationReady == true and
+            .summary.reviewRequired == false
+          ' "$report" >/dev/null
+          echo "COURSE2_REPORT=$report" >> "$GITHUB_ENV"
+
+      - name: Use protected production S3 credentials for reads only
+        working-directory: .
+        env:
+          DIRECT_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          DIRECT_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DIRECT_S3_ACCESS_KEY_ID"
+          test -n "$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "::add-mask::$DIRECT_S3_ACCESS_KEY_ID"
+          echo "::add-mask::$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "S3_ACCESS_KEY_ID=$DIRECT_S3_ACCESS_KEY_ID" >> "$GITHUB_ENV"
+          echo "S3_SECRET_ACCESS_KEY=$DIRECT_S3_SECRET_ACCESS_KEY" >> "$GITHUB_ENV"
+          echo "UGMU_COURSE2_READ_ONLY_CREDENTIAL_PATH_SAFE"
+
+      - name: Audit production collision boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-production-collision-audit.mjs \
+            --course1-manifest="$COURSE1_MANIFEST" \
+            --course2-report="$COURSE2_REPORT" \
+            --catalog=../universities/ugmu/catalog.json \
+            --report=data/imports/ugmu-course2/production-collision-audit/report.json
+          jq -e '
+            .status == "PASS" and .passed == true and .mode == "production-read-only" and
+            .totals.course1Groups == 50 and .totals.course1Present == 50 and .totals.course1HashesMatched == 50 and
+            .totals.course2Targets == 48 and .totals.course2Free == 48 and .totals.course2Occupied == 0 and
+            .totals.course1Course2KeyCollisions == 0 and .totals.crossUniversityTargets == 0 and
+            .catalog.courses == [1] and .catalog.course2Present == false and .catalog.mutationPerformed == false and
+            .boundaries.productionReadsPerformed == true and .boundaries.productionWritesPerformed == false and
+            .boundaries.catalogWritesPerformed == false and .boundaries.accessPolicyWritesPerformed == false and
+            .boundaries.salesChangesPerformed == false and .boundaries.publicIcsPublicationPerformed == false and
+            .boundaries.otherUniversitiesTouched == false and
+            .readyForControlledStorageStage == true and
+            .nextRequiredBoundary == "explicit-controlled-course2-storage-stage"
+          ' data/imports/ugmu-course2/production-collision-audit/report.json >/dev/null
+
+      - name: Write audit summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const file = 'data/imports/ugmu-course2/production-collision-audit/report.json';
+          console.log('## UGMU course-2 production collision audit');
+          console.log('');
+          if (!fs.existsSync(file)) { console.log('Audit report was not generated.'); process.exit(0); }
+          const r = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${r.status}**`);
+          console.log(`Course-1 baseline intact: **${r.totals.course1HashesMatched}/50**`);
+          console.log(`Course-2 targets free: **${r.totals.course2Free}/48**`);
+          console.log(`Occupied course-2 targets: **${r.totals.course2Occupied}**`);
+          console.log(`Cross-course key collisions: **${r.totals.course1Course2KeyCollisions}**`);
+          console.log('Production mutation by this audit: **no**');
+          NODE
+
+      - name: Upload read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course2-production-collision-audit
+          path: api/data/imports/ugmu-course2/production-collision-audit/report.json
+          if-no-files-found: warn
+          retention-days: 90
