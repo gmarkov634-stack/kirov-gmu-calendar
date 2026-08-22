@@ -1,3 +1,29 @@
+function ugmuStreamForGroupCode(value) {
+  const number = Number(String(value || "").replace(/\D+/g, ""));
+  if (number >= 101 && number <= 112) return "1";
+  if (number >= 113 && number <= 124) return "2";
+  if (number >= 125 && number <= 136) return "3";
+  if (number >= 137 && number <= 150) return "4";
+  return "1";
+}
+
+const ugmuGroups = Object.freeze(
+  Array.from({ length: 50 }, (_, index) => {
+    const code = `ОЛД ${101 + index}`;
+    return Object.freeze({ code, stream: ugmuStreamForGroupCode(code) });
+  }),
+);
+
+const ugmuProgram = Object.freeze({
+  id: "medicine",
+  name: "Лечебное дело",
+  course: 1,
+  get stream() {
+    const selected = new URLSearchParams(window.location.search).get("group");
+    return ugmuStreamForGroupCode(selected);
+  },
+});
+
 window.UGMU_CONFIG = Object.freeze({
   university: "ugmu",
   universityName: "УГМУ",
@@ -11,21 +37,8 @@ window.UGMU_CONFIG = Object.freeze({
   semester: 1,
   period: Object.freeze({ start: "2026-09-01", end: "2027-01-10" }),
   sourceSha256: "34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8",
-  program: Object.freeze({ id: "medicine", name: "Лечебное дело", course: 1, stream: "1" }),
-  groups: Object.freeze([
-    { code: "ОЛД 101", events: 357, lectures: 112, firstClass: ["13:50", "15:20", "Химия", "Декабристов, 32"], lastClass: ["2027-01-09", "13:50", "15:20", "История России", "Н. Онуфриева, 20а"] },
-    { code: "ОЛД 102", events: 358, lectures: 112, firstClass: ["13:50", "15:20", "Химия", "Декабристов, 32"], lastClass: ["2027-01-09", "14:00", "16:20", "НИР: ЗОЖ в профессии врача", "Место определяет кафедра"] },
-    { code: "ОЛД 103", events: 357, lectures: 112, firstClass: ["13:50", "15:20", "Основы военной подготовки", "Ключевская, 7"], lastClass: ["2027-01-09", "14:40", "17:00", "Ознакомительная практика: уход за больными терапевтического профиля", "Место определяет кафедра"] },
-    { code: "ОЛД 104", events: 357, lectures: 112, firstClass: ["13:50", "15:20", "Основы военной подготовки", "Ключевская, 7"], lastClass: ["2027-01-09", "14:40", "17:00", "Ознакомительная практика: уход за больными терапевтического профиля", "Место определяет кафедра"] },
-    { code: "ОЛД 105", events: 358, lectures: 112, firstClass: ["12:10", "13:40", "Иностранный язык", "Ключевская, 7"], lastClass: ["2027-01-09", "14:40", "17:00", "Ознакомительная практика: уход за больными терапевтического профиля", "Место определяет кафедра"] },
-    { code: "ОЛД 106", events: 357, lectures: 112, firstClass: ["12:10", "13:40", "Иностранный язык", "Ключевская, 7"], lastClass: ["2027-01-09", "14:40", "17:00", "Ознакомительная практика: уход за больными терапевтического профиля", "Место определяет кафедра"] },
-    { code: "ОЛД 107", events: 357, lectures: 112, firstClass: ["11:20", "12:50", "Латинский язык", "Ключевская, 7"], lastClass: ["2027-01-09", "13:50", "16:20", "НИР: получение первичных навыков научно-исследовательской работы", "Место определяет кафедра"] },
-    { code: "ОЛД 108", events: 357, lectures: 112, firstClass: ["11:20", "12:50", "Латинский язык", "Ключевская, 7"], lastClass: ["2027-01-09", "12:10", "13:40", "Иностранный язык", "Ключевская, 7"] },
-    { code: "ОЛД 109", events: 357, lectures: 112, firstClass: ["13:00", "14:30", "Латинский язык", "Ключевская, 7"], lastClass: ["2027-01-09", "13:50", "15:20", "История России", "Н. Онуфриева, 20а"] },
-    { code: "ОЛД 110", events: 357, lectures: 112, firstClass: ["13:00", "14:30", "Латинский язык", "Ключевская, 7"], lastClass: ["2027-01-09", "13:50", "15:20", "История России", "Н. Онуфриева, 20а"] },
-    { code: "ОЛД 111", events: 357, lectures: 112, firstClass: ["16:10", "17:40", "Иностранный язык", "Ключевская, 7"], lastClass: ["2027-01-09", "13:00", "14:40", "НИР: ЗОЖ в профессии врача", "Место определяет кафедра"] },
-    { code: "ОЛД 112", events: 357, lectures: 112, firstClass: ["15:30", "17:00", "Химия", "Декабристов, 32"], lastClass: ["2027-01-09", "12:10", "13:40", "Иностранный язык", "Ключевская, 7"] }
-  ])
+  program: ugmuProgram,
+  groups: ugmuGroups,
 });
 
 function pinUgmuSelectorAfterGroupChoice() {
@@ -39,15 +52,30 @@ function pinUgmuSelectorAfterGroupChoice() {
   window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
 }
 
+function updateUgmuSelectedStreamCopy() {
+  const kicker = document.querySelector(".access-card .section-kicker");
+  if (!kicker) return;
+  const selected = new URLSearchParams(window.location.search).get("group");
+  const roman = { "1": "I", "2": "II", "3": "III", "4": "IV" }[ugmuStreamForGroupCode(selected)] || "I";
+  kicker.textContent = `Лечебное дело · 1 курс · ${roman} поток`;
+}
+
 document.addEventListener("click", (event) => {
   const groupCard = event.target.closest?.(".group-card");
   if (!groupCard) return;
 
-  // The list of 12 groups collapses into one access card. Correct the viewport
-  // after that replacement so mobile browsers do not keep the old bottom offset.
   requestAnimationFrame(() => {
-    requestAnimationFrame(pinUgmuSelectorAfterGroupChoice);
+    requestAnimationFrame(() => {
+      pinUgmuSelectorAfterGroupChoice();
+      updateUgmuSelectedStreamCopy();
+    });
   });
-  setTimeout(pinUgmuSelectorAfterGroupChoice, 100);
-  setTimeout(pinUgmuSelectorAfterGroupChoice, 260);
+  setTimeout(() => {
+    pinUgmuSelectorAfterGroupChoice();
+    updateUgmuSelectedStreamCopy();
+  }, 100);
+  setTimeout(() => {
+    pinUgmuSelectorAfterGroupChoice();
+    updateUgmuSelectedStreamCopy();
+  }, 260);
 }, true);

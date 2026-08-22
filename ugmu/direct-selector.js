@@ -35,7 +35,7 @@
 
       if (grid.querySelector(".group-card")) {
         if (title.textContent !== "Выберите свою группу") title.textContent = "Выберите свою группу";
-        if (kicker.textContent !== "ОЛД 101–112 · I поток") kicker.textContent = "ОЛД 101–112 · I поток";
+        if (kicker.textContent !== "ОЛД 101–150 · I–IV потоки") kicker.textContent = "ОЛД 101–150 · I–IV потоки";
         backButton.hidden = true;
       }
     } finally {
