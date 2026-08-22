@@ -89,13 +89,20 @@ jobs:
             .summary.duplicateCount == 0 and
             .summary.invalidIntervalCount == 0 and
             .summary.overlapCount == 32 and
-            .summary.reviewRequired == true and
-            ([.review.overlaps[].group] | unique | sort) == ["ОЛД 247","ОЛД 248"] and
-            all(.review.overlaps[];
+            .summary.approvedSourceOverlapCount == 32 and
+            .summary.unresolvedOverlapCount == 0 and
+            .summary.reviewRequired == false and
+            ([.review.approvedSourceOverlaps[].group] | unique | sort) == ["ОЛД 247","ОЛД 248"] and
+            (.review.unresolvedOverlaps | length) == 0 and
+            all(.review.approvedSourceOverlaps[];
               .left.startTime == "16:20" and .left.endTime == "18:40" and
+              .left.markerRaw == null and
+              .left.sourceTitleRaw == "Микробиология вирусология" and
               .left.titleSemantic == "Микробиология, вирусология, иммунология" and
               .left.lessonTypeSemantic == "other" and
               .right.startTime == "18:00" and .right.endTime == "19:30" and
+              .right.markerRaw == "Л." and
+              .right.sourceTitleRaw == "Микробиология, вирусология, иммунология" and
               .right.titleSemantic == "Микробиология, вирусология, иммунология" and
               .right.lessonTypeSemantic == "lecture"
             ) and
@@ -104,7 +111,7 @@ jobs:
             .summary.icsGenerated == false and
             .summary.publicationAllowed == false
           ' data/imports/course2-stream4/dated-review.json >/dev/null
-          jq '{source, sourcePeriodLiteral, sourceCorrections, effectivePeriod, weekAnchors, summary, overlaps:.review.overlaps, duplicates:.review.duplicates, invalidIntervals:.review.invalidIntervals}' data/imports/course2-stream4/dated-review.json
+          jq '{source, sourcePeriodLiteral, sourceCorrections, effectivePeriod, weekAnchors, summary, approvedSourceOverlapPolicy:.review.approvedSourceOverlapPolicy, approvedSourceOverlaps:.review.approvedSourceOverlaps, unresolvedOverlaps:.review.unresolvedOverlaps, duplicates:.review.duplicates, invalidIntervals:.review.invalidIntervals}' data/imports/course2-stream4/dated-review.json
 
       - name: Upload read-only date review evidence
         uses: actions/upload-artifact@v4
