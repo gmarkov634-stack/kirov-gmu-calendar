@@ -7,10 +7,20 @@ function normalizeText(value) {
   return String(value ?? "").trim();
 }
 
-// Compatibility exports for existing first-course QA/staging code. Runtime
-// checkout/trial validation is delegated to the scalable sellable catalog.
+// Compatibility exports for existing first-course QA/staging code. Keep the
+// legacy object shape stable while runtime checkout/trial validation delegates
+// to the scalable sellable catalog.
 export const UGMU_COURSE1_GROUPS = Object.freeze(
-  UGMU_SELLABLE_GROUPS.filter((group) => group.program === "medicine" && group.course === 1),
+  UGMU_SELLABLE_GROUPS
+    .filter((group) => group.program === "medicine" && group.course === 1)
+    .map((group) => Object.freeze({
+      university: group.university,
+      program: group.program,
+      course: group.course,
+      stream: group.stream,
+      groupCode: group.groupCode,
+      groupId: group.groupId,
+    })),
 );
 
 export const UGMU_COURSE1_STREAMS = Object.freeze([
