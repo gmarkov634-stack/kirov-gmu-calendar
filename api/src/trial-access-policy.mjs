@@ -1,7 +1,13 @@
 import { universityTrialsEnabled } from "./university-commerce-policy.mjs";
+import {
+  UGMU_COURSE1_GROUPS,
+  ugmuCourse1ContextAllowed,
+} from "./ugmu-course1-access-policy.mjs";
 
 const UGMU_FIRST_STREAM_GROUPS = Object.freeze(
-  Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`),
+  UGMU_COURSE1_GROUPS
+    .filter((group) => group.stream === "1")
+    .map((group) => group.groupCode),
 );
 
 function normalizedUniversity(value) {
@@ -9,16 +15,7 @@ function normalizedUniversity(value) {
 }
 
 export function ugmuTrialScopeAllowed(context = {}) {
-  if (normalizedUniversity(context.university) !== "ugmu") return false;
-  if (String(context.program || "").trim() !== "medicine") return false;
-  if (Number(context.course) !== 1) return false;
-  if (String(context.stream || "").trim() !== "1") return false;
-
-  const groupCode = String(context.groupCode || "").trim();
-  if (!UGMU_FIRST_STREAM_GROUPS.includes(groupCode)) return false;
-
-  const expectedGroupId = `ugmu:medicine:1:stream-1:${groupCode}`;
-  return String(context.groupId || "").trim() === expectedGroupId;
+  return ugmuCourse1ContextAllowed(context);
 }
 
 export function runtimeTrialContextAllowed(config = {}, context = {}) {
