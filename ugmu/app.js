@@ -200,7 +200,7 @@
     copy.innerHTML = `
       <p class="section-kicker">Лечебное дело · 1 курс · I поток</p>
       <h3>${escapeHtml(group.code)}</h3>
-      <p>Подключите первую учебную неделю бесплатно. Если формат понравится, полный календарь можно оставить отдельно.</p>
+      <p>Подключите первую учебную неделю бесплатно. Если формат понравится, полный календарь можно купить отдельно.</p>
       <div class="access-points"><span>7 дней бесплатно</span><span>Без карты</span><span>Без email</span></div>`;
 
     const actions = document.createElement("div");
@@ -222,19 +222,25 @@
     }
     actions.append(trialButton);
 
+    const paid = document.createElement("button");
+    paid.type = "button";
+    paid.className = "secondary-action";
+    const price = rubleLabel(runtime.price);
+    paid.textContent = price ? `Купить полный календарь · ${price}` : "Купить полный календарь";
     if (checkoutReady()) {
-      const paid = document.createElement("button");
-      paid.type = "button";
-      paid.className = "secondary-action";
-      const price = rubleLabel(runtime.price);
-      paid.textContent = price ? `Полный календарь · ${price}` : "Полный календарь";
       paid.addEventListener("click", () => setStep("checkout"));
-      actions.append(paid);
+    } else {
+      paid.disabled = true;
+      paid.setAttribute("aria-disabled", "true");
+      paid.title = runtime.ready ? "Покупка временно недоступна" : "Проверяем доступность покупки";
     }
+    actions.append(paid);
 
     const status = document.createElement("p");
     status.className = "access-status";
-    if (runtime.ready && trialReady()) status.textContent = "Первая учебная неделя подключается одной персональной ссылкой.";
+    if (runtime.ready && trialReady()) status.textContent = checkoutReady()
+      ? "Можно попробовать бесплатную неделю или сразу купить полный календарь."
+      : "Первая учебная неделя подключается одной персональной ссылкой.";
     else if (!runtime.ready) status.textContent = "";
     else status.textContent = "Выберите другую группу или попробуйте позже.";
     actions.append(status);
@@ -298,27 +304,30 @@
 
     const next = document.createElement("div");
     next.className = "trial-next";
+    const paid = document.createElement("button");
+    paid.type = "button";
+    paid.className = "secondary-action";
+    paid.textContent = "Купить полный календарь";
     if (checkoutReady()) {
-      const paid = document.createElement("button");
-      paid.type = "button";
-      paid.className = "secondary-action";
-      paid.textContent = "Подключить полный календарь";
       paid.addEventListener("click", () => setStep("checkout"));
-      next.append(paid);
     } else {
-      const another = document.createElement("button");
-      another.type = "button";
-      another.className = "secondary-action";
-      another.textContent = "Выбрать другую группу";
-      another.addEventListener("click", () => {
-        state.group = null;
-        state.conversionId = "";
-        state.trial = null;
-        clearTrialSession();
-        setStep("group");
-      });
-      next.append(another);
+      paid.disabled = true;
+      paid.setAttribute("aria-disabled", "true");
     }
+    next.append(paid);
+
+    const another = document.createElement("button");
+    another.type = "button";
+    another.className = "secondary-action";
+    another.textContent = "Выбрать другую группу";
+    another.addEventListener("click", () => {
+      state.group = null;
+      state.conversionId = "";
+      state.trial = null;
+      clearTrialSession();
+      setStep("group");
+    });
+    next.append(another);
     card.append(next);
     grid.append(card);
   }
