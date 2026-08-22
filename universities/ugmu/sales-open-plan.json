@@ -1,8 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "kind": "ugmu-sales-open-plan",
-  "status": "AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "PRODUCTION_SALES_OPEN_VERIFIED",
   "preparedAt": "2026-08-22T08:56:00+03:00",
+  "executedAt": "2026-08-22T09:00:00+03:00",
+  "verifiedAt": "2026-08-22T09:01:00+03:00",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -18,17 +20,30 @@
     "continuationCommand": "Далее",
     "realLivePaymentAuthorized": false
   },
-  "target": {
+  "productionState": {
     "globalCommercialSales": "closed",
     "ugmuSales": "open",
+    "publicMetaSales": "open",
     "globalTrials": "closed",
     "ugmuTrials": "open",
     "paymentMode": "live",
+    "semesterPrice": "299.00",
     "publicSchedule": "closed",
     "publicIcs": "closed"
   },
   "guardedWorkflow": ".github/workflows/ugmu-sales-open.yml",
-  "rollback": "restore previous UGMU_SALES_ENABLED row on any post-mutation failure",
-  "paymentCreationAllowedByThisStep": false,
-  "nextBoundary": "execute guarded sales opening, then run read-only production smoke; real live payment remains separately authorized"
+  "verification": {
+    "cloudruProductionSmokeRunId": 32555755825,
+    "cloudruProductionSmokeConclusion": "success",
+    "structuralReadinessRunId": 32555755798,
+    "structuralReadinessConclusion": "success",
+    "paymentCreated": false
+  },
+  "rollback": "restore previous UGMU_SALES_ENABLED row on any guarded-opening failure",
+  "realLivePaymentCanary": {
+    "authorized": false,
+    "executed": false,
+    "separateExplicitAuthorizationRequired": true
+  },
+  "nextBoundary": "create/configure UGMU VK community and launch communications; optionally perform one real live-payment canary only after explicit authorization"
 }
