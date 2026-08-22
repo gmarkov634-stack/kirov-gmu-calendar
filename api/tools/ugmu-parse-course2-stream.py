@@ -67,13 +67,39 @@ def header_group_centers(table, geometry, groups: list[str]) -> dict[str, float]
     return centers
 
 
+def course2_weekday_bounds(page, geometry) -> list[tuple[str, float, float]]:
+    labels: dict[str, float] = {}
+    for word in page.extract_words(extra_attrs=["upright"]):
+        if word.get("upright", True):
+            continue
+        day = BASE.decode_rotated_day(word.get("text", ""))
+        if day:
+            labels[day] = (word["top"] + word["bottom"]) / 2
+
+    present = [name for name in BASE.DAY_NAMES if name in labels]
+    allowed = [BASE.DAY_NAMES, BASE.DAY_NAMES[:5]]
+    if present not in allowed:
+        raise RuntimeError(f"UGMU course-2 weekday labels incomplete: {present}")
+
+    header_cell = geometry.rows[0].cells[0]
+    footer_cell = geometry.rows[-1].cells[0]
+    if not header_cell or not footer_cell:
+        raise RuntimeError("UGMU course-2 weekly-grid header/footer geometry missing")
+
+    centers = [labels[name] for name in present]
+    cuts = [header_cell[3]]
+    cuts.extend((centers[index] + centers[index + 1]) / 2 for index in range(len(centers) - 1))
+    cuts.append(footer_cell[1])
+    return [(present[index], cuts[index], cuts[index + 1]) for index in range(len(present))]
+
+
 def extract_group_lines(table, geometry, page, group: str, groups: list[str]) -> dict[str, list[str]]:
     if group not in groups:
         raise RuntimeError(f"UGMU course-2 parser does not allow group {group}")
 
     centers = header_group_centers(table, geometry, groups)
     target_center = centers[group]
-    bounds = BASE.weekday_bounds(page, geometry)
+    bounds = course2_weekday_bounds(page, geometry)
     result = {day: [] for day in BASE.DAY_NAMES}
 
     for row_index, row_values in enumerate(table[1:-1], start=1):
