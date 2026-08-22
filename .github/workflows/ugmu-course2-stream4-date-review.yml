@@ -78,8 +78,27 @@ jobs:
             .summary.sourcePeriodCorrectionApplied == true and
             .summary.groupCount == 12 and
             .summary.semanticPatternCount == 204 and
+            .summary.eventCount == 2747 and
+            .summary.eventsByGroup == {
+              "ОЛД 237":228,"ОЛД 238":228,"ОЛД 239":229,"ОЛД 240":229,
+              "ОЛД 241":228,"ОЛД 242":228,"ОЛД 243":230,"ОЛД 244":229,
+              "ОЛД 245":229,"ОЛД 246":229,"ОЛД 247":230,"ОЛД 248":230
+            } and
+            .summary.lessonTypeEventCounts == {"other":1763,"lecture":984} and
+            .summary.weekRuleEventCounts == {"weekly":2147,"II":288,"I":312} and
             .summary.duplicateCount == 0 and
             .summary.invalidIntervalCount == 0 and
+            .summary.overlapCount == 32 and
+            .summary.reviewRequired == true and
+            ([.review.overlaps[].group] | unique | sort) == ["ОЛД 247","ОЛД 248"] and
+            all(.review.overlaps[];
+              .left.startTime == "16:20" and .left.endTime == "18:40" and
+              .left.titleSemantic == "Микробиология, вирусология, иммунология" and
+              .left.lessonTypeSemantic == "other" and
+              .right.startTime == "18:00" and .right.endTime == "19:30" and
+              .right.titleSemantic == "Микробиология, вирусология, иммунология" and
+              .right.lessonTypeSemantic == "lecture"
+            ) and
             .summary.canonicalizationPerformed == false and
             .summary.storageWritesPerformed == false and
             .summary.icsGenerated == false and
