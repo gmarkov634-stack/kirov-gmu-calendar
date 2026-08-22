@@ -19,6 +19,7 @@ TIME_RE = re.compile(
     re.IGNORECASE,
 )
 WEEK_RE = re.compile(r"(?<![A-Za-zА-Яа-яЁё])(?P<week>I|II)\s*нед\.?", re.IGNORECASE)
+MONTH_QUALIFIER_RE = re.compile(r"\([^()]+\)\s*$")
 PERIOD_RE = re.compile(r"\b\d{2}\.\d{2}\.\d{4}\s*[-–—]\s*\d{2}\.\d{2}\.\d{4}\b")
 ANCHOR_RE = re.compile(r"\b(?P<week>I|II)\s*нед\.?\s*начинается\s*с\s*(?P<date>\d{1,2}\s+[А-Яа-яЁё]+)", re.IGNORECASE)
 
@@ -152,6 +153,8 @@ def parse_raw_pattern(segment: str, day: str) -> dict[str, Any]:
     week_rule = week_match.group("week").upper() if week_match else "weekly"
     if week_match:
         source_title = compact(WEEK_RE.sub("", source_title))
+    month_match = MONTH_QUALIFIER_RE.search(source_title)
+    month_qualifier_raw = compact(month_match.group(0)) if month_match else None
     return {
         "weekday": DAY_INDEX[day],
         "weekdayName": day,
@@ -159,6 +162,7 @@ def parse_raw_pattern(segment: str, day: str) -> dict[str, Any]:
         "endTime": match.group("end"),
         "markerRaw": compact(match.group("marker")),
         "sourceTitleRaw": source_title,
+        "monthQualifierRaw": month_qualifier_raw,
         "weekRuleRaw": week_rule,
         "segmentRaw": segment,
     }
