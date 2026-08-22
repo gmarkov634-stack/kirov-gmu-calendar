@@ -17,48 +17,73 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Resolve and wait for latest guarded staging run
+      - name: Resolve, wait and report latest guarded staging run
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          set -euo pipefail
-          run_json="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ugmu-course1-production-storage-stage.yml --branch main --event workflow_dispatch --limit 1 --json databaseId,status,conclusion,url,createdAt,headSha)"
-          run_id="$(jq -r '.[0].databaseId // empty' <<<"$run_json")"
-          test -n "$run_id"
-          echo "RUN_ID=$run_id" >> "$GITHUB_ENV"
-          echo "$run_json" > /tmp/run.json
+          set +e
+          run_json="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ugmu-course1-production-storage-stage.yml --branch main --event workflow_dispatch --limit 1 --json databaseId,status,conclusion,url,createdAt,headSha 2>&1)"
+          list_rc=$?
+          run_id=""
+          if [ "$list_rc" -eq 0 ]; then
+            run_id="$(jq -r '.[0].databaseId // empty' <<<"$run_json" 2>/dev/null)"
+          fi
+          if [ -z "$run_id" ]; then
+            cat > /tmp/body.md <<EOF
+          No guarded staging workflow_dispatch run was found.
+
+          - listRc: $list_rc
+          - raw: $run_json
+          EOF
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "UGMU course1 staging probe no-run" --body-file /tmp/body.md
+            exit 1
+          fi
+
           gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          watch_rc=$?
+          view_json="$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json databaseId,status,conclusion,url,createdAt,headSha 2>&1)"
 
-      - name: Download and verify evidence
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/evidence
-          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name ugmu-course1-production-storage-stage --dir /tmp/evidence
-          stage="$(find /tmp/evidence -type f -path '*/production-storage-stage/report.json' | head -n1)"
-          verify="$(find /tmp/evidence -type f -path '*/production-storage-verify/report.json' | head -n1)"
-          test -f "$stage"
-          test -f "$verify"
-          jq -e '.passed == true and .totals.groups == 50 and .totals.events == 17301' "$stage" >/dev/null
-          jq -e '.passed == true and .totals.verified == 50 and .totals.missing == 0 and .totals.failed == 0' "$verify" >/dev/null
-          groups="$(jq -r '.totals.groups' "$stage")"
-          events="$(jq -r '.totals.events' "$stage")"
-          verified="$(jq -r '.totals.verified' "$verify")"
-          missing="$(jq -r '.totals.missing' "$verify")"
-          failed="$(jq -r '.totals.failed' "$verify")"
+          groups='null'; events='null'; verified='null'; missing='null'; failed='null'; stage_passed='false'; verify_passed='false'; evidence_rc=1
+          rm -rf /tmp/evidence && mkdir -p /tmp/evidence
+          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name ugmu-course1-production-storage-stage --dir /tmp/evidence
+          download_rc=$?
+          if [ "$download_rc" -eq 0 ]; then
+            stage="$(find /tmp/evidence -type f -path '*/production-storage-stage/report.json' | head -n1)"
+            verify="$(find /tmp/evidence -type f -path '*/production-storage-verify/report.json' | head -n1)"
+            if [ -f "$stage" ]; then
+              stage_passed="$(jq -r '.passed // false' "$stage")"
+              groups="$(jq -r '.totals.groups // null' "$stage")"
+              events="$(jq -r '.totals.events // null' "$stage")"
+            fi
+            if [ -f "$verify" ]; then
+              verify_passed="$(jq -r '.passed // false' "$verify")"
+              verified="$(jq -r '.totals.verified // null' "$verify")"
+              missing="$(jq -r '.totals.missing // null' "$verify")"
+              failed="$(jq -r '.totals.failed // null' "$verify")"
+            fi
+            if [ "$stage_passed" = true ] && [ "$groups" = 50 ] && [ "$events" = 17301 ] && [ "$verify_passed" = true ] && [ "$verified" = 50 ] && [ "$missing" = 0 ] && [ "$failed" = 0 ]; then
+              evidence_rc=0
+            fi
+          fi
+
           cat > /tmp/body.md <<EOF
-          Guarded production storage staging verified.
+          Guarded production storage staging probe completed.
 
-          - run: $RUN_ID
-          - stagePassed: true
+          - run: $run_id
+          - watchRc: $watch_rc
+          - stagePassed: $stage_passed
           - groups: $groups
           - events: $events
-          - verifyPassed: true
+          - verifyPassed: $verify_passed
           - verified: $verified
           - missing: $missing
           - failed: $failed
+          - runView: $view_json
           EOF
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "UGMU course1 staging verified $RUN_ID" --body-file /tmp/body.md
+          if [ "$watch_rc" -eq 0 ] && [ "$evidence_rc" -eq 0 ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "UGMU course1 staging verified $run_id" --body-file /tmp/body.md
+            exit 0
+          fi
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "UGMU course1 staging probe failed $run_id" --body-file /tmp/body.md
+          exit 1
