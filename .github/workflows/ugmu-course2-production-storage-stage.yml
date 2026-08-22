@@ -1,0 +1,207 @@
+name: UGMU course2 production storage stage
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-production-storage-stage.mjs"
+      - "universities/ugmu/course2-production-staging-authority.json"
+      - "universities/ugmu/course2-production-staging-confirmation.json"
+      - ".github/workflows/ugmu-course2-production-storage-stage.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ugmu-course2-production-storage-stage
+  cancel-in-progress: false
+
+env:
+  SOURCE_RUN_ID: "32601092056"
+  SOURCE_HEAD_SHA: 44fd85214f5397ee7b2923d8d88ee6219c88e2f5
+  SOURCE_ARTIFACT: ugmu-course2-canonical-review
+  SOURCE_ARTIFACT_DIGEST: sha256:de59e655cd5ee161c6b35b4ae9cc5d9400fcb834fbf8f398ffea45e6f362e42a
+  STORAGE_PLAN_SHA256: 783dba66f9cf48ae47a335c9cb4c9a7a41121d2a7d008b67262b910e8db38c2e
+  AUTHORITY_SHA256: 3fb2c9c90bc9a8e9cec69a94578f220f5d348d19e8deaf3670c5ca724c5a38fd
+  CONFIRM_PHRASE: STAGE UGMU COURSE2 OLD 201-248 11056
+  S3_BUCKET: kgmu-calendar-data-gmarkov634
+  S3_ENDPOINT: https://s3.cloud.ru
+  S3_REGION: ru-central-1
+  PRODUCTION_BASE_URL: https://kgmu-calendar-api.containerapps.ru
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies and syntax-check staging tool
+        run: |
+          set -euo pipefail
+          npm ci
+          node --check tools/ugmu-course2-production-storage-stage.mjs
+
+      - name: Verify exact staging authority
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          authority='universities/ugmu/course2-production-staging-authority.json'
+          test -f "$authority"
+          test "$(sha256sum "$authority" | cut -d' ' -f1)" = "$AUTHORITY_SHA256"
+          jq -e --arg plan "$STORAGE_PLAN_SHA256" '
+            .version == 1 and
+            .kind == "ugmu-course2-production-storage-staging-authority" and
+            .scope.university == "ugmu" and .scope.program == "medicine" and .scope.course == 2 and
+            (.scope.groups | length) == 48 and
+            .sourceReview.runId == 32601092056 and
+            .sourceReview.aggregateStoragePlanSha256 == $plan and
+            .sourceReview.groups == 48 and .sourceReview.events == 11056 and
+            .collisionAudit.course1Present == 50 and .collisionAudit.course1HashesMatched == 50 and
+            .collisionAudit.course2TargetsFree == 48 and .collisionAudit.course2TargetsOccupied == 0 and
+            .productionStorageWrite == true and .requireTargetsAbsentAtWrite == true and
+            .conditionalCreateOnly == true and .rollbackOnPartialFailure == true and
+            .catalogMutation == false and .accessPolicyMutation == false and
+            .salesActivation == false and .publicIcsMutation == false
+          ' "$authority" >/dev/null
+
+      - name: Check explicit confirmation gate
+        id: confirmation
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='universities/ugmu/course2-production-staging-confirmation.json'
+          if [[ ! -f "$file" ]]; then
+            echo 'authorized=false' >> "$GITHUB_OUTPUT"
+            echo 'UGMU course-2 production stage is ARMED but NOT AUTHORIZED; no production credentials or writes will be used.'
+            exit 0
+          fi
+          jq -e --arg phrase "$CONFIRM_PHRASE" --arg authority "$AUTHORITY_SHA256" '
+            .version == 1 and
+            .kind == "ugmu-course2-production-storage-stage-confirmation" and
+            .phrase == $phrase and
+            .authoritySha256 == $authority and
+            .explicitProductionStorageWrite == true and
+            .scope.university == "ugmu" and .scope.program == "medicine" and .scope.course == 2 and
+            (.scope.groups | length) == 48 and
+            .catalogMutation == false and .accessPolicyMutation == false and
+            .salesActivation == false and .publicIcsMutation == false
+          ' "$file" >/dev/null
+          echo 'authorized=true' >> "$GITHUB_OUTPUT"
+          echo 'UGMU_COURSE2_EXPLICIT_STORAGE_CONFIRMATION_VALID'
+
+      - name: Download exact reviewed preactivation package
+        if: steps.confirmation.outputs.authorized == 'true'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}" > /tmp/source-run.json
+          jq -e --arg sha "$SOURCE_HEAD_SHA" '.status == "completed" and .conclusion == "success" and .head_sha == $sha' /tmp/source-run.json >/dev/null
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" > /tmp/source-artifacts.json
+          jq -e --arg name "$SOURCE_ARTIFACT" --arg digest "$SOURCE_ARTIFACT_DIGEST" '.artifacts[] | select(.name == $name) | .expired == false and .digest == $digest' /tmp/source-artifacts.json >/dev/null
+          rm -rf /tmp/ugmu-course2-stage-source
+          mkdir -p /tmp/ugmu-course2-stage-source
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$SOURCE_ARTIFACT" --dir /tmp/ugmu-course2-stage-source
+          report="$(find /tmp/ugmu-course2-stage-source -path '*/preactivation/report.json' -print -quit)"
+          batches="$(find /tmp/ugmu-course2-stage-source -type d -path '*/preactivation/batches' -print -quit)"
+          test -n "$report" && test -n "$batches"
+          jq -e --arg plan "$STORAGE_PLAN_SHA256" '
+            .stage == "ics-preactivation-dry-run" and
+            .summary.groupCount == 48 and .summary.eventCount == 11056 and
+            .summary.storageTargetCount == 48 and .summary.aggregateStoragePlanSha256 == $plan and
+            .summary.preactivationReady == true and .summary.reviewRequired == false and
+            .summary.productionStoreCalls == 0 and .summary.storageWritesPerformed == false and
+            .summary.publicationAllowed == false
+          ' "$report" >/dev/null
+          test "$(find "$batches" -maxdepth 1 -type f -name 'ОЛД-*.json' | wc -l | tr -d ' ')" = '48'
+          echo "PREACTIVATION_REPORT=$report" >> "$GITHUB_ENV"
+          echo "BATCHES_DIR=$batches" >> "$GITHUB_ENV"
+
+      - name: Use protected production S3 credentials
+        if: steps.confirmation.outputs.authorized == 'true'
+        working-directory: .
+        env:
+          DIRECT_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          DIRECT_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DIRECT_S3_ACCESS_KEY_ID"
+          test -n "$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "::add-mask::$DIRECT_S3_ACCESS_KEY_ID"
+          echo "::add-mask::$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "S3_ACCESS_KEY_ID=$DIRECT_S3_ACCESS_KEY_ID" >> "$GITHUB_ENV"
+          echo "S3_SECRET_ACCESS_KEY=$DIRECT_S3_SECRET_ACCESS_KEY" >> "$GITHUB_ENV"
+
+      - name: Conditionally create and verify 48 course-2 objects
+        if: steps.confirmation.outputs.authorized == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-production-storage-stage.mjs \
+            --authority=../universities/ugmu/course2-production-staging-authority.json \
+            --confirmation=../universities/ugmu/course2-production-staging-confirmation.json \
+            --preactivation-report="$PREACTIVATION_REPORT" \
+            --batches-dir="$BATCHES_DIR" \
+            --production-base-url="$PRODUCTION_BASE_URL" \
+            --report=data/imports/ugmu-course2/production-storage-stage/report.json
+          jq -e '
+            .status == "PASS" and .passed == true and
+            .totals.groups == 48 and .totals.events == 11056 and
+            .totals.staged == 48 and .totals.verified == 48 and .totals.uniqueEventIds == 11056 and
+            .boundary.runtimeStateUnchanged == true and
+            .rollbackPerformed == false and
+            .mutation.productionStorageWrite == true and .mutation.objectCreates == 48 and
+            .mutation.objectUpdates == 0 and .mutation.objectDeletes == 0 and
+            .mutation.catalogMutation == false and .mutation.accessPolicyMutation == false and
+            .mutation.salesMutation == false and .mutation.trialsMutation == false and
+            .mutation.publicIcsMutation == false and .mutation.otherUniversitiesTouched == false
+          ' data/imports/ugmu-course2/production-storage-stage/report.json >/dev/null
+
+      - name: Write staging summary
+        if: always()
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const authorized = '${{ steps.confirmation.outputs.authorized }}' === 'true';
+          console.log('## UGMU course-2 production storage stage');
+          console.log('');
+          console.log(`Explicit production authorization: **${authorized ? 'yes' : 'no'}**`);
+          if (!authorized) {
+            console.log('Production storage mutation: **not performed**');
+            console.log('Gate status: **armed only**');
+            process.exit(0);
+          }
+          const file = 'data/imports/ugmu-course2/production-storage-stage/report.json';
+          if (!fs.existsSync(file)) { console.log('Stage report was not generated; inspect failed step/rollback evidence.'); process.exit(0); }
+          const r = JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Status: **${r.status}**`);
+          console.log(`Staged and verified: **${r.totals?.verified || 0}/48**`);
+          console.log(`Rollback performed: **${r.rollbackPerformed ? 'yes' : 'no'}**`);
+          console.log('Catalog/access/sales/public ICS mutations: **no**');
+          NODE
+
+      - name: Upload stage evidence
+        if: always() && steps.confirmation.outputs.authorized == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course2-production-storage-stage
+          path: api/data/imports/ugmu-course2/production-storage-stage/report.json
+          if-no-files-found: warn
+          retention-days: 90

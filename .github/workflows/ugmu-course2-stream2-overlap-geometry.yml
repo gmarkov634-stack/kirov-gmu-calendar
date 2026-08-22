@@ -1,0 +1,73 @@
+name: UGMU course2 stream2 overlap geometry
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-stream2-*.py"
+      - "api/tools/requirements-ugmu.txt"
+      - ".github/workflows/ugmu-course2-stream2-overlap-geometry.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install PDF parser dependency
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Discover official UGMU medicine sources
+        run: node tools/ugmu-discover.mjs --program=medicine --output=data/imports/course2-source-manifest.json
+
+      - name: Download official autumn PDFs
+        run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
+
+      - name: Inspect exact stream-II Saturday cell geometry
+        run: |
+          set -euo pipefail
+          report='data/imports/course2-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 2 and .stream == "2" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = '07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd'
+          python3 tools/ugmu-course2-stream2-overlap-geometry.py \
+            --input="data/imports/course2-pdfs/$filename" \
+            --output=data/imports/course2-stream2/overlap-geometry.json
+          jq -e '
+            .mode == "stream2-overlap-geometry-read-only" and
+            .sourceSha256 == "07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd" and
+            .summary.productionMutationPerformed == false and
+            .summary.semanticRuleChanged == false
+          ' data/imports/course2-stream2/overlap-geometry.json >/dev/null
+          jq '{summary, clinicalBiochemistryCells, relevantSaturdayCells}' data/imports/course2-stream2/overlap-geometry.json
+
+      - name: Upload read-only geometry evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course2-stream2-overlap-geometry
+          path: api/data/imports/course2-stream2/overlap-geometry.json
+          retention-days: 14
