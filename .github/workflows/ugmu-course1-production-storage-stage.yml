@@ -107,59 +107,24 @@ jobs:
           npm ci
           node --test test/ugmu-course1-production-storage-stage.test.js test/ugmu-course1-production-storage-verify.test.js
 
-      - name: Resolve production S3 credentials
+      - name: Use protected production S3 credentials
         working-directory: .
         env:
-          CLOUDRU_KEY_ID: ${{ secrets.EVO_CR_LOGIN }}
-          CLOUDRU_KEY_SECRET: ${{ secrets.EVO_CR_PWD }}
+          DIRECT_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          DIRECT_S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$CLOUDRU_KEY_ID"
-          test -n "$CLOUDRU_KEY_SECRET"
-          python3 - <<'PY' > /tmp/auth.json
-          import json, os
-          print(json.dumps({"keyId": os.environ["CLOUDRU_KEY_ID"], "secret": os.environ["CLOUDRU_KEY_SECRET"]}))
-          PY
-          test "$(curl -sS -o /tmp/token.json -w '%{http_code}' -H 'Content-Type: application/json' --data @/tmp/auth.json https://iam.api.cloud.ru/api/v1/auth/token)" = "200"
-          readarray -t auth < <(python3 - <<'PY'
-          import base64, json
-          body=json.load(open('/tmp/token.json', encoding='utf-8'))
-          token=body['access_token']
-          payload=token.split('.')[1]
-          payload += '='*((4-len(payload)%4)%4)
-          claims=json.loads(base64.urlsafe_b64decode(payload.encode()).decode())
-          print(token)
-          print(claims['project_id'])
-          PY
-          )
-          token="${auth[0]}"
-          project_id="${auth[1]}"
-          echo "::add-mask::$token"
-          test "$(curl -sS -o /tmp/container.json -w '%{http_code}' -H "Authorization: Bearer $token" -H 'Accept: application/json' "https://containers.api.cloud.ru/v1/containers/${CONTAINER_NAME}?projectId=$project_id")" = "200"
-          python3 - <<'PY' > /tmp/s3-env
-          import json
-          app=json.load(open('/tmp/container.json', encoding='utf-8'))
-          assert app.get('status') == 'running'
-          containers=app.get('template',{}).get('containers',[])
-          assert len(containers) == 1
-          env={x.get('name'):x.get('value') for x in containers[0].get('env',[]) if isinstance(x,dict)}
-          values={
-            'S3_ACCESS_KEY_ID': env.get('S3_ACCESS_KEY_ID') or '',
-            'S3_SECRET_ACCESS_KEY': env.get('S3_SECRET_ACCESS_KEY') or '',
-            'S3_BUCKET': env.get('S3_BUCKET') or 'kgmu-calendar-data-gmarkov634',
-            'S3_ENDPOINT': env.get('S3_ENDPOINT') or 'https://s3.cloud.ru',
-            'S3_REGION': env.get('S3_REGION') or 'ru-central-1',
-          }
-          assert values['S3_ACCESS_KEY_ID'] and values['S3_SECRET_ACCESS_KEY']
-          for key,value in values.items(): print(f'{key}={value}')
-          PY
-          while IFS= read -r line; do
-            value="${line#*=}"
-            echo "::add-mask::$value"
-            echo "$line" >> "$GITHUB_ENV"
-          done < /tmp/s3-env
-          rm -f /tmp/auth.json /tmp/token.json /tmp/container.json /tmp/s3-env
+          test -n "$DIRECT_S3_ACCESS_KEY_ID"
+          test -n "$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "::add-mask::$DIRECT_S3_ACCESS_KEY_ID"
+          echo "::add-mask::$DIRECT_S3_SECRET_ACCESS_KEY"
+          echo "S3_ACCESS_KEY_ID=$DIRECT_S3_ACCESS_KEY_ID" >> "$GITHUB_ENV"
+          echo "S3_SECRET_ACCESS_KEY=$DIRECT_S3_SECRET_ACCESS_KEY" >> "$GITHUB_ENV"
+          echo "S3_BUCKET=kgmu-calendar-data-gmarkov634" >> "$GITHUB_ENV"
+          echo "S3_ENDPOINT=https://s3.cloud.ru" >> "$GITHUB_ENV"
+          echo "S3_REGION=ru-central-1" >> "$GITHUB_ENV"
+          echo "UGMU_COURSE1_STORAGE_WRITE_CREDENTIAL_TRANSPORT_SAFE"
 
       - name: Stage and verify 50 groups
         shell: bash
