@@ -13,7 +13,7 @@ EXPECTED_SHA256 = "6b5f87dc7f565169105245a397996e61e94794dfe580529cc5f7398a62e21
 EXPECTED_SOURCE_URL = "https://usma.ru/wp-content/uploads/2026/08/2%D0%9E%D0%9B%D0%94_4-%D0%BF%D0%BE%D1%82%D0%BE%D0%BA_%D0%BE%D1%81%D0%B5%D0%BD%D1%8C_26.pdf"
 EXPECTED_GROUPS = [f"ОЛД {value}" for value in range(237, 249)]
 DAY_NAMES = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
-SOURCE_DAY_NAMES = DAY_NAMES[:5]
+PAGE1_DAY_NAMES = DAY_NAMES[:5]
 DAY_INDEX = {name: index for index, name in enumerate(DAY_NAMES)}
 TIME_RE = re.compile(
     r"^(?P<marker>[ЛП]\.\s*(?:ДВ\s*)?)?"
@@ -57,7 +57,7 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def find_weekly_table(page):
+def find_page1_weekly_table(page):
     tables = page.extract_tables() or []
     geometries = page.find_tables() or []
     for table, geometry in zip(tables, geometries):
@@ -66,15 +66,29 @@ def find_weekly_table(page):
         header = [compact(value) for value in table[0][1:]]
         if header == EXPECTED_GROUPS:
             return table, geometry
-    raise RuntimeError("UGMU course-2 stream-IV weekly-grid table with exact header was not found")
+    raise RuntimeError("UGMU course-2 stream-IV page-1 weekly grid with exact header was not found")
 
 
-def header_group_centers(table, geometry) -> dict[str, float]:
+def find_page2_saturday_table(page):
+    tables = page.extract_tables() or []
+    geometries = page.find_tables() or []
+    for table, geometry in zip(tables, geometries):
+        if not table or len(table) < 2 or not table[-1]:
+            continue
+        footer_header = [compact(value) for value in table[-1][1:]]
+        first_label = decode_rotated_day(table[0][0] if table[0] else "")
+        if footer_header == EXPECTED_GROUPS and first_label == "суббота":
+            return table, geometry
+    raise RuntimeError("UGMU course-2 stream-IV page-2 Saturday continuation with exact footer header was not found")
+
+
+def group_centers_from_row(geometry, row_index: int) -> dict[str, float]:
     centers: dict[str, float] = {}
+    row = geometry.rows[row_index]
     for column_index, group in enumerate(EXPECTED_GROUPS, start=1):
-        cell = geometry.rows[0].cells[column_index]
+        cell = row.cells[column_index]
         if not cell:
-            raise RuntimeError(f"Missing header geometry for {group}")
+            raise RuntimeError(f"Missing group geometry for {group} at row {row_index}")
         centers[group] = (cell[0] + cell[2]) / 2
     return centers
 
@@ -87,7 +101,7 @@ def smallest_cell_center(row) -> float:
     return (cell[1] + cell[3]) / 2
 
 
-def weekday_bounds(page, geometry) -> list[tuple[str, float, float]]:
+def page1_weekday_bounds(page, geometry) -> list[tuple[str, float, float]]:
     labels: dict[str, float] = {}
     for word in page.extract_words(extra_attrs=["upright"]):
         if word.get("upright", True):
@@ -96,23 +110,22 @@ def weekday_bounds(page, geometry) -> list[tuple[str, float, float]]:
         if day:
             labels[day] = (word["top"] + word["bottom"]) / 2
     present = [name for name in DAY_NAMES if name in labels]
-    if present != SOURCE_DAY_NAMES:
-        raise RuntimeError(f"Unexpected stream-IV weekday geometry: {present}; manual review required")
+    if present != PAGE1_DAY_NAMES:
+        raise RuntimeError(f"Unexpected stream-IV page-1 weekday geometry: {present}; manual review required")
     header_cell = geometry.rows[0].cells[0]
     footer_cell = geometry.rows[-1].cells[0]
     if not header_cell or not footer_cell:
-        raise RuntimeError("Weekly-grid header/footer geometry is missing")
-    centers = [labels[name] for name in SOURCE_DAY_NAMES]
+        raise RuntimeError("Page-1 weekly-grid header/footer geometry is missing")
+    centers = [labels[name] for name in PAGE1_DAY_NAMES]
     cuts = [header_cell[3]]
     cuts.extend((centers[index] + centers[index + 1]) / 2 for index in range(len(centers) - 1))
     cuts.append(footer_cell[1])
-    return [(SOURCE_DAY_NAMES[index], cuts[index], cuts[index + 1]) for index in range(len(SOURCE_DAY_NAMES))]
+    return [(PAGE1_DAY_NAMES[index], cuts[index], cuts[index + 1]) for index in range(len(PAGE1_DAY_NAMES))]
 
 
-def extract_group_lines(table, geometry, page, group: str) -> dict[str, list[str]]:
-    group_centers = header_group_centers(table, geometry)
-    target_center = group_centers[group]
-    bounds = weekday_bounds(page, geometry)
+def extract_page1_group_lines(table, geometry, page, group: str) -> dict[str, list[str]]:
+    target_center = group_centers_from_row(geometry, 0)[group]
+    bounds = page1_weekday_bounds(page, geometry)
     result = {day: [] for day in DAY_NAMES}
     for row_index, row_values in enumerate(table[1:-1], start=1):
         row_geometry = geometry.rows[row_index]
@@ -133,6 +146,27 @@ def extract_group_lines(table, geometry, page, group: str) -> dict[str, list[str
                 if line:
                     result[day].append(line)
     return result
+
+
+def extract_saturday_group_lines(table, geometry, group: str) -> list[str]:
+    header_row_index = len(table) - 1
+    target_center = group_centers_from_row(geometry, header_row_index)[group]
+    lines: list[str] = []
+    for row_index, row_values in enumerate(table[:-1]):
+        row_geometry = geometry.rows[row_index]
+        for column_index in range(1, min(len(row_values), len(row_geometry.cells))):
+            raw_value = row_values[column_index]
+            cell = row_geometry.cells[column_index]
+            if raw_value is None or cell is None or not compact(raw_value):
+                continue
+            x0, _top, x1, _bottom = cell
+            if not (x0 - 1e-6 <= target_center <= x1 + 1e-6):
+                continue
+            for raw_line in str(raw_value).splitlines():
+                line = repair_time_artifacts(raw_line)
+                if line:
+                    lines.append(line)
+    return lines
 
 
 def split_embedded_times(segment: str) -> tuple[list[str], bool]:
@@ -212,31 +246,51 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         raise RuntimeError(f"Unexpected source URL: {source_url}; manual review required")
 
     with pdfplumber.open(path) as document:
-        page = document.pages[0]
-        table, geometry = find_weekly_table(page)
+        if len(document.pages) != 2:
+            raise RuntimeError(f"Unexpected stream-IV page count: {len(document.pages)}; manual review required")
+        page1 = document.pages[0]
+        page2 = document.pages[1]
+        page1_table, page1_geometry = find_page1_weekly_table(page1)
+        saturday_table, saturday_geometry = find_page2_saturday_table(page2)
         periods, anchors = literal_source_metadata(document)
         groups: dict[str, list[dict[str, Any]]] = {}
         orphan_review: list[dict[str, Any]] = []
         embedded_review: list[dict[str, Any]] = []
         geometry_artifact_review: list[dict[str, Any]] = []
+
         for group in EXPECTED_GROUPS:
-            lines = extract_group_lines(table, geometry, page, group)
+            lines = extract_page1_group_lines(page1_table, page1_geometry, page1, group)
+            lines["суббота"] = extract_saturday_group_lines(saturday_table, saturday_geometry, group)
             patterns: list[dict[str, Any]] = []
             for day in DAY_NAMES:
                 segments, orphan_lines, embedded_splits = split_segments(lines[day])
+
+                # Exact-SHA, user-confirmed PDF geometry repair for OLD 247/248 Monday.
+                # The merged cell text is "цитология 10:30-12:00". The word "цитология"
+                # completes OLD 248's preceding 08:50-10:20 Histology title, while
+                # 10:30-12:00 starts the shared Economics lesson for OLD 247 and OLD 248.
                 if group == "ОЛД 247" and day == "понедельник" and orphan_lines == ["цитология"]:
                     geometry_artifact_review.append({
                         "group": group,
                         "weekdayName": day,
                         "ignoredForeignContinuation": "цитология",
                         "belongsToGroup": "ОЛД 248",
-                        "evidence": (
-                            "The merged PDF cell spans OLD 247-248, but the literal word 'цитология' is positioned "
-                            "inside the OLD 248 column and completes its preceding 08:50-10:20 title; "
-                            "10:30-12:00 starts the shared OLD 247-248 Economics lesson."
-                        ),
+                        "confirmedByUser": True,
+                        "confirmedInterpretation": {
+                            "ОЛД 247": [
+                                "10:30-12:00 Экономика",
+                                "12:10-13:40 Гистология, эмбриология, цитология",
+                                "16:20-18:40 Нормальная физиология",
+                            ],
+                            "ОЛД 248": [
+                                "08:50-10:20 Гистология, эмбриология, цитология",
+                                "10:30-12:00 Экономика",
+                                "16:20-18:40 Нормальная физиология",
+                            ],
+                        },
                     })
                     orphan_lines = []
+
                 if orphan_lines:
                     orphan_review.append({"group": group, "weekdayName": day, "lines": orphan_lines})
                 for split in embedded_splits:
@@ -256,11 +310,14 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
     week_counts = Counter(pattern["weekRuleRaw"] for pattern in all_patterns)
     counts_by_group = {group: len(patterns) for group, patterns in groups.items()}
     month_qualifiers = Counter(pattern["monthQualifierRaw"] for pattern in all_patterns if pattern["monthQualifierRaw"])
+    saturday_counts = {group: sum(pattern["weekdayName"] == "суббота" for pattern in patterns) for group, patterns in groups.items()}
 
     if not all_patterns:
         raise RuntimeError("No raw weekly patterns extracted")
     if any(group not in groups or not groups[group] for group in EXPECTED_GROUPS):
         raise RuntimeError("One or more expected groups have no extracted weekly patterns")
+    if not any(saturday_counts.values()):
+        raise RuntimeError("Page-2 Saturday continuation produced no raw patterns")
 
     return {
         "mode": "raw-weekly-patterns-only",
@@ -273,8 +330,11 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         "weekAnchorsLiteral": anchors,
         "groups": groups,
         "review": {
-            "sourceWeekdayLabels": SOURCE_DAY_NAMES,
-            "sourceHasSaturdayBlock": False,
+            "sourceWeekdayLayout": {
+                "page1": PAGE1_DAY_NAMES,
+                "page2Continuation": ["суббота"],
+            },
+            "sourceHasSaturdayBlock": True,
             "orphanSourceLines": orphan_review,
             "embeddedTimeSplits": embedded_review,
             "geometryArtifacts": geometry_artifact_review,
@@ -283,6 +343,7 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
             "groupCount": len(groups),
             "rawPatternCount": len(all_patterns),
             "rawPatternsByGroup": counts_by_group,
+            "saturdayPatternsByGroup": saturday_counts,
             "markerCounts": dict(marker_counts),
             "weekRuleCounts": dict(week_counts),
             "monthQualifierCounts": dict(month_qualifiers),
