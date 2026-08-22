@@ -1,0 +1,78 @@
+name: UGMU VK control
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "ops/vk/ugmu/command.json"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  execute:
+    if: >-
+      github.actor == 'gmarkov634-stack' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout command
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Validate command
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'ops/vk/ugmu/command.json';
+          const stat = fs.statSync(path);
+          if (stat.size > 32768) throw new Error('VK command is too large');
+          const command = JSON.parse(fs.readFileSync(path, 'utf8'));
+          if (!command || typeof command !== 'object') throw new Error('Invalid VK command');
+          if (typeof command.id !== 'string' || !command.id) throw new Error('Missing command id');
+          if (typeof command.action !== 'string' || !command.action) throw new Error('Missing command action');
+          const unsupportedLinkMutations = new Set([
+            'group.link.add',
+            'group.link.edit',
+            'group.link.delete',
+            'group.link.reorder',
+          ]);
+          if (unsupportedLinkMutations.has(command.action)) {
+            throw new Error('VK production API does not support community link mutations; manage community menu/links in VK UI');
+          }
+          NODE
+
+      - name: Execute UGMU VK command
+        env:
+          VK_CONTROL_URL: https://kgmu-calendar-api.containerapps.ru/api/v1/vk/ugmu/control
+        run: |
+          set -euo pipefail
+          oidc_response="$(curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=kgmu-vk-control")"
+          oidc_token="$(printf '%s' "$oidc_response" | node -e 'let s=""; process.stdin.on("data",d=>s+=d); process.stdin.on("end",()=>{const v=JSON.parse(s).value;if(!v)process.exit(2);process.stdout.write(v);});')"
+
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+          http_status="$(curl --silent --show-error \
+            --output "$response_file" \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Authorization: Bearer ${oidc_token}" \
+            -H "Content-Type: application/json" \
+            --data-binary @ops/vk/ugmu/command.json \
+            "$VK_CONTROL_URL")"
+          result="$(cat "$response_file")"
+
+          echo "VK_CONTROL_RESULT_BEGIN"
+          printf '%s' "$result" | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{try{console.log(JSON.stringify(JSON.parse(s),null,2));}catch{console.log(JSON.stringify({error:"invalid_control_response"},null,2));}});'
+          echo "VK_CONTROL_RESULT_END"
+          echo "VK_CONTROL_HTTP_STATUS=${http_status}"
+
+          if [[ ! "$http_status" =~ ^2[0-9][0-9]$ ]]; then
+            echo "::error::VK control returned HTTP ${http_status}"
+            exit 22
+          fi
