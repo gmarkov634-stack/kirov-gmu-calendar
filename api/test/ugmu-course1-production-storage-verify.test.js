@@ -82,8 +82,9 @@ test("course-1 staging workflow is a single manual action using pinned evidence"
   assert.match(workflow, /SOURCE_HEAD_SHA: ae0a4a9002c89719f41290d25d8b9d22717d4fbb/);
   assert.match(workflow, /EXPECTED_MANIFEST_SHA256: bb701f0619df8f53eb3943b846be8b8ac5e815225aace15df34de051b4c194eb/);
   assert.match(workflow, /EXPECTED_AUTHORITY_SHA256: b269e0c3696de89d61c3e9d01e9b1a35ca4ceae4437b2d0118071e59549f9fad/);
-  assert.match(workflow, /secrets\.EVO_CR_LOGIN/);
-  assert.match(workflow, /secrets\.EVO_CR_PWD/);
+  assert.match(workflow, /secrets\.S3_ACCESS_KEY_ID/);
+  assert.match(workflow, /secrets\.S3_SECRET_ACCESS_KEY/);
+  assert.doesNotMatch(workflow, /secrets\.EVO_CR_LOGIN|secrets\.EVO_CR_PWD/);
   assert.match(workflow, /ugmu-course1-production-storage-stage\.mjs/);
   assert.match(workflow, /ugmu-course1-production-storage-verify\.mjs/);
 });
