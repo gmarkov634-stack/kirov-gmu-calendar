@@ -4,6 +4,7 @@ import { buildCalendar } from "./calendar.js";
 import { scheduleContext } from "./order-context.js";
 import { proxyContractObservation } from "./proxy-contract-observation.js";
 import { effectiveSubscriptionEnd } from "./subscription-period.js";
+import { ugmuCourse1ContextAllowed } from "./ugmu-course1-access-policy.mjs";
 
 const DISCLAIMER = "Календарь составлен по официальному расписанию. Переносы и изменения, согласованные группой с преподавателем, в календаре не отображаются.";
 const UNIVERSITY_ID = /^[a-z][a-z0-9-]{1,31}$/;
@@ -68,6 +69,11 @@ function validateContext(value) {
     !context.groupId
   ) return null;
   return context;
+}
+
+function checkoutContextAllowed(context) {
+  if (String(context?.university || "").trim().toLowerCase() !== "ugmu") return true;
+  return ugmuCourse1ContextAllowed(context);
 }
 
 function universityCapability(config, university, capability) {
@@ -179,7 +185,11 @@ export function createHandler({ store, config, payments }) {
         const plan = input.plan || "semester";
         if (!validEmail(input.email) || !PLAN_IDS.has(plan)) return send(response, 400, { error: "invalid_checkout" });
         const context = validateContext(input);
-        if (!context || !universityCapability(config, context.university, "apiRoutingEnabled")) {
+        if (
+          !context ||
+          !universityCapability(config, context.university, "apiRoutingEnabled") ||
+          !checkoutContextAllowed(context)
+        ) {
           return send(response, 400, { error: "invalid_checkout" });
         }
         if (!universityCapability(config, context.university, "checkoutEnabled")) {
