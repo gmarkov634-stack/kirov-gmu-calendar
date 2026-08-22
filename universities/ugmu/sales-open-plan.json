@@ -1,8 +1,9 @@
 {
   "version": 1,
   "kind": "ugmu-sales-open-plan",
-  "status": "AUTHORIZED_PREPARED_NOT_EXECUTED",
+  "status": "EXECUTION_DISPATCHED_AWAITING_READ_ONLY_VERIFICATION",
   "preparedAt": "2026-08-22T08:56:00+03:00",
+  "executionDispatchedAt": "2026-08-22T09:00:00+03:00",
   "scope": {
     "university": "ugmu",
     "program": "medicine",
@@ -24,11 +25,14 @@
     "globalTrials": "closed",
     "ugmuTrials": "open",
     "paymentMode": "live",
+    "semesterPrice": "299.00",
     "publicSchedule": "closed",
     "publicIcs": "closed"
   },
   "guardedWorkflow": ".github/workflows/ugmu-sales-open.yml",
+  "oneShotDispatcher": ".github/workflows/ugmu-sales-open-once.yml",
+  "oneShotDispatcherCommit": "f342a64cc0f677c754f09420a339451c5b28b4ae",
   "rollback": "restore previous UGMU_SALES_ENABLED row on any post-mutation failure",
   "paymentCreationAllowedByThisStep": false,
-  "nextBoundary": "execute guarded sales opening, then run read-only production smoke; real live payment remains separately authorized"
+  "nextBoundary": "read-only production smoke; real live payment remains separately authorized"
 }
