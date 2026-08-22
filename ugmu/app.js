@@ -243,12 +243,6 @@
     grid.append(card);
   }
 
-  function formatDate(value, options = { day: "numeric", month: "long" }) {
-    const date = new Date(`${value}T12:00:00Z`);
-    if (!Number.isFinite(date.getTime())) return value;
-    return new Intl.DateTimeFormat("ru-RU", { ...options, timeZone: "UTC" }).format(date);
-  }
-
   function trialWindowLabel(start, endExclusive) {
     const startDate = new Date(`${start}T12:00:00Z`);
     const endDate = new Date(`${endExclusive}T12:00:00Z`);
@@ -385,6 +379,7 @@
   }
 
   function render() {
+    if (state.step === "result") return;
     grid.replaceChildren();
     if (state.step === "faculty") renderFaculty();
     else if (state.step === "course") renderCourse();
@@ -697,7 +692,7 @@
   async function loadRuntime() {
     runtime.ready = false;
     if (heroRuntimeNote) heroRuntimeNote.textContent = "Проверяем доступность бесплатной недели…";
-    render();
+    if (state.step !== "result") render();
     try {
       const response = await fetch(`${config.apiBaseUrl}/api/v2/meta`, { cache: "no-store" });
       const meta = await response.json().catch(() => ({}));
@@ -718,7 +713,7 @@
       runtime.price = "";
       if (heroRuntimeNote) heroRuntimeNote.textContent = "Не удалось проверить доступность. Обновите страницу и попробуйте ещё раз.";
     }
-    render();
+    if (state.step !== "result") render();
   }
 
   backButton.addEventListener("click", () => {
