@@ -1,0 +1,36 @@
+name: UGMU course2 discover once
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-course2-discover-once.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - name: Discover current official medicine sources
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-course2-discovery.json
+      - name: Print autumn course 2 sources
+        run: |
+          set -euo pipefail
+          jq -c '.sources[] | select(.semester=="autumn" and .course==2)' data/imports/ugmu-course2-discovery.json
+          count="$(jq '[.sources[] | select(.semester=="autumn" and .course==2)] | length' data/imports/ugmu-course2-discovery.json)"
+          test "$count" -ge 4
+          for stream in 1 2 3 4; do
+            jq -e --arg stream "$stream" '.sources[] | select(.semester=="autumn" and .course==2 and .stream==$stream)' data/imports/ugmu-course2-discovery.json >/dev/null
+          done
