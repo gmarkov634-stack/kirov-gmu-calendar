@@ -39,6 +39,18 @@ async function withServer(handler, run) {
   }
 }
 
+function policyContext(group) {
+  return {
+    university: group.university,
+    faculty: group.faculty,
+    program: group.program,
+    course: group.course,
+    stream: group.stream,
+    groupCode: group.groupCode,
+    groupId: group.groupId,
+  };
+}
+
 function checkoutBody(group) {
   return {
     university_id: group.university,
@@ -68,7 +80,7 @@ test("UGMU sellable catalog is data-driven and currently contains all 50 staged 
   );
 
   for (const group of UGMU_SELLABLE_GROUPS) {
-    assert.equal(ugmuSellableContextAllowed(checkoutBody(group)), true, group.groupCode);
+    assert.equal(ugmuSellableContextAllowed(policyContext(group)), true, group.groupCode);
   }
 });
 
