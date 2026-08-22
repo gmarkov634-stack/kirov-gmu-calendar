@@ -33,8 +33,9 @@ function pinUgmuSelectorAfterGroupChoice() {
   if (!selector) return;
   const topbar = document.querySelector(".topbar");
   const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 68;
-  const gap = 18;
-  const targetTop = window.scrollY + selector.getBoundingClientRect().top - topbarHeight - gap;
+  const desiredGap = 28;
+  const selectorDocumentTop = window.scrollY + selector.getBoundingClientRect().top;
+  const targetTop = selectorDocumentTop - topbarHeight - desiredGap;
   window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
 }
 
@@ -42,11 +43,11 @@ document.addEventListener("click", (event) => {
   const groupCard = event.target.closest?.(".group-card");
   if (!groupCard) return;
 
-  // The group list collapses after selection. Wait until the replacement card
-  // has its final height, then put the selector in the same viewport position
-  // as the reference mobile screenshot: just below the sticky site header.
+  // The list of 12 groups collapses into one access card. Correct the viewport
+  // after that replacement so mobile browsers do not keep the old bottom offset.
   requestAnimationFrame(() => {
     requestAnimationFrame(pinUgmuSelectorAfterGroupChoice);
   });
-  setTimeout(pinUgmuSelectorAfterGroupChoice, 120);
+  setTimeout(pinUgmuSelectorAfterGroupChoice, 100);
+  setTimeout(pinUgmuSelectorAfterGroupChoice, 260);
 }, true);
