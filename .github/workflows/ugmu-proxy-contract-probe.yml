@@ -34,9 +34,11 @@ jobs:
           import json,sys
           health=json.loads(sys.argv[1]); meta=json.loads(sys.argv[2])
           assert health == {'status':'ok','service':'medical-calendar-api'}, health
+          assert meta.get('sales') == 'closed', meta
           assert meta.get('trials') == 'closed', meta
-          assert meta.get('universityTrials',{}).get('ugmu') == 'closed', meta
+          assert meta.get('universityTrials',{}).get('ugmu') == 'open', meta
           print('UGMU_PRODUCTION_BACKEND_READY_SAFE', {
+              'sales': meta.get('sales'),
               'trials': meta.get('trials'),
               'ugmuTrials': meta.get('universityTrials',{}).get('ugmu'),
           })
@@ -53,7 +55,7 @@ jobs:
             echo 'Legacy global trial metadata must not authorize UGMU CTA' >&2
             exit 1
           fi
-          echo 'UGMU_PRODUCTION_PAGES_READY_SAFE trial-ui=present gate=closed'
+          echo 'UGMU_PRODUCTION_PAGES_READY_SAFE trial-ui=present ugmu-trial=open sales=closed'
 
       - name: Verify proxy contract without exposing addresses
         env:
