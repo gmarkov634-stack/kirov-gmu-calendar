@@ -1,0 +1,123 @@
+name: UGMU course2 canonical review
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-stream1-*.py"
+      - "api/tools/ugmu-course2-stream2-*.py"
+      - "api/tools/ugmu-course2-stream3-*.py"
+      - "api/tools/ugmu-course2-stream4-*.py"
+      - "api/tools/ugmu-course2-canonical-review.mjs"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/src/schedule/**"
+      - ".github/workflows/ugmu-course2-canonical-review.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install PDF parser dependency
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Discover official UGMU medicine sources
+        run: node tools/ugmu-discover.mjs --program=medicine --output=data/imports/course2-source-manifest.json
+
+      - name: Download official autumn PDFs
+        run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
+
+      - name: Rebuild all four approved dated-review layers
+        run: |
+          set -euo pipefail
+          report='data/imports/course2-pdfs/download-report.json'
+          for stream in 1 2 3 4; do
+            item="$(jq -c --arg stream "$stream" '.files[] | select(.status == "downloaded" and .course == 2 and .stream == $stream and .part == "combined")' "$report" | head -n 1)"
+            test -n "$item"
+            filename="$(jq -r '.filename' <<<"$item")"
+            source_url="$(jq -r '.url' <<<"$item")"
+            case "$stream" in
+              1) expected_sha='8b81f37b517dd037c090b0d980ba4d916557f36c872fe0fc37031d4ae8808c6a' ;;
+              2) expected_sha='07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd' ;;
+              3) expected_sha='b6cc586f29a20bd008b5da89129809db7fbed8b2a9224a9f2d4cd3e3a77a9b85' ;;
+              4) expected_sha='6b5f87dc7f565169105245a397996e61e94794dfe580529cc5f7398a62e21517' ;;
+            esac
+            sha="$(jq -r '.sha256' <<<"$item")"
+            test "$sha" = "$expected_sha"
+            mkdir -p "data/imports/course2-stream${stream}"
+            python3 "tools/ugmu-course2-stream${stream}-raw.py" \
+              --input="data/imports/course2-pdfs/$filename" \
+              --source="$source_url" \
+              --output="data/imports/course2-stream${stream}/raw.json"
+            python3 "tools/ugmu-course2-stream${stream}-semantic.py" \
+              --raw="data/imports/course2-stream${stream}/raw.json" \
+              --pdf="data/imports/course2-pdfs/$filename" \
+              --output="data/imports/course2-stream${stream}/semantic.json"
+            python3 "tools/ugmu-course2-stream${stream}-expand.py" \
+              --semantic="data/imports/course2-stream${stream}/semantic.json" \
+              --output="data/imports/course2-stream${stream}/dated-review.json"
+            jq -e '.summary.reviewRequired == false and .summary.canonicalizationPerformed == false and .summary.storageWritesPerformed == false and .summary.publicationAllowed == false' "data/imports/course2-stream${stream}/dated-review.json" >/dev/null
+          done
+
+      - name: Canonicalize, version, postprocess and validate without publication
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-canonical-review.mjs \
+            --stream1=data/imports/course2-stream1/dated-review.json \
+            --stream2=data/imports/course2-stream2/dated-review.json \
+            --stream3=data/imports/course2-stream3/dated-review.json \
+            --stream4=data/imports/course2-stream4/dated-review.json \
+            --output-dir=data/imports/course2-canonical-review
+          jq -e '
+            .stage == "canonical-postprocess-review" and
+            .summary.groupCount == 48 and
+            .summary.eventCount == 11056 and
+            .summary.inputQaPassedGroups == 48 and
+            .summary.outputQaPassedGroups == 48 and
+            .summary.duplicateCount == 0 and
+            .summary.overlapCount == 64 and
+            .summary.approvedSourceOverlapCount == 64 and
+            .summary.unresolvedOverlapCount == 0 and
+            .summary.canonicalizationPerformed == true and
+            .summary.versioningPerformed == true and
+            .summary.postprocessingPerformed == true and
+            .summary.icsGenerated == false and
+            .summary.storageWritesPerformed == false and
+            .summary.publicationAllowed == false and
+            .summary.reviewRequired == false and
+            .streams["1"].eventCount == 2788 and .streams["1"].approvedSourceOverlapCount == 0 and
+            .streams["2"].eventCount == 2779 and .streams["2"].approvedSourceOverlapCount == 32 and
+            .streams["3"].eventCount == 2742 and .streams["3"].approvedSourceOverlapCount == 0 and
+            .streams["4"].eventCount == 2747 and .streams["4"].approvedSourceOverlapCount == 32
+          ' data/imports/course2-canonical-review/report.json >/dev/null
+          jq '{streams,summary}' data/imports/course2-canonical-review/report.json
+
+      - name: Upload canonical review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course2-canonical-review
+          path: api/data/imports/course2-canonical-review/
+          retention-days: 14
