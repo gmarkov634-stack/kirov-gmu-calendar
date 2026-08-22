@@ -141,6 +141,7 @@ jobs:
           path: |
             api/data/imports/ugmu-course2/source-manifest.json
             api/data/imports/ugmu-course2/watched-pdfs/download-report.json
+            api/data/imports/ugmu-course2/watched-pdfs/*course-2*.pdf
             api/data/imports/ugmu-course2/raw
           if-no-files-found: warn
           retention-days: 30
