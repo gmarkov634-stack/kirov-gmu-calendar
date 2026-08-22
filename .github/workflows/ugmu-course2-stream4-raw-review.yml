@@ -46,6 +46,37 @@ jobs:
       - name: Download official autumn PDFs
         run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
 
+      - name: Diagnose stream IV weekday geometry
+        run: |
+          set -euo pipefail
+          report='data/imports/course2-pdfs/download-report.json'
+          filename="$(jq -r '.files[] | select(.status == "downloaded" and .course == 2 and .stream == "4" and .part == "combined") | .filename' "$report" | head -n 1)"
+          PDF="data/imports/course2-pdfs/$filename" python3 - <<'PY'
+          import os, re, pdfplumber
+          path=os.environ['PDF']
+          with pdfplumber.open(path) as doc:
+              page=doc.pages[0]
+              words=page.extract_words(extra_attrs=['upright'])
+              print('ROTATED_WORDS')
+              for w in words:
+                  if not w.get('upright', True):
+                      print(w['text'], round(w['top'],1), round(w['bottom'],1))
+              print('DAY_TEXT_MATCHES')
+              for w in words:
+                  letters=re.sub(r'[^А-Яа-яЁё]','',w.get('text','')).lower()
+                  if letters in {'понедельник','вторник','среда','четверг','пятница','суббота'} or letters[::-1] in {'понедельник','вторник','среда','четверг','пятница','суббота'}:
+                      print(w['text'], w.get('upright'), round(w['top'],1), round(w['bottom'],1))
+              tables=page.extract_tables() or []
+              geoms=page.find_tables() or []
+              for ti,(table,geom) in enumerate(zip(tables,geoms)):
+                  header=[' '.join(str(v or '').split()) for v in table[0][1:]] if table and table[0] else []
+                  if header and header[0]=='ОЛД 237':
+                      print('TARGET_TABLE_ROWS', len(table))
+                      for idx,row in enumerate(table):
+                          cell=geom.rows[idx].cells[0] if idx < len(geom.rows) else None
+                          print('ROW',idx,'FIRST=',repr(row[0] if row else None),'Y=',cell[1:4:2] if cell else None,'NONEMPTY=',sum(bool(' '.join(str(v or '').split())) for v in row))
+          PY
+
       - name: Extract only course2 stream IV raw weekly patterns
         run: |
           set -euo pipefail
