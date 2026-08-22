@@ -93,7 +93,6 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-
           summaries=[]
           for stream in '1234':
               path=Path(f'data/imports/ugmu-course2/raw/stream-{stream}/summary.json')
@@ -113,16 +112,6 @@ jobs:
                   'unresolvedOverlaps': summary['unresolvedOverlaps'],
                   'validationErrors': summary['validationErrors'],
               }, ensure_ascii=False))
-              for group, details in summary['groups'].items():
-                  if details['unresolvedReferences'] or details['overlaps'] or details['validationErrors']:
-                      print(json.dumps({
-                          'group': group,
-                          'unresolvedReferences': details['unresolvedReferences'],
-                          'overlapCount': len(details['overlaps']),
-                          'overlapStatus': details['overlapStatus'],
-                          'validationErrors': details['validationErrors'],
-                      }, ensure_ascii=False))
-
           totals={
               'groups': sum(s['groupCount'] for s in summaries),
               'structurallyValidGroups': sum(s['structurallyValidGroups'] for s in summaries),
@@ -139,9 +128,12 @@ jobs:
           }
           assert totals['groups'] == 48, totals
           assert totals['structurallyValidGroups'] == 48, totals
+          assert totals['events'] == 10704, totals
           assert totals['validationErrors'] == 0, totals
           assert totals['unresolvedReferences'] == 0, totals
           assert totals['unresolvedOverlaps'] == 0, totals
+          assert totals['referenceCorrections'] == 27, totals
+          assert totals['confirmedOverlaps'] == 32, totals
           out=Path('data/imports/ugmu-course2/raw/summary.json')
           out.write_text(json.dumps(totals, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
           print(json.dumps({'course2Totals': totals}, ensure_ascii=False))
@@ -154,7 +146,29 @@ jobs:
             --root=data/imports/ugmu-course2/raw \
             --output=data/imports/ugmu-course2/raw/adapter-qa.json
 
-      - name: Upload course-2 parsing evidence
+      - name: Build fail-closed canonical package
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-canonical-package.mjs \
+            --input-dir=data/imports/ugmu-course2/raw \
+            --output-dir=data/imports/ugmu-course2/canonical-package
+
+      - name: Verify event versioning and ICS UID stability
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-versioning-regression.mjs \
+            --package-dir=data/imports/ugmu-course2/canonical-package \
+            --output=data/imports/ugmu-course2/versioning/course2-versioning-regression.json
+
+      - name: Build preactivation dry-run with zero production writes
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course2-preactivation-dry-run.mjs \
+            --package-dir=data/imports/ugmu-course2/canonical-package \
+            --regression-report=data/imports/ugmu-course2/versioning/course2-versioning-regression.json \
+            --output-dir=data/imports/ugmu-course2/preactivation-dry-run
+
+      - name: Upload course-2 QA evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -164,5 +178,8 @@ jobs:
             api/data/imports/ugmu-course2/watched-pdfs/download-report.json
             api/data/imports/ugmu-course2/watched-pdfs/*course-2*.pdf
             api/data/imports/ugmu-course2/raw
+            api/data/imports/ugmu-course2/canonical-package
+            api/data/imports/ugmu-course2/versioning
+            api/data/imports/ugmu-course2/preactivation-dry-run
           if-no-files-found: warn
           retention-days: 30
