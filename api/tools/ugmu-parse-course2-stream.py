@@ -5,7 +5,7 @@ import argparse
 import importlib.util
 import json
 import re
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +52,31 @@ def stream_definition(stream: str) -> dict[str, Any]:
     if not definition:
         raise RuntimeError(f"Unsupported UGMU course-2 stream: {stream}")
     return definition
+
+
+def normalize_course2_semester_period(
+    stream: str,
+    period_start: date,
+    period_end: date,
+) -> tuple[date, date, list[dict[str, str]]]:
+    corrections: list[dict[str, str]] = []
+    if (
+        str(stream) == "4"
+        and period_start == date(2026, 9, 1)
+        and period_end == date(2027, 12, 23)
+    ):
+        corrected_end = date(2026, 12, 23)
+        corrections.append({
+            "field": "semesterPeriod.end",
+            "sourceValue": period_end.isoformat(),
+            "normalizedValue": corrected_end.isoformat(),
+            "reason": (
+                "source typo confirmed against the same 2026/2027 autumn semester "
+                "and course-2 streams 1-3"
+            ),
+        })
+        period_end = corrected_end
+    return period_start, period_end, corrections
 
 
 def header_group_centers(table, geometry, groups: list[str]) -> dict[str, float]:
@@ -172,8 +197,9 @@ def structural_validation(schedule: dict[str, Any], stream: str) -> list[str]:
     if len(keys) != len(set(keys)):
         errors.append("duplicate expanded events")
 
-    if schedule["semesterPeriod"]["start"][:4] != "2026":
-        errors.append(f"unexpected semester start: {schedule['semesterPeriod']['start']}")
+    expected_period = {"start": "2026-09-01", "end": "2026-12-23"}
+    if schedule["semesterPeriod"] != expected_period:
+        errors.append(f"unexpected semester period: {schedule['semesterPeriod']}; expected {expected_period}")
     if schedule["weekAnchors"]["I"][:4] != "2026" or schedule["weekAnchors"]["II"][:4] != "2026":
         errors.append(f"unexpected week anchors: {schedule['weekAnchors']}")
     return errors
@@ -197,6 +223,17 @@ def parse_pdf(
         page = document.pages[0]
         all_text = "\n".join((item.extract_text() or "") for item in document.pages)
         period_start, period_end = BASE.parse_period(all_text)
+        period_start, period_end, source_corrections = normalize_course2_semester_period(
+            stream,
+            period_start,
+            period_end,
+        )
+        for correction in source_corrections:
+            warnings.append(
+                "source correction: "
+                f"{correction['field']} {correction['sourceValue']} -> "
+                f"{correction['normalizedValue']}: {correction['reason']}"
+            )
         first_anchor = BASE.parse_week_anchor(all_text, "I", period_start.year)
         second_anchor = BASE.parse_week_anchor(all_text, "II", period_start.year)
         table, geometry = BASE.find_weekly_table(page)
@@ -253,6 +290,7 @@ def parse_pdf(
             "status": "needs-semantic-review",
             "publicationAllowed": False,
             "patternCount": len(patterns),
+            "sourceCorrections": source_corrections,
             "unresolvedReferences": unresolved,
             "sourceOverlaps": overlaps,
         },
@@ -280,6 +318,9 @@ def build_summary(schedules: list[dict[str, Any]], stream: str) -> dict[str, Any
             for item in schedules
         ),
         "warnings": sum(len(item["importWarnings"]) for item in schedules),
+        "sourceCorrections": sum(
+            len(item["sourceReview"]["sourceCorrections"]) for item in schedules
+        ),
         "unresolvedReferences": sum(
             len(item["sourceReview"]["unresolvedReferences"]) for item in schedules
         ),
@@ -290,6 +331,7 @@ def build_summary(schedules: list[dict[str, Any]], stream: str) -> dict[str, Any
                 "patterns": len(item["patterns"]),
                 "events": len(item["events"]),
                 "warnings": len(item["importWarnings"]),
+                "sourceCorrections": item["sourceReview"]["sourceCorrections"],
                 "unresolvedReferences": item["sourceReview"]["unresolvedReferences"],
                 "overlaps": item["sourceReview"]["sourceOverlaps"],
                 "validationErrors": item["validationErrors"],
@@ -305,6 +347,24 @@ def self_test() -> None:
     assert sum(len(item["groups"]) for item in STREAMS.values()) == 48
     assert repair_time_artifacts("12 :10-13:40") == "12:10-13:40"
     assert repair_time_artifacts("11:20-14:0 0") == "11:20-14:00"
+
+    start, end, corrections = normalize_course2_semester_period(
+        "4",
+        date(2026, 9, 1),
+        date(2027, 12, 23),
+    )
+    assert start == date(2026, 9, 1)
+    assert end == date(2026, 12, 23)
+    assert corrections and corrections[0]["sourceValue"] == "2027-12-23"
+    assert corrections[0]["normalizedValue"] == "2026-12-23"
+
+    _start, unchanged_end, unchanged = normalize_course2_semester_period(
+        "3",
+        date(2026, 9, 1),
+        date(2027, 12, 23),
+    )
+    assert unchanged_end == date(2027, 12, 23)
+    assert unchanged == []
     print("UGMU course-2 stream parser self-test passed")
 
 
@@ -358,6 +418,7 @@ def main() -> None:
             "patterns": summary["weeklyPatterns"],
             "events": summary["events"],
             "warnings": summary["warnings"],
+            "sourceCorrections": summary["sourceCorrections"],
             "unresolvedReferences": summary["unresolvedReferences"],
             "overlaps": summary["overlaps"],
             "validationErrors": summary["validationErrors"],
@@ -378,6 +439,7 @@ def main() -> None:
         "patterns": len(schedule["patterns"]),
         "events": len(schedule["events"]),
         "warnings": len(schedule["importWarnings"]),
+        "sourceCorrections": len(schedule["sourceReview"]["sourceCorrections"]),
         "unresolvedReferences": len(schedule["sourceReview"]["unresolvedReferences"]),
         "overlaps": len(schedule["sourceReview"]["sourceOverlaps"]),
         "validationErrors": len(schedule["validationErrors"]),
