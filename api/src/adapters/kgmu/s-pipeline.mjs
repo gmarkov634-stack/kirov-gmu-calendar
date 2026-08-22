@@ -9,6 +9,23 @@ function contextComplete(metadata, period) {
   );
 }
 
+function hasItems(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+export function applyR69ToMixedQa(input) {
+  const qa = { ...(input || {}) };
+  const blocked = hasItems(qa.uncovered)
+    || hasItems(qa.extraLessonFailures)
+    || Number(qa.duplicateCount || 0) > 0;
+
+  return {
+    ...qa,
+    status: blocked ? "REVIEW_REQUIRED" : "PASS",
+    passed: !blocked,
+  };
+}
+
 export async function stageSWorkbook({ workbook, queue, sourceSha256, sourceKey, metadata, period, classification }) {
   const parsed = parseKgmuMixedWorkbookSafe(workbook, {
     program: metadata.program || "dentistry",
@@ -16,10 +33,11 @@ export async function stageSWorkbook({ workbook, queue, sourceSha256, sourceKey,
     academicYear: period.academicYear || metadata.academicYear || "2025/26",
     semester: period.semester || metadata.semester || 2,
   });
-  const qa = {
+  const rawQa = {
     status: parsed.qa?.passed ? "PASS" : "REVIEW_REQUIRED",
     ...parsed.qa,
   };
+  const qa = applyR69ToMixedQa(rawQa);
   const schedules = parsed.schedules.map((schedule) => ({
     ...schedule,
     sources: [{ type: "xlsx", filename: metadata.filename, sha256: sourceSha256 }],
