@@ -3,6 +3,13 @@ import { universityTrialsEnabled } from "./university-commerce-policy.mjs";
 const UGMU_FIRST_STREAM_GROUPS = Object.freeze(
   Array.from({ length: 12 }, (_, index) => `ОЛД ${101 + index}`),
 );
+const UGMU_SECOND_STREAM_GROUPS = Object.freeze(
+  Array.from({ length: 12 }, (_, index) => `ОЛД ${113 + index}`),
+);
+const UGMU_COURSE1_GROUPS_BY_STREAM = Object.freeze({
+  "1": UGMU_FIRST_STREAM_GROUPS,
+  "2": UGMU_SECOND_STREAM_GROUPS,
+});
 
 function normalizedUniversity(value) {
   return String(value || "").trim().toLowerCase();
@@ -12,12 +19,15 @@ export function ugmuTrialScopeAllowed(context = {}) {
   if (normalizedUniversity(context.university) !== "ugmu") return false;
   if (String(context.program || "").trim() !== "medicine") return false;
   if (Number(context.course) !== 1) return false;
-  if (String(context.stream || "").trim() !== "1") return false;
+
+  const stream = String(context.stream || "").trim();
+  const allowedGroups = UGMU_COURSE1_GROUPS_BY_STREAM[stream];
+  if (!allowedGroups) return false;
 
   const groupCode = String(context.groupCode || "").trim();
-  if (!UGMU_FIRST_STREAM_GROUPS.includes(groupCode)) return false;
+  if (!allowedGroups.includes(groupCode)) return false;
 
-  const expectedGroupId = `ugmu:medicine:1:stream-1:${groupCode}`;
+  const expectedGroupId = `ugmu:medicine:1:stream-${stream}:${groupCode}`;
   return String(context.groupId || "").trim() === expectedGroupId;
 }
 
@@ -38,4 +48,4 @@ export function trialServiceEnabled(config = {}) {
   return config.trialsEnabled === true || config.ugmuTrialsEnabled === true;
 }
 
-export { UGMU_FIRST_STREAM_GROUPS };
+export { UGMU_FIRST_STREAM_GROUPS, UGMU_SECOND_STREAM_GROUPS, UGMU_COURSE1_GROUPS_BY_STREAM };
