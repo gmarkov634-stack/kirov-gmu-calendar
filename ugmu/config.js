@@ -28,15 +28,25 @@ window.UGMU_CONFIG = Object.freeze({
   ])
 });
 
-// The group grid can be much taller than the access card that replaces it.
-// After a group click, restore the viewport to the selector instead of letting
-// the browser keep a now-invalid scroll position near the bottom of the page.
+function pinUgmuSelectorAfterGroupChoice() {
+  const selector = document.querySelector("#selector");
+  if (!selector) return;
+  const topbar = document.querySelector(".topbar");
+  const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 68;
+  const gap = 18;
+  const targetTop = window.scrollY + selector.getBoundingClientRect().top - topbarHeight - gap;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+}
+
 document.addEventListener("click", (event) => {
   const groupCard = event.target.closest?.(".group-card");
   if (!groupCard) return;
+
+  // The group list collapses after selection. Wait until the replacement card
+  // has its final height, then put the selector in the same viewport position
+  // as the reference mobile screenshot: just below the sticky site header.
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.querySelector("#selector")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    requestAnimationFrame(pinUgmuSelectorAfterGroupChoice);
   });
+  setTimeout(pinUgmuSelectorAfterGroupChoice, 120);
 }, true);
