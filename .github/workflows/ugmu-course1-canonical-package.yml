@@ -1,0 +1,163 @@
+name: UGMU course-1 canonical package QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "api/src/adapters/ugmu/canonical.mjs"
+      - "api/tools/ugmu-course1-canonical-package.mjs"
+      - "api/tools/ugmu-parse-first-stream-pdf.py"
+      - "api/tools/ugmu-parse-second-stream-pdf.py"
+      - "api/tools/ugmu-parse-course1-streams-3-4.py"
+      - "api/tools/ugmu-parse-course1-streams-3-4-reviewed.py"
+      - "api/tools/ugmu-parse-weekly-pdf.py"
+      - "api/tools/ugmu-discover.mjs"
+      - "api/tools/ugmu-download.mjs"
+      - "api/tools/requirements-ugmu.txt"
+      - ".github/workflows/ugmu-course1-canonical-package.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
+          node --check tools/ugmu-course1-canonical-package.mjs
+          python3 tools/ugmu-parse-first-stream-pdf.py --self-test
+          python3 tools/ugmu-parse-second-stream-pdf.py --self-test
+          python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py --self-test
+
+      - name: Discover and capture exact official course-1 PDFs
+        run: |
+          set -euo pipefail
+          npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-course1/source-manifest.json
+          npm run download:ugmu -- \
+            --manifest=data/imports/ugmu-course1/source-manifest.json \
+            --semester=autumn \
+            --output=data/imports/ugmu-course1/watched-pdfs
+
+      - name: Parse all reviewed course-1 groups
+        run: |
+          set -euo pipefail
+          report='data/imports/ugmu-course1/watched-pdfs/download-report.json'
+          mkdir -p data/imports/ugmu-course1/raw/stream-1
+
+          item1="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "1" and .part == "combined")' "$report" | head -n 1)"
+          item2="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "2" and .part == "combined")' "$report" | head -n 1)"
+          item3="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "3" and .part == "combined")' "$report" | head -n 1)"
+          item4="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "4" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item1" && test -n "$item2" && test -n "$item3" && test -n "$item4"
+
+          file1="$(jq -r '.filename' <<<"$item1")"; url1="$(jq -r '.url' <<<"$item1")"; sha1="$(jq -r '.sha256' <<<"$item1")"
+          file2="$(jq -r '.filename' <<<"$item2")"; url2="$(jq -r '.url' <<<"$item2")"; sha2="$(jq -r '.sha256' <<<"$item2")"
+          file3="$(jq -r '.filename' <<<"$item3")"; url3="$(jq -r '.url' <<<"$item3")"; sha3="$(jq -r '.sha256' <<<"$item3")"
+          file4="$(jq -r '.filename' <<<"$item4")"; url4="$(jq -r '.url' <<<"$item4")"; sha4="$(jq -r '.sha256' <<<"$item4")"
+
+          test "$sha1" = '34612248bba201096d6566cacb37c53be01d3f84eddc214bda2a594b46fb24f8'
+          test "$sha2" = '722300a869f7ecb2939aaa240463ca7b8d6c566c60a98ae90181d67d2c7e44ca'
+          test "$sha3" = '248f436baa3254ee891506628b05e945bddfbb708616ec5e38b34e7d893783ca'
+          test "$sha4" = '5fa092b9eac42190cf06a927f30d4b6442a5c159bea94f95da484c44b050e90d'
+
+          for number in $(seq 101 112); do
+            python3 tools/ugmu-parse-first-stream-pdf.py \
+              --input="data/imports/ugmu-course1/watched-pdfs/$file1" \
+              --group="ОЛД $number" --source="$url1" --sha256="$sha1" \
+              --output="data/imports/ugmu-course1/raw/stream-1/OLD-$number.json"
+          done
+
+          python3 tools/ugmu-parse-second-stream-pdf.py \
+            --input="data/imports/ugmu-course1/watched-pdfs/$file2" \
+            --all-groups --source="$url2" --sha256="$sha2" \
+            --output=data/imports/ugmu-course1/raw/stream-2
+
+          python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py \
+            --input="data/imports/ugmu-course1/watched-pdfs/$file3" \
+            --stream=3 --all-groups --source="$url3" --sha256="$sha3" \
+            --output=data/imports/ugmu-course1/raw/stream-3
+
+          python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py \
+            --input="data/imports/ugmu-course1/watched-pdfs/$file4" \
+            --stream=4 --all-groups --source="$url4" --sha256="$sha4" \
+            --output=data/imports/ugmu-course1/raw/stream-4
+
+      - name: Build and validate fail-closed canonical package
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course1-canonical-package.mjs \
+            --input-dir=data/imports/ugmu-course1/raw \
+            --output-dir=data/imports/ugmu-course1/canonical-package
+
+          report='data/imports/ugmu-course1/canonical-package/manifest.json'
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .groups == 50 and
+            .events == 17301 and
+            .streams["1"].groups == 12 and .streams["1"].events == 4286 and
+            .streams["2"].groups == 12 and .streams["2"].events == 4263 and
+            .streams["3"].groups == 12 and .streams["3"].events == 4026 and
+            .streams["4"].groups == 14 and .streams["4"].events == 4726 and
+            .streams["3"].sourceDefects == 1 and
+            .streams["3"].sourceAmbiguities == 12 and
+            .streams["3"].sourceOverlaps == 74 and
+            .streams["4"].sourceAmbiguities == 14 and
+            .globalChecks.old129OfficialDefectPreserved == true and
+            .globalChecks.noServiceAdvertising == true and
+            .globalChecks.allFailClosed == true
+          ' "$report" >/dev/null
+
+          jq -e '
+            .approved == true and
+            .publicationAllowed == false and
+            .sourceDefects == 1 and
+            .sourceReviewStatus == "semantic-reviewed-stream-3-with-source-defect-and-ambiguity" and
+            (.rawValidationErrors | length) == 0
+          ' data/imports/ugmu-course1/canonical-package/qa/ОЛД-129.qa.json >/dev/null
+
+      - name: Write summary
+        if: always()
+        run: |
+          report='data/imports/ugmu-course1/canonical-package/manifest.json'
+          echo '## UGMU medicine course 1 canonical package' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$report" ]; then
+            jq -r '"Groups: **\(.groups)/50**\n\nEvents: **\(.events)**\n\nPackage QA: **\(if .passed then "PASS" else "FAIL" end)**\n\nPublication allowed: **\(if .publicationAllowed then "yes" else "no" end)**"' "$report" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Package manifest was not generated.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload canonical package evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course1-canonical-package
+          path: |
+            api/data/imports/ugmu-course1/source-manifest.json
+            api/data/imports/ugmu-course1/watched-pdfs/download-report.json
+            api/data/imports/ugmu-course1/raw
+            api/data/imports/ugmu-course1/canonical-package
+          if-no-files-found: warn
+          retention-days: 30
