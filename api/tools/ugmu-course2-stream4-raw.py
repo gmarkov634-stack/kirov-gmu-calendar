@@ -13,6 +13,7 @@ EXPECTED_SHA256 = "6b5f87dc7f565169105245a397996e61e94794dfe580529cc5f7398a62e21
 EXPECTED_SOURCE_URL = "https://usma.ru/wp-content/uploads/2026/08/2%D0%9E%D0%9B%D0%94_4-%D0%BF%D0%BE%D1%82%D0%BE%D0%BA_%D0%BE%D1%81%D0%B5%D0%BD%D1%8C_26.pdf"
 EXPECTED_GROUPS = [f"ОЛД {value}" for value in range(237, 249)]
 DAY_NAMES = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
+SOURCE_DAY_NAMES = DAY_NAMES[:5]
 DAY_INDEX = {name: index for index, name in enumerate(DAY_NAMES)}
 TIME_RE = re.compile(
     r"^(?P<marker>[ЛП]\.\s*(?:ДВ\s*)?)?"
@@ -95,17 +96,17 @@ def weekday_bounds(page, geometry) -> list[tuple[str, float, float]]:
         if day:
             labels[day] = (word["top"] + word["bottom"]) / 2
     present = [name for name in DAY_NAMES if name in labels]
-    if present != DAY_NAMES:
-        raise RuntimeError(f"Weekday geometry is incomplete: {present}")
+    if present != SOURCE_DAY_NAMES:
+        raise RuntimeError(f"Unexpected stream-IV weekday geometry: {present}; manual review required")
     header_cell = geometry.rows[0].cells[0]
     footer_cell = geometry.rows[-1].cells[0]
     if not header_cell or not footer_cell:
         raise RuntimeError("Weekly-grid header/footer geometry is missing")
-    centers = [labels[name] for name in DAY_NAMES]
+    centers = [labels[name] for name in SOURCE_DAY_NAMES]
     cuts = [header_cell[3]]
-    cuts.extend((centers[index] + centers[index + 1]) / 2 for index in range(5))
+    cuts.extend((centers[index] + centers[index + 1]) / 2 for index in range(len(centers) - 1))
     cuts.append(footer_cell[1])
-    return [(DAY_NAMES[index], cuts[index], cuts[index + 1]) for index in range(6)]
+    return [(SOURCE_DAY_NAMES[index], cuts[index], cuts[index + 1]) for index in range(len(SOURCE_DAY_NAMES))]
 
 
 def extract_group_lines(table, geometry, page, group: str) -> dict[str, list[str]]:
@@ -254,6 +255,8 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         "weekAnchorsLiteral": anchors,
         "groups": groups,
         "review": {
+            "sourceWeekdayLabels": SOURCE_DAY_NAMES,
+            "sourceHasSaturdayBlock": False,
             "orphanSourceLines": orphan_review,
             "embeddedTimeSplits": embedded_review,
         },
