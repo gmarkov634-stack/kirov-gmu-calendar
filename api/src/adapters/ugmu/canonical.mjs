@@ -20,6 +20,20 @@ const COURSE1_REVIEW_STATUSES = new Map([
   ["4", new Set(["semantic-reviewed-stream-4-with-source-ambiguity"])],
 ]);
 
+const COURSE2_STREAM_GROUPS = new Map([
+  ["1", new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${201 + index}`))],
+  ["2", new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${213 + index}`))],
+  ["3", new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${225 + index}`))],
+  ["4", new Set(Array.from({ length: 12 }, (_, index) => `ОЛД ${237 + index}`))],
+]);
+
+const COURSE2_SOURCE_SHA256 = new Map([
+  ["1", "8b81f37b517dd037c090b0d980ba4d916557f36c872fe0fc37031d4ae8808c6a"],
+  ["2", "07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd"],
+  ["3", "b6cc586f29a20bd008b5da89129809db7fbed8b2a9224a9f2d4cd3e3a77a9b85"],
+  ["4", "6b5f87dc7f565169105245a397996e61e94794dfe580529cc5f7398a62e21517"],
+]);
+
 function emptyDerived() {
   return {
     academic_week: null,
@@ -200,6 +214,56 @@ function requireCommonBoundary(rawSchedule) {
   return source;
 }
 
+function requireCourse2Boundary(rawSchedule) {
+  if (!rawSchedule || rawSchedule.university !== "ugmu") throw new Error("Invalid UGMU course-2 weekly-grid schedule");
+  const stream = String(rawSchedule.stream);
+  const group = rawSchedule.group?.code;
+  const allowedGroups = COURSE2_STREAM_GROUPS.get(stream);
+  if (rawSchedule.course !== 2 || !allowedGroups?.has(group)) {
+    throw new Error(`UGMU course-2 reviewed group is outside stream ${stream}: ${group || "missing"}`);
+  }
+  if (rawSchedule.academicYear !== "2026/2027" || semesterName(rawSchedule.semester) !== "autumn") {
+    throw new Error(`UGMU course-2 ${group} is outside autumn 2026/2027`);
+  }
+  if (rawSchedule.semesterPeriod?.start !== "2026-09-01" || rawSchedule.semesterPeriod?.end !== "2026-12-23") {
+    throw new Error(`UGMU course-2 ${group} has unexpected semester period`);
+  }
+  if (rawSchedule.weekAnchors?.I !== "2026-09-01" || rawSchedule.weekAnchors?.II !== "2026-09-07") {
+    throw new Error(`UGMU course-2 ${group} has unexpected I/II week anchors`);
+  }
+  if (rawSchedule.sourceReview?.publicationAllowed !== false) {
+    throw new Error("UGMU course-2 source boundary must remain fail-closed");
+  }
+  if (rawSchedule.sourceReview?.status !== "source-anomalies-reviewed") {
+    throw new Error(`UGMU course-2 ${group} has not passed source anomaly review`);
+  }
+  if (!Array.isArray(rawSchedule.sourceReview?.unresolvedReferences) || rawSchedule.sourceReview.unresolvedReferences.length !== 0) {
+    throw new Error(`UGMU course-2 ${group} has unresolved discipline references`);
+  }
+  if (rawSchedule.sourceReview?.overlapStatus === "needs-review") {
+    throw new Error(`UGMU course-2 ${group} has unresolved source overlaps`);
+  }
+  const sourceOverlaps = rawSchedule.sourceReview?.sourceOverlaps || [];
+  const confirmedOverlapCount = rawSchedule.sourceReview?.confirmedSourceOverlapCount || 0;
+  if (sourceOverlaps.length && confirmedOverlapCount !== sourceOverlaps.length) {
+    throw new Error(`UGMU course-2 ${group} has unconfirmed source overlaps`);
+  }
+  if (!Array.isArray(rawSchedule.validationErrors) || rawSchedule.validationErrors.length !== 0) {
+    throw new Error(`UGMU course-2 ${group} has unresolved parser validation errors`);
+  }
+  if (!Array.isArray(rawSchedule.events) || !rawSchedule.events.length) {
+    throw new Error(`UGMU course-2 ${group} contains no events`);
+  }
+  const source = rawSchedule.sources?.[0];
+  if (!source?.url || !source?.sha256) {
+    throw new Error(`UGMU course-2 ${group} requires exact source URL and SHA-256`);
+  }
+  if (source.sha256 !== COURSE2_SOURCE_SHA256.get(stream)) {
+    throw new Error(`UGMU course-2 stream ${stream} source SHA-256 is not approved`);
+  }
+  return source;
+}
+
 function buildCanonical(rawSchedule, source, parserName) {
   return {
     schema_version: "1.0",
@@ -265,6 +329,12 @@ export function canonicalizeUgmuMedicineCourse1Reviewed(rawSchedule) {
   return buildCanonical(rawSchedule, source, `ugmu-weekly-grid/course1-stream-${stream}-reviewed-v1`);
 }
 
+export function canonicalizeUgmuMedicineCourse2Reviewed(rawSchedule) {
+  const source = requireCourse2Boundary(rawSchedule);
+  const stream = String(rawSchedule.stream);
+  return buildCanonical(rawSchedule, source, `ugmu-weekly-grid/course2-stream-${stream}-reviewed-v1`);
+}
+
 export {
   FIRST_STREAM_GROUPS,
   SECOND_STREAM_GROUPS,
@@ -272,4 +342,6 @@ export {
   FOURTH_STREAM_GROUPS,
   COURSE1_STREAM_GROUPS,
   COURSE1_REVIEW_STATUSES,
+  COURSE2_STREAM_GROUPS,
+  COURSE2_SOURCE_SHA256,
 };
