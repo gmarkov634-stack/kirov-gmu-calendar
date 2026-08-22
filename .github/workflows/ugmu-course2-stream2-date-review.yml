@@ -72,14 +72,22 @@ jobs:
             .course == 2 and .stream == 2 and
             .summary.groupCount == 12 and
             .summary.semanticPatternCount == 206 and
+            .summary.eventCount == 2779 and
             .summary.duplicateCount == 0 and
             .summary.invalidIntervalCount == 0 and
+            .summary.overlapCount == 32 and
+            .summary.approvedSourceOverlapCount == 32 and
+            .summary.unresolvedOverlapCount == 0 and
+            .summary.reviewRequired == false and
+            .review.approvedSourceOverlapPolicy.sourceSha256 == "07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd" and
+            .review.approvedSourceOverlapPolicy.expectedOverlapCount == 32 and
+            .review.approvedSourceOverlapPolicy.newSourceShaRequiresReview == true and
             .summary.canonicalizationPerformed == false and
             .summary.storageWritesPerformed == false and
             .summary.icsGenerated == false and
             .summary.publicationAllowed == false
           ' data/imports/course2-stream2/dated-review.json >/dev/null
-          jq '{source, effectivePeriod, weekAnchors, summary, overlaps:.review.overlaps[:40]}' data/imports/course2-stream2/dated-review.json
+          jq '{source, effectivePeriod, weekAnchors, summary, approvedOverlapPolicy:.review.approvedSourceOverlapPolicy, approvedOverlaps:.review.approvedSourceOverlaps[:6], unresolvedOverlaps:.review.unresolvedOverlaps}' data/imports/course2-stream2/dated-review.json
 
       - name: Upload read-only date review evidence
         uses: actions/upload-artifact@v4
