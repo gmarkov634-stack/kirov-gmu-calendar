@@ -5,11 +5,12 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 EXPECTED_SHA256 = "07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd"
-TARGET_TOKEN = "Клиническая биохимия"
+TARGET_NORMALIZED = "клиническаябиохимия"
 TARGET_TIME = "17:10"
 
 
@@ -19,6 +20,10 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def normalize_letters(value: Any) -> str:
+    return re.sub(r"[^0-9A-Za-zА-Яа-яЁё]", "", str(value or "")).lower()
 
 
 def load_raw_module():
@@ -55,15 +60,14 @@ def build(path: Path) -> dict[str, Any]:
             row_geometry = geometry.rows[row_index]
             center_y = raw.smallest_cell_center(row_geometry)
             day = next((name for name, top, bottom in bounds if top <= center_y < bottom), None)
-            if day != "суббота":
-                continue
             for column_index in range(1, min(len(row_values), len(row_geometry.cells))):
                 value = row_values[column_index]
                 cell = row_geometry.cells[column_index]
                 if value is None or cell is None:
                     continue
                 text = raw.compact(value)
-                if TARGET_TOKEN.lower() not in text.lower() and TARGET_TIME not in text:
+                normalized = normalize_letters(text)
+                if TARGET_NORMALIZED not in normalized and TARGET_TIME.replace(":", "") not in normalized:
                     continue
                 key = (row_index, *[round(float(v), 4) for v in cell], text)
                 if key in seen:
@@ -79,9 +83,11 @@ def build(path: Path) -> dict[str, Any]:
                     {
                         "rowIndex": row_index,
                         "columnIndex": column_index,
+                        "inferredWeekday": day,
                         "rowCenterY": round(float(center_y), 3),
                         "bbox": rounded_bbox(cell),
                         "text": text,
+                        "normalized": normalized,
                         "coveredGroups": covered,
                         "coveredGroupCount": len(covered),
                     }
@@ -89,15 +95,18 @@ def build(path: Path) -> dict[str, Any]:
 
         records.sort(key=lambda item: (item["rowCenterY"], item["bbox"][0], item["text"]))
 
-    target = [item for item in records if TARGET_TOKEN.lower() in item["text"].lower()]
+    target = [item for item in records if TARGET_NORMALIZED in item["normalized"]]
     if not target:
-        raise RuntimeError("Target Clinical Biochemistry cells were not found")
+        raise RuntimeError(
+            "Target Clinical Biochemistry cells were not found; relevant 17:10 cells: "
+            + json.dumps(records, ensure_ascii=False)
+        )
 
     return {
         "mode": "stream2-overlap-geometry-read-only",
         "sourceSha256": actual_sha,
         "groupCenters": {group: round(float(center), 3) for group, center in group_centers.items()},
-        "relevantSaturdayCells": records,
+        "relevantCells": records,
         "clinicalBiochemistryCells": target,
         "summary": {
             "relevantCellCount": len(records),
