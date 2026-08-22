@@ -63,18 +63,18 @@
 @media(max-width:760px){
   .comparison-section{grid-template-columns:1fr}
   .comparison-note{grid-column:1}
-  #selector.selector{padding:16px 12px}
-  .selector-context{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;padding:11px 12px;border-radius:15px}
-  .selector-context-badge{min-height:28px;padding:0 9px;font-size:10px}
+  #selector.selector{padding:14px 10px}
+  .selector-context{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;padding:9px 10px;border-radius:14px}
+  .selector-context-badge{min-height:24px;padding:0 8px;font-size:9px}
   .selector-context div{display:block}
-  .selector-context strong{display:block;font-size:14px;line-height:1.25}
-  .selector-context div span{display:block;margin-top:2px;font-size:11px;line-height:1.35}
-  #selector .panel-head{align-items:center;margin:16px 0 14px}
-  #selector .panel-head h2{font-size:24px;line-height:1.12}
-  #selector .section-kicker{margin-bottom:4px;font-size:10px}
-  #selector .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  #selector .group-card{min-height:60px;padding:10px 7px;border-radius:14px}
-  #selector .group-card strong{font-size:15px}
+  .selector-context strong{display:block;font-size:13px;line-height:1.2}
+  .selector-context div span{display:block;margin-top:1px;font-size:10px;line-height:1.25}
+  #selector .panel-head{align-items:center;margin:12px 0 10px}
+  #selector .panel-head h2{font-size:22px;line-height:1.08}
+  #selector .section-kicker{margin-bottom:3px;font-size:9px}
+  #selector .choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  #selector .group-card{min-height:54px;padding:8px 4px;border-radius:13px}
+  #selector .group-card strong{font-size:13px;letter-spacing:-.02em}
   .access-card{grid-template-columns:1fr;padding:18px}
   .trial-connect-card{padding:18px}
   .connect-actions,.result-actions{grid-template-columns:1fr}
@@ -82,7 +82,7 @@
 }
 
 @media(max-width:350px){
-  #selector .choice-grid{gap:7px}
-  #selector .group-card{min-height:58px;padding:9px 5px}
+  #selector .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  #selector .group-card{min-height:54px;padding:8px 5px}
   #selector .group-card strong{font-size:14px}
 }
