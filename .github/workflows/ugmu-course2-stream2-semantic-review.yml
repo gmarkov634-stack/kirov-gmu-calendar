@@ -1,0 +1,101 @@
+name: UGMU course2 stream2 semantic review
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-stream2-raw.py"
+      - "api/tools/ugmu-course2-stream2-semantic.py"
+      - "api/tools/requirements-ugmu.txt"
+      - "api/src/adapters/ugmu/**"
+      - ".github/workflows/ugmu-course2-stream2-semantic-review.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install PDF parser dependency
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+
+      - name: Discover official UGMU medicine sources
+        run: node tools/ugmu-discover.mjs --program=medicine --output=data/imports/course2-source-manifest.json
+
+      - name: Download official autumn PDFs
+        run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
+
+      - name: Extract stream II raw weekly patterns
+        run: |
+          set -euo pipefail
+          report='data/imports/course2-pdfs/download-report.json'
+          item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 2 and .stream == "2" and .part == "combined")' "$report" | head -n 1)"
+          test -n "$item"
+          filename="$(jq -r '.filename' <<<"$item")"
+          source_url="$(jq -r '.url' <<<"$item")"
+          sha="$(jq -r '.sha256' <<<"$item")"
+          test "$sha" = '07675a77bdb80080ea018a73750f00f458cc100fcd01a63ecaf142430bca94bd'
+          printf '%s\n' "$filename" > data/imports/course2-stream2-source-file.txt
+          python3 tools/ugmu-course2-stream2-raw.py \
+            --input="data/imports/course2-pdfs/$filename" \
+            --source="$source_url" \
+            --output=data/imports/course2-stream2/raw.json
+
+      - name: Apply only user-approved stream II semantic decisions
+        run: |
+          set -euo pipefail
+          filename="$(cat data/imports/course2-stream2-source-file.txt)"
+          python3 tools/ugmu-course2-stream2-semantic.py \
+            --raw=data/imports/course2-stream2/raw.json \
+            --pdf="data/imports/course2-pdfs/$filename" \
+            --output=data/imports/course2-stream2/semantic.json
+          jq -e '
+            .mode == "semantic-weekly-patterns-only" and
+            .course == 2 and .stream == 2 and
+            .summary.groupCount == 12 and
+            .summary.semanticPatternCount == 206 and
+            .summary.titleResolutionCounts["literal-exact"] == 154 and
+            .summary.titleResolutionCounts["user-approved-reference-title"] == 42 and
+            .summary.titleResolutionCounts["user-approved-reference-link-only"] == 2 and
+            .summary.titleResolutionCounts["user-approved-no-reference"] == 8 and
+            .summary.patternsWithoutReferenceRow == 8 and
+            .summary.referenceLinkOnlyPatterns == 2 and
+            .summary.lessonTypeSemanticCounts.lecture == 96 and
+            .summary.lessonTypeSemanticCounts.other == 110 and
+            .summary.unresolvedTitleReferences == 0 and
+            .summary.ambiguousTitleReferences == 0 and
+            .summary.eventExpansionPerformed == false and
+            .summary.canonicalizationPerformed == false and
+            .summary.storageWritesPerformed == false and
+            .summary.publicationAllowed == false
+          ' data/imports/course2-stream2/semantic.json >/dev/null
+          jq '{source, summary}' data/imports/course2-stream2/semantic.json
+
+      - name: Upload read-only semantic evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugmu-course2-stream2-semantic-review
+          path: api/data/imports/course2-stream2/semantic.json
+          retention-days: 14
