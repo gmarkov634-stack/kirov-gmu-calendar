@@ -1,0 +1,64 @@
+name: UGMU course-1 staging status one-shot
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - universities/ugmu/course1-production-staging-status-probe.json
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Resolve and wait for latest guarded staging run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ugmu-course1-production-storage-stage.yml --branch main --event workflow_dispatch --limit 1 --json databaseId,status,conclusion,url,createdAt,headSha)"
+          run_id="$(jq -r '.[0].databaseId // empty' <<<"$run_json")"
+          test -n "$run_id"
+          echo "RUN_ID=$run_id" >> "$GITHUB_ENV"
+          echo "$run_json" > /tmp/run.json
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+
+      - name: Download and verify evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/evidence
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name ugmu-course1-production-storage-stage --dir /tmp/evidence
+          stage="$(find /tmp/evidence -type f -path '*/production-storage-stage/report.json' | head -n1)"
+          verify="$(find /tmp/evidence -type f -path '*/production-storage-verify/report.json' | head -n1)"
+          test -f "$stage"
+          test -f "$verify"
+          jq -e '.passed == true and .totals.groups == 50 and .totals.events == 17301' "$stage" >/dev/null
+          jq -e '.passed == true and .totals.verified == 50 and .totals.missing == 0 and .totals.failed == 0' "$verify" >/dev/null
+          groups="$(jq -r '.totals.groups' "$stage")"
+          events="$(jq -r '.totals.events' "$stage")"
+          verified="$(jq -r '.totals.verified' "$verify")"
+          missing="$(jq -r '.totals.missing' "$verify")"
+          failed="$(jq -r '.totals.failed' "$verify")"
+          cat > /tmp/body.md <<EOF
+          Guarded production storage staging verified.
+
+          - run: $RUN_ID
+          - stagePassed: true
+          - groups: $groups
+          - events: $events
+          - verifyPassed: true
+          - verified: $verified
+          - missing: $missing
+          - failed: $failed
+          EOF
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "UGMU course1 staging verified $RUN_ID" --body-file /tmp/body.md
