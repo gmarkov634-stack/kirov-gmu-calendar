@@ -17,6 +17,14 @@ PERIOD_END = date(2026, 12, 23)
 WEEK_I_START = date(2026, 9, 1)
 WEEK_II_START = date(2026, 9, 7)
 
+APPROVED_OVERLAP_GROUPS = {"ОЛД 213", "ОЛД 214"}
+APPROVED_OVERLAP_TITLE = "Клиническая биохимия"
+APPROVED_OVERLAP_START = "17:10"
+APPROVED_OVERLAP_END = "18:40"
+APPROVED_OVERLAP_MARKERS = {"Л. ДВ", "П. ДВ"}
+APPROVED_OVERLAP_TYPES = {"lecture", "other"}
+EXPECTED_APPROVED_OVERLAP_COUNT = 32
+
 
 def minutes(value: str) -> int:
     parsed = datetime.strptime(value, "%H:%M")
@@ -68,6 +76,39 @@ def event_key(event: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def overlap_side(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "patternIndex": event["patternIndex"],
+        "startTime": event["startTime"],
+        "endTime": event["endTime"],
+        "markerRaw": event.get("markerRaw"),
+        "sourceTitleRaw": event["sourceTitleRaw"],
+        "titleSemantic": event["titleSemantic"],
+        "lessonTypeSemantic": event["lessonTypeSemantic"],
+    }
+
+
+def is_approved_source_overlap(overlap: dict[str, Any]) -> bool:
+    if overlap["group"] not in APPROVED_OVERLAP_GROUPS:
+        return False
+    if date.fromisoformat(overlap["date"]).weekday() != 5:
+        return False
+    left = overlap["left"]
+    right = overlap["right"]
+    sides = (left, right)
+    if any(side["startTime"] != APPROVED_OVERLAP_START for side in sides):
+        return False
+    if any(side["endTime"] != APPROVED_OVERLAP_END for side in sides):
+        return False
+    if any(side["titleSemantic"] != APPROVED_OVERLAP_TITLE for side in sides):
+        return False
+    if {side.get("markerRaw") for side in sides} != APPROVED_OVERLAP_MARKERS:
+        return False
+    if {side["lessonTypeSemantic"] for side in sides} != APPROVED_OVERLAP_TYPES:
+        return False
+    return True
+
+
 def analyze(events: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     duplicates: list[dict[str, Any]] = []
     invalid: list[dict[str, Any]] = []
@@ -108,6 +149,7 @@ def analyze(events: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[di
                 minutes(item["startTime"]),
                 minutes(item["endTime"]),
                 item["titleSemantic"],
+                str(item.get("markerRaw") or ""),
             ),
         )
         for index, left in enumerate(ordered):
@@ -120,18 +162,8 @@ def analyze(events: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[di
                     overlaps.append({
                         "group": group,
                         "date": day,
-                        "left": {
-                            "startTime": left["startTime"],
-                            "endTime": left["endTime"],
-                            "titleSemantic": left["titleSemantic"],
-                            "lessonTypeSemantic": left["lessonTypeSemantic"],
-                        },
-                        "right": {
-                            "startTime": right["startTime"],
-                            "endTime": right["endTime"],
-                            "titleSemantic": right["titleSemantic"],
-                            "lessonTypeSemantic": right["lessonTypeSemantic"],
-                        },
+                        "left": overlap_side(left),
+                        "right": overlap_side(right),
                     })
     return duplicates, invalid, overlaps
 
@@ -197,12 +229,23 @@ def build(semantic_path: Path) -> dict[str, Any]:
                 item["startTime"],
                 item["endTime"],
                 item["titleSemantic"],
+                str(item.get("markerRaw") or ""),
             )
         )
         groups[group] = group_events
 
     events = [event for group_events in groups.values() for event in group_events]
     duplicates, invalid_intervals, overlaps = analyze(events)
+    approved_source_overlaps = [overlap for overlap in overlaps if is_approved_source_overlap(overlap)]
+    unresolved_overlaps = [overlap for overlap in overlaps if not is_approved_source_overlap(overlap)]
+
+    if len(approved_source_overlaps) != EXPECTED_APPROVED_OVERLAP_COUNT:
+        raise RuntimeError(
+            "Approved stream-II overlap count changed; new source/geometry review required: "
+            f"expected {EXPECTED_APPROVED_OVERLAP_COUNT}, got {len(approved_source_overlaps)}"
+        )
+
+    review_required = bool(duplicates or invalid_intervals or unresolved_overlaps)
 
     return {
         "mode": "dated-events-review-only",
@@ -218,6 +261,20 @@ def build(semantic_path: Path) -> dict[str, Any]:
             "duplicates": duplicates,
             "invalidIntervals": invalid_intervals,
             "overlaps": overlaps,
+            "approvedSourceOverlaps": approved_source_overlaps,
+            "unresolvedOverlaps": unresolved_overlaps,
+            "approvedSourceOverlapPolicy": {
+                "sourceSha256": EXPECTED_SHA256,
+                "reason": "User-approved preservation of two distinct official PDF rows; do not infer a correction or month split.",
+                "groups": sorted(APPROVED_OVERLAP_GROUPS),
+                "weekday": "суббота",
+                "startTime": APPROVED_OVERLAP_START,
+                "endTime": APPROVED_OVERLAP_END,
+                "titleSemantic": APPROVED_OVERLAP_TITLE,
+                "markers": sorted(APPROVED_OVERLAP_MARKERS),
+                "expectedOverlapCount": EXPECTED_APPROVED_OVERLAP_COUNT,
+                "newSourceShaRequiresReview": True,
+            },
         },
         "summary": {
             "groupCount": len(groups),
@@ -229,7 +286,9 @@ def build(semantic_path: Path) -> dict[str, Any]:
             "duplicateCount": len(duplicates),
             "invalidIntervalCount": len(invalid_intervals),
             "overlapCount": len(overlaps),
-            "reviewRequired": bool(duplicates or invalid_intervals or overlaps),
+            "approvedSourceOverlapCount": len(approved_source_overlaps),
+            "unresolvedOverlapCount": len(unresolved_overlaps),
+            "reviewRequired": review_required,
             "canonicalizationPerformed": False,
             "storageWritesPerformed": False,
             "icsGenerated": False,
