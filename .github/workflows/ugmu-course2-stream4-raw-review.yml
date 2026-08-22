@@ -19,89 +19,27 @@ jobs:
       run:
         working-directory: api
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: api/package-lock.json
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Install PDF parser dependency
-        run: python3 -m pip install -r tools/requirements-ugmu.txt
-
-      - name: Discover official UGMU medicine sources
-        run: node tools/ugmu-discover.mjs --program=medicine --output=data/imports/course2-source-manifest.json
-
-      - name: Download official autumn PDFs
-        run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
-
-      - name: Diagnose stream IV two-page geometry
         run: |
-          set -euo pipefail
-          report='data/imports/course2-pdfs/download-report.json'
-          filename="$(jq -r '.files[] | select(.status == "downloaded" and .course == 2 and .stream == "4" and .part == "combined") | .filename' "$report" | head -n 1)"
-          PDF="data/imports/course2-pdfs/$filename" python3 - <<'PY'
-          import os, re, pdfplumber
-          path=os.environ['PDF']
-          with pdfplumber.open(path) as doc:
-              print('PAGE_COUNT', len(doc.pages))
-              for pi,page in enumerate(doc.pages):
-                  print('PAGE', pi+1)
-                  words=page.extract_words(extra_attrs=['upright'])
-                  print('ROTATED_WORDS')
-                  for w in words:
-                      if not w.get('upright', True):
-                          print(w['text'], round(w['x0'],1), round(w['x1'],1), round(w['top'],1), round(w['bottom'],1))
-                  print('DAY_TEXT_MATCHES')
-                  for w in words:
-                      letters=re.sub(r'[^А-Яа-яЁё]','',w.get('text','')).lower()
-                      if letters in {'понедельник','вторник','среда','четверг','пятница','суббота'} or letters[::-1] in {'понедельник','вторник','среда','четверг','пятница','суббота'}:
-                          print(w['text'], w.get('upright'), round(w['x0'],1), round(w['x1'],1), round(w['top'],1), round(w['bottom'],1))
-                  tables=page.extract_tables() or []
-                  geoms=page.find_tables() or []
-                  print('TABLE_COUNT', len(tables))
-                  for ti,(table,geom) in enumerate(zip(tables,geoms)):
-                      print('TABLE',ti,'ROWS',len(table),'COLS',max((len(r) for r in table), default=0))
-                      for idx,row in enumerate(table[:20]):
-                          vals=[' '.join(str(v or '').split()) for v in row]
-                          print('TROW',ti,idx,vals)
-              page=doc.pages[0]
-              tables=page.extract_tables() or []
-              geoms=page.find_tables() or []
-              for table,geom in zip(tables,geoms):
-                  header=[' '.join(str(v or '').split()) for v in table[0][1:]] if table and table[0] else []
-                  if not (header and header[0]=='ОЛД 237'):
-                      continue
-                  target_col=header.index('ОЛД 247')+1
-                  target_header_cell=geom.rows[0].cells[target_col]
-                  target_center=(target_header_cell[0]+target_header_cell[2])/2
-                  print('GROUP247_MONDAY_CELLS center=',target_center)
-                  for idx in range(1,14):
-                      row=table[idx]
-                      grow=geom.rows[idx]
-                      for col in range(1,min(len(row),len(grow.cells))):
-                          cell=grow.cells[col]
-                          value=' '.join(str(row[col] or '').split())
-                          if cell and value and cell[0]-1e-6 <= target_center <= cell[2]+1e-6:
-                              print('G247ROW',idx,'COL',col,'VALUE=',repr(value),'CELL=',tuple(round(x,2) for x in cell))
-                  print('RAW_WORDS_AROUND_ORPHAN')
-                  for w in page.extract_words(extra_attrs=['upright']):
-                      if 155 <= w['top'] <= 195 and 430 <= w['x0'] <= 570:
-                          print(w['text'], round(w['x0'],2), round(w['x1'],2), round(w['top'],2), round(w['bottom'],2))
-          PY
+          npm ci
+          python3 -m pip install -r tools/requirements-ugmu.txt
 
-      - name: Extract and assert complete course2 stream IV raw weekly patterns
+      - name: Discover and download exact official source
+        run: |
+          node tools/ugmu-discover.mjs --program=medicine --output=data/imports/course2-source-manifest.json
+          node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
+
+      - name: Extract and assert complete stream IV raw baseline
         run: |
           set -euo pipefail
           report='data/imports/course2-pdfs/download-report.json'
@@ -139,9 +77,9 @@ jobs:
             .review.sourceHasSaturdayBlock == true and
             .review.sourceWeekdayLayout.page2Continuation == ["суббота"] and
             any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "10:30" and .endTime == "12:00" and .sourceTitleRaw == "Экономика") and
-            any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "12:10" and .endTime == "13:40" and .sourceTitleRaw == "Гистология, эмбриология, цитология") and
+            any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "12:10" and .endTime == "13:40" and .sourceTitleRaw == "Гистология эмбриология цитология") and
             any(.groups["ОЛД 247"][]; .weekdayName == "понедельник" and .startTime == "16:20" and .endTime == "18:40" and .sourceTitleRaw == "Нормальная физиология") and
-            any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "08:50" and .endTime == "10:20" and .sourceTitleRaw == "Гистология, эмбриология, цитология") and
+            any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "08:50" and .endTime == "10:20" and .sourceTitleRaw == "Гистология эмбриология цитология") and
             any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "10:30" and .endTime == "12:00" and .sourceTitleRaw == "Экономика") and
             any(.groups["ОЛД 248"][]; .weekdayName == "понедельник" and .startTime == "16:20" and .endTime == "18:40" and .sourceTitleRaw == "Нормальная физиология") and
             .summary.semanticNormalizationPerformed == false and
