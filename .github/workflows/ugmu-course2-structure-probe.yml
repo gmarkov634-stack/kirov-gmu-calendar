@@ -1,0 +1,36 @@
+name: UGMU course2 structure probe
+
+on:
+  pull_request:
+    paths:
+      - "api/tools/ugmu-course2-structure-probe.py"
+      - ".github/workflows/ugmu-course2-structure-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - name: Install UGMU PDF parser dependency
+        run: python3 -m pip install -r tools/requirements-ugmu.txt
+      - name: Discover current official UGMU medicine sources
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-course2-discovery.json
+      - name: Download current autumn sources server-side
+        run: npm run download:ugmu -- --manifest=data/imports/ugmu-course2-discovery.json --output=data/imports/ugmu-course2-pdfs --semester=autumn
+      - name: Print exact course 2 source identities
+        run: jq -c '.files[] | select(.course==2) | {stream,url,status,filename,bytes,sha256}' data/imports/ugmu-course2-pdfs/download-report.json
+      - name: Inspect course 2 PDF structure fail-closed
+        run: python3 tools/ugmu-course2-structure-probe.py --report=data/imports/ugmu-course2-pdfs/download-report.json --dir=data/imports/ugmu-course2-pdfs
