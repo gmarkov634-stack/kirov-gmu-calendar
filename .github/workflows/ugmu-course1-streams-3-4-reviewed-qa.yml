@@ -1,16 +1,17 @@
-name: UGMU course-1 streams III-IV QA
+name: UGMU course-1 streams III-IV reviewed QA
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
       - "api/tools/ugmu-parse-course1-streams-3-4.py"
+      - "api/tools/ugmu-parse-course1-streams-3-4-reviewed.py"
       - "api/tools/ugmu-parse-weekly-pdf.py"
       - "api/src/adapters/ugmu/**"
       - "api/tools/ugmu-discover.mjs"
       - "api/tools/ugmu-download.mjs"
       - "api/tools/requirements-ugmu.txt"
-      - ".github/workflows/ugmu-course1-streams-3-4-qa.yml"
+      - ".github/workflows/ugmu-course1-streams-3-4-reviewed-qa.yml"
 
 permissions:
   contents: read
@@ -45,22 +46,22 @@ jobs:
         run: python3 -m pip install -r tools/requirements-ugmu.txt
 
       - name: Parser self-test
-        run: python3 tools/ugmu-parse-course1-streams-3-4.py --self-test
+        run: python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py --self-test
 
       - name: Discover official UGMU medicine sources
-        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-course1-stream34-source-manifest.json
+        run: npm run discover:ugmu -- --program=medicine --output=data/imports/ugmu-stream34-source-manifest.json
 
       - name: Capture official autumn PDFs and SHA-256
         run: >-
           npm run download:ugmu --
-          --manifest=data/imports/ugmu-course1-stream34-source-manifest.json
+          --manifest=data/imports/ugmu-stream34-source-manifest.json
           --semester=autumn
-          --output=data/imports/ugmu-course1-stream34-watched-pdfs
+          --output=data/imports/ugmu-stream34-watched-pdfs
 
-      - name: Parse and validate exact stream III source
+      - name: Parse and validate stream III
         run: |
           set -euo pipefail
-          report='data/imports/ugmu-course1-stream34-watched-pdfs/download-report.json'
+          report='data/imports/ugmu-stream34-watched-pdfs/download-report.json'
           item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "3" and .part == "combined")' "$report" | head -n 1)"
           test -n "$item"
           filename="$(jq -r '.filename' <<<"$item")"
@@ -68,13 +69,13 @@ jobs:
           sha="$(jq -r '.sha256' <<<"$item")"
           test "$sha" = '248f436baa3254ee891506628b05e945bddfbb708616ec5e38b34e7d893783ca'
 
-          python3 tools/ugmu-parse-course1-streams-3-4.py \
-            --input="data/imports/ugmu-course1-stream34-watched-pdfs/$filename" \
+          python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py \
+            --input="data/imports/ugmu-stream34-watched-pdfs/$filename" \
             --stream=3 \
             --all-groups \
             --source="$source_url" \
             --sha256="$sha" \
-            --output=data/imports/ugmu-course1-stream3-qa
+            --output=data/imports/ugmu-stream3-qa
 
           jq -e '
             .sourceSha256 == "248f436baa3254ee891506628b05e945bddfbb708616ec5e38b34e7d893783ca" and
@@ -84,9 +85,10 @@ jobs:
             .validExpansionPatterns == 262 and
             .events == 4026 and
             .lecturePatterns == 108 and
+            .semanticDecisions == 12 and
             .sourceReferenceOmissions == 12 and
             .sourceDefects == 1 and
-            .sourceDefectGroups == 1 and
+            .sourceAmbiguities == 12 and
             .sourceOverlaps == 74 and
             .validationErrors == 0 and
             .groups["ОЛД 129"].patterns == 22 and
@@ -94,26 +96,37 @@ jobs:
             .groups["ОЛД 129"].events == 318 and
             .groups["ОЛД 129"].sourceDefects == 1 and
             .groups["ОЛД 130"].patterns == 21 and
+            .groups["ОЛД 130"].events == 318 and
             .groups["ОЛД 131"].sourceOverlaps == 19 and
             .groups["ОЛД 132"].sourceOverlaps == 19 and
             .groups["ОЛД 133"].sourceOverlaps == 36
-          ' data/imports/ugmu-course1-stream3-qa/summary.json >/dev/null
+          ' data/imports/ugmu-stream3-qa/summary.json >/dev/null
 
           jq -e '
-            .sourceReview.status == "semantic-reviewed-stream-3-with-source-defect" and
+            .sourceReview.status == "semantic-reviewed-stream-3-with-source-ambiguity" and
             .sourceReview.publicationAllowed == false and
+            (.sourceReview.sourceReferenceOmissions | length) == 1 and
+            (.sourceReview.sourceAmbiguities | length) == 1 and
+            .sourceReview.sourceAmbiguities[0].mainRowTime == "18:00-19:30" and
+            .sourceReview.sourceAmbiguities[0].rawParentheticalTimeFragment == "с 17.10-18.40" and
+            ([.events[] | select(.title == "Биология" and .lessonType == "lecture")][0].location == "3 корпус") and
+            ([.events[] | select(.title == "Биология" and .lessonType == "lecture")][1].location == "3 корпус") and
+            (.validationErrors | length) == 0
+          ' data/imports/ugmu-stream3-qa/ОЛД-125.json >/dev/null
+
+          jq -e '
+            .sourceReview.status == "semantic-reviewed-stream-3-with-source-defect-and-ambiguity" and
             (.sourceReview.sourceDefects | length) == 1 and
             .sourceReview.sourceDefects[0].startTime == "13:50" and
             .sourceReview.sourceDefects[0].endTime == "11:10" and
             .sourceReview.sourceDefects[0].action == "excluded-from-dated-events-until-official-correction" and
-            ([.events[] | select(.end <= .start)] | length) == 0 and
             (.validationErrors | length) == 0
-          ' data/imports/ugmu-course1-stream3-qa/ОЛД-129.json >/dev/null
+          ' data/imports/ugmu-stream3-qa/ОЛД-129.json >/dev/null
 
-      - name: Parse and validate exact stream IV source
+      - name: Parse and validate stream IV
         run: |
           set -euo pipefail
-          report='data/imports/ugmu-course1-stream34-watched-pdfs/download-report.json'
+          report='data/imports/ugmu-stream34-watched-pdfs/download-report.json'
           item="$(jq -c '.files[] | select(.status == "downloaded" and .course == 1 and .stream == "4" and .part == "combined")' "$report" | head -n 1)"
           test -n "$item"
           filename="$(jq -r '.filename' <<<"$item")"
@@ -121,13 +134,13 @@ jobs:
           sha="$(jq -r '.sha256' <<<"$item")"
           test "$sha" = '5fa092b9eac42190cf06a927f30d4b6442a5c159bea94f95da484c44b050e90d'
 
-          python3 tools/ugmu-parse-course1-streams-3-4.py \
-            --input="data/imports/ugmu-course1-stream34-watched-pdfs/$filename" \
+          python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py \
+            --input="data/imports/ugmu-stream34-watched-pdfs/$filename" \
             --stream=4 \
             --all-groups \
             --source="$source_url" \
             --sha256="$sha" \
-            --output=data/imports/ugmu-course1-stream4-qa
+            --output=data/imports/ugmu-stream4-qa
 
           jq -e '
             .sourceSha256 == "5fa092b9eac42190cf06a927f30d4b6442a5c159bea94f95da484c44b050e90d" and
@@ -137,48 +150,53 @@ jobs:
             .validExpansionPatterns == 307 and
             .events == 4726 and
             .lecturePatterns == 126 and
-            .semanticDecisions == 14 and
+            .semanticDecisions == 28 and
             .sourceReferenceOmissions == 0 and
             .sourceDefects == 0 and
+            .sourceAmbiguities == 14 and
             .sourceOverlaps == 0 and
             .validationErrors == 0 and
             .groups["ОЛД 137"].patterns == 21 and
             .groups["ОЛД 137"].events == 321 and
             .groups["ОЛД 138"].events == 340 and
             .groups["ОЛД 148"].events == 340
-          ' data/imports/ugmu-course1-stream4-qa/summary.json >/dev/null
+          ' data/imports/ugmu-stream4-qa/summary.json >/dev/null
 
           jq -e '
-            .sourceReview.status == "semantic-reviewed-stream-4" and
+            .sourceReview.status == "semantic-reviewed-stream-4-with-source-ambiguity" and
             .sourceReview.publicationAllowed == false and
-            (.sourceReview.semanticDecisions | length) == 1 and
-            .sourceReview.semanticDecisions[0].title == "Антропологические основы деятельности врача" and
-            .sourceReview.semanticDecisions[0].location == "Репина, 3" and
-            .sourceReview.semanticDecisions[0].locationNote == "ауд. БА" and
+            (.sourceReview.semanticDecisions | length) == 2 and
+            (.sourceReview.sourceAmbiguities | length) == 1 and
+            ([.patterns[] | select(.title == "Анатомия" and .lessonType == "lecture" and .weekRule == "II")][0].weekday == 0) and
+            ([.patterns[] | select(.title == "Антропологические основы деятельности врача")][0].location == "Репина, 3") and
+            ([.patterns[] | select(.title == "Антропологические основы деятельности врача")][0].locationNote == "ауд. БА") and
+            ([.events[] | select(.title == "Биология" and .lessonType == "lecture")][0].location == "3 корпус") and
+            ([.events[] | select(.title == "Биология" and .lessonType == "lecture")][1].location == "3 корпус") and
             (.validationErrors | length) == 0
-          ' data/imports/ugmu-course1-stream4-qa/ОЛД-137.json >/dev/null
+          ' data/imports/ugmu-stream4-qa/ОЛД-137.json >/dev/null
 
       - name: Write summary
         if: always()
         run: |
-          echo '## UGMU Medicine course 1 — streams III and IV' >> "$GITHUB_STEP_SUMMARY"
-          for stream in 3 4; do
-            file="data/imports/ugmu-course1-stream${stream}-qa/summary.json"
-            if [ -f "$file" ]; then
-              echo '' >> "$GITHUB_STEP_SUMMARY"
-              jq -r '"### Stream \(.stream)\n\nGroups: **\(.validatedGroups)/\(.groupCount)**\n\nWeekly patterns: **\(.weeklyPatterns)**\n\nExpandable patterns: **\(.validExpansionPatterns)**\n\nDated events: **\(.events)**\n\nSource defects: **\(.sourceDefects)**\n\nReviewed overlaps: **\(.sourceOverlaps)**\n\nValidation errors: **\(.validationErrors)**"' "$file" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
+          echo '## UGMU medicine, course 1, streams III-IV' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f data/imports/ugmu-stream3-qa/summary.json ]; then
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            jq -r '"Stream III: **\(.validatedGroups)/\(.groupCount)** groups; **\(.events)** events; source defects **\(.sourceDefects)**; ambiguities **\(.sourceAmbiguities)**; overlaps **\(.sourceOverlaps)**; validation errors **\(.validationErrors)**"' data/imports/ugmu-stream3-qa/summary.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f data/imports/ugmu-stream4-qa/summary.json ]; then
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            jq -r '"Stream IV: **\(.validatedGroups)/\(.groupCount)** groups; **\(.events)** events; source defects **\(.sourceDefects)**; ambiguities **\(.sourceAmbiguities)**; overlaps **\(.sourceOverlaps)**; validation errors **\(.validationErrors)**"' data/imports/ugmu-stream4-qa/summary.json >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload QA evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ugmu-course1-streams-3-4-qa
+          name: ugmu-course1-streams-3-4-reviewed-qa
           path: |
-            api/data/imports/ugmu-course1-stream34-source-manifest.json
-            api/data/imports/ugmu-course1-stream34-watched-pdfs/download-report.json
-            api/data/imports/ugmu-course1-stream3-qa
-            api/data/imports/ugmu-course1-stream4-qa
+            api/data/imports/ugmu-stream34-source-manifest.json
+            api/data/imports/ugmu-stream34-watched-pdfs/download-report.json
+            api/data/imports/ugmu-stream3-qa
+            api/data/imports/ugmu-stream4-qa
           if-no-files-found: warn
           retention-days: 30
