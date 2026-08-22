@@ -1,92 +1,160 @@
 <!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Расписание УГМУ в Apple Calendar и Google Calendar. Лечебное дело, 1 курс, I поток, группы ОЛД 101–112. Пробная первая учебная неделя без карты.">
-  <meta name="robots" content="index,follow">
-  <meta name="theme-color" content="#123b6d">
-  <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="ru_RU">
-  <meta property="og:site_name" content="Расписание УГМУ в календаре">
-  <meta property="og:title" content="Расписание УГМУ — сразу в календаре">
-  <meta property="og:description" content="Проверенное расписание УГМУ для ОЛД 101–112. Первую учебную неделю можно попробовать без карты, полный календарь подключается персональной ссылкой.">
-  <meta property="og:url" content="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/">
-  <title>Расписание УГМУ в Apple и Google Calendar</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="ugmu.css">
-  <link rel="stylesheet" href="mobile.css">
-</head>
-<body>
-  <div id="test-banner" class="launch-strip" role="status" hidden><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>ЮKassa ещё в тестовом режиме</strong><span>Реальная оплата автоматически заблокирована до отдельной live-проверки.</span></div></div></div>
-  <header class="hero">
-    <div class="shell hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Уральский государственный медицинский университет</p>
-        <h1>Расписание УГМУ — сразу в календаре</h1>
-        <p class="lead">Проверенное расписание первого курса лечебного дела можно подключить одной персональной ссылкой в Apple Calendar или Google Calendar.</p>
-        <div class="hero-features" aria-label="Текущий статус">
-          <div><span class="hero-feature-icon" aria-hidden="true">12</span><span>групп ОЛД<br>101–112</span></div>
-          <div><span class="hero-feature-icon" aria-hidden="true">✓</span><span>4286 событий<br>прошли QA</span></div>
-          <div><span class="hero-feature-icon" aria-hidden="true">7</span><span>дней пробной<br>учебной недели</span></div>
-        </div>
-        <div class="hero-actions"><a class="primary" href="#order">Выбрать группу <span aria-hidden="true">→</span></a><div class="hero-price"><strong id="runtime-price">Проверяем доступность</strong><span id="runtime-sale-note">Бесплатная проба и оплата проверяются сервером отдельно</span></div></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1559d6" />
+    <meta name="description" content="Расписание УГМУ в Apple Calendar и Google Calendar: выберите группу ОЛД 101–112 и подключите пары в обычный календарь телефона." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://gmarkov634-stack.github.io/kirov-gmu-calendar/ugmu/" />
+    <title>Расписание УГМУ в Apple и Google Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css?v=landing-1" />
+    <link rel="stylesheet" href="../landing-v1.css?v=landing-4" />
+    <link rel="stylesheet" href="ugmu.css?v=kgmu-match-1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./" aria-label="На главную">
+          <span class="brand-mark" aria-hidden="true">У</span>
+          <span><strong>Календарь УГМУ</strong><small>Расписание в телефоне</small></span>
+        </a>
+        <nav class="topnav" aria-label="Навигация">
+          <a href="#directions">Направления</a>
+          <a href="#how">Как работает</a>
+          <a href="#selector">Выбрать группу</a>
+          <a href="#questions">Вопросы</a>
+        </nav>
       </div>
-      <div class="calendar-preview" aria-hidden="true">
-        <div class="preview-top"><span>ОЛД 101 · 1 сентября</span><strong>Проверенный фрагмент</strong></div>
-        <div class="preview-event"><time>08:50</time><div><strong>ЛЕКЦ. ХИМИЯ</strong><span>Лекция · Онлайн</span></div></div>
-        <div class="preview-event"><time>13:50</time><div><strong>Химия</strong><span>Декабристов, 32</span></div></div>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="launch-strip" role="status"><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>Календарь доступен</strong><span id="availability-copy">Проверяем доступность бесплатной первой недели и полного календаря.</span></div></div></div>
-
-  <main id="main-content" tabindex="-1">
-    <section id="programs" class="programs shell">
-      <div class="section-heading compact-heading"><p class="eyebrow">Направления УГМУ</p><h2>Начинаем с лечебного дела</h2><p>В текущий контур допускается только утверждённый scope: лечебное дело, 1 курс, I поток, ОЛД 101–112.</p></div>
-      <div class="program-grid">
-        <article class="program-card program-card-active"><div class="program-card-top"><span class="badge">Доступно</span><span class="program-code">31.05.01</span></div><h3>Лечебное дело</h3><p class="program-description">1 курс · I поток · ОЛД 101–112. Проверено 12 групп и 4286 событий осеннего семестра 2026/2027.</p><a class="secondary program-select" href="#order">Выбрать группу <span aria-hidden="true">→</span></a></article>
-        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.02</span></div><h3>Педиатрия</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
-        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">31.05.03</span></div><h3>Стоматология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
-        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">33.05.01</span></div><h3>Фармация</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
-        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span><span class="program-code">32.05.01</span></div><h3>Медико-профилактическое дело</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
-        <article class="program-card program-card-soon"><div class="program-card-top"><span class="badge badge-muted">Следующий этап</span></div><h3>Клиническая психология</h3><p class="program-note">Появится после отдельного source review и QA.</p></article>
-      </div>
-    </section>
-
-    <section id="how" class="how shell"><div class="section-heading compact-heading"><p class="eyebrow">Как работает</p><h2>Сначала попробуйте, затем решите нужен ли полный календарь</h2></div><div class="how-grid"><article class="how-card"><span class="how-number">1</span><h3>Выберите группу</h3><p>Выбор ограничен утверждёнными группами ОЛД 101–112.</p></article><article class="how-card"><span class="how-number">2</span><h3>Подключите первую неделю бесплатно</h3><p>Без банковской карты и без email. Сервер выдаёт персональную ссылку только если trial для УГМУ открыт.</p></article><article class="how-card"><span class="how-number">3</span><h3>Если удобно — оставьте календарь</h3><p>Полный период оплачивается отдельно через ЮKassa и получает новую персональную ссылку.</p></article></div><div class="trust-strip" aria-label="О сервисе"><div><strong>Официальный источник расписания</strong><span>Данные берутся из опубликованных материалов УГМУ на usma.ru.</span></div><div><strong>Проверка перед выдачей</strong><span>Текущий первый поток прошёл source review, QA, versioning и regression.</span></div><div><strong>Персональные ссылки</strong><span>Trial и paid-календарь не публикуются как общий открытый ICS.</span></div></div></section>
-
-    <section id="order" class="order shell">
-      <div class="order-copy"><p class="eyebrow">Подключение календаря</p><h2>Выберите группу</h2><p>Для выбранной группы можно запросить бесплатную первую учебную неделю без карты или подключить полный календарь через ЮKassa.</p><ol class="steps" aria-label="Готовность"><li><span>1</span>12 расписаний находятся в production storage</li><li><span>2</span>Trial УГМУ изолирован от других вузов и ограничен ОЛД 101–112</li><li><span>3</span>Полная оплата остаётся отдельным контуром ЮKassa</li></ol><div class="order-trust"><strong id="runtime-state">Проверяем production API</strong><span>Осень 2026/2027 · период 01.09.2026–10.01.2027.</span></div></div>
-      <div class="order-panel">
-        <form id="order-form" novalidate>
-          <div class="form-title"><strong>Параметры календаря</strong><span>Лечебное дело · 1 курс · I поток</span></div>
-          <label>Группа<select id="group-select" aria-label="Группа"></select></label>
-          <div class="trial-offer">
-            <div class="form-title"><strong>Попробовать бесплатно</strong><span>Первая учебная неделя · без карты и email</span></div>
-            <button id="trial-start" class="primary" type="button" disabled>Проверяем доступ…</button>
-            <p id="trial-status" class="status" aria-live="polite"></p>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Уральский государственный медицинский университет</p>
+          <h1>Не ищи расписание каждый день</h1>
+          <p>Пары вашей группы уже в календаре телефона. Откройте привычный Apple Calendar или Google Calendar — и учебный день будет перед глазами.</p>
+          <div class="hero-features" aria-label="Главные преимущества">
+            <span class="hero-feature">Apple и Google</span>
+            <span class="hero-feature">Проверенное расписание</span>
+            <span class="hero-feature">Без автосписаний</span>
           </div>
-          <div class="form-title paid-title"><strong>Полный календарь</strong><span>Разовая оплата · без автосписаний</span></div>
-          <div class="purchase-summary"><div class="summary-row"><span class="summary-label">Выбрано</span><strong id="selection-summary">—</strong></div><div class="summary-row"><span class="summary-label">Событий в семестре</span><strong id="event-count">—</strong></div><div class="summary-row"><span class="summary-label">Лекций</span><strong id="lecture-count">—</strong></div><div class="summary-row summary-price"><span class="summary-label">Стоимость полного доступа</span><strong id="price-summary">—</strong></div></div>
-          <label>Email<input id="email" name="email" type="email" autocomplete="email" required placeholder="student@example.com"></label>
-          <p class="note">Email нужен только для полного платного доступа. Для пробной недели он не запрашивается.</p>
-          <button class="secondary" type="submit" disabled>Проверяем доступность…</button>
-          <button id="restore-order" class="secondary" type="button" hidden>Открыть последний заказ</button>
-          <p id="form-status" class="status" aria-live="polite"></p>
-          <p id="source-state" class="source-state"></p>
-        </form>
-        <div id="order-result" class="order-result" hidden aria-live="polite"></div>
+          <div class="hero-actions">
+            <a class="hero-cta" id="hero-primary-cta" href="#selector">Выбрать свою группу →</a>
+          </div>
+          <span class="hero-runtime-note" id="hero-runtime-note">Для ОЛД 101–112 можно бесплатно подключить первую учебную неделю.</span>
+        </div>
+        <div class="hero-visual">
+          <div class="calendar-preview">
+            <div class="preview-head"><span>1 сентября</span><strong>Расписание</strong></div>
+            <div class="preview-event"><time>08:50</time><div><strong>ЛЕКЦ. ХИМИЯ</strong><span>Лекция · Онлайн</span></div></div>
+            <div class="preview-event"><time>12:10</time><div><strong>Иностранный язык</strong><span>Ключевская, 7</span></div></div>
+            <div class="preview-event"><time>13:50</time><div><strong>Химия</strong><span>Декабристов, 32</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="comparison-section" aria-label="Сравнение способов просмотра расписания">
+        <article class="comparison-card">
+          <strong>Обычно</strong>
+          <p>Открыть PDF, сайт или чат → найти свою группу → определить день → найти нужные пары.</p>
+        </article>
+        <article class="comparison-card is-calendar">
+          <strong>С календарём</strong>
+          <p>Открыть календарь телефона → увидеть сегодняшние и следующие пары среди остальных событий дня.</p>
+        </article>
+        <p class="comparison-note">Мы не сделали ещё одно место, где можно посмотреть расписание. Мы убрали необходимость каждый раз его искать.</p>
+      </section>
+
+      <section class="availability" aria-label="Доступность расписания 2026/27">
+        <div>
+          <strong>Календарь доступен</strong>
+          <p>Сейчас можно подключить расписание лечебного дела, 1 курса, I потока — группы ОЛД 101–112.</p>
+        </div>
+        <span class="availability-badge">2026/27 · осенний семестр</span>
+      </section>
+
+      <section id="directions" class="info-section" aria-labelledby="directions-title">
+        <div class="section-heading">
+          <p class="eyebrow">Направления УГМУ</p>
+          <h2 id="directions-title">Начинаем с лечебного дела</h2>
+          <p>Сейчас готово расписание первого курса лечебного дела. Остальные направления будем добавлять по мере подготовки расписаний.</p>
+        </div>
+        <div class="program-grid">
+          <article class="program-card"><div class="program-card-top"><span class="program-badge is-ready">Доступно</span></div><h3>Лечебное дело</h3><p>1 курс · I поток · ОЛД 101–112</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Скоро</span></div><h3>Педиатрия</h3><p>Добавим следующим этапом</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Скоро</span></div><h3>Стоматология</h3><p>Добавим следующим этапом</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Скоро</span></div><h3>Фармация</h3><p>Добавим следующим этапом</p></article>
+        </div>
+      </section>
+
+      <section id="how" class="info-section" aria-labelledby="how-title">
+        <div class="section-heading">
+          <p class="eyebrow">Как это работает</p>
+          <h2 id="how-title">Сначала попробуйте — потом решайте</h2>
+        </div>
+        <div class="how-grid">
+          <article class="how-card"><span class="how-number">1</span><h3>Выберите свою группу</h3><p>Сейчас доступны группы ОЛД 101–112 первого курса лечебного дела.</p></article>
+          <article class="how-card"><span class="how-number">2</span><h3>Подключите неделю бесплатно</h3><p>Без банковской карты и без email. Пары появятся в обычном календаре телефона.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3>Оставьте полный календарь</h3><p>Если удобно, полный семестр можно подключить отдельно одной персональной ссылкой.</p></article>
+        </div>
+        <div class="trust-strip" aria-label="О сервисе">
+          <div><strong>Официальный источник</strong><span>Расписание берётся из опубликованных материалов УГМУ.</span></div>
+          <div><strong>Проверено перед публикацией</strong><span>Перед выдачей проверяем даты, время занятий и группы.</span></div>
+          <div><strong>Обновления по той же ссылке</strong><span>Если опубликованное расписание изменится, обновления появятся в подключённом календаре.</span></div>
+        </div>
+      </section>
+
+      <section id="selector" class="selector selector-anchor" aria-labelledby="selector-title">
+        <div class="steps" aria-label="Выбор группы">
+          <div class="step is-active" data-step-indicator="faculty"><span>1</span><strong>Направление</strong></div>
+          <div class="step" data-step-indicator="course"><span>2</span><strong>Курс</strong></div>
+          <div class="step" data-step-indicator="group"><span>3</span><strong>Группа</strong></div>
+        </div>
+        <div class="panel-head">
+          <div><p class="section-kicker" id="step-kicker">Шаг 1 из 3</p><h2 id="selector-title">Выберите направление</h2></div>
+          <button class="back-button" id="back-button" type="button" hidden>← Назад</button>
+        </div>
+        <div class="choice-grid" id="choice-grid" aria-live="polite"></div>
+        <div class="notice" id="notice" hidden></div>
+        <section class="saved-orders" id="saved-orders" hidden aria-labelledby="saved-orders-title">
+          <div><p class="section-kicker">Сохранено на этом устройстве</p><h3 id="saved-orders-title">Мой календарь</h3></div>
+          <div class="saved-orders-list" id="saved-orders-list"></div>
+        </section>
+        <div id="order-result" hidden aria-live="polite"></div>
+      </section>
+
+      <section class="schedule-policy" aria-label="Важная информация о расписании">
+        <strong>Важно</strong>
+        <p>Календарь составляется по официально опубликованному расписанию УГМУ. Переносы, замены и другие изменения, согласованные группой с преподавателем вне опубликованного расписания, в календаре не отображаются.</p>
+      </section>
+
+      <section id="questions" class="faq" aria-labelledby="questions-title">
+        <div class="section-heading"><p class="eyebrow">Вопросы и ответы</p><h2 id="questions-title">О календаре</h2></div>
+        <div class="faq-list">
+          <details><summary>Как работает бесплатная неделя?</summary><p>Выберите свою группу и подключите персональную ссылку. В календаре появятся занятия первой учебной недели. Карта и email не нужны.</p></details>
+          <details><summary>Что будет, если расписание УГМУ изменится?</summary><p>После проверки новой версии изменения появятся в подключённом календаре. Заново добавлять его не нужно.</p></details>
+          <details><summary>Одна ссылка подходит для Apple и Google?</summary><p>Да. На iPhone её можно подключить как подписной календарь, а в Google Calendar — добавить по URL.</p></details>
+          <details><summary>Есть ли автосписания?</summary><p>Нет. Бесплатная неделя не требует карты, а полный доступ оплачивается отдельно без подписки с автосписанием.</p></details>
+          <details><summary>Это официальный сервис УГМУ?</summary><p>Нет. Это неофициальный сервис электронных календарей. Для подготовки календарей используются официально опубликованные расписания УГМУ.</p></details>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <p>Неофициальный сервис электронного расписания студентов УГМУ</p>
+        <nav aria-label="Ссылки в подвале"><a href="#directions">Направления</a><a href="#how">Как работает</a><a href="#questions">Вопросы</a></nav>
       </div>
-    </section>
+    </footer>
 
-    <section id="faq" class="faq shell"><div class="section-heading compact-heading"><p class="eyebrow">Вопросы и ответы</p><h2>О календаре УГМУ</h2></div><div class="faq-list"><details><summary>Как работает бесплатная неделя?</summary><p>Для утверждённой группы сервер может выдать персональную календарную ссылку на фиксированные первые 7 календарных дней расписания. Карта и email не нужны. Для текущего семестра пробная выдача ограничивается анти-abuse политикой.</p></details><details><summary>Почему пробная кнопка может не выдать календарь?</summary><p>Интерфейс не включает trial сам. Сервер отдельно проверяет флаг УГМУ, точный scope группы, готовность расписания и ограничения повторной выдачи. При закрытом режиме доступ не создаётся.</p></details><details><summary>Почему кнопка оплаты сейчас может быть выключена?</summary><p>Интерфейс намеренно fail-closed: он проверяет production API и включает оплату только при открытом sales-gate и live-режиме ЮKassa.</p></details><details><summary>Что уже проверено?</summary><p>Для лечебного дела, 1 курса, I потока проверены ОЛД 101–112: официальный источник, разбор PDF, постобработка, QA, UID/SEQUENCE, payment/update/revoke E2E и production storage.</p></details><details><summary>Что будет, если УГМУ изменит расписание?</summary><p>Watcher обнаружит новую версию источника по SHA-256. После review и QA изменения попадут в персональную календарную подписку в пределах её прав доступа.</p></details><details><summary>Одна ссылка работает в Apple и Google?</summary><p>Да. После выдачи показывается одна персональная подписная ссылка. Её можно открыть через Apple Calendar или добавить по URL в Google Calendar.</p></details><details><summary>Есть ли автосписания?</summary><p>Нет. Пробная неделя бесплатна, а полный доступ оплачивается разово без автосписаний.</p></details><details><summary>Это официальный сервис УГМУ?</summary><p>Нет. Это независимый сервис электронных календарей. Расписание готовится по официально опубликованным материалам УГМУ.</p></details></div></section>
-  </main>
+    <template id="trial-button-template"><button id="trial-start" class="pay-button" type="button">Попробовать бесплатно</button></template>
+    <template id="checkout-template"><form><button class="pay-button" type="submit" disabled>Перейти к оплате</button></form></template>
 
-  <footer class="shell"><div><strong>Расписание УГМУ в календаре</strong><span>Независимый сервис электронных календарей</span></div><nav aria-label="Ссылки в подвале"><a href="#programs">Направления</a><a href="#how">Как работает</a><a href="#order">Выбрать группу</a><a href="#faq">Вопросы</a></nav></footer>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
+    <script src="config.js?v=kgmu-match-1"></script>
+    <script src="app.js?v=kgmu-match-1"></script>
+  </body>
 </html>
