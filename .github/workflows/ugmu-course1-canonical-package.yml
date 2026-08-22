@@ -6,6 +6,8 @@ on:
     paths:
       - "api/src/adapters/ugmu/canonical.mjs"
       - "api/tools/ugmu-course1-canonical-package.mjs"
+      - "api/tools/ugmu-course1-versioning-regression.mjs"
+      - "api/tools/ugmu-course1-preactivation-dry-run.mjs"
       - "api/tools/ugmu-parse-first-stream-pdf.py"
       - "api/tools/ugmu-parse-second-stream-pdf.py"
       - "api/tools/ugmu-parse-course1-streams-3-4.py"
@@ -22,7 +24,7 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 22
     defaults:
       run:
         working-directory: api
@@ -47,6 +49,8 @@ jobs:
           npm ci
           python3 -m pip install -r tools/requirements-ugmu.txt
           node --check tools/ugmu-course1-canonical-package.mjs
+          node --check tools/ugmu-course1-versioning-regression.mjs
+          node --check tools/ugmu-course1-preactivation-dry-run.mjs
           python3 tools/ugmu-parse-first-stream-pdf.py --self-test
           python3 tools/ugmu-parse-second-stream-pdf.py --self-test
           python3 tools/ugmu-parse-course1-streams-3-4-reviewed.py --self-test
@@ -138,18 +142,70 @@ jobs:
             (.rawValidationErrors | length) == 0
           ' data/imports/ugmu-course1/canonical-package/qa/ОЛД-129.qa.json >/dev/null
 
+      - name: Verify stable UID revision and SEQUENCE for all 50 groups
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course1-versioning-regression.mjs \
+            --package-dir=data/imports/ugmu-course1/canonical-package \
+            --output=data/imports/ugmu-course1/versioning/course1-versioning-regression.json
+          report='data/imports/ugmu-course1/versioning/course1-versioning-regression.json'
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .totals.groups == 50 and
+            .totals.events == 17301 and
+            .totals.exactUnchanged == 17301 and
+            .totals.simulatedChanged == 50 and
+            .totals.simulatedUnchanged == 17251 and
+            .totals.stableUidGroups == 50 and
+            .totals.sequenceAdvancedGroups == 50 and
+            ([.groups[] | select(.passed != true)] | length) == 0
+          ' "$report" >/dev/null
+
+      - name: Build deterministic course-1 preactivation dry run
+        run: |
+          set -euo pipefail
+          node tools/ugmu-course1-preactivation-dry-run.mjs \
+            --package-dir=data/imports/ugmu-course1/canonical-package \
+            --regression-report=data/imports/ugmu-course1/versioning/course1-versioning-regression.json \
+            --output-dir=data/imports/ugmu-course1/preactivation-dry-run
+          report='data/imports/ugmu-course1/preactivation-dry-run/manifest.json'
+          jq -e '
+            .passed == true and
+            .publicationAllowed == false and
+            .totals.groups == 50 and
+            .totals.events == 17301 and
+            .totals.streams["1"].groups == 12 and .totals.streams["1"].events == 4286 and
+            .totals.streams["2"].groups == 12 and .totals.streams["2"].events == 4263 and
+            .totals.streams["3"].groups == 12 and .totals.streams["3"].events == 4026 and
+            .totals.streams["4"].groups == 14 and .totals.streams["4"].events == 4726 and
+            .checks.uniqueStorageKeys == true and
+            .checks.uniqueRollbackPointers == true and
+            .checks.allEventIdsUniqueWithinGroup == true and
+            .safety.productionMutationPerformed == false and
+            .activationAuthority.granted == false and
+            .activationAuthority.stagingWriteAuthority == false and
+            .activationAuthority.salesAuthority == false
+          ' "$report" >/dev/null
+
       - name: Write summary
         if: always()
         run: |
-          report='data/imports/ugmu-course1/canonical-package/manifest.json'
-          echo '## UGMU medicine course 1 canonical package' >> "$GITHUB_STEP_SUMMARY"
-          if [ -f "$report" ]; then
-            jq -r '"Groups: **\(.groups)/50**\n\nEvents: **\(.events)**\n\nPackage QA: **\(if .passed then "PASS" else "FAIL" end)**\n\nPublication allowed: **\(if .publicationAllowed then "yes" else "no" end)**"' "$report" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo 'Package manifest was not generated.' >> "$GITHUB_STEP_SUMMARY"
+          package='data/imports/ugmu-course1/canonical-package/manifest.json'
+          regression='data/imports/ugmu-course1/versioning/course1-versioning-regression.json'
+          dryrun='data/imports/ugmu-course1/preactivation-dry-run/manifest.json'
+          echo '## UGMU medicine course 1 pipeline' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$package" ]; then
+            jq -r '"Canonical package: **\(if .passed then "PASS" else "FAIL" end)** — \(.groups) groups, \(.events) events"' "$package" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f "$regression" ]; then
+            jq -r '"Versioning: **\(if .passed then "PASS" else "FAIL" end)** — stable UID \(.totals.stableUidGroups)/50, SEQUENCE \(.totals.sequenceAdvancedGroups)/50"' "$regression" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f "$dryrun" ]; then
+            jq -r '"Preactivation dry-run: **\(if .passed then "PASS" else "FAIL" end)** — production mutation: **\(if .safety.productionMutationPerformed then "yes" else "no" end)**"' "$dryrun" >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Upload canonical package evidence
+      - name: Upload course-1 pipeline evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -159,5 +215,7 @@ jobs:
             api/data/imports/ugmu-course1/watched-pdfs/download-report.json
             api/data/imports/ugmu-course1/raw
             api/data/imports/ugmu-course1/canonical-package
+            api/data/imports/ugmu-course1/versioning
+            api/data/imports/ugmu-course1/preactivation-dry-run
           if-no-files-found: warn
           retention-days: 30
