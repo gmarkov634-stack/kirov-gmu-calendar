@@ -68,13 +68,25 @@ jobs:
                       print(w['text'], w.get('upright'), round(w['top'],1), round(w['bottom'],1))
               tables=page.extract_tables() or []
               geoms=page.find_tables() or []
-              for ti,(table,geom) in enumerate(zip(tables,geoms)):
+              for table,geom in zip(tables,geoms):
                   header=[' '.join(str(v or '').split()) for v in table[0][1:]] if table and table[0] else []
                   if header and header[0]=='ОЛД 237':
                       print('TARGET_TABLE_ROWS', len(table))
                       for idx,row in enumerate(table):
                           cell=geom.rows[idx].cells[0] if idx < len(geom.rows) else None
                           print('ROW',idx,'FIRST=',repr(row[0] if row else None),'Y=',cell[1:4:2] if cell else None,'NONEMPTY=',sum(bool(' '.join(str(v or '').split())) for v in row))
+                      target_col=header.index('ОЛД 247')+1
+                      target_header_cell=geom.rows[0].cells[target_col]
+                      target_center=(target_header_cell[0]+target_header_cell[2])/2
+                      print('GROUP247_MONDAY_CELLS center=',target_center)
+                      for idx in range(1,14):
+                          row=table[idx]
+                          grow=geom.rows[idx]
+                          for col in range(1,min(len(row),len(grow.cells))):
+                              cell=grow.cells[col]
+                              value=' '.join(str(row[col] or '').split())
+                              if cell and value and cell[0]-1e-6 <= target_center <= cell[2]+1e-6:
+                                  print('G247ROW',idx,'COL',col,'VALUE=',repr(value),'CELL=',tuple(round(x,2) for x in cell))
           PY
 
       - name: Extract only course2 stream IV raw weekly patterns
