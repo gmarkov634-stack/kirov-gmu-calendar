@@ -82,6 +82,11 @@ jobs:
               --output="data/imports/ugmu-course2/raw/stream-$stream"
           done
 
+      - name: Reconcile cross-stream source anomalies
+        run: |
+          set -euo pipefail
+          python3 tools/ugmu-reconcile-course2.py --root=data/imports/ugmu-course2/raw
+
       - name: Summarize semantic review boundary
         run: |
           set -euo pipefail
@@ -101,8 +106,11 @@ jobs:
                   'patterns': summary['weeklyPatterns'],
                   'events': summary['events'],
                   'warnings': summary['warnings'],
+                  'referenceCorrections': summary['referenceCorrections'],
                   'unresolvedReferences': summary['unresolvedReferences'],
                   'overlaps': summary['overlaps'],
+                  'confirmedOverlaps': summary['confirmedOverlaps'],
+                  'unresolvedOverlaps': summary['unresolvedOverlaps'],
                   'validationErrors': summary['validationErrors'],
               }, ensure_ascii=False))
               for group, details in summary['groups'].items():
@@ -111,6 +119,7 @@ jobs:
                           'group': group,
                           'unresolvedReferences': details['unresolvedReferences'],
                           'overlapCount': len(details['overlaps']),
+                          'overlapStatus': details['overlapStatus'],
                           'validationErrors': details['validationErrors'],
                       }, ensure_ascii=False))
 
@@ -120,14 +129,19 @@ jobs:
               'patterns': sum(s['weeklyPatterns'] for s in summaries),
               'events': sum(s['events'] for s in summaries),
               'warnings': sum(s['warnings'] for s in summaries),
+              'referenceCorrections': sum(s['referenceCorrections'] for s in summaries),
               'unresolvedReferences': sum(s['unresolvedReferences'] for s in summaries),
               'overlaps': sum(s['overlaps'] for s in summaries),
+              'confirmedOverlaps': sum(s['confirmedOverlaps'] for s in summaries),
+              'unresolvedOverlaps': sum(s['unresolvedOverlaps'] for s in summaries),
               'validationErrors': sum(s['validationErrors'] for s in summaries),
               'publicationAllowed': False,
           }
           assert totals['groups'] == 48, totals
           assert totals['structurallyValidGroups'] == 48, totals
           assert totals['validationErrors'] == 0, totals
+          assert totals['unresolvedReferences'] == 0, totals
+          assert totals['unresolvedOverlaps'] == 0, totals
           out=Path('data/imports/ugmu-course2/raw/summary.json')
           out.write_text(json.dumps(totals, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
           print(json.dumps({'course2Totals': totals}, ensure_ascii=False))
