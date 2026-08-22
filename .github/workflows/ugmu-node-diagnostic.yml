@@ -1,9 +1,10 @@
 name: UGMU Node diagnostic
 
 on:
-  push:
-    branches:
-      - agent/ugmu-course1-stream34-20260822
+  pull_request:
+    paths:
+      - ".github/workflows/ugmu-node-diagnostic.yml"
+      - "api/**"
 
 permissions:
   contents: read
