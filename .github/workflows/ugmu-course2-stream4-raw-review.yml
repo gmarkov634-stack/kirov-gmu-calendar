@@ -46,7 +46,7 @@ jobs:
       - name: Download official autumn PDFs
         run: node tools/ugmu-download.mjs --manifest=data/imports/course2-source-manifest.json --semester=autumn --output=data/imports/course2-pdfs
 
-      - name: Diagnose stream IV weekday geometry
+      - name: Diagnose stream IV two-page geometry
         run: |
           set -euo pipefail
           report='data/imports/course2-pdfs/download-report.json'
@@ -55,27 +55,34 @@ jobs:
           import os, re, pdfplumber
           path=os.environ['PDF']
           with pdfplumber.open(path) as doc:
+              print('PAGE_COUNT', len(doc.pages))
+              for pi,page in enumerate(doc.pages):
+                  print('PAGE', pi+1)
+                  words=page.extract_words(extra_attrs=['upright'])
+                  print('ROTATED_WORDS')
+                  for w in words:
+                      if not w.get('upright', True):
+                          print(w['text'], round(w['x0'],1), round(w['x1'],1), round(w['top'],1), round(w['bottom'],1))
+                  print('DAY_TEXT_MATCHES')
+                  for w in words:
+                      letters=re.sub(r'[^А-Яа-яЁё]','',w.get('text','')).lower()
+                      if letters in {'понедельник','вторник','среда','четверг','пятница','суббота'} or letters[::-1] in {'понедельник','вторник','среда','четверг','пятница','суббота'}:
+                          print(w['text'], w.get('upright'), round(w['x0'],1), round(w['x1'],1), round(w['top'],1), round(w['bottom'],1))
+                  tables=page.extract_tables() or []
+                  geoms=page.find_tables() or []
+                  print('TABLE_COUNT', len(tables))
+                  for ti,(table,geom) in enumerate(zip(tables,geoms)):
+                      print('TABLE',ti,'ROWS',len(table),'COLS',max((len(r) for r in table), default=0))
+                      for idx,row in enumerate(table[:20]):
+                          vals=[' '.join(str(v or '').split()) for v in row]
+                          print('TROW',ti,idx,vals)
               page=doc.pages[0]
-              words=page.extract_words(extra_attrs=['upright'])
-              print('ROTATED_WORDS')
-              for w in words:
-                  if not w.get('upright', True):
-                      print(w['text'], round(w['top'],1), round(w['bottom'],1))
-              print('DAY_TEXT_MATCHES')
-              for w in words:
-                  letters=re.sub(r'[^А-Яа-яЁё]','',w.get('text','')).lower()
-                  if letters in {'понедельник','вторник','среда','четверг','пятница','суббота'} or letters[::-1] in {'понедельник','вторник','среда','четверг','пятница','суббота'}:
-                      print(w['text'], w.get('upright'), round(w['top'],1), round(w['bottom'],1))
               tables=page.extract_tables() or []
               geoms=page.find_tables() or []
               for table,geom in zip(tables,geoms):
                   header=[' '.join(str(v or '').split()) for v in table[0][1:]] if table and table[0] else []
                   if not (header and header[0]=='ОЛД 237'):
                       continue
-                  print('TARGET_TABLE_ROWS', len(table))
-                  for idx,row in enumerate(table):
-                      cell=geom.rows[idx].cells[0] if idx < len(geom.rows) else None
-                      print('ROW',idx,'FIRST=',repr(row[0] if row else None),'Y=',cell[1:4:2] if cell else None,'NONEMPTY=',sum(bool(' '.join(str(v or '').split())) for v in row))
                   target_col=header.index('ОЛД 247')+1
                   target_header_cell=geom.rows[0].cells[target_col]
                   target_center=(target_header_cell[0]+target_header_cell[2])/2
@@ -104,7 +111,7 @@ jobs:
                           if hits:
                               print('NBR',idx,group,hits)
                   print('RAW_WORDS_AROUND_ORPHAN')
-                  for w in words:
+                  for w in page.extract_words(extra_attrs=['upright']):
                       if 155 <= w['top'] <= 195 and 430 <= w['x0'] <= 570:
                           print(w['text'], round(w['x0'],2), round(w['x1'],2), round(w['top'],2), round(w['bottom'],2))
           PY
