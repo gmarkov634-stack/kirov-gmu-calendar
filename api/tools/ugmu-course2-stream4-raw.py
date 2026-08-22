@@ -218,11 +218,25 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
         groups: dict[str, list[dict[str, Any]]] = {}
         orphan_review: list[dict[str, Any]] = []
         embedded_review: list[dict[str, Any]] = []
+        geometry_artifact_review: list[dict[str, Any]] = []
         for group in EXPECTED_GROUPS:
             lines = extract_group_lines(table, geometry, page, group)
             patterns: list[dict[str, Any]] = []
             for day in DAY_NAMES:
                 segments, orphan_lines, embedded_splits = split_segments(lines[day])
+                if group == "ОЛД 247" and day == "понедельник" and orphan_lines == ["цитология"]:
+                    geometry_artifact_review.append({
+                        "group": group,
+                        "weekdayName": day,
+                        "ignoredForeignContinuation": "цитология",
+                        "belongsToGroup": "ОЛД 248",
+                        "evidence": (
+                            "The merged PDF cell spans OLD 247-248, but the literal word 'цитология' is positioned "
+                            "inside the OLD 248 column and completes its preceding 08:50-10:20 title; "
+                            "10:30-12:00 starts the shared OLD 247-248 Economics lesson."
+                        ),
+                    })
+                    orphan_lines = []
                 if orphan_lines:
                     orphan_review.append({"group": group, "weekdayName": day, "lines": orphan_lines})
                 for split in embedded_splits:
@@ -232,6 +246,10 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
 
     if orphan_review:
         raise RuntimeError(f"Orphan source lines require manual review: {json.dumps(orphan_review, ensure_ascii=False)}")
+    if len(geometry_artifact_review) != 1:
+        raise RuntimeError(
+            f"Expected exactly one approved exact-SHA merged-cell geometry artifact, got {len(geometry_artifact_review)}"
+        )
 
     all_patterns = [pattern for patterns in groups.values() for pattern in patterns]
     marker_counts = Counter(pattern["markerRaw"] for pattern in all_patterns)
@@ -259,6 +277,7 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
             "sourceHasSaturdayBlock": False,
             "orphanSourceLines": orphan_review,
             "embeddedTimeSplits": embedded_review,
+            "geometryArtifacts": geometry_artifact_review,
         },
         "summary": {
             "groupCount": len(groups),
@@ -269,6 +288,7 @@ def build(path: Path, source_url: str | None) -> dict[str, Any]:
             "monthQualifierCounts": dict(month_qualifiers),
             "orphanSourceLineCount": len(orphan_review),
             "embeddedTimeSplitCount": len(embedded_review),
+            "geometryArtifactRepairCount": len(geometry_artifact_review),
             "semanticNormalizationPerformed": False,
             "referenceTableMappingPerformed": False,
             "eventExpansionPerformed": False,
