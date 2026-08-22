@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
   <div id="test-banner" class="launch-strip" role="status" hidden><div class="shell"><span class="launch-dot" aria-hidden="true"></span><div class="launch-copy"><strong>ЮKassa ещё в тестовом режиме</strong><span>Реальная оплата автоматически заблокирована до отдельной live-проверки.</span></div></div></div>
   <header class="hero">
     <div class="shell hero-grid">
@@ -65,16 +64,16 @@
         <form id="order-form" novalidate>
           <div class="form-title"><strong>Параметры календаря</strong><span>Лечебное дело · 1 курс · I поток</span></div>
           <label>Группа<select id="group-select" aria-label="Группа"></select></label>
-          <div class="purchase-summary"><div class="summary-row"><span class="summary-label">Выбрано</span><strong id="selection-summary">—</strong></div><div class="summary-row"><span class="summary-label">Событий в семестре</span><strong id="event-count">—</strong></div><div class="summary-row"><span class="summary-label">Лекций</span><strong id="lecture-count">—</strong></div><div class="summary-row summary-price"><span class="summary-label">Стоимость полного доступа</span><strong id="price-summary">—</strong></div></div>
-          <div class="qa-preview"><div class="qa-preview-head"><strong id="group-summary">Контрольные события</strong><span>из утверждённого QA scope</span></div><div id="group-preview"></div></div>
           <div class="trial-offer">
-            <div class="form-title"><strong>Попробовать бесплатно</strong><span>Фиксированная первая учебная неделя · без карты и email</span></div>
-            <button id="trial-start" class="secondary" type="button" disabled>Проверяем trial…</button>
+            <div class="form-title"><strong>Попробовать бесплатно</strong><span>Первая учебная неделя · без карты и email</span></div>
+            <button id="trial-start" class="primary" type="button" disabled>Проверяем доступ…</button>
             <p id="trial-status" class="status" aria-live="polite"></p>
           </div>
+          <div class="form-title paid-title"><strong>Полный календарь</strong><span>Разовая оплата · без автосписаний</span></div>
+          <div class="purchase-summary"><div class="summary-row"><span class="summary-label">Выбрано</span><strong id="selection-summary">—</strong></div><div class="summary-row"><span class="summary-label">Событий в семестре</span><strong id="event-count">—</strong></div><div class="summary-row"><span class="summary-label">Лекций</span><strong id="lecture-count">—</strong></div><div class="summary-row summary-price"><span class="summary-label">Стоимость полного доступа</span><strong id="price-summary">—</strong></div></div>
           <label>Email<input id="email" name="email" type="email" autocomplete="email" required placeholder="student@example.com"></label>
           <p class="note">Email нужен только для полного платного доступа. Для пробной недели он не запрашивается.</p>
-          <button class="primary" type="submit" disabled>Проверяем доступность…</button>
+          <button class="secondary" type="submit" disabled>Проверяем доступность…</button>
           <button id="restore-order" class="secondary" type="button" hidden>Открыть последний заказ</button>
           <p id="form-status" class="status" aria-live="polite"></p>
           <p id="source-state" class="source-state"></p>
