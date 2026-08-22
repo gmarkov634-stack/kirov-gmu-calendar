@@ -32,6 +32,10 @@ test("UGMU course-1 access catalog is exactly the 50 reviewed groups", () => {
   );
   assert.equal(UGMU_COURSE1_GROUPS[0].groupCode, "ОЛД 101");
   assert.equal(UGMU_COURSE1_GROUPS.at(-1).groupCode, "ОЛД 150");
+  assert.deepEqual(
+    Object.keys(UGMU_COURSE1_GROUPS[0]).sort(),
+    ["course", "groupCode", "groupId", "program", "stream", "university"],
+  );
 });
 
 test("every reviewed canonical UGMU course-1 context is allowed", () => {
