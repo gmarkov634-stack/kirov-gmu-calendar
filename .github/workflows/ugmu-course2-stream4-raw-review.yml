@@ -70,23 +70,43 @@ jobs:
               geoms=page.find_tables() or []
               for table,geom in zip(tables,geoms):
                   header=[' '.join(str(v or '').split()) for v in table[0][1:]] if table and table[0] else []
-                  if header and header[0]=='ОЛД 237':
-                      print('TARGET_TABLE_ROWS', len(table))
-                      for idx,row in enumerate(table):
-                          cell=geom.rows[idx].cells[0] if idx < len(geom.rows) else None
-                          print('ROW',idx,'FIRST=',repr(row[0] if row else None),'Y=',cell[1:4:2] if cell else None,'NONEMPTY=',sum(bool(' '.join(str(v or '').split())) for v in row))
-                      target_col=header.index('ОЛД 247')+1
-                      target_header_cell=geom.rows[0].cells[target_col]
-                      target_center=(target_header_cell[0]+target_header_cell[2])/2
-                      print('GROUP247_MONDAY_CELLS center=',target_center)
-                      for idx in range(1,14):
-                          row=table[idx]
-                          grow=geom.rows[idx]
+                  if not (header and header[0]=='ОЛД 237'):
+                      continue
+                  print('TARGET_TABLE_ROWS', len(table))
+                  for idx,row in enumerate(table):
+                      cell=geom.rows[idx].cells[0] if idx < len(geom.rows) else None
+                      print('ROW',idx,'FIRST=',repr(row[0] if row else None),'Y=',cell[1:4:2] if cell else None,'NONEMPTY=',sum(bool(' '.join(str(v or '').split())) for v in row))
+                  target_col=header.index('ОЛД 247')+1
+                  target_header_cell=geom.rows[0].cells[target_col]
+                  target_center=(target_header_cell[0]+target_header_cell[2])/2
+                  print('GROUP247_MONDAY_CELLS center=',target_center)
+                  for idx in range(1,14):
+                      row=table[idx]
+                      grow=geom.rows[idx]
+                      for col in range(1,min(len(row),len(grow.cells))):
+                          cell=grow.cells[col]
+                          value=' '.join(str(row[col] or '').split())
+                          if cell and value and cell[0]-1e-6 <= target_center <= cell[2]+1e-6:
+                              print('G247ROW',idx,'COL',col,'VALUE=',repr(value),'CELL=',tuple(round(x,2) for x in cell))
+                  print('MONDAY_NEIGHBOR_CELLS_245_248')
+                  for idx in range(1,7):
+                      row=table[idx]
+                      grow=geom.rows[idx]
+                      for group in ('ОЛД 245','ОЛД 246','ОЛД 247','ОЛД 248'):
+                          center_cell=geom.rows[0].cells[header.index(group)+1]
+                          center=(center_cell[0]+center_cell[2])/2
+                          hits=[]
                           for col in range(1,min(len(row),len(grow.cells))):
                               cell=grow.cells[col]
                               value=' '.join(str(row[col] or '').split())
-                              if cell and value and cell[0]-1e-6 <= target_center <= cell[2]+1e-6:
-                                  print('G247ROW',idx,'COL',col,'VALUE=',repr(value),'CELL=',tuple(round(x,2) for x in cell))
+                              if cell and value and cell[0]-1e-6 <= center <= cell[2]+1e-6:
+                                  hits.append((col,value,tuple(round(x,2) for x in cell)))
+                          if hits:
+                              print('NBR',idx,group,hits)
+                  print('RAW_WORDS_AROUND_ORPHAN')
+                  for w in words:
+                      if 155 <= w['top'] <= 195 and 430 <= w['x0'] <= 570:
+                          print(w['text'], round(w['x0'],2), round(w['x1'],2), round(w['top'],2), round(w['bottom'],2))
           PY
 
       - name: Extract only course2 stream IV raw weekly patterns
