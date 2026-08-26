@@ -1,0 +1,32 @@
+{
+  "universityId": "kirov-gmu",
+  "officialDomain": "kirovgma.ru",
+  "verifiedAt": "2026-08-26",
+  "timetableIndexUrl": "https://kirovgma.ru/obrazovanie/studentam/raspisanie",
+  "discovery": {
+    "strategy": "html-xlsx-links",
+    "artifactMimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "allowedArtifactPathPrefix": "/sites/default/files/files/",
+    "termLabel": "первое полугодие 2026-2027 уч. г."
+  },
+  "sources": [
+    {
+      "sourceId": "medicine",
+      "facultyId": "medical-faculty",
+      "programIds": ["medicine"],
+      "pageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie"
+    },
+    {
+      "sourceId": "pediatric-faculty",
+      "facultyId": "pediatric-faculty",
+      "programIds": ["pediatrics", "medical-biochemistry"],
+      "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet"
+    },
+    {
+      "sourceId": "dentistry",
+      "facultyId": "dental-faculty",
+      "programIds": ["dentistry"],
+      "pageUrl": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet"
+    }
+  ]
+}
