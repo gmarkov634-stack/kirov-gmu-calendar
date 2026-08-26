@@ -1,0 +1,11 @@
+{
+  "coreRepository": "gmarkov634-stack/medical-calendar-core",
+  "contractVersion": "v1",
+  "requiredSchemas": [
+    "NormalizedEvent",
+    "ParsingJob",
+    "ParsingResult",
+    "QaReport",
+    "ScheduleVersion"
+  ]
+}
