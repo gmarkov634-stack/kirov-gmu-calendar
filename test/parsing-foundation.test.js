@@ -86,4 +86,6 @@ test('rejects duplicate expected groups and invalid request timestamps', () => {
 
   assert.throws(() => createKgmuParsingJob({ ...base, expectedGroupIds: ['101', '101'] }), /unique/);
   assert.throws(() => createKgmuParsingJob({ ...base, requestedAt: 'not-a-date' }), /date-time/);
+  assert.throws(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-27' }), /date-time/);
+  assert.doesNotThrow(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-27T03:00:00+03:00' }));
 });
