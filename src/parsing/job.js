@@ -1,3 +1,5 @@
+const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
 export function createKgmuParsingJob({ jobId, academicPeriodId, sourceId, sourceObjectKey, parserRulesVersion, expectedGroupIds, requestedAt }) {
   const values = { jobId, academicPeriodId, sourceId, sourceObjectKey, parserRulesVersion, requestedAt };
   for (const [name, value] of Object.entries(values)) {
@@ -7,7 +9,9 @@ export function createKgmuParsingJob({ jobId, academicPeriodId, sourceId, source
     throw new TypeError('expectedGroupIds must be an array of non-empty strings');
   }
   if (new Set(expectedGroupIds).size !== expectedGroupIds.length) throw new TypeError('expectedGroupIds must be unique');
-  if (Number.isNaN(Date.parse(requestedAt))) throw new TypeError('requestedAt must be an ISO date-time');
+  if (!OFFSET_DATE_TIME.test(requestedAt) || Number.isNaN(Date.parse(requestedAt))) {
+    throw new TypeError('requestedAt must be an offset-aware ISO date-time');
+  }
 
   return Object.freeze({
     jobId,
