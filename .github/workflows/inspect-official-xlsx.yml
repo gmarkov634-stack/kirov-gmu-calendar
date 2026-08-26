@@ -1,0 +1,94 @@
+name: Inspect official KGMU XLSX
+
+on:
+  push:
+    branches:
+      - kgmu-ingestion-fixture-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install inspection dependency
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and inspect official XLSX
+        env:
+          SOURCE_URL: https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._1_potok-24-08-2026-13.xlsx
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import urllib.request
+          from pathlib import Path
+          from openpyxl import load_workbook
+
+          url = os.environ['SOURCE_URL']
+          request = urllib.request.Request(url, headers={'User-Agent': 'medical-calendar-source-inspector/1.0'})
+          with urllib.request.urlopen(request, timeout=60) as response:
+              data = response.read()
+              content_type = response.headers.get('Content-Type')
+
+          Path('official.xlsx').write_bytes(data)
+          digest = hashlib.sha256(data).hexdigest()
+          wb = load_workbook('official.xlsx', data_only=False, read_only=False)
+
+          result = {
+              'sourceUrl': url,
+              'contentType': content_type,
+              'byteLength': len(data),
+              'sha256': digest,
+              'sheetNames': wb.sheetnames,
+              'sheets': [],
+          }
+
+          for ws in wb.worksheets:
+              nonempty = []
+              for row in ws.iter_rows():
+                  for cell in row:
+                      if cell.value is not None:
+                          value = cell.value
+                          if hasattr(value, 'isoformat'):
+                              value = value.isoformat()
+                          nonempty.append({
+                              'coordinate': cell.coordinate,
+                              'value': value,
+                              'dataType': cell.data_type,
+                              'numberFormat': cell.number_format,
+                              'styleId': cell.style_id,
+                          })
+              result['sheets'].append({
+                  'name': ws.title,
+                  'maxRow': ws.max_row,
+                  'maxColumn': ws.max_column,
+                  'mergedRanges': [str(r) for r in ws.merged_cells.ranges],
+                  'nonEmptyCells': nonempty,
+              })
+
+          Path('inspection.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+          print('SERVER_FETCH_OK')
+          print(json.dumps({
+              'sourceUrl': url,
+              'contentType': content_type,
+              'byteLength': len(data),
+              'sha256': digest,
+              'sheetNames': wb.sheetnames,
+              'nonEmptyCellCounts': {s['name']: len(s['nonEmptyCells']) for s in result['sheets']},
+          }, ensure_ascii=False))
+          PY
+      - name: Upload inspection artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-official-xlsx-inspection
+          path: |
+            official.xlsx
+            inspection.json
+          if-no-files-found: error
+          retention-days: 1
