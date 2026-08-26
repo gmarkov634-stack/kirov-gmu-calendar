@@ -1,11 +1,11 @@
 {
-  "parserRulesVersion": "kgmu-2026-08-27-v1",
+  "parserRulesVersion": "kgmu-2026-08-27-v2",
   "universityId": "kirov-gmu",
   "canonicalDocumentation": {
     "general": {
       "documentId": "1clPArMioVU2nDUTS9yzXCvoP4kWZIQtl3atM5NGFqr4",
       "ruleRange": "G01-G21",
-      "exportSha256": "2511e8718feb0bac5a178648ce664d114baea02d58a9680648530379266b56ec"
+      "exportSha256": "f935f05639debb09f43909be640e1abb6f4ee58fe33bc1e0d3adc908643928d3"
     },
     "weekly": {
       "documentId": "1H06b4ssF4R5uT_mzjg7ZhThLj1-44KKgUwogkMmMjZc",
