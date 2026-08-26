@@ -4,9 +4,10 @@
   "term": "semester-1",
   "verifiedAt": "2026-08-26",
   "coverage": {
-    "status": "partial",
-    "includedSourceIds": ["medicine", "pediatric-faculty", "dentistry"],
-    "note": "Snapshot covers the verified medical, pediatric and dental timetable pages; other KGMU timetable sections are not cataloged here."
+    "status": "complete-for-project-scope",
+    "facultyIds": ["medical-faculty", "pediatric-faculty", "dental-faculty"],
+    "programIds": ["medicine", "pediatrics", "dentistry"],
+    "note": "Project scope covers only Medicine, Pediatrics and Dentistry. Other KGMU timetable programs are intentionally out of scope."
   },
   "programs": [
     {
@@ -33,19 +34,6 @@
         {"course": 4, "groupIds": ["431","432","433","434","435","436"]},
         {"course": 5, "groupIds": ["531","532","533","534","535","536","537"]},
         {"course": 6, "groupIds": ["631","632","633","634","635","636","637"]}
-      ]
-    },
-    {
-      "programId": "medical-biochemistry",
-      "facultyId": "pediatric-faculty",
-      "displayName": "Медицинская биохимия",
-      "courses": [
-        {"course": 1, "groupIds": ["141"]},
-        {"course": 2, "groupIds": ["241"]},
-        {"course": 3, "groupIds": ["341"]},
-        {"course": 4, "groupIds": ["441"]},
-        {"course": 5, "groupIds": ["541"]},
-        {"course": 6, "groupIds": ["641"]}
       ]
     },
     {
