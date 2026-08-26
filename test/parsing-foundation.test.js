@@ -31,8 +31,10 @@ test('uses the canonical versioned KGMU rule bundle and fails closed on ambiguit
   const qa = await readJson('../qa/policy.json');
 
   assert.equal(fixture.parserRulesVersion, manifest.parserRulesVersion);
+  assert.equal(manifest.parserRulesVersion, 'kgmu-2026-08-27-v2');
   assert.deepEqual(manifest.profiles.weekly, ['general', 'weekly']);
   assert.equal(manifest.canonicalDocumentation.general.ruleRange, 'G01-G21');
+  assert.equal(manifest.canonicalDocumentation.general.exportSha256, 'f935f05639debb09f43909be640e1abb6f4ee58fe33bc1e0d3adc908643928d3');
   assert.equal(manifest.canonicalDocumentation.weekly.ruleRange, 'R01-R89;P01-P25');
   assert.equal(manifest.ambiguityPolicy.status, 'REVIEW_REQUIRED');
   assert.equal(manifest.ambiguityPolicy.requiresUserConfirmation, true);
@@ -79,7 +81,7 @@ test('rejects duplicate expected groups and invalid request timestamps', () => {
     academicPeriodId: '2026-2027-semester-1',
     sourceId: 'medicine',
     sourceObjectKey: 'sources/example.xlsx',
-    parserRulesVersion: 'kgmu-2026-08-27-v1',
+    parserRulesVersion: 'kgmu-2026-08-27-v2',
     expectedGroupIds: ['101'],
     requestedAt: '2026-08-27T00:00:00Z'
   };
