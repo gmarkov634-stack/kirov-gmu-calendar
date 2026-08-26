@@ -1,0 +1,41 @@
+{
+  "universityId": "kirov-gmu",
+  "officialDomain": "kirovgma.ru",
+  "verifiedAt": "2026-08-26",
+  "projectScope": {
+    "facultyIds": ["medical-faculty", "pediatric-faculty", "dental-faculty"],
+    "programIds": ["medicine", "pediatrics", "dentistry"]
+  },
+  "timetableIndexUrl": "https://kirovgma.ru/obrazovanie/studentam/raspisanie",
+  "discovery": {
+    "strategy": "html-xlsx-links",
+    "artifactMimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "allowedArtifactPathPrefix": "/sites/default/files/files/",
+    "academicYearPattern": "^20\\d{2}-20\\d{2}$",
+    "termIds": ["semester-1", "semester-2"]
+  },
+  "versioning": {
+    "catalogSnapshotPattern": "catalog/{academicYear}-{term}.json",
+    "retainHistoricalSnapshots": true
+  },
+  "sources": [
+    {
+      "sourceId": "medicine",
+      "facultyId": "medical-faculty",
+      "programIds": ["medicine"],
+      "pageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie"
+    },
+    {
+      "sourceId": "pediatrics",
+      "facultyId": "pediatric-faculty",
+      "programIds": ["pediatrics"],
+      "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet"
+    },
+    {
+      "sourceId": "dentistry",
+      "facultyId": "dental-faculty",
+      "programIds": ["dentistry"],
+      "pageUrl": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet"
+    }
+  ]
+}
