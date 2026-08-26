@@ -64,17 +64,24 @@ test('uses only verified official KGMU timetable pages', async () => {
   );
 });
 
-test('matches the published 2026-2027 semester 1 group ranges', async () => {
+test('matches the published 2026-2027 semester 1 group ranges without claiming full KGMU coverage', async () => {
   const catalog = await readJson('../catalog/2026-2027-semester-1.json');
 
   assert.equal(catalog.universityId, 'kirov-gmu');
   assert.equal(catalog.academicYear, '2026-2027');
   assert.equal(catalog.term, 'semester-1');
+  assert.equal(catalog.coverage.status, 'partial');
+  assert.deepEqual(catalog.coverage.includedSourceIds, ['medicine', 'pediatric-faculty', 'dentistry']);
 
+  const seenPrograms = new Set();
   const seenGroups = new Set();
   for (const program of catalog.programs) {
+    assert.equal(seenPrograms.has(program.programId), false, `duplicate program ${program.programId}`);
+    seenPrograms.add(program.programId);
+
     const expectedCourses = EXPECTED_GROUPS[program.programId];
     assert.ok(expectedCourses, `unexpected program ${program.programId}`);
+    assert.deepEqual(program.courses.map((course) => course.course), Object.keys(expectedCourses).map(Number));
 
     for (const course of program.courses) {
       assert.deepEqual(course.groupIds, expectedCourses[course.course]);
@@ -85,6 +92,7 @@ test('matches the published 2026-2027 semester 1 group ranges', async () => {
     }
   }
 
+  assert.deepEqual([...seenPrograms], ['medicine', 'pediatrics', 'medical-biochemistry', 'dentistry']);
   assert.equal(seenGroups.size, 174);
 });
 
