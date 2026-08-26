@@ -25,7 +25,6 @@ jobs:
           import hashlib, json, os, urllib.request
           from pathlib import Path
           from openpyxl import load_workbook
-          from openpyxl.utils import get_column_letter
 
           url = os.environ['SOURCE_URL']
           expected = os.environ['EXPECTED_SHA256']
@@ -44,7 +43,6 @@ jobs:
                   for c in row:
                       if c.value is None:
                           continue
-                      merge = next((r for r in merges if c.coordinate in ws[r]), None)
                       cells.append({
                           'coord': c.coordinate,
                           'row': c.row,
@@ -56,7 +54,6 @@ jobs:
                           'italic': bool(c.font.italic),
                           'horizontal': c.alignment.horizontal,
                           'vertical': c.alignment.vertical,
-                          'merge': merge,
                       })
               out['sheets'].append({
                   'title': ws.title,
@@ -67,7 +64,11 @@ jobs:
                   'hiddenColumns': [k for k, d in ws.column_dimensions.items() if d.hidden],
                   'cells': cells,
               })
-          print('KGMU_INSPECTION_JSON_BEGIN')
-          print(json.dumps(out, ensure_ascii=False, separators=(',', ':')))
-          print('KGMU_INSPECTION_JSON_END')
+          Path('/tmp/inspection.json').write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(f'verified sha256={actual} bytes={len(data)} cells={sum(len(s["cells"]) for s in out["sheets"])} merges={sum(len(s["mergedRanges"]) for s in out["sheets"])}')
           PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-101-110-inspection
+          path: /tmp/inspection.json
+          if-no-files-found: error
