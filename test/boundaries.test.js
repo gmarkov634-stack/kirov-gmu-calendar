@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
@@ -32,10 +33,28 @@ const FORBIDDEN_SHARED_BOUNDARIES = [
   'calendar-ics-api'
 ];
 
-test('pins KGMU to the shared core v1 contract', () => {
+async function readJson(relativePath) {
+  return JSON.parse(await readFile(new URL(relativePath, import.meta.url), 'utf8'));
+}
+
+test('pins KGMU to the shared core v1 contract', async () => {
+  const university = await readJson('../config/university.json');
+  const coreContract = await readJson('../contracts/core-contract.json');
+
   assert.equal(UNIVERSITY_ID, 'kirov-gmu');
   assert.equal(UNIVERSITY_TIMEZONE, 'Europe/Moscow');
   assert.equal(CORE_CONTRACT_VERSION, 'v1');
+  assert.equal(university.universityId, UNIVERSITY_ID);
+  assert.equal(university.timezone, UNIVERSITY_TIMEZONE);
+  assert.equal(coreContract.coreRepository, 'gmarkov634-stack/medical-calendar-core');
+  assert.equal(coreContract.contractVersion, CORE_CONTRACT_VERSION);
+  assert.deepEqual(coreContract.requiredSchemas, [
+    'NormalizedEvent',
+    'ParsingJob',
+    'ParsingResult',
+    'QaReport',
+    'ScheduleVersion'
+  ]);
 });
 
 test('declares every required university-owned boundary', () => {
