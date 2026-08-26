@@ -1,0 +1,30 @@
+{
+  "fixtureId": "medicine-101-110-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "medicine",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v1",
+  "source": {
+    "sourceId": "medicine",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._1_potok-24-08-2026-13.xlsx",
+    "sha256": "8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6",
+    "byteLength": 21068,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110"],
+  "workbookExpectations": {
+    "sheetNames": ["1 леч.1"],
+    "maxRow": 56,
+    "maxColumn": 19,
+    "mergedRangeCount": 109,
+    "nonEmptyCellCount": 225
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}
