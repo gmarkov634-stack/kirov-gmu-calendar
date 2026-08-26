@@ -27,14 +27,6 @@ const EXPECTED_GROUPS = {
     5: range(531, 537),
     6: range(631, 637)
   },
-  'medical-biochemistry': {
-    1: ['141'],
-    2: ['241'],
-    3: ['341'],
-    4: ['441'],
-    5: ['541'],
-    6: ['641']
-  },
   dentistry: {
     1: range(191, 194),
     2: range(291, 294),
@@ -44,11 +36,16 @@ const EXPECTED_GROUPS = {
   }
 };
 
-test('uses only verified official KGMU timetable pages', async () => {
+const PROJECT_PROGRAMS = ['medicine', 'pediatrics', 'dentistry'];
+const PROJECT_FACULTIES = ['medical-faculty', 'pediatric-faculty', 'dental-faculty'];
+
+test('uses only verified official KGMU timetable pages for the project scope', async () => {
   const sources = await readJson('../source/sources.json');
 
   assert.equal(sources.universityId, 'kirov-gmu');
   assert.equal(sources.officialDomain, 'kirovgma.ru');
+  assert.deepEqual(sources.projectScope.programIds, PROJECT_PROGRAMS);
+  assert.deepEqual(sources.projectScope.facultyIds, PROJECT_FACULTIES);
   assert.equal(sources.discovery.strategy, 'html-xlsx-links');
   assert.equal(sources.discovery.artifactMimeType, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
@@ -58,20 +55,29 @@ test('uses only verified official KGMU timetable pages', async () => {
     assert.equal(parsed.hostname, 'kirovgma.ru');
   }
 
-  assert.deepEqual(
-    sources.sources.map((source) => source.sourceId),
-    ['medicine', 'pediatric-faculty', 'dentistry']
-  );
+  assert.deepEqual(sources.sources.map((source) => source.sourceId), PROJECT_PROGRAMS);
+  assert.deepEqual(sources.sources.flatMap((source) => source.programIds), PROJECT_PROGRAMS);
 });
 
-test('matches the published 2026-2027 semester 1 group ranges without claiming full KGMU coverage', async () => {
+test('supports future academic years without changing shared core contracts', async () => {
+  const sources = await readJson('../source/sources.json');
+
+  assert.equal(sources.discovery.academicYearPattern, '^20\\d{2}-20\\d{2}$');
+  assert.deepEqual(sources.discovery.termIds, ['semester-1', 'semester-2']);
+  assert.equal(sources.versioning.catalogSnapshotPattern, 'catalog/{academicYear}-{term}.json');
+  assert.equal(sources.versioning.retainHistoricalSnapshots, true);
+  assert.equal(Object.hasOwn(sources.discovery, 'termLabel'), false);
+});
+
+test('matches the published 2026-2027 semester 1 groups for the three supported programs', async () => {
   const catalog = await readJson('../catalog/2026-2027-semester-1.json');
 
   assert.equal(catalog.universityId, 'kirov-gmu');
   assert.equal(catalog.academicYear, '2026-2027');
   assert.equal(catalog.term, 'semester-1');
-  assert.equal(catalog.coverage.status, 'partial');
-  assert.deepEqual(catalog.coverage.includedSourceIds, ['medicine', 'pediatric-faculty', 'dentistry']);
+  assert.equal(catalog.coverage.status, 'complete-for-project-scope');
+  assert.deepEqual(catalog.coverage.facultyIds, PROJECT_FACULTIES);
+  assert.deepEqual(catalog.coverage.programIds, PROJECT_PROGRAMS);
 
   const seenPrograms = new Set();
   const seenGroups = new Set();
@@ -92,20 +98,7 @@ test('matches the published 2026-2027 semester 1 group ranges without claiming f
     }
   }
 
-  assert.deepEqual([...seenPrograms], ['medicine', 'pediatrics', 'medical-biochemistry', 'dentistry']);
-  assert.equal(seenGroups.size, 174);
-});
-
-test('keeps medical biochemistry distinct from pediatrics while sharing the official faculty page', async () => {
-  const sources = await readJson('../source/sources.json');
-  const catalog = await readJson('../catalog/2026-2027-semester-1.json');
-
-  const pediatricSource = sources.sources.find((source) => source.sourceId === 'pediatric-faculty');
-  assert.deepEqual(pediatricSource.programIds, ['pediatrics', 'medical-biochemistry']);
-
-  const pediatrics = catalog.programs.find((program) => program.programId === 'pediatrics');
-  const biochemistry = catalog.programs.find((program) => program.programId === 'medical-biochemistry');
-  assert.equal(pediatrics.facultyId, 'pediatric-faculty');
-  assert.equal(biochemistry.facultyId, 'pediatric-faculty');
-  assert.notEqual(pediatrics.programId, biochemistry.programId);
+  assert.deepEqual([...seenPrograms], PROJECT_PROGRAMS);
+  assert.equal(seenGroups.size, 168);
+  assert.equal(catalog.programs.some((program) => program.programId === 'medical-biochemistry'), false);
 });
