@@ -1,0 +1,73 @@
+name: Inspect KGMU 101-110
+
+on:
+  push:
+    branches:
+      - kgmu-ingestion-fixture-foundation
+    paths:
+      - .github/workflows/inspect-101-110.yml
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl
+      - name: Fetch and inspect official workbook
+        env:
+          SOURCE_URL: https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._1_potok-24-08-2026-13.xlsx
+          EXPECTED_SHA256: 8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, urllib.request
+          from pathlib import Path
+          from openpyxl import load_workbook
+          from openpyxl.utils import get_column_letter
+
+          url = os.environ['SOURCE_URL']
+          expected = os.environ['EXPECTED_SHA256']
+          data = urllib.request.urlopen(url, timeout=30).read()
+          actual = hashlib.sha256(data).hexdigest()
+          if actual != expected:
+              raise SystemExit(f'SHA256 mismatch: {actual}')
+          path = Path('/tmp/source.xlsx')
+          path.write_bytes(data)
+          wb = load_workbook(path, data_only=False)
+          out = {'sha256': actual, 'byteLength': len(data), 'sheets': []}
+          for ws in wb.worksheets:
+              merges = [str(r) for r in ws.merged_cells.ranges]
+              cells = []
+              for row in ws.iter_rows():
+                  for c in row:
+                      if c.value is None:
+                          continue
+                      merge = next((r for r in merges if c.coordinate in ws[r]), None)
+                      cells.append({
+                          'coord': c.coordinate,
+                          'row': c.row,
+                          'col': c.column,
+                          'value': c.value,
+                          'styleId': c.style_id,
+                          'numberFormat': c.number_format,
+                          'bold': bool(c.font.bold),
+                          'italic': bool(c.font.italic),
+                          'horizontal': c.alignment.horizontal,
+                          'vertical': c.alignment.vertical,
+                          'merge': merge,
+                      })
+              out['sheets'].append({
+                  'title': ws.title,
+                  'maxRow': ws.max_row,
+                  'maxColumn': ws.max_column,
+                  'mergedRanges': merges,
+                  'hiddenRows': [i for i, d in ws.row_dimensions.items() if d.hidden],
+                  'hiddenColumns': [k for k, d in ws.column_dimensions.items() if d.hidden],
+                  'cells': cells,
+              })
+          print('KGMU_INSPECTION_JSON_BEGIN')
+          print(json.dumps(out, ensure_ascii=False, separators=(',', ':')))
+          print('KGMU_INSPECTION_JSON_END')
+          PY
