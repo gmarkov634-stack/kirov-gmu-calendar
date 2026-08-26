@@ -3,6 +3,11 @@
   "academicYear": "2026-2027",
   "term": "semester-1",
   "verifiedAt": "2026-08-26",
+  "coverage": {
+    "status": "partial",
+    "includedSourceIds": ["medicine", "pediatric-faculty", "dentistry"],
+    "note": "Snapshot covers the verified medical, pediatric and dental timetable pages; other KGMU timetable sections are not cataloged here."
+  },
   "programs": [
     {
       "programId": "medicine",
