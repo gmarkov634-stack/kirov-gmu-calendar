@@ -1,0 +1,37 @@
+{
+  "parserRulesVersion": "kgmu-2026-08-27-v1",
+  "universityId": "kirov-gmu",
+  "canonicalDocumentation": {
+    "general": {
+      "documentId": "1clPArMioVU2nDUTS9yzXCvoP4kWZIQtl3atM5NGFqr4",
+      "ruleRange": "G01-G21",
+      "exportSha256": "2511e8718feb0bac5a178648ce664d114baea02d58a9680648530379266b56ec"
+    },
+    "weekly": {
+      "documentId": "1H06b4ssF4R5uT_mzjg7ZhThLj1-44KKgUwogkMmMjZc",
+      "ruleRange": "R01-R89;P01-P25",
+      "exportSha256": "c2d00e5403e739c39a8ffc518a66f541f2e7ab944da24a50cdafa497e7b6a65e"
+    },
+    "cyclic": {
+      "documentId": "1B-GxwUUJVGddKC_hnrORyXN6Ym7tAYU5H1cAwbzoMtk",
+      "ruleRange": "C01-C22",
+      "exportSha256": "cbb3a26552dc35b9120e72b343e7639afdfa650214fc3129c45123c73ee833b4"
+    },
+    "mixed": {
+      "documentId": "1up-s1ihTErpn_2vE7XiIe0phA4kMgD32B4I2ZWHulWA",
+      "ruleRange": "S01-S09",
+      "exportSha256": "610af9d888d1a1fa960b61fc3d1d13433164e2d593d10efc036db0b26caafc25"
+    }
+  },
+  "profiles": {
+    "weekly": ["general", "weekly"],
+    "cyclic": ["general", "cyclic"],
+    "mixed": ["general", "weekly", "mixed"]
+  },
+  "ambiguityPolicy": {
+    "status": "REVIEW_REQUIRED",
+    "requiresUserConfirmation": true,
+    "blocksPublication": true,
+    "guessingAllowed": false
+  }
+}
