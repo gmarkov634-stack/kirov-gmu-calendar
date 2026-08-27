@@ -1,0 +1,23 @@
+{
+  "policyVersion": "kgmu-qa-2026-08-27-v1",
+  "universityId": "kirov-gmu",
+  "publication": {
+    "default": "blocked",
+    "passRequiresCompleteSourceCoverage": true,
+    "unclassifiedContentBlocksPublication": true
+  },
+  "ambiguity": {
+    "status": "REVIEW_REQUIRED",
+    "requiresUserConfirmation": true,
+    "blocksPublication": true,
+    "automaticGuessing": false
+  },
+  "requiredChecks": [
+    "all-group-content-accounted-for",
+    "dates-within-academic-period",
+    "source-groups-match-expected-groups",
+    "duplicate-events-resolved",
+    "explicit-overlaps-preserved",
+    "unresolved-ambiguities-zero-before-pass"
+  ]
+}

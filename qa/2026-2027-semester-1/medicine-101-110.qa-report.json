@@ -1,0 +1,44 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-v1",
+  "parsingJobId": "parsing-job-101-110-1",
+  "candidateDigest": "sha256:9e81dac9551c6bc87874aea492b756ec597fdaf8a3ac7fda6aea73708585b9a0",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "all-group-content-accounted-for",
+      "status": "pass",
+      "message": "145/145 logical timetable cells accounted for"
+    },
+    {
+      "code": "dates-within-academic-period",
+      "status": "pass",
+      "message": "All generated dates are inside the official service-week grid through 2027-01-16"
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Groups 101-110 only"
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures"
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "8 source-explicit overlaps preserved under G16/R69"
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved ambiguities"
+    },
+    {
+      "code": "r83-additional-event-counts",
+      "status": "pass",
+      "message": "26 R83 completeness assertions passed"
+    }
+  ],
+  "createdAt": "2026-08-27T04:11:00Z"
+}

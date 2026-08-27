@@ -2,6 +2,8 @@ export const UNIVERSITY_ID = 'kirov-gmu';
 export const UNIVERSITY_TIMEZONE = 'Europe/Moscow';
 export const CORE_CONTRACT_VERSION = 'v1';
 
+export { createKgmuParsingJob } from './parsing/job.js';
+
 export const KGMU_OWNED_BOUNDARIES = Object.freeze([
   'source-configuration',
   'faculty-group-catalog',
