@@ -146,3 +146,20 @@ test('locks confirmed R87-R89 and explicit exception behavior', async () => {
   assert.equal(economyOverride[0].startTime, '13:30');
   assert.equal(economyOverride[0].endTime, '15:00');
 });
+
+test('locks lecture classification for the 2026-09-02 KGMU 101 phone-smoke events', async () => {
+  const fixture = await readJson('../fixtures/2026-2027-semester-1/normalized/medicine-101-110.normalized.compact.json');
+  const events = expandFixture(fixture);
+  const findOne = discipline => events.find(event =>
+    event.groupId === '101' &&
+    event.date === '2026-09-02' &&
+    event.discipline === discipline
+  );
+
+  const physics = findOne('Физика, математика');
+  const biology = findOne('Биология');
+  assert.ok(physics);
+  assert.ok(biology);
+  assert.equal(physics.lessonType, 'lecture');
+  assert.equal(biology.lessonType, 'lecture');
+});

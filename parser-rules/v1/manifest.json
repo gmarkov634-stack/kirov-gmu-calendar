@@ -1,5 +1,5 @@
 {
-  "parserRulesVersion": "kgmu-2026-08-27-v2",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
   "universityId": "kirov-gmu",
   "canonicalDocumentation": {
     "general": {
@@ -10,7 +10,7 @@
     "weekly": {
       "documentId": "1H06b4ssF4R5uT_mzjg7ZhThLj1-44KKgUwogkMmMjZc",
       "ruleRange": "R01-R89;P01-P25",
-      "exportSha256": "c2d00e5403e739c39a8ffc518a66f541f2e7ab944da24a50cdafa497e7b6a65e"
+      "exportSha256": "03aa715ca47f371a12ba758d56c890c7ab0e92c0674ea41f86768702ea52788d"
     },
     "cyclic": {
       "documentId": "1B-GxwUUJVGddKC_hnrORyXN6Ym7tAYU5H1cAwbzoMtk",
