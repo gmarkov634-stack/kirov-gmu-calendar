@@ -25,17 +25,18 @@ test('pins the server-fetched official KGMU 101-110 fixture by URL and SHA-256',
   assert.equal(fixture.storagePolicy.immutableSourceStoredInObjectStorage, true);
 });
 
-test('uses the canonical versioned KGMU rule bundle and fails closed on ambiguity', async () => {
+test('uses the current canonical KGMU rule bundle and fails closed on ambiguity', async () => {
   const fixture = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.source.json');
   const manifest = await readJson('../parser-rules/v1/manifest.json');
   const qa = await readJson('../qa/policy.json');
 
-  assert.equal(fixture.parserRulesVersion, manifest.parserRulesVersion);
-  assert.equal(manifest.parserRulesVersion, 'kgmu-2026-08-27-v2');
+  assert.equal(fixture.parserRulesVersion, 'kgmu-2026-08-27-v2');
+  assert.equal(manifest.parserRulesVersion, 'kgmu-2026-08-27-v3');
   assert.deepEqual(manifest.profiles.weekly, ['general', 'weekly']);
   assert.equal(manifest.canonicalDocumentation.general.ruleRange, 'G01-G21');
   assert.equal(manifest.canonicalDocumentation.general.exportSha256, 'f935f05639debb09f43909be640e1abb6f4ee58fe33bc1e0d3adc908643928d3');
   assert.equal(manifest.canonicalDocumentation.weekly.ruleRange, 'R01-R89;P01-P25');
+  assert.equal(manifest.canonicalDocumentation.weekly.exportSha256, '03aa715ca47f371a12ba758d56c890c7ab0e92c0674ea41f86768702ea52788d');
   assert.equal(manifest.ambiguityPolicy.status, 'REVIEW_REQUIRED');
   assert.equal(manifest.ambiguityPolicy.requiresUserConfirmation, true);
   assert.equal(manifest.ambiguityPolicy.blocksPublication, true);
@@ -47,14 +48,15 @@ test('uses the canonical versioned KGMU rule bundle and fails closed on ambiguit
   assert.ok(qa.requiredChecks.includes('unresolved-ambiguities-zero-before-pass'));
 });
 
-test('builds exactly the medical-calendar-core v1 ParsingJob surface', async () => {
+test('builds exactly the medical-calendar-core v1 ParsingJob surface with the current rule version', async () => {
   const fixture = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.source.json');
+  const manifest = await readJson('../parser-rules/v1/manifest.json');
   const job = createKgmuParsingJob({
     jobId: 'parsing-job-101-110-1',
     academicPeriodId: fixture.academicPeriodId,
     sourceId: fixture.source.sourceId,
     sourceObjectKey: `sources/kirov-gmu/${fixture.academicYear}/semester-1/${fixture.source.sha256}.xlsx`,
-    parserRulesVersion: fixture.parserRulesVersion,
+    parserRulesVersion: manifest.parserRulesVersion,
     expectedGroupIds: fixture.expectedGroupIds,
     requestedAt: '2026-08-27T00:00:00Z'
   });
@@ -70,6 +72,7 @@ test('builds exactly the medical-calendar-core v1 ParsingJob surface', async () 
     'requestedAt'
   ]);
   assert.equal(job.universityId, 'kirov-gmu');
+  assert.equal(job.parserRulesVersion, 'kgmu-2026-08-27-v3');
   assert.deepEqual(job.expectedGroupIds, EXPECTED_GROUPS);
   assert.equal(Object.hasOwn(job, 'sourceUrl'), false);
   assert.equal(Object.hasOwn(job, 'rawSource'), false);
@@ -81,7 +84,7 @@ test('rejects duplicate expected groups and invalid request timestamps', () => {
     academicPeriodId: '2026-2027-semester-1',
     sourceId: 'medicine',
     sourceObjectKey: 'sources/example.xlsx',
-    parserRulesVersion: 'kgmu-2026-08-27-v2',
+    parserRulesVersion: 'kgmu-2026-08-27-v3',
     expectedGroupIds: ['101'],
     requestedAt: '2026-08-27T00:00:00Z'
   };
