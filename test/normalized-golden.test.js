@@ -68,8 +68,11 @@ test('refreshed 27.08 medicine 101-110 expands only explicit operator decisions'
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(evidence.duplicateEvents, 0);
   assert.equal(evidence.explicitOverlapWarningCount, 8);
-  assert.equal(qa.decision, 'fail');
-  assert.ok(qa.checks.some(check => check.code === 'shared-contract-assessment-projection' && check.status === 'fail'));
+  assert.equal(qa.decision, 'pass');
+  assert.ok(qa.checks.some(check => check.code === 'shared-contract-assessment-projection' && check.status === 'pass'));
+  assert.equal(qa.sharedContractEvidence.commit, '46c64976fff5483b34b40570f4ffe49f20554ff3');
+  assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, 'f40a8d7efef1cf362cea9a82976dd86d431186b8');
+  assert.equal(qa.sharedContractEvidence.icsRendererBlob, '94cbd7d50aa4af2028ab27298cc05592ee3d51b7');
   assert.equal(qa.candidateDigest, 'sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a');
   assert.equal(evidence.candidateDigest, qa.candidateDigest);
   assert.equal(`sha256:${sha256(canonicalJson(events))}`, qa.candidateDigest);
