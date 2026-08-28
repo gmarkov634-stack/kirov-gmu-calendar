@@ -1,0 +1,98 @@
+name: Fetch medicine sources
+
+on:
+  push:
+    branches:
+      - ops/fetch-medicine-2026-08-28
+    paths:
+      - .github/workflows/fetch-medicine-sources.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch official medicine page and XLSX sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          python3 - <<'PY'
+          import hashlib, html.parser, json, urllib.parse, urllib.request
+          from pathlib import Path
+
+          PAGE = 'https://kirovgma.ru/lechebnyy-fakultet-raspisanie'
+          YEAR = '2026-2027'
+
+          class Parser(html.parser.HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.links = []
+                  self._href = None
+                  self._text = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'a':
+                      self._href = dict(attrs).get('href')
+                      self._text = []
+              def handle_data(self, data):
+                  if self._href is not None:
+                      self._text.append(data)
+              def handle_endtag(self, tag):
+                  if tag == 'a' and self._href is not None:
+                      text = ' '.join(''.join(self._text).split())
+                      self.links.append((text, self._href))
+                      self._href = None
+                      self._text = []
+
+          req = urllib.request.Request(PAGE, headers={'User-Agent':'medical-calendar-source-fetch/1.0'})
+          with urllib.request.urlopen(req, timeout=30) as r:
+              page = r.read()
+          Path('artifact/page.html').write_bytes(page)
+          p = Parser(); p.feed(page.decode('utf-8', 'replace'))
+
+          expected = [
+              ('101-110', 'medicine-101-110.xlsx'),
+              ('111-120', 'medicine-111-120.xlsx'),
+              ('201-210', 'medicine-201-210.xlsx'),
+              ('211-220', 'medicine-211-220.xlsx'),
+              ('301-310', 'medicine-301-310.xlsx'),
+              ('311-317', 'medicine-311-317.xlsx'),
+              ('401-416', 'medicine-401-416.xlsx'),
+              ('501-516', 'medicine-501-516.xlsx'),
+              ('601-616', 'medicine-601-616.xlsx'),
+          ]
+          manifest = {'pageUrl': PAGE, 'academicYear': YEAR, 'files': []}
+          for label, out_name in expected:
+              matches = []
+              for text, href in p.links:
+                  if label in text and YEAR in text and href.lower().endswith('.xlsx'):
+                      matches.append((text, urllib.parse.urljoin(PAGE, href)))
+              if len(matches) != 1:
+                  raise SystemExit(f'{label}: expected exactly one current XLSX, got {matches!r}')
+              text, url = matches[0]
+              req = urllib.request.Request(url, headers={'User-Agent':'medical-calendar-source-fetch/1.0'})
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  data = r.read()
+              if data[:4] != b'PK\x03\x04':
+                  raise SystemExit(f'{label}: not XLSX/ZIP')
+              Path('artifact', out_name).write_bytes(data)
+              manifest['files'].append({
+                  'label': label,
+                  'text': text,
+                  'url': url,
+                  'file': out_name,
+                  'byteLength': len(data),
+                  'sha256': hashlib.sha256(data).hexdigest(),
+              })
+          Path('artifact/manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+          print(json.dumps(manifest, ensure_ascii=False, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: medicine-2026-2027-semester-1-sources
+          path: artifact/
+          if-no-files-found: error
+          retention-days: 3
