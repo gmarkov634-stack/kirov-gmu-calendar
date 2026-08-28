@@ -1,0 +1,55 @@
+{
+  "manifestId": "medicine-101-110-2026-2027-semester-1-current",
+  "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "sheetName": "1 леч.1",
+  "semanticDecisionMode": "operator-authored-explicit",
+  "logicalSourceCellCount": 145,
+  "decisionCount": 196,
+  "constants": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "timeSemantics": "floating",
+    "sourceId": "medicine",
+    "teacher": null
+  },
+  "parts": [
+    {
+      "day": "ПН",
+      "path": "medicine-101-110.decisions/monday.json",
+      "decisionCount": 37,
+      "decisionsDigest": "sha256:9d6f11e155c22e12cc2f4e80c409e2b85939f8e3427ba6520f35303aa35f09a2"
+    },
+    {
+      "day": "ВТ",
+      "path": "medicine-101-110.decisions/tuesday.json",
+      "decisionCount": 29,
+      "decisionsDigest": "sha256:f45238f65ee167b74c75318c2b7445496e9adc5a614a0cae0545a801e33730cc"
+    },
+    {
+      "day": "СР",
+      "path": "medicine-101-110.decisions/wednesday.json",
+      "decisionCount": 38,
+      "decisionsDigest": "sha256:81df4473159a6889f8be4670e27df93aedb82adbd0d817e89d9699a78f6de71b"
+    },
+    {
+      "day": "ЧТ",
+      "path": "medicine-101-110.decisions/thursday.json",
+      "decisionCount": 40,
+      "decisionsDigest": "sha256:ff135eb18656b82d5585cc77eb30abb93bf6c80b3676f8826eef34148cb8bba2"
+    },
+    {
+      "day": "ПТ",
+      "path": "medicine-101-110.decisions/friday.json",
+      "decisionCount": 36,
+      "decisionsDigest": "sha256:0942d136c0c3c86475350ff9c468aeda798b697b99f7ea2d26e9041c96ca44ca"
+    },
+    {
+      "day": "СБ",
+      "path": "medicine-101-110.decisions/saturday.json",
+      "decisionCount": 16,
+      "decisionsDigest": "sha256:bc693f97a630e3d5245a0c89764c1892126c1e204ae18c7f545e904da6d6fd7c"
+    }
+  ],
+  "manifestDigest": "sha256:2f4ad4950560c5561f270f8414f8a1e673eb1b27f6c8939f5241f932d915e6b0"
+}
