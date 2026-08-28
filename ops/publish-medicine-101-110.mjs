@@ -4,7 +4,10 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { buildMedicinePublicationPlan } from '../src/medicine-publication-plan.js';
+import {
+  buildMedicinePublicationPlan,
+  toCorePublicationQa
+} from '../src/medicine-publication-plan.js';
 import { canonicalJson, sha256Hex } from '../src/explicit-decisions.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -31,17 +34,6 @@ function eventSetDigest(events) {
 
 function countVevents(ics) {
   return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
-}
-
-function publicationQa(qa) {
-  return Object.freeze({
-    qaReportId: qa.qaReportId,
-    parsingJobId: qa.parsingJobId,
-    candidateDigest: qa.candidateDigest,
-    decision: qa.decision,
-    checks: qa.checks,
-    createdAt: qa.createdAt
-  });
 }
 
 async function loadPlan() {
@@ -109,7 +101,7 @@ try {
   if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
 
   const repository = core.createSqliteScheduleRepository(database);
-  const qaForPublication = publicationQa(qa);
+  const qaForPublication = toCorePublicationQa(qa);
 
   for (const version of plan.versions) {
     const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
