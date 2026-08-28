@@ -8,6 +8,6 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/index.js && node --test"
+    "check": "node --check src/index.js && node --check landing/app.js && node --check landing/manage/manage.js && node --test"
   }
 }
