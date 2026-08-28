@@ -1,0 +1,66 @@
+{
+  "fixtureId": "dentistry-191-2026-2027-semester-1",
+  "sourceFixtureId": "dentistry-191-194-2026-2027-semester-1",
+  "sourceSha256": "349e39ebbc125c4ff02fe7e0a5397512665e3d35d9fefcf5fd01c5823bb8bf2c",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "groupId": "191",
+  "eventCount": 340,
+  "groupEventCounts": {"191": 340},
+  "candidateArtifact": {
+    "path": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json.gz",
+    "compression": "gzip",
+    "uncompressedByteLength": 76462,
+    "compressedByteLength": 8295,
+    "compressedSha256": "aaf6ca5f7dc653e60097abb6ba4a33eb29e0e8b57610f16886cb2555e2500074"
+  },
+  "timetableSourceCellCount": 29,
+  "coveredSourceCellCount": 28,
+  "coveredSourceCells": ["B10","B13","B14","B15","B17","B19","B20","B21","B22","B23","B24","B25","B26","B27","B29","B31","B32","B33","B34","B36","B39","B40","B41","B42","B43","B45","B46","B47"],
+  "excludedSourceCells": [
+    {
+      "locator": "1 стомат.!B49",
+      "rule": "R39",
+      "reason": "Общая строка факультативов не привязана к конкретной группе; не создаёт события группы 191."
+    }
+  ],
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 4,
+  "explicitOverlapWarnings": [
+    {
+      "groupId": "191",
+      "date": "2026-09-21",
+      "left": {"startTime":"14:40","endTime":"16:10","discipline":"Общая и биоорганическая химия","sourceLocator":"1 стомат.!B15#s2"},
+      "right": {"startTime":"14:50","endTime":"16:20","discipline":"Основы российской государственности","sourceLocator":"1 стомат.!B14#s1"}
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-05",
+      "left": {"startTime":"08:00","endTime":"11:10","discipline":"Общая и биоорганическая химия","sourceLocator":"1 стомат.!B43#s1"},
+      "right": {"startTime":"10:50","endTime":"12:20","discipline":"Медицинская и биологическая физика","sourceLocator":"1 стомат.!B46#s1"}
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-12",
+      "left": {"startTime":"08:00","endTime":"11:10","discipline":"Общая и биоорганическая химия","sourceLocator":"1 стомат.!B43#s1"},
+      "right": {"startTime":"10:50","endTime":"12:20","discipline":"Физика, математика","sourceLocator":"1 стомат.!B45#s1"}
+    },
+    {
+      "groupId": "191",
+      "date": "2027-01-16",
+      "left": {"startTime":"10:30","endTime":"12:00","discipline":"Основы российской государственности","sourceLocator":"1 стомат.!B43#s2"},
+      "right": {"startTime":"10:50","endTime":"12:20","discipline":"Физика, математика","sourceLocator":"1 стомат.!B45#s1"}
+    }
+  ],
+  "hardCountChecks": [
+    {"code":"R07-B19","status":"pass","sourceNote":"1 занятие в пн.","matchedDates":["2026-12-28"],"matchedEventIds":["kgmu-d79ec248661c0cb3f9ecb3e8"]},
+    {"code":"R07-B24","status":"pass","sourceNote":"1 занятие в сб.","matchedDates":["2027-01-16"],"matchedEventIds":["kgmu-5f657c5854cbf15677eaab5a"]},
+    {"code":"R07-B26","status":"pass","sourceNote":"3 занятия в пн.","matchedDates":["2026-11-23","2026-12-07","2026-12-21"],"matchedEventIds":["kgmu-092deb3a07ec0cbded700069","kgmu-0df05bb9709d7d139a990a74","kgmu-6b28992a29e7856550209a71"]},
+    {"code":"R07-B31","status":"pass","sourceNote":"1 лекция в пн.","matchedDates":["2026-09-21"],"matchedEventIds":["kgmu-e47c35bc82f5a0cd00e235d5"]},
+    {"code":"R07-B36","status":"pass","sourceNote":"2 занятия в сб.","matchedDates":["2026-12-05","2026-12-12"],"matchedEventIds":["kgmu-8e116a3cc878d3d3aa2b2637","kgmu-92bef272c2993c25254f4c7e"]},
+    {"code":"G21-B39-confirmed","status":"pass","sourceNote":"3 лекции в пн.","matchedDates":["2026-11-16","2026-11-23","2026-11-30"],"matchedEventIds":["kgmu-20fa1769f47d1f8d505a2c63","kgmu-76ae71e028d560abdd776a21","kgmu-a796992432a3e56e4047bf1d"]},
+    {"code":"R07-B40","status":"pass","sourceNote":"4 лекции в чт.","matchedDates":["2026-12-03","2026-12-10","2026-12-17","2026-12-24"],"matchedEventIds":["kgmu-9d852fcde0cba480333dae65","kgmu-eb5e69502074fcba853b2543","kgmu-1369105e2c39165560ba9493","kgmu-c14809a51b84763d73c157bf"]}
+  ],
+  "confirmedReviewDecisions": ["dentistry-191-histology-monday-lectures"],
+  "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14"
+}
