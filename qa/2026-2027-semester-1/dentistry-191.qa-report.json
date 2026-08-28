@@ -1,0 +1,18 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-v1",
+  "parsingJobId": "parsing-job-dentistry-191-1",
+  "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14",
+  "candidateArtifact": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json.gz",
+  "decision": "pass",
+  "checks": [
+    {"code":"group-content-accounted-for","status":"pass","message":"28 event-bearing timetable cells covered; B49 excluded under R39"},
+    {"code":"dates-within-service-week-grid","status":"pass","message":"All 340 generated dates are inside the source service-week grid through 2027-01-16"},
+    {"code":"source-group-match","status":"pass","message":"Group 191 only"},
+    {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures"},
+    {"code":"hard-count-notes-resolved","status":"pass","message":"7 source hard-count assertions matched explicit companion events"},
+    {"code":"g21-histology-decision-applied","status":"pass","message":"User-confirmed B39 Monday count maps to B13 dates 16.11, 23.11, 30.11; B15 14.09 remains separate"},
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"4 source-explicit overlaps preserved"},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved ambiguities"}
+  ],
+  "createdAt": "2026-08-28T19:35:00Z"
+}
