@@ -1,0 +1,20 @@
+{
+  "universityId": "kirov-gmu",
+  "programId": "medicine",
+  "academicYearId": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourcePageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+  "fetchedAt": "2026-08-28T20:21:00Z",
+  "storagePolicy": "Official XLSX binaries are fetched server-side and are not committed to the public university repository.",
+  "sources": [
+    {"groupRange":"101-110","url":"https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/1_lech._1_potok-27-08-2026-11.xlsx","byteLength":21119,"sha256":"341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b","sheetName":"1 леч.1","dimension":"A1:S56","mergedRangeCount":109,"profile":"weekly"},
+    {"groupRange":"111-120","url":"https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._2_potok-24-08-2026-13.xlsx","byteLength":21666,"sha256":"781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e","sheetName":"1 леч. 2  ","dimension":"A1:K58","mergedRangeCount":153,"profile":"weekly"},
+    {"groupRange":"201-210","url":"https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/2_lech._1_potok-24-08-2026-13.xlsx","byteLength":20065,"sha256":"1f606b90433347211546d9caa55ff42e4462c3f81f9d78ad7508c5c290dae7c3","sheetName":"2 леч.1","dimension":"A1:K53","mergedRangeCount":125,"profile":"weekly"},
+    {"groupRange":"211-220","url":"https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/2_lech._2_potok-27-08-2026-10.xlsx","byteLength":19874,"sha256":"dcac53458b56d0b2c2c5d7657bd39d09fe28233567ce6e51551f87483d71c4ca","sheetName":"2леч.2","dimension":"A1:K55","mergedRangeCount":119,"profile":"weekly"},
+    {"groupRange":"301-310","url":"https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/3_lech._1_potok-27-08-2026-14.xlsx","byteLength":19122,"sha256":"e9bfa806ed25d48545abdd26dc5d9cf9111cc093edb8a42d94e6eb4c67f4df58","sheetName":"3 леч.1","dimension":"A1:K49","mergedRangeCount":74,"profile":"weekly"},
+    {"groupRange":"311-317","url":"https://kirovgma.ru/sites/default/files/files/2026/08/28/1078/3_lech_2_potok-28-08-2026-13.xlsx","byteLength":17825,"sha256":"cd6aa3253e6fa7dcd2a1f58cd9480cb6f3be114dbd09a3220c7a38196ad81ffe","sheetName":"3 леч.2","dimension":"A1:K46","mergedRangeCount":58,"profile":"weekly"},
+    {"groupRange":"401-416","url":"https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/4_lech-24-08-2026-13.xlsx","byteLength":30756,"sha256":"fb79b4c7b08b8f85bd2f238f2190404ea5eae01ab2be47339985272b565ead6b","sheetName":"4 курс осень 2026 Леч","dimension":"A1:DI50","mergedRangeCount":280,"profile":"cyclic"},
+    {"groupRange":"501-516","url":"https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/5_lech-24-08-2026-13.xlsx","byteLength":31755,"sha256":"43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62","sheetName":"2026+-2027 осень 5 курс  Леч","dimension":"A1:DU52","mergedRangeCount":331,"profile":"cyclic"},
+    {"groupRange":"601-616","url":"https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/6_lech-24-08-2026-13.xlsx","byteLength":32986,"sha256":"0b5c4a06fd45e50bdaf28586fcb3f4bddade4efe514bc54dd84c359aa04fcb23","sheetName":"6 курс осень 2026-2027 Леч","dimension":"A1:DI258","mergedRangeCount":312,"profile":"cyclic"}
+  ]
+}
