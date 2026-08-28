@@ -7,11 +7,8 @@
   "eventCount": 340,
   "groupEventCounts": {"191": 340},
   "candidateArtifact": {
-    "path": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json.gz",
-    "compression": "gzip",
-    "uncompressedByteLength": 76462,
-    "compressedByteLength": 8295,
-    "compressedSha256": "aaf6ca5f7dc653e60097abb6ba4a33eb29e0e8b57610f16886cb2555e2500074"
+    "path": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json",
+    "byteLength": 76462
   },
   "timetableSourceCellCount": 29,
   "coveredSourceCellCount": 28,
