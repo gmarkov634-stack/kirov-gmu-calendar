@@ -6,6 +6,6 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   catalogUrl: "./catalog/2026-2027-semester-1.json",
   managementSessionTransport: "bearer",
   trialEnabled: false,
-  managementEnabled: false,
+  managementEnabled: true,
   checkoutEnabled: false
 });
