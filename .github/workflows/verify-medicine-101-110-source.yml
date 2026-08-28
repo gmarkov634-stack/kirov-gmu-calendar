@@ -1,0 +1,55 @@
+name: Verify medicine 101-110 source
+
+on:
+  push:
+    branches:
+      - feat/medicine-101-110-production
+
+permissions:
+  contents: read
+
+jobs:
+  verify-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify current official XLSX identity
+        shell: python
+        run: |
+          import hashlib
+          import io
+          import re
+          import urllib.parse
+          import urllib.request
+          import zipfile
+
+          PAGE = "https://kirovgma.ru/lechebnyy-fakultet-raspisanie"
+          EXPECTED_URL = "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._1_potok-24-08-2026-13.xlsx"
+          EXPECTED_SHA256 = "8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6"
+          EXPECTED_BYTES = 21068
+
+          request = urllib.request.Request(PAGE, headers={"User-Agent": "medical-calendar-source-verifier/1"})
+          html = urllib.request.urlopen(request, timeout=30).read().decode("utf-8", errors="replace")
+          hrefs = re.findall(r'href=["\\\']([^"\\\']+)["\\\']', html)
+          links = [urllib.parse.urljoin(PAGE, href) for href in hrefs]
+          candidates = [url for url in links if url.lower().endswith(".xlsx") and ("101-110" in url or "1_lech._1_potok" in url)]
+          if EXPECTED_URL not in links:
+              raise SystemExit(f"official page no longer links expected XLSX; candidates={candidates}")
+
+          source_request = urllib.request.Request(EXPECTED_URL, headers={"User-Agent": "medical-calendar-source-verifier/1"})
+          data = urllib.request.urlopen(source_request, timeout=60).read()
+          digest = hashlib.sha256(data).hexdigest()
+          print(f"source_url={EXPECTED_URL}")
+          print(f"byte_length={len(data)}")
+          print(f"sha256={digest}")
+
+          if len(data) != EXPECTED_BYTES:
+              raise SystemExit(f"byte length changed: {len(data)} != {EXPECTED_BYTES}")
+          if digest != EXPECTED_SHA256:
+              raise SystemExit(f"sha256 changed: {digest} != {EXPECTED_SHA256}")
+
+          with zipfile.ZipFile(io.BytesIO(data)) as workbook:
+              names = set(workbook.namelist())
+              if "[Content_Types].xml" not in names or "xl/worksheets/sheet1.xml" not in names:
+                  raise SystemExit("download is not the expected XLSX workbook structure")
+
+          print("MEDICINE_101_110_SOURCE_CURRENT")
