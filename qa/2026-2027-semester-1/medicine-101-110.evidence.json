@@ -1,17 +1,19 @@
 {
   "fixtureId": "medicine-101-110-2026-2027-semester-1",
-  "sourceSha256": "8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6",
-  "parserRulesVersion": "kgmu-2026-08-27-v2",
-  "eventCount": 3412,
+  "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-101-110.decisions.index.json",
+  "semanticDecisionManifestDigest": "sha256:2f4ad4950560c5561f270f8414f8a1e673eb1b27f6c8939f5241f932d915e6b0",
+  "eventCount": 3429,
   "groupEventCounts": {
     "101": 336,
-    "102": 336,
+    "102": 335,
     "103": 335,
     "104": 335,
     "105": 336,
     "106": 336,
-    "107": 338,
-    "108": 338,
+    "107": 347,
+    "108": 347,
     "109": 361,
     "110": 361
   },
@@ -21,504 +23,71 @@
   "duplicateEvents": 0,
   "explicitOverlapWarningCount": 8,
   "explicitOverlapWarnings": [
-    {
-      "groupId": "103",
-      "date": "2026-09-03",
-      "left": {
-        "startTime": "14:50",
-        "endTime": "16:20",
-        "discipline": "История медицины",
-        "sourceLocator": "1 леч.1!D30#s1"
-      },
-      "right": {
-        "startTime": "15:50",
-        "endTime": "16:50",
-        "discipline": "Час куратора",
-        "sourceLocator": "1 леч.1!D32#s1"
-      }
-    },
-    {
-      "groupId": "103",
-      "date": "2027-01-12",
-      "left": {
-        "startTime": "10:30",
-        "endTime": "14:35",
-        "discipline": "Основы российской государственности",
-        "sourceLocator": "1 леч.1!D17#s1"
-      },
-      "right": {
-        "startTime": "13:05",
-        "endTime": "14:35",
-        "discipline": "Латинский язык",
-        "sourceLocator": "1 леч.1!D19#s1"
-      }
-    },
-    {
-      "groupId": "104",
-      "date": "2026-09-03",
-      "left": {
-        "startTime": "14:50",
-        "endTime": "16:20",
-        "discipline": "История медицины",
-        "sourceLocator": "1 леч.1!D30#s1"
-      },
-      "right": {
-        "startTime": "15:50",
-        "endTime": "16:50",
-        "discipline": "Час куратора",
-        "sourceLocator": "1 леч.1!E32#s1"
-      }
-    },
-    {
-      "groupId": "106",
-      "date": "2027-01-12",
-      "left": {
-        "startTime": "12:30",
-        "endTime": "14:55",
-        "discipline": "Биология",
-        "sourceLocator": "1 леч.1!G18#s1"
-      },
-      "right": {
-        "startTime": "14:30",
-        "endTime": "15:15",
-        "discipline": "Психология и педагогика",
-        "sourceLocator": "1 леч.1!F21#s1"
-      }
-    },
-    {
-      "groupId": "110",
-      "date": "2026-09-08",
-      "left": {
-        "startTime": "12:25",
-        "endTime": "14:50",
-        "discipline": "Иностранный язык",
-        "sourceLocator": "1 леч.1!K19#s1"
-      },
-      "right": {
-        "startTime": "14:10",
-        "endTime": "15:50",
-        "discipline": "Библиотечный час",
-        "sourceLocator": "1 леч.1!K26#s2"
-      }
-    },
-    {
-      "groupId": "110",
-      "date": "2026-09-08",
-      "left": {
-        "startTime": "14:10",
-        "endTime": "15:50",
-        "discipline": "Библиотечный час",
-        "sourceLocator": "1 леч.1!K26#s2"
-      },
-      "right": {
-        "startTime": "15:10",
-        "endTime": "16:40",
-        "discipline": "История России",
-        "sourceLocator": "1 леч.1!J21#s1"
-      }
-    },
-    {
-      "groupId": "110",
-      "date": "2026-12-02",
-      "left": {
-        "startTime": "14:30",
-        "endTime": "15:30",
-        "discipline": "Час куратора",
-        "sourceLocator": "1 леч.1!K27#s2"
-      },
-      "right": {
-        "startTime": "14:30",
-        "endTime": "16:55",
-        "discipline": "Биология",
-        "sourceLocator": "1 леч.1!K27#s1"
-      }
-    },
-    {
-      "groupId": "110",
-      "date": "2026-12-16",
-      "left": {
-        "startTime": "14:30",
-        "endTime": "15:30",
-        "discipline": "Час куратора",
-        "sourceLocator": "1 леч.1!K27#s2"
-      },
-      "right": {
-        "startTime": "14:30",
-        "endTime": "16:55",
-        "discipline": "Биология",
-        "sourceLocator": "1 леч.1!K27#s1"
-      }
-    }
+    {"groupId":"103","date":"2026-09-03","left":{"startTime":"14:50","endTime":"16:20","discipline":"История медицины","sourceLocator":"1 леч.1!D30#s1"},"right":{"startTime":"15:50","endTime":"16:50","discipline":"Час куратора","sourceLocator":"1 леч.1!D32#s1"}},
+    {"groupId":"103","date":"2027-01-12","left":{"startTime":"10:30","endTime":"14:35","discipline":"Основы российской государственности","sourceLocator":"1 леч.1!D17#s2"},"right":{"startTime":"13:05","endTime":"14:35","discipline":"Латинский язык","sourceLocator":"1 леч.1!D19#s1"}},
+    {"groupId":"104","date":"2026-09-03","left":{"startTime":"14:50","endTime":"16:20","discipline":"История медицины","sourceLocator":"1 леч.1!D30#s1"},"right":{"startTime":"15:50","endTime":"16:50","discipline":"Час куратора","sourceLocator":"1 леч.1!E32#s1"}},
+    {"groupId":"106","date":"2027-01-12","left":{"startTime":"12:30","endTime":"14:55","discipline":"Биология","sourceLocator":"1 леч.1!G18#s2"},"right":{"startTime":"14:30","endTime":"15:15","discipline":"Психология и педагогика","sourceLocator":"1 леч.1!F21#s2"}},
+    {"groupId":"110","date":"2026-09-08","left":{"startTime":"12:25","endTime":"14:50","discipline":"Иностранный язык","sourceLocator":"1 леч.1!K19#s1"},"right":{"startTime":"14:10","endTime":"15:50","discipline":"Библиотечный час","sourceLocator":"1 леч.1!K26#s2"}},
+    {"groupId":"110","date":"2026-09-08","left":{"startTime":"15:10","endTime":"16:40","discipline":"История России","sourceLocator":"1 леч.1!J21#s1"},"right":{"startTime":"14:10","endTime":"15:50","discipline":"Библиотечный час","sourceLocator":"1 леч.1!K26#s2"}},
+    {"groupId":"110","date":"2026-12-02","left":{"startTime":"14:30","endTime":"16:55","discipline":"Биология","sourceLocator":"1 леч.1!K27#s1"},"right":{"startTime":"14:30","endTime":"15:30","discipline":"Час куратора","sourceLocator":"1 леч.1!K27#s2"}},
+    {"groupId":"110","date":"2026-12-16","left":{"startTime":"14:30","endTime":"16:55","discipline":"Биология","sourceLocator":"1 леч.1!K27#s1"},"right":{"startTime":"14:30","endTime":"15:30","discipline":"Час куратора","sourceLocator":"1 леч.1!K27#s2"}}
   ],
   "r83Checks": [
-    {
-      "note": "C9",
-      "group": "102",
-      "disc": "Биология",
-      "coord": "C34",
-      "dates": [
-        "2027-01-15"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-4a14a7c762786cbd1465d8b5"
-      ]
-    },
-    {
-      "note": "K9",
-      "group": "110",
-      "disc": "Биология",
-      "coord": "K27",
-      "dates": [
-        "2026-12-02",
-        "2026-12-16"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-0e58ecb793790e0fa9b1c32f",
-        "kgmu-170950f784221f11846f875d"
-      ]
-    },
-    {
-      "note": "B10",
-      "group": "101",
-      "disc": "Биология",
-      "coord": "B34",
-      "dates": [
-        "2027-01-15"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-2db1a7e7c55ac8d37e4dfa15"
-      ]
-    },
-    {
-      "note": "B10",
-      "group": "102",
-      "disc": "Биология",
-      "coord": "C34",
-      "dates": [
-        "2027-01-15"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-4a14a7c762786cbd1465d8b5"
-      ]
-    },
-    {
-      "note": "F17",
-      "group": "105",
-      "disc": "Биология",
-      "coord": "F27",
-      "dates": [
-        "2026-12-09"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-0880b425425f1476f1f96ffd"
-      ]
-    },
-    {
-      "note": "G18",
-      "group": "106",
-      "disc": "Биология",
-      "coord": "G27",
-      "dates": [
-        "2026-11-25"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-6c05c1788c73d15964ccefb5"
-      ]
-    },
-    {
-      "note": "E22",
-      "group": "104",
-      "disc": "Биология",
-      "coord": "E26",
-      "dates": [
-        "2026-10-21"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-3d6ab89bcce8d956c2e87fe8"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "101",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-41c97ff145aa5878627564ab",
-        "kgmu-341eac0eca250a469c588d6d"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "102",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-c5fde2ec1a973155f1326323",
-        "kgmu-e0b7d7d366f7d851ebeb6179"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "103",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-c92ee22b2c3517f34e729b83",
-        "kgmu-14e5f345af83f8dc4956c29e"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "104",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-258b21d80a1d88e660b23101",
-        "kgmu-c100cc76ee63840f6fd35c10"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "105",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-1e0ce61af1e1483260de6714",
-        "kgmu-e525bcdde521394b1a4afc98"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "106",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-ee6d1a4d21ba1d1679e915d7",
-        "kgmu-596b274103d7d8bebe3da875"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "107",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-8f22cfd6484f5cbd23e0d126",
-        "kgmu-58b8e19848a649b2033db9f7"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "108",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-936e0135c1a60e61ca7b3f31",
-        "kgmu-3135e5e2972989c4aabcfa0c"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "109",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-32428301d990256f6c5675b4",
-        "kgmu-aa4eb0ec3f6ccd3328a10783"
-      ]
-    },
-    {
-      "note": "B24",
-      "group": "110",
-      "disc": "Психология и педагогика",
-      "coord": "B25",
-      "dates": [
-        "2026-12-16",
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-bcfb3c9453c3627943a36cfd",
-        "kgmu-15d578a9dc544247c9cf8853"
-      ]
-    },
-    {
-      "note": "H26",
-      "group": "107",
-      "disc": "История России",
-      "coord": "H9",
-      "dates": [
-        "2026-12-07",
-        "2026-12-14",
-        "2026-12-21"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-e9b5180bdc36eaef1ddacead",
-        "kgmu-128ac309c689294902d83d98",
-        "kgmu-0c5fcdf5dc41778be06451db"
-      ]
-    },
-    {
-      "note": "J29",
-      "group": "109",
-      "disc": "Биология",
-      "coord": "J9",
-      "dates": [
-        "2026-10-19",
-        "2026-10-26"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-4033847643e2ae8909d4f11d",
-        "kgmu-362f6c64235f032efae0618c"
-      ]
-    },
-    {
-      "note": "G34",
-      "group": "106",
-      "disc": "Физика, математика",
-      "coord": "G28",
-      "dates": [
-        "2026-12-03"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-37fd1df4fd210ad74af2cca4"
-      ]
-    },
-    {
-      "note": "I34",
-      "group": "108",
-      "disc": "Физика, математика",
-      "coord": "I9",
-      "dates": [
-        "2026-11-30"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-51d3ce988bfbeed7b45846bf"
-      ]
-    },
-    {
-      "note": "D35",
-      "group": "103",
-      "disc": "Биология",
-      "coord": "D26",
-      "dates": [
-        "2026-10-28"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-160bd135b6e1549aa06558bf"
-      ]
-    },
-    {
-      "note": "H35",
-      "group": "107",
-      "disc": "Биология",
-      "coord": "H29",
-      "dates": [
-        "2027-01-14"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-cfa5e2401504eb54cda4ed16"
-      ]
-    },
-    {
-      "note": "I35",
-      "group": "108",
-      "disc": "Биология",
-      "coord": "I35",
-      "dates": [
-        "2026-11-30"
-      ],
-      "startTime": "15:30",
-      "endTime": "17:55",
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-1d8d6e26534d08a9aee5eb6b"
-      ]
-    },
-    {
-      "note": "H36",
-      "group": "107",
-      "disc": "Общая и биоорганическая химия",
-      "coord": "H9",
-      "dates": [
-        "2026-11-30"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-8752bb61c5018817a6781f40"
-      ]
-    },
-    {
-      "note": "D40",
-      "group": "103",
-      "disc": "Физика, математика",
-      "coord": "D26",
-      "dates": [
-        "2026-12-23"
-      ],
-      "status": "pass",
-      "matchedEventIds": [
-        "kgmu-45571288b01d0987ed26730c"
-      ]
-    }
+    {"note":"C9","group":"102","disc":"Биология","coord":"C34","dates":["2027-01-15"],"status":"pass","matchedEventIds":["kgmu-df21e4e94e75e8f7c51fa8ac"]},
+    {"note":"K9","group":"110","disc":"Биология","coord":"K27","dates":["2026-12-02","2026-12-16"],"status":"pass","matchedEventIds":["kgmu-0c2538efe3304b3c5064b982","kgmu-5f1843c34d5b64e867030b89"]},
+    {"note":"B10","group":"101","disc":"Биология","coord":"B34","dates":["2027-01-15"],"status":"pass","matchedEventIds":["kgmu-3e1a8140f34d80b440c1436d"]},
+    {"note":"F17","group":"105","disc":"Биология","coord":"F27","dates":["2026-12-09"],"status":"pass","matchedEventIds":["kgmu-0230d05445c5c9766f5d20cc"]},
+    {"note":"G18","group":"106","disc":"Биология","coord":"G27","dates":["2026-11-25"],"status":"pass","matchedEventIds":["kgmu-4c97211774f7c514b1b2dc1a"]},
+    {"note":"E22","group":"104","disc":"Биология","coord":"E26","dates":["2026-10-21"],"status":"pass","matchedEventIds":["kgmu-97d40c4407ae1acdefb54969"]},
+    {"note":"B24","group":"101","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-8d1ee1519916742cd75d55a1","kgmu-d46ab4d4a210d27f214d0035"]},
+    {"note":"B24","group":"102","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-b58f0e2cc3ff80ed218319d2","kgmu-b2c0c863885a5803e765c1d3"]},
+    {"note":"B24","group":"103","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-073639a82390bd0a7a0a1904","kgmu-184a6f710e4218a0a69d4152"]},
+    {"note":"B24","group":"104","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-cde3ce65e98ace61dfb91d30","kgmu-c867de9b4ed82d8e5c4726d8"]},
+    {"note":"B24","group":"105","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-1bd429fedcb8992cbc688f10","kgmu-6da1e80dbe8bfded871ffbe1"]},
+    {"note":"B24","group":"106","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-5cfddb5f206546c96ed15b2f","kgmu-86c25c9c7ce808b1c039e9d0"]},
+    {"note":"B24","group":"107","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-6f8af095088f8378d318bed3","kgmu-29c4a5113d5fc61647805616"]},
+    {"note":"B24","group":"108","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-60d4e8423d9f2f38025d806f","kgmu-01f59290a2fe2623d931453c"]},
+    {"note":"B24","group":"109","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-c421ab4f8e7582553073c3d2","kgmu-47e3c681d767796ffdd12416"]},
+    {"note":"B24","group":"110","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass","matchedEventIds":["kgmu-71709716f1b8d07b68771c38","kgmu-25f9bb46c84e6006e6caced4"]},
+    {"note":"H26","group":"107","disc":"История России","coord":"H9","dates":["2026-12-07","2026-12-14","2026-12-21"],"status":"pass","matchedEventIds":["kgmu-6765c9a3615b54674c959898","kgmu-2603dd9067ed12da4921d850","kgmu-f0ac556c9fa668f1978fe806"]},
+    {"note":"H26","group":"108","disc":"История России","coord":"I9","dates":["2026-12-07","2026-12-14","2026-12-21"],"status":"pass","matchedEventIds":["kgmu-d29b0e26711df374ebb2c97e","kgmu-03d15f113a0fe92adc1e0a91","kgmu-8d81251deb29ac2231308c47"]},
+    {"note":"J29","group":"109","disc":"Биология","coord":"J9","dates":["2026-10-19","2026-10-26"],"status":"pass","matchedEventIds":["kgmu-ee74beaabc2fe6775314f2c0","kgmu-090bc24fadac80ee9541bebb"]},
+    {"note":"G34","group":"106","disc":"Физика, математика","coord":"G28","dates":["2026-12-03"],"status":"pass","matchedEventIds":["kgmu-12350a7d9ffdb0be894601f6"]},
+    {"note":"I34","group":"108","disc":"Физика, математика","coord":"I9","dates":["2026-11-30"],"status":"pass","matchedEventIds":["kgmu-9e722c0ae315eed2cc8177ff"]},
+    {"note":"D35","group":"103","disc":"Биология","coord":"D26","dates":["2026-10-28"],"status":"pass","matchedEventIds":["kgmu-89f0d47680b2ddfdb5dfa239"]},
+    {"note":"H35","group":"107","disc":"Биология","coord":"H29","dates":["2027-01-14"],"status":"pass","matchedEventIds":["kgmu-03a3c67f8a73d6693f817645"]},
+    {"note":"I35","group":"108","disc":"Биология","coord":"I35","dates":["2026-11-30"],"startTime":"15:30","endTime":"17:55","status":"pass","matchedEventIds":["kgmu-e6ee6a009c66bce752e947d3"]},
+    {"note":"H36","group":"107","disc":"Общая и биоорганическая химия","coord":"H9","dates":["2026-11-30"],"status":"pass","matchedEventIds":["kgmu-2ff9affd1fcef5b053812f0a"]},
+    {"note":"D40","group":"103","disc":"Физика, математика","coord":"D26","dates":["2026-12-23"],"status":"pass","matchedEventIds":["kgmu-eadde9977afde88365cb999f"]},
+    {"note":"H27","group":"107","disc":"Основы российской государственности","coord":"H9","dates":["2027-01-11"],"status":"pass","matchedEventIds":["kgmu-2619c6cd3306e6361ea4bb8e"]},
+    {"note":"H27","group":"108","disc":"Основы российской государственности","coord":"I9","dates":["2027-01-11"],"status":"pass","matchedEventIds":["kgmu-769f330d1626f98ef897d54a"]},
+    {"note":"B42","group":"101","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-753890271aef097bd06001cf","kgmu-2887ec10d7edb35c451895a5","kgmu-5028db6fe0bf825048b34513"]},
+    {"note":"B42","group":"102","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-e54d67629fe67edfce13594d","kgmu-11c13ca26486a7b9782d20b1","kgmu-d6cf7e1c4a79347068960a15"]},
+    {"note":"B42","group":"103","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-9cf6ad9ad5793682accb86d7","kgmu-d4315dd8fd3a527fa8bcd9f4","kgmu-9c12f831b2f547c6ea095abe"]},
+    {"note":"B42","group":"104","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-54625b353d0b2ee1cfc5daf9","kgmu-d0a61b3b54f598ac3022d5e2","kgmu-1db1691b4500d9bfcda1ffc4"]},
+    {"note":"B42","group":"105","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-48daf897e0d2ef04a439fa6c","kgmu-41bbf062a2f28fe9811a6a37","kgmu-bba2dd327d8f7eb19d5eac16"]},
+    {"note":"B42","group":"106","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-b9ff2f3505bd0a0f520a47e6","kgmu-400ffe325840683804282346","kgmu-8177d2ac482b6e9dcbeda3bc"]},
+    {"note":"B42","group":"107","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-8ca21b72ebca260f86c54a1b","kgmu-eb2a25c6b6ef92ef540b4c42","kgmu-2389a1a459c598744fc8e044"]},
+    {"note":"B42","group":"108","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-b885b26b62f8e99b4e754613","kgmu-21ba83c88f60c6a577ff3f43","kgmu-0ee0022b5418a64bcbfa620e"]},
+    {"note":"B42","group":"109","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-9d9121cdbb70f9c06c687012","kgmu-68dd24a37af025d6d06f6a39","kgmu-a77d20428364c0dd6c397dd1"]},
+    {"note":"B42","group":"110","disc":"История России","coord":"B14","dates":["2026-09-14","2026-09-28","2026-10-12"],"status":"pass","matchedEventIds":["kgmu-0783fc99df80a63826170f3f","kgmu-8bd406271fbdd234ed5c4b64","kgmu-5585328b0bc8272ee9f03b66"]}
   ],
-  "candidateDigest": "sha256:9e81dac9551c6bc87874aea492b756ec597fdaf8a3ac7fda6aea73708585b9a0"
+  "literalSourceDecisions": [
+    {"sourceCells":["H9","I9"],"rule":"G04/R12","decision":"Сохранить напечатанные интервалы 08:30–10:00 и 11:10–11:40 как два отдельных события УПО: разрыв 70 минут не является небольшим перерывом R12; время источника не исправлять."},
+    {"sourceCell":"B32","rule":"G56/R29","decision":"Ячейка относится только к группе 101 по фактической геометрии объединения; на группу 102 её не распространять."},
+    {"sourceCell":"B41","rule":"G12/R20/R41","decision":"Для аудитории 1-411 использовать канонический адрес 1 корпуса: ул. Владимирская, 137. Конфликтующий inline-фрагмент «ул. К. Маркса, 137» не переносить в normalized location."},
+    {"sourceCell":"B41","rule":"R13/R51/R68","decision":"Экономика: 19.09, 17.10, 14.11 — 13:30–16:40; 12.12 — локальное исключение 13:30–15:00."}
+  ],
+  "assessmentMetadata": [
+    {"discipline":"Экономика","form":"зачет","sourceLocator":"1 леч.1!F47"},
+    {"discipline":"Физика, математика","form":"зачет","sourceLocator":"1 леч.1!F49"},
+    {"discipline":"УПО. Общий уход","form":"зачет с оценкой","sourceLocator":"1 леч.1!F51"},
+    {"discipline":"Психология и педагогика","form":"зачет","sourceLocator":"1 леч.1!F54"},
+    {"discipline":"Основы российской государственности","form":"зачет с оценкой","sourceLocator":"1 леч.1!K53"}
+  ],
+  "publicationReadiness": {
+    "status": "blocked",
+    "reason": "Current shared NormalizedEvent v1/ICS projection cannot losslessly carry G14/R41 intermediate-assessment metadata, including the distinction «зачет» vs «зачет с оценкой». Semantic normalization is complete, but ScheduleVersion publication remains blocked until the shared contract/postprocessing gap is closed."
+  },
+  "candidateDigest": "sha256:a338cdd2688f5bbe211b365860c2437b6475eafd2b718e4d3cd57a4d93854072"
 }
