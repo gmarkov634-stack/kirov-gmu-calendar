@@ -1,6 +1,7 @@
 const config = Object.freeze({
   apiBase: "",
   managementEnabled: false,
+  managementSessionTransport: "cookie",
   ...(globalThis.KGMU_CALENDAR_CONFIG ?? {})
 });
 
@@ -11,6 +12,12 @@ const statusNode = document.querySelector("#management-status");
 const sessionSection = document.querySelector("#management-session");
 const listNode = document.querySelector("#subscription-list");
 const logoutButton = document.querySelector("#management-logout");
+
+let managementToken = null;
+
+function usesBearerSession() {
+  return config.managementSessionTransport === "bearer";
+}
 
 function apiUrl(path) {
   return new URL(path, config.apiBase || window.location.origin).toString();
@@ -31,15 +38,20 @@ function fragmentToken() {
 }
 
 async function request(path, options = {}) {
+  const headers = {
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.headers ?? {})
+  };
+  if (usesBearerSession() && managementToken) {
+    headers.Authorization = `Bearer ${managementToken}`;
+  }
+
   const response = await fetch(apiUrl(path), {
     mode: "cors",
-    credentials: "include",
+    credentials: usesBearerSession() ? "omit" : "include",
     cache: "no-store",
     ...options,
-    headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...(options.headers ?? {})
-    }
+    headers
   });
   const payload = response.status === 204 ? null : await response.json().catch(() => null);
   return { response, payload };
@@ -147,13 +159,20 @@ async function verifyFragment() {
   if (!token) return false;
   history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
   setStatus("Подтверждаем одноразовую ссылку…");
-  const { response } = await request("/management/verify", {
+  const { response, payload } = await request("/management/verify", {
     method: "POST",
     body: JSON.stringify({ magicToken: token })
   });
   if (!response.ok) {
     setStatus("Ссылка недействительна, использована или истекла.", "error");
     return false;
+  }
+  if (usesBearerSession()) {
+    if (typeof payload?.managementToken !== "string" || payload.managementToken.length < 32) {
+      setStatus("Не удалось создать сессию управления.", "error");
+      return false;
+    }
+    managementToken = payload.managementToken;
   }
   setStatus("Email подтверждён.", "success");
   await loadSubscriptions();
@@ -184,6 +203,7 @@ linkForm?.addEventListener("submit", async (event) => {
 
 logoutButton?.addEventListener("click", async () => {
   await request("/management/logout", { method: "POST" }).catch(() => null);
+  managementToken = null;
   sessionSection.hidden = true;
   setStatus("Сессия управления завершена.");
 });
