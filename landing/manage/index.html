@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1559d6">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Управление календарём КГМУ</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../">
+        <span class="brand-mark" aria-hidden="true">К</span>
+        <span><strong>Календарь КГМУ</strong><small>Управление подпиской</small></span>
+      </a>
+      <nav class="topnav"><a href="../">На главную</a></nav>
+    </div>
+  </header>
+
+  <main class="manage-shell">
+    <div class="wrap">
+      <section class="manage-card">
+        <p class="eyebrow">Без пароля</p>
+        <h1>Управление календарём</h1>
+        <p>Введите email, который использовали для trial или покупки. Мы отправим одноразовую ссылку подтверждения. Одного знания email недостаточно для управления подпиской.</p>
+
+        <form class="manage-form" id="management-link-form">
+          <label>Email
+            <input id="management-email" type="email" autocomplete="email" placeholder="name@example.com" required>
+          </label>
+          <button class="button button-primary" id="management-link-submit" type="submit">Получить ссылку</button>
+        </form>
+
+        <p class="manage-status" id="management-status" role="status" aria-live="polite"></p>
+
+        <section id="management-session" hidden>
+          <div class="subscription-item-head">
+            <div>
+              <p class="section-kicker">Подтверждено</p>
+              <h2>Мои подписки</h2>
+            </div>
+            <button class="button button-secondary" id="management-logout" type="button">Выйти</button>
+          </div>
+          <div class="subscription-list" id="subscription-list"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="../runtime-config.js"></script>
+  <script type="module" src="./manage.js"></script>
+</body>
+</html>
