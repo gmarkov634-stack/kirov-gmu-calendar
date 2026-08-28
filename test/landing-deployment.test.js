@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
@@ -33,14 +36,37 @@ test('nginx template keeps landing and core on one origin with sanitized proxy i
   assert.doesNotMatch(nginx, /sslip\.io|containerapps\.ru/);
 });
 
-test('artifact builder preserves reviewed landing and rejects legacy runtime references', () => {
-  const script = read('deploy/build-landing.sh');
+test('artifact builder produces a deployable artifact and rejects legacy runtime references', () => {
+  const tempRoot = mkdtempSync(join(tmpdir(), 'kgmu-landing-'));
+  const output = join(tempRoot, 'site');
 
-  assert.match(script, /cp -R "\$ROOT_DIR\/landing\/\." "\$OUT_DIR\/"/);
-  assert.match(script, /runtime-config\.production\.js/);
-  assert.match(script, /catalog\/2026-2027-semester-1\.json/);
-  assert.match(script, /containerapps\\\.ru\|\/api\/v2\|file:\/\/\//);
-  assert.match(script, /refusing unsafe output directory/);
+  try {
+    const result = spawnSync('sh', ['deploy/build-landing.sh', output], {
+      cwd: new URL('..', import.meta.url),
+      encoding: 'utf8'
+    });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.equal(result.stdout.trim(), output);
+
+    assert.ok(existsSync(join(output, 'index.html')));
+    assert.ok(existsSync(join(output, 'manage', 'index.html')));
+    assert.ok(existsSync(join(output, 'catalog', '2026-2027-semester-1.json')));
+    assert.equal(existsSync(join(output, 'README.md')), false);
+
+    const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
+    assert.match(runtimeConfig, /trialEnabled:\s*true/);
+    assert.match(runtimeConfig, /managementEnabled:\s*true/);
+    assert.match(runtimeConfig, /checkoutEnabled:\s*false/);
+
+    const combinedRuntime = [
+      readFileSync(join(output, 'index.html'), 'utf8'),
+      readFileSync(join(output, 'app.js'), 'utf8'),
+      readFileSync(join(output, 'runtime-config.js'), 'utf8')
+    ].join('\n');
+    assert.doesNotMatch(combinedRuntime, /containerapps\.ru|\/api\/v2|file:\/\/\//);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test('deployment documentation keeps secrets and live mutations outside Git', () => {
