@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1456d8">
+  <meta name="description" content="Расписание Кировского ГМУ в календаре телефона: выберите группу и подключите обновляемую ICS-подписку.">
+  <title>Календарь КГМУ — расписание в телефоне</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Календарь КГМУ — на главную">
+      <span class="brand-mark" aria-hidden="true">К</span>
+      <span><strong>Календарь КГМУ</strong><small>Расписание в телефоне</small></span>
+    </a>
+    <nav aria-label="Навигация">
+      <a href="#directions">Направления</a>
+      <a href="#selector">Выбрать группу</a>
+      <a href="#how">Как работает</a>
+      <a href="./manage/">Управление</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Кировский государственный медицинский университет</p>
+        <h1>Не ищи расписание каждый день</h1>
+        <p class="lead">Пары вашей группы — в обычном календаре телефона. Apple Calendar, Google Calendar и другие клиенты обновляют подписку по одной защищённой ссылке.</p>
+        <div class="hero-features" aria-label="Преимущества">
+          <span>7 дней бесплатно</span><span>Проверенное расписание</span><span>Одна ссылка на учебный год</span>
+        </div>
+        <div class="hero-actions">
+          <a class="button primary" href="#selector" id="trial-cta">Попробовать 7 дней бесплатно</a>
+          <a class="button secondary" href="#pricing" id="buy-cta">Купить полный доступ</a>
+        </div>
+        <p class="runtime-note" id="runtime-note">Публичный trial будет доступен только после безопасного включения production-сервиса.</p>
+      </div>
+
+      <div class="calendar-card" aria-label="Пример календаря группы 101">
+        <div class="calendar-head"><span>Календарь</span><strong>Ср, 2 сентября</strong><span>101</span></div>
+        <div class="calendar-event"><time>08:00–10:25</time><div><strong>Общая и биоорганическая химия</strong><small>пример из проверенного расписания</small></div></div>
+        <div class="calendar-event lecture"><time>10:50–12:20</time><div><strong>ЛЕКЦ. ФИЗИКА, МАТЕМАТИКА</strong><small>тип занятия отображается явно</small></div></div>
+        <div class="calendar-event lecture"><time>12:30–14:00</time><div><strong>ЛЕКЦ. БИОЛОГИЯ</strong><small>время не сдвигается при смене timezone</small></div></div>
+        <div class="calendar-event"><time>14:50–16:20</time><div><strong>Основы российской государственности</strong><small>одна подписка обновляется автоматически</small></div></div>
+      </div>
+    </section>
+
+    <section class="comparison section-shell" aria-label="Сравнение">
+      <article><strong>Обычно</strong><p>Открыть XLSX или сайт → найти факультет → курс → группу → неделю → нужный день.</p></article>
+      <article class="highlight"><strong>С календарём</strong><p>Открыть календарь телефона → увидеть сегодняшние и следующие пары рядом с остальными событиями.</p></article>
+    </section>
+
+    <section id="directions" class="section-shell block">
+      <div class="section-heading"><p class="eyebrow">Направления КГМУ</p><h2>Только текущий продуктовый scope</h2><p>В сервис входят лечебное дело, педиатрия и стоматология. Группа становится доступной для trial только после публикации и QA расписания.</p></div>
+      <div class="program-grid" id="program-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="selector" class="section-shell selector block" aria-labelledby="selector-title">
+      <div class="section-heading"><p class="eyebrow">Выбор группы</p><h2 id="selector-title">Выберите направление, курс и группу</h2></div>
+      <div class="selector-columns">
+        <div><label for="program-select">Направление</label><select id="program-select"><option value="">Выберите направление</option></select></div>
+        <div><label for="course-select">Курс</label><select id="course-select" disabled><option value="">Сначала направление</option></select></div>
+        <div><label for="group-select">Группа</label><select id="group-select" disabled><option value="">Сначала курс</option></select></div>
+      </div>
+      <div class="selection-status" id="selection-status" role="status">Группа не выбрана.</div>
+
+      <div class="trial-panel" id="trial-panel" hidden>
+        <div>
+          <p class="eyebrow">7 дней бесплатно</p>
+          <h3>Получить календарь выбранной группы</h3>
+          <p>Введите email. Если trial для этой группы уже был создан, используйте страницу управления и восстановление доступа — новая подписка автоматически не создаётся.</p>
+        </div>
+        <form id="trial-form">
+          <label for="trial-email">Email</label>
+          <div class="inline-form"><input id="trial-email" name="email" type="email" autocomplete="email" required placeholder="name@example.com"><button class="button primary" type="submit">Начать 7 дней</button></div>
+        </form>
+        <div class="form-result" id="trial-result" role="status"></div>
+      </div>
+    </section>
+
+    <section id="pricing" class="section-shell block">
+      <div class="section-heading"><p class="eyebrow">Полный доступ</p><h2>Один календарь — разные периоды доступа</h2><p>Переход с trial на оплату и покупка второго семестра не должны менять уже добавленную ICS-ссылку.</p></div>
+      <div class="pricing-grid">
+        <article><span>Семестр</span><strong>299 ₽</strong><p>Доступ к одному семестру выбранной группы.</p><button class="button secondary commerce-button" type="button">Купить семестр</button></article>
+        <article class="popular"><span>Учебный год</span><strong>499 ₽</strong><p>Оба семестра в одной CalendarSubscription и по той же ссылке.</p><button class="button primary commerce-button" type="button">Купить учебный год</button></article>
+      </div>
+      <p class="pricing-note">Годовой тариф текущего учебного года не предлагается после закрытия окна продаж; в январе остаётся покупка второго семестра.</p>
+    </section>
+
+    <section id="how" class="section-shell block">
+      <div class="section-heading"><p class="eyebrow">Как работает</p><h2>От выбора группы до календаря</h2></div>
+      <div class="how-grid">
+        <article><span>1</span><h3>Выберите группу</h3><p>Каталог берётся из проверенного snapshot КГМУ, но trial открывается только для опубликованной ScheduleVersion.</p></article>
+        <article><span>2</span><h3>Получите trial</h3><p>7 дней полноценного календаря. В базе сохраняется только hash публичного ICS-токена.</p></article>
+        <article><span>3</span><h3>Добавьте календарь</h3><p>Ссылка остаётся стабильной при обновлении расписания и trial → paid. При утечке её можно безопасно сбросить.</p></article>
+      </div>
+    </section>
+
+    <section class="section-shell block install">
+      <div class="section-heading"><p class="eyebrow">Подключение</p><h2>Apple Calendar и Google Calendar</h2></div>
+      <div class="install-grid"><article><h3>iPhone</h3><p>Скопируйте защищённую HTTPS-ссылку и добавьте её как подписной календарь. После этого обновления расписания приходят по той же ссылке.</p></article><article><h3>Google Calendar</h3><p>Добавьте календарь «По URL» в веб-версии Google Calendar. Используется та же персональная ICS-ссылка.</p></article></div>
+    </section>
+
+    <section class="section-shell block faq" id="questions">
+      <div class="section-heading"><p class="eyebrow">Вопросы</p><h2>О календаре</h2></div>
+      <details><summary>Что будет, если расписание КГМУ изменится?</summary><p>После QA и публикации новой ScheduleVersion существующая подписка начинает отдавать новую версию. Повторно добавлять календарь не нужно.</p></details>
+      <details><summary>Почему группы может не быть в trial?</summary><p>Каталог группы и опубликованное расписание — разные вещи. Trial разрешается только после появления проверенной published ScheduleVersion.</p></details>
+      <details><summary>Можно восстановить потерянную ссылку?</summary><p>Да. Через proof-of-email страница управления создаёт новую ICS-ссылку и отзывает старую; существующая покупка и CalendarSubscription сохраняются.</p></details>
+      <details><summary>Это официальный сервис КГМУ?</summary><p>Нет. Это неофициальный сервис электронных календарей, использующий официально опубликованные расписания КГМУ как источник.</p></details>
+    </section>
+  </main>
+
+  <footer class="footer"><p>Неофициальный сервис электронного расписания студентов Кировского ГМУ</p><nav><a href="./manage/">Управление подпиской</a><a id="vk-link" href="#" hidden>Группа ВК</a><a id="support-link" href="#" hidden>Поддержка</a></nav></footer>
+
+  <script src="./runtime-config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
