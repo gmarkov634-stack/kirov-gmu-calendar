@@ -32,6 +32,10 @@ function eventSetDigest(events) {
   return sha256Hex(canonicalJson(sorted));
 }
 
+function unfoldIcs(ics) {
+  return ics.replace(/\r\n[ \t]/g, '');
+}
+
 function countVevents(ics) {
   return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
 }
@@ -182,13 +186,17 @@ try {
       events: published.events,
       calendarName: `КГМУ ${version.groupId}`
     });
-    if (countVevents(ics) !== version.eventCount) {
+    const unfoldedIcs = unfoldIcs(ics);
+    if (countVevents(unfoldedIcs) !== version.eventCount) {
       throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
     }
-    if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
+    if (published.events.some((event) => event.assessment) && !unfoldedIcs.includes('DESCRIPTION:')) {
       throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
     }
-    if (published.events.some((event) => event.lessonType === 'graded-credit') && !ics.includes('ЗАЧЕТ С ОЦЕНКОЙ')) {
+    if (
+      published.events.some((event) => event.lessonType === 'graded-credit') &&
+      !unfoldedIcs.includes('ЗАЧЕТ С ОЦЕНКОЙ')
+    ) {
       throw new Error(`group ${version.groupId} graded-credit summary is missing from rendered ICS`);
     }
   }
