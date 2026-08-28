@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
@@ -6,6 +8,8 @@ import {
   buildMedicinePublicationPlan,
   toCorePublicationQa
 } from '../src/medicine-publication-plan.js';
+
+const execFileAsync = promisify(execFile);
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), 'utf8'));
@@ -52,6 +56,14 @@ test('projects repository QA evidence to the strict core publication QaReport su
   ]);
   assert.equal('sharedContractEvidence' in projected, false);
   assert.equal(projected.decision, 'pass');
+});
+
+test('publication runner preflight expands and verifies without opening production SQLite', async () => {
+  const script = new URL('../ops/publish-medicine-101-110.mjs', import.meta.url);
+  const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight']);
+  assert.equal(stderr, '');
+  assert.match(stdout, /"eventCount": 3429/);
+  assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 
 test('fails closed if QA is not pass', async () => {
