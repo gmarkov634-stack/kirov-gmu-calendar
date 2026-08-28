@@ -2,7 +2,7 @@
   "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-v1",
   "parsingJobId": "parsing-job-dentistry-191-1",
   "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14",
-  "candidateArtifact": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json.gz",
+  "candidateArtifact": "fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json",
   "decision": "pass",
   "checks": [
     {"code":"group-content-accounted-for","status":"pass","message":"28 event-bearing timetable cells covered; B49 excluded under R39"},
