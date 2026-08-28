@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import test from 'node:test';
 
 import {
@@ -59,7 +60,7 @@ test('projects repository QA evidence to the strict core publication QaReport su
 });
 
 test('publication runner preflight expands and verifies without opening production SQLite', async () => {
-  const script = new URL('../ops/publish-medicine-101-110.mjs', import.meta.url);
+  const script = fileURLToPath(new URL('../ops/publish-medicine-101-110.mjs', import.meta.url));
   const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight']);
   assert.equal(stderr, '');
   assert.match(stdout, /"eventCount": 3429/);
