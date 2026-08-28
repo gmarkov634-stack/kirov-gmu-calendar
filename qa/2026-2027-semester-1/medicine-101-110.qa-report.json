@@ -2,7 +2,7 @@
   "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-refresh-v1",
   "parsingJobId": "parsing-job-101-110-refresh-1",
   "candidateDigest": "sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a",
-  "decision": "fail",
+  "decision": "pass",
   "checks": [
     {"code":"all-group-content-accounted-for","status":"pass","message":"145/145 logical timetable cells accounted for by explicit operator-authored decisions"},
     {"code":"dates-within-academic-period","status":"pass","message":"All 3429 generated dates are inside the official service-week grid through 2027-01-16"},
@@ -12,7 +12,13 @@
     {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities"},
     {"code":"r83-additional-event-counts","status":"pass","message":"26/26 R83 completeness assertions passed without date synthesis"},
     {"code":"assessment-metadata-captured","status":"pass","message":"Lower reference assessment metadata is captured for 5 disciplines; explicit ORG controls preserve graded-credit semantics"},
-    {"code":"shared-contract-assessment-projection","status":"fail","message":"medical-calendar-core main NormalizedEvent v1 has neither structured assessment metadata nor graded-credit lessonType; publication remains blocked until the backward-compatible core extension is merged and the exact candidate is revalidated"}
+    {"code":"shared-contract-assessment-projection","status":"pass","message":"Revalidated against medical-calendar-core/main commit 46c64976fff5483b34b40570f4ffe49f20554ff3: NormalizedEvent v1 now supports structured assessment metadata and graded-credit lessonType, and ICS projects assessment metadata with distinct graded-credit summary semantics"}
   ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "46c64976fff5483b34b40570f4ffe49f20554ff3",
+    "normalizedEventSchemaBlob": "f40a8d7efef1cf362cea9a82976dd86d431186b8",
+    "icsRendererBlob": "94cbd7d50aa4af2028ab27298cc05592ee3d51b7"
+  },
   "createdAt": "2026-08-29T00:00:00+02:00"
 }
