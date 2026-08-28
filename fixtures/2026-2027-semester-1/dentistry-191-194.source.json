@@ -16,7 +16,7 @@
   },
   "expectedGroupIds": ["191", "192", "193", "194"],
   "workbookExpectations": {
-    "sheetNames": ["1 стомат"],
+    "sheetNames": ["1 стомат."],
     "dimension": "A1:F75",
     "maxRow": 75,
     "maxColumn": 6,
