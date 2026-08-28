@@ -12,7 +12,7 @@ jobs:
   verify-source:
     runs-on: ubuntu-latest
     steps:
-      - name: Discover and download current official XLSX
+      - name: Download historical and current official XLSX
         shell: python
         run: |
           import hashlib
@@ -25,48 +25,63 @@ jobs:
           from pathlib import Path
 
           PAGE = "https://kirovgma.ru/lechebnyy-fakultet-raspisanie"
-          request = urllib.request.Request(PAGE, headers={"User-Agent": "medical-calendar-source-verifier/1"})
-          html = urllib.request.urlopen(request, timeout=30).read().decode("utf-8", errors="replace")
+          OLD_URL = "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._1_potok-24-08-2026-13.xlsx"
+          OLD_SHA256 = "8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6"
+          OLD_BYTES = 21068
+
+          def fetch(url):
+              request = urllib.request.Request(url, headers={"User-Agent": "medical-calendar-source-verifier/1"})
+              return urllib.request.urlopen(request, timeout=60).read()
+
+          def validate_xlsx(data):
+              with zipfile.ZipFile(io.BytesIO(data)) as workbook:
+                  names = set(workbook.namelist())
+                  if "[Content_Types].xml" not in names or "xl/worksheets/sheet1.xml" not in names:
+                      raise SystemExit("download is not a valid one-sheet XLSX container")
+
+          html = fetch(PAGE).decode("utf-8", errors="replace")
           hrefs = re.findall(r'href=["\\\']([^"\\\']+)["\\\']', html)
           links = [urllib.parse.urljoin(PAGE, href) for href in hrefs]
-          candidates = [
-              url for url in links
-              if url.lower().endswith(".xlsx") and "1_lech._1_potok" in url
-          ]
+          candidates = [url for url in links if url.lower().endswith(".xlsx") and "1_lech._1_potok" in url]
           if len(candidates) != 1:
               raise SystemExit(f"expected exactly one current 101-110 XLSX, got {candidates}")
+          current_url = candidates[0]
 
-          source_url = candidates[0]
-          source_request = urllib.request.Request(source_url, headers={"User-Agent": "medical-calendar-source-verifier/1"})
-          data = urllib.request.urlopen(source_request, timeout=60).read()
-          digest = hashlib.sha256(data).hexdigest()
-          with zipfile.ZipFile(io.BytesIO(data)) as workbook:
-              names = set(workbook.namelist())
-              if "[Content_Types].xml" not in names or "xl/worksheets/sheet1.xml" not in names:
-                  raise SystemExit("download is not a valid one-sheet XLSX container")
+          old_data = fetch(OLD_URL)
+          old_digest = hashlib.sha256(old_data).hexdigest()
+          validate_xlsx(old_data)
+          if len(old_data) != OLD_BYTES or old_digest != OLD_SHA256:
+              raise SystemExit(
+                  f"historical source identity mismatch: bytes={len(old_data)} sha256={old_digest}"
+              )
 
-          Path("medicine-101-110-current.xlsx").write_bytes(data)
+          current_data = fetch(current_url)
+          current_digest = hashlib.sha256(current_data).hexdigest()
+          validate_xlsx(current_data)
+
+          Path("medicine-101-110-historical.xlsx").write_bytes(old_data)
+          Path("medicine-101-110-current.xlsx").write_bytes(current_data)
           metadata = {
               "pageUrl": PAGE,
-              "sourceUrl": source_url,
-              "sha256": digest,
-              "byteLength": len(data),
+              "historical": {"sourceUrl": OLD_URL, "sha256": old_digest, "byteLength": len(old_data)},
+              "current": {"sourceUrl": current_url, "sha256": current_digest, "byteLength": len(current_data)},
           }
-          Path("medicine-101-110-current.json").write_text(
-              json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
-              encoding="utf-8",
+          Path("medicine-101-110-sources.json").write_text(
+              json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
           )
-          print(f"source_url={source_url}")
-          print(f"byte_length={len(data)}")
-          print(f"sha256={digest}")
-          print("MEDICINE_101_110_SOURCE_DISCOVERED")
+          print(f"historical_sha256={old_digest}")
+          print(f"current_url={current_url}")
+          print(f"current_byte_length={len(current_data)}")
+          print(f"current_sha256={current_digest}")
+          print("MEDICINE_101_110_BOTH_SOURCES_CAPTURED")
 
-      - name: Upload current official source
+      - name: Upload both official source revisions
         uses: actions/upload-artifact@v4
         with:
-          name: medicine-101-110-current-source
+          name: medicine-101-110-source-revisions
           path: |
+            medicine-101-110-historical.xlsx
             medicine-101-110-current.xlsx
-            medicine-101-110-current.json
+            medicine-101-110-sources.json
           if-no-files-found: error
           retention-days: 1
