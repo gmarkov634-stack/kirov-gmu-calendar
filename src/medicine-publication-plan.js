@@ -29,6 +29,18 @@ function stableVersionId({ groupId, candidateDigest }) {
   return `kgmu-2026-2027-s1-medicine-${groupId}-${digest.slice(0, 16)}`;
 }
 
+export function toCorePublicationQa(qa) {
+  assertObject(qa, 'qa');
+  return Object.freeze({
+    qaReportId: assertNonEmptyString(qa.qaReportId, 'qa.qaReportId'),
+    parsingJobId: assertNonEmptyString(qa.parsingJobId, 'qa.parsingJobId'),
+    candidateDigest: assertNonEmptyString(qa.candidateDigest, 'qa.candidateDigest'),
+    decision: qa.decision,
+    checks: qa.checks,
+    createdAt: assertNonEmptyString(qa.createdAt, 'qa.createdAt')
+  });
+}
+
 export function buildMedicinePublicationPlan({ manifest, source, evidence, qa }) {
   assertObject(manifest, 'manifest');
   assertObject(source, 'source');
