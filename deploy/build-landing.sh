@@ -15,6 +15,9 @@ rm -rf -- "$OUT_DIR"
 mkdir -p -- "$OUT_DIR" "$OUT_DIR/catalog"
 
 cp -R "$ROOT_DIR/landing/." "$OUT_DIR/"
+# Repository documentation is not part of the public web artifact and contains
+# historical legacy endpoint names by design.
+rm -f -- "$OUT_DIR/README.md"
 cp "$ROOT_DIR/deploy/runtime-config.production.js" "$OUT_DIR/runtime-config.js"
 cp "$ROOT_DIR/catalog/2026-2027-semester-1.json" "$OUT_DIR/catalog/2026-2027-semester-1.json"
 
