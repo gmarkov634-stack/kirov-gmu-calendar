@@ -9,16 +9,18 @@ async function readJson(relativePath) {
 
 const EXPECTED_GROUPS = ['101', '102', '103', '104', '105', '106', '107', '108', '109', '110'];
 
-test('pins the server-fetched official KGMU 101-110 fixture by URL and SHA-256', async () => {
+test('pins the current server-fetched official KGMU 101-110 fixture by URL and SHA-256', async () => {
   const fixture = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.source.json');
   const sourceUrl = new URL(fixture.source.url);
 
   assert.equal(sourceUrl.protocol, 'https:');
   assert.equal(sourceUrl.hostname, 'kirovgma.ru');
-  assert.ok(sourceUrl.pathname.startsWith('/sites/default/files/files/'));
-  assert.match(fixture.source.sha256, /^[0-9a-f]{64}$/);
-  assert.equal(fixture.source.sha256, '8d5695ce3e2eb26da757b952a332714150a9961d4bcd6bf03b09dbbf875f52d6');
-  assert.equal(fixture.source.byteLength, 21068);
+  assert.equal(
+    fixture.source.url,
+    'https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/1_lech._1_potok-27-08-2026-11.xlsx'
+  );
+  assert.equal(fixture.source.sha256, '341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b');
+  assert.equal(fixture.source.byteLength, 21119);
   assert.deepEqual(fixture.expectedGroupIds, EXPECTED_GROUPS);
   assert.equal(fixture.storagePolicy.repositoryStoresBinarySource, false);
   assert.equal(fixture.storagePolicy.productionSourceIsServerFetched, true);
@@ -30,7 +32,7 @@ test('uses the current canonical KGMU rule bundle and fails closed on ambiguity'
   const manifest = await readJson('../parser-rules/v1/manifest.json');
   const qa = await readJson('../qa/policy.json');
 
-  assert.equal(fixture.parserRulesVersion, 'kgmu-2026-08-27-v2');
+  assert.equal(fixture.parserRulesVersion, 'kgmu-2026-08-27-v3');
   assert.equal(manifest.parserRulesVersion, 'kgmu-2026-08-27-v3');
   assert.deepEqual(manifest.profiles.weekly, ['general', 'weekly']);
   assert.equal(manifest.canonicalDocumentation.general.ruleRange, 'G01-G21');
@@ -52,13 +54,13 @@ test('builds exactly the medical-calendar-core v1 ParsingJob surface with the cu
   const fixture = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.source.json');
   const manifest = await readJson('../parser-rules/v1/manifest.json');
   const job = createKgmuParsingJob({
-    jobId: 'parsing-job-101-110-1',
+    jobId: 'parsing-job-101-110-refresh-2026-08-29',
     academicPeriodId: fixture.academicPeriodId,
     sourceId: fixture.source.sourceId,
     sourceObjectKey: `sources/kirov-gmu/${fixture.academicYear}/semester-1/${fixture.source.sha256}.xlsx`,
     parserRulesVersion: manifest.parserRulesVersion,
     expectedGroupIds: fixture.expectedGroupIds,
-    requestedAt: '2026-08-27T00:00:00Z'
+    requestedAt: '2026-08-29T00:00:00Z'
   });
 
   assert.deepEqual(Object.keys(job), [
@@ -86,11 +88,11 @@ test('rejects duplicate expected groups and invalid request timestamps', () => {
     sourceObjectKey: 'sources/example.xlsx',
     parserRulesVersion: 'kgmu-2026-08-27-v3',
     expectedGroupIds: ['101'],
-    requestedAt: '2026-08-27T00:00:00Z'
+    requestedAt: '2026-08-29T00:00:00Z'
   };
 
   assert.throws(() => createKgmuParsingJob({ ...base, expectedGroupIds: ['101', '101'] }), /unique/);
   assert.throws(() => createKgmuParsingJob({ ...base, requestedAt: 'not-a-date' }), /date-time/);
-  assert.throws(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-27' }), /date-time/);
-  assert.doesNotThrow(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-27T03:00:00+03:00' }));
+  assert.throws(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-29' }), /date-time/);
+  assert.doesNotThrow(() => createKgmuParsingJob({ ...base, requestedAt: '2026-08-29T03:00:00+03:00' }));
 });
