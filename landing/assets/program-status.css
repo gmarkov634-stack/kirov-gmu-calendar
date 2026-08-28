@@ -1,0 +1,9 @@
+.program-badge.is-available {
+  background:#e8f7ef;
+  color:#207a55;
+}
+
+.program-card.is-available {
+  border-color:#b9dfcf;
+  box-shadow:0 10px 26px rgba(32,122,85,.08);
+}

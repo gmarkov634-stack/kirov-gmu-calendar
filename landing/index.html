@@ -1,247 +1,230 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1559d6">
-  <meta name="description" content="Расписание Кировского ГМУ в Apple Calendar и Google Calendar: выберите свою группу и смотрите пары в обычном календаре телефона.">
-  <meta name="robots" content="index,follow">
-  <title>Расписание КГМУ в Apple и Google Calendar</title>
-  <link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <a class="brand" href="./" aria-label="Календарь КГМУ — на главную">
-        <span class="brand-mark" aria-hidden="true">К</span>
-        <span><strong>Календарь КГМУ</strong><small>Расписание в телефоне</small></span>
-      </a>
-      <nav class="topnav" aria-label="Навигация">
-        <a href="#directions">Направления</a>
-        <a href="#how">Как работает</a>
-        <a href="#selector">Выбрать группу</a>
-        <a href="#pricing">Тарифы</a>
-        <a href="./manage/">Управление</a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero wrap">
-      <div class="hero-copy">
-        <p class="eyebrow">Кировский государственный медицинский университет</p>
-        <h1>Не ищи расписание каждый день</h1>
-        <p class="hero-lead">Пары вашей группы уже в обычном календаре телефона. Откройте Apple Calendar или Google Calendar — и учебный день будет перед глазами.</p>
-        <div class="hero-features" aria-label="Главные преимущества">
-          <span>Apple и Google</span>
-          <span>Проверенное расписание</span>
-          <span>Обновления по той же ссылке</span>
-          <span>Без автосписаний</span>
-        </div>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#selector">Попробовать 7 дней бесплатно</a>
-          <a class="button button-secondary" href="#pricing">Купить полный доступ</a>
-        </div>
-        <p class="runtime-note" id="runtime-note">Trial и покупка включаются только после production-проверки backend. Пока можно выбрать группу и посмотреть, как будет работать сервис.</p>
+<!DOCTYPE html>
+<html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1559d6">
+    <meta name="description" content="Расписание Кировского ГМУ в Apple Calendar и Google Calendar: выберите свою группу и смотрите пары в обычном календаре телефона.">
+    <meta name="robots" content="index,follow">
+    <title>Расписание КГМУ в Apple и Google Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./assets/fonts.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/styles.css">
+    <link rel="stylesheet" href="./assets/pricing.css">
+    <link rel="stylesheet" href="./assets/landing-v1.css">
+    <link rel="stylesheet" href="./assets/landing-feed.css" data-calendar-feed-styles="">
+    <link rel="stylesheet" href="./assets/program-status.css">
+    <link rel="stylesheet" href="./assets/trial.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./" aria-label="На главную">
+          <span class="brand-mark" aria-hidden="true">К</span>
+          <span><strong>Календарь КГМУ</strong><small>Расписание в телефоне</small></span>
+        </a>
+        <nav class="topnav" aria-label="Навигация">
+          <a href="./#directions">Направления</a>
+          <a href="./#how">Как работает</a>
+          <a href="./#selector">Выбрать группу</a>
+          <a href="./#questions">Вопросы</a>
+        </nav>
       </div>
+    </header>
 
-      <div class="calendar-card" aria-label="Пример расписания группы 101">
-        <div class="calendar-toolbar">
-          <span class="calendar-back">‹ Август</span>
-          <strong>Расписание</strong>
-          <span aria-hidden="true">⌕ ＋</span>
-        </div>
-        <div class="calendar-day">
-          <div class="calendar-day-head">
-            <span>Ср</span><b>2</b>
-            <div><strong>Среда</strong><small>2 сентября · группа 101</small></div>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Кировский государственный медицинский университет</p>
+          <h1>Не ищи расписание каждый день</h1>
+          <p>Пары вашей группы уже в календаре телефона. Откройте привычный Apple Calendar или Google Calendar — и учебный день будет перед глазами.</p>
+          <div class="hero-features" aria-label="Главные преимущества">
+            <span class="hero-feature">Apple и Google</span>
+            <span class="hero-feature">Проверенное расписание</span>
+            <span class="hero-feature">Без автосписаний</span>
           </div>
-          <article class="calendar-event practice">
-            <time>08:00<small>10:25</small></time>
-            <div><strong>Общая и биоорганическая химия</strong><small>1 корпус, ул. Владимирская, 137</small></div>
-          </article>
-          <article class="calendar-event lecture">
-            <time>10:50<small>12:20</small></time>
-            <div><strong>ЛЕКЦ. ФИЗИКА, МАТЕМАТИКА</strong><small>3 корпус, аудитория 819, ул. Владимирская, 112</small></div>
-          </article>
-          <article class="calendar-event lecture">
-            <time>12:30<small>14:00</small></time>
-            <div><strong>ЛЕКЦ. БИОЛОГИЯ</strong><small>3 корпус, аудитория 819, ул. Владимирская, 112</small></div>
-          </article>
-          <article class="calendar-event practice">
-            <time>14:50<small>16:20</small></time>
-            <div><strong>Основы российской государственности</strong><small>1 корпус, аудитория 406, ул. Владимирская, 137</small></div>
-          </article>
+          <div class="hero-actions">
+            <a class="hero-cta" id="hero-primary-cta" href="./#selector">Выбрать свою группу →</a>
+          </div>
+          <span class="hero-runtime-note" id="hero-runtime-note">Сначала выберите группу и посмотрите несколько реальных занятий. Бесплатная проба появится только после отдельного включения сервиса.</span>
         </div>
-        <div class="calendar-footer"><span>Сегодня</span><strong>Календари</strong><span>Входящие</span></div>
-      </div>
-    </section>
+        <div class="hero-visual">
+          <div class="calendar-preview calendar-preview--dual calendar-preview--apple">
+    <div class="calendar-platform-switch" role="tablist" aria-label="Вид календаря">
+      <button type="button" class="calendar-platform-tab is-active" data-platform="apple" role="tab" aria-selected="true">Apple</button>
+      <button type="button" class="calendar-platform-tab" data-platform="google" role="tab" aria-selected="false">Google</button>
+    </div>
+    <div class="acal-toolbar"><button type="button" class="acal-back" tabindex="-1">‹ Март</button><strong>Расписание</strong><span class="acal-actions" aria-hidden="true">⌕　＋</span></div>
+    <div class="acal-agenda-scroll" data-apple-scroll="">
+      
+        <section class="acal-agenda-day">
+          <header class="acal-agenda-day-head"><span>Пн</span><b>16</b><div><strong>Понедельник</strong><small>16 марта</small></div></header>
+          <div class="acal-agenda-events">
+            
+              <button type="button" class="acal-agenda-event tone-sport" data-calendar-event="0" data-day-index="0">
+                <span class="acal-agenda-time"><b>10:30</b><small>12:00</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Элективные дисциплины по физической культуре и спорту</strong><small>3 корпус, Физкультурно-оздоровительный комплекс, ул. Владимирская, 112</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="1" data-day-index="0">
+                <span class="acal-agenda-time"><b>13:00</b><small>15:25</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Анатомия</strong><small>3 корпус, ул. Владимирская, 112</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="2" data-day-index="0">
+                <span class="acal-agenda-time"><b>15:45</b><small>18:10</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Биология</strong><small>1 корпус, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-lecture" data-calendar-event="3" data-day-index="0">
+                <span class="acal-agenda-time"><b>18:30</b><small>20:00</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>ЛЕКЦ. БИОЭТИКА</strong><small>1 корпус, аудитория 411, ул. Владимирская, 137</small></span>
+              </button>
+          </div>
+        </section>
+        <section class="acal-agenda-day">
+          <header class="acal-agenda-day-head"><span>Вт</span><b>17</b><div><strong>Вторник</strong><small>17 марта</small></div></header>
+          <div class="acal-agenda-events">
+            
+              <button type="button" class="acal-agenda-event tone-lecture" data-calendar-event="0" data-day-index="1">
+                <span class="acal-agenda-time"><b>11:00</b><small>12:30</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>ЛЕКЦ. ГИСТОЛОГИЯ, ЭМБРИОЛОГИЯ, ЦИТОЛОГИЯ</strong><small>1 корпус, аудитория 411, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-lecture" data-calendar-event="1" data-day-index="1">
+                <span class="acal-agenda-time"><b>12:40</b><small>14:10</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>ЛЕКЦ. БЕЗОПАСНОСТЬ ЖИЗНЕДЕЯТЕЛЬНОСТИ</strong><small>1 корпус, аудитория 411, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="2" data-day-index="1">
+                <span class="acal-agenda-time"><b>15:30</b><small>17:00</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Безопасность жизнедеятельности</strong><small>3 корпус, аудитория 711, ул. Владимирская, 112</small></span>
+              </button>
+          </div>
+        </section>
+        <section class="acal-agenda-day">
+          <header class="acal-agenda-day-head"><span>Ср</span><b>18</b><div><strong>Среда</strong><small>18 марта</small></div></header>
+          <div class="acal-agenda-events">
+            
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="0" data-day-index="2">
+                <span class="acal-agenda-time"><b>09:00</b><small>10:30</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Латинский язык</strong><small>1 корпус, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-lecture" data-calendar-event="1" data-day-index="2">
+                <span class="acal-agenda-time"><b>11:00</b><small>12:30</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>ЛЕКЦ. ПСИХОЛОГИЯ И ПЕДАГОГИКА</strong><small>1 корпус, аудитория 411, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="2" data-day-index="2">
+                <span class="acal-agenda-time"><b>12:40</b><small>14:10</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Биоэтика</strong><small>1 корпус, аудитория 319, ул. Владимирская, 137</small></span>
+              </button>
+              <button type="button" class="acal-agenda-event tone-practice" data-calendar-event="3" data-day-index="2">
+                <span class="acal-agenda-time"><b>15:15</b><small>16:45</small></span>
+                <i aria-hidden="true"></i>
+                <span class="acal-agenda-copy"><strong>Экономика</strong><small>1 корпус, аудитория 319, ул. Владимирская, 137</small></span>
+              </button>
+          </div>
+        </section>
+      <div class="acal-agenda-end">Конец показанных дней</div>
+    </div>
+    <div class="acal-footer"><span>Сегодня</span><strong>Календари</strong><span>Входящие</span></div></div>
+        </div>
+      </section>
 
-    <section class="comparison wrap" aria-label="Сравнение способов просмотра расписания">
-      <article>
-        <strong>Обычно</strong>
-        <p>Открыть XLSX, PDF, сайт или чат → найти свою группу → определить неделю → найти день → прочитать расписание.</p>
-      </article>
-      <article class="comparison-good">
-        <strong>С календарём</strong>
-        <p>Открыть календарь телефона → увидеть сегодняшние и следующие пары среди остальных событий дня.</p>
-      </article>
-      <p class="comparison-note">Мы не сделали ещё одно место, где можно посмотреть расписание. Мы убрали необходимость каждый раз его искать.</p>
-    </section>
+      <section class="comparison-section" aria-label="Сравнение способов просмотра расписания">
+        <article class="comparison-card">
+          <strong>Обычно</strong>
+          <p>Открыть XLSX, PDF, сайт или чат → найти свою группу → определить неделю → найти день → прочитать расписание.</p>
+        </article>
+        <article class="comparison-card is-calendar">
+          <strong>С календарём</strong>
+          <p>Открыть календарь телефона → увидеть сегодняшние и следующие пары среди остальных событий дня.</p>
+        </article>
+        <p class="comparison-note">Мы не сделали ещё одно место, где можно посмотреть расписание. Мы убрали необходимость каждый раз его искать.</p>
+      </section>
 
-    <section class="availability wrap">
-      <div>
-        <strong>Доступ появляется только после проверки расписания</strong>
-        <p>Группа становится доступной для trial только после публикации официального расписания КГМУ, нормализации, QA и публикации ScheduleVersion.</p>
-      </div>
-      <span>2026/27 · осенний семестр</span>
-    </section>
+      <section class="availability" aria-label="Статус расписания 2026/27">
+        <div>
+          <strong>Доступ появляется только после проверки расписания</strong>
+          <p>Для учебного года 2026/27 группа появится в выборе после публикации официального расписания КГМУ и проверки дат, времени занятий и состава групп.</p>
+        </div>
+        <span class="availability-badge">2026/27 · осенний семестр</span>
+      </section>
 
-    <section id="directions" class="section wrap">
-      <div class="section-heading">
-        <p class="eyebrow">Направления КГМУ</p>
-        <h2>Три направления в текущем проекте</h2>
-        <p>В продукт входят лечебное дело, педиатрия и стоматология. Другие программы КГМУ в текущий scope не входят.</p>
-      </div>
-      <div class="program-grid">
-        <article><span class="badge">2026/27</span><h3>Лечебное дело</h3><p>Курсы 1–6</p></article>
-        <article><span class="badge">2026/27</span><h3>Педиатрия</h3><p>Курсы 1–6</p></article>
-        <article><span class="badge">2026/27</span><h3>Стоматология</h3><p>Курсы 1–5</p></article>
-      </div>
-    </section>
+      <section id="directions" class="info-section" aria-labelledby="directions-title">
+        <div class="section-heading">
+          <p class="eyebrow">Направления КГМУ</p>
+          <h2 id="directions-title">Один сервис для основных расписаний</h2>
+          <p>В выборе появляются только группы с опубликованным и проверенным расписанием. Если расписание ещё не опубликовано или требует уточнения, группа остаётся недоступной.</p>
+        </div>
+        <div class="program-grid">
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Ожидаем расписание</span></div><h3>Лечебное дело</h3><p>Курсы 1–6</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Ожидаем расписание</span></div><h3>Педиатрия</h3><p>Курсы 1–6</p></article>
+          <article class="program-card"><div class="program-card-top"><span class="program-badge">Ожидаем расписание</span></div><h3>Стоматология</h3><p>Курсы 1–5</p></article>
+        </div>
+      </section>
 
-    <section id="how" class="section section-muted">
-      <div class="wrap">
+      <section id="how" class="info-section" aria-labelledby="how-title">
         <div class="section-heading">
           <p class="eyebrow">Как это работает</p>
-          <h2>От группы до календаря за несколько шагов</h2>
+          <h2 id="how-title">Сначала увидьте результат — потом решайте</h2>
         </div>
         <div class="how-grid">
-          <article><span>1</span><h3>Выберите группу</h3><p>Каталог берётся из проверенной структуры КГМУ на текущий учебный год.</p></article>
-          <article><span>2</span><h3>Начните 7-дневный trial</h3><p>Введите email. Backend выдаёт полноценную подписку только для уже опубликованной группы.</p></article>
-          <article><span>3</span><h3>Добавьте календарь</h3><p>Полученную персональную ICS-ссылку можно подключить к телефону. После оплаты URL не меняется.</p></article>
+          <article class="how-card"><span class="how-number">1</span><h3>Выберите свою группу</h3><p>Показываем только группы из уже опубликованного и проверенного расписания.</p></article>
+          <article class="how-card"><span class="how-number">2</span><h3 id="how-step2-title">Посмотрите реальные пары</h3><p id="how-step2-copy">Перед оплатой вы увидите несколько занятий именно своей группы.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3 id="how-step3-title">Подключите календарь</h3><p id="how-step3-copy">Если формат подходит и продажи открыты, выберите полный период и подключите персональную ссылку.</p></article>
         </div>
-        <div class="trust-strip">
-          <div><strong>Официальный источник</strong><span>Расписание берётся из материалов КГМУ.</span></div>
-          <div><strong>QA перед публикацией</strong><span>Новая версия не заменяет рабочую без проверки.</span></div>
-          <div><strong>Отзыв ссылки</strong><span>Потерянную ICS-ссылку можно сбросить через подтверждение email.</span></div>
+        <div class="trust-strip" aria-label="О сервисе">
+          <div><strong>Официальный источник</strong><span>Расписание берётся из опубликованных материалов КГМУ.</span></div>
+          <div><strong>Проверено перед публикацией</strong><span>Перед выдачей проверяем даты, время занятий и состав групп.</span></div>
+          <div><strong>Одна paid-ссылка</strong><span>После проверки новой версии изменения приходят по той же оплаченной ссылке.</span></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="selector" class="selector wrap">
-      <div class="section-heading">
-        <p class="eyebrow">Выбор группы</p>
-        <h2>Найдите свою группу</h2>
-        <p>Структура загружается из versioned catalog КГМУ. Backend всё равно повторно проверяет наличие опубликованной ScheduleVersion перед выдачей trial.</p>
-      </div>
-
-      <div class="selector-grid">
-        <label>Направление
-          <select id="program-select" autocomplete="off">
-            <option value="">Выберите направление</option>
-          </select>
-        </label>
-        <label>Курс
-          <select id="course-select" autocomplete="off" disabled>
-            <option value="">Сначала направление</option>
-          </select>
-        </label>
-        <label>Группа
-          <select id="group-select" autocomplete="off" disabled>
-            <option value="">Сначала курс</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="selected-group" id="selected-group" hidden>
-        <div>
-          <p class="section-kicker">Выбрана группа</p>
-          <h3 id="selected-group-title"></h3>
-          <p id="selected-group-note">Проверим доступность на сервере при запуске trial.</p>
+      <section id="selector" class="selector selector-anchor" aria-labelledby="selector-title">
+        <div class="steps" aria-label="Выбор группы">
+          <div class="step is-complete" data-step-indicator="faculty"><span>1</span><strong>Факультет</strong></div>
+          <div class="step is-active" data-step-indicator="course"><span>2</span><strong>Курс</strong></div>
+          <div class="step" data-step-indicator="group"><span>3</span><strong>Группа</strong></div>
         </div>
-      </div>
-
-      <form class="trial-card" id="trial-form">
-        <div>
-          <p class="section-kicker">7 дней бесплатно</p>
-          <h3>Получить календарь своей группы</h3>
-          <p>Пароль не нужен. Email используется для Customer и последующего восстановления управления подпиской.</p>
+        <div class="panel-head">
+          <div><p class="section-kicker" id="step-kicker">Шаг 2 из 3</p><h2 id="selector-title">Лечебный факультет</h2></div>
+          <button class="back-button" id="back-button" type="button">← Назад</button>
         </div>
-        <label>Email
-          <input id="trial-email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required>
-        </label>
-        <button class="button button-primary" id="trial-submit" type="submit" disabled>Начать 7-дневный trial</button>
-        <p class="form-status" id="trial-status" role="status" aria-live="polite"></p>
-      </form>
+        <div class="choice-grid" id="choice-grid" aria-live="polite"><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">1</span><strong>1 курс</strong><small>Расписание ещё не опубликовано</small></button><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">2</span><strong>2 курс</strong><small>Проверить доступность</small></button><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">3</span><strong>3 курс</strong><small>Проверить доступность</small></button><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">4</span><strong>4 курс</strong><small>Проверить доступность</small></button><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">5</span><strong>5 курс</strong><small>Проверить доступность</small></button><button type="button" class="choice-card"><span class="card-icon" aria-hidden="true">6</span><strong>6 курс</strong><small>Проверить доступность</small></button></div>
+        <div class="notice" id="notice" hidden="">Для этого курса проверенное расписание 2026/27 пока не опубликовано.</div>
+      </section>
 
-      <div class="calendar-result" id="calendar-result" hidden>
-        <p class="section-kicker">Календарь готов</p>
-        <h3>Добавьте подписку в календарь</h3>
-        <p>Скопируйте персональную ссылку и добавьте её как подписной календарь. Не публикуйте эту ссылку.</p>
-        <div class="copy-row">
-          <input id="calendar-url" type="text" readonly aria-label="Персональная ICS-ссылка">
-          <button class="button button-secondary" id="copy-calendar-url" type="button">Скопировать</button>
+      <section class="schedule-policy" aria-label="Важная информация о расписании">
+        <strong>Важно</strong>
+        <p>Календарь составляется по официально опубликованному расписанию КГМУ. Переносы, замены и другие изменения, согласованные группой с преподавателем вне опубликованного расписания, в календаре не отображаются.</p>
+      </section>
+
+      <section id="questions" class="faq" aria-labelledby="questions-title">
+        <div class="section-heading"><p class="eyebrow">Вопросы и ответы</p><h2 id="questions-title">О календаре</h2></div>
+        <div class="faq-list">
+          <details><summary>Что будет, если расписание на сайте изменится?</summary><p>После проверки и публикации новой версии изменения попадут в подписной календарь по той же персональной ссылке. Заново добавлять календарь не нужно.</p></details>
+          <details><summary>Нужно ли снова платить после изменения расписания?</summary><p>Нет. Обновления уже приобретённого периода входят в доступ и приходят по той же ссылке.</p></details>
+          <details><summary>Почему моей группы пока нет в списке?</summary><p>Группа появляется только после публикации официального расписания КГМУ и прохождения проверки. Если расписание ещё не опубликовано или требует уточнения, группа остаётся недоступной.</p></details>
+          <details><summary>Одна ссылка подходит для Apple и Google?</summary><p>Да. После оплаты создаётся одна персональная подписная ссылка. На iPhone её можно подключить как подписной календарь, а в Google Calendar — добавить по URL.</p></details>
+          <details><summary>Это официальный сервис КГМУ?</summary><p>Нет. Это неофициальный сервис электронных календарей. Для подготовки календарей используются официально опубликованные расписания КГМУ.</p></details>
         </div>
-        <p><a href="./manage/">Управление и восстановление ссылки →</a></p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <p>Неофициальный сервис электронного расписания студентов Кировского ГМУ</p>
+        <nav aria-label="Ссылки в подвале"><a href="./#directions">Направления</a><a href="./#how">Как работает</a><a href="./#questions">Вопросы</a></nav>
       </div>
-    </section>
-
-    <section id="pricing" class="section section-muted">
-      <div class="wrap">
-        <div class="section-heading">
-          <p class="eyebrow">Полный доступ</p>
-          <h2>Тарифы КГМУ</h2>
-          <p>Оплата будет включена отдельным этапом после production trial/recovery smoke. Success-страница сама по себе никогда не подтверждает оплату.</p>
-        </div>
-        <div class="pricing-grid">
-          <article class="price-card">
-            <span class="badge">Семестр</span>
-            <h3>299 ₽</h3>
-            <p>Доступ к выбранному семестру. При покупке второго семестра календарь и ICS URL остаются прежними.</p>
-            <button class="button button-secondary" type="button" data-checkout disabled>Купить за 299 ₽</button>
-          </article>
-          <article class="price-card price-card-main">
-            <span class="badge">Учебный год</span>
-            <h3>499 ₽</h3>
-            <p>Оба семестра одного academicYear. Годовой вариант закрывается до 1 января второго календарного года учебного года.</p>
-            <button class="button button-primary" type="button" data-checkout disabled>Купить за 499 ₽</button>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="policy wrap">
-      <strong>Важно</strong>
-      <p>Календарь составляется по официально опубликованному расписанию КГМУ. Переносы и замены, согласованные вне опубликованного расписания, в календаре не отображаются до появления в официальном источнике и прохождения проверки.</p>
-    </section>
-
-    <section id="questions" class="section wrap">
-      <div class="section-heading">
-        <p class="eyebrow">Вопросы и ответы</p>
-        <h2>О календаре</h2>
-      </div>
-      <div class="faq-list">
-        <details><summary>Что будет, если расписание изменится?</summary><p>После проверки и публикации новой ScheduleVersion изменения попадут в существующую подписку. Заново добавлять календарь не нужно.</p></details>
-        <details><summary>Что происходит после окончания trial?</summary><p>Trial действует 7 дней. После подтверждённой сервером оплаты право доступа меняется на active, а существующий ICS URL сохраняется.</p></details>
-        <details><summary>Что делать, если я потерял ссылку?</summary><p>На странице управления запросите magic-link на свой email. После подтверждения можно отозвать старый token и получить новую ICS-ссылку без новой покупки.</p></details>
-        <details><summary>Это официальный сервис КГМУ?</summary><p>Нет. Это неофициальный сервис электронных календарей. Для подготовки календарей используются официально опубликованные расписания КГМУ.</p></details>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap footer-inner">
-      <p>Неофициальный сервис электронного расписания студентов Кировского ГМУ</p>
-      <nav aria-label="Ссылки в подвале">
-        <a href="#directions">Направления</a>
-        <a href="#selector">Выбрать группу</a>
-        <a href="./manage/">Управление</a>
-      </nav>
-    </div>
-  </footer>
-
-  <script src="./runtime-config.js"></script>
-  <script type="module" src="./app.js"></script>
-</body>
-</html>
+    </footer>
+    <script src="./runtime-config.js"></script>
+    <script src="./assets/landing-preview.js"></script>
+    <script type="module" src="./app.js"></script>
+  
+</body></html>

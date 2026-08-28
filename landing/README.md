@@ -1,48 +1,46 @@
 # Landing КГМУ
 
-Static mobile-first landing для КГМУ. Визуальная и контентная основа перенесена из сохранённого Google Drive HTML «Расписание КГМУ в Apple и Google Calendar», но runtime wiring приведён к актуальным `medical-calendar-core` contracts.
+Product-MVP landing КГМУ сохраняет визуальную структуру, продающий текст, CSS и интерактивный пример календаря из сохранённой на Google Drive страницы `Расписание КГМУ в Apple и Google Calendar.html` и соседней папки `_files`.
 
-## Scope
+## Что сохранено буквально
 
-Только:
-- лечебное дело;
-- педиатрия;
-- стоматология.
+Из Google Drive без дизайнерской переработки перенесены:
+- `styles.css`;
+- `pricing.css`;
+- `landing-v1.css`;
+- `landing-feed.css`;
+- `program-status.css`;
+- `trial.css`;
+- сохранённый Google Fonts stylesheet (`css2` → `fonts.css` только для корректного MIME/имени файла);
+- `landing-preview.js` с Apple/Google demo, днями 16–18 марта и event-detail interaction;
+- исходные marketing/FAQ/policy/hero тексты и статический пример календаря в HTML.
 
-Каталог групп загружается из `catalog/2026-2027-semester-1.json`.
+CI фиксирует SHA-256 этих сохранённых визуальных assets, чтобы последующие изменения не могли незаметно переделать исходный дизайн.
 
-## Runtime flags
+## Что удалено как legacy старого проекта
 
-`runtime-config.js` по умолчанию fail-closed:
+Не перенесены runtime-зависимости прежнего контура:
+- `data.js` с `kgmu-calendar-api.containerapps.ru`;
+- `program-status.js` с `/api/v2/meta` и `/api/v2/catalog/...`;
+- `analytics.js` с legacy `/api/v2/analytics`, payments/trials/orders tracking;
+- `app-utils.js` со старой моделью order/access-token/localStorage;
+- отсутствующий в Drive старый локальный `file:///.../app.js`;
+- блок `saved-orders`, относящийся к старой order/localStorage модели.
+
+Иностранные обучающиеся удалены только потому, что текущий product scope проекта — лечебное дело, педиатрия и стоматология.
+
+## Текущая интеграция
+
+`landing/app.js` не меняет сохранённый hero/demo/marketing layout и подключает только актуальный проектный слой:
+- versioned `catalog/2026-2027-semester-1.json`;
+- текущий `POST /trial` contract;
+- same-origin API по умолчанию;
+- существующую `/manage/` страницу proof-of-email/recovery.
+
+`runtime-config.js` остаётся fail-closed:
 - `trialEnabled=false`;
 - `managementEnabled=false`;
 - `checkoutEnabled=false`;
-- `apiBase=""` означает same-origin API.
+- `apiBase=""`.
 
-До production deploy кнопки не могут создать trial/management session/checkout.
-
-## Trial
-
-Когда `trialEnabled=true`, landing отправляет ровно:
-`email`, `universityId`, `groupId`, `academicYearId`, `academicPeriodId`
-в `POST /trial`.
-
-Backend повторно проверяет published ScheduleVersion scope и только после этого создаёт 7-дневный CalendarSubscription/Entitlement.
-
-## Management
-
-`manage/` реализует browser flow:
-1. `POST /management/link`;
-2. magic link приходит на `.../manage/#token=<credential>`;
-3. fragment читается JS и очищается из адресной строки;
-4. `POST /management/verify`;
-5. management session остаётся в Secure/HttpOnly/SameSite=Strict cookie API;
-6. `GET /management/subscriptions`;
-7. явный `POST /management/recover` ротирует ICS token;
-8. `POST /management/logout`.
-
-Новая ICS-ссылка показывается только как результат явной recovery-операции.
-
-## Production boundary
-
-Финальные domain/origin, API base, Resend sending domain/API key, migrations, nginx routing и enable flags на live VM задаются отдельным controlled production этапом.
+Production domain/origin, Resend secret, migrations, nginx routing и включение trial/management выполняются отдельным controlled production этапом.
