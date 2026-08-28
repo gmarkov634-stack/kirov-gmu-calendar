@@ -59,5 +59,17 @@
     {"code":"R07-B40","status":"pass","sourceNote":"4 лекции в чт.","matchedDates":["2026-12-03","2026-12-10","2026-12-17","2026-12-24"],"matchedEventIds":["kgmu-9d852fcde0cba480333dae65","kgmu-eb5e69502074fcba853b2543","kgmu-1369105e2c39165560ba9493","kgmu-c14809a51b84763d73c157bf"]}
   ],
   "confirmedReviewDecisions": ["dentistry-191-histology-monday-lectures"],
+  "assessmentMetadata": [
+    {"discipline":"Основы российской государственности","form":"зачет с оценкой","sourceLocator":"1 стомат.!E52"},
+    {"discipline":"История медицины","form":"зачет","sourceLocator":"1 стомат.!E53"},
+    {"discipline":"Латинский язык","form":"зачет","sourceLocator":"1 стомат.!E55"},
+    {"discipline":"Физика, математика","form":"зачет","sourceLocator":"1 стомат.!E56"},
+    {"discipline":"Анатомия человека-анатомия головы и шеи","form":"зачет с оценкой","sourceLocator":"1 стомат.!E59"},
+    {"discipline":"Медицинская и биологическая физика","form":"зачет","sourceLocator":"1 стомат.!E64"}
+  ],
+  "publicationReadiness": {
+    "status": "blocked",
+    "reason": "NormalizedEvent v1 не содержит поля для формы промежуточной аттестации/заметок. R41/G14 требуют сохранить справочную форму аттестации в заметках, а явный контроль 13.01 должен сохранять признак «зачет с оценкой». До расширения shared contract/postprocessing эти сведения теряются при публикации."
+  },
   "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14"
 }
