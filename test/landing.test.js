@@ -32,7 +32,7 @@ test("saved Drive visual assets are preserved byte-for-byte", async () => {
     programStatus: "c4d950a1f11e3d16b25f3212ce4ccb1458e65a0f5eb48efcdd19d9a409bf2854",
     trialCss: "033c4d7601ab42aeea684f2616ddb47b339ab8c1461c3d66df85331b02da409c",
     preview: "a2e139b4489e8923af9034f14d3604f59c2c9b161b66af4476baa9035438c122",
-    fonts: "515693c4de613509aa39abbd39e507ed946b2cacd5a0d2cbcc5a256d62cf6846"
+    fonts: "515693c4de613509aa39abbd39e507ed946b2cacd5a256d62cf6846"
   };
   for (const [key, digest] of Object.entries(expected)) assert.equal(await sha256(key), digest, key);
 });
@@ -72,6 +72,7 @@ test("runtime stays fail-closed until production enable", async () => {
   assert.match(config, /managementEnabled:\s*false/);
   assert.match(config, /checkoutEnabled:\s*false/);
   assert.match(config, /apiBase:\s*""/);
+  assert.match(config, /academicPeriodLabels:\s*\{\}/);
   assert.match(config, /electiveCatalog:\s*\{\}/);
   assert.match(config, /facultativeCatalog:\s*\{\}/);
 });
@@ -111,11 +112,31 @@ test("management UI exposes only supported calendar preferences", async () => {
   assert.match(manageJs, /remindersMinutesBefore:/);
   assert.doesNotMatch(manageJs, /showTeacher|showLocation|showLessonType|showSequence/);
   assert.match(manageCss, /\.preference-panel/);
+  assert.match(manageCss, /\.preference-period/);
 });
 
-test("elective selector is omitted when the group has no published choices", async () => {
+test("choice catalogs are scoped by academic period and group", async () => {
   const manageJs = await text("manageJs");
-  assert.match(manageJs, /return \{ node: null, value: \(\) => current \};/);
+  assert.match(manageJs, /catalog\?\.\[academicPeriodId\]\?\.\[subscription\.groupId\]/);
+  assert.match(manageJs, /coveredCatalogPeriodIds\(item\)/);
+  assert.match(manageJs, /coverageType === "academic-year"/);
+  assert.match(manageJs, /coverageType === "semester"/);
+  assert.match(manageJs, /allowed\.has\(academicPeriodId\)/);
+  assert.doesNotMatch(manageJs, /config\.electiveCatalog\?\.\[subscription\.groupId\]/);
+  assert.doesNotMatch(manageJs, /config\.facultativeCatalog\?\.\[subscription\.groupId\]/);
+});
+
+test("period editors preserve unknown saved choices and reject id collisions", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /const next = \{ \.\.\.current \};/);
+  assert.match(manageJs, /selectionId должен быть уникален между семестрами/);
+  assert.match(manageJs, /facultativeId должен быть уникален между семестрами/);
+});
+
+test("elective and facultative selectors are omitted when covered periods have no published choices", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /if \(!selects\.size\) \{\s*return \{ node: null, value: \(\) => current \};/s);
+  assert.match(manageJs, /if \(!controls\.size\) \{\s*return \{ node: null, value: \(\) => current \};/s);
   assert.match(manageJs, /\.filter\(Boolean\)/);
   assert.doesNotMatch(manageJs, /варианты дисциплин по выбору пока не опубликованы/i);
 });
