@@ -29,12 +29,12 @@ test('landing never treats provider return as payment proof', () => {
   assert.match(app, /window\.location\.assign\(confirmationUrl\.toString\(\)\)/);
 });
 
-test('KGMU runtime keeps checkout disabled until production payment E2E', () => {
+test('KGMU runtime keeps checkout disabled until production payment E2E while trial stays live', () => {
   for (const config of [pagesConfig, productionConfig]) {
     assert.match(config, /checkoutEnabled: false/);
     assert.match(config, /annualSalesCutoff: "2026-12-31T21:00:00\.000Z"/);
   }
-  assert.match(pagesConfig, /trialEnabled: false/);
+  assert.match(pagesConfig, /trialEnabled: true/);
   assert.match(pagesConfig, /managementEnabled: true/);
 });
 
