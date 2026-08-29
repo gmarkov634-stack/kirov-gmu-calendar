@@ -41,13 +41,14 @@ function countVevents(ics) {
 }
 
 async function loadPlan() {
-  const [manifest, source, evidence, qa] = await Promise.all([
+  const [manifest, facultatives, source, evidence, qa] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.source.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.evidence.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.qa-report.json')
   ]);
-  return { plan: buildMedicinePublicationPlan({ manifest, source, evidence, qa }), qa };
+  return { plan: buildMedicinePublicationPlan({ manifest, facultatives, source, evidence, qa }), qa };
 }
 
 async function verifyCoreBoundary(coreRoot, coreEvidence) {
@@ -119,7 +120,7 @@ try {
 
     if (current && current.scheduleVersion.versionId !== version.versionId) {
       throw new Error(
-        `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; replacement is not allowed by this first-publication runner`
+        `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; replacement requires an explicit controlled publication step`
       );
     }
 
@@ -181,23 +182,42 @@ try {
     if (published.events.length !== version.eventCount) {
       throw new Error(`group ${version.groupId} final event count verification failed`);
     }
-    const ics = core.renderPublishedScheduleIcs({
+
+    const defaultVisibleEvents = published.events.filter((event) => event.facultativeId == null);
+    const defaultIcs = core.renderPublishedScheduleIcs({
       scheduleVersion: published.scheduleVersion,
       events: published.events,
       calendarName: `КГМУ ${version.groupId}`
     });
-    const unfoldedIcs = unfoldIcs(ics);
-    if (countVevents(unfoldedIcs) !== version.eventCount) {
-      throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+    const unfoldedDefaultIcs = unfoldIcs(defaultIcs);
+    if (countVevents(unfoldedDefaultIcs) !== defaultVisibleEvents.length) {
+      throw new Error(`group ${version.groupId} default-off ICS VEVENT count verification failed`);
     }
-    if (published.events.some((event) => event.assessment) && !unfoldedIcs.includes('DESCRIPTION:')) {
-      throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+
+    const allFacultativeChoices = Object.fromEntries(
+      published.events
+        .filter((event) => event.facultativeId != null)
+        .map((event) => [event.facultativeId, true])
+    );
+    const allFacultativesIcs = core.renderPublishedScheduleIcs({
+      scheduleVersion: published.scheduleVersion,
+      events: published.events,
+      calendarName: `КГМУ ${version.groupId}`,
+      preferences: { facultativeChoices: allFacultativeChoices }
+    });
+    const unfoldedAllFacultativesIcs = unfoldIcs(allFacultativesIcs);
+    if (countVevents(unfoldedAllFacultativesIcs) !== version.eventCount) {
+      throw new Error(`group ${version.groupId} all-facultatives ICS VEVENT count verification failed`);
+    }
+
+    if (defaultVisibleEvents.some((event) => event.assessment) && !unfoldedDefaultIcs.includes('DESCRIPTION:')) {
+      throw new Error(`group ${version.groupId} assessment metadata is missing from default rendered ICS`);
     }
     if (
-      published.events.some((event) => event.lessonType === 'graded-credit') &&
-      !unfoldedIcs.includes('ЗАЧЕТ С ОЦЕНКОЙ')
+      defaultVisibleEvents.some((event) => event.lessonType === 'graded-credit') &&
+      !unfoldedDefaultIcs.includes('ЗАЧЕТ С ОЦЕНКОЙ')
     ) {
-      throw new Error(`group ${version.groupId} graded-credit summary is missing from rendered ICS`);
+      throw new Error(`group ${version.groupId} graded-credit summary is missing from default rendered ICS`);
     }
   }
 

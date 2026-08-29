@@ -37,8 +37,8 @@ test('uses the current canonical KGMU rule bundle and fails closed on ambiguity'
   assert.deepEqual(manifest.profiles.weekly, ['general', 'weekly']);
   assert.equal(manifest.canonicalDocumentation.general.ruleRange, 'G01-G21');
   assert.equal(manifest.canonicalDocumentation.general.exportSha256, 'f935f05639debb09f43909be640e1abb6f4ee58fe33bc1e0d3adc908643928d3');
-  assert.equal(manifest.canonicalDocumentation.weekly.ruleRange, 'R01-R89;P01-P25');
-  assert.equal(manifest.canonicalDocumentation.weekly.exportSha256, '03aa715ca47f371a12ba758d56c890c7ab0e92c0674ea41f86768702ea52788d');
+  assert.equal(manifest.canonicalDocumentation.weekly.ruleRange, 'R01-R90;P01-P25');
+  assert.equal(manifest.canonicalDocumentation.weekly.exportSha256, '4c2697224e6deb8a130daa16c80f7a9a7dbf8ad83339cf64b33c9350327b391f');
   assert.equal(manifest.ambiguityPolicy.status, 'REVIEW_REQUIRED');
   assert.equal(manifest.ambiguityPolicy.requiresUserConfirmation, true);
   assert.equal(manifest.ambiguityPolicy.blocksPublication, true);

@@ -9,8 +9,8 @@
     },
     "weekly": {
       "documentId": "1H06b4ssF4R5uT_mzjg7ZhThLj1-44KKgUwogkMmMjZc",
-      "ruleRange": "R01-R89;P01-P25",
-      "exportSha256": "03aa715ca47f371a12ba758d56c890c7ab0e92c0674ea41f86768702ea52788d"
+      "ruleRange": "R01-R90;P01-P25",
+      "exportSha256": "4c2697224e6deb8a130daa16c80f7a9a7dbf8ad83339cf64b33c9350327b391f"
     },
     "cyclic": {
       "documentId": "1B-GxwUUJVGddKC_hnrORyXN6Ym7tAYU5H1cAwbzoMtk",
