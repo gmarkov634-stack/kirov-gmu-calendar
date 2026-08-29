@@ -22,3 +22,8 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - run: python fixtures/tools/reparse_medicine_101_110_optional_audit.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: medicine-101-110-workbook-dump
+          path: medicine-101-110-workbook-dump.json
+          if-no-files-found: error
