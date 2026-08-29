@@ -338,7 +338,7 @@ function createFacultativeEditor(item, initialChoices) {
       label.className = "facultative-choice";
       const input = document.createElement("input");
       input.type = "checkbox";
-      input.checked = current[definition.facultativeId] !== false;
+      input.checked = current[definition.facultativeId] === true;
       const text = document.createElement("span");
       text.textContent = typeof definition.label === "string" ? definition.label : definition.facultativeId;
       label.append(input, text);
