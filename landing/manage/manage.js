@@ -175,29 +175,29 @@ function createReminderEditor(initialValues) {
 }
 
 function createElectiveEditor(subscription, initialChoices) {
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
+  const definitions = electiveDefinitions(subscription).filter((definition) => (
+    definition
+    && typeof definition.selectionId === "string"
+    && Array.isArray(definition.alternatives)
+    && definition.alternatives.some((alternative) => alternative && typeof alternative.value === "string")
+  ));
+
+  if (!definitions.length) {
+    return { node: null, value: () => current };
+  }
+
   const wrapper = document.createElement("div");
   wrapper.className = "preference-field";
   const heading = document.createElement("div");
   heading.className = "preference-heading";
   heading.innerHTML = "<strong>Дисциплины по выбору</strong><span>В календаре останется выбранный вариант</span>";
   wrapper.append(heading);
-
-  const definitions = electiveDefinitions(subscription);
   const selects = new Map();
-  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
-    ? { ...initialChoices }
-    : {};
-
-  if (!definitions.length) {
-    const note = document.createElement("p");
-    note.className = "preference-empty";
-    note.textContent = "Для этой группы варианты дисциплин по выбору пока не опубликованы. Сохранённый выбор, если он уже есть, не изменится.";
-    wrapper.append(note);
-    return { node: wrapper, value: () => current };
-  }
 
   for (const definition of definitions) {
-    if (!definition || typeof definition.selectionId !== "string" || !Array.isArray(definition.alternatives)) continue;
     const label = document.createElement("label");
     label.textContent = typeof definition.label === "string" ? definition.label : "Выбор дисциплины";
     const select = document.createElement("select");
@@ -333,7 +333,13 @@ function renderPreferencePanel(card, item) {
         }
       });
 
-      section.append(electiveEditor.node, facultativeEditor.node, reminderEditor.node, save, localStatus);
+      section.append(...[
+        electiveEditor.node,
+        facultativeEditor.node,
+        reminderEditor.node,
+        save,
+        localStatus
+      ].filter(Boolean));
     })
     .catch((error) => {
       section.replaceChildren();
