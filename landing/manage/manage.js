@@ -2,6 +2,7 @@ const config = Object.freeze({
   apiBase: "",
   managementEnabled: false,
   managementSessionTransport: "cookie",
+  electiveCatalog: {},
   ...(globalThis.KGMU_CALENDAR_CONFIG ?? {})
 });
 
@@ -70,6 +71,224 @@ async function copyText(button, text) {
   setTimeout(() => { button.textContent = previous; }, 1800);
 }
 
+function preferencesPath(subscriptionId) {
+  return `/management/subscriptions/${encodeURIComponent(subscriptionId)}/preferences`;
+}
+
+function normalizeReminders(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((item) => Number.isInteger(item) && item >= 0 && item <= 10080))]
+    .sort((a, b) => a - b);
+}
+
+function reminderLabel(minutes) {
+  if (minutes === 0) return "В момент начала";
+  if (minutes < 60) return `За ${minutes} мин`;
+  if (minutes === 60) return "За 1 час";
+  if (minutes % 1440 === 0) return `За ${minutes / 1440} дн.`;
+  if (minutes % 60 === 0) return `За ${minutes / 60} ч.`;
+  return `За ${minutes} мин`;
+}
+
+function electiveDefinitions(subscription) {
+  const groupId = subscription.groupId;
+  const groupCatalog = config.electiveCatalog?.[groupId];
+  return Array.isArray(groupCatalog) ? groupCatalog : [];
+}
+
+function createReminderEditor(initialValues) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Напоминания</strong><span>Можно выбрать несколько</span>";
+
+  const selected = new Set(normalizeReminders(initialValues));
+  const chips = document.createElement("div");
+  chips.className = "reminder-chips";
+
+  const customRow = document.createElement("div");
+  customRow.className = "custom-reminder-row";
+  const customInput = document.createElement("input");
+  customInput.type = "number";
+  customInput.min = "0";
+  customInput.max = "10080";
+  customInput.step = "1";
+  customInput.placeholder = "Минут до пары";
+  customInput.setAttribute("aria-label", "Минут до пары");
+  const addButton = document.createElement("button");
+  addButton.type = "button";
+  addButton.className = "button button-secondary";
+  addButton.textContent = "Добавить";
+
+  function render() {
+    chips.replaceChildren();
+    if (!selected.size) {
+      const empty = document.createElement("span");
+      empty.className = "preference-empty";
+      empty.textContent = "Без напоминаний";
+      chips.append(empty);
+      return;
+    }
+    for (const minutes of [...selected].sort((a, b) => a - b)) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "reminder-chip";
+      chip.textContent = `${reminderLabel(minutes)} ×`;
+      chip.title = "Удалить напоминание";
+      chip.addEventListener("click", () => {
+        selected.delete(minutes);
+        render();
+      });
+      chips.append(chip);
+    }
+  }
+
+  addButton.addEventListener("click", () => {
+    const minutes = Number(customInput.value);
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 10080) {
+      customInput.setCustomValidity("Введите целое число от 0 до 10080 минут.");
+      customInput.reportValidity();
+      return;
+    }
+    customInput.setCustomValidity("");
+    selected.add(minutes);
+    customInput.value = "";
+    render();
+  });
+
+  customInput.addEventListener("input", () => customInput.setCustomValidity(""));
+  customRow.append(customInput, addButton);
+  wrapper.append(heading, chips, customRow);
+  render();
+
+  return {
+    node: wrapper,
+    value: () => [...selected].sort((a, b) => a - b)
+  };
+}
+
+function createElectiveEditor(subscription, initialChoices) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Дисциплины по выбору</strong><span>В календаре останется выбранный вариант</span>";
+  wrapper.append(heading);
+
+  const definitions = electiveDefinitions(subscription);
+  const selects = new Map();
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
+
+  if (!definitions.length) {
+    const note = document.createElement("p");
+    note.className = "preference-empty";
+    note.textContent = "Для этой группы варианты дисциплин по выбору пока не опубликованы. Сохранённый выбор, если он уже есть, не изменится.";
+    wrapper.append(note);
+    return { node: wrapper, value: () => current };
+  }
+
+  for (const definition of definitions) {
+    if (!definition || typeof definition.selectionId !== "string" || !Array.isArray(definition.alternatives)) continue;
+    const label = document.createElement("label");
+    label.textContent = typeof definition.label === "string" ? definition.label : "Выбор дисциплины";
+    const select = document.createElement("select");
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = "Показывать все варианты";
+    select.append(empty);
+    for (const alternative of definition.alternatives) {
+      if (!alternative || typeof alternative.value !== "string") continue;
+      const option = document.createElement("option");
+      option.value = alternative.value;
+      option.textContent = typeof alternative.label === "string" ? alternative.label : alternative.value;
+      select.append(option);
+    }
+    select.value = typeof current[definition.selectionId] === "string" ? current[definition.selectionId] : "";
+    label.append(select);
+    wrapper.append(label);
+    selects.set(definition.selectionId, select);
+  }
+
+  return {
+    node: wrapper,
+    value: () => {
+      const next = { ...current };
+      for (const [selectionId, select] of selects) {
+        if (select.value) next[selectionId] = select.value;
+        else delete next[selectionId];
+      }
+      return next;
+    }
+  };
+}
+
+async function loadPreferences(subscriptionId) {
+  const { response, payload } = await request(preferencesPath(subscriptionId), { method: "GET" });
+  if (response.status === 401) throw new Error("Сессия управления истекла.");
+  if (!response.ok || !payload?.preferences) throw new Error("Не удалось загрузить настройки календаря.");
+  return payload.preferences;
+}
+
+function renderPreferencePanel(card, item) {
+  const section = document.createElement("section");
+  section.className = "preference-panel";
+  section.innerHTML = "<p class=\"preference-loading\">Загружаем настройки календаря…</p>";
+  card.append(section);
+
+  loadPreferences(item.subscription.subscriptionId)
+    .then((preferences) => {
+      section.replaceChildren();
+
+      const electiveEditor = createElectiveEditor(item.subscription, preferences.electiveChoices);
+      const reminderEditor = createReminderEditor(preferences.remindersMinutesBefore);
+      const save = document.createElement("button");
+      save.type = "button";
+      save.className = "button button-primary preference-save";
+      save.textContent = "Сохранить настройки";
+
+      const localStatus = document.createElement("p");
+      localStatus.className = "preference-local-status";
+      localStatus.setAttribute("role", "status");
+      localStatus.setAttribute("aria-live", "polite");
+
+      save.addEventListener("click", async () => {
+        save.disabled = true;
+        localStatus.textContent = "Сохраняем…";
+        localStatus.className = "preference-local-status";
+        try {
+          const { response, payload } = await request(preferencesPath(item.subscription.subscriptionId), {
+            method: "PATCH",
+            body: JSON.stringify({
+              electiveChoices: electiveEditor.value(),
+              remindersMinutesBefore: reminderEditor.value()
+            })
+          });
+          if (!response.ok || !payload?.preferences) throw new Error("Не удалось сохранить настройки.");
+          localStatus.textContent = "Настройки сохранены. Следующая загрузка ICS применит их автоматически.";
+          localStatus.className = "preference-local-status success";
+        } catch (error) {
+          localStatus.textContent = error instanceof Error ? error.message : "Не удалось сохранить настройки.";
+          localStatus.className = "preference-local-status error";
+        } finally {
+          save.disabled = false;
+        }
+      });
+
+      section.append(electiveEditor.node, reminderEditor.node, save, localStatus);
+    })
+    .catch((error) => {
+      section.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "preference-local-status error";
+      message.textContent = error instanceof Error ? error.message : "Не удалось загрузить настройки календаря.";
+      section.append(message);
+    });
+}
+
 function renderSubscriptions(items) {
   listNode.replaceChildren();
   if (!items.length) {
@@ -136,6 +355,7 @@ function renderSubscriptions(items) {
 
     actions.append(recover);
     card.append(title, meta, actions);
+    renderPreferencePanel(card, item);
     listNode.append(card);
   }
 }
