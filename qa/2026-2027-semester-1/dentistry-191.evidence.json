@@ -13,14 +13,15 @@
   "timetableSourceCellCount": 29,
   "coveredSourceCellCount": 28,
   "coveredSourceCells": ["B10","B13","B14","B15","B17","B19","B20","B21","B22","B23","B24","B25","B26","B27","B29","B31","B32","B33","B34","B36","B39","B40","B41","B42","B43","B45","B46","B47"],
-  "excludedSourceCells": [
+  "excludedSourceCells": [],
+  "unresolvedSourceCells": [
     {
       "locator": "1 стомат.!B49",
-      "rule": "R39",
-      "reason": "Общая строка факультативов не привязана к конкретной группе; не создаёт события группы 191."
+      "rule": "R39/R78",
+      "reason": "Строка факультативов содержит расписание, но область действия по группам не подтверждена однозначно структурой XLSX. Ячейку запрещено исключать; до установления group mapping источник остаётся REVIEW_REQUIRED."
     }
   ],
-  "unresolvedAmbiguities": 0,
+  "unresolvedAmbiguities": 1,
   "duplicateEvents": 0,
   "explicitOverlapWarningCount": 4,
   "explicitOverlapWarnings": [
@@ -69,7 +70,7 @@
   ],
   "publicationReadiness": {
     "status": "blocked",
-    "reason": "NormalizedEvent v1 не содержит поля для формы промежуточной аттестации/заметок. R41/G14 требуют сохранить справочную форму аттестации в заметках, а явный контроль 13.01 должен сохранять признак «зачет с оценкой». До расширения shared contract/postprocessing эти сведения теряются при публикации."
+    "reason": "Источник остаётся REVIEW_REQUIRED: B49 содержит факультатив, но его group mapping ещё не установлен однозначно по структуре XLSX согласно R39/R78. Дополнительно текущий candidate был подготовлен до facultativeId contract и требует регенерации после разрешения B49; assessment metadata также должна сохраняться losslessly."
   },
   "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14"
 }
