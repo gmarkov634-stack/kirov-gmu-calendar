@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { promisify } from 'node:util';
 import test from 'node:test';
@@ -22,7 +23,7 @@ function evaluateRuntimeConfig(source) {
 }
 
 test('replacement preflight identifies the exact old and new medicine candidates without DB changes', async () => {
-  const script = new URL('../ops/publish-medicine-101-110.mjs', import.meta.url);
+  const script = fileURLToPath(new URL('../ops/publish-medicine-101-110.mjs', import.meta.url));
   const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight', '--replace-existing']);
   assert.equal(stderr, '');
   assert.match(stdout, /"mode": "preflight-replacement"/);
