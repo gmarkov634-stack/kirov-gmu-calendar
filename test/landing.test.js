@@ -16,7 +16,8 @@ const files = {
   trialCss: new URL("../landing/assets/trial.css", import.meta.url),
   fonts: new URL("../landing/assets/fonts.css", import.meta.url),
   manage: new URL("../landing/manage/index.html", import.meta.url),
-  manageJs: new URL("../landing/manage/manage.js", import.meta.url)
+  manageJs: new URL("../landing/manage/manage.js", import.meta.url),
+  manageCss: new URL("../landing/manage/manage.css", import.meta.url)
 };
 
 async function text(key) { return readFile(files[key], "utf8"); }
@@ -71,6 +72,7 @@ test("runtime stays fail-closed until production enable", async () => {
   assert.match(config, /managementEnabled:\s*false/);
   assert.match(config, /checkoutEnabled:\s*false/);
   assert.match(config, /apiBase:\s*""/);
+  assert.match(config, /electiveCatalog:\s*\{\}/);
 });
 
 test("trial wiring follows current core contract", async () => {
@@ -89,6 +91,22 @@ test("management proof still uses fragment to POST", async () => {
   assert.match(manageJs, /"\/management\/verify"/);
   assert.match(manageJs, /JSON\.stringify\(\{ magicToken: token \}\)/);
   assert.doesNotMatch(manageJs, /management\/verify\?/);
+});
+
+test("management UI exposes only supported calendar preferences", async () => {
+  const manageHtml = await text("manage");
+  const manageJs = await text("manageJs");
+  const manageCss = await text("manageCss");
+  assert.match(manageHtml, /Дисциплины по выбору/);
+  assert.match(manageHtml, /несколько напоминаний/);
+  assert.match(manageHtml, /Преподаватель, аудитория и тип занятия всегда остаются/);
+  assert.match(manageHtml, /manage\.css/);
+  assert.match(manageJs, /\/management\/subscriptions\/\$\{encodeURIComponent\(subscriptionId\)\}\/preferences/);
+  assert.match(manageJs, /method: "PATCH"/);
+  assert.match(manageJs, /electiveChoices:/);
+  assert.match(manageJs, /remindersMinutesBefore:/);
+  assert.doesNotMatch(manageJs, /showTeacher|showLocation|showLessonType|showSequence/);
+  assert.match(manageCss, /\.preference-panel/);
 });
 
 test("landing contains no embedded production secrets", async () => {
