@@ -182,23 +182,42 @@ try {
     if (published.events.length !== version.eventCount) {
       throw new Error(`group ${version.groupId} final event count verification failed`);
     }
-    const ics = core.renderPublishedScheduleIcs({
+
+    const defaultVisibleEvents = published.events.filter((event) => event.facultativeId == null);
+    const defaultIcs = core.renderPublishedScheduleIcs({
       scheduleVersion: published.scheduleVersion,
       events: published.events,
       calendarName: `КГМУ ${version.groupId}`
     });
-    const unfoldedIcs = unfoldIcs(ics);
-    if (countVevents(unfoldedIcs) !== version.eventCount) {
-      throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+    const unfoldedDefaultIcs = unfoldIcs(defaultIcs);
+    if (countVevents(unfoldedDefaultIcs) !== defaultVisibleEvents.length) {
+      throw new Error(`group ${version.groupId} default-off ICS VEVENT count verification failed`);
     }
-    if (published.events.some((event) => event.assessment) && !unfoldedIcs.includes('DESCRIPTION:')) {
-      throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+
+    const allFacultativeChoices = Object.fromEntries(
+      published.events
+        .filter((event) => event.facultativeId != null)
+        .map((event) => [event.facultativeId, true])
+    );
+    const allFacultativesIcs = core.renderPublishedScheduleIcs({
+      scheduleVersion: published.scheduleVersion,
+      events: published.events,
+      calendarName: `КГМУ ${version.groupId}`,
+      preferences: { facultativeChoices: allFacultativeChoices }
+    });
+    const unfoldedAllFacultativesIcs = unfoldIcs(allFacultativesIcs);
+    if (countVevents(unfoldedAllFacultativesIcs) !== version.eventCount) {
+      throw new Error(`group ${version.groupId} all-facultatives ICS VEVENT count verification failed`);
+    }
+
+    if (defaultVisibleEvents.some((event) => event.assessment) && !unfoldedDefaultIcs.includes('DESCRIPTION:')) {
+      throw new Error(`group ${version.groupId} assessment metadata is missing from default rendered ICS`);
     }
     if (
-      published.events.some((event) => event.lessonType === 'graded-credit') &&
-      !unfoldedIcs.includes('ЗАЧЕТ С ОЦЕНКОЙ')
+      defaultVisibleEvents.some((event) => event.lessonType === 'graded-credit') &&
+      !unfoldedDefaultIcs.includes('ЗАЧЕТ С ОЦЕНКОЙ')
     ) {
-      throw new Error(`group ${version.groupId} graded-credit summary is missing from rendered ICS`);
+      throw new Error(`group ${version.groupId} graded-credit summary is missing from default rendered ICS`);
     }
   }
 
