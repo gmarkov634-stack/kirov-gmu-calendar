@@ -1,1 +1,90 @@
-{"fixtureId":"medicine-101-110-2026-2027-semester-1-current","sourceSha256":"341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b","parserRulesVersion":"kgmu-2026-08-27-v3","semanticDecisionManifest":"fixtures/2026-2027-semester-1/medicine-101-110.decisions.json","semanticDecisionMode":"operator-authored-explicit","eventCount":3429,"groupEventCounts":{"101":336,"102":335,"103":335,"104":335,"105":336,"106":336,"107":347,"108":347,"109":361,"110":361},"logicalSourceCellCount":145,"coveredSourceCellCount":145,"unresolvedAmbiguities":0,"duplicateEvents":0,"explicitOverlapWarningCount":8,"explicitOverlapWarnings":[{"groupId":"103","date":"2026-09-03","left":{"startTime":"14:50","endTime":"16:20","discipline":"История медицины","sourceLocator":"1 леч.1!D30#s1"},"right":{"startTime":"15:50","endTime":"16:50","discipline":"Час куратора","sourceLocator":"1 леч.1!D32#s1"}},{"groupId":"103","date":"2027-01-12","left":{"startTime":"10:30","endTime":"14:35","discipline":"Основы российской государственности","sourceLocator":"1 леч.1!D17#s2"},"right":{"startTime":"13:05","endTime":"14:35","discipline":"Латинский язык","sourceLocator":"1 леч.1!D19#s1"}},{"groupId":"104","date":"2026-09-03","left":{"startTime":"14:50","endTime":"16:20","discipline":"История медицины","sourceLocator":"1 леч.1!D30#s1"},"right":{"startTime":"15:50","endTime":"16:50","discipline":"Час куратора","sourceLocator":"1 леч.1!E32#s1"}},{"groupId":"106","date":"2027-01-12","left":{"startTime":"12:30","endTime":"14:55","discipline":"Биология","sourceLocator":"1 леч.1!G18#s2"},"right":{"startTime":"14:30","endTime":"15:15","discipline":"Психология и педагогика","sourceLocator":"1 леч.1!F21#s2"}},{"groupId":"110","date":"2026-09-08","left":{"startTime":"12:25","endTime":"14:50","discipline":"Иностранный язык","sourceLocator":"1 леч.1!K19#s1"},"right":{"startTime":"14:10","endTime":"15:50","discipline":"Библиотечный час","sourceLocator":"1 леч.1!K26#s2"}},{"groupId":"110","date":"2026-09-08","left":{"startTime":"14:10","endTime":"15:50","discipline":"Библиотечный час","sourceLocator":"1 леч.1!K26#s2"},"right":{"startTime":"15:10","endTime":"16:40","discipline":"История России","sourceLocator":"1 леч.1!J21#s1"}},{"groupId":"110","date":"2026-12-02","left":{"startTime":"14:30","endTime":"15:30","discipline":"Час куратора","sourceLocator":"1 леч.1!K27#s2"},"right":{"startTime":"14:30","endTime":"16:55","discipline":"Биология","sourceLocator":"1 леч.1!K27#s1"}},{"groupId":"110","date":"2026-12-16","left":{"startTime":"14:30","endTime":"15:30","discipline":"Час куратора","sourceLocator":"1 леч.1!K27#s2"},"right":{"startTime":"14:30","endTime":"16:55","discipline":"Биология","sourceLocator":"1 леч.1!K27#s1"}}],"r83Checks":[{"note":"C9","group":"102","disc":"Биология","coord":"C34","dates":["2027-01-15"],"status":"pass"},{"note":"K9","group":"110","disc":"Биология","coord":"K27","dates":["2026-12-02","2026-12-16"],"status":"pass"},{"note":"B10","group":"101","disc":"Биология","coord":"B34","dates":["2027-01-15"],"status":"pass"},{"note":"F17","group":"105","disc":"Биология","coord":"F27","dates":["2026-12-09"],"status":"pass"},{"note":"G18","group":"106","disc":"Биология","coord":"G27","dates":["2026-11-25"],"status":"pass"},{"note":"E22","group":"104","disc":"Биология","coord":"E26","dates":["2026-10-21"],"status":"pass"},{"note":"B24","group":"101","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"102","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"103","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"104","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"105","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"106","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"107","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"108","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"109","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"B24","group":"110","disc":"Психология и педагогика","coord":"B25","dates":["2026-12-16","2026-12-23"],"status":"pass"},{"note":"H26","group":"107","disc":"История России","coord":"H9","dates":["2026-12-07","2026-12-14","2026-12-21"],"status":"pass"},{"note":"H26","group":"108","disc":"История России","coord":"I9","dates":["2026-12-07","2026-12-14","2026-12-21"],"status":"pass"},{"note":"J29","group":"109","disc":"Биология","coord":"J9","dates":["2026-10-19","2026-10-26"],"status":"pass"},{"note":"G34","group":"106","disc":"Физика, математика","coord":"G28","dates":["2026-12-03"],"status":"pass"},{"note":"I34","group":"108","disc":"Физика, математика","coord":"I9","dates":["2026-11-30"],"status":"pass"},{"note":"D35","group":"103","disc":"Биология","coord":"D26","dates":["2026-10-28"],"status":"pass"},{"note":"H35","group":"107","disc":"Биология","coord":"H29","dates":["2027-01-14"],"status":"pass"},{"note":"I35","group":"108","disc":"Биология","coord":"I35","dates":["2026-11-30"],"startTime":"15:30","endTime":"17:55","status":"pass"},{"note":"H36","group":"107","disc":"Общая и биоорганическая химия","coord":"H9","dates":["2026-11-30"],"status":"pass"},{"note":"D40","group":"103","disc":"Физика, математика","coord":"D26","dates":["2026-12-23"],"status":"pass"}],"literalSourceDecisions":[{"source":"1 леч.1!H9/I9","decision":"Preserve 08:30–10:00 and 11:10–11:40 as two separate UPO intervals for groups 107–108; do not correct 11:10 by analogy."},{"source":"1 леч.1!B32","decision":"Apply only to group 101 from actual merge geometry; do not extend to group 102."},{"source":"1 леч.1!B41","decision":"Economics lecture uses long block on 19.09, 17.10, 14.11; 12.12 is 13:30–15:00 only."}],"assessmentMetadata":{"status":"captured-in-explicit-decisions","source":"lower reference table per G14/R41/R85","disciplines":{"Экономика":{"type":"credit","label":"зачет","sourceRef":{"sourceId":"medicine","locator":"1 леч.1!F47"}},"Физика, математика":{"type":"credit","label":"зачет","sourceRef":{"sourceId":"medicine","locator":"1 леч.1!F49"}},"УПО. Общий уход":{"type":"graded-credit","label":"зачет с оценкой","sourceRef":{"sourceId":"medicine","locator":"1 леч.1!F51"}},"Психология и педагогика":{"type":"credit","label":"зачет","sourceRef":{"sourceId":"medicine","locator":"1 леч.1!F54"}},"Основы российской государственности":{"type":"graded-credit","label":"зачет с оценкой","sourceRef":{"sourceId":"medicine","locator":"1 леч.1!K53"}}}},"optionalEventReparse":{"ruleVersion":"R39-current","sourceBacked":true,"logicalCellsRescanned":145,"facultativeCandidates":[],"explicitElectiveOptionCandidates":[],"electiveUmbrellaCells":[{"coord":"B16","text":"ЭЛЕКТИВНЫЕ ДИСЦИПЛИНЫ (МОДУЛИ) ПО ФИЗИЧЕСКОЙ КУЛЬТУРЕ И СПОРТУ"}],"decision":"PASS_NO_OPTIONAL_EVENT_DELTA","normalizationEffect":"No events added or removed. B16 remains an ordinary canonical schedule event. No facultativeId/selectionGroupId/selectionOptionId is invented because the official XLSX does not enumerate facultatives or selectable elective alternatives for groups 101-110."},"candidateDigest":"sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a"}
+{
+  "fixtureId": "medicine-101-110-2026-2027-semester-1-current",
+  "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-101-110.decisions.json",
+  "facultativeFixture": "fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json",
+  "semanticDecisionMode": "operator-authored-explicit + operator-confirmed-r90",
+  "candidateDigest": "sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2",
+  "eventCount": 4349,
+  "baseEventCount": 3429,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "101": 428,
+    "102": 427,
+    "103": 427,
+    "104": 427,
+    "105": 428,
+    "106": 428,
+    "107": 439,
+    "108": 439,
+    "109": 453,
+    "110": 453
+  },
+  "logicalSourceCellCount": 145,
+  "coveredSourceCellCount": 145,
+  "additionalFacultativeSourceCells": ["A43", "A44"],
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 152,
+  "baseExplicitOverlapCount": 8,
+  "facultativeOverlapCount": 144,
+  "overlapPolicy": "Preserved under G16/R69; a timetable overlap is not a parsing error.",
+  "facultatives": {
+    "scope": "groups 101-110 from merged A43:K43",
+    "weekGrid": "A44:K44, all 19 academic service-week intervals",
+    "defaultSelected": false,
+    "items": [
+      {
+        "facultativeId": "kgmu-2026-2027-s1-medicine-facultative-biology",
+        "discipline": "Актуальные вопросы биологии",
+        "weekday": "monday",
+        "time": "16:50-18:20",
+        "datesPerGroup": 18,
+        "events": 180
+      },
+      {
+        "facultativeId": "kgmu-2026-2027-s1-medicine-facultative-chemistry",
+        "discipline": "Основы химии",
+        "weekday": "tuesday",
+        "time": "16:50-18:20",
+        "datesPerGroup": 19,
+        "events": 190
+      },
+      {
+        "facultativeId": "kgmu-2026-2027-s1-medicine-facultative-physics",
+        "discipline": "Физика",
+        "weekday": "wednesday",
+        "time": "18:00-20:25",
+        "datesPerGroup": 19,
+        "events": 190
+      },
+      {
+        "facultativeId": "kgmu-2026-2027-s1-medicine-facultative-math",
+        "discipline": "Математика",
+        "weekday": "thursday",
+        "time": "17:20-19:45",
+        "datesPerGroup": 18,
+        "events": 180,
+        "location": "3 корпус, ул. Владимирская, 112",
+        "assessment": "зачет"
+      },
+      {
+        "facultativeId": "kgmu-2026-2027-s1-medicine-facultative-russian",
+        "discipline": "Русский язык и культура речи",
+        "weekday": "friday",
+        "time": "16:50-18:20",
+        "datesPerGroup": 18,
+        "events": 180,
+        "location": "ул. Красноармейская, 35"
+      }
+    ]
+  },
+  "optionalEventReparse": {
+    "ruleVersion": "R39+R90-current",
+    "sourceBacked": true,
+    "previousAuditDefect": "The old optional-event scan stopped at B9:K42 and omitted A43:K43/A44:K44.",
+    "result": "PASS_CONFIRMED_FACULTATIVES_R90",
+    "normalizationEffect": "Five facultatives add 920 canonical normalized events across groups 101-110. Personal selection is applied only at ICS generation."
+  }
+}
