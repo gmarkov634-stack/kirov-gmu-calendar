@@ -41,13 +41,14 @@ function countVevents(ics) {
 }
 
 async function loadPlan() {
-  const [manifest, source, evidence, qa] = await Promise.all([
+  const [manifest, facultatives, source, evidence, qa] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.source.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.evidence.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.qa-report.json')
   ]);
-  return { plan: buildMedicinePublicationPlan({ manifest, source, evidence, qa }), qa };
+  return { plan: buildMedicinePublicationPlan({ manifest, facultatives, source, evidence, qa }), qa };
 }
 
 async function verifyCoreBoundary(coreRoot, coreEvidence) {
@@ -119,7 +120,7 @@ try {
 
     if (current && current.scheduleVersion.versionId !== version.versionId) {
       throw new Error(
-        `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; replacement is not allowed by this first-publication runner`
+        `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; replacement requires an explicit controlled publication step`
       );
     }
 
