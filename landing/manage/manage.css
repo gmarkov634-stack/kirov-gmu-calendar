@@ -43,6 +43,18 @@
   margin: 0;
 }
 
+.preference-period {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.preference-period-title {
+  font-size: 14px;
+}
+
 .reminder-chips {
   display: flex;
   gap: 8px;
