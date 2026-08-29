@@ -32,7 +32,7 @@ test("saved Drive visual assets are preserved byte-for-byte", async () => {
     programStatus: "c4d950a1f11e3d16b25f3212ce4ccb1458e65a0f5eb48efcdd19d9a409bf2854",
     trialCss: "033c4d7601ab42aeea684f2616ddb47b339ab8c1461c3d66df85331b02da409c",
     preview: "a2e139b4489e8923af9034f14d3604f59c2c9b161b66af4476baa9035438c122",
-    fonts: "515693c4de613509aa39abbd39e507ed946b2cacd5a256d62cf6846"
+    fonts: "515693c4de613509aa39abbd39e507ed946b2cacd5a0d2cbcc5a256d62cf6846"
   };
   for (const [key, digest] of Object.entries(expected)) assert.equal(await sha256(key), digest, key);
 });
