@@ -39,7 +39,7 @@ test('Pages artifact builder preserves the landing and project-relative catalog'
     assert.ok(existsSync(join(output, 'index.html')));
     assert.ok(existsSync(join(output, 'manage', 'index.html')));
     assert.ok(existsSync(join(output, 'catalog', '2026-2027-semester-1.json')));
-    assert.ok(existsSync(join(output, '.nojekyll'));
+    assert.ok(existsSync(join(output, '.nojekyll')));
     assert.equal(existsSync(join(output, 'README.md')), false);
 
     const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
