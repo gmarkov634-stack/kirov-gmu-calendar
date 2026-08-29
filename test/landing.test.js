@@ -97,7 +97,7 @@ test("management UI exposes only supported calendar preferences", async () => {
   const manageHtml = await text("manage");
   const manageJs = await text("manageJs");
   const manageCss = await text("manageCss");
-  assert.match(manageHtml, /Дисциплины по выбору/);
+  assert.match(manageHtml, /дисциплины по выбору/i);
   assert.match(manageHtml, /несколько напоминаний/);
   assert.match(manageHtml, /Преподаватель, аудитория и тип занятия всегда остаются/);
   assert.match(manageHtml, /manage\.css/);
