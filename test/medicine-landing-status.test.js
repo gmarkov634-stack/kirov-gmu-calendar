@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Pages marks medicine groups 101-110 as published, enables trial, and keeps checkout closed', async () => {
+test('Pages marks medicine groups 101-110 as published and enables trial plus checkout', async () => {
   const status = await read('landing/availability-status.js');
   const pagesConfig = await read('deploy/runtime-config.pages.js');
   const builder = await read('deploy/build-pages.sh');
@@ -18,5 +18,5 @@ test('Pages marks medicine groups 101-110 as published, enables trial, and keeps
   assert.match(status, /7-дневную бесплатную пробу/);
   assert.match(builder, /availability-status\.js/);
   assert.match(pagesConfig, /trialEnabled:\s*true/);
-  assert.match(pagesConfig, /checkoutEnabled:\s*false/);
+  assert.match(pagesConfig, /checkoutEnabled:\s*true/);
 });
