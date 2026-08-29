@@ -12,13 +12,23 @@
     {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities"},
     {"code":"r83-additional-event-counts","status":"pass","message":"26/26 R83 completeness assertions passed without date synthesis"},
     {"code":"assessment-metadata-captured","status":"pass","message":"Lower reference assessment metadata is captured for 5 disciplines; explicit ORG controls preserve graded-credit semantics"},
-    {"code":"shared-contract-assessment-projection","status":"pass","message":"Revalidated against medical-calendar-core/main commit 46c64976fff5483b34b40570f4ffe49f20554ff3: NormalizedEvent v1 now supports structured assessment metadata and graded-credit lessonType, and ICS projects assessment metadata with distinct graded-credit summary semantics"}
+    {"code":"shared-contract-assessment-projection","status":"pass","message":"Revalidated against medical-calendar-core/main commit 46c64976fff5483b34b40570f4ffe49f20554ff3: NormalizedEvent v1 now supports structured assessment metadata and graded-credit lessonType, and ICS projects assessment metadata with distinct graded-credit summary semantics"},
+    {"code":"optional-events-reparse-r39","status":"pass","message":"Fresh source-backed scan under current R39 found no facultative rows and no explicit elective option variants for groups 101-110. Cell B16 is only the generic physical-culture elective umbrella and remains a canonical schedule event; no facultativeId, selectionGroupId or selectionOptionId is invented. Existing 3429-event candidate therefore remains semantically complete for the current source."}
   ],
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
     "commit": "46c64976fff5483b34b40570f4ffe49f20554ff3",
     "normalizedEventSchemaBlob": "f40a8d7efef1cf362cea9a82976dd86d431186b8",
     "icsRendererBlob": "94cbd7d50aa4af2028ab27298cc05592ee3d51b7"
+  },
+  "optionalEventReparse": {
+    "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+    "logicalSourceCells": 145,
+    "facultativeCandidates": 0,
+    "explicitElectiveOptionCandidates": 0,
+    "electiveUmbrellaCells": ["B16"],
+    "rule": "R39 current: facultatives are canonical normalized events when present; ambiguous scope is REVIEW_REQUIRED, never silently dropped",
+    "result": "PASS_NO_OPTIONAL_EVENT_DELTA"
   },
   "createdAt": "2026-08-29T00:00:00+02:00"
 }
