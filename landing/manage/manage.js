@@ -2,6 +2,7 @@ const config = Object.freeze({
   apiBase: "",
   managementEnabled: false,
   managementSessionTransport: "cookie",
+  academicPeriodLabels: {},
   electiveCatalog: {},
   facultativeCatalog: {},
   ...(globalThis.KGMU_CALENDAR_CONFIG ?? {})
@@ -91,14 +92,74 @@ function reminderLabel(minutes) {
   return `За ${minutes} мин`;
 }
 
-function electiveDefinitions(subscription) {
-  const groupCatalog = config.electiveCatalog?.[subscription.groupId];
+function periodLabel(academicPeriodId) {
+  const configured = config.academicPeriodLabels?.[academicPeriodId];
+  if (typeof configured === "string" && configured.length > 0) return configured;
+  const semester = /semester-(\d+)$/i.exec(academicPeriodId);
+  return semester ? `${semester[1]} семестр` : academicPeriodId;
+}
+
+function groupPeriodCatalog(catalog, subscription, academicPeriodId) {
+  const groupCatalog = catalog?.[academicPeriodId]?.[subscription.groupId];
   return Array.isArray(groupCatalog) ? groupCatalog : [];
 }
 
-function facultativeDefinitions(subscription) {
-  const groupCatalog = config.facultativeCatalog?.[subscription.groupId];
-  return Array.isArray(groupCatalog) ? groupCatalog : [];
+function electiveDefinitions(subscription, academicPeriodId) {
+  return groupPeriodCatalog(config.electiveCatalog, subscription, academicPeriodId);
+}
+
+function facultativeDefinitions(subscription, academicPeriodId) {
+  return groupPeriodCatalog(config.facultativeCatalog, subscription, academicPeriodId);
+}
+
+function catalogPeriodIdsForGroup(subscription) {
+  const periodIds = new Set();
+  for (const catalog of [config.electiveCatalog, config.facultativeCatalog]) {
+    if (!catalog || typeof catalog !== "object" || Array.isArray(catalog)) continue;
+    for (const academicPeriodId of Object.keys(catalog)) {
+      if (
+        electiveDefinitions(subscription, academicPeriodId).length > 0
+        || facultativeDefinitions(subscription, academicPeriodId).length > 0
+      ) {
+        periodIds.add(academicPeriodId);
+      }
+    }
+  }
+  return [...periodIds].sort();
+}
+
+function coveredCatalogPeriodIds(item) {
+  const candidates = catalogPeriodIdsForGroup(item.subscription);
+  const usableEntitlements = item.entitlements.filter((entitlement) => (
+    entitlement
+    && (entitlement.status === "trial" || entitlement.status === "active")
+  ));
+  const hasAcademicYearAccess = usableEntitlements.some((entitlement) => (
+    entitlement.coverageType === "academic-year"
+    && entitlement.academicPeriodId == null
+  ));
+  if (hasAcademicYearAccess) return candidates;
+
+  const allowed = new Set(
+    usableEntitlements
+      .filter((entitlement) => (
+        entitlement.coverageType === "semester"
+        && typeof entitlement.academicPeriodId === "string"
+        && entitlement.academicPeriodId.length > 0
+      ))
+      .map((entitlement) => entitlement.academicPeriodId)
+  );
+  return candidates.filter((academicPeriodId) => allowed.has(academicPeriodId));
+}
+
+function createPeriodContainer(academicPeriodId) {
+  const container = document.createElement("div");
+  container.className = "preference-period";
+  const title = document.createElement("strong");
+  title.className = "preference-period-title";
+  title.textContent = periodLabel(academicPeriodId);
+  container.append(title);
+  return container;
 }
 
 function createReminderEditor(initialValues) {
@@ -174,48 +235,61 @@ function createReminderEditor(initialValues) {
   };
 }
 
-function createElectiveEditor(subscription, initialChoices) {
+function createElectiveEditor(item, initialChoices) {
   const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
     ? { ...initialChoices }
     : {};
-  const definitions = electiveDefinitions(subscription).filter((definition) => (
-    definition
-    && typeof definition.selectionId === "string"
-    && Array.isArray(definition.alternatives)
-    && definition.alternatives.some((alternative) => alternative && typeof alternative.value === "string")
-  ));
-
-  if (!definitions.length) {
-    return { node: null, value: () => current };
-  }
-
   const wrapper = document.createElement("div");
   wrapper.className = "preference-field";
   const heading = document.createElement("div");
   heading.className = "preference-heading";
-  heading.innerHTML = "<strong>Дисциплины по выбору</strong><span>В календаре останется выбранный вариант</span>";
+  heading.innerHTML = "<strong>Дисциплины по выбору</strong><span>Выбор хранится отдельно для каждого семестра</span>";
   wrapper.append(heading);
-  const selects = new Map();
 
-  for (const definition of definitions) {
-    const label = document.createElement("label");
-    label.textContent = typeof definition.label === "string" ? definition.label : "Выбор дисциплины";
-    const select = document.createElement("select");
-    const empty = document.createElement("option");
-    empty.value = "";
-    empty.textContent = "Показывать все варианты";
-    select.append(empty);
-    for (const alternative of definition.alternatives) {
-      if (!alternative || typeof alternative.value !== "string") continue;
-      const option = document.createElement("option");
-      option.value = alternative.value;
-      option.textContent = typeof alternative.label === "string" ? alternative.label : alternative.value;
-      select.append(option);
+  const selects = new Map();
+  const seenSelectionIds = new Set();
+
+  for (const academicPeriodId of coveredCatalogPeriodIds(item)) {
+    const definitions = electiveDefinitions(item.subscription, academicPeriodId).filter((definition) => (
+      definition
+      && typeof definition.selectionId === "string"
+      && definition.selectionId.length > 0
+      && Array.isArray(definition.alternatives)
+      && definition.alternatives.some((alternative) => alternative && typeof alternative.value === "string")
+    ));
+    if (!definitions.length) continue;
+
+    const period = createPeriodContainer(academicPeriodId);
+    for (const definition of definitions) {
+      if (seenSelectionIds.has(definition.selectionId)) {
+        throw new Error(`selectionId должен быть уникален между семестрами: ${definition.selectionId}`);
+      }
+      seenSelectionIds.add(definition.selectionId);
+
+      const label = document.createElement("label");
+      label.textContent = typeof definition.label === "string" ? definition.label : "Выбор дисциплины";
+      const select = document.createElement("select");
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "Показывать все варианты";
+      select.append(empty);
+      for (const alternative of definition.alternatives) {
+        if (!alternative || typeof alternative.value !== "string") continue;
+        const option = document.createElement("option");
+        option.value = alternative.value;
+        option.textContent = typeof alternative.label === "string" ? alternative.label : alternative.value;
+        select.append(option);
+      }
+      select.value = typeof current[definition.selectionId] === "string" ? current[definition.selectionId] : "";
+      label.append(select);
+      period.append(label);
+      selects.set(definition.selectionId, select);
     }
-    select.value = typeof current[definition.selectionId] === "string" ? current[definition.selectionId] : "";
-    label.append(select);
-    wrapper.append(label);
-    selects.set(definition.selectionId, select);
+    wrapper.append(period);
+  }
+
+  if (!selects.size) {
+    return { node: null, value: () => current };
   }
 
   return {
@@ -231,40 +305,51 @@ function createElectiveEditor(subscription, initialChoices) {
   };
 }
 
-function createFacultativeEditor(subscription, initialChoices) {
+function createFacultativeEditor(item, initialChoices) {
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
   const wrapper = document.createElement("div");
   wrapper.className = "preference-field";
   const heading = document.createElement("div");
   heading.className = "preference-heading";
-  heading.innerHTML = "<strong>Факультативы</strong><span>Отметьте те, которые нужны в календаре</span>";
+  heading.innerHTML = "<strong>Факультативы</strong><span>Отметьте нужные отдельно для каждого семестра</span>";
   wrapper.append(heading);
 
-  const definitions = facultativeDefinitions(subscription);
-  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
-    ? { ...initialChoices }
-    : {};
   const controls = new Map();
+  const seenFacultativeIds = new Set();
 
-  if (!definitions.length) {
-    const note = document.createElement("p");
-    note.className = "preference-empty";
-    note.textContent = "Для этой группы каталог факультативов пока не опубликован. Сохранённый выбор, если он уже есть, не изменится.";
-    wrapper.append(note);
-    return { node: wrapper, value: () => current };
+  for (const academicPeriodId of coveredCatalogPeriodIds(item)) {
+    const definitions = facultativeDefinitions(item.subscription, academicPeriodId).filter((definition) => (
+      definition
+      && typeof definition.facultativeId === "string"
+      && definition.facultativeId.length > 0
+    ));
+    if (!definitions.length) continue;
+
+    const period = createPeriodContainer(academicPeriodId);
+    for (const definition of definitions) {
+      if (seenFacultativeIds.has(definition.facultativeId)) {
+        throw new Error(`facultativeId должен быть уникален между семестрами: ${definition.facultativeId}`);
+      }
+      seenFacultativeIds.add(definition.facultativeId);
+
+      const label = document.createElement("label");
+      label.className = "facultative-choice";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = current[definition.facultativeId] !== false;
+      const text = document.createElement("span");
+      text.textContent = typeof definition.label === "string" ? definition.label : definition.facultativeId;
+      label.append(input, text);
+      period.append(label);
+      controls.set(definition.facultativeId, input);
+    }
+    wrapper.append(period);
   }
 
-  for (const definition of definitions) {
-    if (!definition || typeof definition.facultativeId !== "string" || definition.facultativeId.length === 0) continue;
-    const label = document.createElement("label");
-    label.className = "facultative-choice";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = current[definition.facultativeId] !== false;
-    const text = document.createElement("span");
-    text.textContent = typeof definition.label === "string" ? definition.label : definition.facultativeId;
-    label.append(input, text);
-    wrapper.append(label);
-    controls.set(definition.facultativeId, input);
+  if (!controls.size) {
+    return { node: null, value: () => current };
   }
 
   return {
@@ -296,8 +381,8 @@ function renderPreferencePanel(card, item) {
     .then((preferences) => {
       section.replaceChildren();
 
-      const electiveEditor = createElectiveEditor(item.subscription, preferences.electiveChoices);
-      const facultativeEditor = createFacultativeEditor(item.subscription, preferences.facultativeChoices);
+      const electiveEditor = createElectiveEditor(item, preferences.electiveChoices);
+      const facultativeEditor = createFacultativeEditor(item, preferences.facultativeChoices);
       const reminderEditor = createReminderEditor(preferences.remindersMinutesBefore);
       const save = document.createElement("button");
       save.type = "button";
