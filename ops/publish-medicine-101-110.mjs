@@ -12,8 +12,19 @@ import { canonicalJson, sha256Hex } from '../src/explicit-decisions.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const APPLY = process.argv.includes('--apply');
-const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => arg !== '--apply' && arg !== '--preflight');
+const REPLACE_EXISTING = process.argv.includes('--replace-existing');
+const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => ![
+  '--apply',
+  '--preflight',
+  '--replace-existing'
+].includes(arg));
 if (UNKNOWN_ARGS.length > 0) throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
+
+const EXPECTED_PREVIOUS_CANDIDATE_DIGEST =
+  'sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a';
+const EXPECTED_PREVIOUS_VERSION_SUFFIX = EXPECTED_PREVIOUS_CANDIDATE_DIGEST
+  .replace(/^sha256:/, '')
+  .slice(0, 16);
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
@@ -38,6 +49,10 @@ function unfoldIcs(ics) {
 
 function countVevents(ics) {
   return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
+}
+
+function expectedPreviousVersionId(groupId) {
+  return `kgmu-2026-2027-s1-medicine-${groupId}-${EXPECTED_PREVIOUS_VERSION_SUFFIX}`;
 }
 
 async function loadPlan() {
@@ -67,15 +82,29 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
 }
 
 const { plan, qa } = await loadPlan();
+const previousVersions = plan.versions.map((version) => ({
+  groupId: version.groupId,
+  versionId: expectedPreviousVersionId(version.groupId),
+  eventCount: plan.events.filter((event) => (
+    event.groupId === version.groupId && event.facultativeId == null
+  )).length
+}));
+
 console.log(JSON.stringify({
-  mode: APPLY ? 'apply' : 'preflight',
+  mode: APPLY
+    ? (REPLACE_EXISTING ? 'apply-replacement' : 'apply')
+    : (REPLACE_EXISTING ? 'preflight-replacement' : 'preflight'),
   universityId: plan.universityId,
   academicYearId: plan.academicYearId,
   academicPeriodId: plan.academicPeriodId,
   sourceSha256: plan.sourceSha256,
   candidateDigest: plan.candidateDigest,
   eventCount: plan.events.length,
-  versions: plan.versions
+  versions: plan.versions,
+  ...(REPLACE_EXISTING ? {
+    expectedPreviousCandidateDigest: EXPECTED_PREVIOUS_CANDIDATE_DIGEST,
+    previousVersions
+  } : {})
 }, null, 2));
 
 if (!APPLY) {
@@ -111,6 +140,9 @@ try {
   for (const version of plan.versions) {
     const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
     const expectedDigest = eventSetDigest(expectedEvents);
+    const expectedPreviousEvents = expectedEvents.filter((event) => event.facultativeId == null);
+    const expectedPreviousDigest = eventSetDigest(expectedPreviousEvents);
+    const previousVersionId = expectedPreviousVersionId(version.groupId);
     const current = await repository.getPublishedSchedule({
       universityId: plan.universityId,
       groupId: version.groupId,
@@ -119,12 +151,26 @@ try {
     });
 
     if (current && current.scheduleVersion.versionId !== version.versionId) {
-      throw new Error(
-        `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; replacement requires an explicit controlled publication step`
-      );
+      if (!REPLACE_EXISTING) {
+        throw new Error(
+          `group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}; rerun with --replace-existing only after controlled production preflight`
+        );
+      }
+      if (current.scheduleVersion.versionId !== previousVersionId) {
+        throw new Error(
+          `group ${version.groupId} current published version ${current.scheduleVersion.versionId} is not the expected replacement source ${previousVersionId}`
+        );
+      }
+      if (
+        current.events.length !== expectedPreviousEvents.length
+        || eventSetDigest(current.events) !== expectedPreviousDigest
+      ) {
+        throw new Error(`group ${version.groupId} current published source does not match the approved previous candidate`);
+      }
+      console.log(`group ${version.groupId}: verified replacement source ${previousVersionId}`);
     }
 
-    if (current) {
+    if (current?.scheduleVersion.versionId === version.versionId) {
       if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) {
         throw new Error(`group ${version.groupId} published target does not match the approved candidate`);
       }
@@ -170,6 +216,8 @@ try {
   }
 
   for (const version of plan.versions) {
+    const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+    const expectedDigest = eventSetDigest(expectedEvents);
     const published = await repository.getPublishedSchedule({
       universityId: plan.universityId,
       groupId: version.groupId,
@@ -179,8 +227,29 @@ try {
     if (!published || published.scheduleVersion.versionId !== version.versionId) {
       throw new Error(`group ${version.groupId} final published version verification failed`);
     }
-    if (published.events.length !== version.eventCount) {
-      throw new Error(`group ${version.groupId} final event count verification failed`);
+    if (
+      published.events.length !== version.eventCount
+      || eventSetDigest(published.events) !== expectedDigest
+    ) {
+      throw new Error(`group ${version.groupId} final event set verification failed`);
+    }
+
+    const publishedCount = Number(database.prepare(`
+      SELECT COUNT(*) AS count
+      FROM schedule_versions
+      WHERE university_id = ?
+        AND group_id = ?
+        AND academic_year_id = ?
+        AND academic_period_id = ?
+        AND status = 'published'
+    `).get(
+      plan.universityId,
+      version.groupId,
+      plan.academicYearId,
+      plan.academicPeriodId
+    )?.count ?? 0);
+    if (publishedCount !== 1) {
+      throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
     }
 
     const defaultVisibleEvents = published.events.filter((event) => event.facultativeId == null);
@@ -210,6 +279,16 @@ try {
       throw new Error(`group ${version.groupId} all-facultatives ICS VEVENT count verification failed`);
     }
 
+    if (REPLACE_EXISTING) {
+      const previousVersionId = expectedPreviousVersionId(version.groupId);
+      const previousRow = database.prepare(
+        'SELECT status FROM schedule_versions WHERE version_id = ?'
+      ).get(previousVersionId);
+      if (!previousRow || previousRow.status !== 'superseded') {
+        throw new Error(`group ${version.groupId} previous version was not preserved as superseded`);
+      }
+    }
+
     if (defaultVisibleEvents.some((event) => event.assessment) && !unfoldedDefaultIcs.includes('DESCRIPTION:')) {
       throw new Error(`group ${version.groupId} assessment metadata is missing from default rendered ICS`);
     }
@@ -224,10 +303,13 @@ try {
   const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
   if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
   console.log(JSON.stringify({
-    result: 'PRODUCTION_SCHEDULES_PUBLISHED_AND_VERIFIED',
+    result: REPLACE_EXISTING
+      ? 'PRODUCTION_SCHEDULES_REPLACED_AND_VERIFIED'
+      : 'PRODUCTION_SCHEDULES_PUBLISHED_AND_VERIFIED',
     coreBoundary: boundary,
     groupCount: plan.versions.length,
     eventCount: plan.events.length,
+    previousVersionsPreserved: REPLACE_EXISTING,
     trialChanged: false,
     checkoutChanged: false
   }, null, 2));
