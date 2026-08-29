@@ -73,6 +73,7 @@ test("runtime stays fail-closed until production enable", async () => {
   assert.match(config, /checkoutEnabled:\s*false/);
   assert.match(config, /apiBase:\s*""/);
   assert.match(config, /electiveCatalog:\s*\{\}/);
+  assert.match(config, /facultativeCatalog:\s*\{\}/);
 });
 
 test("trial wiring follows current core contract", async () => {
@@ -98,12 +99,15 @@ test("management UI exposes only supported calendar preferences", async () => {
   const manageJs = await text("manageJs");
   const manageCss = await text("manageCss");
   assert.match(manageHtml, /дисциплины по выбору/i);
+  assert.match(manageHtml, /факультативы/i);
   assert.match(manageHtml, /несколько напоминаний/);
   assert.match(manageHtml, /Преподаватель, аудитория и тип занятия всегда остаются/);
   assert.match(manageHtml, /manage\.css/);
   assert.match(manageJs, /\/management\/subscriptions\/\$\{encodeURIComponent\(subscriptionId\)\}\/preferences/);
   assert.match(manageJs, /method: "PATCH"/);
   assert.match(manageJs, /electiveChoices:/);
+  assert.match(manageJs, /facultativeChoices:/);
+  assert.match(manageJs, /facultativeCatalog/);
   assert.match(manageJs, /remindersMinutesBefore:/);
   assert.doesNotMatch(manageJs, /showTeacher|showLocation|showLessonType|showSequence/);
   assert.match(manageCss, /\.preference-panel/);
