@@ -4,6 +4,7 @@ const config = Object.freeze({
   academicYearId: "2026-2027",
   academicPeriodId: "2026-2027-semester-1",
   catalogUrl: "../catalog/2026-2027-semester-1.json",
+  annualSalesCutoff: null,
   trialEnabled: false,
   managementEnabled: false,
   checkoutEnabled: false,
@@ -14,6 +15,19 @@ const programMeta = Object.freeze({
   medicine: Object.freeze({ name: "Лечебный факультет", short: "Лечебное дело", icon: "Л" }),
   pediatrics: Object.freeze({ name: "Педиатрический факультет", short: "Педиатрия", icon: "П" }),
   dentistry: Object.freeze({ name: "Стоматологический факультет", short: "Стоматология", icon: "С" })
+});
+
+const productMeta = Object.freeze({
+  "semester-access": Object.freeze({
+    label: "Семестр",
+    price: "299 ₽",
+    note: "Текущий семестр и все опубликованные обновления расписания."
+  }),
+  "academic-year-access": Object.freeze({
+    label: "Учебный год",
+    price: "499 ₽",
+    note: "Осенний и весенний семестры. Новый семестр появится по той же ссылке после публикации и проверки расписания КГМУ."
+  })
 });
 
 const selector = document.querySelector("#selector");
@@ -29,6 +43,7 @@ let view = "course";
 let selectedProgramId = "medicine";
 let selectedCourse = null;
 let selectedGroupId = null;
+let selectedProductCode = "semester-access";
 
 function apiUrl(path) {
   return new URL(path, config.apiBase || window.location.origin).toString();
@@ -144,28 +159,55 @@ function renderGroups() {
     note: "Выбрать группу",
     onClick: () => {
       selectedGroupId = groupId;
+      selectedProductCode = "semester-access";
       renderSelectedGroup();
     }
   })));
 }
 
+function annualOfferIsVisible() {
+  if (!config.annualSalesCutoff) return true;
+  const cutoff = new Date(config.annualSalesCutoff);
+  if (Number.isNaN(cutoff.getTime())) return false;
+  return Date.now() < cutoff.getTime();
+}
+
 function createPlanOptions() {
+  if (selectedProductCode === "academic-year-access" && !annualOfferIsVisible()) {
+    selectedProductCode = "semester-access";
+  }
+
   const section = document.createElement("div");
   section.className = "plan-section";
-  section.innerHTML = `
-    <strong class="plan-section-label">Полный доступ после бесплатной пробы</strong>
-    <div class="plan-options">
-      <button class="plan-option is-selected" type="button" disabled>
-        <span class="plan-option-head"><strong>Семестр</strong></span>
-        <span class="plan-price">299 ₽</span>
-        <small>Текущий семестр и все опубликованные обновления расписания.</small>
-      </button>
-      <button class="plan-option" type="button" disabled>
-        <span class="plan-option-head"><strong>Учебный год</strong><span class="plan-badge">Выгоднее</span></span>
-        <span class="plan-price">499 ₽</span>
-        <small>Осенний и весенний семестры. Новый семестр появится по той же ссылке после публикации и проверки расписания КГМУ.</small>
-      </button>
-    </div>`;
+  const label = document.createElement("strong");
+  label.className = "plan-section-label";
+  label.textContent = "Полный доступ";
+  const options = document.createElement("div");
+  options.className = "plan-options";
+
+  const productCodes = ["semester-access"];
+  if (annualOfferIsVisible()) productCodes.push("academic-year-access");
+
+  for (const productCode of productCodes) {
+    const meta = productMeta[productCode];
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `plan-option${selectedProductCode === productCode ? " is-selected" : ""}`;
+    button.disabled = !config.checkoutEnabled;
+    button.dataset.productCode = productCode;
+    button.innerHTML = `
+      <span class="plan-option-head"><strong>${meta.label}</strong>${productCode === "academic-year-access" ? '<span class="plan-badge">Выгоднее</span>' : ""}</span>
+      <span class="plan-price">${meta.price}</span>
+      <small>${meta.note}</small>`;
+    button.addEventListener("click", () => {
+      if (!config.checkoutEnabled) return;
+      selectedProductCode = productCode;
+      renderSelectedGroup();
+    });
+    options.append(button);
+  }
+
+  section.append(label, options);
   return section;
 }
 
@@ -196,28 +238,44 @@ function renderSelectedGroup() {
   const offer = document.createElement("div");
   offer.className = "preview-offer";
   const offerCopy = document.createElement("div");
-  offerCopy.innerHTML = "<strong>7 дней бесплатно</strong><p>Пароль не нужен. После запуска пробного периода персональная ссылка останется той же при переходе на полный доступ.</p>";
+  offerCopy.innerHTML = "<strong>7 дней бесплатно или полный доступ</strong><p>Пароль не нужен. Trial и покупка используют одну стабильную подписку на календарь; переход trial → paid не требует заново добавлять календарь.</p>";
   const actions = document.createElement("div");
   actions.className = "preview-actions";
+
   const trialButton = document.createElement("button");
   trialButton.type = "button";
   trialButton.className = "pay-button";
   trialButton.textContent = "Попробовать 7 дней бесплатно";
   trialButton.disabled = !config.trialEnabled;
   trialButton.addEventListener("click", renderTrialForm);
+
+  const purchaseButton = document.createElement("button");
+  purchaseButton.type = "button";
+  purchaseButton.className = "pay-button";
+  const selectedProduct = productMeta[selectedProductCode] ?? productMeta["semester-access"];
+  purchaseButton.textContent = `Купить ${selectedProduct.label.toLowerCase()} — ${selectedProduct.price}`;
+  purchaseButton.disabled = !config.checkoutEnabled;
+  purchaseButton.addEventListener("click", renderCheckoutForm);
+
   const groupsButton = document.createElement("button");
   groupsButton.type = "button";
   groupsButton.className = "secondary-action";
   groupsButton.textContent = "Выбрать другую группу";
   groupsButton.addEventListener("click", renderGroups);
-  actions.append(trialButton, groupsButton);
+  actions.append(trialButton, purchaseButton, groupsButton);
   offer.append(offerCopy, actions);
 
   preview.append(head, previewText, createPlanOptions(), offer);
-  if (!config.trialEnabled) {
+  if (!config.trialEnabled || !config.checkoutEnabled) {
     const closed = document.createElement("div");
     closed.className = "runtime-closed";
-    closed.textContent = "Бесплатная проба пока выключена. Выбор группы и демонстрация календаря работают, но персональная ICS-ссылка будет выдаваться только после отдельного production-включения сервиса.";
+    if (!config.trialEnabled && !config.checkoutEnabled) {
+      closed.textContent = "Бесплатная проба и покупка пока выключены. Они будут доступны только после публикации проверенного production-расписания и отдельной production-проверки соответствующего backend flow.";
+    } else if (!config.trialEnabled) {
+      closed.textContent = "Бесплатная проба пока выключена. Покупка доступна только для опубликованного и проверенного расписания.";
+    } else {
+      closed.textContent = "Покупка пока выключена. Бесплатная проба доступна только для опубликованного и проверенного расписания.";
+    }
     preview.append(closed);
   }
   choiceGrid?.replaceChildren(preview);
@@ -307,6 +365,99 @@ function renderTrialResult(url, expiresAt) {
   });
 }
 
+function createCheckoutKey() {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  if (typeof globalThis.crypto?.getRandomValues !== "function") {
+    throw new Error("Безопасный генератор случайных значений недоступен в этом браузере.");
+  }
+  const bytes = new Uint8Array(32);
+  globalThis.crypto.getRandomValues(bytes);
+  return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
+function renderCheckoutForm() {
+  if (!config.checkoutEnabled || !selectedGroupId) return;
+  const selectedProduct = productMeta[selectedProductCode] ?? productMeta["semester-access"];
+  const card = document.createElement("section");
+  card.className = "trial-connect-card";
+  card.innerHTML = `
+    <div class="trial-mark" aria-hidden="true">₽</div>
+    <p class="section-kicker">Полный доступ</p>
+    <h3>${selectedProduct.label} · группа ${selectedGroupId} · ${selectedProduct.price}</h3>
+    <p>Сумма определяется серверным тарифом. После создания платежа вы перейдёте на защищённую страницу ЮKassa. Возврат на сайт сам по себе не подтверждает оплату.</p>
+    <form id="runtime-checkout-form">
+      <label for="runtime-checkout-email" class="plan-section-label">Email</label>
+      <input id="runtime-checkout-email" type="email" autocomplete="email" inputmode="email" required placeholder="name@example.com">
+      <button class="pay-button" type="submit">Перейти к оплате ${selectedProduct.price}</button>
+    </form>
+    <p id="runtime-checkout-status" role="status" aria-live="polite"></p>`;
+  choiceGrid?.replaceChildren(card);
+  card.querySelector("#runtime-checkout-form")?.addEventListener("submit", submitCheckout);
+}
+
+async function submitCheckout(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const email = form.querySelector("#runtime-checkout-email")?.value?.trim();
+  const status = form.parentElement?.querySelector("#runtime-checkout-status");
+  const submit = form.querySelector('button[type="submit"]');
+  if (!email || !selectedGroupId || !config.checkoutEnabled) return;
+
+  submit.disabled = true;
+  if (status) status.textContent = "Создаём защищённый платёж…";
+
+  try {
+    const checkoutKey = createCheckoutKey();
+    const response = await fetch(apiUrl("/checkout"), {
+      method: "POST",
+      credentials: "omit",
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": checkoutKey
+      },
+      body: JSON.stringify({
+        email,
+        universityId: config.universityId,
+        groupId: selectedGroupId,
+        academicYearId: config.academicYearId,
+        academicPeriodId: config.academicPeriodId,
+        productCode: selectedProductCode
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+
+    if (response.status === 409) {
+      if (payload.error === "already_entitled") {
+        if (status) status.innerHTML = config.managementEnabled
+          ? 'Доступ по этому тарифу уже есть. <a href="./manage/">Открыть управление подпиской</a>.'
+          : "Доступ по этому тарифу уже есть.";
+        return;
+      }
+      if (payload.error === "checkout_in_progress") {
+        throw new Error("Для этой подписки уже есть незавершённый платёж. Завершите его или попробуйте позже.");
+      }
+    }
+
+    if (!response.ok || typeof payload.confirmationUrl !== "string") {
+      throw new Error(payload.error === "checkout_unavailable"
+        ? "Этот тариф или проверенное расписание сейчас недоступны для покупки."
+        : "Не удалось создать платёж. Попробуйте позже.");
+    }
+
+    const confirmationUrl = new URL(payload.confirmationUrl);
+    if (confirmationUrl.protocol !== "https:") {
+      throw new Error("Платёжный провайдер вернул небезопасный адрес перенаправления.");
+    }
+    if (status) status.textContent = "Платёж создан. Перенаправляем в ЮKassa…";
+    window.location.assign(confirmationUrl.toString());
+  } catch (error) {
+    if (status) status.textContent = error instanceof Error ? error.message : "Не удалось создать платёж.";
+    submit.disabled = false;
+  }
+}
+
 function wireSavedInitialCourseView() {
   const buttons = [...(choiceGrid?.querySelectorAll(".choice-card") ?? [])];
   buttons.forEach((button, index) => {
@@ -335,8 +486,17 @@ async function loadCatalog() {
   wireSavedInitialCourseView();
 }
 
-if (heroRuntimeNote && config.trialEnabled) {
-  heroRuntimeNote.textContent = "Выберите группу и запустите бесплатную пробу на 7 дней. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания.";
+if (heroRuntimeNote && (config.trialEnabled || config.checkoutEnabled)) {
+  heroRuntimeNote.textContent = config.trialEnabled && config.checkoutEnabled
+    ? "Выберите группу: можно запустить бесплатную пробу на 7 дней или купить полный доступ. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
+    : config.trialEnabled
+      ? "Выберите группу и запустите бесплатную пробу на 7 дней. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
+      : "Выберите группу и тариф. Покупка доступна только для опубликованной и проверенной версии расписания.";
+}
+
+const paymentReturn = new URLSearchParams(window.location.search).get("payment");
+if (paymentReturn === "return") {
+  setNotice("Вы вернулись со страницы оплаты. Доступ активируется только после серверного подтверждения ЮKassa. Если платёж успешен, проверьте email: ссылка для управления календарём придёт после подтверждения платежа.");
 }
 
 loadCatalog().catch(() => {
