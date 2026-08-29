@@ -2,6 +2,9 @@ const config = Object.freeze({
   apiBase: "",
   managementEnabled: false,
   managementSessionTransport: "cookie",
+  academicPeriodLabels: {},
+  electiveCatalog: {},
+  facultativeCatalog: {},
   ...(globalThis.KGMU_CALENDAR_CONFIG ?? {})
 });
 
@@ -70,6 +73,368 @@ async function copyText(button, text) {
   setTimeout(() => { button.textContent = previous; }, 1800);
 }
 
+function preferencesPath(subscriptionId) {
+  return `/management/subscriptions/${encodeURIComponent(subscriptionId)}/preferences`;
+}
+
+function normalizeReminders(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((item) => Number.isInteger(item) && item >= 0 && item <= 10080))]
+    .sort((a, b) => a - b);
+}
+
+function reminderLabel(minutes) {
+  if (minutes === 0) return "В момент начала";
+  if (minutes < 60) return `За ${minutes} мин`;
+  if (minutes === 60) return "За 1 час";
+  if (minutes % 1440 === 0) return `За ${minutes / 1440} дн.`;
+  if (minutes % 60 === 0) return `За ${minutes / 60} ч.`;
+  return `За ${minutes} мин`;
+}
+
+function periodLabel(academicPeriodId) {
+  const configured = config.academicPeriodLabels?.[academicPeriodId];
+  if (typeof configured === "string" && configured.length > 0) return configured;
+  const semester = /semester-(\d+)$/i.exec(academicPeriodId);
+  return semester ? `${semester[1]} семестр` : academicPeriodId;
+}
+
+function groupPeriodCatalog(catalog, subscription, academicPeriodId) {
+  const groupCatalog = catalog?.[academicPeriodId]?.[subscription.groupId];
+  return Array.isArray(groupCatalog) ? groupCatalog : [];
+}
+
+function electiveDefinitions(subscription, academicPeriodId) {
+  return groupPeriodCatalog(config.electiveCatalog, subscription, academicPeriodId);
+}
+
+function facultativeDefinitions(subscription, academicPeriodId) {
+  return groupPeriodCatalog(config.facultativeCatalog, subscription, academicPeriodId);
+}
+
+function catalogPeriodIdsForGroup(subscription) {
+  const periodIds = new Set();
+  for (const catalog of [config.electiveCatalog, config.facultativeCatalog]) {
+    if (!catalog || typeof catalog !== "object" || Array.isArray(catalog)) continue;
+    for (const academicPeriodId of Object.keys(catalog)) {
+      if (
+        electiveDefinitions(subscription, academicPeriodId).length > 0
+        || facultativeDefinitions(subscription, academicPeriodId).length > 0
+      ) {
+        periodIds.add(academicPeriodId);
+      }
+    }
+  }
+  return [...periodIds].sort();
+}
+
+function coveredCatalogPeriodIds(item) {
+  const candidates = catalogPeriodIdsForGroup(item.subscription);
+  const usableEntitlements = item.entitlements.filter((entitlement) => (
+    entitlement
+    && (entitlement.status === "trial" || entitlement.status === "active")
+  ));
+  const hasAcademicYearAccess = usableEntitlements.some((entitlement) => (
+    entitlement.coverageType === "academic-year"
+    && entitlement.academicPeriodId == null
+  ));
+  if (hasAcademicYearAccess) return candidates;
+
+  const allowed = new Set(
+    usableEntitlements
+      .filter((entitlement) => (
+        entitlement.coverageType === "semester"
+        && typeof entitlement.academicPeriodId === "string"
+        && entitlement.academicPeriodId.length > 0
+      ))
+      .map((entitlement) => entitlement.academicPeriodId)
+  );
+  return candidates.filter((academicPeriodId) => allowed.has(academicPeriodId));
+}
+
+function createPeriodContainer(academicPeriodId) {
+  const container = document.createElement("div");
+  container.className = "preference-period";
+  const title = document.createElement("strong");
+  title.className = "preference-period-title";
+  title.textContent = periodLabel(academicPeriodId);
+  container.append(title);
+  return container;
+}
+
+function createReminderEditor(initialValues) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Напоминания</strong><span>Можно выбрать несколько</span>";
+
+  const selected = new Set(normalizeReminders(initialValues));
+  const chips = document.createElement("div");
+  chips.className = "reminder-chips";
+
+  const customRow = document.createElement("div");
+  customRow.className = "custom-reminder-row";
+  const customInput = document.createElement("input");
+  customInput.type = "number";
+  customInput.min = "0";
+  customInput.max = "10080";
+  customInput.step = "1";
+  customInput.placeholder = "Минут до пары";
+  customInput.setAttribute("aria-label", "Минут до пары");
+  const addButton = document.createElement("button");
+  addButton.type = "button";
+  addButton.className = "button button-secondary";
+  addButton.textContent = "Добавить";
+
+  function render() {
+    chips.replaceChildren();
+    if (!selected.size) {
+      const empty = document.createElement("span");
+      empty.className = "preference-empty";
+      empty.textContent = "Без напоминаний";
+      chips.append(empty);
+      return;
+    }
+    for (const minutes of [...selected].sort((a, b) => a - b)) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "reminder-chip";
+      chip.textContent = `${reminderLabel(minutes)} ×`;
+      chip.title = "Удалить напоминание";
+      chip.addEventListener("click", () => {
+        selected.delete(minutes);
+        render();
+      });
+      chips.append(chip);
+    }
+  }
+
+  addButton.addEventListener("click", () => {
+    const minutes = Number(customInput.value);
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 10080) {
+      customInput.setCustomValidity("Введите целое число от 0 до 10080 минут.");
+      customInput.reportValidity();
+      return;
+    }
+    customInput.setCustomValidity("");
+    selected.add(minutes);
+    customInput.value = "";
+    render();
+  });
+
+  customInput.addEventListener("input", () => customInput.setCustomValidity(""));
+  customRow.append(customInput, addButton);
+  wrapper.append(heading, chips, customRow);
+  render();
+
+  return {
+    node: wrapper,
+    value: () => [...selected].sort((a, b) => a - b)
+  };
+}
+
+function createElectiveEditor(item, initialChoices) {
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Дисциплины по выбору</strong><span>Выбор хранится отдельно для каждого семестра</span>";
+  wrapper.append(heading);
+
+  const selects = new Map();
+  const seenSelectionIds = new Set();
+
+  for (const academicPeriodId of coveredCatalogPeriodIds(item)) {
+    const definitions = electiveDefinitions(item.subscription, academicPeriodId).filter((definition) => (
+      definition
+      && typeof definition.selectionId === "string"
+      && definition.selectionId.length > 0
+      && Array.isArray(definition.alternatives)
+      && definition.alternatives.some((alternative) => alternative && typeof alternative.value === "string")
+    ));
+    if (!definitions.length) continue;
+
+    const period = createPeriodContainer(academicPeriodId);
+    for (const definition of definitions) {
+      if (seenSelectionIds.has(definition.selectionId)) {
+        throw new Error(`selectionId должен быть уникален между семестрами: ${definition.selectionId}`);
+      }
+      seenSelectionIds.add(definition.selectionId);
+
+      const label = document.createElement("label");
+      label.textContent = typeof definition.label === "string" ? definition.label : "Выбор дисциплины";
+      const select = document.createElement("select");
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "Показывать все варианты";
+      select.append(empty);
+      for (const alternative of definition.alternatives) {
+        if (!alternative || typeof alternative.value !== "string") continue;
+        const option = document.createElement("option");
+        option.value = alternative.value;
+        option.textContent = typeof alternative.label === "string" ? alternative.label : alternative.value;
+        select.append(option);
+      }
+      select.value = typeof current[definition.selectionId] === "string" ? current[definition.selectionId] : "";
+      label.append(select);
+      period.append(label);
+      selects.set(definition.selectionId, select);
+    }
+    wrapper.append(period);
+  }
+
+  if (!selects.size) {
+    return { node: null, value: () => current };
+  }
+
+  return {
+    node: wrapper,
+    value: () => {
+      const next = { ...current };
+      for (const [selectionId, select] of selects) {
+        if (select.value) next[selectionId] = select.value;
+        else delete next[selectionId];
+      }
+      return next;
+    }
+  };
+}
+
+function createFacultativeEditor(item, initialChoices) {
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Факультативы</strong><span>Отметьте нужные отдельно для каждого семестра</span>";
+  wrapper.append(heading);
+
+  const controls = new Map();
+  const seenFacultativeIds = new Set();
+
+  for (const academicPeriodId of coveredCatalogPeriodIds(item)) {
+    const definitions = facultativeDefinitions(item.subscription, academicPeriodId).filter((definition) => (
+      definition
+      && typeof definition.facultativeId === "string"
+      && definition.facultativeId.length > 0
+    ));
+    if (!definitions.length) continue;
+
+    const period = createPeriodContainer(academicPeriodId);
+    for (const definition of definitions) {
+      if (seenFacultativeIds.has(definition.facultativeId)) {
+        throw new Error(`facultativeId должен быть уникален между семестрами: ${definition.facultativeId}`);
+      }
+      seenFacultativeIds.add(definition.facultativeId);
+
+      const label = document.createElement("label");
+      label.className = "facultative-choice";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = current[definition.facultativeId] !== false;
+      const text = document.createElement("span");
+      text.textContent = typeof definition.label === "string" ? definition.label : definition.facultativeId;
+      label.append(input, text);
+      period.append(label);
+      controls.set(definition.facultativeId, input);
+    }
+    wrapper.append(period);
+  }
+
+  if (!controls.size) {
+    return { node: null, value: () => current };
+  }
+
+  return {
+    node: wrapper,
+    value: () => {
+      const next = { ...current };
+      for (const [facultativeId, input] of controls) {
+        next[facultativeId] = input.checked;
+      }
+      return next;
+    }
+  };
+}
+
+async function loadPreferences(subscriptionId) {
+  const { response, payload } = await request(preferencesPath(subscriptionId), { method: "GET" });
+  if (response.status === 401) throw new Error("Сессия управления истекла.");
+  if (!response.ok || !payload?.preferences) throw new Error("Не удалось загрузить настройки календаря.");
+  return payload.preferences;
+}
+
+function renderPreferencePanel(card, item) {
+  const section = document.createElement("section");
+  section.className = "preference-panel";
+  section.innerHTML = "<p class=\"preference-loading\">Загружаем настройки календаря…</p>";
+  card.append(section);
+
+  loadPreferences(item.subscription.subscriptionId)
+    .then((preferences) => {
+      section.replaceChildren();
+
+      const electiveEditor = createElectiveEditor(item, preferences.electiveChoices);
+      const facultativeEditor = createFacultativeEditor(item, preferences.facultativeChoices);
+      const reminderEditor = createReminderEditor(preferences.remindersMinutesBefore);
+      const save = document.createElement("button");
+      save.type = "button";
+      save.className = "button button-primary preference-save";
+      save.textContent = "Сохранить настройки";
+
+      const localStatus = document.createElement("p");
+      localStatus.className = "preference-local-status";
+      localStatus.setAttribute("role", "status");
+      localStatus.setAttribute("aria-live", "polite");
+
+      save.addEventListener("click", async () => {
+        save.disabled = true;
+        localStatus.textContent = "Сохраняем…";
+        localStatus.className = "preference-local-status";
+        try {
+          const { response, payload } = await request(preferencesPath(item.subscription.subscriptionId), {
+            method: "PATCH",
+            body: JSON.stringify({
+              electiveChoices: electiveEditor.value(),
+              facultativeChoices: facultativeEditor.value(),
+              remindersMinutesBefore: reminderEditor.value()
+            })
+          });
+          if (!response.ok || !payload?.preferences) throw new Error("Не удалось сохранить настройки.");
+          localStatus.textContent = "Настройки сохранены. Следующая загрузка ICS применит их автоматически.";
+          localStatus.className = "preference-local-status success";
+        } catch (error) {
+          localStatus.textContent = error instanceof Error ? error.message : "Не удалось сохранить настройки.";
+          localStatus.className = "preference-local-status error";
+        } finally {
+          save.disabled = false;
+        }
+      });
+
+      section.append(...[
+        electiveEditor.node,
+        facultativeEditor.node,
+        reminderEditor.node,
+        save,
+        localStatus
+      ].filter(Boolean));
+    })
+    .catch((error) => {
+      section.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "preference-local-status error";
+      message.textContent = error instanceof Error ? error.message : "Не удалось загрузить настройки календаря.";
+      section.append(message);
+    });
+}
+
 function renderSubscriptions(items) {
   listNode.replaceChildren();
   if (!items.length) {
@@ -136,6 +501,7 @@ function renderSubscriptions(items) {
 
     actions.append(recover);
     card.append(title, meta, actions);
+    renderPreferencePanel(card, item);
     listNode.append(card);
   }
 }

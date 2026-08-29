@@ -1,0 +1,107 @@
+.management-help {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.preference-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 18px;
+}
+
+.preference-field {
+  display: grid;
+  gap: 12px;
+}
+
+.preference-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.preference-heading strong,
+.preference-heading span {
+  display: block;
+}
+
+.preference-heading span,
+.preference-empty,
+.preference-loading,
+.preference-local-status {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.preference-empty,
+.preference-loading,
+.preference-local-status {
+  margin: 0;
+}
+
+.preference-period {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.preference-period-title {
+  font-size: 14px;
+}
+
+.reminder-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reminder-chip {
+  border: 1px solid #cddaff;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: #f6f9ff;
+  color: var(--blue-dark);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.custom-reminder-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.preference-save {
+  justify-self: start;
+}
+
+.preference-local-status.success {
+  color: var(--green);
+}
+
+.preference-local-status.error {
+  color: #b42318;
+}
+
+@media (max-width: 620px) {
+  .preference-heading {
+    display: grid;
+    gap: 4px;
+  }
+
+  .custom-reminder-row {
+    grid-template-columns: 1fr;
+  }
+
+  .preference-save {
+    width: 100%;
+  }
+}

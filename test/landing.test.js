@@ -16,7 +16,8 @@ const files = {
   trialCss: new URL("../landing/assets/trial.css", import.meta.url),
   fonts: new URL("../landing/assets/fonts.css", import.meta.url),
   manage: new URL("../landing/manage/index.html", import.meta.url),
-  manageJs: new URL("../landing/manage/manage.js", import.meta.url)
+  manageJs: new URL("../landing/manage/manage.js", import.meta.url),
+  manageCss: new URL("../landing/manage/manage.css", import.meta.url)
 };
 
 async function text(key) { return readFile(files[key], "utf8"); }
@@ -71,6 +72,9 @@ test("runtime stays fail-closed until production enable", async () => {
   assert.match(config, /managementEnabled:\s*false/);
   assert.match(config, /checkoutEnabled:\s*false/);
   assert.match(config, /apiBase:\s*""/);
+  assert.match(config, /academicPeriodLabels:\s*\{\}/);
+  assert.match(config, /electiveCatalog:\s*\{\}/);
+  assert.match(config, /facultativeCatalog:\s*\{\}/);
 });
 
 test("trial wiring follows current core contract", async () => {
@@ -89,6 +93,52 @@ test("management proof still uses fragment to POST", async () => {
   assert.match(manageJs, /"\/management\/verify"/);
   assert.match(manageJs, /JSON\.stringify\(\{ magicToken: token \}\)/);
   assert.doesNotMatch(manageJs, /management\/verify\?/);
+});
+
+test("management UI exposes only supported calendar preferences", async () => {
+  const manageHtml = await text("manage");
+  const manageJs = await text("manageJs");
+  const manageCss = await text("manageCss");
+  assert.match(manageHtml, /дисциплины по выбору/i);
+  assert.match(manageHtml, /факультативы/i);
+  assert.match(manageHtml, /несколько напоминаний/);
+  assert.match(manageHtml, /Преподаватель, аудитория и тип занятия всегда остаются/);
+  assert.match(manageHtml, /manage\.css/);
+  assert.match(manageJs, /\/management\/subscriptions\/\$\{encodeURIComponent\(subscriptionId\)\}\/preferences/);
+  assert.match(manageJs, /method: "PATCH"/);
+  assert.match(manageJs, /electiveChoices:/);
+  assert.match(manageJs, /facultativeChoices:/);
+  assert.match(manageJs, /facultativeCatalog/);
+  assert.match(manageJs, /remindersMinutesBefore:/);
+  assert.doesNotMatch(manageJs, /showTeacher|showLocation|showLessonType|showSequence/);
+  assert.match(manageCss, /\.preference-panel/);
+  assert.match(manageCss, /\.preference-period/);
+});
+
+test("choice catalogs are scoped by academic period and group", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /catalog\?\.\[academicPeriodId\]\?\.\[subscription\.groupId\]/);
+  assert.match(manageJs, /coveredCatalogPeriodIds\(item\)/);
+  assert.match(manageJs, /coverageType === "academic-year"/);
+  assert.match(manageJs, /coverageType === "semester"/);
+  assert.match(manageJs, /allowed\.has\(academicPeriodId\)/);
+  assert.doesNotMatch(manageJs, /config\.electiveCatalog\?\.\[subscription\.groupId\]/);
+  assert.doesNotMatch(manageJs, /config\.facultativeCatalog\?\.\[subscription\.groupId\]/);
+});
+
+test("period editors preserve unknown saved choices and reject id collisions", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /const next = \{ \.\.\.current \};/);
+  assert.match(manageJs, /selectionId должен быть уникален между семестрами/);
+  assert.match(manageJs, /facultativeId должен быть уникален между семестрами/);
+});
+
+test("elective and facultative selectors are omitted when covered periods have no published choices", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /if \(!selects\.size\) \{\s*return \{ node: null, value: \(\) => current \};/s);
+  assert.match(manageJs, /if \(!controls\.size\) \{\s*return \{ node: null, value: \(\) => current \};/s);
+  assert.match(manageJs, /\.filter\(Boolean\)/);
+  assert.doesNotMatch(manageJs, /варианты дисциплин по выбору пока не опубликованы/i);
 });
 
 test("landing contains no embedded production secrets", async () => {
