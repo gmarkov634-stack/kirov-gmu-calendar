@@ -3,6 +3,7 @@ const config = Object.freeze({
   managementEnabled: false,
   managementSessionTransport: "cookie",
   electiveCatalog: {},
+  facultativeCatalog: {},
   ...(globalThis.KGMU_CALENDAR_CONFIG ?? {})
 });
 
@@ -91,8 +92,12 @@ function reminderLabel(minutes) {
 }
 
 function electiveDefinitions(subscription) {
-  const groupId = subscription.groupId;
-  const groupCatalog = config.electiveCatalog?.[groupId];
+  const groupCatalog = config.electiveCatalog?.[subscription.groupId];
+  return Array.isArray(groupCatalog) ? groupCatalog : [];
+}
+
+function facultativeDefinitions(subscription) {
+  const groupCatalog = config.facultativeCatalog?.[subscription.groupId];
   return Array.isArray(groupCatalog) ? groupCatalog : [];
 }
 
@@ -226,6 +231,54 @@ function createElectiveEditor(subscription, initialChoices) {
   };
 }
 
+function createFacultativeEditor(subscription, initialChoices) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "preference-field";
+  const heading = document.createElement("div");
+  heading.className = "preference-heading";
+  heading.innerHTML = "<strong>Факультативы</strong><span>Отметьте те, которые нужны в календаре</span>";
+  wrapper.append(heading);
+
+  const definitions = facultativeDefinitions(subscription);
+  const current = initialChoices && typeof initialChoices === "object" && !Array.isArray(initialChoices)
+    ? { ...initialChoices }
+    : {};
+  const controls = new Map();
+
+  if (!definitions.length) {
+    const note = document.createElement("p");
+    note.className = "preference-empty";
+    note.textContent = "Для этой группы каталог факультативов пока не опубликован. Сохранённый выбор, если он уже есть, не изменится.";
+    wrapper.append(note);
+    return { node: wrapper, value: () => current };
+  }
+
+  for (const definition of definitions) {
+    if (!definition || typeof definition.facultativeId !== "string" || definition.facultativeId.length === 0) continue;
+    const label = document.createElement("label");
+    label.className = "facultative-choice";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = current[definition.facultativeId] !== false;
+    const text = document.createElement("span");
+    text.textContent = typeof definition.label === "string" ? definition.label : definition.facultativeId;
+    label.append(input, text);
+    wrapper.append(label);
+    controls.set(definition.facultativeId, input);
+  }
+
+  return {
+    node: wrapper,
+    value: () => {
+      const next = { ...current };
+      for (const [facultativeId, input] of controls) {
+        next[facultativeId] = input.checked;
+      }
+      return next;
+    }
+  };
+}
+
 async function loadPreferences(subscriptionId) {
   const { response, payload } = await request(preferencesPath(subscriptionId), { method: "GET" });
   if (response.status === 401) throw new Error("Сессия управления истекла.");
@@ -244,6 +297,7 @@ function renderPreferencePanel(card, item) {
       section.replaceChildren();
 
       const electiveEditor = createElectiveEditor(item.subscription, preferences.electiveChoices);
+      const facultativeEditor = createFacultativeEditor(item.subscription, preferences.facultativeChoices);
       const reminderEditor = createReminderEditor(preferences.remindersMinutesBefore);
       const save = document.createElement("button");
       save.type = "button";
@@ -264,6 +318,7 @@ function renderPreferencePanel(card, item) {
             method: "PATCH",
             body: JSON.stringify({
               electiveChoices: electiveEditor.value(),
+              facultativeChoices: facultativeEditor.value(),
               remindersMinutesBefore: reminderEditor.value()
             })
           });
@@ -278,7 +333,7 @@ function renderPreferencePanel(card, item) {
         }
       });
 
-      section.append(electiveEditor.node, reminderEditor.node, save, localStatus);
+      section.append(electiveEditor.node, facultativeEditor.node, reminderEditor.node, save, localStatus);
     })
     .catch((error) => {
       section.replaceChildren();
