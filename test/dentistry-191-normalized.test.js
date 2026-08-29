@@ -43,7 +43,7 @@ function find(events, criteria) {
     .every(([key, value]) => event[key] === value));
 }
 
-test('dentistry 191 normalized draft is structurally complete and floating-time safe', async () => {
+test('dentistry 191 normalized draft is structurally valid but B49 remains review-required', async () => {
   const fixture = await readJson('../fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json');
   const evidence = await readJson('../qa/2026-2027-semester-1/dentistry-191.evidence.json');
   const qa = await readJson('../qa/2026-2027-semester-1/dentistry-191.qa-report.json');
@@ -55,9 +55,10 @@ test('dentistry 191 normalized draft is structurally complete and floating-time 
   assert.deepEqual(evidence.groupEventCounts, { '191': 340 });
   assert.equal(evidence.timetableSourceCellCount, 29);
   assert.equal(evidence.coveredSourceCellCount, 28);
-  assert.deepEqual(evidence.excludedSourceCells.map(item => item.locator), ['1 стомат.!B49']);
-  assert.equal(evidence.excludedSourceCells[0].rule, 'R39');
-  assert.equal(evidence.unresolvedAmbiguities, 0);
+  assert.deepEqual(evidence.excludedSourceCells, []);
+  assert.deepEqual(evidence.unresolvedSourceCells.map(item => item.locator), ['1 стомат.!B49']);
+  assert.equal(evidence.unresolvedSourceCells[0].rule, 'R39/R78');
+  assert.equal(evidence.unresolvedAmbiguities, 1);
   assert.equal(evidence.duplicateEvents, 0);
   assert.equal(evidence.hardCountChecks.length, 7);
   assert.ok(evidence.hardCountChecks.every(check => check.status === 'pass'));
@@ -169,7 +170,7 @@ test('dentistry 191 preserves exactly four source-explicit overlaps', async () =
   assert.equal(evidence.explicitOverlapWarnings.length, 4);
 });
 
-test('dentistry 191 QA is schema-shaped and blocks publication until assessment metadata is lossless', async () => {
+test('dentistry 191 QA blocks publication on B49 and assessment projection', async () => {
   const evidence = await readJson('../qa/2026-2027-semester-1/dentistry-191.evidence.json');
   const qa = await readJson('../qa/2026-2027-semester-1/dentistry-191.qa-report.json');
 
@@ -178,7 +179,12 @@ test('dentistry 191 QA is schema-shaped and blocks publication until assessment 
   ].sort());
   assert.equal(qa.decision, 'fail');
   const failedChecks = qa.checks.filter(check => check.status === 'fail');
-  assert.deepEqual(failedChecks.map(check => check.code), ['assessment-metadata-projection']);
+  assert.deepEqual(failedChecks.map(check => check.code), [
+    'group-content-accounted-for',
+    'facultative-group-mapping-resolved',
+    'unresolved-ambiguities-zero',
+    'assessment-metadata-projection'
+  ]);
 
   assert.equal(evidence.assessmentMetadata.length, 6);
   assert.ok(evidence.assessmentMetadata.some(item =>
