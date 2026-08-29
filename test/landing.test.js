@@ -113,6 +113,13 @@ test("management UI exposes only supported calendar preferences", async () => {
   assert.match(manageCss, /\.preference-panel/);
 });
 
+test("elective selector is omitted when the group has no published choices", async () => {
+  const manageJs = await text("manageJs");
+  assert.match(manageJs, /return \{ node: null, value: \(\) => current \};/);
+  assert.match(manageJs, /\.filter\(Boolean\)/);
+  assert.doesNotMatch(manageJs, /варианты дисциплин по выбору пока не опубликованы/i);
+});
+
 test("landing contains no embedded production secrets", async () => {
   const combined = [await text("index"), await text("app"), await text("config"), await text("manageJs")].join("\n");
   assert.doesNotMatch(combined, /RESEND_API_KEY/);
