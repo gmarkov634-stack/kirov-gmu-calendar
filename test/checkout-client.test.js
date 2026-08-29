@@ -29,13 +29,14 @@ test('landing never treats provider return as payment proof', () => {
   assert.match(app, /window\.location\.assign\(confirmationUrl\.toString\(\)\)/);
 });
 
-test('KGMU runtime keeps checkout disabled until production payment E2E while trial stays live', () => {
-  for (const config of [pagesConfig, productionConfig]) {
-    assert.match(config, /checkoutEnabled: false/);
-    assert.match(config, /annualSalesCutoff: "2026-12-31T21:00:00\.000Z"/);
-  }
+test('GitHub Pages checkout is enabled only after production payment E2E while trial stays live', () => {
+  assert.match(pagesConfig, /checkoutEnabled: true/);
   assert.match(pagesConfig, /trialEnabled: true/);
   assert.match(pagesConfig, /managementEnabled: true/);
+  assert.match(pagesConfig, /annualSalesCutoff: "2026-12-31T21:00:00\.000Z"/);
+
+  assert.match(productionConfig, /checkoutEnabled: false/);
+  assert.match(productionConfig, /annualSalesCutoff: "2026-12-31T21:00:00\.000Z"/);
 });
 
 test('annual plan is hidden by the versioned sales cutoff while server remains authoritative', () => {
