@@ -55,6 +55,16 @@ function expectedPreviousVersionId(groupId) {
   return `kgmu-2026-2027-s1-medicine-${groupId}-${EXPECTED_PREVIOUS_VERSION_SUFFIX}`;
 }
 
+function eventsForGroup(plan, groupId) {
+  return plan.events.filter((event) => event.groupId === groupId);
+}
+
+function previousEventsForGroup(plan, groupId) {
+  return plan.events.filter((event) => (
+    event.groupId === groupId && event.facultativeId == null
+  ));
+}
+
 async function loadPlan() {
   const [manifest, facultatives, source, evidence, qa] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json'),
@@ -81,13 +91,61 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   return { schemaBlob, rendererBlob };
 }
 
+async function verifyReplacementSources({ repository, database, plan }) {
+  for (const version of plan.versions) {
+    const current = await repository.getPublishedSchedule({
+      universityId: plan.universityId,
+      groupId: version.groupId,
+      academicYearId: plan.academicYearId,
+      academicPeriodId: plan.academicPeriodId
+    });
+    if (!current) {
+      throw new Error(`group ${version.groupId} replacement source is missing`);
+    }
+
+    const expectedTargetEvents = eventsForGroup(plan, version.groupId);
+    if (current.scheduleVersion.versionId === version.versionId) {
+      if (
+        current.events.length !== version.eventCount
+        || eventSetDigest(current.events) !== eventSetDigest(expectedTargetEvents)
+      ) {
+        throw new Error(`group ${version.groupId} already-published target does not match the approved candidate`);
+      }
+      const previousVersionId = expectedPreviousVersionId(version.groupId);
+      const previousRow = database.prepare(
+        'SELECT status FROM schedule_versions WHERE version_id = ?'
+      ).get(previousVersionId);
+      if (!previousRow || previousRow.status !== 'superseded') {
+        throw new Error(`group ${version.groupId} resumed target has no preserved superseded source`);
+      }
+      console.log(`group ${version.groupId}: replacement target already published and source preserved`);
+      continue;
+    }
+
+    const previousVersionId = expectedPreviousVersionId(version.groupId);
+    if (current.scheduleVersion.versionId !== previousVersionId) {
+      throw new Error(
+        `group ${version.groupId} current published version ${current.scheduleVersion.versionId} is not the expected replacement source ${previousVersionId}`
+      );
+    }
+    const expectedPreviousEvents = previousEventsForGroup(plan, version.groupId);
+    const expectedPreviousDigest = eventSetDigest(expectedPreviousEvents);
+    if (
+      current.events.length !== expectedPreviousEvents.length
+      || eventSetDigest(current.events) !== expectedPreviousDigest
+    ) {
+      throw new Error(`group ${version.groupId} current published source does not match the approved previous candidate`);
+    }
+    console.log(`group ${version.groupId}: verified replacement source ${previousVersionId}`);
+  }
+  console.log('REPLACEMENT_SOURCES_PREFLIGHT_OK_NO_DATABASE_CHANGES');
+}
+
 const { plan, qa } = await loadPlan();
 const previousVersions = plan.versions.map((version) => ({
   groupId: version.groupId,
   versionId: expectedPreviousVersionId(version.groupId),
-  eventCount: plan.events.filter((event) => (
-    event.groupId === version.groupId && event.facultativeId == null
-  )).length
+  eventCount: previousEventsForGroup(plan, version.groupId).length
 }));
 
 console.log(JSON.stringify({
@@ -137,10 +195,14 @@ try {
   const repository = core.createSqliteScheduleRepository(database);
   const qaForPublication = toCorePublicationQa(qa);
 
+  if (REPLACE_EXISTING) {
+    await verifyReplacementSources({ repository, database, plan });
+  }
+
   for (const version of plan.versions) {
-    const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+    const expectedEvents = eventsForGroup(plan, version.groupId);
     const expectedDigest = eventSetDigest(expectedEvents);
-    const expectedPreviousEvents = expectedEvents.filter((event) => event.facultativeId == null);
+    const expectedPreviousEvents = previousEventsForGroup(plan, version.groupId);
     const expectedPreviousDigest = eventSetDigest(expectedPreviousEvents);
     const previousVersionId = expectedPreviousVersionId(version.groupId);
     const current = await repository.getPublishedSchedule({
@@ -167,7 +229,6 @@ try {
       ) {
         throw new Error(`group ${version.groupId} current published source does not match the approved previous candidate`);
       }
-      console.log(`group ${version.groupId}: verified replacement source ${previousVersionId}`);
     }
 
     if (current?.scheduleVersion.versionId === version.versionId) {
@@ -216,7 +277,7 @@ try {
   }
 
   for (const version of plan.versions) {
-    const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+    const expectedEvents = eventsForGroup(plan, version.groupId);
     const expectedDigest = eventSetDigest(expectedEvents);
     const published = await repository.getPublishedSchedule({
       universityId: plan.universityId,
