@@ -4,6 +4,7 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   academicYearId: "2026-2027",
   academicPeriodId: "2026-2027-semester-1",
   catalogUrl: "../catalog/2026-2027-semester-1.json",
+  electiveCatalog: {},
   trialEnabled: false,
   managementEnabled: false,
   checkoutEnabled: false
