@@ -7,12 +7,12 @@ import { spawnSync } from 'node:child_process';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Pages runtime enables management while trial and checkout stay fail-closed', () => {
+test('Pages runtime enables trial and management while checkout stays fail-closed', () => {
   const config = read('deploy/runtime-config.pages.js');
   assert.match(config, /apiBase:\s*"https:\/\/176-123-165-120\.sslip\.io"/);
   assert.match(config, /catalogUrl:\s*"\.\/catalog\/2026-2027-semester-1\.json"/);
   assert.match(config, /managementSessionTransport:\s*"bearer"/);
-  assert.match(config, /trialEnabled:\s*false/);
+  assert.match(config, /trialEnabled:\s*true/);
   assert.match(config, /managementEnabled:\s*true/);
   assert.match(config, /checkoutEnabled:\s*false/);
 });
@@ -39,12 +39,12 @@ test('Pages artifact builder preserves the landing and project-relative catalog'
     assert.ok(existsSync(join(output, 'index.html')));
     assert.ok(existsSync(join(output, 'manage', 'index.html')));
     assert.ok(existsSync(join(output, 'catalog', '2026-2027-semester-1.json')));
-    assert.ok(existsSync(join(output, '.nojekyll')));
+    assert.ok(existsSync(join(output, '.nojekyll'));
     assert.equal(existsSync(join(output, 'README.md')), false);
 
     const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
     assert.match(runtimeConfig, /managementSessionTransport:\s*"bearer"/);
-    assert.match(runtimeConfig, /trialEnabled:\s*false/);
+    assert.match(runtimeConfig, /trialEnabled:\s*true/);
     assert.match(runtimeConfig, /managementEnabled:\s*true/);
     assert.match(runtimeConfig, /checkoutEnabled:\s*false/);
     assert.doesNotMatch(runtimeConfig, /containerapps\.ru|\/api\/v2|file:\/\/\//);
