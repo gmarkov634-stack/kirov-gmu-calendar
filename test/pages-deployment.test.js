@@ -7,14 +7,14 @@ import { spawnSync } from 'node:child_process';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Pages runtime enables trial and management while checkout stays fail-closed', () => {
+test('Pages runtime enables trial, management, and checkout after controlled commerce E2E', () => {
   const config = read('deploy/runtime-config.pages.js');
   assert.match(config, /apiBase:\s*"https:\/\/176-123-165-120\.sslip\.io"/);
   assert.match(config, /catalogUrl:\s*"\.\/catalog\/2026-2027-semester-1\.json"/);
   assert.match(config, /managementSessionTransport:\s*"bearer"/);
   assert.match(config, /trialEnabled:\s*true/);
   assert.match(config, /managementEnabled:\s*true/);
-  assert.match(config, /checkoutEnabled:\s*false/);
+  assert.match(config, /checkoutEnabled:\s*true/);
 });
 
 test('Pages management client keeps bearer credential in memory only', () => {
@@ -46,7 +46,7 @@ test('Pages artifact builder preserves the landing and project-relative catalog'
     assert.match(runtimeConfig, /managementSessionTransport:\s*"bearer"/);
     assert.match(runtimeConfig, /trialEnabled:\s*true/);
     assert.match(runtimeConfig, /managementEnabled:\s*true/);
-    assert.match(runtimeConfig, /checkoutEnabled:\s*false/);
+    assert.match(runtimeConfig, /checkoutEnabled:\s*true/);
     assert.doesNotMatch(runtimeConfig, /containerapps\.ru|\/api\/v2|file:\/\/\//);
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
