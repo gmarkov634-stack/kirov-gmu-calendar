@@ -1,34 +1,35 @@
 {
-  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-refresh-v1",
-  "parsingJobId": "parsing-job-101-110-refresh-1",
-  "candidateDigest": "sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a",
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-facultatives-v2",
+  "parsingJobId": "parsing-job-101-110-facultatives-v2",
+  "candidateDigest": "sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2",
   "decision": "pass",
   "checks": [
-    {"code":"all-group-content-accounted-for","status":"pass","message":"145/145 logical timetable cells accounted for by explicit operator-authored decisions"},
-    {"code":"dates-within-academic-period","status":"pass","message":"All 3429 generated dates are inside the official service-week grid through 2027-01-16"},
+    {"code":"main-table-content-accounted-for","status":"pass","message":"145/145 logical cells in B9:K42 remain covered by explicit operator-authored decisions"},
+    {"code":"facultative-full-sheet-coverage","status":"pass","message":"A43:K43 is a merged facultative block for groups 101-110 and A44:K44 supplies the 19 academic service-week intervals"},
+    {"code":"facultative-r90-expansion","status":"pass","message":"Five confirmed facultatives expand to 920 canonical events: 18 Monday, 19 Tuesday, 19 Wednesday, 18 Thursday and 18 Friday dates per group"},
+    {"code":"facultative-default-selection","status":"pass","message":"The facultative fixture declares defaultSelected=false; user choice is applied later by CalendarPreferences at ICS generation"},
+    {"code":"dates-within-academic-period","status":"pass","message":"All 4349 candidate events are inside the official service-week grid through 2027-01-16"},
     {"code":"source-groups-match-expected-groups","status":"pass","message":"Groups 101-110 only"},
     {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures"},
-    {"code":"explicit-overlaps-preserved","status":"warning","message":"8 source-explicit overlaps preserved under G16/R69"},
-    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities"},
-    {"code":"r83-additional-event-counts","status":"pass","message":"26/26 R83 completeness assertions passed without date synthesis"},
-    {"code":"assessment-metadata-captured","status":"pass","message":"Lower reference assessment metadata is captured for 5 disciplines; explicit ORG controls preserve graded-credit semantics"},
-    {"code":"shared-contract-assessment-projection","status":"pass","message":"Revalidated against medical-calendar-core/main commit 46c64976fff5483b34b40570f4ffe49f20554ff3: NormalizedEvent v1 now supports structured assessment metadata and graded-credit lessonType, and ICS projects assessment metadata with distinct graded-credit summary semantics"},
-    {"code":"optional-events-reparse-r39","status":"pass","message":"Fresh source-backed scan under current R39 found no facultative rows and no explicit elective option variants for groups 101-110. Cell B16 is only the generic physical-culture elective umbrella and remains a canonical schedule event; no facultativeId, selectionGroupId or selectionOptionId is invented. Existing 3429-event candidate therefore remains semantically complete for the current source."}
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"152 source-backed overlap pairs are preserved under G16/R69; 144 involve facultative events"},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit user confirmation of A43/A44 facultative cadence"},
+    {"code":"shared-contract-facultative-projection","status":"pass","message":"medical-calendar-core/main supports NormalizedEvent.facultativeId and CalendarPreferences.facultativeChoices; filtering is an ICS-generation concern"}
   ],
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
-    "commit": "46c64976fff5483b34b40570f4ffe49f20554ff3",
-    "normalizedEventSchemaBlob": "f40a8d7efef1cf362cea9a82976dd86d431186b8",
-    "icsRendererBlob": "94cbd7d50aa4af2028ab27298cc05592ee3d51b7"
+    "commit": "ae78e20221abbdf0ec78d224871f9830445adaa8",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "a2223de3a6489f12f06d7380575c3f68858995b5"
   },
   "optionalEventReparse": {
     "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
-    "logicalSourceCells": 145,
-    "facultativeCandidates": 0,
-    "explicitElectiveOptionCandidates": 0,
-    "electiveUmbrellaCells": ["B16"],
-    "rule": "R39 current: facultatives are canonical normalized events when present; ambiguous scope is REVIEW_REQUIRED, never silently dropped",
-    "result": "PASS_NO_OPTIONAL_EVENT_DELTA"
+    "mainLogicalSourceCells": 145,
+    "facultativeSource": "A43:K43",
+    "serviceWeekSource": "A44:K44",
+    "facultativeCount": 5,
+    "facultativeEventCount": 920,
+    "rule": "R39 + R90",
+    "result": "PASS_CONFIRMED_FACULTATIVES_R90"
   },
-  "createdAt": "2026-08-29T00:00:00+02:00"
+  "createdAt": "2026-08-29T21:45:00+03:00"
 }
