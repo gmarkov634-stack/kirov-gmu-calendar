@@ -11,9 +11,10 @@ from openpyxl import load_workbook
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_META = ROOT / "fixtures/2026-2027-semester-1/medicine-101-110.source.json"
 DECISIONS = ROOT / "fixtures/2026-2027-semester-1/medicine-101-110.decisions.json"
+DUMP_PATH = ROOT / "medicine-101-110-workbook-dump.json"
 SHEET_NAME = "1 леч.1"
 EXPECTED_LOGICAL_CELLS = 145
-OPTIONAL_RE = re.compile(r"факульт|электив", re.IGNORECASE)
+OPTIONAL_RE = re.compile(r"факульт|электив|по выбор", re.IGNORECASE)
 
 
 def main():
@@ -31,6 +32,31 @@ def main():
     if workbook.sheetnames != meta["workbookExpectations"]["sheetNames"]:
         raise SystemExit(f"sheet set changed: {workbook.sheetnames}")
     sheet = workbook[SHEET_NAME]
+
+    # Mechanical full-sheet evidence for manual inspection. No semantic inference.
+    full_cells = []
+    full_sheet_optional = []
+    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
+        for cell in row:
+            if cell.value is None:
+                continue
+            text = str(cell.value).strip()
+            entry = {"coord": cell.coordinate, "value": text}
+            full_cells.append(entry)
+            if OPTIONAL_RE.search(text):
+                full_sheet_optional.append(entry)
+
+    dump = {
+        "sourceSha256": actual_sha,
+        "byteLength": len(data),
+        "sheet": SHEET_NAME,
+        "maxRow": sheet.max_row,
+        "maxColumn": sheet.max_column,
+        "nonEmptyCells": full_cells,
+        "mergedRanges": [str(rng) for rng in sheet.merged_cells.ranges],
+        "optionalTermMatches": full_sheet_optional,
+    }
+    DUMP_PATH.write_text(json.dumps(dump, ensure_ascii=False, indent=2), encoding="utf-8")
 
     logical = []
     optional = []
@@ -72,11 +98,12 @@ def main():
         "sourceSha256": actual_sha,
         "logicalSourceCellCount": len(logical),
         "coveredSourceCellCount": len(covered),
-        "optionalCandidates": optional,
+        "mainTableOptionalCandidates": optional,
+        "fullSheetOptionalTermMatches": full_sheet_optional,
         "facultativeCandidateCount": len(facultatives),
         "electiveOptionCandidateCount": len(elective_candidates),
         "decision": "REVIEW_REQUIRED" if facultatives or elective_candidates else "PASS_NO_EXPLICIT_OPTION_VARIANTS",
-        "note": "Generic elective physical-culture umbrella rows remain canonical schedule events unless the XLSX explicitly enumerates selectable options. No facultativeId/selectionOptionId is invented from an umbrella title."
+        "note": "Main-table candidate classification is preserved for regression; full-sheet dump is mechanical evidence for manual review and includes cells outside B9:K42."
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
