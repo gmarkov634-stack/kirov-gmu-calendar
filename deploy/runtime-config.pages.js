@@ -8,5 +8,5 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   managementSessionTransport: "bearer",
   trialEnabled: true,
   managementEnabled: true,
-  checkoutEnabled: false
+  checkoutEnabled: true
 });
