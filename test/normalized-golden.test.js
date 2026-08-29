@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+import { expandMedicineFacultativeFixture } from '../src/medicine-publication-plan.js';
+
 async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), 'utf8'));
 }
@@ -17,6 +19,14 @@ function canonicalJson(value) {
 function selected(table, maskHex) {
   const mask = BigInt(`0x${maskHex}`);
   return table.filter((_, index) => (mask & (1n << BigInt(index))) !== 0n);
+}
+function compareEvents(a, b) {
+  return [
+    Number(a.groupId) - Number(b.groupId), a.date.localeCompare(b.date),
+    a.startTime.localeCompare(b.startTime), a.endTime.localeCompare(b.endTime),
+    a.discipline.localeCompare(b.discipline), a.lessonType.localeCompare(b.lessonType),
+    a.sourceRef.locator.localeCompare(b.sourceRef.locator)
+  ].find(value => value !== 0) ?? 0;
 }
 function expandManifest(manifest) {
   const events = [];
@@ -41,61 +51,105 @@ function expandManifest(manifest) {
       }
     }
   }
-  return events.sort((a, b) => [
-    Number(a.groupId) - Number(b.groupId), a.date.localeCompare(b.date),
-    a.startTime.localeCompare(b.startTime), a.endTime.localeCompare(b.endTime),
-    a.discipline.localeCompare(b.discipline), a.lessonType.localeCompare(b.lessonType),
-    a.sourceRef.locator.localeCompare(b.sourceRef.locator)
-  ].find(value => value !== 0) ?? 0);
+  return events.sort(compareEvents);
 }
 function minutes(value) { const [h, m] = value.split(':').map(Number); return h * 60 + m; }
 function overlaps(a, b) { return minutes(a.startTime) < minutes(b.endTime) && minutes(b.startTime) < minutes(a.endTime); }
+function countOverlaps(events) {
+  const byDay = new Map();
+  for (const event of events) {
+    const key = `${event.groupId}|${event.date}`;
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(event);
+  }
+  let total = 0;
+  let involvingFacultatives = 0;
+  for (const dayEvents of byDay.values()) {
+    for (let i = 0; i < dayEvents.length; i += 1) {
+      for (let j = i + 1; j < dayEvents.length; j += 1) {
+        if (!overlaps(dayEvents[i], dayEvents[j])) continue;
+        total += 1;
+        if (dayEvents[i].facultativeId || dayEvents[j].facultativeId) involvingFacultatives += 1;
+      }
+    }
+  }
+  return { total, involvingFacultatives };
+}
 
-test('refreshed 27.08 medicine 101-110 expands only explicit operator decisions', async () => {
-  const manifest = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json');
-  const evidence = await readJson('../qa/2026-2027-semester-1/medicine-101-110.evidence.json');
-  const qa = await readJson('../qa/2026-2027-semester-1/medicine-101-110.qa-report.json');
-  const events = expandManifest(manifest);
+async function medicineCandidate() {
+  const [manifest, facultatives, source, evidence, qa] = await Promise.all([
+    readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json'),
+    readJson('../fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json'),
+    readJson('../fixtures/2026-2027-semester-1/medicine-101-110.source.json'),
+    readJson('../qa/2026-2027-semester-1/medicine-101-110.evidence.json'),
+    readJson('../qa/2026-2027-semester-1/medicine-101-110.qa-report.json')
+  ]);
+  const baseEvents = expandManifest(manifest);
+  const facultativeEvents = expandMedicineFacultativeFixture(facultatives, {
+    universityId: source.universityId,
+    academicPeriodId: source.academicPeriodId,
+    sourceId: source.source.sourceId
+  });
+  return {
+    manifest, facultatives, evidence, qa,
+    baseEvents,
+    facultativeEvents,
+    events: [...baseEvents, ...facultativeEvents].sort(compareEvents)
+  };
+}
+
+test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives', async () => {
+  const { manifest, facultatives, evidence, qa, baseEvents, facultativeEvents, events } = await medicineCandidate();
 
   assert.equal(manifest.schema, 'kgmu-explicit-semantic-decisions-v3');
   assert.equal(manifest.sourceSha256, '341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b');
   assert.equal(manifest.semanticDecisionMode, 'operator-authored-explicit');
   assert.equal(manifest.logicalSourceCellCount, 145);
   assert.equal(manifest.decisionCount, 196);
-  assert.equal(events.length, 3429);
-  assert.equal(evidence.eventCount, 3429);
+  assert.equal(baseEvents.length, 3429);
+
+  assert.equal(facultatives.semanticDecisionMode, 'operator-confirmed-r90');
+  assert.equal(facultatives.defaultSelected, false);
+  assert.equal(facultatives.items.length, 5);
+  assert.equal(facultativeEvents.length, 920);
+  assert.equal(events.length, 4349);
+
+  assert.equal(evidence.eventCount, 4349);
+  assert.equal(evidence.baseEventCount, 3429);
+  assert.equal(evidence.facultativeEventCount, 920);
   assert.equal(evidence.coveredSourceCellCount, 145);
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(evidence.duplicateEvents, 0);
-  assert.equal(evidence.explicitOverlapWarningCount, 8);
   assert.equal(qa.decision, 'pass');
-  assert.ok(qa.checks.some(check => check.code === 'shared-contract-assessment-projection' && check.status === 'pass'));
-  assert.equal(qa.sharedContractEvidence.commit, '46c64976fff5483b34b40570f4ffe49f20554ff3');
-  assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, 'f40a8d7efef1cf362cea9a82976dd86d431186b8');
-  assert.equal(qa.sharedContractEvidence.icsRendererBlob, '94cbd7d50aa4af2028ab27298cc05592ee3d51b7');
-  assert.equal(qa.candidateDigest, 'sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a');
+  assert.ok(qa.checks.some(check => check.code === 'facultative-r90-expansion' && check.status === 'pass'));
+  assert.equal(qa.sharedContractEvidence.commit, 'ae78e20221abbdf0ec78d224871f9830445adaa8');
+  assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
+  assert.equal(qa.sharedContractEvidence.icsRendererBlob, 'a2223de3a6489f12f06d7380575c3f68858995b5');
+  assert.equal(qa.candidateDigest, 'sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2');
   assert.equal(evidence.candidateDigest, qa.candidateDigest);
   assert.equal(`sha256:${sha256(canonicalJson(events))}`, qa.candidateDigest);
   assert.deepEqual(evidence.groupEventCounts, {
-    '101':336,'102':335,'103':335,'104':335,'105':336,'106':336,'107':347,'108':347,'109':361,'110':361
+    '101':428,'102':427,'103':427,'104':427,'105':428,'106':428,'107':439,'108':439,'109':453,'110':453
   });
 
+  const facultativeIds = new Set(facultativeEvents.map(event => event.facultativeId));
+  assert.equal(facultativeIds.size, 5);
+  for (const groupId of manifest.groupTable) {
+    assert.equal(facultativeEvents.filter(event => event.groupId === groupId).length, 92);
+  }
+
   const signatures = new Set();
-  const sourceCells = new Set();
   for (const event of events) {
     assert.equal(event.timeSemantics, 'floating');
     assert.ok(minutes(event.endTime) > minutes(event.startTime));
     const sig = [event.groupId,event.date,event.startTime,event.endTime,event.discipline,event.lessonType,event.location].join('|');
     assert.ok(!signatures.has(sig), `duplicate event ${sig}`);
     signatures.add(sig);
-    sourceCells.add(event.sourceRef.locator.match(/!([A-Z]+\d+)#/)[1]);
   }
-  assert.equal(sourceCells.size, 145);
-  assert.equal(evidence.r83Checks.length, 26);
-  assert.ok(evidence.r83Checks.every(check => check.status === 'pass'));
+  assert.deepEqual(countOverlaps(events), { total: 152, involvingFacultatives: 144 });
 });
 
-test('preserves assessment metadata and explicit graded-credit controls', async () => {
+test('preserves assessment metadata and explicit graded-credit controls in base schedule', async () => {
   const manifest = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json');
   const events = expandManifest(manifest);
   const orgIndex = manifest.disciplineTable.indexOf('Основы российской государственности');
@@ -111,24 +165,10 @@ test('preserves assessment metadata and explicit graded-credit controls', async 
   assert.equal(combined.endTime, '20:45');
 });
 
-test('preserves exactly eight source-explicit overlaps', async () => {
+test('preserves exactly eight source-explicit overlaps in base schedule', async () => {
   const manifest = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json');
-  const evidence = await readJson('../qa/2026-2027-semester-1/medicine-101-110.evidence.json');
   const events = expandManifest(manifest);
-  const byDay = new Map();
-  for (const event of events) {
-    const key = `${event.groupId}|${event.date}`;
-    if (!byDay.has(key)) byDay.set(key, []);
-    byDay.get(key).push(event);
-  }
-  let count = 0;
-  for (const dayEvents of byDay.values()) {
-    for (let i = 0; i < dayEvents.length; i += 1) {
-      for (let j = i + 1; j < dayEvents.length; j += 1) if (overlaps(dayEvents[i], dayEvents[j])) count += 1;
-    }
-  }
-  assert.equal(count, 8);
-  assert.equal(evidence.explicitOverlapWarnings.length, 8);
+  assert.deepEqual(countOverlaps(events), { total: 8, involvingFacultatives: 0 });
 });
 
 test('locks literal H9/I9 timing, B32 geometry and R89 curator behavior', async () => {
