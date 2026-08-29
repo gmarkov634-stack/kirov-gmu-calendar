@@ -43,7 +43,7 @@ function find(events, criteria) {
     .every(([key, value]) => event[key] === value));
 }
 
-test('dentistry 191 normalized draft is structurally valid but B49 remains review-required', async () => {
+test('dentistry 191 normalized draft resolves B49 groups but keeps date scope review-required', async () => {
   const fixture = await readJson('../fixtures/2026-2027-semester-1/normalized/dentistry-191.normalized.compact.json');
   const evidence = await readJson('../qa/2026-2027-semester-1/dentistry-191.evidence.json');
   const qa = await readJson('../qa/2026-2027-semester-1/dentistry-191.qa-report.json');
@@ -56,8 +56,16 @@ test('dentistry 191 normalized draft is structurally valid but B49 remains revie
   assert.equal(evidence.timetableSourceCellCount, 29);
   assert.equal(evidence.coveredSourceCellCount, 28);
   assert.deepEqual(evidence.excludedSourceCells, []);
+  assert.deepEqual(evidence.resolvedSourceGeometry, [{
+    locator: '1 стомат.!B49',
+    mergedRange: 'B49:E49',
+    groupColumns: { B: '191', C: '192', D: '193', E: '194' },
+    appliesToGroups: ['191', '192', '193', '194'],
+    rules: ['R37', 'R39', 'R56']
+  }]);
   assert.deepEqual(evidence.unresolvedSourceCells.map(item => item.locator), ['1 стомат.!B49']);
-  assert.equal(evidence.unresolvedSourceCells[0].rule, 'R39/R78');
+  assert.equal(evidence.unresolvedSourceCells[0].rule, 'R06/R39/R78');
+  assert.match(evidence.unresolvedSourceCells[0].reason, /календарный период/);
   assert.equal(evidence.unresolvedAmbiguities, 1);
   assert.equal(evidence.duplicateEvents, 0);
   assert.equal(evidence.hardCountChecks.length, 7);
@@ -170,7 +178,7 @@ test('dentistry 191 preserves exactly four source-explicit overlaps', async () =
   assert.equal(evidence.explicitOverlapWarnings.length, 4);
 });
 
-test('dentistry 191 QA blocks publication on B49 and assessment projection', async () => {
+test('dentistry 191 QA blocks publication on B49 date scope and assessment projection', async () => {
   const evidence = await readJson('../qa/2026-2027-semester-1/dentistry-191.evidence.json');
   const qa = await readJson('../qa/2026-2027-semester-1/dentistry-191.qa-report.json');
 
@@ -178,10 +186,12 @@ test('dentistry 191 QA blocks publication on B49 and assessment projection', asy
     'candidateDigest', 'checks', 'createdAt', 'decision', 'parsingJobId', 'qaReportId'
   ].sort());
   assert.equal(qa.decision, 'fail');
+  const groupMapping = qa.checks.find(check => check.code === 'facultative-group-mapping-resolved');
+  assert.equal(groupMapping.status, 'pass');
   const failedChecks = qa.checks.filter(check => check.status === 'fail');
   assert.deepEqual(failedChecks.map(check => check.code), [
     'group-content-accounted-for',
-    'facultative-group-mapping-resolved',
+    'facultative-date-scope-resolved',
     'unresolved-ambiguities-zero',
     'assessment-metadata-projection'
   ]);
