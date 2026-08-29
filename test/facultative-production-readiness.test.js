@@ -33,8 +33,11 @@ test('replacement preflight identifies the exact old and new medicine candidates
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 
-test('replacement runner fails closed around the expected source and preserves superseded versions', async () => {
+test('replacement runner verifies every source before mutation and preserves superseded versions', async () => {
   const script = await read('ops/publish-medicine-101-110.mjs');
+  assert.match(script, /async function verifyReplacementSources/);
+  assert.match(script, /await verifyReplacementSources\(\{ repository, database, plan \}\)/);
+  assert.match(script, /replacement source is missing/);
   assert.match(script, /current\.scheduleVersion\.versionId !== previousVersionId/);
   assert.match(script, /current published source does not match the approved previous candidate/);
   assert.match(script, /eventSetDigest\(current\.events\) !== expectedPreviousDigest/);
@@ -44,28 +47,31 @@ test('replacement runner fails closed around the expected source and preserves s
   assert.doesNotMatch(script, /DELETE FROM schedule_versions|DELETE FROM schedule_events/);
 });
 
-test('Pages facultative catalog exactly mirrors the source-backed medicine fixture for groups 101-110', async () => {
+test('deployment facultative catalogs exactly mirror the source-backed medicine fixture for groups 101-110', async () => {
   const fixture = await readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json');
-  const config = evaluateRuntimeConfig(await read('deploy/runtime-config.pages.js'));
-  const periodCatalog = config.facultativeCatalog?.[fixture.academicPeriodId];
-  assert.ok(periodCatalog);
-  assert.equal(config.academicPeriodLabels?.[fixture.academicPeriodId], '1 семестр');
-
   const expectedDefinitions = fixture.items.map((item) => ({
     facultativeId: item.facultativeId,
     label: item.discipline
   }));
-  for (const groupId of fixture.groupIds) {
-    assert.deepEqual(
-      Array.from(periodCatalog[groupId], (item) => ({
-        facultativeId: item.facultativeId,
-        label: item.label
-      })),
-      expectedDefinitions,
-      groupId
-    );
+
+  for (const configPath of ['deploy/runtime-config.pages.js', 'deploy/runtime-config.production.js']) {
+    const config = evaluateRuntimeConfig(await read(configPath));
+    const periodCatalog = config.facultativeCatalog?.[fixture.academicPeriodId];
+    assert.ok(periodCatalog, configPath);
+    assert.equal(config.academicPeriodLabels?.[fixture.academicPeriodId], '1 семестр', configPath);
+
+    for (const groupId of fixture.groupIds) {
+      assert.deepEqual(
+        Array.from(periodCatalog[groupId], (item) => ({
+          facultativeId: item.facultativeId,
+          label: item.label
+        })),
+        expectedDefinitions,
+        `${configPath}:${groupId}`
+      );
+    }
+    assert.deepEqual(Object.keys(periodCatalog).sort(), [...fixture.groupIds].sort(), configPath);
   }
-  assert.deepEqual(Object.keys(periodCatalog).sort(), [...fixture.groupIds].sort());
 });
 
 test('management UI treats an absent facultative preference as off', async () => {
