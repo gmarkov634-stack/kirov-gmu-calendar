@@ -1,5 +1,5 @@
 {
-  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-latin-correction-v3",
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-latin-correction-v4",
   "parsingJobId": "parsing-job-101-110-latin-correction-v3",
   "candidateDigest": "sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5",
   "decision": "pass",
@@ -18,9 +18,9 @@
   ],
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
-    "commit": "ae78e20221abbdf0ec78d224871f9830445adaa8",
+    "commit": "80fe7986e705466304dd04512e77a5a5bad019d8",
     "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
-    "icsRendererBlob": "a2223de3a6489f12f06d7380575c3f68858995b5"
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
   },
   "optionalEventReparse": {
     "sourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
@@ -32,5 +32,5 @@
     "rule": "R39 + R90",
     "result": "PASS_CONFIRMED_FACULTATIVES_R90"
   },
-  "createdAt": "2026-08-30T19:50:00+03:00"
+  "createdAt": "2026-08-30T20:14:01+03:00"
 }

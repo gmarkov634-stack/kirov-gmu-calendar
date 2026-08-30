@@ -123,9 +123,9 @@ test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and c
   assert.equal(qa.decision, 'pass');
   assert.ok(qa.checks.some(check => check.code === 'group-102-latin-date-correction' && check.status === 'pass'));
   assert.ok(qa.checks.some(check => check.code === 'facultative-r90-expansion' && check.status === 'pass'));
-  assert.equal(qa.sharedContractEvidence.commit, 'ae78e20221abbdf0ec78d224871f9830445adaa8');
+  assert.equal(qa.sharedContractEvidence.commit, '80fe7986e705466304dd04512e77a5a5bad019d8');
   assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
-  assert.equal(qa.sharedContractEvidence.icsRendererBlob, 'a2223de3a6489f12f06d7380575c3f68858995b5');
+  assert.equal(qa.sharedContractEvidence.icsRendererBlob, '6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e');
   assert.equal(qa.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
   assert.equal(evidence.candidateDigest, qa.candidateDigest);
   assert.equal(`sha256:${sha256(canonicalJson(events))}`, qa.candidateDigest);

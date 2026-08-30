@@ -46,8 +46,9 @@ test('builds deterministic medicine publication plan including confirmed faculta
     'kgmu-2026-2027-s1-medicine-101-d0f1ea53fc7af88f'
   );
   assert.equal(plan.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
+  assert.equal(plan.coreEvidence.commit, '80fe7986e705466304dd04512e77a5a5bad019d8');
   assert.equal(plan.coreEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
-  assert.equal(plan.coreEvidence.icsRendererBlob, 'a2223de3a6489f12f06d7380575c3f68858995b5');
+  assert.equal(plan.coreEvidence.icsRendererBlob, '6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e');
 });
 
 test('facultative fixture expands all five options with stable ids', async () => {
