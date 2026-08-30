@@ -16,7 +16,7 @@ test('Pages marks published medicine groups 101-110 and 201-220 as available', a
     assert.match(status, new RegExp(`\\"${group}\\"`));
   }
   assert.doesNotMatch(status, /"111"|"112"|"113"|"114"|"115"|"116"|"117"|"118"|"119"|"120"/);
-  assert.match(status, /1–2 курс доступны/);
+  assert.match(status, /1 и 2 курсы доступны/);
   assert.match(status, /Группы 101–110 и 201–220/);
   assert.match(status, /Группы 201–220 доступны/);
   assert.match(status, /проверенным официальным расписаниям КГМУ/);
