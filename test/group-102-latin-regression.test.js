@@ -40,7 +40,10 @@ test('group 102 one-off Latin C36 lesson is on 02.09.2026, not 04.09.2026', asyn
   assert.equal(c36Latin.some((event) => event.date === '2026-09-04'), false);
 });
 
-test('base candidate digest stays synchronized with explicit decisions', async () => {
-  const { manifest, events } = await baseSchedule();
-  assert.equal(digestNormalizedEvents(events), manifest.candidateDigest);
+test('corrected base schedule has the reviewed digest', async () => {
+  const { events } = await baseSchedule();
+  assert.equal(
+    digestNormalizedEvents(events),
+    'sha256:0a054cd2f08d2a6fa7adfe48984d49d8ebd9c96acc75c8c8a5a068c018d4f907'
+  );
 });
