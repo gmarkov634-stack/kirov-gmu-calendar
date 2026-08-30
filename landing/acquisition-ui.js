@@ -36,8 +36,7 @@
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
       throw new Error("Неподдерживаемая ссылка календаря.");
     }
-    parsed.protocol = "webcal:";
-    return parsed.toString();
+    return `webcal://${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
   }
 
   function safeStorageGet(key) {
