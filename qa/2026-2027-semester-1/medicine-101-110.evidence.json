@@ -5,7 +5,7 @@
   "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-101-110.decisions.json",
   "facultativeFixture": "fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json",
   "semanticDecisionMode": "operator-authored-explicit + operator-confirmed-r90",
-  "candidateDigest": "sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5",
+  "candidateDigest": "sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd",
   "eventCount": 4349,
   "baseEventCount": 3429,
   "facultativeEventCount": 920,
@@ -26,8 +26,8 @@
   "additionalFacultativeSourceCells": ["A43", "A44"],
   "unresolvedAmbiguities": 0,
   "duplicateEvents": 0,
-  "explicitOverlapWarningCount": 153,
-  "baseExplicitOverlapCount": 9,
+  "explicitOverlapWarningCount": 152,
+  "baseExplicitOverlapCount": 8,
   "facultativeOverlapCount": 144,
   "overlapPolicy": "Preserved under G16/R69; a timetable overlap is not a parsing error.",
   "corrections": [
@@ -37,7 +37,10 @@
       "discipline": "Латинский язык",
       "fromDate": "2026-09-04",
       "toDate": "2026-09-02",
-      "reason": "Corrected explicit operator date decision to match the official timetable."
+      "fromTime": "14:30-16:00",
+      "toTime": "08:40-10:10",
+      "timeReferenceLocator": "1 леч.1!C22#s1",
+      "reason": "The one-off lesson belongs on Wednesday 2026-09-02. The previous date-only correction retained the Friday C36 time and created a conflict with the 14:50-16:20 group-102 lesson. The group-102 Wednesday Latin slot is 08:40-10:10 (C22); applying that time removes the artificial overlap while preserving all event counts."
     }
   ],
   "facultatives": {
