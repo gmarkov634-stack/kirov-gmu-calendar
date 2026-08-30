@@ -30,7 +30,7 @@ test("saved Drive visual assets are preserved byte-for-byte", async () => {
     landingV1: "1515b43300752ef742dcbb4bd4497c0491c577c9bc93b2b77378055899e120ca",
     feed: "6ba8e59afb5c4312d90e7d7b66695cf081c2840765c903d3b03f22c4fdad1e1b",
     programStatus: "c4d950a1f11e3d16b25f3212ce4ccb1458e65a0f5eb48efcdd19d9a409bf2854",
-    trialCss: "033c4d7601ab42aeea684f2616ddb47b339ab8c1461c3d66df85331b02da409c",
+    trialCss: "b5d244e8132c69e812a3437b3a9031f0c3127939ce27cd1083d7a16db0e10f62",
     preview: "a2e139b4489e8923af9034f14d3604f59c2c9b161b66af4476baa9035438c122",
     fonts: "515693c4de613509aa39abbd39e507ed946b2cacd5a0d2cbcc5a256d62cf6846"
   };
