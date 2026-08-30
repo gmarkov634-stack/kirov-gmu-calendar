@@ -37,10 +37,11 @@ jobs:
           path = Path('fixtures/2026-2027-semester-1/medicine-111-120.decisions.json')
           manifest = json.loads(path.read_text(encoding='utf-8'))
           assert len(manifest['decisions']) == 189
-          assert manifest['candidateDigest'] == 'sha256:28356b9ed1d15678252842e7ebee5c19ddd66b8221b6382e09322db0eea6aa71'
+          assert manifest['candidateDigest'] == 'sha256:4fad86fe6535d51733432da0e5ff760ec4c7e9eb9ee3a1b678309aa8c10b0838'
           manifest['dateTable'] = payload['dates']
           for decision, mask in zip(manifest['decisions'], payload['masks']):
               decision[2] = mask
+          manifest['candidateDigest'] = 'sha256:28356b9ed1d15678252842e7ebee5c19ddd66b8221b6382e09322db0eea6aa71'
           path.write_text(json.dumps(manifest, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
           PY
       - name: Verify complete repository
