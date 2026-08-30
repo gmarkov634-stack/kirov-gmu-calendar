@@ -4,6 +4,12 @@
   font-size: 14px;
 }
 
+.manage-form input[type="email"] {
+  min-height: 58px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+
 .preference-panel {
   margin-top: 18px;
   padding-top: 18px;
@@ -55,6 +61,26 @@
   font-size: 14px;
 }
 
+.facultative-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.facultative-choice input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin: 1px 0 0;
+  padding: 0;
+  flex: 0 0 18px;
+  accent-color: var(--blue);
+}
+
 .reminder-chips {
   display: flex;
   gap: 8px;
@@ -91,13 +117,25 @@
   color: #b42318;
 }
 
+.calendar-link-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.calendar-link-actions .button {
+  width: 100%;
+}
+
 @media (max-width: 620px) {
   .preference-heading {
     display: grid;
     gap: 4px;
   }
 
-  .custom-reminder-row {
+  .custom-reminder-row,
+  .calendar-link-actions {
     grid-template-columns: 1fr;
   }
 
