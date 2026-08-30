@@ -1,0 +1,23 @@
+name: Export medicine 111-120 decisions
+
+on:
+  push:
+    branches:
+      - feat/medicine-111-120
+    paths:
+      - .github/workflows/export-medicine-111-120-decisions.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: medicine-111-120-decisions-export
+          path: fixtures/2026-2027-semester-1/medicine-111-120.decisions.json
+          if-no-files-found: error
+          retention-days: 1
