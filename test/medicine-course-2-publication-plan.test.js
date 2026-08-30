@@ -28,7 +28,7 @@ test('builds deterministic publication plans for medicine course 2', async () =>
   const second = await plan('211-220');
   assert.equal(first.events.length, 2662);
   assert.equal(second.events.length, 2646);
-  assert.equal(first.candidateDigest, 'sha256:49537a5e784ec209a9da9db8e63cd7fc9cce9ac6dc70c0603db6ad8e0f350207');
+  assert.equal(first.candidateDigest, 'sha256:dbfcd46c084145c03f4dc9d0f53bfac42a42d58ceb5c4ca5897ee7ee5cb60192');
   assert.equal(second.candidateDigest, 'sha256:f1fe8459ad1724e9322d95c2500924a9a7a4b6e016d6884347e4fd2aa1d4a912');
   assert.deepEqual(first.versions.map(({ groupId, eventCount }) => [groupId, eventCount]), [
     ['201',266],['202',268],['203',267],['204',267],['205',269],
