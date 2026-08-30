@@ -8,7 +8,7 @@
 
     const note = document.createElement("p");
     note.className = "acquisition-pref-summary acquisition-management-note";
-    note.dataset.acquisitionManagementNote = "true";
+    note.setAttribute("data-acquisition-management-note", "true");
     note.textContent = "Настройки можно изменить позже на странице управления календарём.";
     panel.append(note);
   }
