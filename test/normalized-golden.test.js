@@ -98,7 +98,7 @@ async function medicineCandidate() {
   };
 }
 
-test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and corrected group 102 Latin date', async () => {
+test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and corrected group 102 Latin date/time', async () => {
   const { manifest, facultatives, evidence, qa, baseEvents, facultativeEvents, events } = await medicineCandidate();
 
   assert.equal(manifest.schema, 'kgmu-explicit-semantic-decisions-v3');
@@ -120,18 +120,31 @@ test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and c
   assert.equal(evidence.coveredSourceCellCount, 145);
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(evidence.duplicateEvents, 0);
+  assert.equal(evidence.explicitOverlapWarningCount, 152);
+  assert.equal(evidence.baseExplicitOverlapCount, 8);
   assert.equal(qa.decision, 'pass');
-  assert.ok(qa.checks.some(check => check.code === 'group-102-latin-date-correction' && check.status === 'pass'));
+  assert.ok(qa.checks.some(check => check.code === 'group-102-latin-date-and-time-correction' && check.status === 'pass'));
+  assert.ok(qa.checks.some(check => check.code === 'group-102-september-02-no-artificial-overlap' && check.status === 'pass'));
   assert.ok(qa.checks.some(check => check.code === 'facultative-r90-expansion' && check.status === 'pass'));
   assert.equal(qa.sharedContractEvidence.commit, '80fe7986e705466304dd04512e77a5a5bad019d8');
   assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
   assert.equal(qa.sharedContractEvidence.icsRendererBlob, '6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e');
-  assert.equal(qa.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
+  assert.equal(qa.candidateDigest, 'sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd');
   assert.equal(evidence.candidateDigest, qa.candidateDigest);
   assert.equal(`sha256:${sha256(canonicalJson(events))}`, qa.candidateDigest);
   assert.deepEqual(evidence.groupEventCounts, {
     '101':428,'102':427,'103':427,'104':427,'105':428,'106':428,'107':439,'108':439,'109':453,'110':453
   });
+
+  const latin = baseEvents.find(event =>
+    event.groupId === '102' &&
+    event.date === '2026-09-02' &&
+    event.discipline === 'Латинский язык' &&
+    event.sourceRef.locator === '1 леч.1!C36#s1'
+  );
+  assert.ok(latin);
+  assert.equal(latin.startTime, '08:40');
+  assert.equal(latin.endTime, '10:10');
 
   const facultativeIds = new Set(facultativeEvents.map(event => event.facultativeId));
   assert.equal(facultativeIds.size, 5);
@@ -147,7 +160,7 @@ test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and c
     assert.ok(!signatures.has(sig), `duplicate event ${sig}`);
     signatures.add(sig);
   }
-  assert.deepEqual(countOverlaps(events), { total: 153, involvingFacultatives: 144 });
+  assert.deepEqual(countOverlaps(events), { total: 152, involvingFacultatives: 144 });
 });
 
 test('preserves assessment metadata and explicit graded-credit controls in base schedule', async () => {
@@ -166,10 +179,10 @@ test('preserves assessment metadata and explicit graded-credit controls in base 
   assert.equal(combined.endTime, '20:45');
 });
 
-test('preserves exactly nine source-explicit overlaps in corrected base schedule', async () => {
+test('preserves exactly eight source-explicit overlaps in corrected base schedule', async () => {
   const manifest = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json');
   const events = expandManifest(manifest);
-  assert.deepEqual(countOverlaps(events), { total: 9, involvingFacultatives: 0 });
+  assert.deepEqual(countOverlaps(events), { total: 8, involvingFacultatives: 0 });
 });
 
 test('locks literal H9/I9 timing, B32 geometry and R89 curator behavior', async () => {
