@@ -28,9 +28,9 @@ test('replacement preflight identifies the current production and corrected medi
   assert.equal(stderr, '');
   assert.match(stdout, /"mode": "preflight-replacement"/);
   assert.match(stdout, /"eventCount": 4349/);
-  assert.match(stdout, /sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2/);
-  assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-26b6a9b1d2e6c234/);
+  assert.match(stdout, /sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5/);
   assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-d0f1ea53fc7af88f/);
+  assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-1d56b5b52c6eb6b7/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 
@@ -41,7 +41,11 @@ test('replacement runner reconstructs and verifies the exact current production 
   assert.match(script, /GROUP_102_LATIN_CORRECTION/);
   assert.match(script, /sourceLocator: '1 леч\.1!C36#s1'/);
   assert.match(script, /targetDate: '2026-09-02'/);
-  assert.match(script, /previousDate: '2026-09-04'/);
+  assert.match(script, /targetStartTime: '08:40'/);
+  assert.match(script, /targetEndTime: '10:10'/);
+  assert.match(script, /previousDate: '2026-09-02'/);
+  assert.match(script, /previousStartTime: '14:30'/);
+  assert.match(script, /previousEndTime: '16:00'/);
   assert.match(script, /replacementCount !== 1/);
   assert.match(script, /replacement source is missing/);
   assert.match(script, /current\.scheduleVersion\.versionId !== previousVersionId/);
