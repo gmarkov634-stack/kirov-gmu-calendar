@@ -1,0 +1,69 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-111-120-review-v1",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "sourceProbe": {
+    "workflowRunId": 33335127147,
+    "artifactId": 9738789059,
+    "artifactName": "medicine-111-120-source-probe",
+    "artifactDigest": "sha256:2b70508b0b421b52783909564367e71db6e0add17b9cbb5e88570e12553a558f",
+    "semanticParsingPerformedByProbe": false
+  },
+  "stream": {
+    "groups": ["111", "112", "113", "114", "115", "116", "117", "118", "119", "120"],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._2_potok-24-08-2026-13.xlsx",
+    "sourceSha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
+    "sheet": "1 леч. 2",
+    "mainTableLogicalSourceCells": 147,
+    "facultativeSource": "A45:K45",
+    "serviceWeekSource": "A46:K46",
+    "facultativeRule": "R39 + R90",
+    "unresolvedAmbiguities": 3,
+    "status": "REVIEW_REQUIRED"
+  },
+  "unresolved": [
+    {
+      "id": "G21-111-120-01",
+      "groups": ["114"],
+      "locator": "E17",
+      "discipline": "Биология",
+      "sourceText": "14.10-15.40 Биология 08.09-22.12; 29, 12.01-14.10-16.35 (1 занятие в чт. 03.12 9.00-10.30)",
+      "problem": "The token '29' has no month and the punctuation does not explicitly state whether the 14:10-16:35 exception applies to both 29.12 and 12.01 or only 12.01.",
+      "likelyInterpretationAwaitingConfirmation": "Regular Tuesdays 08.09-22.12 at 14:10-15:40; 29.12 and 12.01 at 14:10-16:35; additional explicit Thursday 03.12 at 09:00-10:30.",
+      "rules": ["R01", "R04", "R06", "R28", "R47", "R78"],
+      "publicationBlocker": true
+    },
+    {
+      "id": "G21-111-120-02",
+      "groups": ["111", "112"],
+      "locators": ["B23", "C23"],
+      "discipline": "Час куратора",
+      "sourceText": "16.00-17.00 Час куратора (03.06 16.40-17.40)",
+      "problem": "The explicit 03.06 date is outside the official 2026-09-01 through 2027-01-16 semester and cannot be assigned a valid academic-period year under R47/R80. Existing rules do not authorize silently discarding it and then treating the remaining undated curator hour under R17.",
+      "likelyInterpretationAwaitingConfirmation": "Treat 03.06 16:40-17:40 as a stale/out-of-period note and apply R17 to the undated Wednesday curator hour 16:00-17:00.",
+      "rules": ["R06", "R17", "R47", "R78", "R80"],
+      "publicationBlocker": true
+    },
+    {
+      "id": "G21-111-120-03",
+      "groups": ["119"],
+      "locator": "J16",
+      "discipline": "Час куратора",
+      "sourceText": "13.50-15.20, 15.30-17.00 УПО.Общий уход  03.11-29.12 13.30-14.30 Час куратора (с 03.11 17.30-18.30)",
+      "problem": "The curator-hour fragment defines a time change 'from 03.11' but does not explicitly state the start date or recurrence of the preceding 13:30-14:30 phase. R16/R17/R89 do not define this time-switch construction.",
+      "likelyInterpretationAwaitingConfirmation": "Every Tuesday in the service-week grid: 13:30-14:30 before 03.11, then 17:30-18:30 from 03.11 onward.",
+      "rules": ["R06", "R16", "R17", "R78", "R89"],
+      "publicationBlocker": true
+    }
+  ],
+  "resolvedReviewNotes": [
+    "A45:K45 is one horizontally merged facultative block for all groups 111-120 and A46:K46 is the complete service-week grid; R90 applies with the same stable facultative IDs used by the first medicine stream.",
+    "The current workbook does not provide a physical location for the Russian-language facultative; its location remains null rather than being copied from another workbook.",
+    "F24:G25 on 14.01 is the sole explicit Thursday event matching the Monday note that the Fundamentals of Russian Statehood assessment occurs on Thursday; the lower reference table marks that discipline as graded credit, so the 14.01 event can be represented as the explicit graded-credit event without inventing a date.",
+    "Explicit overlap is preserved under R69; date-specific time and place exceptions remain local under R04/R13/R87.",
+    "No publication, ScheduleVersion creation, production write, or landing availability change is permitted while unresolvedAmbiguities is non-zero."
+  ],
+  "semanticPublicationGate": "BLOCKED_REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-08-30T23:59:00+03:00"
+}
