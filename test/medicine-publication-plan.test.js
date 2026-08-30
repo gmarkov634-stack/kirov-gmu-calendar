@@ -43,9 +43,9 @@ test('builds deterministic medicine publication plan including confirmed faculta
   ]);
   assert.equal(
     plan.versions[0].versionId,
-    'kgmu-2026-2027-s1-medicine-101-d0f1ea53fc7af88f'
+    'kgmu-2026-2027-s1-medicine-101-1d56b5b52c6eb6b7'
   );
-  assert.equal(plan.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
+  assert.equal(plan.candidateDigest, 'sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd');
   assert.equal(plan.coreEvidence.commit, '80fe7986e705466304dd04512e77a5a5bad019d8');
   assert.equal(plan.coreEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
   assert.equal(plan.coreEvidence.icsRendererBlob, '6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e');
@@ -87,7 +87,7 @@ test('publication runner preflight expands and verifies without opening producti
   const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight']);
   assert.equal(stderr, '');
   assert.match(stdout, /"eventCount": 4349/);
-  assert.match(stdout, /sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5/);
+  assert.match(stdout, /sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 

@@ -21,7 +21,7 @@ const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => ![
 if (UNKNOWN_ARGS.length > 0) throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
 
 const EXPECTED_PREVIOUS_CANDIDATE_DIGEST =
-  'sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2';
+  'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5';
 const EXPECTED_PREVIOUS_VERSION_SUFFIX = EXPECTED_PREVIOUS_CANDIDATE_DIGEST
   .replace(/^sha256:/, '')
   .slice(0, 16);
@@ -30,7 +30,11 @@ const GROUP_102_LATIN_CORRECTION = Object.freeze({
   sourceLocator: '1 леч.1!C36#s1',
   discipline: 'Латинский язык',
   targetDate: '2026-09-02',
-  previousDate: '2026-09-04'
+  targetStartTime: '08:40',
+  targetEndTime: '10:10',
+  previousDate: '2026-09-02',
+  previousStartTime: '14:30',
+  previousEndTime: '16:00'
 });
 
 async function readJson(relativePath) {
@@ -76,17 +80,21 @@ function previousEventsForGroup(plan, groupId) {
       event.sourceRef?.locator !== GROUP_102_LATIN_CORRECTION.sourceLocator
       || event.discipline !== GROUP_102_LATIN_CORRECTION.discipline
       || event.date !== GROUP_102_LATIN_CORRECTION.targetDate
+      || event.startTime !== GROUP_102_LATIN_CORRECTION.targetStartTime
+      || event.endTime !== GROUP_102_LATIN_CORRECTION.targetEndTime
     ) {
       return event;
     }
 
     replacementCount += 1;
     const date = GROUP_102_LATIN_CORRECTION.previousDate;
+    const startTime = GROUP_102_LATIN_CORRECTION.previousStartTime;
+    const endTime = GROUP_102_LATIN_CORRECTION.previousEndTime;
     const eventKey = [
       event.groupId,
       date,
-      event.startTime,
-      event.endTime,
+      startTime,
+      endTime,
       event.discipline,
       event.lessonType,
       event.sourceRef.locator
@@ -94,7 +102,9 @@ function previousEventsForGroup(plan, groupId) {
     return {
       ...event,
       eventId: `kgmu-${sha256Hex(eventKey).slice(0, 24)}`,
-      date
+      date,
+      startTime,
+      endTime
     };
   });
 
