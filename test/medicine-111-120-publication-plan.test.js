@@ -58,6 +58,50 @@ test('builds deterministic medicine 111-120 publication plan from approved QA ca
   assert.equal(new Set(plan.events.map((event) => event.eventId)).size, plan.events.length);
 });
 
+test('locks the three user-confirmed G21 interpretations into normalized events', async () => {
+  const input = await fixtures();
+  const plan = buildMedicinePublicationPlan(input);
+  const baseEvents = plan.events.filter((event) => event.facultativeId == null);
+  assert.equal(input.manifest.dateTable[0], '2026-09-01');
+
+  const biology114 = baseEvents.filter((event) =>
+    event.groupId === '114'
+    && event.discipline === 'Биология'
+    && event.sourceRef.locator.startsWith('1 леч. 2!E17#')
+  );
+  assert.deepEqual(
+    biology114.filter((event) => event.sourceRef.locator.endsWith('#s2')).map(({ date, startTime, endTime }) => [date, startTime, endTime]),
+    [['2026-12-29','14:10','16:35'],['2027-01-12','14:10','16:35']]
+  );
+  assert.deepEqual(
+    biology114.filter((event) => event.sourceRef.locator.endsWith('#s3')).map(({ date, startTime, endTime }) => [date, startTime, endTime]),
+    [['2026-12-03','09:00','10:30']]
+  );
+
+  for (const groupId of ['111', '112']) {
+    const curator = baseEvents.filter((event) =>
+      event.groupId === groupId
+      && event.discipline === 'Час куратора'
+      && event.sourceRef.locator === `1 леч. 2!${groupId === '111' ? 'B23' : 'C23'}#s1`
+    );
+    assert.deepEqual(curator.map((event) => event.date), ['2026-09-02','2026-09-09']);
+  }
+
+  const curator119 = baseEvents.filter((event) =>
+    event.groupId === '119'
+    && event.discipline === 'Час куратора'
+    && event.sourceRef.locator.startsWith('1 леч. 2!J16#')
+  );
+  const beforeSwitch = curator119.filter((event) => event.sourceRef.locator.endsWith('#s2'));
+  const afterSwitch = curator119.filter((event) => event.sourceRef.locator.endsWith('#s3'));
+  assert.equal(beforeSwitch[0].date, '2026-09-01');
+  assert.equal(beforeSwitch.at(-1).date, '2026-10-27');
+  assert.ok(beforeSwitch.every((event) => event.startTime === '13:30' && event.endTime === '14:30'));
+  assert.equal(afterSwitch[0].date, '2026-11-03');
+  assert.equal(afterSwitch.at(-1).date, '2027-01-12');
+  assert.ok(afterSwitch.every((event) => event.startTime === '17:30' && event.endTime === '18:30'));
+});
+
 test('medicine 111-120 facultatives remain default-off and expand across all ten groups', async () => {
   const input = await fixtures();
   const plan = buildMedicinePublicationPlan(input);
