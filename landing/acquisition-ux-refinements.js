@@ -20,12 +20,12 @@
     input.dataset.trialEmailAnchorReady = "true";
     input.dataset.trialEmailAnchor = "true";
 
+    try {
+      input.focus({ preventScroll: true });
+    } catch {
+      input.focus();
+    }
     requestAnimationFrame(() => {
-      try {
-        input.focus({ preventScroll: true });
-      } catch {
-        input.focus();
-      }
       input.scrollIntoView({ block: "center", inline: "nearest" });
     });
   }
