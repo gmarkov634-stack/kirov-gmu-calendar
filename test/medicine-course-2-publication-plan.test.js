@@ -51,12 +51,12 @@ test('preserves the operator-confirmed group 206 Anatomy exception without synth
   assert.equal(anatomy.some((event) => event.date === '2026-12-31'), false);
 });
 
-test('applies confirmed R66 suppressions instead of publishing conflicting computed cycles', async () => {
+test('applies confirmed R66 suppressions to the exact conflicting computed source occurrences', async () => {
   const first = await plan('201-210');
   const second = await plan('211-220');
-  assert.equal(first.events.some((event) => event.groupId === '201' && event.date === '2026-12-18' && event.discipline === 'Нормальная физиология'), false);
-  assert.equal(second.events.some((event) => event.groupId === '217' && event.date === '2026-12-16' && event.discipline === 'Иммунология'), false);
-  assert.equal(second.events.some((event) => event.groupId === '218' && event.date === '2026-10-31' && event.discipline === 'Философия'), false);
+  assert.equal(first.events.some((event) => event.groupId === '201' && event.date === '2026-12-18' && event.sourceRef?.locator === '2 леч.1!B34#s1'), false);
+  assert.equal(second.events.some((event) => event.groupId === '217' && event.date === '2026-12-16' && event.sourceRef?.locator === '2леч.2!H23#s1'), false);
+  assert.equal(second.events.some((event) => event.groupId === '218' && event.date === '2026-10-31' && event.sourceRef?.locator === '2леч.2!H41#s1'), false);
 });
 
 test('keeps date-specific place exceptions and does not invent an online lecture URL', async () => {
