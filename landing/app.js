@@ -238,14 +238,14 @@ function renderSelectedGroup() {
   const offer = document.createElement("div");
   offer.className = "preview-offer";
   const offerCopy = document.createElement("div");
-  offerCopy.innerHTML = "<strong>7 дней бесплатно или полный доступ</strong><p>Пароль не нужен. Trial и покупка используют одну стабильную подписку на календарь; переход trial → paid не требует заново добавлять календарь.</p>";
+  offerCopy.innerHTML = "<strong>7 дней расписания бесплатно или полный доступ</strong><p>Бесплатно покажем фиксированные 7 календарных дней расписания. Ссылка на календарь останется той же; после покупки в ней откроется полный оплаченный период.</p>";
   const actions = document.createElement("div");
   actions.className = "preview-actions";
 
   const trialButton = document.createElement("button");
   trialButton.type = "button";
   trialButton.className = "pay-button";
-  trialButton.textContent = "Попробовать 7 дней бесплатно";
+  trialButton.textContent = "Посмотреть 7 дней расписания";
   trialButton.disabled = !config.trialEnabled;
   trialButton.addEventListener("click", renderTrialForm);
 
@@ -289,11 +289,11 @@ function renderTrialForm() {
     <div class="trial-mark" aria-hidden="true">7</div>
     <p class="section-kicker">Бесплатная проба</p>
     <h3>Получить календарь группы ${selectedGroupId}</h3>
-    <p>Введите email. Он используется для вашей подписки и восстановления доступа к управлению календарём.</p>
+    <p>Введите email. Бесплатный календарь покажет фиксированные 7 календарных дней расписания. Ссылка не исчезнет через 7 дней; после покупки в ней откроется полный доступ.</p>
     <form id="runtime-trial-form">
       <label for="runtime-trial-email" class="plan-section-label">Email</label>
       <input id="runtime-trial-email" type="email" autocomplete="email" inputmode="email" required placeholder="name@example.com">
-      <button class="pay-button" type="submit">Начать 7-дневную пробу</button>
+      <button class="pay-button" type="submit">Получить 7 дней расписания</button>
     </form>
     <p id="runtime-trial-status" role="status" aria-live="polite"></p>`;
   choiceGrid?.replaceChildren(card);
@@ -336,7 +336,7 @@ async function submitTrial(event) {
         ? "Проверенное расписание этой группы ещё не опубликовано для пробного доступа."
         : "Не удалось создать пробную подписку. Попробуйте позже.");
     }
-    renderTrialResult(calendarUrl(payload.calendarPath), payload.trialExpiresAt);
+    renderTrialResult(calendarUrl(payload.calendarPath));
   } catch (error) {
     if (status) status.textContent = error instanceof Error ? error.message : "Не удалось создать пробную подписку.";
   } finally {
@@ -344,15 +344,15 @@ async function submitTrial(event) {
   }
 }
 
-function renderTrialResult(url, expiresAt) {
+function renderTrialResult(url) {
   const card = document.createElement("section");
   card.className = "trial-connect-card";
-  const expiry = expiresAt ? new Date(expiresAt).toLocaleString("ru-RU") : "через 7 дней";
   card.innerHTML = `
     <div class="trial-mark" aria-hidden="true">✓</div>
     <p class="section-kicker">Календарь готов</p>
-    <h3>Пробный доступ активирован</h3>
-    <span class="trial-window">Действует до ${expiry}</span>
+    <h3>Пробный календарь создан</h3>
+    <span class="trial-window">Показано 7 календарных дней расписания</span>
+    <p>Эта ICS-ссылка не истекает через 7 дней и не сдвигает пробное окно при обновлении. После покупки полный доступ откроется по той же ссылке.</p>
     <p>Не публикуйте персональную ICS-ссылку. При необходимости её можно будет отозвать и заменить после подтверждения email.</p>
     <div class="connect-actions">
       <button class="copy-button" type="button" id="copy-trial-url">Скопировать ссылку</button>
@@ -488,9 +488,9 @@ async function loadCatalog() {
 
 if (heroRuntimeNote && (config.trialEnabled || config.checkoutEnabled)) {
   heroRuntimeNote.textContent = config.trialEnabled && config.checkoutEnabled
-    ? "Выберите группу: можно запустить бесплатную пробу на 7 дней или купить полный доступ. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
+    ? "Выберите группу: можно бесплатно посмотреть 7 календарных дней расписания или купить полный доступ. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
     : config.trialEnabled
-      ? "Выберите группу и запустите бесплатную пробу на 7 дней. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
+      ? "Выберите группу и бесплатно посмотрите 7 календарных дней расписания. Сервер выдаёт календарь только для опубликованной и проверенной версии расписания."
       : "Выберите группу и тариф. Покупка доступна только для опубликованной и проверенной версии расписания.";
 }
 
