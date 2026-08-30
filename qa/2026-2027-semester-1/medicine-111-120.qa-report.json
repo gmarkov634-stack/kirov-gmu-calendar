@@ -1,0 +1,26 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-111-120-v1",
+  "parsingJobId": "parsing-job-111-120-v1",
+  "candidateDigest": "sha256:28356b9ed1d15678252842e7ebee5c19ddd66b8221b6382e09322db0eea6aa71",
+  "decision": "pass",
+  "checks": [
+    {"code":"official-source-fingerprint","status":"pass","message":"Official 111-120 XLSX is pinned by SHA-256 781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e and expected workbook geometry."},
+    {"code":"main-table-content-accounted-for","status":"pass","message":"147/147 logical source cells in the main timetable are covered by explicit operator-authored decisions."},
+    {"code":"operator-confirmations-resolved","status":"pass","message":"All three previously blocked G21 ambiguities are explicitly confirmed: group 114 Biology E17; groups 111-112 curator B23/C23; group 119 curator J16."},
+    {"code":"cross-day-count-notes","status":"pass","message":"All 12 count-based cross-day notes match the exact number of separately explicit source-backed events; no dates were synthesized."},
+    {"code":"facultative-r90-expansion","status":"pass","message":"Five R90 facultatives expand to 920 canonical events across groups 111-120 and remain default-off for CalendarPreferences."},
+    {"code":"dates-within-academic-period","status":"pass","message":"Computed cycles use the service-week grid through 2027-01-16; the Jan 01-10 non-teaching gap does not generate computed events, while explicit dates retain priority."},
+    {"code":"source-groups-match-expected-groups","status":"pass","message":"Normalized events contain groups 111-120 only."},
+    {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures."},
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"359 overlap pairs are source-backed and preserved under R69; 358 involve facultatives and one base overlap is group 116 on 2026-09-08 (Library hour and curator hour)."},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit operator confirmation and full 147-cell coverage review."},
+    {"code":"shared-contract-boundary","status":"pass","message":"Candidate is bound to the deployed medical-calendar-core NormalizedEvent schema and ICS renderer evidence at commit 80fe7986e705466304dd04512e77a5a5bad019d8."}
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "80fe7986e705466304dd04512e77a5a5bad019d8",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  },
+  "createdAt": "2026-08-31T00:00:00+03:00"
+}
