@@ -43,9 +43,9 @@ test('builds deterministic medicine publication plan including confirmed faculta
   ]);
   assert.equal(
     plan.versions[0].versionId,
-    'kgmu-2026-2027-s1-medicine-101-26b6a9b1d2e6c234'
+    'kgmu-2026-2027-s1-medicine-101-d0f1ea53fc7af88f'
   );
-  assert.equal(plan.candidateDigest, 'sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2');
+  assert.equal(plan.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
   assert.equal(plan.coreEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
   assert.equal(plan.coreEvidence.icsRendererBlob, 'a2223de3a6489f12f06d7380575c3f68858995b5');
 });
@@ -86,6 +86,7 @@ test('publication runner preflight expands and verifies without opening producti
   const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight']);
   assert.equal(stderr, '');
   assert.match(stdout, /"eventCount": 4349/);
+  assert.match(stdout, /sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 
