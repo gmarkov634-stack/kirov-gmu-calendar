@@ -1,0 +1,46 @@
+{
+  "fixtureId": "medicine-111-120-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "medicine",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "medicine",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._2_potok-24-08-2026-13.xlsx",
+    "sha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
+    "byteLength": 21666,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": [
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "120"
+  ],
+  "workbookExpectations": {
+    "sheetNames": ["1 леч. 2  "],
+    "maxRow": 58,
+    "maxColumn": 11,
+    "mergedRangeCount": 153,
+    "nonEmptyCellCount": 225
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-08-30"
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}

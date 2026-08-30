@@ -1,0 +1,59 @@
+{
+  "fixtureId": "medicine-111-120-2026-2027-semester-1-current",
+  "sourceSha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-111-120.decisions.json",
+  "facultativeFixture": "fixtures/2026-2027-semester-1/medicine-111-120.facultatives.json",
+  "semanticDecisionMode": "operator-authored-explicit + operator-confirmed-r90",
+  "baseCandidateDigest": "sha256:4fad86fe6535d51733432da0e5ff760ec4c7e9eb9ee3a1b678309aa8c10b0838",
+  "candidateDigest": "sha256:28356b9ed1d15678252842e7ebee5c19ddd66b8221b6382e09322db0eea6aa71",
+  "eventCount": 4285,
+  "baseEventCount": 3365,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "111": 428,
+    "112": 428,
+    "113": 428,
+    "114": 427,
+    "115": 427,
+    "116": 428,
+    "117": 423,
+    "118": 423,
+    "119": 445,
+    "120": 428
+  },
+  "logicalSourceCellCount": 147,
+  "coveredSourceCellCount": 147,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 359,
+  "baseExplicitOverlapCount": 1,
+  "facultativeOverlapCount": 358,
+  "overlapPolicy": "Preserved under R69; a source-backed timetable overlap is not a parsing error.",
+  "operatorConfirmations": [
+    "G21-111-120-01",
+    "G21-111-120-02",
+    "G21-111-120-03"
+  ],
+  "crossDayCountChecks": [
+    {"sourceLocator":"1 леч. 2!B8","discipline":"Психология и педагогика","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocator":"1 леч. 2!B43#s2","status":"pass"},
+    {"sourceLocator":"1 леч. 2!J10","discipline":"Биология","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocator":"1 леч. 2!J24#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!K10","discipline":"Биология","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocator":"1 леч. 2!K38#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!B27","discipline":"УПО. Общий уход","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocator":"1 леч. 2!B43#s3","status":"pass"},
+    {"sourceLocator":"1 леч. 2!B29","discipline":"История России","expectedAdditionalCount":4,"actualExplicitCount":4,"actualLocator":"1 леч. 2!B44#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!C24","discipline":"Биология","expectedAdditionalCount":1,"actualExplicitCount":1,"actualLocator":"1 леч. 2!C23#s2","status":"pass"},
+    {"sourceLocator":"1 леч. 2!I24","discipline":"Биология","expectedAdditionalCount":1,"actualExplicitCount":1,"actualLocator":"1 леч. 2!I37#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!H30","discipline":"Биология","expectedAdditionalCount":1,"actualExplicitCount":1,"actualLocator":"1 леч. 2!H37#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!F32","discipline":"Биология","expectedAdditionalCount":1,"actualExplicitCount":1,"actualLocator":"1 леч. 2!F22#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!D35","discipline":"Биология","expectedAdditionalCount":1,"actualExplicitCount":1,"actualLocator":"1 леч. 2!D14#s2","status":"pass"},
+    {"sourceLocator":"1 леч. 2!B37","discipline":"Биология","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocator":"1 леч. 2!B12#s1","status":"pass"},
+    {"sourceLocator":"1 леч. 2!J36","discipline":"Основы российской государственности","expectedAdditionalCount":2,"actualExplicitCount":2,"actualLocators":["1 леч. 2!J32#s2","1 леч. 2!J32#s3"],"status":"pass"}
+  ],
+  "facultatives": {
+    "scope": "groups 111-120 from merged A45:K45",
+    "weekGrid": "A46:K46, all 19 academic service-week intervals",
+    "defaultSelected": false,
+    "facultativeCount": 5,
+    "events": 920
+  }
+}
