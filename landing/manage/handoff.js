@@ -51,6 +51,9 @@
 
   function webcalUrl(url) {
     const parsed = new URL(url);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("unsupported calendar URL");
+    }
     parsed.protocol = "webcal:";
     return parsed.toString();
   }
@@ -199,9 +202,12 @@
     if (!url) return response;
 
     if (url.pathname.endsWith("/management/verify") && response.ok && usesBearerSession()) {
-      response.clone().json().then((payload) => {
+      try {
+        const payload = await response.clone().json();
         if (typeof payload?.managementToken === "string") managementToken = payload.managementToken;
-      }).catch(() => null);
+      } catch {
+        // The normal management client will surface a malformed verify response.
+      }
     }
 
     if (url.pathname.endsWith("/management/subscriptions") && response.ok) {
