@@ -21,10 +21,17 @@ const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => ![
 if (UNKNOWN_ARGS.length > 0) throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
 
 const EXPECTED_PREVIOUS_CANDIDATE_DIGEST =
-  'sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a';
+  'sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2';
 const EXPECTED_PREVIOUS_VERSION_SUFFIX = EXPECTED_PREVIOUS_CANDIDATE_DIGEST
   .replace(/^sha256:/, '')
   .slice(0, 16);
+const GROUP_102_LATIN_CORRECTION = Object.freeze({
+  groupId: '102',
+  sourceLocator: '1 леч.1!C36#s1',
+  discipline: 'Латинский язык',
+  targetDate: '2026-09-02',
+  previousDate: '2026-09-04'
+});
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
@@ -60,9 +67,41 @@ function eventsForGroup(plan, groupId) {
 }
 
 function previousEventsForGroup(plan, groupId) {
-  return plan.events.filter((event) => (
-    event.groupId === groupId && event.facultativeId == null
-  ));
+  const targetEvents = eventsForGroup(plan, groupId);
+  if (groupId !== GROUP_102_LATIN_CORRECTION.groupId) return targetEvents;
+
+  let replacementCount = 0;
+  const previousEvents = targetEvents.map((event) => {
+    if (
+      event.sourceRef?.locator !== GROUP_102_LATIN_CORRECTION.sourceLocator
+      || event.discipline !== GROUP_102_LATIN_CORRECTION.discipline
+      || event.date !== GROUP_102_LATIN_CORRECTION.targetDate
+    ) {
+      return event;
+    }
+
+    replacementCount += 1;
+    const date = GROUP_102_LATIN_CORRECTION.previousDate;
+    const eventKey = [
+      event.groupId,
+      date,
+      event.startTime,
+      event.endTime,
+      event.discipline,
+      event.lessonType,
+      event.sourceRef.locator
+    ].join('|');
+    return {
+      ...event,
+      eventId: `kgmu-${sha256Hex(eventKey).slice(0, 24)}`,
+      date
+    };
+  });
+
+  if (replacementCount !== 1) {
+    throw new Error(`group 102 previous-candidate reconstruction expected exactly one corrected Latin event, got ${replacementCount}`);
+  }
+  return previousEvents;
 }
 
 async function loadPlan() {

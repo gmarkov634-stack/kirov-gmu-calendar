@@ -1,18 +1,19 @@
 {
-  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-facultatives-v2",
-  "parsingJobId": "parsing-job-101-110-facultatives-v2",
-  "candidateDigest": "sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2",
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-latin-correction-v3",
+  "parsingJobId": "parsing-job-101-110-latin-correction-v3",
+  "candidateDigest": "sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5",
   "decision": "pass",
   "checks": [
     {"code":"main-table-content-accounted-for","status":"pass","message":"145/145 logical cells in B9:K42 remain covered by explicit operator-authored decisions"},
+    {"code":"group-102-latin-date-correction","status":"pass","message":"C36#s1 for group 102 selects dateTable index 0 = 2026-09-02; the erroneous 2026-09-04 one-off event is absent"},
     {"code":"facultative-full-sheet-coverage","status":"pass","message":"A43:K43 is a merged facultative block for groups 101-110 and A44:K44 supplies the 19 academic service-week intervals"},
     {"code":"facultative-r90-expansion","status":"pass","message":"Five confirmed facultatives expand to 920 canonical events: 18 Monday, 19 Tuesday, 19 Wednesday, 18 Thursday and 18 Friday dates per group"},
     {"code":"facultative-default-selection","status":"pass","message":"The facultative fixture declares defaultSelected=false; user choice is applied later by CalendarPreferences at ICS generation"},
     {"code":"dates-within-academic-period","status":"pass","message":"All 4349 candidate events are inside the official service-week grid through 2027-01-16"},
     {"code":"source-groups-match-expected-groups","status":"pass","message":"Groups 101-110 only"},
     {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures"},
-    {"code":"explicit-overlaps-preserved","status":"warning","message":"152 source-backed overlap pairs are preserved under G16/R69; 144 involve facultative events"},
-    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit user confirmation of A43/A44 facultative cadence"},
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"153 source-backed overlap pairs are preserved under G16/R69; 144 involve facultative events"},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit operator decisions, including the corrected C36#s1 date"},
     {"code":"shared-contract-facultative-projection","status":"pass","message":"medical-calendar-core/main supports NormalizedEvent.facultativeId and CalendarPreferences.facultativeChoices; filtering is an ICS-generation concern"}
   ],
   "sharedContractEvidence": {
@@ -31,5 +32,5 @@
     "rule": "R39 + R90",
     "result": "PASS_CONFIRMED_FACULTATIVES_R90"
   },
-  "createdAt": "2026-08-29T21:45:00+03:00"
+  "createdAt": "2026-08-30T19:50:00+03:00"
 }

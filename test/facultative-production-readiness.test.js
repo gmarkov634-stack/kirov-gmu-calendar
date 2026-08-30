@@ -22,22 +22,27 @@ function evaluateRuntimeConfig(source) {
   return context.window.KGMU_CALENDAR_CONFIG;
 }
 
-test('replacement preflight identifies the exact old and new medicine candidates without DB changes', async () => {
+test('replacement preflight identifies the current production and corrected medicine candidates without DB changes', async () => {
   const script = fileURLToPath(new URL('../ops/publish-medicine-101-110.mjs', import.meta.url));
   const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight', '--replace-existing']);
   assert.equal(stderr, '');
   assert.match(stdout, /"mode": "preflight-replacement"/);
   assert.match(stdout, /"eventCount": 4349/);
-  assert.match(stdout, /sha256:5282de1dcec279ac4d035d55ea57d293d8ed0294ecc1cb0e3446e7a4e7a3f20a/);
-  assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-5282de1dcec279ac/);
+  assert.match(stdout, /sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2/);
   assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-26b6a9b1d2e6c234/);
+  assert.match(stdout, /kgmu-2026-2027-s1-medicine-101-d0f1ea53fc7af88f/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
 });
 
-test('replacement runner verifies every source before mutation and preserves superseded versions', async () => {
+test('replacement runner reconstructs and verifies the exact current production source before mutation', async () => {
   const script = await read('ops/publish-medicine-101-110.mjs');
   assert.match(script, /async function verifyReplacementSources/);
   assert.match(script, /await verifyReplacementSources\(\{ repository, database, plan \}\)/);
+  assert.match(script, /GROUP_102_LATIN_CORRECTION/);
+  assert.match(script, /sourceLocator: '1 леч\.1!C36#s1'/);
+  assert.match(script, /targetDate: '2026-09-02'/);
+  assert.match(script, /previousDate: '2026-09-04'/);
+  assert.match(script, /replacementCount !== 1/);
   assert.match(script, /replacement source is missing/);
   assert.match(script, /current\.scheduleVersion\.versionId !== previousVersionId/);
   assert.match(script, /current published source does not match the approved previous candidate/);

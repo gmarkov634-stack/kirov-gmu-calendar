@@ -98,7 +98,7 @@ async function medicineCandidate() {
   };
 }
 
-test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives', async () => {
+test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives and corrected group 102 Latin date', async () => {
   const { manifest, facultatives, evidence, qa, baseEvents, facultativeEvents, events } = await medicineCandidate();
 
   assert.equal(manifest.schema, 'kgmu-explicit-semantic-decisions-v3');
@@ -121,11 +121,12 @@ test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives', asy
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(evidence.duplicateEvents, 0);
   assert.equal(qa.decision, 'pass');
+  assert.ok(qa.checks.some(check => check.code === 'group-102-latin-date-correction' && check.status === 'pass'));
   assert.ok(qa.checks.some(check => check.code === 'facultative-r90-expansion' && check.status === 'pass'));
   assert.equal(qa.sharedContractEvidence.commit, 'ae78e20221abbdf0ec78d224871f9830445adaa8');
   assert.equal(qa.sharedContractEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
   assert.equal(qa.sharedContractEvidence.icsRendererBlob, 'a2223de3a6489f12f06d7380575c3f68858995b5');
-  assert.equal(qa.candidateDigest, 'sha256:26b6a9b1d2e6c2346661f2384accae7a8766d828e801ceaa9fb0dc46aacf22a2');
+  assert.equal(qa.candidateDigest, 'sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5');
   assert.equal(evidence.candidateDigest, qa.candidateDigest);
   assert.equal(`sha256:${sha256(canonicalJson(events))}`, qa.candidateDigest);
   assert.deepEqual(evidence.groupEventCounts, {
@@ -146,7 +147,7 @@ test('refreshed 27.08 medicine 101-110 includes confirmed R90 facultatives', asy
     assert.ok(!signatures.has(sig), `duplicate event ${sig}`);
     signatures.add(sig);
   }
-  assert.deepEqual(countOverlaps(events), { total: 152, involvingFacultatives: 144 });
+  assert.deepEqual(countOverlaps(events), { total: 153, involvingFacultatives: 144 });
 });
 
 test('preserves assessment metadata and explicit graded-credit controls in base schedule', async () => {
@@ -165,10 +166,10 @@ test('preserves assessment metadata and explicit graded-credit controls in base 
   assert.equal(combined.endTime, '20:45');
 });
 
-test('preserves exactly eight source-explicit overlaps in base schedule', async () => {
+test('preserves exactly nine source-explicit overlaps in corrected base schedule', async () => {
   const manifest = await readJson('../fixtures/2026-2027-semester-1/medicine-101-110.decisions.json');
   const events = expandManifest(manifest);
-  assert.deepEqual(countOverlaps(events), { total: 8, involvingFacultatives: 0 });
+  assert.deepEqual(countOverlaps(events), { total: 9, involvingFacultatives: 0 });
 });
 
 test('locks literal H9/I9 timing, B32 geometry and R89 curator behavior', async () => {
