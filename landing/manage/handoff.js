@@ -62,15 +62,15 @@
     setTimeout(() => { button.textContent = previous; }, 1600);
   }
 
-  function calendarActions(url) {
-    const actions = document.createElement("div");
-    actions.className = "calendar-link-actions";
-
+  function iphoneAction(url) {
     const iphone = document.createElement("a");
     iphone.className = "button button-primary";
     iphone.href = webcalUrl(url);
     iphone.textContent = "Добавить в iPhone";
+    return iphone;
+  }
 
+  function googleCopyAction(url) {
     const google = document.createElement("button");
     google.type = "button";
     google.className = "button button-secondary";
@@ -78,8 +78,14 @@
     google.addEventListener("click", () => copyText(google, url).catch(() => {
       google.textContent = "Не удалось скопировать";
     }));
+    return google;
+  }
 
-    actions.append(iphone, google);
+  function calendarActions(url, { includeGoogle = true } = {}) {
+    const actions = document.createElement("div");
+    actions.className = "calendar-link-actions";
+    actions.append(iphoneAction(url));
+    if (includeGoogle) actions.append(googleCopyAction(url));
     return actions;
   }
 
@@ -100,6 +106,7 @@
     const output = document.createElement("section");
     output.className = "recovery-output initial-calendar-output";
     output.dataset.initialCalendarLink = "true";
+    output.dataset.calendarActionsReady = "true";
 
     const title = document.createElement("strong");
     title.textContent = "Календарь готов к подключению";
@@ -130,7 +137,7 @@
       output.dataset.calendarActionsReady = "true";
       const existingCopy = output.querySelector(".copy-row button");
       if (existingCopy) existingCopy.textContent = "Скопировать для Google Calendar";
-      output.append(calendarActions(input.value));
+      output.append(calendarActions(input.value, { includeGoogle: !existingCopy }));
     }
   }
 
