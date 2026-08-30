@@ -3,8 +3,8 @@
 
 This helper intentionally performs no semantic parsing. It discovers the current
 official XLSX links from the KGMU medicine timetable page, then records
-checksums, workbook geometry, merged ranges and non-empty cell values for
-operator/ChatGPT review under canonical G/R rules.
+checksums, workbook geometry, merged ranges, non-empty cell values and hyperlink
+targets for operator/ChatGPT review under canonical G/R rules.
 """
 import hashlib
 import html
@@ -67,7 +67,14 @@ def workbook_dump(source: dict) -> dict:
             for cell in row:
                 if cell.value is None:
                     continue
-                non_empty.append({"coord": cell.coordinate, "value": str(cell.value).strip()})
+                entry = {"coord": cell.coordinate, "value": str(cell.value).strip()}
+                if cell.hyperlink is not None:
+                    entry["hyperlink"] = {
+                        "target": cell.hyperlink.target,
+                        "location": cell.hyperlink.location,
+                        "display": cell.hyperlink.display,
+                    }
+                non_empty.append(entry)
         sheets.append(
             {
                 "title": sheet.title,
