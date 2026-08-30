@@ -6,11 +6,21 @@ on:
       - feat/medicine-201-220
     paths:
       - 'fixtures/tools/probe_medicine_201_220_sources.py'
+      - 'fixtures/tools/verify_medicine_201_220_source_audit.py'
+      - 'fixtures/2026-2027-semester-1/medicine-201-210.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-201-210.decisions.json'
+      - 'fixtures/2026-2027-semester-1/medicine-211-220.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-211-220.decisions.json'
       - '.github/workflows/probe-medicine-201-220.yml'
   pull_request:
     branches: [main]
     paths:
       - 'fixtures/tools/probe_medicine_201_220_sources.py'
+      - 'fixtures/tools/verify_medicine_201_220_source_audit.py'
+      - 'fixtures/2026-2027-semester-1/medicine-201-210.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-201-210.decisions.json'
+      - 'fixtures/2026-2027-semester-1/medicine-211-220.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-211-220.decisions.json'
       - '.github/workflows/probe-medicine-201-220.yml'
 
 permissions:
@@ -27,7 +37,10 @@ jobs:
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - name: Fetch and mechanically dump official workbooks
         run: python fixtures/tools/probe_medicine_201_220_sources.py
+      - name: Verify approved source fingerprints and decision coverage
+        run: python fixtures/tools/verify_medicine_201_220_source_audit.py
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: medicine-201-220-source-probe
           path: medicine-201-220-source-probe.json
