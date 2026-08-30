@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+const acquisition = readFileSync(new URL('../landing/acquisition-ui.js', import.meta.url), 'utf8');
 const handoff = readFileSync(new URL('../landing/manage/handoff.js', import.meta.url), 'utf8');
 
 test('paid handoff captures bearer management session before downstream recovery', () => {
@@ -12,7 +13,13 @@ test('paid handoff captures bearer management session before downstream recovery
   assert.match(handoff, /headers\.Authorization = `Bearer \$\{managementToken\}`/);
 });
 
-test('iPhone handoff actions accept only http or https calendar URLs', () => {
-  assert.match(handoff, /parsed\.protocol !== "https:" && parsed\.protocol !== "http:"/);
-  assert.match(handoff, /parsed\.protocol = "webcal:"/);
+test('iPhone actions emit an actual webcal subscription URL', () => {
+  for (const source of [acquisition, handoff]) {
+    assert.match(source, /parsed\.protocol !== "https:" && parsed\.protocol !== "http:"/);
+    assert.match(
+      source,
+      /return `webcal:\/\/\$\{parsed\.host\}\$\{parsed\.pathname\}\$\{parsed\.search\}\$\{parsed\.hash\}`;/
+    );
+    assert.doesNotMatch(source, /parsed\.protocol\s*=\s*"webcal:"/);
+  }
 });

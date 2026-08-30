@@ -54,8 +54,7 @@
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
       throw new Error("unsupported calendar URL");
     }
-    parsed.protocol = "webcal:";
-    return parsed.toString();
+    return `webcal://${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
   }
 
   async function copyText(button, text) {

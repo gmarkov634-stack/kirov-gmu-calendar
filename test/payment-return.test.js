@@ -20,7 +20,8 @@ test('acquisition personalization is applied before trial and checkout', () => {
 });
 
 test('trial result exposes direct iPhone and Google Calendar actions', () => {
-  assert.match(acquisitionUi, /parsed\.protocol = "webcal:"/);
+  assert.match(acquisitionUi, /return `webcal:\/\/\$\{parsed\.host\}\$\{parsed\.pathname\}\$\{parsed\.search\}\$\{parsed\.hash\}`;/);
+  assert.doesNotMatch(acquisitionUi, /parsed\.protocol\s*=\s*"webcal:"/);
   assert.match(acquisitionUi, /Добавить в iPhone/);
   assert.match(acquisitionUi, /Скопировать для Google Calendar/);
 });
