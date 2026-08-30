@@ -13,26 +13,22 @@
     panel.append(note);
   }
 
-  function revealTrialEmail() {
+  function revealTrialEmailContainer() {
     const input = grid.querySelector("#runtime-trial-email");
-    if (!input || input.dataset.trialEmailAnchorReady === "true") return;
+    const card = input?.closest(".trial-connect-card");
+    if (!input || !card || card.dataset.trialEmailAnchorReady === "true") return;
 
-    input.dataset.trialEmailAnchorReady = "true";
-    input.dataset.trialEmailAnchor = "true";
+    card.dataset.trialEmailAnchorReady = "true";
+    card.dataset.trialEmailAnchor = "true";
 
-    try {
-      input.focus({ preventScroll: true });
-    } catch {
-      input.focus();
-    }
     requestAnimationFrame(() => {
-      input.scrollIntoView({ block: "center", inline: "nearest" });
+      card.scrollIntoView({ block: "start", inline: "nearest" });
     });
   }
 
   function applyRefinements() {
     ensureManagementSettingsNote();
-    revealTrialEmail();
+    revealTrialEmailContainer();
   }
 
   const observer = new MutationObserver(applyRefinements);

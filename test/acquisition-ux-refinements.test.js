@@ -11,12 +11,13 @@ test("pre-connect personalization explains that settings remain editable", async
   assert.match(script, /data-acquisition-management-note/);
 });
 
-test("trial email becomes the immediate mobile viewport target", async () => {
+test("trial email handoff anchors at the start of its container without focusing the field", async () => {
   const script = await read("landing/acquisition-ux-refinements.js");
   assert.match(script, /#runtime-trial-email/);
+  assert.match(script, /closest\("\.trial-connect-card"\)/);
   assert.match(script, /trialEmailAnchor/);
-  assert.match(script, /focus\(\{ preventScroll: true \}\)/);
-  assert.match(script, /scrollIntoView\(\{ block: "center", inline: "nearest" \}\)/);
+  assert.match(script, /card\.scrollIntoView\(\{ block: "start", inline: "nearest" \}\)/);
+  assert.doesNotMatch(script, /\.focus\(/);
 });
 
 test("both public landing builders load UX refinements after acquisition wiring", async () => {
