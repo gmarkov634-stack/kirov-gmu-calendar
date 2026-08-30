@@ -6,7 +6,7 @@ async function readJson(path) {
   return JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
 }
 
-test('medicine 111-120 source is pinned and publication remains blocked by three explicit ambiguities', async () => {
+test('medicine 111-120 source is pinned and the three operator confirmations clear the semantic review gate', async () => {
   const source = await readJson('../fixtures/2026-2027-semester-1/medicine-111-120.source.json');
   const facultatives = await readJson('../fixtures/2026-2027-semester-1/medicine-111-120.facultatives.json');
   const review = await readJson('../qa/2026-2027-semester-1/medicine-111-120.semantic-review.json');
@@ -30,18 +30,34 @@ test('medicine 111-120 source is pinned and publication remains blocked by three
   assert.equal(facultatives.items.find((item) => item.discipline === 'Русский язык и культура речи').location, null);
 
   assert.equal(review.schema, 'kgmu-semantic-source-review-v1');
+  assert.equal(review.reviewId, 'kgmu-2026-2027-s1-medicine-111-120-review-v2');
   assert.equal(review.sourceProbe.workflowRunId, 33335127147);
   assert.equal(review.sourceProbe.artifactId, 9738789059);
   assert.equal(review.stream.sourceSha256, source.source.sha256);
   assert.equal(review.stream.mainTableLogicalSourceCells, 147);
-  assert.equal(review.stream.unresolvedAmbiguities, 3);
-  assert.equal(review.stream.status, 'REVIEW_REQUIRED');
-  assert.deepEqual(review.unresolved.map((item) => item.id), [
+  assert.equal(review.stream.unresolvedAmbiguities, 0);
+  assert.equal(review.stream.status, 'SEMANTIC_QA_PASS');
+  assert.deepEqual(review.unresolved, []);
+  assert.deepEqual(review.operatorConfirmations.map((item) => item.id), [
     'G21-111-120-01',
     'G21-111-120-02',
     'G21-111-120-03'
   ]);
-  assert.ok(review.unresolved.every((item) => item.publicationBlocker === true));
-  assert.equal(review.semanticPublicationGate, 'BLOCKED_REVIEW_REQUIRED');
+  assert.ok(review.operatorConfirmations.every((item) => item.confirmed === true));
+
+  const biology = review.operatorConfirmations[0];
+  assert.match(biology.decision, /29\.12 and 12\.01 at 14:10-16:35/);
+  assert.match(biology.decision, /03\.12 at 09:00-10:30/);
+
+  const curator111112 = review.operatorConfirmations[1];
+  assert.match(curator111112.decision, /03\.06 16:40-17:40 fragment as stale\/out-of-period/);
+  assert.match(curator111112.decision, /first two possible in-period occurrences/);
+
+  const curator119 = review.operatorConfirmations[2];
+  assert.match(curator119.decision, /13:30-14:30 before 03\.11/);
+  assert.match(curator119.decision, /17:30-18:30 from 03\.11 onward/);
+  assert.match(curator119.decision, /Preserve the separate UPO schedule fragments/);
+
+  assert.equal(review.semanticPublicationGate, 'PASS');
   assert.equal(review.publicationPerformed, false);
 });
