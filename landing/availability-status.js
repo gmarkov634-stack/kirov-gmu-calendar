@@ -12,12 +12,12 @@
   function refresh() {
     for (const card of document.querySelectorAll(".program-card")) {
       if (card.querySelector("h3")?.textContent?.trim() !== "Лечебное дело") continue;
-      setText(card.querySelector(".program-badge"), "1–2 курс доступны");
+      setText(card.querySelector(".program-badge"), "1 и 2 курсы доступны");
       setText(card.querySelector("p"), "Группы 101–110 и 201–220 · опубликованы и доступны для 7-дневной бесплатной пробы");
     }
 
     const availability = document.querySelector(".availability");
-    setText(availability?.querySelector("strong"), "Лечебное дело, 1–2 курс — опубликовано");
+    setText(availability?.querySelector("strong"), "Лечебное дело: 1 и 2 курсы опубликованы");
     setText(availability?.querySelector("p"), "Группы 101–110 и 201–220 опубликованы по проверенным официальным расписаниям КГМУ и доступны для подключения через 7-дневную бесплатную пробу.");
 
     setText(document.querySelector("#hero-runtime-note"), "Лечебное дело: группы 101–110 и 201–220 опубликованы и доступны. Выберите группу и запустите бесплатную пробу на 7 дней.");
