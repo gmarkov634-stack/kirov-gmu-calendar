@@ -1,20 +1,22 @@
 {
-  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-latin-correction-v4",
-  "parsingJobId": "parsing-job-101-110-latin-correction-v3",
-  "candidateDigest": "sha256:d0f1ea53fc7af88f7f4a6f402462a0a535fb66042508b7326326212ef84874c5",
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-latin-correction-v5",
+  "parsingJobId": "parsing-job-101-110-latin-correction-v4",
+  "candidateDigest": "sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd",
   "decision": "pass",
   "checks": [
     {"code":"main-table-content-accounted-for","status":"pass","message":"145/145 logical cells in B9:K42 remain covered by explicit operator-authored decisions"},
-    {"code":"group-102-latin-date-correction","status":"pass","message":"C36#s1 for group 102 selects dateTable index 0 = 2026-09-02; the erroneous 2026-09-04 one-off event is absent"},
+    {"code":"group-102-latin-date-and-time-correction","status":"pass","message":"C36#s1 for group 102 is the one-off 2026-09-02 Latin lesson at 08:40-10:10; the erroneous 2026-09-04 occurrence is absent and the inherited Friday 14:30-16:00 time is not used for the Wednesday exception"},
+    {"code":"group-102-latin-time-source-audit","status":"pass","message":"Official workbook SHA-256 is unchanged; C22 records the group-102 Wednesday Latin slot as 08:40-10:10 while C36 records the Friday Latin slot as 14:30-16:00"},
+    {"code":"group-102-september-02-no-artificial-overlap","status":"pass","message":"The corrected 08:40-10:10 Latin event does not overlap another group-102 event on 2026-09-02; the previous 14:30-16:00 value overlapped the 14:50-16:20 lesson"},
     {"code":"facultative-full-sheet-coverage","status":"pass","message":"A43:K43 is a merged facultative block for groups 101-110 and A44:K44 supplies the 19 academic service-week intervals"},
     {"code":"facultative-r90-expansion","status":"pass","message":"Five confirmed facultatives expand to 920 canonical events: 18 Monday, 19 Tuesday, 19 Wednesday, 18 Thursday and 18 Friday dates per group"},
     {"code":"facultative-default-selection","status":"pass","message":"The facultative fixture declares defaultSelected=false; user choice is applied later by CalendarPreferences at ICS generation"},
     {"code":"dates-within-academic-period","status":"pass","message":"All 4349 candidate events are inside the official service-week grid through 2027-01-16"},
     {"code":"source-groups-match-expected-groups","status":"pass","message":"Groups 101-110 only"},
     {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures"},
-    {"code":"explicit-overlaps-preserved","status":"warning","message":"153 source-backed overlap pairs are preserved under G16/R69; 144 involve facultative events"},
-    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit operator decisions, including the corrected C36#s1 date"},
-    {"code":"shared-contract-facultative-projection","status":"pass","message":"medical-calendar-core/main supports NormalizedEvent.facultativeId and CalendarPreferences.facultativeChoices; filtering is an ICS-generation concern"}
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"152 source-backed overlap pairs remain under G16/R69; 144 involve facultative events. The one artificial base overlap caused by the inherited Latin Friday time is removed."},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities after explicit operator decisions, including the corrected C36#s1 date and time"},
+    {"code":"shared-contract-facultative-projection","status":"pass","message":"medical-calendar-core production boundary supports NormalizedEvent.facultativeId and CalendarPreferences.facultativeChoices; filtering is an ICS-generation concern"}
   ],
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
@@ -32,5 +34,5 @@
     "rule": "R39 + R90",
     "result": "PASS_CONFIRMED_FACULTATIVES_R90"
   },
-  "createdAt": "2026-08-30T20:14:01+03:00"
+  "createdAt": "2026-08-30T22:30:00+03:00"
 }
