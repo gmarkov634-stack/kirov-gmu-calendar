@@ -1,4 +1,5 @@
 name: Repair medicine 111-120 date masks
+# Retry after restoring the exact pre-repair manifest blob.
 
 on:
   push:
