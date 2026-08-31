@@ -1,0 +1,35 @@
+name: Probe medicine 301-317 official sources
+
+on:
+  push:
+    branches:
+      - feat/medicine-301-317
+    paths:
+      - 'fixtures/tools/probe_medicine_301_317_sources.py'
+      - '.github/workflows/probe-medicine-301-317.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/tools/probe_medicine_301_317_sources.py'
+      - '.github/workflows/probe-medicine-301-317.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbooks
+        run: python fixtures/tools/probe_medicine_301_317_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: medicine-301-317-source-probe
+          path: medicine-301-317-source-probe.json
+          if-no-files-found: error
