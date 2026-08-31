@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 import {
+  digestNormalizedEvents,
   expandExplicitDecisionManifest
 } from '../src/explicit-decisions.js';
 
@@ -53,11 +54,12 @@ test('medicine 401-416 manifest is tied to the reviewed official source and has 
   assert.equal(manifest.logicalSourceCellCount, 166);
   assert.equal(manifest.decisionCount, 176);
   assert.equal(review.unresolvedSemanticAmbiguities.length, 0);
-  assert.equal(review.publicationGate, 'NORMALIZATION_IN_PROGRESS');
+  assert.equal(review.publicationGate, 'NORMALIZATION_ALLOWED');
 });
 
-test('medicine 401-416 candidate has stable counts and no duplicate signatures', () => {
+test('medicine 401-416 candidate has stable counts, digest and no duplicate signatures', () => {
   assert.equal(events.length, 2310);
+  assert.equal(digestNormalizedEvents(events), 'sha256:a38c8269bfd22ea511e9a91fa433dc0c5ae073defcd9722d08c9f6afb2511f1f');
 
   const counts = Object.fromEntries(source.expectedGroupIds.map((groupId) => [
     groupId,
