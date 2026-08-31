@@ -1,0 +1,261 @@
+{
+  "fixtureId": "medicine-501-516-2026-2027-semester-1",
+  "status": "resolved-by-user-source-specific-decision",
+  "parserProfile": "cyclic",
+  "sourceSha256": "43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G10",
+    "G11",
+    "G12",
+    "G13",
+    "G14",
+    "G15",
+    "G16",
+    "G17",
+    "G18",
+    "G19",
+    "G20",
+    "G21",
+    "C01",
+    "C02",
+    "C12",
+    "C13",
+    "C14"
+  ],
+  "sourceSpecificDecisions": [
+    {
+      "decisionId": "M501-PE-STREAM-PERSONALIZATION",
+      "sourceLocators": [
+        "2026+-2027 осень 5 курс  Леч!C45",
+        "2026+-2027 осень 5 курс  Леч!BT45",
+        "2026+-2027 осень 5 курс  Леч!BX45"
+      ],
+      "decision": "Model physical education as a user-selectable stream for every group 501-516. Preserve both source schedules as selection alternatives; do not infer group-to-stream membership.",
+      "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+      "options": [
+        {
+          "selectionOptionId": "stream-1",
+          "label": "1 поток",
+          "schedule": "понедельник 07.09-21.12 13:30-15:00"
+        },
+        {
+          "selectionOptionId": "stream-2",
+          "label": "2 поток",
+          "schedule": "понедельник 07.09-21.12 15:10-16:40"
+        }
+      ],
+      "confirmedBy": "user",
+      "confirmedAt": "2026-08-31"
+    }
+  ],
+  "coverage": {
+    "upperCycleBlockCount": 208,
+    "serviceExamBlockCount": 16,
+    "independentPeScheduleCount": 2,
+    "logicalSourceCellCount": 194,
+    "coveredSourceCellCount": 194,
+    "sourceCalendarDateOccurrencesInUpperBlocks": 1952,
+    "starredCycleBlockCount": 8,
+    "eventBearingUpperCycleBlockCount": 192,
+    "totalAccountedSourceBlockCount": 210
+  },
+  "serviceBlocks": [
+    {
+      "groupId": "501",
+      "locator": "CV13",
+      "range": "CV13:CY13",
+      "dates": [
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "502",
+      "locator": "CV14",
+      "range": "CV14:CY14",
+      "dates": [
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "503",
+      "locator": "DQ15",
+      "range": "DQ15:DT15",
+      "dates": [
+        "2027-01-27",
+        "2027-01-28",
+        "2027-01-29",
+        "2027-01-30"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "504",
+      "locator": "DQ16",
+      "range": "DQ16:DT16",
+      "dates": [
+        "2027-01-27",
+        "2027-01-28",
+        "2027-01-29",
+        "2027-01-30"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "505",
+      "locator": "BV17",
+      "range": "BV17:BY17",
+      "dates": [
+        "2026-11-24",
+        "2026-11-25",
+        "2026-11-26",
+        "2026-11-27"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "506",
+      "locator": "BV18",
+      "range": "BV18:BY18",
+      "dates": [
+        "2026-11-24",
+        "2026-11-25",
+        "2026-11-26",
+        "2026-11-27"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "507",
+      "locator": "CQ19",
+      "range": "CQ19:CT19",
+      "dates": [
+        "2026-12-18",
+        "2026-12-19",
+        "2026-12-21",
+        "2026-12-22"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "508",
+      "locator": "CQ20",
+      "range": "CQ20:CT20",
+      "dates": [
+        "2026-12-18",
+        "2026-12-19",
+        "2026-12-21",
+        "2026-12-22"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "509",
+      "locator": "AN21",
+      "range": "AN21:AQ21",
+      "dates": [
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "510",
+      "locator": "AN22",
+      "range": "AN22:AQ22",
+      "dates": [
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "511",
+      "locator": "BI23",
+      "range": "BI23:BL23",
+      "dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "512",
+      "locator": "BI24",
+      "range": "BI24:BL24",
+      "dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "513",
+      "locator": "N25",
+      "range": "N25:Q25",
+      "dates": [
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "514",
+      "locator": "N26",
+      "range": "N26:Q26",
+      "dates": [
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "515",
+      "locator": "AI27",
+      "range": "AI27:AL27",
+      "dates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-12"
+      ],
+      "rule": "C14"
+    },
+    {
+      "groupId": "516",
+      "locator": "AI28",
+      "range": "AI28:AL28",
+      "dates": [
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-12"
+      ],
+      "rule": "C14"
+    }
+  ],
+  "unresolvedAmbiguities": []
+}

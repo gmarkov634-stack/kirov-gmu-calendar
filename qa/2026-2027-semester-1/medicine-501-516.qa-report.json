@@ -1,0 +1,66 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-501-516-v1",
+  "parsingJobId": "parsing-job-medicine-501-516-2026-08-31-v1",
+  "candidateDigest": "sha256:369dbe3d7e0aa5709e06ba0ab0ed1c079d0ec88f89216fe869cbc331ac60f7a1",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "official-source-pinned",
+      "status": "pass",
+      "message": "Official XLSX is pinned by SHA-256 43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62 and workbook geometry 52x125."
+    },
+    {
+      "code": "upper-grid-content-accounted-for",
+      "status": "pass",
+      "message": "208/208 upper-grid blocks are accounted for: 192 event-bearing and 16 service exam-period blocks under C14."
+    },
+    {
+      "code": "independent-pe-schedules-accounted-for",
+      "status": "pass",
+      "message": "Both BT45 and BX45 independent physical-education schedules are preserved as mutually exclusive selection options for groups 501-516."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "2400 normalized candidate events; each group has 150 events before personalization."
+    },
+    {
+      "code": "physical-education-selection-metadata",
+      "status": "pass",
+      "message": "Selection group medicine-5-physical-education-stream-2026-s1 has stream-1 and stream-2; each group has 16 source dates per stream."
+    },
+    {
+      "code": "duplicates-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "dates-within-source-calendar",
+      "status": "pass",
+      "message": "All events use dates present in the official XLSX calendar grid (2026-09-01–2027-01-30)."
+    },
+    {
+      "code": "overlaps-classified",
+      "status": "warning",
+      "message": "0 mutually-exclusive option overlaps, 12 personalization-dependent PE/source overlaps, 0 other source-explicit overlaps; non-alternative overlaps are preserved under G16/C13."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after the user-confirmed PE stream personalization decision."
+    },
+    {
+      "code": "shared-contract-boundary",
+      "status": "pass",
+      "message": "medical-calendar-core ef97adaf97f28c292e25d6b469acc417b41715ee supports NormalizedEvent.selection, fail-closed elective filtering and ICS preference application."
+    }
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "ef97adaf97f28c292e25d6b469acc417b41715ee",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e",
+    "preferencesBlob": "ee1441366b25be9d180014ec74f124a24a9cfd00"
+  },
+  "createdAt": "2026-08-31T17:00:00+03:00"
+}

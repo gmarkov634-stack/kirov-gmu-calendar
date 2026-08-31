@@ -12,6 +12,10 @@ function canonicalLabel(value) {
     .trim();
 }
 
+function optionalLabel(value) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
 function groupsFromMask(maskHex, groupTable) {
   const mask = BigInt(`0x${maskHex}`);
   const groups = [];
@@ -21,20 +25,44 @@ function groupsFromMask(maskHex, groupTable) {
   return groups;
 }
 
-function addOption(target, groupId, selectionGroupId, selectionOptionId, label) {
+function addOption(
+  target,
+  groupId,
+  selectionGroupId,
+  selectionOptionId,
+  disciplineLabel,
+  selectionGroupLabel,
+  selectionOptionLabel
+) {
   let bySelection = target.get(groupId);
   if (!bySelection) {
     bySelection = new Map();
     target.set(groupId, bySelection);
   }
-  let options = bySelection.get(selectionGroupId);
-  if (!options) {
-    options = new Map();
-    bySelection.set(selectionGroupId, options);
+
+  let definition = bySelection.get(selectionGroupId);
+  if (!definition) {
+    definition = { label: null, options: new Map() };
+    bySelection.set(selectionGroupId, definition);
   }
-  const current = options.get(selectionOptionId);
-  const candidate = canonicalLabel(label) || selectionOptionId;
-  if (!current || candidate.length < current.length) options.set(selectionOptionId, candidate);
+
+  const explicitGroupLabel = optionalLabel(selectionGroupLabel);
+  if (explicitGroupLabel) {
+    if (definition.label && definition.label !== explicitGroupLabel) {
+      throw new Error(`conflicting selectionGroupLabel for ${selectionGroupId}: ${definition.label} / ${explicitGroupLabel}`);
+    }
+    definition.label = explicitGroupLabel;
+  }
+
+  const explicitOptionLabel = optionalLabel(selectionOptionLabel);
+  const candidate = explicitOptionLabel ?? (canonicalLabel(disciplineLabel) || selectionOptionId);
+  const current = definition.options.get(selectionOptionId);
+  if (current && explicitOptionLabel && current !== explicitOptionLabel) {
+    throw new Error(`conflicting selectionOptionLabel for ${selectionGroupId}/${selectionOptionId}: ${current} / ${explicitOptionLabel}`);
+  }
+  if (!current || explicitOptionLabel || candidate.length < current.length) {
+    definition.options.set(selectionOptionId, candidate);
+  }
 }
 
 export async function buildElectiveCatalog() {
@@ -64,7 +92,9 @@ export async function buildElectiveCatalog() {
           groupId,
           selection.selectionGroupId,
           selection.selectionOptionId,
-          label
+          label,
+          selection.selectionGroupLabel,
+          selection.selectionOptionLabel
         );
       }
     }
@@ -75,12 +105,13 @@ export async function buildElectiveCatalog() {
     const definitions = [];
     const bySelection = groups.get(groupId);
     for (const selectionGroupId of [...bySelection.keys()].sort()) {
-      const alternatives = [...bySelection.get(selectionGroupId).entries()]
+      const definition = bySelection.get(selectionGroupId);
+      const alternatives = [...definition.options.entries()]
         .sort((left, right) => left[1].localeCompare(right[1], "ru"))
         .map(([value, label]) => ({ value, label }));
       definitions.push({
         selectionId: selectionGroupId,
-        label: "Дисциплина по выбору",
+        label: definition.label ?? "Дисциплина по выбору",
         alternatives
       });
     }
