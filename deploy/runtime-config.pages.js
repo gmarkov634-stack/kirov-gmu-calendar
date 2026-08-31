@@ -28,6 +28,29 @@ const MEDICINE_1_FACULTATIVE_CATALOG = Object.freeze(Object.fromEntries(
   ].map((groupId) => [groupId, MEDICINE_1_FACULTATIVES])
 ));
 
+const MEDICINE_3_ELECTIVE_SELECTIONS = Object.freeze([
+  Object.freeze({
+    selectionId: "medicine-3-choice-discipline-2026-s1",
+    label: "Дисциплина по выбору",
+    alternatives: Object.freeze([
+      Object.freeze({ value: "biochemical-healthy-lifestyle", label: "Биохимические основы здорового образа жизни" }),
+      Object.freeze({ value: "dietology", label: "Диетология" }),
+      Object.freeze({ value: "latin-pharmaceutical-terminology", label: "Латинская фармацевтическая терминология" }),
+      Object.freeze({ value: "intercultural-professional-communication", label: "Межкультурная профессиональная коммуникация" }),
+      Object.freeze({ value: "molecular-pathology", label: "Молекулярные механизмы в патологии человека" }),
+      Object.freeze({ value: "functional-diagnostics", label: "Современные методы функциональной диагностики донозологических состояний человека" }),
+      Object.freeze({ value: "statistical-evidence-medicine", label: "Статистические методы в доказательной медицине с использованием информационных технологий" })
+    ])
+  })
+]);
+
+const MEDICINE_3_ELECTIVE_CATALOG = Object.freeze(Object.fromEntries(
+  [
+    "301", "302", "303", "304", "305", "306", "307", "308", "309", "310",
+    "311", "312", "313", "314", "315", "316", "317"
+  ].map((groupId) => [groupId, MEDICINE_3_ELECTIVE_SELECTIONS])
+));
+
 window.KGMU_CALENDAR_CONFIG = Object.freeze({
   apiBase: "https://176-123-165-120.sslip.io",
   universityId: "kirov-gmu",
@@ -39,7 +62,9 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   academicPeriodLabels: Object.freeze({
     "2026-2027-semester-1": "1 семестр"
   }),
-  electiveCatalog: Object.freeze({}),
+  electiveCatalog: Object.freeze({
+    "2026-2027-semester-1": MEDICINE_3_ELECTIVE_CATALOG
+  }),
   facultativeCatalog: Object.freeze({
     "2026-2027-semester-1": MEDICINE_1_FACULTATIVE_CATALOG
   }),
