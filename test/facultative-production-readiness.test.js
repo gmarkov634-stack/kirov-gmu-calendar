@@ -57,30 +57,39 @@ test('replacement runner reconstructs and verifies the exact current production 
   assert.doesNotMatch(script, /DELETE FROM schedule_versions|DELETE FROM schedule_events/);
 });
 
-test('deployment facultative catalogs exactly mirror the source-backed medicine fixture for groups 101-110', async () => {
-  const fixture = await readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json');
-  const expectedDefinitions = fixture.items.map((item) => ({
+test('deployment facultative catalogs exactly mirror both source-backed medicine first-year fixtures', async () => {
+  const fixtures = await Promise.all([
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-111-120.facultatives.json')
+  ]);
+  const definitions = fixtures.map((fixture) => fixture.items.map((item) => ({
     facultativeId: item.facultativeId,
     label: item.discipline
-  }));
+  })));
+
+  assert.equal(fixtures[0].academicPeriodId, fixtures[1].academicPeriodId);
+  assert.deepEqual(definitions[0], definitions[1]);
+  const expectedGroupIds = fixtures.flatMap((fixture) => fixture.groupIds);
 
   for (const configPath of ['deploy/runtime-config.pages.js', 'deploy/runtime-config.production.js']) {
     const config = evaluateRuntimeConfig(await read(configPath));
-    const periodCatalog = config.facultativeCatalog?.[fixture.academicPeriodId];
+    const periodCatalog = config.facultativeCatalog?.[fixtures[0].academicPeriodId];
     assert.ok(periodCatalog, configPath);
-    assert.equal(config.academicPeriodLabels?.[fixture.academicPeriodId], '1 семестр', configPath);
+    assert.equal(config.academicPeriodLabels?.[fixtures[0].academicPeriodId], '1 семестр', configPath);
 
-    for (const groupId of fixture.groupIds) {
-      assert.deepEqual(
-        Array.from(periodCatalog[groupId], (item) => ({
-          facultativeId: item.facultativeId,
-          label: item.label
-        })),
-        expectedDefinitions,
-        `${configPath}:${groupId}`
-      );
+    for (const fixture of fixtures) {
+      for (const groupId of fixture.groupIds) {
+        assert.deepEqual(
+          Array.from(periodCatalog[groupId], (item) => ({
+            facultativeId: item.facultativeId,
+            label: item.label
+          })),
+          definitions[0],
+          `${configPath}:${groupId}`
+        );
+      }
     }
-    assert.deepEqual(Object.keys(periodCatalog).sort(), [...fixture.groupIds].sort(), configPath);
+    assert.deepEqual(Object.keys(periodCatalog).sort(), [...expectedGroupIds].sort(), configPath);
   }
 });
 
