@@ -26,9 +26,21 @@
     });
   }
 
+  function clarifyReusedTrialStatus() {
+    const status = grid.querySelector("#runtime-trial-status");
+    if (!status || !status.textContent?.includes("Пробный период для этой группы уже существует.")) return;
+
+    const managementLink = status.querySelector("a");
+    status.replaceChildren(document.createTextNode(
+      "Пробный доступ уже был активирован в этом браузере или с этим email."
+    ));
+    if (managementLink) status.append(" ", managementLink);
+  }
+
   function applyRefinements() {
     ensureManagementSettingsNote();
     revealTrialEmailContainer();
+    clarifyReusedTrialStatus();
   }
 
   const observer = new MutationObserver(applyRefinements);
