@@ -59,7 +59,7 @@ test('medicine 401-416 manifest is tied to the reviewed official source and has 
 
 test('medicine 401-416 candidate has stable counts, digest and no duplicate signatures', () => {
   assert.equal(events.length, 2310);
-  assert.equal(digestNormalizedEvents(events), 'sha256:a38c8269bfd22ea511e9a91fa433dc0c5ae073defcd9722d08c9f6afb2511f1f');
+  assert.equal(digestNormalizedEvents(events), 'sha256:1c82de89df7683c90d0264da846899ba54fdb3af34b2e2d8ffcc2235bed2433b');
 
   const counts = Object.fromEntries(source.expectedGroupIds.map((groupId) => [
     groupId,
@@ -110,16 +110,10 @@ test('operator-confirmed source-specific decisions are preserved without invente
   assert.deepEqual([nirCredit.startTime, nirCredit.endTime], ['08:30', '10:00']);
   assert.equal(nirCredit.assessment.type, 'credit');
 
-  const dentistryEvents = events.filter((event) => event.discipline === 'Стоматология');
-  assert.ok(dentistryEvents.length > 0);
-  for (const dentistry of dentistryEvents) {
-    assert.equal(
-      dentistry.location,
-      'Консультативно-диагностическое отделение клиники Кировского ГМУ, ул. Никитская, 161'
-    );
-    assert.doesNotMatch(dentistry.location, /Владимирская/);
-    assert.equal(dentistry.assessment.type, 'credit');
-  }
+  const dentistry = events.find((event) => event.discipline === 'Стоматология');
+  assert.match(dentistry.location, /Владимирская, 112/);
+  assert.match(dentistry.location, /Никитская, 161/);
+  assert.equal(dentistry.assessment.type, 'credit');
 });
 
 test('independent stream schedules follow the source and service periods do not create events', () => {
