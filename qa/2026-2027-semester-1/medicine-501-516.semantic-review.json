@@ -56,10 +56,12 @@
     "upperCycleBlockCount": 208,
     "serviceExamBlockCount": 16,
     "independentPeScheduleCount": 2,
-    "logicalSourceCellCount": 210,
-    "coveredSourceCellCount": 210,
+    "logicalSourceCellCount": 194,
+    "coveredSourceCellCount": 194,
     "sourceCalendarDateOccurrencesInUpperBlocks": 1952,
-    "starredCycleBlockCount": 8
+    "starredCycleBlockCount": 8,
+    "eventBearingUpperCycleBlockCount": 192,
+    "totalAccountedSourceBlockCount": 210
   },
   "serviceBlocks": [
     {

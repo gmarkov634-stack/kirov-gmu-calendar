@@ -1,0 +1,379 @@
+{
+  "fixtureId": "medicine-501-516-2026-2027-semester-1",
+  "sourceSha256": "43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-501-516.decisions.json",
+  "semanticDecisionMode": "operator-authored-explicit + user-confirmed-selection-model",
+  "candidateDigest": "sha256:369dbe3d7e0aa5709e06ba0ab0ed1c079d0ec88f89216fe869cbc331ac60f7a1",
+  "eventCount": 2400,
+  "groupEventCounts": {
+    "501": 150,
+    "502": 150,
+    "503": 150,
+    "504": 150,
+    "505": 150,
+    "506": 150,
+    "507": 150,
+    "508": 150,
+    "509": 150,
+    "510": 150,
+    "511": 150,
+    "512": 150,
+    "513": 150,
+    "514": 150,
+    "515": 150,
+    "516": 150
+  },
+  "logicalSourceCellCount": 194,
+  "coveredSourceCellCount": 194,
+  "upperCycleBlockCount": 208,
+  "eventBearingUpperCycleBlockCount": 192,
+  "serviceExamBlockCount": 16,
+  "independentPeScheduleCount": 2,
+  "totalAccountedSourceBlockCount": 210,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "datesOutsideSourceCalendar": 0,
+  "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+  "selectionOptionIds": [
+    "stream-1",
+    "stream-2"
+  ],
+  "peEventCount": 512,
+  "peCountsByOption": {
+    "stream-1": 256,
+    "stream-2": 256
+  },
+  "peCountsByGroupAndOption": {
+    "501": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "502": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "503": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "504": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "505": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "506": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "507": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "508": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "509": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "510": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "511": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "512": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "513": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "514": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "515": {
+      "stream-1": 16,
+      "stream-2": 16
+    },
+    "516": {
+      "stream-1": 16,
+      "stream-2": 16
+    }
+  },
+  "selectionAlternativeOverlapCount": 0,
+  "selectionDependentOverlapCount": 12,
+  "explicitOverlapCount": 0,
+  "overlapPolicy": "All non-alternative overlaps are preserved because both sides are explicitly source-backed. PE overlaps are personalization-dependent and are not resolved by guessing a stream; G16/C13 applies.",
+  "selectionDependentOverlapSamples": [
+    {
+      "groupId": "502",
+      "date": "2026-11-23",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BU14",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "502",
+      "date": "2026-11-23",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BU14",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    },
+    {
+      "groupId": "503",
+      "date": "2026-12-07",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!CE15",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "503",
+      "date": "2026-12-07",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!CE15",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    },
+    {
+      "groupId": "510",
+      "date": "2026-09-14",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!M22",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "510",
+      "date": "2026-09-14",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!M22",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    },
+    {
+      "groupId": "512",
+      "date": "2026-09-28",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!Z24",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "512",
+      "date": "2026-09-28",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!Z24",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    },
+    {
+      "groupId": "514",
+      "date": "2026-10-26",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!AW26",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "514",
+      "date": "2026-10-26",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!AW26",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    },
+    {
+      "groupId": "515",
+      "date": "2026-11-09",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BG27",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BT45#stream-1",
+        "startTime": "13:30",
+        "endTime": "15:00",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-1"
+        }
+      }
+    },
+    {
+      "groupId": "515",
+      "date": "2026-11-09",
+      "left": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BG27",
+        "startTime": "13:00",
+        "endTime": "17:40",
+        "selection": null
+      },
+      "right": {
+        "locator": "2026+-2027 осень 5 курс  Леч!BX45#stream-2",
+        "startTime": "15:10",
+        "endTime": "16:40",
+        "selection": {
+          "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+          "selectionOptionId": "stream-2"
+        }
+      }
+    }
+  ],
+  "explicitOverlapSamples": [],
+  "sourceSpecificDecision": {
+    "decisionId": "M501-PE-STREAM-PERSONALIZATION",
+    "sourceLocators": [
+      "2026+-2027 осень 5 курс  Леч!C45",
+      "2026+-2027 осень 5 курс  Леч!BT45",
+      "2026+-2027 осень 5 курс  Леч!BX45"
+    ],
+    "decision": "Model physical education as a user-selectable stream for every group 501-516. Preserve both source schedules as selection alternatives; do not infer group-to-stream membership.",
+    "selectionGroupId": "medicine-5-physical-education-stream-2026-s1",
+    "options": [
+      {
+        "selectionOptionId": "stream-1",
+        "label": "1 поток",
+        "schedule": "понедельник 07.09-21.12 13:30-15:00"
+      },
+      {
+        "selectionOptionId": "stream-2",
+        "label": "2 поток",
+        "schedule": "понедельник 07.09-21.12 15:10-16:40"
+      }
+    ],
+    "confirmedBy": "user",
+    "confirmedAt": "2026-08-31"
+  },
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "ef97adaf97f28c292e25d6b469acc417b41715ee",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e",
+    "preferencesBlob": "ee1441366b25be9d180014ec74f124a24a9cfd00"
+  }
+}
