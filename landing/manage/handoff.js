@@ -72,6 +72,14 @@
     return iphone;
   }
 
+  function iphoneReminderGuidance() {
+    const note = document.createElement("p");
+    note.className = "preference-local-status iphone-reminder-guidance";
+    note.setAttribute("data-iphone-reminder-guidance", "true");
+    note.textContent = "На iPhone на экране «Сведения о подписке» выключите «Удаление напоминаний». Иначе iOS удалит уведомления из подписного календаря.";
+    return note;
+  }
+
   function googleCopyAction(url) {
     const google = document.createElement("button");
     google.type = "button";
@@ -121,7 +129,7 @@
     input.value = url;
     row.append(input);
 
-    output.append(title, copy, row, calendarActions(url));
+    output.append(title, copy, row, calendarActions(url), iphoneReminderGuidance());
     card.insertBefore(output, card.querySelector(".preference-panel") ?? null);
 
     const status = document.querySelector("#management-status");
@@ -139,7 +147,7 @@
       output.dataset.calendarActionsReady = "true";
       const existingCopy = output.querySelector(".copy-row button");
       if (existingCopy) existingCopy.textContent = "Скопировать для Google Calendar";
-      output.append(calendarActions(input.value, { includeGoogle: !existingCopy }));
+      output.append(calendarActions(input.value, { includeGoogle: !existingCopy }), iphoneReminderGuidance());
     }
   }
 

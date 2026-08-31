@@ -11,6 +11,14 @@ test("pre-connect personalization explains that settings remain editable", async
   assert.match(script, /data-acquisition-management-note/);
 });
 
+test("trial iPhone handoff warns that removal of reminders must stay disabled", async () => {
+  const script = await read("landing/acquisition-ux-refinements.js");
+  assert.match(script, /calendar-device-action\[href\^="webcal:\/\/"\]/);
+  assert.match(script, /data-iphone-reminder-guidance/);
+  assert.match(script, /выключите «Удаление напоминаний»/);
+  assert.match(script, /iOS удалит уведомления из подписного календаря/);
+});
+
 test("trial email handoff anchors at the start of its container without focusing the field", async () => {
   const script = await read("landing/acquisition-ux-refinements.js");
   assert.match(script, /#runtime-trial-email/);
