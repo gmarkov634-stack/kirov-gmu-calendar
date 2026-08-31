@@ -5,7 +5,9 @@
     "201", "202", "203", "204", "205", "206", "207", "208", "209", "210",
     "211", "212", "213", "214", "215", "216", "217", "218", "219", "220",
     "301", "302", "303", "304", "305", "306", "307", "308", "309", "310",
-    "311", "312", "313", "314", "315", "316", "317"
+    "311", "312", "313", "314", "315", "316", "317",
+    "401", "402", "403", "404", "405", "406", "407", "408", "409", "410",
+    "411", "412", "413", "414", "415", "416"
   ]);
 
   const setText = (node, value) => {
@@ -15,15 +17,15 @@
   function refresh() {
     for (const card of document.querySelectorAll(".program-card")) {
       if (card.querySelector("h3")?.textContent?.trim() !== "Лечебное дело") continue;
-      setText(card.querySelector(".program-badge"), "1–3 курсы доступны");
-      setText(card.querySelector("p"), "Группы 101–120, 201–220 и 301–317 · опубликованы и доступны для 7-дневной бесплатной пробы");
+      setText(card.querySelector(".program-badge"), "1–4 курсы доступны");
+      setText(card.querySelector("p"), "Группы 101–120, 201–220, 301–317 и 401–416 · опубликованы и доступны для 7-дневной бесплатной пробы");
     }
 
     const availability = document.querySelector(".availability");
-    setText(availability?.querySelector("strong"), "Лечебное дело: 1–3 курсы опубликованы");
-    setText(availability?.querySelector("p"), "Группы 101–120, 201–220 и 301–317 опубликованы по проверенным официальным расписаниям КГМУ и доступны для подключения через 7-дневную бесплатную пробу.");
+    setText(availability?.querySelector("strong"), "Лечебное дело: 1–4 курсы опубликованы");
+    setText(availability?.querySelector("p"), "Группы 101–120, 201–220, 301–317 и 401–416 опубликованы по проверенным официальным расписаниям КГМУ и доступны для подключения через 7-дневную бесплатную пробу.");
 
-    setText(document.querySelector("#hero-runtime-note"), "Лечебное дело: группы 101–120, 201–220 и 301–317 опубликованы и доступны. Выберите группу и запустите бесплатную пробу на 7 дней.");
+    setText(document.querySelector("#hero-runtime-note"), "Лечебное дело: группы 101–120, 201–220, 301–317 и 401–416 опубликованы и доступны. Выберите группу и запустите бесплатную пробу на 7 дней.");
 
     const grid = document.querySelector("#choice-grid");
     if (!grid) return;
@@ -33,6 +35,7 @@
       if (title === "1 курс") setText(note, "Группы 101–120 доступны");
       if (title === "2 курс") setText(note, "Группы 201–220 доступны");
       if (title === "3 курс") setText(note, "Группы 301–317 доступны");
+      if (title === "4 курс") setText(note, "Группы 401–416 доступны");
       const group = title.match(/^Группа\s+(\d+)$/)?.[1];
       if (group && publishedGroups.has(group)) setText(note, "Расписание опубликовано");
     }

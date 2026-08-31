@@ -8,15 +8,15 @@ const buildUrl = new URL("../deploy/build-landing.sh", import.meta.url);
 
 const text = (url) => readFile(url, "utf8");
 
-test("landing exposes exactly the published medicine course-3 groups 301-317", async () => {
+test("landing retains published medicine course-3 groups 301-317 while course 4 is enabled", async () => {
   const availability = await text(availabilityUrl);
   for (let group = 301; group <= 317; group += 1) {
     assert.match(availability, new RegExp(`\\"${group}\\"`), String(group));
   }
   assert.doesNotMatch(availability, /"318"/);
-  assert.match(availability, /1–3 курсы доступны/);
+  assert.match(availability, /1–4 курсы доступны/);
   assert.match(availability, /Группы 301–317 доступны/);
-  assert.match(availability, /101–120, 201–220 и 301–317/);
+  assert.match(availability, /101–120, 201–220, 301–317 и 401–416/);
 });
 
 test("course-3 landing availability matches the catalog boundary", async () => {
