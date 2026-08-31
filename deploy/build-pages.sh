@@ -20,6 +20,7 @@ cp "$ROOT_DIR/deploy/runtime-config.pages.js" "$OUT_DIR/runtime-config.js"
 cp "$ROOT_DIR/catalog/2026-2027-semester-1.json" "$OUT_DIR/catalog/2026-2027-semester-1.json"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ui.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ux-refinements.js"></script>' "$OUT_DIR/index.html"
+sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./trial-browser-binding.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<\/body>/i\    <script src="./availability-status.js"></script>' "$OUT_DIR/index.html"
 : > "$OUT_DIR/.nojekyll"
 
