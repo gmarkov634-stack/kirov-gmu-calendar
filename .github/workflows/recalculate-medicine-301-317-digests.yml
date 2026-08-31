@@ -103,6 +103,20 @@ jobs:
               academicPeriodId: source.academicPeriodId,
               sourceId: source.source.sourceId
             });
+
+            for (const expected of evidence.onlineEvents ?? []) {
+              const matches = baseEvents.filter((event) =>
+                event.date === expected.date &&
+                event.discipline === expected.discipline &&
+                event.location === expected.location
+              );
+              const locators = [...new Set(matches.map((event) => event.sourceRef.locator))];
+              if (locators.length !== 1) {
+                throw new Error(`online provenance ${expected.date} ${expected.discipline}: expected one locator, got ${locators.join(', ')}`);
+              }
+              expected.sourceLocator = locators[0];
+            }
+
             const oldBaseDigest = manifest.candidateDigest;
             const baseDigest = digestNormalizedEvents(baseEvents);
             manifest.candidateDigest = baseDigest;
