@@ -10,6 +10,7 @@ import {
   expandExplicitDecisionManifest,
   sha256Hex
 } from '../src/explicit-decisions.js';
+import { verifyMedicine501516IcsPersonalization } from '../src/medicine-501-516-ics-verification.js';
 import { toCorePublicationQa } from '../src/medicine-publication-plan.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -37,14 +38,6 @@ function gitBlobSha(content) {
 function eventSetDigest(events) {
   const sorted = [...events].sort((a, b) => a.eventId.localeCompare(b.eventId));
   return sha256Hex(canonicalJson(sorted));
-}
-
-function unfoldIcs(ics) {
-  return ics.replace(/\r\n[ \t]/g, '');
-}
-
-function countVevents(ics) {
-  return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
 }
 
 async function verifyCoreBoundary(coreRoot, coreEvidence) {
@@ -256,14 +249,15 @@ try {
     `).get(source.universityId, version.groupId, source.academicYear, source.academicPeriodId)?.count ?? 0);
     if (publishedCount !== 1) throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
 
-    const ics = unfoldIcs(core.renderPublishedScheduleIcs({
+    const icsVerification = verifyMedicine501516IcsPersonalization({
+      renderPublishedScheduleIcs: core.renderPublishedScheduleIcs,
       scheduleVersion: published.scheduleVersion,
       events: published.events,
       calendarName: `КГМУ ${version.groupId}`
-    }));
-    if (countVevents(ics) !== version.eventCount) {
-      throw new Error(`group ${version.groupId} raw ICS VEVENT count verification failed`);
-    }
+    });
+    console.log(
+      `group ${version.groupId}: ICS personalization verified; default=${icsVerification.defaultEventCount}; stream-1=${icsVerification.selectedEventCounts['stream-1']}; stream-2=${icsVerification.selectedEventCounts['stream-2']}`
+    );
   }
 
   const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
@@ -277,6 +271,7 @@ try {
     candidateDigest: APPROVED_CANDIDATE_DIGEST,
     groupCount: versions.length,
     eventCount: events.length,
+    icsPersonalizationVerified: true,
     trialChanged: false,
     checkoutChanged: false,
     landingChanged: false
