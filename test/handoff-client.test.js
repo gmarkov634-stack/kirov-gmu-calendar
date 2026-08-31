@@ -23,3 +23,11 @@ test('iPhone actions emit an actual webcal subscription URL', () => {
     assert.doesNotMatch(source, /parsed\.protocol\s*=\s*"webcal:"/);
   }
 });
+
+test('paid and recovered iPhone links warn to keep reminder removal disabled', () => {
+  assert.match(handoff, /data-iphone-reminder-guidance/);
+  assert.match(handoff, /выключите «Удаление напоминаний»/);
+  assert.match(handoff, /iOS удалит уведомления из подписного календаря/);
+  assert.match(handoff, /calendarActions\(url\), iphoneReminderGuidance\(\)/);
+  assert.match(handoff, /calendarActions\(input\.value, \{ includeGoogle: !existingCopy \}\), iphoneReminderGuidance\(\)/);
+});
