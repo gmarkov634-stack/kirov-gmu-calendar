@@ -8,6 +8,6 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/index.js && node --check landing/app.js && node --check landing/acquisition-ui.js && node --check landing/acquisition-ux-refinements.js && node --check landing/assets/landing-preview.js && node --check landing/manage/handoff.js && node --check landing/manage/manage.js && node --test"
+    "check": "node --check src/index.js && node --check landing/app.js && node --check landing/acquisition-ui.js && node --check landing/acquisition-ux-refinements.js && node --check landing/assets/landing-preview.js && node --check landing/manage/handoff.js && node --check landing/manage/manage.js && node --check ops/publish-medicine-301-317.mjs && node ops/publish-medicine-301-317.mjs --preflight && node --test"
   }
 }

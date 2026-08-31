@@ -1,0 +1,37 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "scope": "medicine-301-317-2026-2027-semester-1",
+  "reviewedAt": "2026-08-31",
+  "sourceClassification": {
+    "301-310": {
+      "profile": "weekly",
+      "sourceSha256": "e9bfa806ed25d48545abdd26dc5d9cf9111cc093edb8a42d94e6eb4c67f4df58",
+      "sheetName": "3 леч.1"
+    },
+    "311-317": {
+      "profile": "weekly",
+      "sourceSha256": "cd6aa3253e6fa7dcd2a1f58cd9480cb6f3be114dbd09a3220c7a38196ad81ffe",
+      "sheetName": "3 леч.2"
+    }
+  },
+  "existingContractSupport": {
+    "electiveChoices": true,
+    "normalizedEventSelection": true,
+    "note": "Course-3 choice disciplines use the existing core selectionGroupId/selectionOptionId contract; no core architecture extension is required."
+  },
+  "resolvedSemanticDecisions": [
+    {
+      "id": "M301-MOLECULAR-WEDNESDAY-G310",
+      "status": "CONFIRMED_BY_USER",
+      "confirmedAt": "2026-08-31",
+      "sourceRefs": ["3 леч.1!B15:K15", "3 леч.1!B18:J18", "3 леч.1!K18"],
+      "groups": ["310"],
+      "discipline": "Молекулярные механизмы в патологии человека",
+      "resolution": "Include 30.12.2026 08:00-10:25 for group 310 as its one Wednesday occurrence.",
+      "implementationPolicy": "Create the group-310 occurrence as an explicit operator-confirmed event using the same discipline, lesson type, selection metadata and location semantics as the confirmed Molecular mechanisms block. Do not expand the B18:J18 merge geometry itself to K18."
+    }
+  ],
+  "unresolvedSemanticAmbiguities": [],
+  "publicationGate": "SEMANTIC_REVIEW_COMPLETE",
+  "normalizationPolicy": "The previously disputed group-310 fragment is resolved by explicit user confirmation. Full normalized fixtures and QA must still pass before publication."
+}

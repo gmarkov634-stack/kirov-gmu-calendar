@@ -38,6 +38,37 @@ function selectByMask(table, maskHex, label) {
   return selected;
 }
 
+function normalizeSelectionMetadata(manifest) {
+  if (manifest.selectionMetadataByDisciplineIndex == null) return new Map();
+  const metadata = assertObject(
+    manifest.selectionMetadataByDisciplineIndex,
+    'manifest.selectionMetadataByDisciplineIndex'
+  );
+  const result = new Map();
+  for (const [rawIndex, selection] of Object.entries(metadata)) {
+    if (!/^\d+$/.test(rawIndex)) {
+      throw new TypeError('manifest.selectionMetadataByDisciplineIndex keys must be discipline indexes');
+    }
+    const disciplineIndex = Number(rawIndex);
+    assertIndex(
+      disciplineIndex,
+      manifest.disciplineTable,
+      `manifest.selectionMetadataByDisciplineIndex[${rawIndex}]`
+    );
+    assertObject(selection, `manifest.selectionMetadataByDisciplineIndex[${rawIndex}]`);
+    const selectionGroupId = assertNonEmptyString(
+      selection.selectionGroupId,
+      `manifest.selectionMetadataByDisciplineIndex[${rawIndex}].selectionGroupId`
+    );
+    const selectionOptionId = assertNonEmptyString(
+      selection.selectionOptionId,
+      `manifest.selectionMetadataByDisciplineIndex[${rawIndex}].selectionOptionId`
+    );
+    result.set(disciplineIndex, Object.freeze({ selectionGroupId, selectionOptionId }));
+  }
+  return result;
+}
+
 export function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
   if (value && typeof value === 'object') {
@@ -89,6 +120,7 @@ export function expandExplicitDecisionManifest(manifest, context) {
     throw new TypeError('manifest.logicalSourceCellCount must be a positive integer');
   }
 
+  const selectionMetadata = normalizeSelectionMetadata(manifest);
   const events = [];
   for (const [decisionIndex, tuple] of manifest.decisions.entries()) {
     if (!Array.isArray(tuple) || tuple.length !== 8) {
@@ -115,13 +147,18 @@ export function expandExplicitDecisionManifest(manifest, context) {
     const lessonType = manifest.lessonTypeTable[lessonTypeIndex];
     const location = manifest.locationTable[locationIndex];
     const assessment = manifest.assessmentMetadataByDisciplineIndex?.[String(disciplineIndex)] ?? null;
+    const selection = selectionMetadata.get(disciplineIndex) ?? null;
     const groups = selectByMask(manifest.groupTable, groupMaskHex, `manifest.decisions[${decisionIndex}].groupMaskHex`);
     const dates = selectByMask(manifest.dateTable, dateMaskHex, `manifest.decisions[${decisionIndex}].dateMaskHex`);
 
     for (const groupId of groups) {
       for (const date of dates) {
         const sourceLocator = `${manifest.sheetName}!${locator}`;
-        const eventKey = [groupId, date, startTime, endTime, discipline, lessonType, sourceLocator].join('|');
+        const eventKeyParts = [groupId, date, startTime, endTime, discipline, lessonType, sourceLocator];
+        if (selection != null) {
+          eventKeyParts.push(selection.selectionGroupId, selection.selectionOptionId);
+        }
+        const eventKey = eventKeyParts.join('|');
         const event = {
           eventId: `kgmu-${sha256Hex(eventKey).slice(0, 24)}`,
           universityId,
@@ -138,6 +175,7 @@ export function expandExplicitDecisionManifest(manifest, context) {
           sourceRef: { sourceId, locator: sourceLocator }
         };
         if (assessment != null) event.assessment = structuredClone(assessment);
+        if (selection != null) event.selection = structuredClone(selection);
         events.push(event);
       }
     }
