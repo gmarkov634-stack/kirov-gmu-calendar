@@ -3,6 +3,7 @@
   const nativeFetch = globalThis.fetch?.bind(globalThis);
   if (!nativeFetch) return;
 
+  const DEFAULT_REMINDERS = Object.freeze([10, 60]);
   const REMINDERS = Object.freeze([
     Object.freeze({ value: 10, label: "За 10 минут" }),
     Object.freeze({ value: 30, label: "За 30 минут" }),
@@ -108,7 +109,10 @@
   }
 
   function createReminderControls() {
-    const section = createSection("Напоминания", "Можно выбрать несколько вариантов.");
+    const section = createSection(
+      "Напоминания",
+      "По умолчанию включены за 1 час и за 10 минут. Можно выбрать несколько вариантов или выключить все."
+    );
     const row = document.createElement("div");
     row.className = "trial-personalization-reminders";
     for (const reminder of REMINDERS) {
@@ -117,6 +121,7 @@
       const input = document.createElement("input");
       input.type = "checkbox";
       input.dataset.reminderMinutes = String(reminder.value);
+      input.checked = DEFAULT_REMINDERS.includes(reminder.value);
       const text = document.createElement("span");
       text.textContent = reminder.label;
       label.append(input, text);
