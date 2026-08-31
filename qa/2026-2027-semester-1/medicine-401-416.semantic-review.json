@@ -48,10 +48,10 @@
       "resolution": "The source states only the 08:30 start. Under G21 the operator explicitly confirmed 08:30-10:00 for the NIR credit on 16.01.2027 for groups 401-416. This is source-specific and must not be generalized to other XLSX files."
     },
     {
-      "id": "MED4-STOMATOLOGY-LOCATION-PRESERVATION",
+      "id": "MED4-STOMATOLOGY-LOCATION-MAPPING",
       "status": "CONFIRMED_BY_OPERATOR_G21",
       "sourceRefs": ["4 курс осень 2026 Леч!AN39:BM39", "4 курс осень 2026 Леч!BN39:BU39"],
-      "resolution": "The XLSX lists two Stomatology sites without a group/date mapping. The operator explicitly selected source-preserving representation: every Stomatology event carries both source-listed sites and addresses in one location string, without inventing a distribution. This is source-specific and must not be generalized."
+      "resolution": "The XLSX lists two Stomatology sites without an internal group/date mapping. Under G21 the operator explicitly confirmed that for this source all Stomatology events for groups 401-416 use the Consultative and Diagnostic Department of the Kirov State Medical University clinic, ul. Nikitskaya 161. The Vladimirskaya 112 site is not used for these events. This decision is source-specific and must not be generalized."
     },
     {
       "id": "MED4-EXAM-PERIOD",
@@ -85,6 +85,6 @@
     }
   ],
   "unresolvedSemanticAmbiguities": [],
-  "publicationGate": "NORMALIZATION_ALLOWED",
-  "normalizationPolicy": "Semantic review is cleared: all source ambiguities discovered before normalization are resolved, and the course-4 candidate/QA artifacts have been built. The two operator decisions (CM30 end time and Stomatology dual-site representation) are source-specific only. This gate authorizes normalization/QA only; no ScheduleVersion publication or production mutation is included."
+  "publicationGate": "NORMALIZATION_IN_PROGRESS",
+  "normalizationPolicy": "The operator-confirmed Stomatology mapping has changed the normalized candidate from the previously QA-reviewed dual-site representation to Nikitskaya 161 for all groups 401-416. Recompute candidate digest and rerun QA before restoring NORMALIZATION_ALLOWED. Both operator decisions (CM30 end time and Stomatology mapping) are source-specific only. No ScheduleVersion publication or production mutation is included."
 }
