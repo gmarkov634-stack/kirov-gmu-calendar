@@ -85,6 +85,6 @@
     }
   ],
   "unresolvedSemanticAmbiguities": [],
-  "publicationGate": "NORMALIZATION_IN_PROGRESS",
-  "normalizationPolicy": "The operator-confirmed Stomatology mapping has changed the normalized candidate from the previously QA-reviewed dual-site representation to Nikitskaya 161 for all groups 401-416. Recompute candidate digest and rerun QA before restoring NORMALIZATION_ALLOWED. Both operator decisions (CM30 end time and Stomatology mapping) are source-specific only. No ScheduleVersion publication or production mutation is included."
+  "publicationGate": "NORMALIZATION_ALLOWED",
+  "normalizationPolicy": "Semantic review is cleared after rerunning course-4 QA with the operator-confirmed Stomatology mapping to Nikitskaya 161 for all groups 401-416. Candidate digest sha256:a38c8269bfd22ea511e9a91fa433dc0c5ae073defcd9722d08c9f6afb2511f1f passed isolated QA with 2310 events, zero duplicate signatures and two source-backed overlaps preserved under G16. Both operator decisions (CM30 end time and Stomatology mapping) are source-specific only. This gate authorizes normalization/QA only; no ScheduleVersion publication or production mutation is included."
 }
