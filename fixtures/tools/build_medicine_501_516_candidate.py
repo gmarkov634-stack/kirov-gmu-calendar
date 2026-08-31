@@ -13,7 +13,7 @@ import io
 import json
 import re
 import urllib.request
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 from openpyxl import load_workbook
@@ -80,10 +80,11 @@ def text(value) -> str | None:
 def parse_time(value: str | None) -> tuple[str, str] | None:
     if not value:
         return None
-    match = re.search(r"(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})", value)
-    if not match:
+    matches = re.findall(r"(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})", value)
+    if not matches:
         return None
-    return (f"{int(match.group(1)):02d}:{match.group(2)}", f"{int(match.group(3)):02d}:{match.group(4)}")
+    start_hour, start_minute, end_hour, end_minute = matches[-1]
+    return (f"{int(start_hour):02d}:{start_minute}", f"{int(end_hour):02d}:{end_minute}")
 
 
 def mask_for_indexes(indexes: list[int]) -> str:
@@ -197,8 +198,6 @@ def main() -> None:
 
     reference_rows = sorted(set(UPPER_TO_REFERENCE_ROW.values()))
     disciplines: list[str] = [reference_discipline(ws, row) for row in reference_rows]
-    # Keep two distinct indexes with the exact same source discipline so each stream
-    # can carry independent selection metadata without changing the calendar title.
     pe_index_1 = len(disciplines)
     disciplines.append(reference_discipline(ws, 45))
     pe_index_2 = len(disciplines)
@@ -265,7 +264,6 @@ def main() -> None:
             first_time = parse_time(text(ws[f"BT{ref_row}"].value))
             second_time = parse_time(text(ws[f"BX{ref_row}"].value))
             if first_time is None:
-                # Some source rows contain a single explicit shift in BX only.
                 first_time = second_time
             if first_time is None:
                 raise SystemExit(f"reference row {ref_row} has no usable time")
