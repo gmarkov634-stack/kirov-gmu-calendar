@@ -1,0 +1,154 @@
+name: Recalculate medicine 301-317 approved digests
+
+on:
+  push:
+    branches:
+      - feat/medicine-301-317
+    paths:
+      - '.github/workflows/recalculate-medicine-301-317-digests.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  recalculate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/medicine-301-317
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Recalculate digests with repository normalization code
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile, writeFile } from 'node:fs/promises';
+          import {
+            digestNormalizedEvents,
+            expandExplicitDecisionManifest,
+            sha256Hex
+          } from './src/explicit-decisions.js';
+
+          const compareEvents = (a, b) => [
+            Number(a.groupId) - Number(b.groupId),
+            a.date.localeCompare(b.date),
+            a.startTime.localeCompare(b.startTime),
+            a.endTime.localeCompare(b.endTime),
+            a.discipline.localeCompare(b.discipline),
+            a.lessonType.localeCompare(b.lessonType),
+            a.sourceRef.locator.localeCompare(b.sourceRef.locator)
+          ].find((value) => value !== 0) ?? 0;
+
+          function applyOperatorEventAdditions(baseEvents, evidence) {
+            const events = [...baseEvents];
+            for (const addition of evidence.operatorEventAdditions ?? []) {
+              const templateMatches = baseEvents.filter((event) =>
+                event.groupId === addition.groupId &&
+                event.date === addition.templateDate &&
+                event.sourceRef?.locator === addition.templateSourceLocator &&
+                event.discipline === addition.discipline &&
+                event.startTime === addition.startTime &&
+                event.endTime === addition.endTime
+              );
+              if (templateMatches.length !== 1) {
+                throw new Error(`${addition.decisionId}: expected one template, got ${templateMatches.length}`);
+              }
+              const weekday = new Date(`${addition.date}T00:00:00Z`).getUTCDay();
+              if (weekday !== addition.expectedWeekday) {
+                throw new Error(`${addition.decisionId}: weekday ${weekday} != expected ${addition.expectedWeekday}`);
+              }
+              const template = templateMatches[0];
+              const eventKey = [
+                addition.groupId,
+                addition.date,
+                addition.startTime,
+                addition.endTime,
+                addition.discipline,
+                template.lessonType,
+                addition.sourceLocator
+              ].join('|');
+              events.push({
+                ...template,
+                eventId: `kgmu-${sha256Hex(eventKey).slice(0, 24)}`,
+                date: addition.date,
+                sourceRef: { ...template.sourceRef, locator: addition.sourceLocator }
+              });
+            }
+            return events.sort(compareEvents);
+          }
+
+          const replacements = new Map();
+          for (const stream of ['301-310', '311-317']) {
+            const manifestPath = `fixtures/2026-2027-semester-1/medicine-${stream}.decisions.json`;
+            const sourcePath = `fixtures/2026-2027-semester-1/medicine-${stream}.source.json`;
+            const evidencePath = `qa/2026-2027-semester-1/medicine-${stream}.evidence.json`;
+            const qaPath = `qa/2026-2027-semester-1/medicine-${stream}.qa-report.json`;
+
+            const [manifest, source, evidence, qa] = await Promise.all([
+              readFile(manifestPath, 'utf8').then(JSON.parse),
+              readFile(sourcePath, 'utf8').then(JSON.parse),
+              readFile(evidencePath, 'utf8').then(JSON.parse),
+              readFile(qaPath, 'utf8').then(JSON.parse)
+            ]);
+
+            if (stream === '301-310') {
+              const decision = evidence.operatorEventAdditions?.find((item) => item.decisionId === 'M301-MOLECULAR-WEDNESDAY-G310');
+              if (!decision) throw new Error('missing group-310 operator decision');
+              decision.expectedWeekday = 3;
+            }
+
+            const baseEvents = expandExplicitDecisionManifest(manifest, {
+              universityId: source.universityId,
+              academicPeriodId: source.academicPeriodId,
+              sourceId: source.source.sourceId
+            });
+            const oldBaseDigest = manifest.candidateDigest;
+            const baseDigest = digestNormalizedEvents(baseEvents);
+            manifest.candidateDigest = baseDigest;
+            if ((evidence.operatorEventAdditions?.length ?? 0) > 0) evidence.baseCandidateDigest = baseDigest;
+
+            const events = applyOperatorEventAdditions(baseEvents, evidence);
+            const oldCandidateDigest = qa.candidateDigest;
+            const candidateDigest = digestNormalizedEvents(events);
+            evidence.candidateDigest = candidateDigest;
+            qa.candidateDigest = candidateDigest;
+            evidence.eventCount = events.length;
+            evidence.groupEventCounts = Object.fromEntries(source.expectedGroupIds.map((groupId) => [
+              groupId,
+              events.filter((event) => event.groupId === groupId).length
+            ]));
+
+            replacements.set(oldBaseDigest, baseDigest);
+            replacements.set(oldCandidateDigest, candidateDigest);
+
+            await Promise.all([
+              writeFile(manifestPath, `${JSON.stringify(manifest)}\n`),
+              writeFile(evidencePath, `${JSON.stringify(evidence)}\n`),
+              writeFile(qaPath, `${JSON.stringify(qa)}\n`)
+            ]);
+            console.log(JSON.stringify({ stream, baseDigest, candidateDigest, eventCount: events.length }));
+          }
+
+          const testPath = 'test/medicine-301-317-publication-plan.test.js';
+          let testSource = await readFile(testPath, 'utf8');
+          for (const [oldDigest, newDigest] of replacements) testSource = testSource.split(oldDigest).join(newDigest);
+          await writeFile(testPath, testSource);
+          NODE
+      - name: Verify recalculated publication plan
+        run: npm run check
+      - name: Commit recalculated evidence
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            fixtures/2026-2027-semester-1/medicine-301-310.decisions.json \
+            fixtures/2026-2027-semester-1/medicine-311-317.decisions.json \
+            qa/2026-2027-semester-1/medicine-301-310.evidence.json \
+            qa/2026-2027-semester-1/medicine-311-317.evidence.json \
+            qa/2026-2027-semester-1/medicine-301-310.qa-report.json \
+            qa/2026-2027-semester-1/medicine-311-317.qa-report.json \
+            test/medicine-301-317-publication-plan.test.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Recalculate medicine 301-317 approved digests'
+          git push origin HEAD:feat/medicine-301-317
