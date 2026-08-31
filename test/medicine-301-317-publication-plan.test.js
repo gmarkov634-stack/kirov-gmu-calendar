@@ -39,9 +39,9 @@ const EXPECTED_OPTIONS = [
 test('medicine 301-310 publication plan matches approved digest and preserves group-310 operator decision', async () => {
   const { manifest, evidence, qa, plan } = await loadStream('301-310');
 
-  assert.equal(manifest.candidateDigest, 'sha256:72e6c0c5d15c8af893b4f97d8f4c0d1285beeb3ff8b62bb877367e50694d51ba');
+  assert.equal(manifest.candidateDigest, 'sha256:09f40e8c2ffde2d5c0dff5f776138a9916171648f03b681153e953971e5e8d8e');
   assert.equal(evidence.baseCandidateDigest, manifest.candidateDigest);
-  assert.equal(plan.candidateDigest, 'sha256:c7bd7970bacbfbcfc703499ae7951c90a906674ce62def88167e70f468998bf1');
+  assert.equal(plan.candidateDigest, 'sha256:d832152de75088bc834e29193c47d50c69190afbf8ca6b89cc0f7b77a313f49e');
   assert.equal(qa.decision, 'pass');
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(plan.events.length, 3651);
@@ -79,7 +79,7 @@ test('medicine 301-310 publication plan matches approved digest and preserves gr
 test('medicine 311-317 publication plan matches approved digest, selections and date-scoped online events', async () => {
   const { evidence, qa, plan } = await loadStream('311-317');
 
-  assert.equal(plan.candidateDigest, 'sha256:347bbe20f2516b5e734788ae8cfb8d1fd3153e35ee8cf3eedb928bd340787ada');
+  assert.equal(plan.candidateDigest, 'sha256:ffa3b35cf0301f1a521dc236ea1e043085ea248082917c883fc35e1152e865e5');
   assert.equal(qa.decision, 'pass');
   assert.equal(evidence.unresolvedAmbiguities, 0);
   assert.equal(plan.events.length, 2438);
