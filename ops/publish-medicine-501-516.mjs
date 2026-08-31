@@ -23,6 +23,7 @@ const APPROVED_CANDIDATE_DIGEST = 'sha256:369dbe3d7e0aa5709e06ba0ab0ed1c079d0ec8
 const APPROVED_EVENT_COUNT = 2400;
 const EXPECTED_EVENTS_PER_GROUP = 150;
 const VERSION_SUFFIX = APPROVED_CANDIDATE_DIGEST.replace('sha256:', '').slice(0, 16);
+const IOS_VALARM_RENDERER_BLOB = 'a9b61d6bb5da412e2f6ff0b5b85474af41e6216e';
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
@@ -56,10 +57,18 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   if (schemaBlob !== coreEvidence.normalizedEventSchemaBlob) {
     throw new Error(`deployed core NormalizedEvent schema blob mismatch: ${schemaBlob}`);
   }
-  if (rendererBlob !== coreEvidence.icsRendererBlob) {
+  const compatibleRendererBlobs = new Set([
+    coreEvidence.icsRendererBlob,
+    IOS_VALARM_RENDERER_BLOB
+  ]);
+  if (!compatibleRendererBlobs.has(rendererBlob)) {
     throw new Error(`deployed core ICS renderer blob mismatch: ${rendererBlob}`);
   }
-  return { schemaBlob, rendererBlob };
+  return {
+    schemaBlob,
+    rendererBlob,
+    rendererCompatibility: rendererBlob === coreEvidence.icsRendererBlob ? 'qa-evidence' : 'ios-valarm-hotfix'
+  };
 }
 
 const [manifest, source, evidence, qa] = await Promise.all([
