@@ -1,4 +1,4 @@
-name: Probe medicine 501-516 official source
+name: Probe and build medicine 501-516 candidate
 
 on:
   push:
@@ -7,19 +7,24 @@ on:
     paths:
       - 'fixtures/tools/probe_medicine_501_516_source.py'
       - 'fixtures/tools/analyze_medicine_501_516_source.py'
+      - 'fixtures/tools/build_medicine_501_516_candidate.py'
       - '.github/workflows/probe-medicine-501-516.yml'
   pull_request:
     branches: [main]
     paths:
       - 'fixtures/tools/probe_medicine_501_516_source.py'
       - 'fixtures/tools/analyze_medicine_501_516_source.py'
+      - 'fixtures/tools/build_medicine_501_516_candidate.py'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.decisions.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.semantic-review.json'
       - '.github/workflows/probe-medicine-501-516.yml'
 
 permissions:
   contents: write
 
 jobs:
-  probe:
+  probe-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +36,23 @@ jobs:
         run: python fixtures/tools/probe_medicine_501_516_source.py
       - name: Build compact structural inventory
         run: python fixtures/tools/analyze_medicine_501_516_source.py
-      - name: Persist operator probes
+      - name: Build explicit semantic candidate
+        run: python fixtures/tools/build_medicine_501_516_candidate.py
+      - name: Validate explicit decision manifest expansion
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          import { digestNormalizedEvents, expandExplicitDecisionManifest } from './src/explicit-decisions.js';
+          const manifest = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-501-516.decisions.json', 'utf8'));
+          const source = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-501-516.source.json', 'utf8'));
+          const events = expandExplicitDecisionManifest(manifest, {
+            universityId: source.universityId,
+            academicPeriodId: source.academicPeriodId,
+            sourceId: source.source.sourceId
+          });
+          console.log(JSON.stringify({ eventCount: events.length, candidateDigest: digestNormalizedEvents(events) }, null, 2));
+          NODE
+      - name: Persist course-5 source and semantic artifacts
         if: github.event_name == 'push'
         run: |
           mkdir -p fixtures/_probes
@@ -39,14 +60,22 @@ jobs:
           cp medicine-501-516-source-inventory.json fixtures/_probes/medicine-501-516-source-inventory.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add fixtures/_probes/medicine-501-516-source-probe.json fixtures/_probes/medicine-501-516-source-inventory.json
-          git diff --cached --quiet || git commit -m 'Persist medicine 501-516 source inventory'
+          git add \
+            fixtures/_probes/medicine-501-516-source-probe.json \
+            fixtures/_probes/medicine-501-516-source-inventory.json \
+            fixtures/2026-2027-semester-1/medicine-501-516.source.json \
+            fixtures/2026-2027-semester-1/medicine-501-516.decisions.json \
+            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json
+          git diff --cached --quiet || git commit -m 'Persist medicine 501-516 semantic candidate'
           git push
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: medicine-501-516-source-probe
+          name: medicine-501-516-candidate
           path: |
             medicine-501-516-source-probe.json
             medicine-501-516-source-inventory.json
+            fixtures/2026-2027-semester-1/medicine-501-516.source.json
+            fixtures/2026-2027-semester-1/medicine-501-516.decisions.json
+            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json
           if-no-files-found: error
