@@ -1,0 +1,90 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "scope": "medicine-401-416-2026-2027-semester-1",
+  "reviewedAt": "2026-08-31",
+  "sourceClassification": {
+    "401-416": {
+      "profile": "cyclic",
+      "sourceSha256": "fb79b4c7b08b8f85bd2f238f2190404ea5eae01ab2be47339985272b565ead6b",
+      "sheetName": "4 курс осень 2026 Леч",
+      "parserRulesVersion": "kgmu-2026-08-30-v4"
+    }
+  },
+  "confirmedSourceSemantics": [
+    {
+      "id": "MED4-CYCLIC-GRID",
+      "status": "CONFIRMED_BY_SOURCE_AND_C01",
+      "sourceRefs": ["4 курс осень 2026 Леч!C13:CV28"],
+      "resolution": "Rows 13-28 are cyclic group rows for groups 401-416. Each horizontal merged discipline block expands to one event per covered calendar date under C01."
+    },
+    {
+      "id": "MED4-STAR-FIRST-DAY-SECOND-SHIFT",
+      "status": "CONFIRMED_BY_SOURCE_AND_C02",
+      "sourceRefs": ["4 курс осень 2026 Леч!C29:D29"],
+      "resolution": "An asterisk applies the second-shift time only to the first calendar day of the corresponding starred cycle; the remaining cycle dates use the first-shift time from the same-source lower reference table. Explicit source times override older source-specific C-rule examples."
+    },
+    {
+      "id": "MED4-STREAM-MAPPING",
+      "status": "CONFIRMED_BY_C05",
+      "sourceRefs": ["4 курс осень 2026 Леч!BV35:CC35", "4 курс осень 2026 Леч!BV45:CC45"],
+      "resolution": "For common stream events of medicine course 4, stream 1 is groups 401-410 and stream 2 is groups 411-420. In this source scope that means stream 2 applies to groups 411-416."
+    },
+    {
+      "id": "MED4-INDEPENDENT-NIR-PRACTICE",
+      "status": "CONFIRMED_BY_SOURCE_G13_C12",
+      "sourceRefs": ["4 курс осень 2026 Леч!C30:CL30"],
+      "resolution": "The course-wide NIR practice note is an independent explicit schedule: 05.09, 12.09, 19.09, 26.09, 03.10, 10.10, 17.10, 24.10, 31.10 and 07.11.2026 at 08:30-13:10; 14.11.2026 at 08:30-10:00."
+    },
+    {
+      "id": "MED4-NIR-CREDIT-DATE-TYPO",
+      "status": "CONFIRMED_BY_SOURCE_AND_G08",
+      "sourceRefs": ["4 курс осень 2026 Леч!CM30", "4 курс осень 2026 Леч!CW11:CW28"],
+      "resolution": "The raw text 'Зачет 16.01.2026 с 8.30' is normalized to 16.01.2027 because the shared NIR credit occupies the 16 January 2027 calendar column in the 2026/27 academic period."
+    },
+    {
+      "id": "MED4-NIR-CREDIT-END-TIME",
+      "status": "CONFIRMED_BY_OPERATOR_G21",
+      "sourceRefs": ["4 курс осень 2026 Леч!CM30", "4 курс осень 2026 Леч!CW13:CW28"],
+      "resolution": "The source states only the 08:30 start. Under G21 the operator explicitly confirmed 08:30-10:00 for the NIR credit on 16.01.2027 for groups 401-416. This is source-specific and must not be generalized to other XLSX files."
+    },
+    {
+      "id": "MED4-STOMATOLOGY-LOCATION-MAPPING",
+      "status": "CONFIRMED_BY_OPERATOR_G21",
+      "sourceRefs": ["4 курс осень 2026 Леч!AN39:BM39", "4 курс осень 2026 Леч!BN39:BU39"],
+      "resolution": "The XLSX lists two Stomatology sites without an internal group/date mapping. Under G21 the operator explicitly confirmed that for this source all Stomatology events for groups 401-416 use the Consultative and Diagnostic Department of the Kirov State Medical University clinic, ul. Nikitskaya 161. The Vladimirskaya 112 site is not used for these events. This decision is source-specific and must not be generalized."
+    },
+    {
+      "id": "MED4-EXAM-PERIOD",
+      "status": "CONFIRMED_BY_SOURCE_C07_C14",
+      "sourceRefs": ["4 курс осень 2026 Леч!CX13:DC28"],
+      "resolution": "The common 'экзамены' block is an exam-period marker without a concrete discipline and exact time and therefore does not generate daily events."
+    },
+    {
+      "id": "MED4-VACATION-PERIOD",
+      "status": "CONFIRMED_SERVICE_BLOCK",
+      "sourceRefs": ["4 курс осень 2026 Леч!DD13:DI28"],
+      "resolution": "The common 'каникулы' block is a non-teaching service period and does not generate lesson events."
+    },
+    {
+      "id": "MED4-PHYS-ED-INDEPENDENT-STREAMS",
+      "status": "CONFIRMED_BY_SOURCE_C05_C12",
+      "sourceRefs": ["4 курс осень 2026 Леч!C45:R45", "4 курс осень 2026 Леч!AN45:CC45"],
+      "resolution": "Physical-culture events are independent lower-table events: stream 1 (401-410) Tuesdays 01.09-15.12.2026 at 13:30-15:00; stream 2 (411-416 in this fixture) Wednesdays 02.09-23.12.2026 at 13:30-15:00; location is Kirov GMU building 3 FOK, ul. Vladimirskaya 112."
+    },
+    {
+      "id": "MED4-FACULTY-THERAPY-LECTURES",
+      "status": "CONFIRMED_BY_SOURCE_C05_C12",
+      "sourceRefs": ["4 курс осень 2026 Леч!C35:R35", "4 курс осень 2026 Леч!AN35:CC35"],
+      "resolution": "The lower-table faculty-therapy lecture row is an independent schedule: stream 1 (401-410) Thursdays at 14:20-15:50 and stream 2 (411-416 in this fixture) Tuesdays at 14:10-15:40, room 3-819, building 3, ul. Vladimirskaya 112, on applicable dates present in the source calendar grid."
+    },
+    {
+      "id": "MED4-GROUP404-NEUROLOGY-SPECIAL-TIME",
+      "status": "CONFIRMED_BY_SOURCE_C02",
+      "sourceRefs": ["4 курс осень 2026 Леч!O16:Y16", "4 курс осень 2026 Леч!BV41:CC41"],
+      "resolution": "Group 404 has a starred Neurology cycle. Its first cycle day uses the explicit group-404 special time 10:30-13:35; subsequent dates use the base Neurology time 09:00-12:05."
+    }
+  ],
+  "unresolvedSemanticAmbiguities": [],
+  "publicationGate": "NORMALIZATION_ALLOWED",
+  "normalizationPolicy": "Semantic review is cleared after rerunning course-4 QA with the operator-confirmed Stomatology mapping to Nikitskaya 161 for all groups 401-416. Candidate digest sha256:a38c8269bfd22ea511e9a91fa433dc0c5ae073defcd9722d08c9f6afb2511f1f passed isolated QA with 2310 events, zero duplicate signatures and two source-backed overlaps preserved under G16. Both operator decisions (CM30 end time and Stomatology mapping) are source-specific only. This gate authorizes normalization/QA only; no ScheduleVersion publication or production mutation is included."
+}
