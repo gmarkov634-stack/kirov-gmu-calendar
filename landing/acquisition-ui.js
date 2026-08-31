@@ -12,13 +12,15 @@
   const CHECKOUT_CONTEXT_KEY = "kgmu-calendar:pending-checkout-v2";
   const PAID_HANDOFF_KEY = "kgmu-calendar:paid-handoff-v1";
   const nativeFetch = globalThis.fetch.bind(globalThis);
+  const DEFAULT_REMINDERS = Object.freeze([10, 60]);
+  const REMINDER_OPTIONS = Object.freeze([10, 30, 60, 1440]);
 
   const state = {
     groupId: null,
     preferences: {
       electiveChoices: {},
       facultativeChoices: {},
-      remindersMinutesBefore: []
+      remindersMinutesBefore: [...DEFAULT_REMINDERS]
     },
     lastCalendarUrl: null
   };
@@ -80,7 +82,7 @@
     state.preferences = {
       electiveChoices: {},
       facultativeChoices: {},
-      remindersMinutesBefore: []
+      remindersMinutesBefore: [...DEFAULT_REMINDERS]
     };
   }
 
@@ -120,9 +122,10 @@
   }
 
   function reminderLabel(minutes) {
-    if (minutes === 15) return "за 15 мин";
+    if (minutes === 10) return "за 10 мин";
     if (minutes === 30) return "за 30 мин";
     if (minutes === 60) return "за 1 час";
+    if (minutes === 1440) return "за 1 день";
     return `за ${minutes} мин`;
   }
 
@@ -224,10 +227,10 @@
 
     const reminderField = document.createElement("div");
     reminderField.className = "acquisition-pref-field";
-    reminderField.append(createFieldHeading("Напоминания", "Можно выбрать несколько"));
+    reminderField.append(createFieldHeading("Напоминания", "По умолчанию: за 1 час и за 10 минут. Можно изменить или выключить."));
     const reminderChoices = document.createElement("div");
     reminderChoices.className = "acquisition-reminder-list";
-    for (const minutes of [15, 30, 60]) {
+    for (const minutes of REMINDER_OPTIONS) {
       const label = document.createElement("label");
       label.className = "acquisition-reminder-choice";
       const input = document.createElement("input");
@@ -241,7 +244,11 @@
         updatePreferenceSummary(summary, groupId);
       });
       const text = document.createElement("span");
-      text.textContent = minutes === 60 ? "За 1 час" : `За ${minutes} минут`;
+      text.textContent = minutes === 60
+        ? "За 1 час"
+        : minutes === 1440
+          ? "За 1 день"
+          : `За ${minutes} минут`;
       label.append(input, text);
       reminderChoices.append(label);
     }
