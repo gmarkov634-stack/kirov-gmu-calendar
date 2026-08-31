@@ -48,6 +48,12 @@
       "resolution": "The source states only the 08:30 start. Under G21 the operator explicitly confirmed 08:30-10:00 for the NIR credit on 16.01.2027 for groups 401-416. This is source-specific and must not be generalized to other XLSX files."
     },
     {
+      "id": "MED4-STOMATOLOGY-LOCATION-PRESERVATION",
+      "status": "CONFIRMED_BY_OPERATOR_G21",
+      "sourceRefs": ["4 курс осень 2026 Леч!AN39:BM39", "4 курс осень 2026 Леч!BN39:BU39"],
+      "resolution": "The XLSX lists two Stomatology sites without a group/date mapping. The operator explicitly selected source-preserving representation: every Stomatology event carries both source-listed sites and addresses in one location string, without inventing a distribution. This is source-specific and must not be generalized."
+    },
+    {
       "id": "MED4-EXAM-PERIOD",
       "status": "CONFIRMED_BY_SOURCE_C07_C14",
       "sourceRefs": ["4 курс осень 2026 Леч!CX13:DC28"],
@@ -78,22 +84,7 @@
       "resolution": "Group 404 has a starred Neurology cycle. Its first cycle day uses the explicit group-404 special time 10:30-13:35; subsequent dates use the base Neurology time 09:00-12:05."
     }
   ],
-  "unresolvedSemanticAmbiguities": [
-    {
-      "id": "MED4-STOMATOLOGY-LOCATION-MAPPING",
-      "status": "REVIEW_REQUIRED",
-      "sourceRefs": ["4 курс осень 2026 Леч!AN39:BM39", "4 курс осень 2026 Леч!BN39:BU39"],
-      "groups": ["401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416"],
-      "discipline": "Стоматология",
-      "rawText": {
-        "AN39": "Учебный корпус № 3, каб. № 726\nКонсультативно-диагностическое отделение клиники Кировского ГМУ",
-        "BN39": "ул. Владимирская, 112\nул. Никитская, 161"
-      },
-      "operatorSelection": "EXPLICIT_GROUP_OR_DATE_MAPPING_REQUIRED",
-      "problem": "The operator selected interpretation 2: distribute the two source-listed sites by explicit group/date mapping. The XLSX and the official timetable page do not provide that mapping, so it cannot be inferred without inventing data.",
-      "requiredInput": "Provide which Stomatology groups and/or cycle dates use Учебный корпус № 3, каб. № 726, ул. Владимирская, 112 and which use Консультативно-диагностическое отделение клиники Кировского ГМУ, ул. Никитская, 161."
-    }
-  ],
-  "publicationGate": "REVIEW_REQUIRED",
-  "normalizationPolicy": "The operator selected explicit Stomatology site distribution, but the required group/date-to-site mapping is not present in the source. Do not create the final decisions manifest or QA-ready candidate until MED4-STOMATOLOGY-LOCATION-MAPPING is resolved. The CM30 decision is source-specific and recorded above. No ScheduleVersion publication is permitted."
+  "unresolvedSemanticAmbiguities": [],
+  "publicationGate": "NORMALIZATION_IN_PROGRESS",
+  "normalizationPolicy": "All source ambiguities discovered before normalization are resolved. Build the explicit decisions manifest, candidate and QA evidence next. The two operator decisions (CM30 end time and Stomatology dual-site representation) are source-specific only. No ScheduleVersion publication is permitted until QA passes."
 }
