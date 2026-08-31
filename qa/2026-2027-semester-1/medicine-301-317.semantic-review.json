@@ -1,0 +1,35 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "scope": "medicine-301-317-2026-2027-semester-1",
+  "reviewedAt": "2026-08-31",
+  "sourceClassification": {
+    "301-310": {
+      "profile": "weekly",
+      "sourceSha256": "e9bfa806ed25d48545abdd26dc5d9cf9111cc093edb8a42d94e6eb4c67f4df58",
+      "sheetName": "3 леч.1"
+    },
+    "311-317": {
+      "profile": "weekly",
+      "sourceSha256": "cd6aa3253e6fa7dcd2a1f58cd9480cb6f3be114dbd09a3220c7a38196ad81ffe",
+      "sheetName": "3 леч.2"
+    }
+  },
+  "existingContractSupport": {
+    "electiveChoices": true,
+    "normalizedEventSelection": true,
+    "note": "Course-3 choice disciplines can use the existing core selectionGroupId/selectionOptionId contract; no core architecture extension is required."
+  },
+  "unresolvedSemanticAmbiguities": [
+    {
+      "id": "M301-MOLECULAR-WEDNESDAY-G310",
+      "status": "REVIEW_REQUIRED",
+      "sourceRefs": ["3 леч.1!B15:K15", "3 леч.1!B18:J18", "3 леч.1!K18"],
+      "groups": ["310"],
+      "discipline": "Молекулярные механизмы в патологии человека",
+      "evidence": "B15:K15 is merged across groups 301-310 and explicitly says '(1 занятие в ср.)'. B18:J18 is merged only across groups 301-309 and supplies the explicit Wednesday 30.12 lesson at 08:00-10:25. K18 is empty, so the official workbook does not unambiguously state whether group 310 receives the same 30.12 occurrence.",
+      "question": "For group 310, should 30.12.2026 08:00-10:25 be included as the one Wednesday Molecular mechanisms lesson, or should group 310 have no Wednesday occurrence?"
+    }
+  ],
+  "publicationGate": "REVIEW_REQUIRED",
+  "normalizationPolicy": "Do not normalize or publish the disputed group-310 fragment until the user resolves the ambiguity under G21. Other source facts may be prepared, but aggregate semantic QA cannot PASS until this item is resolved."
+}
