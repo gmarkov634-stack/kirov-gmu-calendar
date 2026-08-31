@@ -1,0 +1,52 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "scope": "medicine-501-516-2026-2027-semester-1",
+  "reviewedAt": "2026-08-31",
+  "sourceClassification": {
+    "501-516": {
+      "profile": "cyclic",
+      "sourceSha256": "43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62",
+      "sheetName": "2026+-2027 осень 5 курс  Леч"
+    }
+  },
+  "confirmedSourceSemantics": [
+    {
+      "id": "MED5-CYCLIC-GRID",
+      "status": "CONFIRMED_BY_SOURCE_AND_C_RULES",
+      "sourceRefs": ["2026+-2027 осень 5 курс  Леч!C13:DT28"],
+      "resolution": "Rows 13-28 are cyclic group rows for groups 501-516; horizontal merged discipline blocks expand to each covered calendar date under C01."
+    },
+    {
+      "id": "MED5-STAR-FIRST-DAY-SECOND-SHIFT",
+      "status": "CONFIRMED_BY_SOURCE_AND_C02",
+      "sourceRefs": ["2026+-2027 осень 5 курс  Леч!C29:X29"],
+      "resolution": "An asterisk applies second-shift time only to the first day of the corresponding starred cycle; remaining cycle dates use first-shift time from the lower reference table."
+    },
+    {
+      "id": "MED5-EXAM-PERIOD",
+      "status": "CONFIRMED_BY_SOURCE_AND_C14",
+      "sourceRefs": ["2026+-2027 осень 5 курс  Леч!N25:Q25", "2026+-2027 осень 5 курс  Леч!CV13:CY14", "2026+-2027 осень 5 курс  Леч!DQ15:DT16", "2026+-2027 осень 5 курс  Леч!BV17:BY18", "2026+-2027 осень 5 курс  Леч!CQ19:CT20", "2026+-2027 осень 5 курс  Леч!AN21:AQ22", "2026+-2027 осень 5 курс  Леч!BI23:BL24", "2026+-2027 осень 5 курс  Леч!AI27:AL28"],
+      "resolution": "Blocks labelled 'экзамен' without a concrete discipline and exact time are exam-period markers and do not generate daily events."
+    }
+  ],
+  "unresolvedSemanticAmbiguities": [
+    {
+      "id": "MED5-PHYS-ED-STREAM-MAPPING",
+      "status": "REVIEW_REQUIRED",
+      "sourceRefs": ["2026+-2027 осень 5 курс  Леч!BT45", "2026+-2027 осень 5 курс  Леч!BX45"],
+      "groups": ["501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516"],
+      "discipline": "Дисциплины по физической культуре и спорту",
+      "rawText": {
+        "BT45": "1 поток\nпонедельник\n07.09-21.12\n13.30-15.00",
+        "BX45": "2 поток\nпонедельник\n07.09-21.12\n15.10-16.40"
+      },
+      "problem": "C12 makes the lower-table row an independent event source, but this XLSX does not explicitly map 1 поток / 2 поток to groups 501-516. C05 defines stream membership only for medicine course 4 and cannot be transferred by analogy. G10/G21 therefore prohibit guessing the course-5 stream membership.",
+      "candidateInterpretations": [
+        "1 поток = groups 501-508; 2 поток = groups 509-516",
+        "A different explicit group-to-stream mapping supplied by the operator/user"
+      ]
+    }
+  ],
+  "publicationGate": "REVIEW_REQUIRED",
+  "normalizationPolicy": "Do not normalize the unresolved physical-education stream events until MED5-PHYS-ED-STREAM-MAPPING is confirmed. No ScheduleVersion publication is permitted."
+}
