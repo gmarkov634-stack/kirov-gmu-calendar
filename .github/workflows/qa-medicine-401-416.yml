@@ -1,0 +1,48 @@
+name: QA medicine 401-416 normalization
+
+on:
+  push:
+    branches:
+      - feat/medicine-4-course-2026-27-sem1-normalization
+    paths:
+      - 'fixtures/2026-2027-semester-1/medicine-401-416.decisions.json'
+      - 'fixtures/2026-2027-semester-1/medicine-401-416.source.json'
+      - 'fixtures/tools/compute_medicine_401_416_candidate.mjs'
+      - 'qa/2026-2027-semester-1/medicine-401-416.semantic-review.json'
+      - 'qa/2026-2027-semester-1/medicine-401-416.evidence.json'
+      - 'qa/2026-2027-semester-1/medicine-401-416.qa-report.json'
+      - 'test/medicine-401-416-normalization.test.js'
+      - '.github/workflows/qa-medicine-401-416.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/medicine-401-416.decisions.json'
+      - 'fixtures/2026-2027-semester-1/medicine-401-416.source.json'
+      - 'fixtures/tools/compute_medicine_401_416_candidate.mjs'
+      - 'qa/2026-2027-semester-1/medicine-401-416.semantic-review.json'
+      - 'qa/2026-2027-semester-1/medicine-401-416.evidence.json'
+      - 'qa/2026-2027-semester-1/medicine-401-416.qa-report.json'
+      - 'test/medicine-401-416-normalization.test.js'
+      - '.github/workflows/qa-medicine-401-416.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compute candidate metrics
+        run: node fixtures/tools/compute_medicine_401_416_candidate.mjs
+      - name: Run course-4 normalization tests
+        run: node --test test/medicine-401-416-normalization.test.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: medicine-401-416-candidate
+          path: medicine-401-416-candidate.json
+          if-no-files-found: error
