@@ -1,0 +1,36 @@
+name: Probe medicine 601-616 official source
+
+on:
+  push:
+    branches:
+      - feat/medicine-6-course-qa
+    paths:
+      - 'fixtures/tools/probe_medicine_601_616_source.py'
+      - '.github/workflows/probe-medicine-601-616.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/tools/probe_medicine_601_616_source.py'
+      - '.github/workflows/probe-medicine-601-616.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch official workbook and pin checksum
+        run: python fixtures/tools/probe_medicine_601_616_source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: medicine-601-616-source-probe
+          path: |
+            medicine-601-616-source-probe.json
+            medicine-601-616-official.xlsx
+          if-no-files-found: error
