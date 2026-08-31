@@ -1,4 +1,4 @@
-const MEDICINE_101_110_FACULTATIVES = Object.freeze([
+const MEDICINE_1_FACULTATIVES = Object.freeze([
   Object.freeze({
     facultativeId: "kgmu-2026-2027-s1-medicine-facultative-biology",
     label: "Актуальные вопросы биологии"
@@ -21,9 +21,11 @@ const MEDICINE_101_110_FACULTATIVES = Object.freeze([
   })
 ]);
 
-const MEDICINE_101_110_FACULTATIVE_CATALOG = Object.freeze(Object.fromEntries(
-  ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110"]
-    .map((groupId) => [groupId, MEDICINE_101_110_FACULTATIVES])
+const MEDICINE_1_FACULTATIVE_CATALOG = Object.freeze(Object.fromEntries(
+  [
+    "101", "102", "103", "104", "105", "106", "107", "108", "109", "110",
+    "111", "112", "113", "114", "115", "116", "117", "118", "119", "120"
+  ].map((groupId) => [groupId, MEDICINE_1_FACULTATIVES])
 ));
 
 window.KGMU_CALENDAR_CONFIG = Object.freeze({
@@ -38,7 +40,7 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   }),
   electiveCatalog: Object.freeze({}),
   facultativeCatalog: Object.freeze({
-    "2026-2027-semester-1": MEDICINE_101_110_FACULTATIVE_CATALOG
+    "2026-2027-semester-1": MEDICINE_1_FACULTATIVE_CATALOG
   }),
   trialEnabled: true,
   managementEnabled: true,
