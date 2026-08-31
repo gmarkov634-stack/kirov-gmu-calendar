@@ -5,6 +5,9 @@ This helper intentionally performs no semantic parsing. It discovers the current
 official XLSX link from the KGMU medicine timetable page, then records checksum,
 workbook geometry, merged ranges, non-empty cell values and hyperlink targets
 for operator/ChatGPT review under canonical G/R/C/S rules.
+
+Fresh source revalidation marker: 2026-08-31. This line intentionally changes no
+probe semantics; it triggers a complete official-source fetch/build/QA workflow.
 """
 import hashlib
 import html
