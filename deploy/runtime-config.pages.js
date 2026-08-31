@@ -49,6 +49,8 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
 });
 
 (() => {
+  if (typeof globalThis.fetch !== "function") return;
+
   const STORAGE_KEY = "kgmu-calendar:trial-browser-id-v1";
   const BROWSER_ID = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
   const nativeFetch = globalThis.fetch.bind(globalThis);
