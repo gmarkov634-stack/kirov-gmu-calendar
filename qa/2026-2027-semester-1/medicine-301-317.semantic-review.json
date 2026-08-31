@@ -17,19 +17,21 @@
   "existingContractSupport": {
     "electiveChoices": true,
     "normalizedEventSelection": true,
-    "note": "Course-3 choice disciplines can use the existing core selectionGroupId/selectionOptionId contract; no core architecture extension is required."
+    "note": "Course-3 choice disciplines use the existing core selectionGroupId/selectionOptionId contract; no core architecture extension is required."
   },
-  "unresolvedSemanticAmbiguities": [
+  "resolvedSemanticDecisions": [
     {
       "id": "M301-MOLECULAR-WEDNESDAY-G310",
-      "status": "REVIEW_REQUIRED",
+      "status": "CONFIRMED_BY_USER",
+      "confirmedAt": "2026-08-31",
       "sourceRefs": ["3 леч.1!B15:K15", "3 леч.1!B18:J18", "3 леч.1!K18"],
       "groups": ["310"],
       "discipline": "Молекулярные механизмы в патологии человека",
-      "evidence": "B15:K15 is merged across groups 301-310 and explicitly says '(1 занятие в ср.)'. B18:J18 is merged only across groups 301-309 and supplies the explicit Wednesday 30.12 lesson at 08:00-10:25. K18 is empty, so the official workbook does not unambiguously state whether group 310 receives the same 30.12 occurrence.",
-      "question": "For group 310, should 30.12.2026 08:00-10:25 be included as the one Wednesday Molecular mechanisms lesson, or should group 310 have no Wednesday occurrence?"
+      "resolution": "Include 30.12.2026 08:00-10:25 for group 310 as its one Wednesday occurrence.",
+      "implementationPolicy": "Create the group-310 occurrence as an explicit operator-confirmed event using the same discipline, lesson type, selection metadata and location semantics as the confirmed Molecular mechanisms block. Do not expand the B18:J18 merge geometry itself to K18."
     }
   ],
-  "publicationGate": "REVIEW_REQUIRED",
-  "normalizationPolicy": "Do not normalize or publish the disputed group-310 fragment until the user resolves the ambiguity under G21. Other source facts may be prepared, but aggregate semantic QA cannot PASS until this item is resolved."
+  "unresolvedSemanticAmbiguities": [],
+  "publicationGate": "SEMANTIC_REVIEW_COMPLETE",
+  "normalizationPolicy": "The previously disputed group-310 fragment is resolved by explicit user confirmation. Full normalized fixtures and QA must still pass before publication."
 }
