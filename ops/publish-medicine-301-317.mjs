@@ -1,0 +1,228 @@
+#!/usr/bin/env node
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+import { buildExplicitPublicationPlan } from '../src/explicit-publication-plan.js';
+import { canonicalJson, sha256Hex } from '../src/explicit-decisions.js';
+import { toCorePublicationQa } from '../src/medicine-publication-plan.js';
+
+const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const APPLY = process.argv.includes('--apply');
+const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => !['--apply', '--preflight'].includes(arg));
+if (UNKNOWN_ARGS.length > 0) throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
+
+const STREAMS = ['301-310', '311-317'];
+
+async function readJson(relativePath) {
+  return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
+}
+
+function gitBlobSha(content) {
+  const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content);
+  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+}
+
+function eventSetDigest(events) {
+  const sorted = [...events].sort((a, b) => a.eventId.localeCompare(b.eventId));
+  return sha256Hex(canonicalJson(sorted));
+}
+
+function unfoldIcs(ics) {
+  return ics.replace(/\r\n[ \t]/g, '');
+}
+
+function countVevents(ics) {
+  return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
+}
+
+function eventsForGroup(plan, groupId) {
+  return plan.events.filter((event) => event.groupId === groupId);
+}
+
+async function loadStream(stream) {
+  const [manifest, source, evidence, qa] = await Promise.all([
+    readJson(`fixtures/2026-2027-semester-1/medicine-${stream}.decisions.json`),
+    readJson(`fixtures/2026-2027-semester-1/medicine-${stream}.source.json`),
+    readJson(`qa/2026-2027-semester-1/medicine-${stream}.evidence.json`),
+    readJson(`qa/2026-2027-semester-1/medicine-${stream}.qa-report.json`)
+  ]);
+  return { stream, plan: buildExplicitPublicationPlan({ manifest, source, evidence, qa }), qa };
+}
+
+async function verifyCoreBoundary(coreRoot, coreEvidence) {
+  const [schema, renderer] = await Promise.all([
+    readFile(resolve(coreRoot, 'contracts/normalized-event.schema.json')),
+    readFile(resolve(coreRoot, 'src/calendar/ics-renderer.js'))
+  ]);
+  const schemaBlob = gitBlobSha(schema);
+  const rendererBlob = gitBlobSha(renderer);
+  if (schemaBlob !== coreEvidence.normalizedEventSchemaBlob) {
+    throw new Error(`deployed core NormalizedEvent schema blob mismatch: ${schemaBlob}`);
+  }
+  if (rendererBlob !== coreEvidence.icsRendererBlob) {
+    throw new Error(`deployed core ICS renderer blob mismatch: ${rendererBlob}`);
+  }
+  return { schemaBlob, rendererBlob };
+}
+
+const loaded = await Promise.all(STREAMS.map(loadStream));
+const plans = loaded.map(({ plan }) => plan);
+const totalEvents = plans.reduce((sum, plan) => sum + plan.events.length, 0);
+const versions = plans.flatMap((plan) => plan.versions);
+
+console.log(JSON.stringify({
+  mode: APPLY ? 'apply' : 'preflight',
+  universityId: 'kirov-gmu',
+  academicYearId: '2026-2027',
+  academicPeriodId: '2026-2027-semester-1',
+  streams: loaded.map(({ stream, plan }) => ({
+    stream,
+    sourceSha256: plan.sourceSha256,
+    candidateDigest: plan.candidateDigest,
+    eventCount: plan.events.length,
+    versions: plan.versions
+  })),
+  groupCount: versions.length,
+  eventCount: totalEvents
+}, null, 2));
+
+if (!APPLY) {
+  console.log('PREFLIGHT_OK_NO_DATABASE_CHANGES');
+  process.exit(0);
+}
+
+const coreRoot = resolve(process.env.MEDICAL_CALENDAR_CORE_ROOT || '/opt/medical-calendar-core');
+const databasePath = process.env.MEDICAL_CALENDAR_DB_PATH;
+if (typeof databasePath !== 'string' || databasePath.length === 0) {
+  throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
+}
+
+const evidenceFingerprints = loaded.map(({ plan }) => canonicalJson(plan.coreEvidence));
+if (new Set(evidenceFingerprints).size !== 1) throw new Error('course-3 streams disagree on shared core evidence');
+const boundary = await verifyCoreBoundary(coreRoot, plans[0].coreEvidence);
+const core = await import(pathToFileURL(resolve(coreRoot, 'src/index.js')).href);
+for (const name of [
+  'openSqliteRuntimeDatabase',
+  'createSqliteScheduleRepository',
+  'createReadyScheduleVersion',
+  'renderPublishedScheduleIcs'
+]) {
+  if (typeof core[name] !== 'function') throw new Error(`deployed core is missing ${name}`);
+}
+
+const database = core.openSqliteRuntimeDatabase({ path: databasePath });
+try {
+  const integrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
+  if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
+  const repository = core.createSqliteScheduleRepository(database);
+
+  for (const { plan, qa } of loaded) {
+    const qaForPublication = toCorePublicationQa(qa);
+    for (const version of plan.versions) {
+      const expectedEvents = eventsForGroup(plan, version.groupId);
+      const expectedDigest = eventSetDigest(expectedEvents);
+      const current = await repository.getPublishedSchedule({
+        universityId: plan.universityId,
+        groupId: version.groupId,
+        academicYearId: plan.academicYearId,
+        academicPeriodId: plan.academicPeriodId
+      });
+
+      if (current) {
+        if (current.scheduleVersion.versionId !== version.versionId) {
+          throw new Error(`group ${version.groupId} already has another published version ${current.scheduleVersion.versionId}`);
+        }
+        if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) {
+          throw new Error(`group ${version.groupId} published target does not match approved candidate`);
+        }
+        console.log(`group ${version.groupId}: already published and verified; skipping`);
+        continue;
+      }
+
+      const targetRow = database.prepare('SELECT version_id, status FROM schedule_versions WHERE version_id = ?').get(version.versionId);
+      if (targetRow && targetRow.status !== 'ready') {
+        throw new Error(`group ${version.groupId} target version has unexpected status ${targetRow.status}`);
+      }
+
+      if (targetRow) {
+        const rows = database.prepare('SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id').all(version.versionId);
+        const storedEvents = rows.map((row) => JSON.parse(row.event_json));
+        if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) {
+          throw new Error(`group ${version.groupId} ready target does not match approved candidate`);
+        }
+        console.log(`group ${version.groupId}: resuming verified ready version`);
+      } else {
+        const snapshot = core.createReadyScheduleVersion({
+          parsingResult: plan.parsingResult,
+          qaReport: qaForPublication,
+          candidateDigest: plan.candidateDigest,
+          groupId: version.groupId,
+          versionId: version.versionId
+        });
+        await repository.saveReadySnapshot({
+          academicYearId: plan.academicYearId,
+          scheduleVersion: snapshot.scheduleVersion,
+          events: snapshot.events
+        });
+        console.log(`group ${version.groupId}: saved ready version ${version.versionId}`);
+      }
+
+      await repository.publishVersion({ versionId: version.versionId });
+      console.log(`group ${version.groupId}: published ${version.versionId}`);
+    }
+  }
+
+  for (const plan of plans) {
+    for (const version of plan.versions) {
+      const expectedEvents = eventsForGroup(plan, version.groupId);
+      const expectedDigest = eventSetDigest(expectedEvents);
+      const published = await repository.getPublishedSchedule({
+        universityId: plan.universityId,
+        groupId: version.groupId,
+        academicYearId: plan.academicYearId,
+        academicPeriodId: plan.academicPeriodId
+      });
+      if (!published || published.scheduleVersion.versionId !== version.versionId) {
+        throw new Error(`group ${version.groupId} final published version verification failed`);
+      }
+      if (published.events.length !== version.eventCount || eventSetDigest(published.events) !== expectedDigest) {
+        throw new Error(`group ${version.groupId} final event-set verification failed`);
+      }
+      const publishedCount = Number(database.prepare(`
+        SELECT COUNT(*) AS count FROM schedule_versions
+        WHERE university_id = ? AND group_id = ? AND academic_year_id = ? AND academic_period_id = ? AND status = 'published'
+      `).get(plan.universityId, version.groupId, plan.academicYearId, plan.academicPeriodId)?.count ?? 0);
+      if (publishedCount !== 1) throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
+
+      const ics = unfoldIcs(core.renderPublishedScheduleIcs({
+        scheduleVersion: published.scheduleVersion,
+        events: published.events,
+        calendarName: `КГМУ ${version.groupId}`
+      }));
+      if (countVevents(ics) !== version.eventCount) {
+        throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+      }
+      if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
+        throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+      }
+      if (published.events.some((event) => event.lessonType === 'lecture') && !ics.includes('ЛЕКЦ.')) {
+        throw new Error(`group ${version.groupId} lecture display prefix is missing from rendered ICS`);
+      }
+    }
+  }
+
+  const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
+  if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+  console.log(JSON.stringify({
+    result: 'PRODUCTION_SCHEDULES_PUBLISHED_AND_VERIFIED',
+    coreBoundary: boundary,
+    groupCount: versions.length,
+    eventCount: totalEvents,
+    trialChanged: false,
+    checkoutChanged: false
+  }, null, 2));
+} finally {
+  database.close();
+}
