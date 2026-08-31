@@ -2,6 +2,8 @@ name: Deploy KGMU GitHub Pages
 
 on:
   workflow_dispatch:
+  issues:
+    types: [opened]
 
 permissions:
   contents: read
@@ -14,6 +16,17 @@ concurrency:
 
 jobs:
   build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issues' &&
+        github.repository == 'gmarkov634-stack/kirov-gmu-calendar' &&
+        github.actor == 'gmarkov634-stack' &&
+        github.event.issue.user.login == 'gmarkov634-stack' &&
+        github.event.issue.author_association == 'OWNER' &&
+        github.event.issue.title == '[pages-op] deploy' &&
+        (github.event.issue.body == null || github.event.issue.body == '')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
