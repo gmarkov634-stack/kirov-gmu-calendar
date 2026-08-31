@@ -6,27 +6,40 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import vm from "node:vm";
 
+import { buildElectiveCatalog } from "../tools/generate-elective-catalog.mjs";
+
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("medicine 3 elective catalog is published for exactly groups 301-317", () => {
+test("elective catalog is derived from every published decision manifest and scoped by group", async () => {
+  const catalog = await buildElectiveCatalog();
+  const period = catalog["2026-2027-semester-1"];
+  assert.ok(period && typeof period === "object");
+
+  for (const groupId of ["301", "310", "311", "317"]) {
+    assert.ok(Array.isArray(period[groupId]), groupId);
+    assert.ok(period[groupId].length > 0, groupId);
+    for (const definition of period[groupId]) {
+      assert.ok(definition.selectionId);
+      assert.ok(Array.isArray(definition.alternatives));
+      assert.ok(definition.alternatives.length > 0);
+    }
+  }
+
+  assert.equal(period["101"], undefined);
+  assert.equal(period["201"], undefined);
+  assert.equal(period["318"], undefined);
+
+  const group301 = period["301"].find((entry) => entry.selectionId === "medicine-3-choice-discipline-2026-s1");
+  assert.ok(group301);
+  assert.ok(group301.alternatives.some((entry) => entry.value === "dietology"));
+  assert.ok(group301.alternatives.some((entry) => entry.value === "molecular-pathology"));
+});
+
+test("runtime configs consume generated elective catalog instead of hard-coded course lists", () => {
   for (const path of ["deploy/runtime-config.production.js", "deploy/runtime-config.pages.js"]) {
     const config = read(path);
-    assert.match(config, /selectionId:\s*"medicine-3-choice-discipline-2026-s1"/);
-    for (const groupId of ["301", "310", "311", "317"]) {
-      assert.match(config, new RegExp(`"${groupId}"`), `${path}: ${groupId}`);
-    }
-    assert.doesNotMatch(config, /"318"/);
-    for (const option of [
-      "biochemical-healthy-lifestyle",
-      "dietology",
-      "latin-pharmaceutical-terminology",
-      "intercultural-professional-communication",
-      "molecular-pathology",
-      "functional-diagnostics",
-      "statistical-evidence-medicine"
-    ]) {
-      assert.match(config, new RegExp(`value: "${option}"`), `${path}: ${option}`);
-    }
+    assert.match(config, /electiveCatalog:\s*globalThis\.KGMU_ELECTIVE_CATALOG/);
+    assert.doesNotMatch(config, /MEDICINE_3_ELECTIVE_CATALOG/);
   }
 });
 
@@ -67,9 +80,7 @@ test("trial personalization injects selected preferences into POST /trial", asyn
       addEventListener() {},
       head: { append() {} }
     },
-    MutationObserver: class {
-      observe() {}
-    },
+    MutationObserver: class { observe() {} },
     KGMU_CALENDAR_CONFIG: {
       academicPeriodId: "2026-2027-semester-1",
       electiveCatalog: {},
@@ -99,23 +110,22 @@ test("trial personalization injects selected preferences into POST /trial", asyn
 
   const payload = JSON.parse(captured.init.body);
   assert.deepEqual(payload.preferences, {
-    electiveChoices: {
-      "medicine-3-choice-discipline-2026-s1": "dietology"
-    },
+    electiveChoices: { "medicine-3-choice-discipline-2026-s1": "dietology" },
     facultativeChoices: { "fac-a": true },
     remindersMinutesBefore: [30, 1440]
   });
 });
 
-test("trial UI requires an elective choice before submission", () => {
+test("trial UI requires every published elective selection before submission", () => {
   const source = read("landing/trial-personalization.js");
   assert.match(source, /select\.required = true/);
+  assert.match(source, /groupCatalog\(config\.electiveCatalog, groupId\)/);
   assert.match(source, /Выберите дисциплину/);
   assert.match(source, /stopImmediatePropagation\(\)/);
   assert.match(source, /Сначала выберите свою дисциплину по выбору/);
 });
 
-test("built landing loads personalization before app and fixes management empty-state copy", () => {
+test("built landing generates catalog and loads it before runtime config", () => {
   const tempRoot = mkdtempSync(join(tmpdir(), "kgmu-personalization-"));
   const output = join(tempRoot, "site");
   try {
@@ -125,13 +135,24 @@ test("built landing loads personalization before app and fixes management empty-
     });
     assert.equal(result.status, 0, result.stderr || result.stdout);
 
+    const generated = readFileSync(join(output, "elective-catalog.generated.js"), "utf8");
+    assert.match(generated, /medicine-3-choice-discipline-2026-s1/);
+    assert.match(generated, /"301"/);
+    assert.match(generated, /"317"/);
+    assert.doesNotMatch(generated, /"318"/);
+
     const index = readFileSync(join(output, "index.html"), "utf8");
+    const catalogAt = index.indexOf("./elective-catalog.generated.js");
+    const configAt = index.indexOf("./runtime-config.js");
     const personalizationAt = index.indexOf("./trial-personalization.js");
     const appAt = index.indexOf("./app.js");
-    assert.ok(personalizationAt >= 0);
+    assert.ok(catalogAt >= 0);
+    assert.ok(configAt > catalogAt);
+    assert.ok(personalizationAt > configAt);
     assert.ok(appAt > personalizationAt);
 
     const manageIndex = readFileSync(join(output, "manage", "index.html"), "utf8");
+    assert.match(manageIndex, /\.\.\/elective-catalog\.generated\.js/);
     assert.match(manageIndex, /\.\/elective-empty-state\.js/);
     const helper = readFileSync(join(output, "manage", "elective-empty-state.js"), "utf8");
     assert.match(helper, /Не выбрано — скрыть варианты/);
