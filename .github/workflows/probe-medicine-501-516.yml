@@ -1,4 +1,4 @@
-name: Probe and build medicine 501-516 candidate
+name: Probe, build and QA medicine 501-516 candidate
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - 'fixtures/tools/probe_medicine_501_516_source.py'
       - 'fixtures/tools/analyze_medicine_501_516_source.py'
       - 'fixtures/tools/build_medicine_501_516_candidate.py'
+      - 'fixtures/tools/qa_medicine_501_516_candidate.mjs'
       - '.github/workflows/probe-medicine-501-516.yml'
   pull_request:
     branches: [main]
@@ -15,16 +16,19 @@ on:
       - 'fixtures/tools/probe_medicine_501_516_source.py'
       - 'fixtures/tools/analyze_medicine_501_516_source.py'
       - 'fixtures/tools/build_medicine_501_516_candidate.py'
+      - 'fixtures/tools/qa_medicine_501_516_candidate.mjs'
       - 'fixtures/2026-2027-semester-1/medicine-501-516.source.json'
       - 'fixtures/2026-2027-semester-1/medicine-501-516.decisions.json'
       - 'qa/2026-2027-semester-1/medicine-501-516.semantic-review.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.evidence.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.qa-report.json'
       - '.github/workflows/probe-medicine-501-516.yml'
 
 permissions:
   contents: write
 
 jobs:
-  probe-and-build:
+  probe-build-qa:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,21 +42,9 @@ jobs:
         run: python fixtures/tools/analyze_medicine_501_516_source.py
       - name: Build explicit semantic candidate
         run: python fixtures/tools/build_medicine_501_516_candidate.py
-      - name: Validate explicit decision manifest expansion
-        run: |
-          node --input-type=module <<'NODE'
-          import { readFile } from 'node:fs/promises';
-          import { digestNormalizedEvents, expandExplicitDecisionManifest } from './src/explicit-decisions.js';
-          const manifest = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-501-516.decisions.json', 'utf8'));
-          const source = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-501-516.source.json', 'utf8'));
-          const events = expandExplicitDecisionManifest(manifest, {
-            universityId: source.universityId,
-            academicPeriodId: source.academicPeriodId,
-            sourceId: source.source.sourceId
-          });
-          console.log(JSON.stringify({ eventCount: events.length, candidateDigest: digestNormalizedEvents(events) }, null, 2));
-          NODE
-      - name: Persist course-5 source and semantic artifacts
+      - name: Run semantic QA gates
+        run: node fixtures/tools/qa_medicine_501_516_candidate.mjs
+      - name: Persist course-5 source, semantic and QA artifacts
         if: github.event_name == 'push'
         run: |
           mkdir -p fixtures/_probes
@@ -65,17 +57,21 @@ jobs:
             fixtures/_probes/medicine-501-516-source-inventory.json \
             fixtures/2026-2027-semester-1/medicine-501-516.source.json \
             fixtures/2026-2027-semester-1/medicine-501-516.decisions.json \
-            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json
-          git diff --cached --quiet || git commit -m 'Persist medicine 501-516 semantic candidate'
+            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json \
+            qa/2026-2027-semester-1/medicine-501-516.evidence.json \
+            qa/2026-2027-semester-1/medicine-501-516.qa-report.json
+          git diff --cached --quiet || git commit -m 'Persist medicine 501-516 QA candidate'
           git push
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: medicine-501-516-candidate
+          name: medicine-501-516-qa-candidate
           path: |
             medicine-501-516-source-probe.json
             medicine-501-516-source-inventory.json
             fixtures/2026-2027-semester-1/medicine-501-516.source.json
             fixtures/2026-2027-semester-1/medicine-501-516.decisions.json
             qa/2026-2027-semester-1/medicine-501-516.semantic-review.json
+            qa/2026-2027-semester-1/medicine-501-516.evidence.json
+            qa/2026-2027-semester-1/medicine-501-516.qa-report.json
           if-no-files-found: error
