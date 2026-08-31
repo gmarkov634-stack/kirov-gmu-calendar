@@ -85,6 +85,6 @@
     }
   ],
   "unresolvedSemanticAmbiguities": [],
-  "publicationGate": "NORMALIZATION_IN_PROGRESS",
-  "normalizationPolicy": "All source ambiguities discovered before normalization are resolved. Build the explicit decisions manifest, candidate and QA evidence next. The two operator decisions (CM30 end time and Stomatology dual-site representation) are source-specific only. No ScheduleVersion publication is permitted until QA passes."
+  "publicationGate": "NORMALIZATION_ALLOWED",
+  "normalizationPolicy": "Semantic review is cleared: all source ambiguities discovered before normalization are resolved, and the course-4 candidate/QA artifacts have been built. The two operator decisions (CM30 end time and Stomatology dual-site representation) are source-specific only. This gate authorizes normalization/QA only; no ScheduleVersion publication or production mutation is included."
 }
