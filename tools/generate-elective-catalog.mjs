@@ -55,7 +55,7 @@ function addOption(
   }
 
   const explicitOptionLabel = optionalLabel(selectionOptionLabel);
-  const candidate = explicitOptionLabel ?? canonicalLabel(disciplineLabel) || selectionOptionId;
+  const candidate = explicitOptionLabel ?? (canonicalLabel(disciplineLabel) || selectionOptionId);
   const current = definition.options.get(selectionOptionId);
   if (current && explicitOptionLabel && current !== explicitOptionLabel) {
     throw new Error(`conflicting selectionOptionLabel for ${selectionGroupId}/${selectionOptionId}: ${current} / ${explicitOptionLabel}`);
