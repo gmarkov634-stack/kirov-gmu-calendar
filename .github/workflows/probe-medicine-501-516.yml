@@ -1,0 +1,81 @@
+name: Probe, build and QA medicine 501-516 candidate
+
+on:
+  push:
+    branches:
+      - feat/medicine-5-course-2026-27-sem1-normalization
+    paths:
+      - 'fixtures/tools/probe_medicine_501_516_source.py'
+      - 'fixtures/tools/analyze_medicine_501_516_source.py'
+      - 'fixtures/tools/build_medicine_501_516_candidate.py'
+      - 'fixtures/tools/qa_medicine_501_516_candidate.mjs'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.decisions.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.semantic-review.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.evidence.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.qa-report.json'
+      - 'tools/generate-elective-catalog.mjs'
+      - 'test/medicine-501-516-elective-catalog.test.js'
+      - '.github/workflows/probe-medicine-501-516.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/tools/probe_medicine_501_516_source.py'
+      - 'fixtures/tools/analyze_medicine_501_516_source.py'
+      - 'fixtures/tools/build_medicine_501_516_candidate.py'
+      - 'fixtures/tools/qa_medicine_501_516_candidate.mjs'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.source.json'
+      - 'fixtures/2026-2027-semester-1/medicine-501-516.decisions.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.semantic-review.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.evidence.json'
+      - 'qa/2026-2027-semester-1/medicine-501-516.qa-report.json'
+      - 'tools/generate-elective-catalog.mjs'
+      - 'test/medicine-501-516-elective-catalog.test.js'
+      - '.github/workflows/probe-medicine-501-516.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe-build-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_medicine_501_516_source.py
+      - name: Build compact structural inventory
+        run: python fixtures/tools/analyze_medicine_501_516_source.py
+      - name: Build explicit semantic candidate
+        run: python fixtures/tools/build_medicine_501_516_candidate.py
+      - name: Run semantic QA gates
+        run: node fixtures/tools/qa_medicine_501_516_candidate.mjs
+      - name: Verify checked-in candidate is reproducible
+        run: |
+          git diff --exit-code -- \
+            fixtures/2026-2027-semester-1/medicine-501-516.source.json \
+            fixtures/2026-2027-semester-1/medicine-501-516.decisions.json \
+            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json \
+            qa/2026-2027-semester-1/medicine-501-516.evidence.json \
+            qa/2026-2027-semester-1/medicine-501-516.qa-report.json
+      - name: Verify PE personalization catalog
+        run: node --test test/medicine-501-516-elective-catalog.test.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: medicine-501-516-qa-candidate
+          path: |
+            medicine-501-516-source-probe.json
+            medicine-501-516-source-inventory.json
+            fixtures/2026-2027-semester-1/medicine-501-516.source.json
+            fixtures/2026-2027-semester-1/medicine-501-516.decisions.json
+            qa/2026-2027-semester-1/medicine-501-516.semantic-review.json
+            qa/2026-2027-semester-1/medicine-501-516.evidence.json
+            qa/2026-2027-semester-1/medicine-501-516.qa-report.json
+          if-no-files-found: error

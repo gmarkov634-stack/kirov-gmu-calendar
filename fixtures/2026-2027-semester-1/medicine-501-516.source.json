@@ -1,0 +1,54 @@
+{
+  "fixtureId": "medicine-501-516-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "medicine",
+  "course": 5,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "source": {
+    "sourceId": "medicine-course-5-2026-2027-s1",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/5_lech-24-08-2026-13.xlsx",
+    "sha256": "43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62",
+    "byteLength": 31755,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": [
+    "501",
+    "502",
+    "503",
+    "504",
+    "505",
+    "506",
+    "507",
+    "508",
+    "509",
+    "510",
+    "511",
+    "512",
+    "513",
+    "514",
+    "515",
+    "516"
+  ],
+  "workbookExpectations": {
+    "sheetNames": [
+      "2026+-2027 осень 5 курс  Леч"
+    ],
+    "maxRow": 52,
+    "maxColumn": 125,
+    "mergedRangeCount": 331,
+    "nonEmptyCellCount": 605
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-08-31"
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}
