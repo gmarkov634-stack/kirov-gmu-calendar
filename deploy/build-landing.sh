@@ -17,9 +17,9 @@ cp "$ROOT_DIR/catalog/2026-2027-semester-1.json" "$OUT_DIR/catalog/2026-2027-sem
 node "$ROOT_DIR/tools/generate-elective-catalog.mjs" "$OUT_DIR/elective-catalog.generated.js"
 sed -i '/<script src="\.\/runtime-config\.js"><\/script>/i\    <script src="./elective-catalog.generated.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script src="\.\.\/runtime-config\.js"><\/script>/i\  <script src="../elective-catalog.generated.js"></script>' "$OUT_DIR/manage/index.html"
+sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./trial-personalization.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ui.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ux-refinements.js"></script>' "$OUT_DIR/index.html"
-sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./trial-personalization.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/manage\.js"><\/script>/i\  <script src="./elective-empty-state.js"></script>' "$OUT_DIR/manage/index.html"
 sed -i '/<\/body>/i\    <script src="./availability-status.js"></script>' "$OUT_DIR/index.html"
 
