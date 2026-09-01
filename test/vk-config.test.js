@@ -27,8 +27,8 @@ test('configuration advertises capabilities actually supported by the community-
     publishText: true,
     listRecentPosts: false,
     readOnlyStatus: true,
-    editPosts: true,
-    deletePosts: true,
+    editPosts: false,
+    deletePosts: false,
     publishPhotos: false
   });
 });
