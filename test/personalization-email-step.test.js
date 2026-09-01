@@ -22,6 +22,73 @@ function preferenceForm() {
   };
 }
 
+function personalizationInsertedForHeading(formId, headingText) {
+  let inserted = null;
+  const submit = {};
+  const form = {
+    id: formId,
+    closest(selector) {
+      if (selector !== ".trial-connect-card") return null;
+      return {
+        querySelector(innerSelector) {
+          return innerSelector === "h3" ? { textContent: headingText } : null;
+        }
+      };
+    },
+    querySelector(selector) {
+      if (selector === "[data-trial-personalization-root]") return inserted;
+      if (selector === 'button[type="submit"]') return submit;
+      return null;
+    },
+    insertBefore(node, before) {
+      assert.equal(before, submit);
+      inserted = node;
+    },
+    append(node) {
+      inserted = node;
+    }
+  };
+
+  function element() {
+    return {
+      className: "",
+      dataset: {},
+      textContent: "",
+      append() {}
+    };
+  }
+
+  const sandbox = {
+    URL,
+    Request,
+    HTMLFormElement: class {},
+    window: { location: { href: "https://calendar.example/" } },
+    document: {
+      documentElement: {},
+      readyState: "complete",
+      querySelector(selector) {
+        if (selector === `#${formId}`) return form;
+        return null;
+      },
+      addEventListener() {},
+      createElement() {
+        return element();
+      },
+      head: { append() {} }
+    },
+    MutationObserver: class { observe() {} },
+    KGMU_CALENDAR_CONFIG: {
+      academicPeriodId: "2026-2027-semester-1",
+      electiveCatalog: {},
+      facultativeCatalog: {}
+    },
+    fetch: async () => ({ ok: true })
+  };
+  sandbox.globalThis = sandbox;
+  vm.runInNewContext(source, sandbox, { filename: "trial-personalization.js" });
+  return inserted?.dataset?.trialPersonalizationRoot === "";
+}
+
 async function captureRequest(path, formId) {
   const form = preferenceForm();
   let captured = null;
@@ -77,6 +144,11 @@ test("email-step preferences are attached to checkout requests", async () => {
     facultativeChoices: { "fac-a": true },
     remindersMinutesBefore: [30]
   });
+});
+
+test("email-step personalization recognizes both trial and checkout group headings", () => {
+  assert.equal(personalizationInsertedForHeading("runtime-trial-form", "Получить календарь группы 501"), true);
+  assert.equal(personalizationInsertedForHeading("runtime-checkout-form", "Семестр · группа 501 · 299 ₽"), true);
 });
 
 test("the email-step component explicitly supports both acquisition forms", () => {
