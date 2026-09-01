@@ -16,7 +16,7 @@ VK_API_VERSION = "5.199"
 MAX_REQUEST_BYTES = 32_768
 MAX_MESSAGE_CHARS = 8_192
 MAX_HTTP_BYTES = 1_000_000
-ALLOWED_OPERATIONS = {"list", "publish", "edit", "delete"}
+ALLOWED_OPERATIONS = {"publish"}
 
 
 def fail(message, code=1):
@@ -61,10 +61,6 @@ def load_request(operation):
     raw = sys.stdin.buffer.read(MAX_REQUEST_BYTES + 1)
     if len(raw) > MAX_REQUEST_BYTES:
         fail("request body exceeded size limit", 64)
-    if operation == "list":
-        if raw.strip():
-            fail("list request body must be empty", 64)
-        return {}
     if not raw.strip():
         fail("request body is required", 64)
     try:
@@ -73,25 +69,14 @@ def load_request(operation):
         fail("request body must be valid UTF-8 JSON", 64)
     if not isinstance(payload, dict):
         fail("request body must be a JSON object", 64)
-
-    allowed_keys = {
-        "publish": {"message"},
-        "edit": {"postId", "message"},
-        "delete": {"postId"},
-    }[operation]
-    if set(payload) != allowed_keys:
+    if operation != "publish" or set(payload) != {"message"}:
         fail("request body contains unexpected or missing fields", 64)
 
-    if "postId" in payload:
-        post_id = payload["postId"]
-        if isinstance(post_id, bool) or not isinstance(post_id, int) or post_id <= 0:
-            fail("postId must be a positive integer", 64)
-    if "message" in payload:
-        message = payload["message"]
-        if not isinstance(message, str) or not message.strip():
-            fail("message must be a non-empty string", 64)
-        if len(message) > MAX_MESSAGE_CHARS:
-            fail("message exceeded size limit", 64)
+    message = payload["message"]
+    if not isinstance(message, str) or not message.strip():
+        fail("message must be a non-empty string", 64)
+    if len(message) > MAX_MESSAGE_CHARS:
+        fail("message exceeded size limit", 64)
     return payload
 
 
@@ -253,77 +238,25 @@ def main():
     if os.geteuid() != 0:
         fail("medical-calendar-vk-ops must run as root via the restricted sudo rule")
     if len(sys.argv) != 2 or sys.argv[1] not in ALLOWED_OPERATIONS:
-        fail("allowed operations: list, publish, edit, delete", 64)
-    operation = sys.argv[1]
-    request = load_request(operation)
+        fail("allowed operations: publish", 64)
+    request = load_request("publish")
     screen_name, secret_path = load_config()
     token = vk_access_token(secret_path)
     community_id = resolve_community(token, screen_name)
 
-    if operation == "list":
-        response = vk_call(token, "wall.get", {"owner_id": -community_id, "count": 10})
-        items = response.get("items", []) if isinstance(response, dict) else []
-        posts = []
-        for item in items[:10] if isinstance(items, list) else []:
-            if not isinstance(item, dict):
-                continue
-            posts.append({
-                "id": item.get("id"),
-                "date": item.get("date"),
-                "text": item.get("text", "") if isinstance(item.get("text", ""), str) else "",
-            })
-        emit_result({
-            "action": "list",
-            "communityId": community_id,
-            "screenName": screen_name,
-            "posts": posts,
-        })
-        return
-
-    if operation == "publish":
-        response = vk_call(token, "wall.post", {
-            "owner_id": -community_id,
-            "from_group": 1,
-            "message": request["message"],
-        })
-        post_id = response.get("post_id") if isinstance(response, dict) else None
-        if isinstance(post_id, bool) or not isinstance(post_id, int) or post_id <= 0:
-            fail("VK wall.post did not return a valid post ID")
-        emit_result({
-            "action": "publish",
-            "communityId": community_id,
-            "postId": post_id,
-            "url": f"https://vk.ru/wall-{community_id}_{post_id}",
-        })
-        return
-
-    if operation == "edit":
-        response = vk_call(token, "wall.edit", {
-            "owner_id": -community_id,
-            "post_id": request["postId"],
-            "message": request["message"],
-        })
-        if response != 1:
-            fail("VK wall.edit did not confirm success")
-        emit_result({
-            "action": "edit",
-            "communityId": community_id,
-            "postId": request["postId"],
-            "edited": True,
-        })
-        return
-
-    response = vk_call(token, "wall.delete", {
+    response = vk_call(token, "wall.post", {
         "owner_id": -community_id,
-        "post_id": request["postId"],
+        "from_group": 1,
+        "message": request["message"],
     })
-    if response != 1:
-        fail("VK wall.delete did not confirm success")
+    post_id = response.get("post_id") if isinstance(response, dict) else None
+    if isinstance(post_id, bool) or not isinstance(post_id, int) or post_id <= 0:
+        fail("VK wall.post did not return a valid post ID")
     emit_result({
-        "action": "delete",
+        "action": "publish",
         "communityId": community_id,
-        "postId": request["postId"],
-        "deleted": True,
+        "postId": post_id,
+        "url": f"https://vk.ru/wall-{community_id}_{post_id}",
     })
 
 

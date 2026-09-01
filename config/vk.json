@@ -10,9 +10,10 @@
   },
   "capabilities": {
     "publishText": true,
-    "listRecentPosts": true,
-    "editPosts": true,
-    "deletePosts": true,
+    "listRecentPosts": false,
+    "readOnlyStatus": true,
+    "editPosts": false,
+    "deletePosts": false,
     "publishPhotos": false
   }
 }

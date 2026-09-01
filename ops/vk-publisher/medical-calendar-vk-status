@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+import importlib.machinery
+import importlib.util
+import os
+
+OPERATOR_PATH = "/usr/local/sbin/medical-calendar-vk-ops"
+
+
+def load_operator():
+    loader = importlib.machinery.SourceFileLoader("medical_calendar_vk_ops", OPERATOR_PATH)
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
+def main():
+    if os.geteuid() != 0:
+        raise SystemExit("medical-calendar-vk-status must run as root via the restricted sudo rule")
+
+    vkops = load_operator()
+    screen_name, secret_path = vkops.load_config()
+    token = vkops.vk_access_token(secret_path)
+    community_id = vkops.resolve_community(token, screen_name)
+
+    response = vkops.vk_call(token, "groups.getTokenPermissions")
+    permissions = response.get("permissions", []) if isinstance(response, dict) else []
+    names = sorted({
+        item.get("name")
+        for item in permissions
+        if isinstance(item, dict) and isinstance(item.get("name"), str)
+    })
+
+    if "wall" not in names:
+        vkops.fail("VK community token does not include wall permission")
+
+    vkops.emit_result({
+        "action": "status",
+        "communityId": community_id,
+        "screenName": screen_name,
+        "tokenType": "community",
+        "wallPermission": True,
+        "wallReadAvailable": False,
+        "wallReadReason": "community_token_wall_get_unsupported",
+        "publishTextAvailable": True,
+        "editPostsAvailable": False,
+        "deletePostsAvailable": False,
+        "permissions": names,
+    })
+
+
+if __name__ == "__main__":
+    main()
