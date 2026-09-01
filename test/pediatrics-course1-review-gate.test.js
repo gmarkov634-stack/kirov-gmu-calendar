@@ -29,21 +29,23 @@ test('pins the server-verified official pediatrics course 1 source', async () =>
   assert.equal(source.storagePolicy.productionSourceIsServerFetched, true);
 });
 
-test('fails closed on the unresolved group 140 practice-location ambiguity', async () => {
+test('records the operator-confirmed KODKB resolution and opens the publication gate', async () => {
   const review = await readJson('../qa/2026-2027-semester-1/pediatrics-131-140.semantic-review.json');
 
   assert.equal(review.sourceSha256, SOURCE_SHA);
-  assert.equal(review.status, 'REVIEW_REQUIRED');
-  assert.equal(review.blocksPublication, true);
+  assert.equal(review.status, 'PASS');
+  assert.equal(review.blocksPublication, false);
   assert.equal(review.sourceChecks.logicalTimetableCellsClassified, 127);
   assert.equal(review.sourceChecks.logicalTimetableCellsUnclassified, 0);
-  assert.equal(review.unresolvedAmbiguities.length, 1);
+  assert.deepEqual(review.unresolvedAmbiguities, []);
+  assert.equal(review.resolvedAmbiguities.length, 1);
 
-  const [ambiguity] = review.unresolvedAmbiguities;
-  assert.equal(ambiguity.ambiguityId, 'PED1-K16-2026-12-15-PRACTICE-LOCATION');
-  assert.equal(ambiguity.sourceLocator, '1 пед. 10 гр.!K16');
-  assert.equal(ambiguity.groupId, '140');
-  assert.equal(ambiguity.date, '2026-12-15');
-  assert.deepEqual(ambiguity.choices.map((choice) => choice.choiceId), ['KODKB', 'DKKDC']);
-  assert.match(review.nextGate, /User confirmation/);
+  const [resolution] = review.resolvedAmbiguities;
+  assert.equal(resolution.ambiguityId, 'PED1-K16-2026-12-15-PRACTICE-LOCATION');
+  assert.equal(resolution.sourceLocator, '1 пед. 10 гр.!K16');
+  assert.equal(resolution.groupId, '140');
+  assert.equal(resolution.date, '2026-12-15');
+  assert.equal(resolution.decision, 'KODKB');
+  assert.match(resolution.location, /КОДКБ/);
+  assert.match(review.nextGate, /QA-approved candidate/);
 });
