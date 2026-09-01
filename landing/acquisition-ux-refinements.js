@@ -51,6 +51,10 @@
 
     card.dataset.emailAnchorReady = "true";
     card.dataset.emailAnchor = "true";
+    if (input.id === "runtime-trial-email") {
+      card.dataset.trialEmailAnchorReady = "true";
+      card.dataset.trialEmailAnchor = "true";
+    }
 
     requestAnimationFrame(() => {
       card.scrollIntoView({ block: "start", inline: "nearest" });
