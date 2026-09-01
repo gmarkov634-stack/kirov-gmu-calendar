@@ -42,6 +42,9 @@ def main():
         "wallPermission": True,
         "wallReadAvailable": False,
         "wallReadReason": "community_token_wall_get_unsupported",
+        "publishTextAvailable": True,
+        "editPostsAvailable": False,
+        "deletePostsAvailable": False,
         "permissions": names,
     })
 
