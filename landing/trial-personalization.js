@@ -10,6 +10,7 @@
     Object.freeze({ value: 60, label: "За 1 час" }),
     Object.freeze({ value: 1440, label: "За 1 день" })
   ]);
+  const PERSONALIZATION_FORM_IDS = new Set(["runtime-trial-form", "runtime-checkout-form"]);
 
   function requestUrl(input) {
     if (typeof input === "string") return new URL(input, window.location.href);
@@ -18,7 +19,7 @@
     return null;
   }
 
-  function trialGroupId(form) {
+  function formGroupId(form) {
     const heading = form?.closest(".trial-connect-card")?.querySelector("h3")?.textContent ?? "";
     return /группы?\s+(\d+)/i.exec(heading)?.[1] ?? null;
   }
@@ -154,7 +155,7 @@
 
   function ensurePersonalization(form) {
     if (!form || form.querySelector("[data-trial-personalization-root]")) return;
-    const groupId = trialGroupId(form);
+    const groupId = formGroupId(form);
     if (!groupId) return;
 
     installStyles();
@@ -162,9 +163,9 @@
     root.className = "trial-personalization";
     root.dataset.trialPersonalizationRoot = "";
     const title = document.createElement("strong");
-    title.textContent = "Настройте календарь перед подключением";
+    title.textContent = "Настройте календарь";
     const copy = document.createElement("p");
-    copy.textContent = "Настройки сразу сохранятся в пробной подписке и применятся к этой же ICS-ссылке.";
+    copy.textContent = "Выберите персональные настройки здесь, рядом с email. Они применятся и к бесплатной пробе, и к покупке полного доступа.";
     root.append(title, copy);
 
     const elective = createElectiveControls(groupId);
@@ -195,20 +196,29 @@
     return { electiveChoices, facultativeChoices, remindersMinutesBefore };
   }
 
+  function formForPath(pathname) {
+    if (pathname.endsWith("/trial")) return document.querySelector("#runtime-trial-form");
+    if (pathname.endsWith("/checkout")) return document.querySelector("#runtime-checkout-form");
+    return null;
+  }
+
   function scan() {
-    const form = document.querySelector("#runtime-trial-form");
-    if (form) ensurePersonalization(form);
+    for (const selector of ["#runtime-trial-form", "#runtime-checkout-form"]) {
+      const form = document.querySelector(selector);
+      if (form) ensurePersonalization(form);
+    }
   }
 
   document.addEventListener("submit", (event) => {
     const form = event.target;
-    if (!(form instanceof HTMLFormElement) || form.id !== "runtime-trial-form") return;
+    if (!(form instanceof HTMLFormElement) || !PERSONALIZATION_FORM_IDS.has(form.id)) return;
     ensurePersonalization(form);
     const missing = form.querySelector("select[data-selection-id][required]:invalid");
     if (!missing) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const status = form.parentElement?.querySelector("#runtime-trial-status");
+    const statusId = form.id === "runtime-trial-form" ? "#runtime-trial-status" : "#runtime-checkout-status";
+    const status = form.parentElement?.querySelector(statusId);
     if (status) status.textContent = "Сначала выберите свою дисциплину по выбору.";
     missing.reportValidity();
   }, true);
@@ -220,11 +230,11 @@
   globalThis.fetch = (input, init = {}) => {
     const url = requestUrl(input);
     const method = String(init.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
-    if (!url?.pathname.endsWith("/trial") || method !== "POST") {
-      return nativeFetch(input, init);
-    }
+    const isPersonalizedRequest = method === "POST"
+      && (url?.pathname.endsWith("/trial") || url?.pathname.endsWith("/checkout"));
+    if (!isPersonalizedRequest) return nativeFetch(input, init);
 
-    const form = document.querySelector("#runtime-trial-form");
+    const form = formForPath(url.pathname);
     if (!form || typeof init.body !== "string") return nativeFetch(input, init);
     try {
       const payload = JSON.parse(init.body);
