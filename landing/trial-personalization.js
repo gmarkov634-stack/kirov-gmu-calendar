@@ -21,7 +21,7 @@
 
   function formGroupId(form) {
     const heading = form?.closest(".trial-connect-card")?.querySelector("h3")?.textContent ?? "";
-    return /группы?\s+(\d+)/i.exec(heading)?.[1] ?? null;
+    return /групп(?:а|ы)\s+(\d+)/i.exec(heading)?.[1] ?? null;
   }
 
   function groupCatalog(catalog, groupId) {
