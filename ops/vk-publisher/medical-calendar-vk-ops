@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+import base64
+import json
+import os
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+
+CONFIG_PATH = "/etc/medical-calendar/vk/kirov-gmu.json"
+CLOUDRU_DIR = "/etc/medical-calendar/cloudru"
+IAM_URL = "https://iam.api.cloud.ru/api/v1/auth/token"
+SECRET_MANAGER_BASE = "https://secretmanager.api.cloud.ru/v1"
+VK_API_BASE = "https://api.vk.com/method"
+VK_API_VERSION = "5.199"
+MAX_REQUEST_BYTES = 32_768
+MAX_MESSAGE_CHARS = 8_192
+MAX_HTTP_BYTES = 1_000_000
+ALLOWED_OPERATIONS = {"list", "publish", "edit", "delete"}
+
+
+def fail(message, code=1):
+    print(f"ERROR: {message}", file=sys.stderr)
+    raise SystemExit(code)
+
+
+def read_text(path, label):
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            value = handle.read().strip()
+    except OSError:
+        fail(f"{label} is unavailable")
+    if not value:
+        fail(f"{label} is empty")
+    return value
+
+
+def request_json(url, *, data=None, headers=None, method=None):
+    request = urllib.request.Request(
+        url,
+        data=data,
+        headers=headers or {},
+        method=method,
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            raw = response.read(MAX_HTTP_BYTES + 1)
+    except urllib.error.HTTPError as error:
+        fail(f"remote HTTP request failed with status {error.code}")
+    except (urllib.error.URLError, TimeoutError):
+        fail("remote HTTP request failed")
+    if len(raw) > MAX_HTTP_BYTES:
+        fail("remote HTTP response exceeded size limit")
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        fail("remote HTTP response was not valid JSON")
+
+
+def load_request(operation):
+    raw = sys.stdin.buffer.read(MAX_REQUEST_BYTES + 1)
+    if len(raw) > MAX_REQUEST_BYTES:
+        fail("request body exceeded size limit", 64)
+    if operation == "list":
+        if raw.strip():
+            fail("list request body must be empty", 64)
+        return {}
+    if not raw.strip():
+        fail("request body is required", 64)
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        fail("request body must be valid UTF-8 JSON", 64)
+    if not isinstance(payload, dict):
+        fail("request body must be a JSON object", 64)
+
+    allowed_keys = {
+        "publish": {"message"},
+        "edit": {"postId", "message"},
+        "delete": {"postId"},
+    }[operation]
+    if set(payload) != allowed_keys:
+        fail("request body contains unexpected or missing fields", 64)
+
+    if "postId" in payload:
+        post_id = payload["postId"]
+        if isinstance(post_id, bool) or not isinstance(post_id, int) or post_id <= 0:
+            fail("postId must be a positive integer", 64)
+    if "message" in payload:
+        message = payload["message"]
+        if not isinstance(message, str) or not message.strip():
+            fail("message must be a non-empty string", 64)
+        if len(message) > MAX_MESSAGE_CHARS:
+            fail("message exceeded size limit", 64)
+    return payload
+
+
+def load_config():
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as handle:
+            config = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        fail("KGMU VK configuration is unavailable or invalid")
+
+    try:
+        screen_name = config["community"]["screenName"].strip()
+        public_url = config["community"]["publicUrl"].strip()
+        provider = config["secretReference"]["provider"].strip()
+        secret_path = config["secretReference"]["path"].strip()
+    except (KeyError, AttributeError):
+        fail("KGMU VK configuration is incomplete")
+
+    if not screen_name or provider != "cloud.ru-secret-management" or not secret_path:
+        fail("KGMU VK configuration failed validation")
+    try:
+        url = urllib.parse.urlparse(public_url)
+    except ValueError:
+        fail("KGMU VK public URL is invalid")
+    if url.scheme != "https" or url.netloc != "vk.ru" or url.path.strip("/") != screen_name:
+        fail("KGMU VK public URL does not match screen name")
+    return screen_name, secret_path
+
+
+def cloud_access_token():
+    key_id = read_text(f"{CLOUDRU_DIR}/key-id", "Cloud.ru Key ID")
+    key_secret = read_text(f"{CLOUDRU_DIR}/key-secret", "Cloud.ru Key Secret")
+    payload = json.dumps({"keyId": key_id, "secret": key_secret}).encode("utf-8")
+    response = request_json(
+        IAM_URL,
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    token = response.get("access_token")
+    if not isinstance(token, str) or not token:
+        fail("Cloud.ru IAM response did not contain an access token")
+    return token
+
+
+def vk_access_token(secret_path):
+    cloud_token = cloud_access_token()
+    parent_id = read_text(
+        f"{CLOUDRU_DIR}/secretmanager-product-instance-id",
+        "Secret Management Product Instance ID",
+    )
+    headers = {
+        "Authorization": f"Bearer {cloud_token}",
+        "Accept": "application/json",
+    }
+    secrets = request_json(
+        f"{SECRET_MANAGER_BASE}/secrets?"
+        + urllib.parse.urlencode({"parentId": parent_id}),
+        headers=headers,
+        method="GET",
+    )
+    entries = secrets.get("secrets", []) if isinstance(secrets, dict) else []
+    wanted_name = secret_path.rsplit("/", 1)[-1]
+    matches = [
+        item for item in entries
+        if isinstance(item, dict)
+        and (
+            item.get("path") == secret_path
+            or item.get("name") == wanted_name
+        )
+    ]
+    if len(matches) != 1:
+        fail("VK secret metadata could not be resolved uniquely")
+    secret_id = matches[0].get("id")
+    if not isinstance(secret_id, str) or not secret_id:
+        fail("VK secret metadata did not contain an ID")
+
+    version_payload = request_json(
+        f"{SECRET_MANAGER_BASE}/secrets/{urllib.parse.quote(secret_id, safe='')}/versions",
+        headers=headers,
+        method="GET",
+    )
+    versions = version_payload.get("versions", []) if isinstance(version_payload, dict) else []
+    enabled = [
+        item for item in versions
+        if isinstance(item, dict)
+        and str(item.get("state", "")).upper() == "ENABLED"
+        and str(item.get("id", "")).isdigit()
+    ]
+    if not enabled:
+        fail("VK secret has no enabled version")
+    version = max(enabled, key=lambda item: int(item["id"]))
+
+    payload = request_json(
+        f"{SECRET_MANAGER_BASE}/secrets/{urllib.parse.quote(secret_id, safe='')}/versions/"
+        f"{urllib.parse.quote(str(version['id']), safe='')}/payload",
+        headers=headers,
+        method="GET",
+    )
+    encoded = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(encoded, str) or not encoded:
+        fail("VK secret payload was empty")
+    try:
+        token = base64.b64decode(encoded, validate=True).decode("utf-8").strip()
+    except (ValueError, UnicodeDecodeError):
+        fail("VK secret payload was invalid")
+    if not token or len(token) > 16_384 or any(ch.isspace() for ch in token):
+        fail("VK secret payload failed validation")
+    return token
+
+
+def vk_call(token, method, params=None):
+    body = urllib.parse.urlencode({"v": VK_API_VERSION, **(params or {})}).encode("utf-8")
+    payload = request_json(
+        f"{VK_API_BASE}/{urllib.parse.quote(method, safe='.')}",
+        data=body,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    error = payload.get("error") if isinstance(payload, dict) else None
+    if isinstance(error, dict):
+        code = error.get("error_code")
+        fail(f"VK API {method} failed with code {code if isinstance(code, int) else 'unknown'}")
+    if not isinstance(payload, dict) or "response" not in payload:
+        fail(f"VK API {method} returned an invalid response")
+    return payload["response"]
+
+
+def resolve_community(token, screen_name):
+    response = vk_call(token, "groups.getById", {"group_ids": screen_name})
+    if isinstance(response, dict):
+        groups = response.get("groups", [])
+    else:
+        groups = response if isinstance(response, list) else []
+    if not groups or not isinstance(groups[0], dict):
+        fail("VK community could not be resolved")
+    community = groups[0]
+    community_id = community.get("id")
+    if isinstance(community_id, bool) or not isinstance(community_id, int) or community_id <= 0:
+        fail("VK community ID was invalid")
+    resolved_name = community.get("screen_name")
+    if isinstance(resolved_name, str) and resolved_name and resolved_name != screen_name:
+        fail("resolved VK community did not match configured screen name")
+    return community_id
+
+
+def emit_result(payload):
+    print(
+        "VK_RESULT_JSON="
+        + json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    )
+
+
+def main():
+    if os.geteuid() != 0:
+        fail("medical-calendar-vk-ops must run as root via the restricted sudo rule")
+    if len(sys.argv) != 2 or sys.argv[1] not in ALLOWED_OPERATIONS:
+        fail("allowed operations: list, publish, edit, delete", 64)
+    operation = sys.argv[1]
+    request = load_request(operation)
+    screen_name, secret_path = load_config()
+    token = vk_access_token(secret_path)
+    community_id = resolve_community(token, screen_name)
+
+    if operation == "list":
+        response = vk_call(token, "wall.get", {"owner_id": -community_id, "count": 10})
+        items = response.get("items", []) if isinstance(response, dict) else []
+        posts = []
+        for item in items[:10] if isinstance(items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            posts.append({
+                "id": item.get("id"),
+                "date": item.get("date"),
+                "text": item.get("text", "") if isinstance(item.get("text", ""), str) else "",
+            })
+        emit_result({
+            "action": "list",
+            "communityId": community_id,
+            "screenName": screen_name,
+            "posts": posts,
+        })
+        return
+
+    if operation == "publish":
+        response = vk_call(token, "wall.post", {
+            "owner_id": -community_id,
+            "from_group": 1,
+            "message": request["message"],
+        })
+        post_id = response.get("post_id") if isinstance(response, dict) else None
+        if isinstance(post_id, bool) or not isinstance(post_id, int) or post_id <= 0:
+            fail("VK wall.post did not return a valid post ID")
+        emit_result({
+            "action": "publish",
+            "communityId": community_id,
+            "postId": post_id,
+            "url": f"https://vk.ru/wall-{community_id}_{post_id}",
+        })
+        return
+
+    if operation == "edit":
+        response = vk_call(token, "wall.edit", {
+            "owner_id": -community_id,
+            "post_id": request["postId"],
+            "message": request["message"],
+        })
+        if response != 1:
+            fail("VK wall.edit did not confirm success")
+        emit_result({
+            "action": "edit",
+            "communityId": community_id,
+            "postId": request["postId"],
+            "edited": True,
+        })
+        return
+
+    response = vk_call(token, "wall.delete", {
+        "owner_id": -community_id,
+        "post_id": request["postId"],
+    })
+    if response != 1:
+        fail("VK wall.delete did not confirm success")
+    emit_result({
+        "action": "delete",
+        "communityId": community_id,
+        "postId": request["postId"],
+        "deleted": True,
+    })
+
+
+if __name__ == "__main__":
+    main()
