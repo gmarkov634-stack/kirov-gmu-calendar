@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Pages marks medicine groups 101-120 through 501-516 as published and enables trial plus checkout', async () => {
+test('Pages marks medicine groups 101-120 through 601-616 as published and enables trial plus checkout', async () => {
   const status = await read('landing/availability-status.js');
   const pagesConfig = await read('deploy/runtime-config.pages.js');
   const builder = await read('deploy/build-pages.sh');
@@ -24,15 +24,19 @@ test('Pages marks medicine groups 101-120 through 501-516 as published and enabl
   for (let group = 501; group <= 516; group += 1) {
     assert.match(status, new RegExp(`\\"${group}\\"`));
   }
+  for (let group = 601; group <= 616; group += 1) {
+    assert.match(status, new RegExp(`\\"${group}\\"`));
+  }
   assert.doesNotMatch(status, /\"318\"/);
   assert.doesNotMatch(status, /\"517\"/);
-  assert.doesNotMatch(status, /\"601\"/);
-  assert.match(status, /1–5 курсы доступны/);
-  assert.match(status, /Группы 101–120, 201–220, 301–317, 401–416 и 501–516/);
+  assert.doesNotMatch(status, /\"617\"/);
+  assert.match(status, /1–6 курсы доступны/);
+  assert.match(status, /Группы 101–120, 201–220, 301–317, 401–416, 501–516 и 601–616/);
   assert.match(status, /Группы 201–220 доступны/);
   assert.match(status, /Группы 301–317 доступны/);
   assert.match(status, /Группы 401–416 доступны/);
   assert.match(status, /Группы 501–516 доступны/);
+  assert.match(status, /Группы 601–616 доступны/);
   assert.match(status, /проверенным официальным расписаниям КГМУ/);
   assert.match(status, /7-дневную бесплатную пробу/);
   assert.match(builder, /availability-status\.js/);
