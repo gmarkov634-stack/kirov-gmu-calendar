@@ -10,7 +10,8 @@
   },
   "capabilities": {
     "publishText": true,
-    "listRecentPosts": true,
+    "listRecentPosts": false,
+    "readOnlyStatus": true,
     "editPosts": true,
     "deletePosts": true,
     "publishPhotos": false
