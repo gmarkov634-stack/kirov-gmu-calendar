@@ -27,11 +27,11 @@ test('VK production operator is root-gated and resolves the token only through C
 
 test('VK production operator exposes only proven text publish while readback is separated', async () => {
   const source = await text(operatorUrl);
-  assert.match(source, /ALLOWED_OPERATIONS = \{"list", "publish", "edit", "delete"\}/);
+  assert.match(source, /ALLOWED_OPERATIONS = \{"publish"\}/);
   assert.match(source, /groups\.getById/);
   assert.match(source, /wall\.post/);
-  assert.match(source, /wall\.edit/);
-  assert.match(source, /wall\.delete/);
+  assert.doesNotMatch(source, /wall\.edit/);
+  assert.doesNotMatch(source, /wall\.delete/);
   assert.match(source, /MAX_REQUEST_BYTES = 32_768/);
   assert.match(source, /MAX_MESSAGE_CHARS = 8_192/);
   assert.match(source, /CONFIG_PATH = "\/etc\/medical-calendar\/vk\/kirov-gmu\.json"/);
