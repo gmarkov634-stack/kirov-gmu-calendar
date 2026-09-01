@@ -25,7 +25,7 @@ test('VK production operator is root-gated and resolves the token only through C
   assert.doesNotMatch(source, /vk1\.[A-Za-z0-9_-]+/);
 });
 
-test('VK production operator keeps reviewed text write operations while readback is separated', async () => {
+test('VK production operator exposes only proven text publish while readback is separated', async () => {
   const source = await text(operatorUrl);
   assert.match(source, /ALLOWED_OPERATIONS = \{"list", "publish", "edit", "delete"\}/);
   assert.match(source, /groups\.getById/);
@@ -51,17 +51,19 @@ test('VK config reports community-token readback limitation explicitly', async (
   assert.equal(config.capabilities.publishText, true);
   assert.equal(config.capabilities.listRecentPosts, false);
   assert.equal(config.capabilities.readOnlyStatus, true);
-  assert.equal(config.capabilities.editPosts, true);
-  assert.equal(config.capabilities.deletePosts, true);
+  assert.equal(config.capabilities.editPosts, false);
+  assert.equal(config.capabilities.deletePosts, false);
 });
 
-test('sudo boundary permits exact status and write commands only', async () => {
+test('sudo boundary permits exact status and proven publish command only', async () => {
   const source = (await text(sudoersUrl)).trim();
   assert.equal(
     source,
-    'ghrunner-medcal ALL=(root) NOPASSWD: /usr/local/sbin/medical-calendar-vk-status, /usr/local/sbin/medical-calendar-vk-ops publish, /usr/local/sbin/medical-calendar-vk-ops edit, /usr/local/sbin/medical-calendar-vk-ops delete'
+    'ghrunner-medcal ALL=(root) NOPASSWD: /usr/local/sbin/medical-calendar-vk-status, /usr/local/sbin/medical-calendar-vk-ops publish'
   );
   assert.doesNotMatch(source, /medical-calendar-vk-ops list/);
+  assert.doesNotMatch(source, /medical-calendar-vk-ops edit/);
+  assert.doesNotMatch(source, /medical-calendar-vk-ops delete/);
   assert.doesNotMatch(source, /\*/);
   assert.doesNotMatch(source, /\/bin\/(?:sh|bash)/);
 });
