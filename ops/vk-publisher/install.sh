@@ -10,15 +10,18 @@ fi
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 SOURCE_OPERATOR="$SCRIPT_DIR/medical-calendar-vk-ops"
+SOURCE_STATUS="$SCRIPT_DIR/medical-calendar-vk-status"
 SOURCE_SUDOERS="$SCRIPT_DIR/medical-calendar-vk-ops.sudoers"
 SOURCE_CONFIG="$REPO_ROOT/config/vk.json"
 TARGET_OPERATOR='/usr/local/sbin/medical-calendar-vk-ops'
+TARGET_STATUS='/usr/local/sbin/medical-calendar-vk-status'
 TARGET_SUDOERS='/etc/sudoers.d/medical-calendar-vk-ops'
 TARGET_CONFIG='/etc/medical-calendar/vk/kirov-gmu.json'
 BACKUP_ROOT='/var/lib/medical-calendar/vk-operator-backups'
 CLOUDRU_DIR='/etc/medical-calendar/cloudru'
 
 test -f "$SOURCE_OPERATOR" || { echo 'ERROR: operator source missing' >&2; exit 1; }
+test -f "$SOURCE_STATUS" || { echo 'ERROR: status source missing' >&2; exit 1; }
 test -f "$SOURCE_SUDOERS" || { echo 'ERROR: sudoers source missing' >&2; exit 1; }
 test -f "$SOURCE_CONFIG" || { echo 'ERROR: VK config source missing' >&2; exit 1; }
 command -v python3 >/dev/null || { echo 'ERROR: python3 missing' >&2; exit 1; }
@@ -60,7 +63,7 @@ install -d -m 0700 -o root -g root "$BACKUP_ROOT"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 backup_dir="$BACKUP_ROOT/$stamp"
 install -d -m 0700 -o root -g root "$backup_dir"
-for path in "$TARGET_OPERATOR" "$TARGET_SUDOERS" "$TARGET_CONFIG"; do
+for path in "$TARGET_OPERATOR" "$TARGET_STATUS" "$TARGET_SUDOERS" "$TARGET_CONFIG"; do
   if [[ -e "$path" ]]; then
     cp -a -- "$path" "$backup_dir/"
   fi
@@ -72,6 +75,7 @@ install -m 0440 -o root -g root "$SOURCE_SUDOERS" "$sudoers_tmp"
 visudo -cf "$sudoers_tmp" >/dev/null
 
 install -m 0750 -o root -g root "$SOURCE_OPERATOR" "$TARGET_OPERATOR"
+install -m 0750 -o root -g root "$SOURCE_STATUS" "$TARGET_STATUS"
 install -m 0644 -o root -g root "$SOURCE_CONFIG" "$TARGET_CONFIG"
 mv -f -- "$sudoers_tmp" "$TARGET_SUDOERS"
 chown root:root "$TARGET_SUDOERS"
@@ -79,8 +83,9 @@ chmod 0440 "$TARGET_SUDOERS"
 visudo -cf "$TARGET_SUDOERS" >/dev/null
 trap - EXIT
 
-python3 -m py_compile "$TARGET_OPERATOR"
+python3 -m py_compile "$TARGET_OPERATOR" "$TARGET_STATUS"
 test -x "$TARGET_OPERATOR"
+test -x "$TARGET_STATUS"
 test -r "$TARGET_CONFIG"
 printf 'VK_OPERATOR_INSTALLED=ok\n'
 printf 'CALENDAR_SERVICE_RESTARTED=no\n'
