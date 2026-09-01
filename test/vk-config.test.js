@@ -21,11 +21,12 @@ test('KGMU VK configuration pins only non-secret community metadata', async () =
   assert.doesNotMatch(serialized, /vk1\./i);
 });
 
-test('configuration advertises only capabilities implemented by the first transport slice', async () => {
+test('configuration advertises capabilities actually supported by the community-token transport', async () => {
   const config = await loadConfig();
   assert.deepEqual(config.capabilities, {
     publishText: true,
-    listRecentPosts: true,
+    listRecentPosts: false,
+    readOnlyStatus: true,
     editPosts: true,
     deletePosts: true,
     publishPhotos: false
