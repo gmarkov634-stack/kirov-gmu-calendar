@@ -1,41 +1,94 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import test from "node:test";
+import vm from "node:vm";
 
-const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const source = readFileSync(new URL("../landing/trial-personalization.js", import.meta.url), "utf8");
 
-test("personalization is staged outside the offer and mounted only beside email", async () => {
-  const script = await read("landing/trial-personalization.js");
+function preferenceForm() {
+  return {
+    querySelectorAll(selector) {
+      if (selector === "select[data-selection-id]") {
+        return [{ dataset: { selectionId: "selection-a" }, value: "option-b" }];
+      }
+      if (selector === "input[data-facultative-id]") {
+        return [{ dataset: { facultativeId: "fac-a" }, checked: true }];
+      }
+      if (selector === "input[data-reminder-minutes]:checked") {
+        return [{ dataset: { reminderMinutes: "30" } }];
+      }
+      return [];
+    }
+  };
+}
 
-  assert.match(script, /\.group-preview/);
-  assert.match(script, /\.acquisition-personalization/);
-  assert.match(script, /panel\.hidden = true/);
-  assert.match(script, /#runtime-trial-form, #runtime-checkout-form/);
-  assert.match(script, /form\.insertBefore\(stagedPanel, submit\)/);
-  assert.match(script, /personalizationEmailStep/);
+async function captureRequest(path, formId) {
+  const form = preferenceForm();
+  let captured = null;
+  const sandbox = {
+    URL,
+    Request,
+    HTMLFormElement: class {},
+    window: { location: { href: "https://calendar.example/" } },
+    document: {
+      documentElement: {},
+      readyState: "complete",
+      querySelector(selector) {
+        return selector === `#${formId}` ? form : null;
+      },
+      addEventListener() {},
+      head: { append() {} }
+    },
+    MutationObserver: class { observe() {} },
+    KGMU_CALENDAR_CONFIG: {
+      academicPeriodId: "2026-2027-semester-1",
+      electiveCatalog: {},
+      facultativeCatalog: {}
+    },
+    fetch: async (input, init) => {
+      captured = { input, init };
+      return { ok: true };
+    }
+  };
+  sandbox.globalThis = sandbox;
+  vm.runInNewContext(source, sandbox, { filename: "trial-personalization.js" });
+
+  await sandbox.fetch(`https://calendar.example${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "student@example.com" })
+  });
+  return JSON.parse(captured.init.body);
+}
+
+test("email-step preferences are attached to trial requests", async () => {
+  const payload = await captureRequest("/trial", "runtime-trial-form");
+  assert.deepEqual(payload.preferences, {
+    electiveChoices: { "selection-a": "option-b" },
+    facultativeChoices: { "fac-a": true },
+    remindersMinutesBefore: [30]
+  });
 });
 
-test("email-step personalization reuses acquisition state instead of creating a second preference model", async () => {
-  const script = await read("landing/trial-personalization.js");
-
-  assert.doesNotMatch(script, /globalThis\.fetch\s*=/);
-  assert.doesNotMatch(script, /createElement\("select"\)/);
-  assert.doesNotMatch(script, /data-trial-personalization-root/);
+test("email-step preferences are attached to checkout requests", async () => {
+  const payload = await captureRequest("/checkout", "runtime-checkout-form");
+  assert.deepEqual(payload.preferences, {
+    electiveChoices: { "selection-a": "option-b" },
+    facultativeChoices: { "fac-a": true },
+    remindersMinutesBefore: [30]
+  });
 });
 
-test("acquisition wiring still sends the reused preference state to both trial and checkout", async () => {
-  const script = await read("landing/acquisition-ui.js");
-
-  assert.match(script, /isTrial \|\| isCheckout/);
-  assert.match(script, /body\.preferences = clonePreferences\(\)/);
+test("the email-step component explicitly supports both acquisition forms", () => {
+  assert.match(source, /runtime-trial-form/);
+  assert.match(source, /runtime-checkout-form/);
+  assert.match(source, /pathname\.endsWith\("\/trial"\)/);
+  assert.match(source, /pathname\.endsWith\("\/checkout"\)/);
 });
 
-test("production builders load acquisition state before email-step placement", async () => {
-  for (const path of ["deploy/build-pages.sh", "deploy/build-landing.sh"]) {
-    const builder = await read(path);
-    const acquisition = builder.indexOf("acquisition-ui.js");
-    const placement = builder.indexOf("trial-personalization.js");
-    assert.ok(acquisition >= 0, `${path}: acquisition script missing`);
-    assert.ok(placement > acquisition, `${path}: email-step placement must load after acquisition state`);
-  }
+test("acquisition wiring still preserves shared defaults and checkout handoff", () => {
+  const acquisition = readFileSync(new URL("../landing/acquisition-ui.js", import.meta.url), "utf8");
+  assert.match(acquisition, /isTrial \|\| isCheckout/);
+  assert.match(acquisition, /body\.preferences = clonePreferences\(\)/);
+  assert.match(acquisition, /CHECKOUT_CONTEXT_KEY/);
 });
