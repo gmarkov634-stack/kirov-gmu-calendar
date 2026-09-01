@@ -32,7 +32,7 @@ async function captureRequest(path, formId) {
     window: { location: { href: "https://calendar.example/" } },
     document: {
       documentElement: {},
-      readyState: "complete",
+      readyState: "loading",
       querySelector(selector) {
         return selector === `#${formId}` ? form : null;
       },
@@ -86,7 +86,26 @@ test("the email-step component explicitly supports both acquisition forms", () =
   assert.match(source, /pathname\.endsWith\("\/checkout"\)/);
 });
 
-test("acquisition wiring still preserves shared defaults and checkout handoff", () => {
+test("pre-choice personalization is suppressed before trial or purchase is selected", () => {
+  const refinements = readFileSync(new URL("../landing/acquisition-ux-refinements.js", import.meta.url), "utf8");
+  assert.match(refinements, /group-preview > \.acquisition-personalization/);
+  assert.match(refinements, /display:none !important/);
+  assert.match(refinements, /emailStepPersonalizationPlaceholder/);
+  assert.match(refinements, /panel\.replaceWith\(marker\)/);
+  assert.match(refinements, /#runtime-trial-email, #runtime-checkout-email/);
+});
+
+test("email preference wrapper loads before acquisition wrapper so form values win", () => {
+  for (const path of ["../deploy/build-pages.sh", "../deploy/build-landing.sh"]) {
+    const builder = readFileSync(new URL(path, import.meta.url), "utf8");
+    const emailPreferences = builder.indexOf("trial-personalization.js");
+    const acquisition = builder.indexOf("acquisition-ui.js");
+    assert.ok(emailPreferences >= 0, `${path}: email personalization script missing`);
+    assert.ok(acquisition > emailPreferences, `${path}: acquisition wrapper must load after email preference wrapper`);
+  }
+});
+
+test("acquisition wiring still preserves checkout handoff before form preferences override defaults", () => {
   const acquisition = readFileSync(new URL("../landing/acquisition-ui.js", import.meta.url), "utf8");
   assert.match(acquisition, /isTrial \|\| isCheckout/);
   assert.match(acquisition, /body\.preferences = clonePreferences\(\)/);
