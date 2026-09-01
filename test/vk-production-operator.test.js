@@ -13,8 +13,9 @@ async function text(url) {
 test('VK production operator is root-gated and resolves the token only through Cloud.ru Secret Management', async () => {
   const source = await text(operatorUrl);
   assert.match(source, /os\.geteuid\(\) != 0/);
-  assert.match(source, /\/etc\/medical-calendar\/cloudru\/key-id/);
-  assert.match(source, /\/etc\/medical-calendar\/cloudru\/key-secret/);
+  assert.match(source, /CLOUDRU_DIR = "\/etc\/medical-calendar\/cloudru"/);
+  assert.match(source, /f"\{CLOUDRU_DIR\}\/key-id"/);
+  assert.match(source, /f"\{CLOUDRU_DIR\}\/key-secret"/);
   assert.match(source, /secretmanager-product-instance-id/);
   assert.match(source, /https:\/\/iam\.api\.cloud\.ru\/api\/v1\/auth\/token/);
   assert.match(source, /https:\/\/secretmanager\.api\.cloud\.ru\/v1/);
