@@ -1,1 +1,1 @@
-ghrunner-medcal ALL=(root) NOPASSWD: /usr/local/sbin/medical-calendar-vk-ops list, /usr/local/sbin/medical-calendar-vk-ops publish, /usr/local/sbin/medical-calendar-vk-ops edit, /usr/local/sbin/medical-calendar-vk-ops delete
+ghrunner-medcal ALL=(root) NOPASSWD: /usr/local/sbin/medical-calendar-vk-status, /usr/local/sbin/medical-calendar-vk-ops publish, /usr/local/sbin/medical-calendar-vk-ops edit, /usr/local/sbin/medical-calendar-vk-ops delete
