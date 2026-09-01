@@ -4,14 +4,16 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("pre-connect personalization explains that settings remain editable", async () => {
+test("personalization is suppressed before activation and remains editable on the email step", async () => {
   const script = await read("landing/acquisition-ux-refinements.js");
-  assert.match(script, /\.acquisition-personalization/);
+  assert.match(script, /\.group-preview > \.acquisition-personalization/);
+  assert.match(script, /emailStepPersonalizationPlaceholder/);
+  assert.match(script, /\.trial-personalization, \.acquisition-personalization/);
   assert.match(script, /Настройки можно изменить позже на странице управления календарём\./);
   assert.match(script, /data-acquisition-management-note/);
 });
 
-test("trial iPhone handoff warns that removal of reminders must stay disabled", async () => {
+test("iPhone handoff warns that removal of reminders must stay disabled", async () => {
   const script = await read("landing/acquisition-ux-refinements.js");
   assert.match(script, /calendar-device-action\[href\^="webcal:\/\/"\]/);
   assert.match(script, /data-iphone-reminder-guidance/);
@@ -19,21 +21,23 @@ test("trial iPhone handoff warns that removal of reminders must stay disabled", 
   assert.match(script, /iOS удалит уведомления из подписного календаря/);
 });
 
-test("trial email handoff anchors at the start of its container without focusing the field", async () => {
+test("trial and checkout email handoffs anchor at the start of their container without focusing the field", async () => {
   const script = await read("landing/acquisition-ux-refinements.js");
-  assert.match(script, /#runtime-trial-email/);
+  assert.match(script, /#runtime-trial-email, #runtime-checkout-email/);
   assert.match(script, /closest\("\.trial-connect-card"\)/);
-  assert.match(script, /trialEmailAnchor/);
+  assert.match(script, /emailAnchor/);
   assert.match(script, /card\.scrollIntoView\(\{ block: "start", inline: "nearest" \}\)/);
   assert.doesNotMatch(script, /\.focus\(/);
 });
 
-test("both public landing builders load UX refinements after acquisition wiring", async () => {
+test("both public landing builders make email-form preferences the final request preferences", async () => {
   for (const path of ["deploy/build-pages.sh", "deploy/build-landing.sh"]) {
     const builder = await read(path);
+    const emailPersonalization = builder.indexOf("trial-personalization.js");
     const acquisition = builder.indexOf("acquisition-ui.js");
     const refinements = builder.indexOf("acquisition-ux-refinements.js");
-    assert.ok(acquisition >= 0, `${path}: acquisition wiring missing`);
-    assert.ok(refinements > acquisition, `${path}: refinement script must be inserted after acquisition wiring`);
+    assert.ok(emailPersonalization >= 0, `${path}: email personalization missing`);
+    assert.ok(acquisition > emailPersonalization, `${path}: acquisition wrapper must load after email personalization`);
+    assert.ok(refinements > acquisition, `${path}: refinement script must load after acquisition wiring`);
   }
 });
