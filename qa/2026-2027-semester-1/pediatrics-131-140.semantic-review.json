@@ -1,0 +1,53 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "pediatrics-131-140-2026-2027-semester-1",
+  "sourceSha256": "bdfeb2e127c5fe596a995fe553b1487bf3948771e7848368e69747c34035ad27",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "status": "REVIEW_REQUIRED",
+  "blocksPublication": true,
+  "reviewedScope": {
+    "programId": "pediatrics",
+    "course": 1,
+    "groups": ["131", "132", "133", "134", "135", "136", "137", "138", "139", "140"],
+    "sheetName": "1 пед. 10 гр."
+  },
+  "sourceChecks": {
+    "serverFetch": "pass",
+    "groupHeaders": "pass",
+    "workbookGeometry": "pass",
+    "logicalTimetableCellsClassified": 127,
+    "logicalTimetableCellsUnclassified": 0
+  },
+  "unresolvedAmbiguities": [
+    {
+      "ambiguityId": "PED1-K16-2026-12-15-PRACTICE-LOCATION",
+      "sourceLocator": "1 пед. 10 гр.!K16",
+      "groupId": "140",
+      "date": "2026-12-15",
+      "startTime": "11:00",
+      "endTime": "14:10",
+      "discipline": "Учебная практика. Практика по получению первичных профессиональных умений и навыков педиатрического профиля. Общий уход за детьми",
+      "rawSourceText": "13.00-14.30 Библиотечный час 08.09   1-307  11.00-12.30, 12.40-14.10  Учебная практика. Практика по получению первичных профессиональных  умений и навыков педиатрического профиля. Общий уход за детьми  15.12-12.01 -КОДКБ; 17.11-15.12 ДККДЦ",
+      "reason": "Both explicit inclusive date ranges contain 15.12.2026, but they specify different practice locations. Canonical ambiguity policy forbids choosing one location by inference.",
+      "choices": [
+        {
+          "choiceId": "KODKB",
+          "location": "Кировская областная детская клиническая больница (КОДКБ), ул. Менделеева, 16"
+        },
+        {
+          "choiceId": "DKKDC",
+          "location": "Детский клинический консультативно-диагностический центр (ДККДЦ), ул. Красноармейская, 43"
+        }
+      ]
+    }
+  ],
+  "confirmedNonBlockingPatterns": [
+    "Explicit dates override week-parity labels under R01.",
+    "Cross-weekday additional Biology sessions are linked to explicit source cells under R07-R09/R83; no dates are inferred from count-only notes.",
+    "Curator-hour cells without their own schedule use only the first two possible occurrences under R17.",
+    "Multiple independent events inside one physical cell are preserved under R49.",
+    "The repeated 16.01 graded-credit text in J45 and merged J46:K46 represents an exact semantic duplicate for group 139; final normalization must deduplicate it while retaining the merged J46:K46 event for groups 139-140.",
+    "Source-explicit overlaps, including the 15.01 graded-credit/History Medicine overlap for groups 137-138, must be preserved as QA warnings rather than silently removed."
+  ],
+  "nextGate": "User confirmation for PED1-K16-2026-12-15-PRACTICE-LOCATION is required before candidate normalization and QA pass."
+}
