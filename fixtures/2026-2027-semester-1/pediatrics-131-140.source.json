@@ -1,0 +1,35 @@
+{
+  "fixtureId": "pediatrics-131-140-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "pediatrics",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "pediatrics",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1085/1_ped-31-08-2026-09.xlsx",
+    "sha256": "bdfeb2e127c5fe596a995fe553b1487bf3948771e7848368e69747c34035ad27",
+    "byteLength": 20899,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": ["131", "132", "133", "134", "135", "136", "137", "138", "139", "140"],
+  "workbookExpectations": {
+    "sheetNames": ["1 пед. 10 гр."],
+    "maxRow": 65,
+    "maxColumn": 11,
+    "mergedRangeCount": 159,
+    "nonEmptyCellCount": 197
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-09-01"
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}
