@@ -44,33 +44,39 @@ def discover_source() -> dict:
     return {"program": "pediatrics", "course": 4, "groups": [str(value) for value in range(431, 437)], "url": matches[0]}
 
 
+def json_scalar(value):
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
 def color_dump(color) -> dict | None:
     if color is None:
         return None
-    result = {"type": color.type}
+    result = {"type": json_scalar(color.type)}
     for key in ("rgb", "indexed", "theme", "tint"):
         value = getattr(color, key, None)
         if value is not None:
-            result[key] = value
+            result[key] = json_scalar(value)
     return result
 
 
 def border_side_dump(side) -> dict:
-    return {"style": side.style, "color": color_dump(side.color)}
+    return {"style": json_scalar(side.style), "color": color_dump(side.color)}
 
 
 def visual_dump(cell) -> dict:
     return {
-        "styleId": getattr(cell, "style_id", None),
+        "styleId": json_scalar(getattr(cell, "style_id", None)),
         "fill": {
-            "type": cell.fill.fill_type,
+            "type": json_scalar(cell.fill.fill_type),
             "fgColor": color_dump(cell.fill.fgColor),
             "bgColor": color_dump(cell.fill.bgColor),
         },
         "font": {
-            "bold": cell.font.bold,
-            "italic": cell.font.italic,
-            "underline": cell.font.underline,
+            "bold": json_scalar(cell.font.bold),
+            "italic": json_scalar(cell.font.italic),
+            "underline": json_scalar(cell.font.underline),
             "color": color_dump(cell.font.color),
         },
         "border": {
@@ -80,12 +86,12 @@ def visual_dump(cell) -> dict:
             "bottom": border_side_dump(cell.border.bottom),
         },
         "alignment": {
-            "horizontal": cell.alignment.horizontal,
-            "vertical": cell.alignment.vertical,
-            "textRotation": cell.alignment.textRotation,
-            "wrapText": cell.alignment.wrapText,
+            "horizontal": json_scalar(cell.alignment.horizontal),
+            "vertical": json_scalar(cell.alignment.vertical),
+            "textRotation": json_scalar(cell.alignment.textRotation),
+            "wrapText": json_scalar(cell.alignment.wrapText),
         },
-        "numberFormat": cell.number_format,
+        "numberFormat": json_scalar(cell.number_format),
     }
 
 
@@ -138,9 +144,9 @@ def workbook_dump(source: dict) -> dict:
             for validation in sheet.data_validations.dataValidation:
                 validations.append({
                     "sqref": str(validation.sqref),
-                    "type": validation.type,
-                    "formula1": validation.formula1,
-                    "formula2": validation.formula2,
+                    "type": json_scalar(validation.type),
+                    "formula1": json_scalar(validation.formula1),
+                    "formula2": json_scalar(validation.formula2),
                 })
         hidden_rows = [index for index, dimension in sheet.row_dimensions.items() if dimension.hidden]
         hidden_columns = [key for key, dimension in sheet.column_dimensions.items() if dimension.hidden]
@@ -172,7 +178,7 @@ def workbook_dump(source: dict) -> dict:
         })
     defined_names = []
     for name, definition in workbook.defined_names.items():
-        defined_names.append({"name": name, "attrText": definition.attr_text, "hidden": definition.hidden})
+        defined_names.append({"name": name, "attrText": json_scalar(definition.attr_text), "hidden": json_scalar(definition.hidden)})
     return {
         **source,
         "sha256": hashlib.sha256(data).hexdigest(),
