@@ -1,6 +1,7 @@
 name: Build dentistry 391-394 normalized draft
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - feat/dentistry-391-394-2026-27-s1
