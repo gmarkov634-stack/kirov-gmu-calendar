@@ -44,6 +44,8 @@ jobs:
         run: node fixtures/tools/compute_pediatrics_431_436_candidate.mjs
       - name: Run Pediatrics course-4 normalization and snapshot tests
         run: node --test test/pediatrics-431-436-normalization.test.js test/pediatrics-431-436-snapshot.test.js
+      - name: Run repository regression tests
+        run: npm test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
