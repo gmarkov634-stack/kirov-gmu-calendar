@@ -50,6 +50,14 @@ async function loadPlan() {
 }
 
 async function verifyCoreBoundary(coreRoot, coreEvidence) {
+  const deployedCommit = (await readFile(resolve(coreRoot, '.deployed-commit'), 'utf8')).trim();
+  if (!/^[0-9a-f]{40}$/.test(deployedCommit)) {
+    throw new Error(`deployed core commit marker is invalid: ${deployedCommit}`);
+  }
+  if (deployedCommit !== coreEvidence.commit) {
+    throw new Error(`deployed core commit mismatch: ${deployedCommit}`);
+  }
+
   const [schema, renderer] = await Promise.all([
     readFile(resolve(coreRoot, 'contracts/normalized-event.schema.json')),
     readFile(resolve(coreRoot, 'src/calendar/ics-renderer.js'))
@@ -62,7 +70,7 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   if (rendererBlob !== coreEvidence.icsRendererBlob) {
     throw new Error(`deployed core ICS renderer blob mismatch: ${rendererBlob}`);
   }
-  return { schemaBlob, rendererBlob };
+  return { commit: deployedCommit, schemaBlob, rendererBlob };
 }
 
 const { plan, qa } = await loadPlan();
