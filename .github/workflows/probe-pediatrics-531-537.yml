@@ -8,9 +8,11 @@ on:
       - 'fixtures/tools/probe_pediatrics_531_537_source.py'
       - 'fixtures/tools/analyze_pediatrics_531_537_source.py'
       - 'fixtures/tools/build_pediatrics_531_537_candidate.py'
+      - 'fixtures/tools/resolve_pediatrics_531_537_pe.py'
       - 'fixtures/tools/qa_pediatrics_531_537_candidate.mjs'
       - 'fixtures/2026-2027-semester-1/pediatrics-531-537.source.json'
       - 'fixtures/2026-2027-semester-1/pediatrics-531-537.parsing-job.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-531-537.operator-resolution.json'
       - '.github/workflows/probe-pediatrics-531-537.yml'
 
 permissions:
@@ -34,9 +36,11 @@ jobs:
         run: python fixtures/tools/probe_pediatrics_531_537_source.py
       - name: Build structural source inventory
         run: python fixtures/tools/analyze_pediatrics_531_537_source.py
-      - name: Build explicit normalized draft
+      - name: Build explicit normalized draft base
         run: python fixtures/tools/build_pediatrics_531_537_candidate.py
-      - name: Run normalized draft QA
+      - name: Apply confirmed Thursday PE resolution
+        run: python fixtures/tools/resolve_pediatrics_531_537_pe.py
+      - name: Run fully normalized draft QA
         run: node fixtures/tools/qa_pediatrics_531_537_candidate.mjs
       - name: Commit reproducible draft and QA evidence
         shell: bash
@@ -56,7 +60,7 @@ jobs:
             echo 'draft and QA evidence unchanged'
             exit 0
           fi
-          git commit -m 'Record pediatrics 531-537 normalized draft QA'
+          git commit -m 'Record resolved pediatrics 531-537 normalized draft QA'
           git push origin HEAD:feat/pediatrics-531-537-2026-27-s1
       - uses: actions/upload-artifact@v4
         if: always()
@@ -67,6 +71,7 @@ jobs:
             pediatrics-531-537-source-inventory.json
             fixtures/2026-2027-semester-1/pediatrics-531-537.source.json
             fixtures/2026-2027-semester-1/pediatrics-531-537.parsing-job.json
+            fixtures/2026-2027-semester-1/pediatrics-531-537.operator-resolution.json
             fixtures/2026-2027-semester-1/pediatrics-531-537.decisions.json
             qa/2026-2027-semester-1/pediatrics-531-537.semantic-review.json
             qa/2026-2027-semester-1/pediatrics-531-537.normalized-draft.json
