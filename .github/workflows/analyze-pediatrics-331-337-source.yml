@@ -8,6 +8,7 @@ on:
       - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source-probe.json'
       - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
       - 'fixtures/tools/analyze_pediatrics_331_337_source.py'
+      - 'fixtures/tools/audit_pediatrics_331_337_cross_day.py'
       - '.github/workflows/analyze-pediatrics-331-337-source.yml'
 
 permissions:
@@ -25,16 +26,20 @@ jobs:
           python-version: '3.12'
       - name: Build mechanical semantic-review inventory
         run: python fixtures/tools/analyze_pediatrics_331_337_source.py
-      - name: Commit inventory evidence
+      - name: Audit all cross-day source cues
+        run: python fixtures/tools/audit_pediatrics_331_337_cross_day.py
+      - name: Commit inventory and cross-day evidence
         shell: bash
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add qa/2026-2027-semester-1/pediatrics-331-337.source-inventory.json
+          git add \
+            qa/2026-2027-semester-1/pediatrics-331-337.source-inventory.json \
+            qa/2026-2027-semester-1/pediatrics-331-337.cross-day-audit.json
           if git diff --cached --quiet; then
-            echo 'inventory unchanged'
+            echo 'review evidence unchanged'
             exit 0
           fi
-          git commit -m 'Record pediatrics 331-337 source inventory'
+          git commit -m 'Record pediatrics 331-337 source review evidence'
           git push origin HEAD:feat/pediatrics-331-337-2026-27-s1
