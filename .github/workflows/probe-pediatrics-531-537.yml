@@ -1,0 +1,39 @@
+name: Probe pediatrics 531-537 official source
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-531-537-2026-27-s1
+    paths:
+      - 'fixtures/tools/probe_pediatrics_531_537_source.py'
+      - '.github/workflows/probe-pediatrics-531-537.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-531-537-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_pediatrics_531_537_source.py
+      - name: Commit mechanical probe evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add fixtures/2026-2027-semester-1/pediatrics-531-537.source-probe.json
+          if git diff --cached --quiet; then
+            echo 'probe unchanged'
+            exit 0
+          fi
+          git commit -m 'Record pediatrics 531-537 source probe'
+          git push origin HEAD:feat/pediatrics-531-537-2026-27-s1
