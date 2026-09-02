@@ -1,0 +1,42 @@
+{
+  "schema": "kgmu-pediatrics-publication-evidence-v1",
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-331-337-publication-v1",
+  "parsingJobId": "parsing-job-pediatrics-331-337-reviewed-candidate-v1",
+  "sourceSha256": "894e844bba40c75c8b7851d383974feba3a1a68f8b41b98312455c2593110555",
+  "candidateDigest": "sha256:19fcc970c203a672a4d2da12eb3e4791b48312c3c3d2d84943dc7ffd6b3129dc",
+  "eventCount": 1781,
+  "groupEventCounts": {
+    "331": 254,
+    "332": 254,
+    "333": 253,
+    "334": 254,
+    "335": 255,
+    "336": 255,
+    "337": 256
+  },
+  "checks": [
+    {
+      "code": "candidate-qa-pass",
+      "status": "pass",
+      "message": "The reviewed course-3 candidate QA decision is pass with no blocking issues."
+    },
+    {
+      "code": "candidate-digest-reproduced",
+      "status": "pass",
+      "message": "The explicit decision manifest deterministically reproduces the reviewed 1781-event candidate digest."
+    },
+    {
+      "code": "shared-contract-boundary",
+      "status": "pass",
+      "message": "Current medical-calendar-core main and the audited production runtime retain the same pinned floating-event NormalizedEvent schema and ICS renderer blobs required for guarded publication."
+    }
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "8643642a4aa889b8e8dc1b444a7c2ea3719d0602",
+    "productionRuntimeCommit": "5a35ce015949c7163f41478cfc20003e2e28729d",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "a9b61d6bb5da412e2f6ff0b5b85474af41e6216e"
+  },
+  "createdAt": "2026-09-02T10:50:00Z"
+}
