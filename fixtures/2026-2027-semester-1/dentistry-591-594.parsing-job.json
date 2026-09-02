@@ -3,12 +3,19 @@
   "universityId": "kirov-gmu",
   "academicPeriodId": "2026-2027-semester-1",
   "sourceId": "dentistry",
+  "sourceArtifactId": "source-artifact-dentistry-591-594-2026-09-03-v1",
   "sourceObjectKey": "sources/kirov-gmu/2026-2027/semester-1/0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109.xlsx",
+  "sourceSha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+  "parserProfile": "cyclic",
+  "profileLayer": "C",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "courseParserRulesVersion": "dentistry-591-594-v1",
   "expectedGroupIds": ["591", "592", "593", "594"],
   "requestedAt": "2026-09-03T00:00:00+02:00",
   "idempotency": {
     "key": "dentistry|2026-2027-semester-1|0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109|kgmu-2026-08-27-v3|591,592,593,594",
     "reuseExisting": true
-  }
+  },
+  "publicationRequested": false,
+  "productionDatabaseWritePerformed": false
 }
