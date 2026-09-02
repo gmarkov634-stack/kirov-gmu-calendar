@@ -1,0 +1,44 @@
+name: Build dentistry 291-294 normalized draft
+
+on:
+  push:
+    branches:
+      - feat/dentistry-291-294-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/dentistry-291-294.source.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-291-294.parsing-job.json'
+      - 'fixtures/tools/build_dentistry_291_294_candidate.py'
+      - '.github/workflows/build-dentistry-291-294-candidate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dentistry-291-294-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Build source-bound normalized draft and QA
+        run: python fixtures/tools/build_dentistry_291_294_candidate.py
+      - name: Commit deterministic candidate and QA evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            fixtures/2026-2027-semester-1/normalized/dentistry-291-294.normalized.compact.json \
+            qa/2026-2027-semester-1/dentistry-291-294.qa-report.json \
+            qa/2026-2027-semester-1/dentistry-291-294.evidence.json
+          if git diff --cached --quiet; then
+            echo 'normalized draft and QA unchanged'
+            exit 0
+          fi
+          git commit -m 'Record dentistry 291-294 normalized draft and QA'
+          git push origin HEAD:feat/dentistry-291-294-2026-27-s1
