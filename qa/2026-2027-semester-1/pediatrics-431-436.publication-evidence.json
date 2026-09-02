@@ -1,0 +1,22 @@
+{
+  "schema": "kgmu-pediatrics-publication-evidence-v1",
+  "sourceSha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
+  "candidateDigest": "sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd",
+  "eventCount": 768,
+  "groupEventCounts": {
+    "431": 128,
+    "432": 128,
+    "433": 128,
+    "434": 128,
+    "435": 128,
+    "436": 128
+  },
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "8643642a4aa889b8e8dc1b444a7c2ea3719d0602",
+    "productionRuntimeCommit": "5a35ce015949c7163f41478cfc20003e2e28729d",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "a9b61d6bb5da412e2f6ff0b5b85474af41e6216e"
+  },
+  "createdAt": "2026-09-02T10:55:00Z"
+}
