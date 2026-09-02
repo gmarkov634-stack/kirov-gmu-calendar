@@ -54,7 +54,11 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   if (!/^[0-9a-f]{40}$/.test(deployedCommit)) {
     throw new Error(`deployed core commit marker is invalid: ${deployedCommit}`);
   }
-  if (deployedCommit !== coreEvidence.commit) {
+  const approvedProductionCommit = coreEvidence.productionRuntimeCommit;
+  if (typeof approvedProductionCommit !== 'string' || !/^[0-9a-f]{40}$/.test(approvedProductionCommit)) {
+    throw new Error('approved production core commit is missing or invalid');
+  }
+  if (deployedCommit !== approvedProductionCommit) {
     throw new Error(`deployed core commit mismatch: ${deployedCommit}`);
   }
 
@@ -70,7 +74,12 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   if (rendererBlob !== coreEvidence.icsRendererBlob) {
     throw new Error(`deployed core ICS renderer blob mismatch: ${rendererBlob}`);
   }
-  return { commit: deployedCommit, schemaBlob, rendererBlob };
+  return {
+    commit: deployedCommit,
+    approvedMainCommit: coreEvidence.commit,
+    schemaBlob,
+    rendererBlob
+  };
 }
 
 const { plan, qa } = await loadPlan();
