@@ -20,7 +20,7 @@ function countByGroup(events) {
   );
 }
 
-test('Pediatrics course 2 provisional manifest is internally exact but publication-blocked', async () => {
+test('Pediatrics course 2 manifest is internally exact and semantic QA passes', async () => {
   const [source, manifest, evidence, review, qa] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/pediatrics-231-239.source.json'),
     readJson('fixtures/2026-2027-semester-1/pediatrics-231-239.decisions.json'),
@@ -48,10 +48,14 @@ test('Pediatrics course 2 provisional manifest is internally exact but publicati
   assert.equal(digest, qa.candidateDigest);
   assert.deepEqual(countByGroup(events), evidence.groupEventCounts);
 
-  assert.equal(review.status, 'REVIEW_REQUIRED');
-  assert.equal(review.blocksPublication, true);
-  assert.equal(review.unresolvedAmbiguities.length, 1);
-  assert.equal(review.unresolvedAmbiguities[0].ambiguityId, 'PED2-D33-D11-BIOCHEM-EXTRA-MONDAY');
-  assert.equal(qa.decision, 'review_required');
-  assert.ok(qa.checks.some((check) => check.code === 'semantic-review-gate' && check.status === 'fail'));
+  assert.equal(review.status, 'PASS');
+  assert.equal(review.blocksPublication, false);
+  assert.equal(review.unresolvedAmbiguities.length, 0);
+  assert.equal(review.resolvedAmbiguities.length, 1);
+  assert.equal(review.resolvedAmbiguities[0].ambiguityId, 'PED2-D33-D11-BIOCHEM-EXTRA-MONDAY');
+  assert.equal(review.resolvedAmbiguities[0].resolvedEvent.date, '2026-12-08');
+  assert.equal(review.resolvedAmbiguities[0].resolutionBasis, 'user-confirmed-explicit-source-date');
+  assert.equal(qa.decision, 'pass');
+  assert.deepEqual(qa.semanticReview.operatorConfirmationIds, ['USER-2026-09-02-PED2-KEEP-08-12']);
+  assert.ok(qa.checks.some((check) => check.code === 'semantic-review-gate' && check.status === 'pass'));
 });
