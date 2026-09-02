@@ -3,7 +3,7 @@ name: Probe and QA pediatrics 531-537 normalized draft
 on:
   push:
     branches:
-      - feat/pediatrics-531-537-2026-27-s1
+      - sync/pediatrics-531-537-current-main
     paths:
       - 'fixtures/tools/probe_pediatrics_531_537_source.py'
       - 'fixtures/tools/analyze_pediatrics_531_537_source.py'
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/pediatrics-531-537-2026-27-s1
+          ref: sync/pediatrics-531-537-current-main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -61,7 +61,7 @@ jobs:
             exit 0
           fi
           git commit -m 'Record resolved pediatrics 531-537 normalized draft QA'
-          git push origin HEAD:feat/pediatrics-531-537-2026-27-s1
+          git push origin HEAD:sync/pediatrics-531-537-current-main
       - uses: actions/upload-artifact@v4
         if: always()
         with:
