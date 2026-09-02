@@ -3,6 +3,7 @@
 
 No semantic inference is performed here. The complete XLSX is pinned by the official
 source SHA-256; decision locators must cover every non-empty timetable source cell.
+R90 expansion is permitted only from a separate explicit manual-confirmation artifact.
 """
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ SOURCE = PERIOD / "dentistry-191-194.source.json"
 SOURCE_ARTIFACT = PERIOD / "dentistry-191-194.source-artifact.json"
 PARSING_JOB = PERIOD / "dentistry-191-194.parsing-job.json"
 DECISIONS = PERIOD / "dentistry-191-194.decisions.json"
+R90_CONFIRMATION = PERIOD / "dentistry-191-194.r90-confirmation.json"
 PROBE = QA / "dentistry-191-194.source-probe.json"
 NORMALIZED = PERIOD / "normalized" / "dentistry-191-194.normalized.json"
 EVIDENCE = QA / "dentistry-191-194.evidence.json"
@@ -57,6 +59,88 @@ def service_dates():
             result.add(current.isoformat())
             current += timedelta(days=1)
     return result
+
+
+def materialize_r90_confirmation(decisions):
+    """Convert the single B49 R90 review item into explicit weekly decisions.
+
+    This is intentionally course-local and fail-closed: absent/false/mismatched
+    confirmation leaves the review item untouched.
+    """
+    if not R90_CONFIRMATION.exists():
+        return
+
+    confirmation = load(R90_CONFIRMATION)
+    if not confirmation.get("periodicityConfirmed"):
+        return
+
+    assert confirmation["schema"] == "kgmu-r90-manual-confirmation-v1"
+    assert confirmation["id"] == "dentistry-191-194-facultatives-weekly-periodicity"
+    assert confirmation["sourceCell"] == "B49"
+    assert confirmation["weekGridCell"] == "B50"
+    assert confirmation["groupIds"] == EXPECTED_GROUPS
+    assert confirmation["recurrence"] == "every-service-week"
+
+    matches = [x for x in decisions["unresolved"] if x["id"] == confirmation["id"]]
+    if not matches:
+        assert decisions["resolvedMainTableSourceCellCount"] == decisions["logicalMainTableSourceCellCount"] == 77
+        assert any(x["sourceCell"] == "B49" and x.get("facultativeId") for x in decisions["decisions"])
+        return
+
+    assert len(matches) == 1
+    unresolved = matches[0]
+    assert unresolved["rule"] == "R90"
+    assert unresolved["sourceCell"] == confirmation["sourceCell"]
+    assert unresolved["weekGridCell"] == confirmation["weekGridCell"]
+    assert unresolved["groupIds"] == confirmation["groupIds"]
+    assert unresolved["groupScopeResolved"] is True
+    assert unresolved["serviceWeekGridResolved"] is True
+
+    allowed_dates = service_dates()
+    generated = []
+    for index, facultative in enumerate(unresolved["proposedFacultatives"], start=1):
+        weekday = facultative["weekday"]
+        dates = sorted(
+            event_date
+            for event_date in allowed_dates
+            if date.fromisoformat(event_date).isoweekday() == weekday
+        )
+        assert dates, facultative["facultativeId"]
+
+        decision = {
+            "id": f"B49#r90-{index}",
+            "sourceCell": "B49",
+            "sourceLocator": f"1 стомат.!B49#r90-{index}",
+            "groupIds": list(EXPECTED_GROUPS),
+            "dates": dates,
+            "startTime": facultative["startTime"],
+            "endTime": facultative["endTime"],
+            "discipline": facultative["discipline"],
+            "lessonType": "other",
+            "location": None,
+            "facultativeId": facultative["facultativeId"],
+        }
+        if "assessment" in facultative:
+            decision["assessment"] = facultative["assessment"]
+        generated.append(decision)
+
+    decisions["decisions"].extend(generated)
+    decisions["unresolved"] = [
+        item for item in decisions["unresolved"] if item["id"] != confirmation["id"]
+    ]
+    decisions["resolvedMainTableSourceCellCount"] = 77
+    decisions["manualConfirmations"] = [
+        {
+            "id": confirmation["id"],
+            "rule": "R90",
+            "sourceCell": confirmation["sourceCell"],
+            "weekGridCell": confirmation["weekGridCell"],
+            "periodicityConfirmed": True,
+            "recurrence": confirmation["recurrence"],
+            "confirmedOn": confirmation["confirmedOn"],
+            "provenance": confirmation["provenance"],
+        }
+    ]
 
 
 def strip_bad_cell_hash_metadata(decisions):
@@ -103,6 +187,8 @@ def validate_cross_check(check, by_id):
 def main():
     source, artifact, job = load(SOURCE), load(SOURCE_ARTIFACT), load(PARSING_JOB)
     decisions, probe = load(DECISIONS), load(PROBE)
+    materialize_r90_confirmation(decisions)
+
     source_meta, probe_source = source["source"], probe["source"]
     assert source_meta["sha256"] == decisions["sourceSha256"] == artifact["sha256"] == probe_source["sha256"]
     assert source_meta["url"] == artifact["originUrl"] == probe_source["url"]
@@ -117,8 +203,10 @@ def main():
     decision_cells = {x["sourceCell"] for x in decisions["decisions"]}
     unresolved_cells = {x["sourceCell"] for x in decisions["unresolved"]}
     assert len(source_cells) == decisions["logicalMainTableSourceCellCount"] == 77
-    assert len(decision_cells) == decisions["resolvedMainTableSourceCellCount"] == 76
+    assert len(decision_cells) == decisions["resolvedMainTableSourceCellCount"]
+    assert len(decision_cells) + len(unresolved_cells) == len(source_cells)
     assert source_cells == decision_cells | unresolved_cells and decision_cells.isdisjoint(unresolved_cells)
+
     for item in decisions["decisions"]:
         assert item["sourceCell"] in probe_cells, item["sourceCell"]
         assert item["groupIds"] and set(item["groupIds"]).issubset(EXPECTED_GROUPS), item["id"]
@@ -138,10 +226,17 @@ def main():
                 key = "|".join([group_id, event_date, item["startTime"], item["endTime"], item["discipline"], item["sourceLocator"]])
                 event = {
                     "eventId": "kgmu-" + hashlib.sha256(key.encode()).hexdigest()[:24],
-                    "universityId": "kirov-gmu", "academicPeriodId": "2026-2027-semester-1",
-                    "groupId": group_id, "date": event_date, "startTime": item["startTime"], "endTime": item["endTime"],
-                    "timeSemantics": "floating", "discipline": item["discipline"], "lessonType": item["lessonType"],
-                    "location": item["location"], "teacher": None,
+                    "universityId": "kirov-gmu",
+                    "academicPeriodId": "2026-2027-semester-1",
+                    "groupId": group_id,
+                    "date": event_date,
+                    "startTime": item["startTime"],
+                    "endTime": item["endTime"],
+                    "timeSemantics": "floating",
+                    "discipline": item["discipline"],
+                    "lessonType": item["lessonType"],
+                    "location": item["location"],
+                    "teacher": None,
                     "sourceRef": {"sourceId": "dentistry", "locator": item["sourceLocator"]},
                 }
                 for field in ("facultativeId", "notes", "assessment"):
@@ -153,6 +248,7 @@ def main():
     signatures = Counter((x["groupId"], x["date"], x["startTime"], x["endTime"], x["discipline"], x.get("facultativeId")) for x in events)
     duplicates = [sig for sig, count in signatures.items() if count > 1]
     assert not duplicates, duplicates[:5]
+
     by_id = {x["id"]: x for x in decisions["decisions"]}
     assert len(by_id) == len(decisions["decisions"])
     for check in decisions["crossChecks"]:
@@ -167,18 +263,35 @@ def main():
             for right in ordered[i + 1:]:
                 if minutes(right["startTime"]) >= minutes(left["endTime"]):
                     break
-                overlaps.append({"groupId": group_id, "date": event_date, "left": left["sourceRef"]["locator"], "right": right["sourceRef"]["locator"]})
+                overlaps.append({
+                    "groupId": group_id,
+                    "date": event_date,
+                    "left": left["sourceRef"]["locator"],
+                    "right": right["sourceRef"]["locator"],
+                })
 
     counts = Counter(x["groupId"] for x in events)
     core = {
-        "schema": "kgmu-normalized-draft-v1", "fixtureId": decisions["fixtureId"], "sourceFixtureId": source["fixtureId"],
-        "sourceSha256": decisions["sourceSha256"], "parserRulesVersion": decisions["parserRulesVersion"],
+        "schema": "kgmu-normalized-draft-v1",
+        "fixtureId": decisions["fixtureId"],
+        "sourceFixtureId": source["fixtureId"],
+        "sourceSha256": decisions["sourceSha256"],
+        "parserRulesVersion": decisions["parserRulesVersion"],
         "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "NORMALIZED",
-        "assessmentMetadata": decisions["assessmentMetadata"], "events": events,
+        "assessmentMetadata": decisions["assessmentMetadata"],
+        "events": events,
     }
     digest = "sha256:" + hashlib.sha256(stable_json(core).encode()).hexdigest()
     candidate = {**core, "candidateDigest": digest}
-    review = {"schema": "kgmu-semantic-review-v1", "fixtureId": decisions["fixtureId"], "sourceSha256": decisions["sourceSha256"], "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "RESOLVED", "items": decisions["unresolved"]}
+
+    review = {
+        "schema": "kgmu-semantic-review-v1",
+        "fixtureId": decisions["fixtureId"],
+        "sourceSha256": decisions["sourceSha256"],
+        "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "RESOLVED",
+        "items": decisions["unresolved"],
+        "manualConfirmations": decisions.get("manualConfirmations", []),
+    }
     checks = [
         {"code":"source-identity-coherent","status":"pass","message":"source fixture, SourceArtifact, ParsingJob and mechanical probe resolve to the same official XLSX SHA-256"},
         {"code":"main-table-content-accounted-for","status":"pass","message":f"{len(decision_cells)}/{len(source_cells)} main-table cells normalized; {len(unresolved_cells)} represented explicitly in semantic review"},
@@ -189,17 +302,65 @@ def main():
         {"code":"assessment-metadata-lossless","status":"pass","message":f"{len(decisions['assessmentMetadata'])} source-explicit assessment metadata mappings preserved"},
         {"code":"duplicate-events-resolved","status":"pass","message":"0 duplicate normalized event signatures"},
         {"code":"source-backed-overlaps-preserved","status":"warning" if overlaps else "pass","message":f"{len(overlaps)} overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"},
-        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved item(s): R90 periodicity confirmation blocks B49 expansion/publication" if decisions["unresolved"] else "0 unresolved semantic ambiguities"},
+        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved item(s): R90 periodicity confirmation blocks B49 expansion/publication" if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"},
         {"code":"publication-not-performed","status":"pass","message":"QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"},
     ]
     qa_decision = "review-required" if decisions["unresolved"] else "pass"
-    report = {"qaReportId":"qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v2","parsingJobId":job["jobId"],"candidateDigest":digest,"decision":qa_decision,"checks":checks,"eventCount":len(events),"eventCountByGroup":dict(sorted(counts.items())),"overlapPairCount":len(overlaps),"unresolvedSemanticItemCount":len(decisions["unresolved"]),"readyForScheduleVersion":not decisions["unresolved"],"publicationPerformed":False}
-    evidence = {"schema":"kgmu-dentistry-191-194-evidence-v1","fixtureId":decisions["fixtureId"],"sourceSha256":decisions["sourceSha256"],"sourceArtifactId":artifact["sourceArtifactId"],"parsingJobId":job["jobId"],"candidateDigest":digest,"logicalMainTableSourceCellCount":len(source_cells),"resolvedMainTableSourceCellCount":len(decision_cells),"normalizedBaseEventCount":len(events),"eventCountByGroup":dict(sorted(counts.items())),"duplicateSignatureCount":len(duplicates),"overlapPairs":overlaps,"assessmentMetadataCount":len(decisions["assessmentMetadata"]),"crossCheckCount":len(decisions["crossChecks"]),"unresolved":decisions["unresolved"]}
+    report = {
+        "qaReportId":"qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v3",
+        "parsingJobId":job["jobId"],
+        "candidateDigest":digest,
+        "decision":qa_decision,
+        "checks":checks,
+        "eventCount":len(events),
+        "eventCountByGroup":dict(sorted(counts.items())),
+        "overlapPairCount":len(overlaps),
+        "unresolvedSemanticItemCount":len(decisions["unresolved"]),
+        "readyForScheduleVersion":not decisions["unresolved"],
+        "publicationPerformed":False,
+    }
+    evidence = {
+        "schema":"kgmu-dentistry-191-194-evidence-v1",
+        "fixtureId":decisions["fixtureId"],
+        "sourceSha256":decisions["sourceSha256"],
+        "sourceArtifactId":artifact["sourceArtifactId"],
+        "parsingJobId":job["jobId"],
+        "candidateDigest":digest,
+        "logicalMainTableSourceCellCount":len(source_cells),
+        "resolvedMainTableSourceCellCount":len(decision_cells),
+        "normalizedBaseEventCount":len(events),
+        "eventCountByGroup":dict(sorted(counts.items())),
+        "duplicateSignatureCount":len(duplicates),
+        "overlapPairs":overlaps,
+        "assessmentMetadataCount":len(decisions["assessmentMetadata"]),
+        "crossCheckCount":len(decisions["crossChecks"]),
+        "unresolved":decisions["unresolved"],
+        "manualConfirmations":decisions.get("manualConfirmations", []),
+    }
 
-    NORMALIZED.parent.mkdir(parents=True, exist_ok=True); QA.mkdir(parents=True, exist_ok=True)
-    for path, value in ((NORMALIZED,candidate),(EVIDENCE,evidence),(SEMANTIC_REVIEW,review),(QA_REPORT,report)):
+    NORMALIZED.parent.mkdir(parents=True, exist_ok=True)
+    QA.mkdir(parents=True, exist_ok=True)
+    for path, value in (
+        (NORMALIZED,candidate),
+        (EVIDENCE,evidence),
+        (SEMANTIC_REVIEW,review),
+        (QA_REPORT,report),
+    ):
         path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"candidateDigest":digest,"eventCount":len(events),"eventCountByGroup":dict(sorted(counts.items())),"duplicateSignatureCount":len(duplicates),"overlapPairCount":len(overlaps),"resolvedMainTableSourceCellCount":len(decision_cells),"logicalMainTableSourceCellCount":len(source_cells),"unresolvedSemanticItemCount":len(decisions["unresolved"]),"qaDecision":qa_decision,"readyForScheduleVersion":not decisions["unresolved"]}, ensure_ascii=False, indent=2))
+
+    print(json.dumps({
+        "candidateDigest":digest,
+        "eventCount":len(events),
+        "eventCountByGroup":dict(sorted(counts.items())),
+        "duplicateSignatureCount":len(duplicates),
+        "overlapPairCount":len(overlaps),
+        "resolvedMainTableSourceCellCount":len(decision_cells),
+        "logicalMainTableSourceCellCount":len(source_cells),
+        "unresolvedSemanticItemCount":len(decisions["unresolved"]),
+        "qaDecision":qa_decision,
+        "readyForScheduleVersion":not decisions["unresolved"],
+    }, ensure_ascii=False, indent=2))
+
 
 if __name__ == "__main__":
     main()
