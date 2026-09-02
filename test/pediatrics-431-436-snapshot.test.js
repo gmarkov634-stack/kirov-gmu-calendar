@@ -37,7 +37,10 @@ for (const [key, dayEvents] of byDay) {
       const a = dayEvents[left];
       const b = dayEvents[right];
       if (minutes(a.startTime) >= minutes(b.endTime) || minutes(b.startTime) >= minutes(a.endTime)) continue;
-      overlaps.push([key, a.discipline, b.discipline].join('|'));
+      overlaps.push({
+        key,
+        disciplines: [a.discipline, b.discipline]
+      });
     }
   }
 }
@@ -69,15 +72,15 @@ test('normalized draft digest and counts stay locked to the reviewed QA baseline
 
 test('the four reviewed C13 overlap pairs remain exact and source-backed', () => {
   assert.equal(overlaps.length, 4);
-  assert.deepEqual(overlaps.map((value) => value.split('|')[0]).sort(), [
+  assert.deepEqual(overlaps.map((value) => value.key).sort(), [
     '431|2026-12-16',
     '431|2026-12-23',
     '432|2026-12-09',
     '435|2026-10-21'
   ]);
-  for (const signature of overlaps) {
-    assert.match(signature, /Факультетская терапия, профессиональные болезни/);
-    assert.match(signature, /Дисциплины по физической культуре и спорту/);
+  for (const overlap of overlaps) {
+    assert.ok(overlap.disciplines.includes('Факультетская терапия, профессиональные болезни'));
+    assert.ok(overlap.disciplines.includes('Дисциплины по физической культуре и спорту'));
   }
   assert.equal(report.candidate.overlapPairCount, 4);
 });
