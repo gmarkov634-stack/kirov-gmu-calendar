@@ -94,14 +94,16 @@ def preceding_time_start(text: str, discipline_start: int, lower_bound: int):
     candidates = [m for m in TIME_RANGE_RE.finditer(text, lower_bound, discipline_start)]
     if not candidates:
         return None
-    # A segment may start with two adjacent time ranges; include both by walking
-    # backward while only punctuation/whitespace separates them.
+    # A segment may start with two adjacent lesson time ranges. Include the
+    # previous range only when explicit punctuation separates them; plain
+    # whitespace is insufficient because a source date range such as
+    # 07.09-23.11 may otherwise be mistaken for lesson time.
     first = candidates[-1]
     start = first.start()
     if len(candidates) >= 2:
         prev = candidates[-2]
         between = text[prev.end():first.start()]
-        if re.fullmatch(r"[\s,.;]+", between or ""):
+        if re.fullmatch(r"\s*[,.;]\s*", between or ""):
             start = prev.start()
     return start
 
@@ -170,7 +172,6 @@ def main():
         for index, (time_start, d_start, d_end, canonical, matched_text) in enumerate(segment_starts):
             segment_end = segment_starts[index + 1][0] if index + 1 < len(segment_starts) else len(raw)
             prefix = raw[time_start:d_start]
-            # Drop LECTURE marker from the time prefix, while preserving its type.
             lesson_type = "lecture" if re.search(r"ЛЕКЦИЯ", prefix, re.IGNORECASE) else "practice"
             time_text = re.sub(r"\bЛЕКЦИЯ\b", "", prefix, flags=re.IGNORECASE).strip()
             time_block = normalize_time_block(time_text)
