@@ -31,6 +31,14 @@
     "serviceBlocksExcluded": 2,
     "unresolvedLearningBlocks": 0
   },
+  "sourceGeometryAudit": {
+    "mechanicalSnapshot": "qa/2026-2027-semester-1/pediatrics-631-637.source-probe.json",
+    "learningMergedRanges": 77,
+    "decisionTuples": 86,
+    "dateMasksVerifiedAgainstMergedRanges": 86,
+    "mismatches": 0,
+    "note": "Every decision dateMask is derived from the explicit row-14 date columns covered by its source merged range; starred C02 blocks are split into first-date/rest decisions whose union exactly equals the source range."
+  },
   "specialRules": {
     "starredFirstDaySecondShift": {
       "rule": "C02",
@@ -58,7 +66,7 @@
     }
   },
   "candidate": {
-    "candidateDigest": "sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b",
+    "candidateDigest": "sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f",
     "eventCount": 679,
     "floatingEventCount": 637,
     "dateOnlyEventCount": 42,
