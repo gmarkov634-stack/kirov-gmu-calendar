@@ -1,0 +1,40 @@
+name: Tokenize pediatrics 331-337 semantics
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-331-337-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source-probe.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
+      - 'fixtures/tools/tokenize_pediatrics_331_337_semantics.py'
+      - '.github/workflows/tokenize-pediatrics-331-337-semantics.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  tokenize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-331-337-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Tokenize source semantics
+        run: python fixtures/tools/tokenize_pediatrics_331_337_semantics.py
+      - name: Commit tokenization evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add qa/2026-2027-semester-1/pediatrics-331-337.semantic-tokenization.json
+          if git diff --cached --quiet; then
+            echo 'tokenization unchanged'
+            exit 0
+          fi
+          git commit -m 'Record pediatrics 331-337 semantic tokenization'
+          git push origin HEAD:feat/pediatrics-331-337-2026-27-s1

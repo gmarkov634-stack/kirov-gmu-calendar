@@ -1,0 +1,542 @@
+{
+  "schema": "kgmu-cross-day-audit-v1",
+  "fixtureId": "pediatrics-331-337-2026-2027-semester-1",
+  "sourceSha256": "894e844bba40c75c8b7851d383974feba3a1a68f8b41b98312455c2593110555",
+  "rules": [
+    "R07",
+    "R08",
+    "R09",
+    "R67",
+    "R83"
+  ],
+  "cueCount": 44,
+  "passCount": 43,
+  "reviewRequiredCount": 1,
+  "checks": [
+    {
+      "sourceLocator": "3пед.!B8",
+      "expectedCount": 3,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!B25",
+      "matchedExplicitDates": [
+        "2026-11-12",
+        "2026-11-26",
+        "2026-12-10"
+      ],
+      "matchedCount": 3,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!D8",
+      "expectedCount": 2,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!D23",
+      "matchedExplicitDates": [
+        "2026-11-19",
+        "2026-12-03"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F8",
+      "expectedCount": 2,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!F17",
+      "matchedExplicitDates": [
+        "2026-12-08",
+        "2026-12-22"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G8",
+      "expectedCount": 3,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!G25",
+      "matchedExplicitDates": [
+        "2026-11-12",
+        "2026-11-26",
+        "2026-12-10"
+      ],
+      "matchedCount": 3,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H8",
+      "expectedCount": 3,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!H17",
+      "matchedExplicitDates": [
+        "2026-12-08",
+        "2026-12-15",
+        "2026-12-22"
+      ],
+      "matchedCount": 3,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!B12",
+      "expectedCount": 2,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!B13",
+      "matchedExplicitDates": [
+        "2026-12-15",
+        "2026-12-22"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!E13",
+      "expectedCount": 2,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!E23",
+      "matchedExplicitDates": [
+        "2026-11-26",
+        "2026-12-03"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G13",
+      "expectedCount": 1,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!G25",
+      "matchedExplicitDates": [
+        "2026-12-03"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H13",
+      "expectedCount": 2,
+      "targetWeekday": "пт",
+      "evidenceLocator": "3пед.!H28",
+      "matchedExplicitDates": [
+        "2026-12-11",
+        "2026-12-18"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!D17",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!D12",
+      "matchedExplicitDates": [
+        "2026-11-30",
+        "2026-12-14"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F17",
+      "expectedCount": 1,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!F25",
+      "matchedExplicitDates": [
+        "2026-12-03"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!B19",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!B9",
+      "matchedExplicitDates": [
+        "2026-11-30",
+        "2026-12-14"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!B20",
+      "expectedCount": 3,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!B25",
+      "matchedExplicitDates": [
+        "2026-12-03",
+        "2026-12-17",
+        "2026-12-24"
+      ],
+      "matchedCount": 3,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C20",
+      "expectedCount": 2,
+      "targetWeekday": "пт",
+      "evidenceLocator": "3пед.!C28",
+      "matchedExplicitDates": [
+        "2026-12-11",
+        "2026-12-18"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!D20",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!D12",
+      "matchedExplicitDates": [
+        "2026-12-07"
+      ],
+      "matchedCount": 1,
+      "status": "review_required"
+    },
+    {
+      "sourceLocator": "3пед.!E20",
+      "expectedCount": 2,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!E23",
+      "matchedExplicitDates": [
+        "2026-12-03",
+        "2026-12-17"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F20",
+      "expectedCount": 2,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!F24",
+      "matchedExplicitDates": [
+        "2026-11-05",
+        "2026-11-19"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H20",
+      "expectedCount": 1,
+      "targetWeekday": "сб",
+      "evidenceLocator": "3пед.!H31",
+      "matchedExplicitDates": [
+        "2026-12-26"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!D21",
+      "expectedCount": 2,
+      "targetWeekday": "пт",
+      "evidenceLocator": "3пед.!D28",
+      "matchedExplicitDates": [
+        "2026-10-30",
+        "2026-11-06"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F21",
+      "expectedCount": 3,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!F12",
+      "matchedExplicitDates": [
+        "2026-11-30",
+        "2026-12-07",
+        "2026-12-14"
+      ],
+      "matchedCount": 3,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G22",
+      "expectedCount": 2,
+      "targetWeekday": "сб",
+      "evidenceLocator": "3пед.!G33",
+      "matchedExplicitDates": [
+        "2026-12-12",
+        "2026-12-19"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F23",
+      "expectedCount": 1,
+      "targetWeekday": "пт",
+      "evidenceLocator": "3пед.!F28",
+      "matchedExplicitDates": [
+        "2026-12-11"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G23",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!G17",
+      "matchedExplicitDates": [
+        "2026-12-22"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H23",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!H17",
+      "matchedExplicitDates": [
+        "2026-11-24"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!B24",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!B17",
+      "matchedExplicitDates": [
+        "2026-12-15"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C24",
+      "expectedCount": 1,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!C12",
+      "matchedExplicitDates": [
+        "2026-12-21"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C25",
+      "expectedCount": 2,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!C17",
+      "matchedExplicitDates": [
+        "2026-12-01",
+        "2026-12-08"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!D25",
+      "expectedCount": 2,
+      "targetWeekday": "сб",
+      "evidenceLocator": "3пед.!D31",
+      "matchedExplicitDates": [
+        "2026-12-05",
+        "2026-12-12"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!E25",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!E12",
+      "matchedExplicitDates": [
+        "2026-12-07",
+        "2026-12-14"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H25",
+      "expectedCount": 1,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!H12",
+      "matchedExplicitDates": [
+        "2026-12-14"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C27",
+      "expectedCount": 2,
+      "targetWeekday": "ср",
+      "evidenceLocator": "3пед.!C21",
+      "matchedExplicitDates": [
+        "2026-11-25",
+        "2026-12-02"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!E27",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!E17",
+      "matchedExplicitDates": [
+        "2026-12-08"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F27",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!F17",
+      "matchedExplicitDates": [
+        "2026-11-24"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G27",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!G17",
+      "matchedExplicitDates": [
+        "2026-12-01"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H27",
+      "expectedCount": 1,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!H25",
+      "matchedExplicitDates": [
+        "2026-11-26"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!E28",
+      "expectedCount": 1,
+      "targetWeekday": "ср",
+      "evidenceLocator": "3пед.!E21",
+      "matchedExplicitDates": [
+        "2026-12-02"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G28",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!G12",
+      "matchedExplicitDates": [
+        "2026-11-23",
+        "2026-11-30"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!H28",
+      "expectedCount": 1,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!H12",
+      "matchedExplicitDates": [
+        "2026-10-26"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!B31",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!B17",
+      "matchedExplicitDates": [
+        "2026-11-10"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C31",
+      "expectedCount": 1,
+      "targetWeekday": "чт",
+      "evidenceLocator": "3пед.!C23",
+      "matchedExplicitDates": [
+        "2026-12-03"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!E31",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!E17",
+      "matchedExplicitDates": [
+        "2026-12-15"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!G31",
+      "expectedCount": 1,
+      "targetWeekday": "вт",
+      "evidenceLocator": "3пед.!G17",
+      "matchedExplicitDates": [
+        "2026-12-15"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!C32",
+      "expectedCount": 1,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!C12",
+      "matchedExplicitDates": [
+        "2026-12-07"
+      ],
+      "matchedCount": 1,
+      "status": "pass"
+    },
+    {
+      "sourceLocator": "3пед.!F33",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!F12",
+      "matchedExplicitDates": [
+        "2026-11-09",
+        "2026-11-16"
+      ],
+      "matchedCount": 2,
+      "status": "pass"
+    }
+  ],
+  "unresolved": [
+    {
+      "sourceLocator": "3пед.!D20",
+      "expectedCount": 2,
+      "targetWeekday": "пн",
+      "evidenceLocator": "3пед.!D12",
+      "matchedExplicitDates": [
+        "2026-12-07"
+      ],
+      "matchedCount": 1,
+      "status": "review_required"
+    }
+  ]
+}
