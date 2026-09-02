@@ -17,7 +17,7 @@ const events = expandExplicitDecisionManifest(decisions, {
   sourceId: source.source.sourceId
 });
 
-const EXPECTED_DIGEST = 'sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b';
+const EXPECTED_DIGEST = 'sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f';
 const GROUPS = ['631', '632', '633', '634', '635', '636', '637'];
 
 const minutes = (value) => {
