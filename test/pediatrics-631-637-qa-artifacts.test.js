@@ -55,7 +55,7 @@ test('semantic review and QA are pinned to the deterministic normalized candidat
   assert.equal(evidence.ambiguities.unresolved, 0);
 });
 
-test('normalized draft QA pass does not authorize publication', () => {
+test('historical normalized-draft evidence remains non-authorizing while publication is runtime-gated', () => {
   assert.equal(semantic.publicationEligible, false);
   assert.equal(semantic.publicationPerformed, false);
   assert.equal(evidence.publication.eligible, false);
@@ -63,11 +63,12 @@ test('normalized draft QA pass does not authorize publication', () => {
 
   const publicationCheck = qa.checks.find((check) => check.code === 'publication-path-date-only-support');
   assert.ok(publicationCheck);
-  assert.equal(publicationCheck.status, 'warning');
-  assert.match(publicationCheck.message, /publication remains blocked/i);
+  assert.equal(publicationCheck.status, 'pass');
+  assert.match(publicationCheck.message, /production publication remains fail-closed/i);
+  assert.match(publicationCheck.message, /deployed core boundary/i);
 });
 
-test('core date-only dependency is exact and CI-verified', () => {
+test('historical draft core dependency evidence remains exact and CI-verified', () => {
   const contract = evidence.pipeline.sharedNormalizedContract;
   assert.equal(contract.repository, 'gmarkov634-stack/medical-calendar-core');
   assert.equal(contract.pullRequest, 245);
