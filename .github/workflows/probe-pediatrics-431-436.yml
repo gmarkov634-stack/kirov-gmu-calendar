@@ -7,7 +7,9 @@ on:
     paths:
       - 'fixtures/tools/probe_pediatrics_431_436_source.py'
       - 'fixtures/tools/analyze_pediatrics_431_436_source.py'
+      - 'fixtures/tools/build_pediatrics_431_436_decisions.py'
       - 'fixtures/2026-2027-semester-1/pediatrics-431-436.source.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
       - '.github/workflows/probe-pediatrics-431-436.yml'
 
 permissions:
@@ -28,7 +30,9 @@ jobs:
         run: python fixtures/tools/probe_pediatrics_431_436_source.py
       - name: Build compact semantic source evidence
         run: python fixtures/tools/analyze_pediatrics_431_436_source.py
-      - name: Commit source evidence
+      - name: Build explicit semantic decisions
+        run: python fixtures/tools/build_pediatrics_431_436_decisions.py
+      - name: Commit course-specific source and normalization evidence
         shell: bash
         run: |
           set -euo pipefail
@@ -36,10 +40,12 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             fixtures/2026-2027-semester-1/pediatrics-431-436.source-probe.json \
-            fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json
+            fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json \
+            fixtures/2026-2027-semester-1/pediatrics-431-436.decisions.json \
+            qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json
           if git diff --cached --quiet; then
-            echo 'source evidence unchanged'
+            echo 'course evidence unchanged'
             exit 0
           fi
-          git commit -m 'Record pediatrics 431-436 source evidence'
+          git commit -m 'Record pediatrics 431-436 normalization decisions'
           git push origin HEAD:feat/pediatrics-431-436-2026-27-s1
