@@ -5,7 +5,8 @@
   "course": 5,
   "academicYear": "2026-2027",
   "academicPeriodId": "2026-2027-semester-1",
-  "parserProfile": "mixed",
+  "parserProfile": "cyclic",
+  "profileLayer": "C",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
   "courseParserRulesVersion": "dentistry-591-594-v1",
   "source": {
@@ -39,5 +40,6 @@
     "repositoryStoresBinarySource": false,
     "productionSourceIsServerFetched": true,
     "immutableSourceStoredInObjectStorage": true
-  }
+  },
+  "publicationRequested": false
 }
