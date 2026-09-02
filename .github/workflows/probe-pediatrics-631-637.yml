@@ -1,0 +1,37 @@
+name: Probe pediatrics 631-637 official source
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-631-637-2026-27-s1
+    paths:
+      - 'fixtures/tools/probe_pediatrics_631_637_source.py'
+      - '.github/workflows/probe-pediatrics-631-637.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/tools/probe_pediatrics_631_637_source.py'
+      - '.github/workflows/probe-pediatrics-631-637.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_pediatrics_631_637_source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pediatrics-631-637-source-probe
+          path: |
+            pediatrics-631-637-source-probe.json
+            pediatrics-631-637-source.xlsx
+          if-no-files-found: error
