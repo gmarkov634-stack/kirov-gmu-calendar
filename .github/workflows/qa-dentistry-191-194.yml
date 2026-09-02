@@ -42,6 +42,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add \
+            fixtures/2026-2027-semester-1/dentistry-191-194.decisions.json \
             fixtures/2026-2027-semester-1/normalized/dentistry-191-194.normalized.json \
             qa/2026-2027-semester-1/dentistry-191-194.evidence.json \
             qa/2026-2027-semester-1/dentistry-191-194.semantic-review.json \
