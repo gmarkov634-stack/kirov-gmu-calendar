@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import test from 'node:test';
@@ -67,6 +69,29 @@ test('Pediatrics course 2 publication preflight verifies the approved candidate 
   assert.match(stdout, /sha256:59ea4ed15af1678e205f62c56ee9fa7c7fc74e40570d19c8b1f6b4098e1bfb20/);
   assert.match(stdout, /kgmu-2026-2027-s1-pediatrics-231-59ea4ed15af1678e/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
+});
+
+test('Pediatrics course 2 apply fails closed before core import when deployed commit differs', async () => {
+  const script = fileURLToPath(new URL('../ops/publish-pediatrics-231-239.mjs', import.meta.url));
+  const coreRoot = await mkdtemp(join(tmpdir(), 'kgmu-pediatrics-231-239-core-'));
+  try {
+    await writeFile(join(coreRoot, '.deployed-commit'), `${'0'.repeat(40)}\n`, 'utf8');
+    await assert.rejects(
+      execFileAsync(process.execPath, [script, '--apply'], {
+        env: {
+          ...process.env,
+          MEDICAL_CALENDAR_CORE_ROOT: coreRoot,
+          MEDICAL_CALENDAR_DB_PATH: join(coreRoot, 'runtime.sqlite')
+        }
+      }),
+      (error) => {
+        assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /deployed core commit mismatch/);
+        return true;
+      }
+    );
+  } finally {
+    await rm(coreRoot, { recursive: true, force: true });
+  }
 });
 
 test('Pediatrics course 2 publication plan fails closed if QA is not pass', async () => {
