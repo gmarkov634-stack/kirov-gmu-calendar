@@ -5,30 +5,11 @@
   "semanticNormalizationPerformed": false,
   "sourceCellCount": 98,
   "sourceSegmentCount": 131,
-  "plannedSegmentCount": 128,
-  "occurrenceCountBeforeGroupExpansion": 1139,
-  "passCellCount": 95,
-  "reviewRequiredCellCount": 3,
-  "issues": [
-    {
-      "sourceLocator": "3пед.!E12",
-      "issues": [
-        "E12#s1:no-dates-resolved"
-      ]
-    },
-    {
-      "sourceLocator": "3пед.!B13",
-      "issues": [
-        "B13#s1:no-dates-resolved"
-      ]
-    },
-    {
-      "sourceLocator": "3пед.!C17",
-      "issues": [
-        "C17#s1:no-dates-resolved"
-      ]
-    }
-  ],
+  "plannedSegmentCount": 131,
+  "occurrenceCountBeforeGroupExpansion": 1175,
+  "passCellCount": 98,
+  "reviewRequiredCellCount": 0,
+  "issues": [],
   "cells": [
     {
       "sourceLocator": "3пед.!B8",
@@ -1441,17 +1422,95 @@
       "groups": [
         "334"
       ],
-      "status": "review_required",
-      "issues": [
-        "E12#s1:no-dates-resolved"
-      ],
+      "status": "pass",
+      "issues": [],
       "segments": [
+        {
+          "segmentId": "E12#s1",
+          "discipline": "Иммунология",
+          "lessonType": "practice",
+          "baseTime": {
+            "startTime": "15:40",
+            "endTime": "17:10"
+          },
+          "dateBasis": [
+            {
+              "kind": "weekly-range",
+              "start": "2026-09-07",
+              "end": "2026-11-23"
+            }
+          ],
+          "overrides": {},
+          "occurrences": [
+            {
+              "date": "2026-09-07",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-09-14",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-09-21",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-09-28",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-10-05",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-10-12",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-10-19",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-10-26",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-11-02",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-11-09",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-11-16",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            },
+            {
+              "date": "2026-11-23",
+              "startTime": "15:40",
+              "endTime": "17:10"
+            }
+          ],
+          "sourceTail": "07.09-23.11"
+        },
         {
           "segmentId": "E12#s2",
           "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
           "lessonType": "practice",
           "baseTime": {
-            "startTime": "07:09",
+            "startTime": "14:50",
             "endTime": "17:15"
           },
           "dateBasis": [
@@ -1471,7 +1530,7 @@
           "occurrences": [
             {
               "date": "2026-12-07",
-              "startTime": "07:09",
+              "startTime": "14:50",
               "endTime": "17:15"
             },
             {
@@ -1681,17 +1740,95 @@
       "groups": [
         "331"
       ],
-      "status": "review_required",
-      "issues": [
-        "B13#s1:no-dates-resolved"
-      ],
+      "status": "pass",
+      "issues": [],
       "segments": [
+        {
+          "segmentId": "B13#s1",
+          "discipline": "Иммунология",
+          "lessonType": "practice",
+          "baseTime": {
+            "startTime": "09:00",
+            "endTime": "10:30"
+          },
+          "dateBasis": [
+            {
+              "kind": "weekly-range",
+              "start": "2026-09-01",
+              "end": "2026-11-17"
+            }
+          ],
+          "overrides": {},
+          "occurrences": [
+            {
+              "date": "2026-09-01",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-09-08",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-09-15",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-09-22",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-09-29",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-10-06",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-10-13",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-10-20",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-10-27",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-11-03",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-11-10",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            },
+            {
+              "date": "2026-11-17",
+              "startTime": "09:00",
+              "endTime": "10:30"
+            }
+          ],
+          "sourceTail": "01.09-17.11"
+        },
         {
           "segmentId": "B13#s2",
           "discipline": "Микробиология, вирусология",
           "lessonType": "practice",
           "baseTime": {
-            "startTime": "01:09",
+            "startTime": "08:00",
             "endTime": "10:25"
           },
           "dateBasis": [
@@ -1707,12 +1844,12 @@
           "occurrences": [
             {
               "date": "2026-12-15",
-              "startTime": "01:09",
+              "startTime": "08:00",
               "endTime": "10:25"
             },
             {
               "date": "2026-12-22",
-              "startTime": "01:09",
+              "startTime": "08:00",
               "endTime": "10:25"
             }
           ],
@@ -2759,17 +2896,95 @@
       "groups": [
         "332"
       ],
-      "status": "review_required",
-      "issues": [
-        "C17#s1:no-dates-resolved"
-      ],
+      "status": "pass",
+      "issues": [],
       "segments": [
+        {
+          "segmentId": "C17#s1",
+          "discipline": "Иммунология",
+          "lessonType": "practice",
+          "baseTime": {
+            "startTime": "14:10",
+            "endTime": "15:40"
+          },
+          "dateBasis": [
+            {
+              "kind": "weekly-range",
+              "start": "2026-09-01",
+              "end": "2026-11-17"
+            }
+          ],
+          "overrides": {},
+          "occurrences": [
+            {
+              "date": "2026-09-01",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-09-08",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-09-15",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-09-22",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-09-29",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-10-06",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-10-13",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-10-20",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-10-27",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-11-03",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-11-10",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            },
+            {
+              "date": "2026-11-17",
+              "startTime": "14:10",
+              "endTime": "15:40"
+            }
+          ],
+          "sourceTail": "01.09-17.11"
+        },
         {
           "segmentId": "C17#s2",
           "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
           "lessonType": "practice",
           "baseTime": {
-            "startTime": "01:09",
+            "startTime": "16:00",
             "endTime": "18:25"
           },
           "dateBasis": [
@@ -2789,7 +3004,7 @@
           "occurrences": [
             {
               "date": "2026-12-01",
-              "startTime": "01:09",
+              "startTime": "16:00",
               "endTime": "18:25"
             },
             {
