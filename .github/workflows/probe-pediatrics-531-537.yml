@@ -6,6 +6,7 @@ on:
       - feat/pediatrics-531-537-2026-27-s1
     paths:
       - 'fixtures/tools/probe_pediatrics_531_537_source.py'
+      - 'fixtures/tools/analyze_pediatrics_531_537_source.py'
       - '.github/workflows/probe-pediatrics-531-537.yml'
 
 permissions:
@@ -24,16 +25,20 @@ jobs:
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - name: Fetch and mechanically dump official workbook
         run: python fixtures/tools/probe_pediatrics_531_537_source.py
-      - name: Commit mechanical probe evidence
+      - name: Build structural source inventory
+        run: python fixtures/tools/analyze_pediatrics_531_537_source.py
+      - name: Commit mechanical source evidence
         shell: bash
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add fixtures/2026-2027-semester-1/pediatrics-531-537.source-probe.json
+          git add \
+            fixtures/2026-2027-semester-1/pediatrics-531-537.source-probe.json \
+            pediatrics-531-537-source-inventory.json
           if git diff --cached --quiet; then
-            echo 'probe unchanged'
+            echo 'source evidence unchanged'
             exit 0
           fi
-          git commit -m 'Record pediatrics 531-537 source probe'
+          git commit -m 'Record pediatrics 531-537 source inventory'
           git push origin HEAD:feat/pediatrics-531-537-2026-27-s1
