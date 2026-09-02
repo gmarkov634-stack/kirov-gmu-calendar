@@ -5,10 +5,12 @@ on:
     branches:
       - feat/dentistry-course4-491-494-2026-09-03
     paths:
+      - 'catalog/2026-2027-semester-1.json'
       - 'fixtures/tools/build_dentistry_491_494_candidate.py'
       - 'fixtures/tools/run_dentistry_491_494_prepost_candidate.py'
       - 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
       - 'test/dentistry-491-494-draft.test.js'
+      - 'test/source-catalog.test.js'
       - '.github/workflows/verify-dentistry-course4-491-494.yml'
 
 permissions:
