@@ -1,0 +1,27 @@
+{
+  "policyVersion": "kgmu-personalization-2026-08-29-v1",
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1",
+  "principle": "Optional study events remain in the normalized schedule and are filtered only while generating a student's personalized ICS.",
+  "normalizedScheduleMustRetainOptionalEvents": true,
+  "filteringStage": "personalized-ics",
+  "electives": {
+    "preferenceField": "electiveChoices",
+    "normalizedLinkage": ["selectionGroupId", "selectionOptionId"],
+    "behavior": "When the official source contains alternative elective options, all source-supported options are normalized. The student selects the desired option in CalendarPreferences; non-selected alternatives are excluded only from that student's ICS."
+  },
+  "facultatives": {
+    "preferenceField": "facultativeChoices",
+    "normalizedLinkage": ["facultativeId"],
+    "behavior": "All source-supported facultative events are normalized with a stable facultativeId. The student independently checks which facultatives to show; unchecked facultatives are excluded only from that student's ICS."
+  },
+  "sourceAssertions": [
+    {
+      "locator": "1 стомат.!B49",
+      "kind": "facultative",
+      "appliesToGroups": ["191", "192", "193", "194"],
+      "groupScopeStatus": "resolved",
+      "dateScopeStatus": "REVIEW_REQUIRED",
+      "publicationRule": "Do not discard B49 because it is optional. Publication remains blocked until its calendar date scope is confirmed; after confirmation the candidate must be regenerated with stable facultativeId values."
+    }
+  ]
+}

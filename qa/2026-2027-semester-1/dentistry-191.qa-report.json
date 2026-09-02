@@ -1,0 +1,20 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-v1",
+  "parsingJobId": "parsing-job-dentistry-191-1",
+  "candidateDigest": "sha256:d553c6a17ee97da4d90d4f060cee65a3db2e832c0bf4a5e1f304395f5f654c14",
+  "decision": "fail",
+  "checks": [
+    {"code":"group-content-accounted-for","status":"fail","message":"28 timetable cells generated events; B49 is a facultative source cell applying to groups 191-194 but its calendar date scope remains unresolved and may not be excluded under R39/R78"},
+    {"code":"dates-within-service-week-grid","status":"pass","message":"All 340 currently generated dates are inside the source service-week grid through 2027-01-16"},
+    {"code":"source-group-match","status":"pass","message":"B49 group scope is resolved by XLSX merged range B49:E49 across group columns 191-194; current candidate is intentionally group 191 only"},
+    {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures"},
+    {"code":"hard-count-notes-resolved","status":"pass","message":"7 source hard-count assertions matched explicit companion events"},
+    {"code":"g21-histology-decision-applied","status":"pass","message":"User-confirmed B39 Monday count maps to B13 dates 16.11, 23.11, 30.11; B15 14.09 remains separate"},
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"4 source-explicit overlaps preserved"},
+    {"code":"facultative-group-mapping-resolved","status":"pass","message":"B49:E49 is a horizontal merged range covering group columns B-E = 191-194, so all four facultatives apply to each of groups 191, 192, 193 and 194 under R37/R39/R56"},
+    {"code":"facultative-date-scope-resolved","status":"fail","message":"B49 specifies weekday/time for four facultatives but no date range or week number. Current R rules do not authorize treating an undated ordinary facultative as weekly for the entire semester; REVIEW_REQUIRED under R06/R39/R78"},
+    {"code":"unresolved-ambiguities-zero","status":"fail","message":"1 unresolved semantic ambiguity remains: date scope for 1 стомат.!B49"},
+    {"code":"assessment-metadata-projection","status":"fail","message":"R41/G14 assessment metadata and the explicit «зачет с оценкой» control cannot be losslessly represented by the candidate as currently stored; publication remains blocked"}
+  ],
+  "createdAt": "2026-08-28T19:35:00Z"
+}

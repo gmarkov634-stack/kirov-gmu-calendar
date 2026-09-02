@@ -1,0 +1,43 @@
+{
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1",
+  "sourceSha256": "349e39ebbc125c4ff02fe7e0a5397512665e3d35d9fefcf5fd01c5823bb8bf2c",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "decisions": [
+    {
+      "id": "dentistry-191-histology-monday-lectures",
+      "status": "confirmed",
+      "rule": "G21",
+      "scope": {
+        "groupId": "191",
+        "sourceDisciplineLabel": "Гистология"
+      },
+      "sourceStatement": "3 лекции в пн.",
+      "interpretation": {
+        "countedMondayLectures": [
+          {
+            "date": "2026-11-16",
+            "startTime": "12:40",
+            "endTime": "14:10"
+          },
+          {
+            "date": "2026-11-23",
+            "startTime": "12:40",
+            "endTime": "14:10"
+          },
+          {
+            "date": "2026-11-30",
+            "startTime": "12:40",
+            "endTime": "14:10"
+          }
+        ],
+        "separateExplicitMondayLecture": {
+          "date": "2026-09-14",
+          "startTime": "14:10",
+          "endTime": "15:40"
+        }
+      },
+      "rationale": "Пользователь подтвердил, что примечание «3 лекции в пн.» относится к трём понедельничным лекциям 16.11, 23.11 и 30.11 с тем же временем 12:40–14:10; лекция 14.09 14:10–15:40 является отдельной явной лекцией.",
+      "publicationBlockResolvedForThisFragment": true
+    }
+  ]
+}
