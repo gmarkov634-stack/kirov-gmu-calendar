@@ -6,7 +6,7 @@
   "sheetName": "1 стомат.",
   "semanticDecisionMode": "operator-authored-explicit",
   "logicalMainTableSourceCellCount": 77,
-  "resolvedMainTableSourceCellCount": 76,
+  "resolvedMainTableSourceCellCount": 77,
   "groupIds": [
     "191",
     "192",
@@ -2626,6 +2626,163 @@
       "discipline": "Иностранный язык",
       "lessonType": "practice",
       "location": "1 корпус, ул. Владимирская, 137"
+    },
+    {
+      "id": "B49#r90-1",
+      "sourceCell": "B49",
+      "sourceLocator": "1 стомат.!B49#r90-1",
+      "groupIds": [
+        "191",
+        "192",
+        "193",
+        "194"
+      ],
+      "dates": [
+        "2026-09-07",
+        "2026-09-14",
+        "2026-09-21",
+        "2026-09-28",
+        "2026-10-05",
+        "2026-10-12",
+        "2026-10-19",
+        "2026-10-26",
+        "2026-11-02",
+        "2026-11-09",
+        "2026-11-16",
+        "2026-11-23",
+        "2026-11-30",
+        "2026-12-07",
+        "2026-12-14",
+        "2026-12-21",
+        "2026-12-28",
+        "2027-01-11"
+      ],
+      "startTime": "16:50",
+      "endTime": "18:20",
+      "discipline": "Актуальные вопросы биологии",
+      "lessonType": "other",
+      "location": null,
+      "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-biology"
+    },
+    {
+      "id": "B49#r90-2",
+      "sourceCell": "B49",
+      "sourceLocator": "1 стомат.!B49#r90-2",
+      "groupIds": [
+        "191",
+        "192",
+        "193",
+        "194"
+      ],
+      "dates": [
+        "2026-09-02",
+        "2026-09-09",
+        "2026-09-16",
+        "2026-09-23",
+        "2026-09-30",
+        "2026-10-07",
+        "2026-10-14",
+        "2026-10-21",
+        "2026-10-28",
+        "2026-11-04",
+        "2026-11-11",
+        "2026-11-18",
+        "2026-11-25",
+        "2026-12-02",
+        "2026-12-09",
+        "2026-12-16",
+        "2026-12-23",
+        "2026-12-30",
+        "2027-01-13"
+      ],
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "discipline": "Русский язык и культура речи",
+      "lessonType": "other",
+      "location": null,
+      "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-russian"
+    },
+    {
+      "id": "B49#r90-3",
+      "sourceCell": "B49",
+      "sourceLocator": "1 стомат.!B49#r90-3",
+      "groupIds": [
+        "191",
+        "192",
+        "193",
+        "194"
+      ],
+      "dates": [
+        "2026-09-07",
+        "2026-09-14",
+        "2026-09-21",
+        "2026-09-28",
+        "2026-10-05",
+        "2026-10-12",
+        "2026-10-19",
+        "2026-10-26",
+        "2026-11-02",
+        "2026-11-09",
+        "2026-11-16",
+        "2026-11-23",
+        "2026-11-30",
+        "2026-12-07",
+        "2026-12-14",
+        "2026-12-21",
+        "2026-12-28",
+        "2027-01-11"
+      ],
+      "startTime": "16:20",
+      "endTime": "18:45",
+      "discipline": "Физика",
+      "lessonType": "other",
+      "location": null,
+      "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-physics"
+    },
+    {
+      "id": "B49#r90-4",
+      "sourceCell": "B49",
+      "sourceLocator": "1 стомат.!B49#r90-4",
+      "groupIds": [
+        "191",
+        "192",
+        "193",
+        "194"
+      ],
+      "dates": [
+        "2026-09-03",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-24",
+        "2026-10-01",
+        "2026-10-08",
+        "2026-10-15",
+        "2026-10-22",
+        "2026-10-29",
+        "2026-11-05",
+        "2026-11-12",
+        "2026-11-19",
+        "2026-11-26",
+        "2026-12-03",
+        "2026-12-10",
+        "2026-12-17",
+        "2026-12-24",
+        "2027-01-14"
+      ],
+      "startTime": "17:20",
+      "endTime": "19:45",
+      "discipline": "Математика",
+      "lessonType": "other",
+      "location": null,
+      "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-math",
+      "assessment": {
+        "type": "credit",
+        "label": "зачет",
+        "sourceRef": {
+          "sourceId": "dentistry",
+          "locator": "1 стомат.!E58"
+        }
+      }
     }
   ],
   "crossChecks": [
@@ -2776,62 +2933,18 @@
       "lessonType": "graded-credit"
     }
   ],
-  "unresolved": [
+  "unresolved": [],
+  "sourceEvidenceMode": "source-sha256-plus-complete-cell-locator-coverage",
+  "manualConfirmations": [
     {
       "id": "dentistry-191-194-facultatives-weekly-periodicity",
-      "status": "REVIEW_REQUIRED",
+      "rule": "R90",
       "sourceCell": "B49",
       "weekGridCell": "B50",
-      "groupIds": [
-        "191",
-        "192",
-        "193",
-        "194"
-      ],
-      "groupScopeResolved": true,
-      "serviceWeekGridResolved": true,
-      "periodicityConfirmed": false,
-      "rule": "R90",
-      "reason": "B49:E49 structurally covers groups 191-194 and B50:E50 supplies a complete service-week grid, but R90 requires manual confirmation that the external facultative row recurs every academic week before expansion.",
-      "proposedFacultatives": [
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-biology",
-          "discipline": "Актуальные вопросы биологии",
-          "weekday": 1,
-          "startTime": "16:50",
-          "endTime": "18:20"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-russian",
-          "discipline": "Русский язык и культура речи",
-          "weekday": 3,
-          "startTime": "13:30",
-          "endTime": "15:00"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-physics",
-          "discipline": "Физика",
-          "weekday": 1,
-          "startTime": "16:20",
-          "endTime": "18:45"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-math",
-          "discipline": "Математика",
-          "weekday": 4,
-          "startTime": "17:20",
-          "endTime": "19:45",
-          "assessment": {
-            "type": "credit",
-            "label": "зачет",
-            "sourceRef": {
-              "sourceId": "dentistry",
-              "locator": "1 стомат.!E58"
-            }
-          }
-        }
-      ]
+      "periodicityConfirmed": true,
+      "recurrence": "every-service-week",
+      "confirmedOn": "2026-09-03",
+      "provenance": "direct-user-confirmation"
     }
-  ],
-  "sourceEvidenceMode": "source-sha256-plus-complete-cell-locator-coverage"
+  ]
 }

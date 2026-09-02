@@ -1,8 +1,8 @@
 {
-  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v2",
+  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v3",
   "parsingJobId": "parsing-job-dentistry-191-194-719d8081-v1",
-  "candidateDigest": "sha256:96b8b36d907a6a140b9818554ea871d1503583ca35cf5e8bfce99cd0402536b5",
-  "decision": "review-required",
+  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+  "decision": "pass",
   "checks": [
     {
       "code": "source-identity-coherent",
@@ -12,12 +12,12 @@
     {
       "code": "main-table-content-accounted-for",
       "status": "pass",
-      "message": "76/77 main-table cells normalized; 1 represented explicitly in semantic review"
+      "message": "77/77 main-table cells normalized; 0 represented explicitly in semantic review"
     },
     {
       "code": "source-cell-locator-coverage",
       "status": "pass",
-      "message": "all 101 decision segments point to cells present in the hash-pinned mechanical probe"
+      "message": "all 105 decision segments point to cells present in the hash-pinned mechanical probe"
     },
     {
       "code": "groups-match-expected",
@@ -27,7 +27,7 @@
     {
       "code": "dates-within-service-grid",
       "status": "pass",
-      "message": "all 1364 normalized base events fall inside B50 service-week intervals"
+      "message": "all 1656 normalized base events fall inside B50 service-week intervals"
     },
     {
       "code": "hard-count-cross-checks",
@@ -47,12 +47,12 @@
     {
       "code": "source-backed-overlaps-preserved",
       "status": "warning",
-      "message": "11 overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"
+      "message": "181 overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"
     },
     {
       "code": "unresolved-ambiguities-zero-before-pass",
-      "status": "fail",
-      "message": "1 unresolved item(s): R90 periodicity confirmation blocks B49 expansion/publication"
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"
     },
     {
       "code": "publication-not-performed",
@@ -60,15 +60,15 @@
       "message": "QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"
     }
   ],
-  "eventCount": 1364,
+  "eventCount": 1656,
   "eventCountByGroup": {
-    "191": 340,
-    "192": 340,
-    "193": 342,
-    "194": 342
+    "191": 413,
+    "192": 413,
+    "193": 415,
+    "194": 415
   },
-  "overlapPairCount": 11,
-  "unresolvedSemanticItemCount": 1,
-  "readyForScheduleVersion": false,
+  "overlapPairCount": 181,
+  "unresolvedSemanticItemCount": 0,
+  "readyForScheduleVersion": true,
   "publicationPerformed": false
 }

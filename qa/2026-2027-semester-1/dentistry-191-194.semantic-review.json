@@ -2,62 +2,18 @@
   "schema": "kgmu-semantic-review-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
   "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
-  "status": "REVIEW_REQUIRED",
-  "items": [
+  "status": "RESOLVED",
+  "items": [],
+  "manualConfirmations": [
     {
       "id": "dentistry-191-194-facultatives-weekly-periodicity",
-      "status": "REVIEW_REQUIRED",
+      "rule": "R90",
       "sourceCell": "B49",
       "weekGridCell": "B50",
-      "groupIds": [
-        "191",
-        "192",
-        "193",
-        "194"
-      ],
-      "groupScopeResolved": true,
-      "serviceWeekGridResolved": true,
-      "periodicityConfirmed": false,
-      "rule": "R90",
-      "reason": "B49:E49 structurally covers groups 191-194 and B50:E50 supplies a complete service-week grid, but R90 requires manual confirmation that the external facultative row recurs every academic week before expansion.",
-      "proposedFacultatives": [
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-biology",
-          "discipline": "Актуальные вопросы биологии",
-          "weekday": 1,
-          "startTime": "16:50",
-          "endTime": "18:20"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-russian",
-          "discipline": "Русский язык и культура речи",
-          "weekday": 3,
-          "startTime": "13:30",
-          "endTime": "15:00"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-physics",
-          "discipline": "Физика",
-          "weekday": 1,
-          "startTime": "16:20",
-          "endTime": "18:45"
-        },
-        {
-          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-math",
-          "discipline": "Математика",
-          "weekday": 4,
-          "startTime": "17:20",
-          "endTime": "19:45",
-          "assessment": {
-            "type": "credit",
-            "label": "зачет",
-            "sourceRef": {
-              "sourceId": "dentistry",
-              "locator": "1 стомат.!E58"
-            }
-          }
-        }
-      ]
+      "periodicityConfirmed": true,
+      "recurrence": "every-service-week",
+      "confirmedOn": "2026-09-03",
+      "provenance": "direct-user-confirmation"
     }
   ]
 }
