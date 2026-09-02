@@ -1,0 +1,47 @@
+name: Verify Dentistry course 4 draft
+
+on:
+  push:
+    branches:
+      - feat/dentistry-course4-491-494-2026-09-03
+    paths:
+      - 'fixtures/tools/build_dentistry_491_494_candidate.py'
+      - 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
+      - 'test/dentistry-491-494-draft.test.js'
+      - '.github/workflows/verify-dentistry-course4-491-494.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dentistry-course4-verify-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build course-local candidate
+        run: python fixtures/tools/build_dentistry_491_494_candidate.py
+      - name: Apply fail-closed postprocessing
+        run: python fixtures/tools/postprocess_dentistry_491_494_candidate.py
+      - name: Run repository checks
+        run: npm run check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dentistry-491-494-verified-draft
+          path: |
+            fixtures/2026-2027-semester-1/dentistry-491-494.source-artifact.json
+            fixtures/2026-2027-semester-1/dentistry-491-494.parsing-job.json
+            qa/2026-2027-semester-1/dentistry-491-494.parsing-result.json
+            qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json
+            qa/2026-2027-semester-1/dentistry-491-494.semantic-review.json
+            qa/2026-2027-semester-1/dentistry-491-494.qa-report.json
+          if-no-files-found: error
