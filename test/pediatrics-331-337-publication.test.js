@@ -38,7 +38,7 @@ test('Pediatrics course 3 reviewed manifest reproduces the approved publication 
   assert.equal(digest, publication.candidateDigest);
   assert.equal(qa.decision, 'pass');
   assert.deepEqual(qa.blockingIssues, []);
-  assert.equal(publication.sharedContractEvidence.commit, '8643642a4aa889b8e8dc1b444a7c2ea3719d0602');
+  assert.equal(publication.sharedContractEvidence.commit, 'd2f06c32509760f4b5e817f12ef1e2f2a9809ab3');
   assert.equal(publication.sharedContractEvidence.productionRuntimeCommit, '5a35ce015949c7163f41478cfc20003e2e28729d');
   assert.equal(publication.sharedContractEvidence.normalizedEventSchemaBlob, '18cce682c311659a515390ba6ce706ba4a2f4072');
   assert.equal(publication.sharedContractEvidence.icsRendererBlob, 'a9b61d6bb5da412e2f6ff0b5b85474af41e6216e');
