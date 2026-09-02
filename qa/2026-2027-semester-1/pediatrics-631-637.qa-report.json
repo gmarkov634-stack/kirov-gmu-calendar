@@ -87,12 +87,12 @@
     {
       "code": "date-only-normalized-contract",
       "status": "pass",
-      "message": "medical-calendar-core Draft PR #245 at 8d54784d8407ccc1fc817aa060039bc783f41fdf validates date-only events without time fields; Core CI run 33594068472 passed."
+      "message": "medical-calendar-core PR #281 merged as e5414c1d8b8754f8e47397f24d7aeb5d413431ec; the exact reviewed date-only head 73f9653e90ef8086152fa59cffabde5fa913dca0 passed Core CI before merge."
     },
     {
       "code": "publication-path-date-only-support",
-      "status": "warning",
-      "message": "This QA pass is for the normalized draft only. Date-only persistence/ICS rendering is not yet implemented; publication remains blocked and no ScheduleVersion may be created from this candidate yet."
+      "status": "pass",
+      "message": "Shared core now implements date-only schema validation, SQLite persistence/migration and RFC 5545 all-day ICS rendering without synthetic time or relative alarms. Production publication remains fail-closed until the deployed core boundary is verified against the approved publication evidence."
     }
   ],
   "createdAt": "2026-09-02T08:46:00+03:00"
