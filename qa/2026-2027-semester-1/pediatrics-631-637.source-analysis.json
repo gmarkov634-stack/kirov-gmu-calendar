@@ -1,0 +1,100 @@
+{
+  "schema": "kgmu-cycle-source-analysis-v1",
+  "fixtureId": "pediatrics-631-637-2026-2027-semester-1",
+  "sourceSha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+  "sheetName": "6 курс осень 2026-2027 Пед",
+  "profile": "C",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "calendarGrid": {
+    "dateFrom": "2026-09-01",
+    "dateTo": "2027-01-23",
+    "explicitDateColumns": 113,
+    "weekdayMismatches": 0,
+    "groupRows": {
+      "631": 16,
+      "632": 17,
+      "633": 18,
+      "634": 19,
+      "635": 20,
+      "636": 21,
+      "637": 22
+    }
+  },
+  "coverage": {
+    "learningBlocks": 77,
+    "timedLearningBlocks": 70,
+    "neutralElectiveBlocks": 7,
+    "serviceBlocks": 2,
+    "timedEventOccurrencesBeforeNormalization": 637,
+    "neutralElectiveDateOccurrences": 42,
+    "expectedCompleteEventOccurrences": 679,
+    "timedOccurrencesByGroup": {
+      "631": 91,
+      "632": 91,
+      "633": 91,
+      "634": 91,
+      "635": 91,
+      "636": 91,
+      "637": 91
+    },
+    "neutralElectiveOccurrencesByGroup": {
+      "631": 6,
+      "632": 6,
+      "633": 6,
+      "634": 6,
+      "635": 6,
+      "636": 6,
+      "637": 6
+    }
+  },
+  "ruleApplications": {
+    "C01": "each merged cycle block expands over its explicit calendar columns",
+    "C02": {
+      "starredCycles": 9,
+      "meaning": "only first date uses the discipline-specific second shift; remaining dates use first shift",
+      "allStarredCyclesHaveExplicitSecondShift": true
+    },
+    "C06": {
+      "sourceNote": "5, 12, 19 сентября - дни самостоятельной работы",
+      "synthesizedEvents": 0
+    },
+    "C07_C14": {
+      "excludedServiceLabels": ["Экзамены", "Каникулы"],
+      "synthesizedEvents": 0
+    },
+    "C08": "abbreviated grid labels map unambiguously to full discipline names in the lower reference table",
+    "C15": {
+      "sourceLabel": "Электив 6 дн по 6 часов",
+      "normalizedDiscipline": "Дисциплина по выбору",
+      "datesPerGroup": 6,
+      "groups": ["631", "632", "633", "634", "635", "636", "637"],
+      "commonExactTimeAvailable": false,
+      "commonExactLocationAvailable": false,
+      "requiredRepresentation": "date-only/all-day"
+    }
+  },
+  "contractBlockers": [
+    {
+      "id": "PED6-C15-DATE-ONLY-NORMALIZED-EVENT",
+      "type": "shared-contract-capability-gap",
+      "rule": "C15",
+      "reason": "The source has seven neutral elective blocks with six dates each and no exact time common to all choice variants. C15 therefore requires date-only/all-day events; profile/config alone cannot represent them under the original floating-only contract.",
+      "profileOnlyResolutionPossible": false,
+      "safeWorkaroundAvailable": false,
+      "normalizedDraftResolution": {
+        "repository": "gmarkov634-stack/medical-calendar-core",
+        "pullRequest": 245,
+        "headCommit": "8d54784d8407ccc1fc817aa060039bc783f41fdf",
+        "coreCiRunId": 33594068472,
+        "coreCiConclusion": "success",
+        "scope": "date-only support in normalized contract and parsing validation only"
+      },
+      "normalizedDraftBlocked": false,
+      "publicationBlocked": true,
+      "publicationReason": "Date-only persistence and ICS rendering remain outside core PR #245."
+    }
+  ],
+  "normalizationStatus": "COMPLETE_CANDIDATE_AVAILABLE_WITH_DRAFT_CORE_DEPENDENCY",
+  "qaStatus": "ELIGIBLE_FOR_NORMALIZED_DRAFT_PASS",
+  "publicationPerformed": false
+}
