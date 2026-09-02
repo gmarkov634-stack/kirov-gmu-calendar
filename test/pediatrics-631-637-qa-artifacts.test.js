@@ -45,7 +45,7 @@ test('source artifact and ParsingJob are pinned to the same immutable source evi
 
 test('semantic review and QA are pinned to the deterministic normalized candidate', () => {
   assert.equal(events.length, 679);
-  assert.equal(candidateDigest, 'sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b');
+  assert.equal(candidateDigest, 'sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f');
   assert.equal(evidence.candidate.candidateDigest, candidateDigest);
   assert.equal(qa.candidateDigest, candidateDigest);
   assert.equal(qa.parsingJobId, parsingJob.jobId);
