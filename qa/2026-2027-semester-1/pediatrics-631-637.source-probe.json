@@ -1,0 +1,2310 @@
+{
+  "schema": "kgmu-mechanical-source-probe-v1",
+  "semanticParsingPerformed": false,
+  "timetablePage": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+  "source": {
+    "program": "pediatrics",
+    "course": 6,
+    "groups": [
+      "631",
+      "632",
+      "633",
+      "634",
+      "635",
+      "636",
+      "637"
+    ],
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/6_ped-24-08-2026-13.xlsx",
+    "sha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+    "byteLength": 31283,
+    "sheetNames": [
+      "6 курс осень 2026-2027 Пед"
+    ],
+    "sheets": [
+      {
+        "title": "6 курс осень 2026-2027 Пед",
+        "maxRow": 282,
+        "maxColumn": 115,
+        "mergedRanges": [
+          "BX45:CA45",
+          "BT38:BW38",
+          "Y30:AM30",
+          "Y39:AM39",
+          "C36:R36",
+          "Y44:AM44",
+          "BL39:BS39",
+          "BX32:CA32",
+          "CR21:CW21",
+          "A15:B15",
+          "S26:X27",
+          "Y29:AM29",
+          "Z20:AI20",
+          "S28:X28",
+          "BL29:BS29",
+          "AJ18:AL18",
+          "AN32:BK32",
+          "V16:AH16",
+          "BL38:BS38",
+          "M16:U16",
+          "AN41:BK41",
+          "CC21:CO21",
+          "C28:R28",
+          "CF19:CO19",
+          "BL31:BS31",
+          "C18:L18",
+          "BL40:BS40",
+          "BX33:CA33",
+          "AN43:BK43",
+          "AI17:AR17",
+          "Y46:AM46",
+          "C6:F6",
+          "Y28:AM28",
+          "BD22:BM22",
+          "CX16:DE22",
+          "Y37:AM37",
+          "AP21:AY21",
+          "V17:AH17",
+          "C30:R30",
+          "O19:X19",
+          "AN42:BK42",
+          "S29:X29",
+          "BN22:BY22",
+          "BL30:BS30",
+          "AZ21:BK21",
+          "BO21:BS21",
+          "Y32:AM32",
+          "S31:X31",
+          "Y41:AM41",
+          "BL41:BS41",
+          "BT41:BW41",
+          "AN28:BK28",
+          "Y38:AM38",
+          "B40:B45",
+          "BX44:CA44",
+          "Y43:AM43",
+          "AJ20:AN20",
+          "C40:R40",
+          "AN30:BK30",
+          "S17:U17",
+          "B26:B27",
+          "BL33:BS33",
+          "BT42:BW42",
+          "AN45:BK45",
+          "BT32:BW32",
+          "BL43:BS43",
+          "BT29:BW29",
+          "BX30:CA30",
+          "BO17:BZ17",
+          "Y35:AM35",
+          "CR17:CW17",
+          "AZ18:BI18",
+          "BY16:CC16",
+          "C5:M5",
+          "BJ18:BS18",
+          "BT43:BW43",
+          "BL28:BS28",
+          "CJ22:CO22",
+          "BT28:BW28",
+          "S34:X34",
+          "C4:M4",
+          "AO20:AZ20",
+          "C26:R27",
+          "AT22:BC22",
+          "C34:R34",
+          "S36:X36",
+          "P20:Y20",
+          "M17:R17",
+          "Y45:AM45",
+          "S30:X30",
+          "C10:CN10",
+          "BJ20:BS20",
+          "CK17:CO17",
+          "Z13:AZ13",
+          "BW20:CB20",
+          "C9:CN9",
+          "C45:R45",
+          "BX35:CA35",
+          "CD16:CO16",
+          "AD18:AI18",
+          "BL45:BS45",
+          "C29:R29",
+          "C16:L16",
+          "BL32:BS32",
+          "P21:Y21",
+          "Y42:AM42",
+          "BX34:CA34",
+          "AN26:BK27",
+          "AO22:AS22",
+          "AV16:BA16",
+          "S46:X46",
+          "C44:R44",
+          "BO16:BX16",
+          "BX40:CA40",
+          "BT33:BW33",
+          "AB22:AN22",
+          "C31:R31",
+          "AN34:BK34",
+          "BX27:CA27",
+          "BX36:CA36",
+          "BL46:BS46",
+          "CA17:CJ17",
+          "C46:R46",
+          "AN36:BK36",
+          "C3:M3",
+          "S38:X38",
+          "BT21:CB21",
+          "AD19:AL19",
+          "CR20:CW20",
+          "C23:R23",
+          "C22:K22",
+          "AN29:BK29",
+          "C38:R38",
+          "CY13:DK13",
+          "AN44:BK44",
+          "BT35:BW35",
+          "BL26:BS27",
+          "BX37:CA37",
+          "B24:AF24",
+          "BT44:BW44",
+          "AN31:BK31",
+          "CR22:CW22",
+          "Y34:AM34",
+          "BT20:BV20",
+          "AM18:AY18",
+          "S33:X33",
+          "BL34:BS34",
+          "BT31:BW31",
+          "BJ19:BO19",
+          "AN46:BK46",
+          "BT26:CA26",
+          "Y19:AC19",
+          "Y36:AM36",
+          "C33:R33",
+          "S35:X35",
+          "BL36:BS36",
+          "BX29:CA29",
+          "C42:R42",
+          "AZ19:BI19",
+          "BX38:CA38",
+          "BT30:BW30",
+          "BT45:BW45",
+          "BB16:BN16",
+          "CH6:CK6",
+          "CR18:CW18",
+          "Y33:AM33",
+          "BX39:CA39",
+          "AM19:AY19",
+          "C7:CO7",
+          "C20:O20",
+          "C35:R35",
+          "AN38:BK38",
+          "BX31:CA31",
+          "A14:B14",
+          "BY13:CX13",
+          "AJ21:AO21",
+          "DF16:DK22",
+          "BL37:BS37",
+          "AN40:BK40",
+          "CC20:CO20",
+          "BT27:BW27",
+          "C8:CN8",
+          "O22:AA22",
+          "BT46:BW46",
+          "Z21:AI21",
+          "BT18:CF18",
+          "C21:O21",
+          "AN33:BK33",
+          "AI16:AR16",
+          "S39:X39",
+          "CG18:CO18",
+          "C13:Y13",
+          "BP19:CB19",
+          "AN35:BK35",
+          "C17:L17",
+          "C39:R39",
+          "S37:X37",
+          "CR19:CW19",
+          "BZ22:CI22",
+          "BX41:CA41",
+          "BT34:BW34",
+          "Y31:AM31",
+          "AS17:BA17",
+          "C32:R32",
+          "Y40:AM40",
+          "BB17:BN17",
+          "C37:R37",
+          "CR16:CW16",
+          "BA13:BX13",
+          "BT40:BW40",
+          "AS16:AU16",
+          "BT39:BW39",
+          "L22:N22",
+          "BX43:CA43",
+          "BT36:BW36",
+          "CH3:CT3",
+          "BA20:BI20",
+          "BX42:CA42",
+          "BL21:BN21",
+          "Y26:AM27",
+          "AN39:BK39",
+          "S32:X32",
+          "BX28:CA28",
+          "C19:N19",
+          "CH5:CT5",
+          "R18:AC18",
+          "M18:Q18",
+          "AN37:BK37",
+          "CH4:CT4",
+          "C41:R41",
+          "BL35:BS35",
+          "BX46:CA46",
+          "CC19:CE19",
+          "A13:B13",
+          "B52:D52",
+          "C43:R43",
+          "BT37:BW37",
+          "S40:X45"
+        ],
+        "nonEmptyCellCount": 509,
+        "nonEmptyCells": [
+          {
+            "coord": "C3",
+            "value": "СОГЛАСОВАНО"
+          },
+          {
+            "coord": "CH3",
+            "value": "УТВЕРЖДЕНО"
+          },
+          {
+            "coord": "C4",
+            "value": "Декан  педиатрического  факультета"
+          },
+          {
+            "coord": "CH4",
+            "value": "Проректор по учебной работе"
+          },
+          {
+            "coord": "C5",
+            "value": "О.Н. Любезнова"
+          },
+          {
+            "coord": "CH5",
+            "value": "Е.Н. Касаткин"
+          },
+          {
+            "coord": "C6",
+            "value": "2026-08-24 00:00:00"
+          },
+          {
+            "coord": "CH6",
+            "value": "2026-08-24 00:00:00"
+          },
+          {
+            "coord": "C7",
+            "value": "РАСПИСАНИЕ     ЗАНЯТИЙ"
+          },
+          {
+            "coord": "C8",
+            "value": "ДЛЯ   СТУДЕНТОВ   6  КУРСА   СПЕЦИАЛЬНОСТИ  ПЕДИАТРИЯ"
+          },
+          {
+            "coord": "C9",
+            "value": "НА ПЕРВОЕ ПОЛУГОДИЕ 2026/27  уч. года"
+          },
+          {
+            "coord": "C10",
+            "value": "Начало учебных  занятий - 01 сентября 2026 г."
+          },
+          {
+            "coord": "AZ12",
+            "value": ""
+          },
+          {
+            "coord": "BA12",
+            "value": ""
+          },
+          {
+            "coord": "BC12",
+            "value": ""
+          },
+          {
+            "coord": "BQ12",
+            "value": ""
+          },
+          {
+            "coord": "A13",
+            "value": "месяц"
+          },
+          {
+            "coord": "C13",
+            "value": "Сентябрь"
+          },
+          {
+            "coord": "Z13",
+            "value": "Октябрь"
+          },
+          {
+            "coord": "BA13",
+            "value": "Ноябрь"
+          },
+          {
+            "coord": "BY13",
+            "value": "Декабрь"
+          },
+          {
+            "coord": "CY13",
+            "value": "Январь"
+          },
+          {
+            "coord": "A14",
+            "value": "число"
+          },
+          {
+            "coord": "C14",
+            "value": "1"
+          },
+          {
+            "coord": "D14",
+            "value": "2"
+          },
+          {
+            "coord": "E14",
+            "value": "3"
+          },
+          {
+            "coord": "F14",
+            "value": "4"
+          },
+          {
+            "coord": "G14",
+            "value": "7"
+          },
+          {
+            "coord": "H14",
+            "value": "8"
+          },
+          {
+            "coord": "I14",
+            "value": "9"
+          },
+          {
+            "coord": "J14",
+            "value": "10"
+          },
+          {
+            "coord": "K14",
+            "value": "11"
+          },
+          {
+            "coord": "L14",
+            "value": "14"
+          },
+          {
+            "coord": "M14",
+            "value": "15"
+          },
+          {
+            "coord": "N14",
+            "value": "16"
+          },
+          {
+            "coord": "O14",
+            "value": "17"
+          },
+          {
+            "coord": "P14",
+            "value": "18"
+          },
+          {
+            "coord": "Q14",
+            "value": "21"
+          },
+          {
+            "coord": "R14",
+            "value": "22"
+          },
+          {
+            "coord": "S14",
+            "value": "23"
+          },
+          {
+            "coord": "T14",
+            "value": "24"
+          },
+          {
+            "coord": "U14",
+            "value": "25"
+          },
+          {
+            "coord": "V14",
+            "value": "26"
+          },
+          {
+            "coord": "W14",
+            "value": "28"
+          },
+          {
+            "coord": "X14",
+            "value": "29"
+          },
+          {
+            "coord": "Y14",
+            "value": "30"
+          },
+          {
+            "coord": "Z14",
+            "value": "1"
+          },
+          {
+            "coord": "AA14",
+            "value": "2"
+          },
+          {
+            "coord": "AB14",
+            "value": "3"
+          },
+          {
+            "coord": "AC14",
+            "value": "5"
+          },
+          {
+            "coord": "AD14",
+            "value": "6"
+          },
+          {
+            "coord": "AE14",
+            "value": "7"
+          },
+          {
+            "coord": "AF14",
+            "value": "8"
+          },
+          {
+            "coord": "AG14",
+            "value": "9"
+          },
+          {
+            "coord": "AH14",
+            "value": "10"
+          },
+          {
+            "coord": "AI14",
+            "value": "12"
+          },
+          {
+            "coord": "AJ14",
+            "value": "13"
+          },
+          {
+            "coord": "AK14",
+            "value": "14"
+          },
+          {
+            "coord": "AL14",
+            "value": "15"
+          },
+          {
+            "coord": "AM14",
+            "value": "16"
+          },
+          {
+            "coord": "AN14",
+            "value": "17"
+          },
+          {
+            "coord": "AO14",
+            "value": "19"
+          },
+          {
+            "coord": "AP14",
+            "value": "20"
+          },
+          {
+            "coord": "AQ14",
+            "value": "21"
+          },
+          {
+            "coord": "AR14",
+            "value": "22"
+          },
+          {
+            "coord": "AS14",
+            "value": "23"
+          },
+          {
+            "coord": "AT14",
+            "value": "24"
+          },
+          {
+            "coord": "AU14",
+            "value": "26"
+          },
+          {
+            "coord": "AV14",
+            "value": "27"
+          },
+          {
+            "coord": "AW14",
+            "value": "28"
+          },
+          {
+            "coord": "AX14",
+            "value": "29"
+          },
+          {
+            "coord": "AY14",
+            "value": "30"
+          },
+          {
+            "coord": "AZ14",
+            "value": "31"
+          },
+          {
+            "coord": "BA14",
+            "value": "2"
+          },
+          {
+            "coord": "BB14",
+            "value": "3"
+          },
+          {
+            "coord": "BC14",
+            "value": "5"
+          },
+          {
+            "coord": "BD14",
+            "value": "6"
+          },
+          {
+            "coord": "BE14",
+            "value": "7"
+          },
+          {
+            "coord": "BF14",
+            "value": "9"
+          },
+          {
+            "coord": "BG14",
+            "value": "10"
+          },
+          {
+            "coord": "BH14",
+            "value": "11"
+          },
+          {
+            "coord": "BI14",
+            "value": "12"
+          },
+          {
+            "coord": "BJ14",
+            "value": "13"
+          },
+          {
+            "coord": "BK14",
+            "value": "14"
+          },
+          {
+            "coord": "BL14",
+            "value": "16"
+          },
+          {
+            "coord": "BM14",
+            "value": "17"
+          },
+          {
+            "coord": "BN14",
+            "value": "18"
+          },
+          {
+            "coord": "BO14",
+            "value": "19"
+          },
+          {
+            "coord": "BP14",
+            "value": "20"
+          },
+          {
+            "coord": "BQ14",
+            "value": "21"
+          },
+          {
+            "coord": "BR14",
+            "value": "23"
+          },
+          {
+            "coord": "BS14",
+            "value": "24"
+          },
+          {
+            "coord": "BT14",
+            "value": "25"
+          },
+          {
+            "coord": "BU14",
+            "value": "26"
+          },
+          {
+            "coord": "BV14",
+            "value": "27"
+          },
+          {
+            "coord": "BW14",
+            "value": "28"
+          },
+          {
+            "coord": "BX14",
+            "value": "30"
+          },
+          {
+            "coord": "BY14",
+            "value": "1"
+          },
+          {
+            "coord": "BZ14",
+            "value": "2"
+          },
+          {
+            "coord": "CA14",
+            "value": "3"
+          },
+          {
+            "coord": "CB14",
+            "value": "4"
+          },
+          {
+            "coord": "CC14",
+            "value": "5"
+          },
+          {
+            "coord": "CD14",
+            "value": "7"
+          },
+          {
+            "coord": "CE14",
+            "value": "8"
+          },
+          {
+            "coord": "CF14",
+            "value": "9"
+          },
+          {
+            "coord": "CG14",
+            "value": "10"
+          },
+          {
+            "coord": "CH14",
+            "value": "11"
+          },
+          {
+            "coord": "CI14",
+            "value": "12"
+          },
+          {
+            "coord": "CJ14",
+            "value": "14"
+          },
+          {
+            "coord": "CK14",
+            "value": "15"
+          },
+          {
+            "coord": "CL14",
+            "value": "16"
+          },
+          {
+            "coord": "CM14",
+            "value": "17"
+          },
+          {
+            "coord": "CN14",
+            "value": "18"
+          },
+          {
+            "coord": "CO14",
+            "value": "19"
+          },
+          {
+            "coord": "CP14",
+            "value": "21"
+          },
+          {
+            "coord": "CQ14",
+            "value": "22"
+          },
+          {
+            "coord": "CR14",
+            "value": "23"
+          },
+          {
+            "coord": "CS14",
+            "value": "24"
+          },
+          {
+            "coord": "CT14",
+            "value": "25"
+          },
+          {
+            "coord": "CU14",
+            "value": "26"
+          },
+          {
+            "coord": "CV14",
+            "value": "28"
+          },
+          {
+            "coord": "CW14",
+            "value": "29"
+          },
+          {
+            "coord": "CX14",
+            "value": "30"
+          },
+          {
+            "coord": "CY14",
+            "value": "9"
+          },
+          {
+            "coord": "CZ14",
+            "value": "11"
+          },
+          {
+            "coord": "DA14",
+            "value": "12"
+          },
+          {
+            "coord": "DB14",
+            "value": "13"
+          },
+          {
+            "coord": "DC14",
+            "value": "14"
+          },
+          {
+            "coord": "DD14",
+            "value": "15"
+          },
+          {
+            "coord": "DE14",
+            "value": "16"
+          },
+          {
+            "coord": "DF14",
+            "value": "18"
+          },
+          {
+            "coord": "DG14",
+            "value": "19"
+          },
+          {
+            "coord": "DH14",
+            "value": "20"
+          },
+          {
+            "coord": "DI14",
+            "value": "21"
+          },
+          {
+            "coord": "DJ14",
+            "value": "22"
+          },
+          {
+            "coord": "DK14",
+            "value": "23"
+          },
+          {
+            "coord": "A15",
+            "value": "день недели"
+          },
+          {
+            "coord": "C15",
+            "value": "вт"
+          },
+          {
+            "coord": "D15",
+            "value": "ср"
+          },
+          {
+            "coord": "E15",
+            "value": "чт"
+          },
+          {
+            "coord": "F15",
+            "value": "пт"
+          },
+          {
+            "coord": "G15",
+            "value": "пн"
+          },
+          {
+            "coord": "H15",
+            "value": "вт"
+          },
+          {
+            "coord": "I15",
+            "value": "ср"
+          },
+          {
+            "coord": "J15",
+            "value": "чт"
+          },
+          {
+            "coord": "K15",
+            "value": "пт"
+          },
+          {
+            "coord": "L15",
+            "value": "пн"
+          },
+          {
+            "coord": "M15",
+            "value": "вт"
+          },
+          {
+            "coord": "N15",
+            "value": "ср"
+          },
+          {
+            "coord": "O15",
+            "value": "чт"
+          },
+          {
+            "coord": "P15",
+            "value": "пт"
+          },
+          {
+            "coord": "Q15",
+            "value": "пн"
+          },
+          {
+            "coord": "R15",
+            "value": "вт"
+          },
+          {
+            "coord": "S15",
+            "value": "ср"
+          },
+          {
+            "coord": "T15",
+            "value": "чт"
+          },
+          {
+            "coord": "U15",
+            "value": "пт"
+          },
+          {
+            "coord": "V15",
+            "value": "сб"
+          },
+          {
+            "coord": "W15",
+            "value": "пн"
+          },
+          {
+            "coord": "X15",
+            "value": "вт"
+          },
+          {
+            "coord": "Y15",
+            "value": "ср"
+          },
+          {
+            "coord": "Z15",
+            "value": "чт"
+          },
+          {
+            "coord": "AA15",
+            "value": "пт"
+          },
+          {
+            "coord": "AB15",
+            "value": "сб"
+          },
+          {
+            "coord": "AC15",
+            "value": "пн"
+          },
+          {
+            "coord": "AD15",
+            "value": "вт"
+          },
+          {
+            "coord": "AE15",
+            "value": "ср"
+          },
+          {
+            "coord": "AF15",
+            "value": "чт"
+          },
+          {
+            "coord": "AG15",
+            "value": "пт"
+          },
+          {
+            "coord": "AH15",
+            "value": "сб"
+          },
+          {
+            "coord": "AI15",
+            "value": "пн"
+          },
+          {
+            "coord": "AJ15",
+            "value": "вт"
+          },
+          {
+            "coord": "AK15",
+            "value": "ср"
+          },
+          {
+            "coord": "AL15",
+            "value": "чт"
+          },
+          {
+            "coord": "AM15",
+            "value": "пт"
+          },
+          {
+            "coord": "AN15",
+            "value": "сб"
+          },
+          {
+            "coord": "AO15",
+            "value": "пн"
+          },
+          {
+            "coord": "AP15",
+            "value": "вт"
+          },
+          {
+            "coord": "AQ15",
+            "value": "ср"
+          },
+          {
+            "coord": "AR15",
+            "value": "чт"
+          },
+          {
+            "coord": "AS15",
+            "value": "пт"
+          },
+          {
+            "coord": "AT15",
+            "value": "сб"
+          },
+          {
+            "coord": "AU15",
+            "value": "пн"
+          },
+          {
+            "coord": "AV15",
+            "value": "вт"
+          },
+          {
+            "coord": "AW15",
+            "value": "ср"
+          },
+          {
+            "coord": "AX15",
+            "value": "чт"
+          },
+          {
+            "coord": "AY15",
+            "value": "пт"
+          },
+          {
+            "coord": "AZ15",
+            "value": "сб"
+          },
+          {
+            "coord": "BA15",
+            "value": "пн"
+          },
+          {
+            "coord": "BB15",
+            "value": "вт"
+          },
+          {
+            "coord": "BC15",
+            "value": "чт"
+          },
+          {
+            "coord": "BD15",
+            "value": "пт"
+          },
+          {
+            "coord": "BE15",
+            "value": "сб"
+          },
+          {
+            "coord": "BF15",
+            "value": "пн"
+          },
+          {
+            "coord": "BG15",
+            "value": "вт"
+          },
+          {
+            "coord": "BH15",
+            "value": "ср"
+          },
+          {
+            "coord": "BI15",
+            "value": "чт"
+          },
+          {
+            "coord": "BJ15",
+            "value": "пт"
+          },
+          {
+            "coord": "BK15",
+            "value": "сб"
+          },
+          {
+            "coord": "BL15",
+            "value": "пн"
+          },
+          {
+            "coord": "BM15",
+            "value": "вт"
+          },
+          {
+            "coord": "BN15",
+            "value": "ср"
+          },
+          {
+            "coord": "BO15",
+            "value": "чт"
+          },
+          {
+            "coord": "BP15",
+            "value": "пт"
+          },
+          {
+            "coord": "BQ15",
+            "value": "сб"
+          },
+          {
+            "coord": "BR15",
+            "value": "пн"
+          },
+          {
+            "coord": "BS15",
+            "value": "вт"
+          },
+          {
+            "coord": "BT15",
+            "value": "ср"
+          },
+          {
+            "coord": "BU15",
+            "value": "чт"
+          },
+          {
+            "coord": "BV15",
+            "value": "пт"
+          },
+          {
+            "coord": "BW15",
+            "value": "сб"
+          },
+          {
+            "coord": "BX15",
+            "value": "пн"
+          },
+          {
+            "coord": "BY15",
+            "value": "вт"
+          },
+          {
+            "coord": "BZ15",
+            "value": "ср"
+          },
+          {
+            "coord": "CA15",
+            "value": "чт"
+          },
+          {
+            "coord": "CB15",
+            "value": "пт"
+          },
+          {
+            "coord": "CC15",
+            "value": "сб"
+          },
+          {
+            "coord": "CD15",
+            "value": "пн"
+          },
+          {
+            "coord": "CE15",
+            "value": "вт"
+          },
+          {
+            "coord": "CF15",
+            "value": "ср"
+          },
+          {
+            "coord": "CG15",
+            "value": "чт"
+          },
+          {
+            "coord": "CH15",
+            "value": "пт"
+          },
+          {
+            "coord": "CI15",
+            "value": "сб"
+          },
+          {
+            "coord": "CJ15",
+            "value": "пн"
+          },
+          {
+            "coord": "CK15",
+            "value": "вт"
+          },
+          {
+            "coord": "CL15",
+            "value": "ср"
+          },
+          {
+            "coord": "CM15",
+            "value": "чт"
+          },
+          {
+            "coord": "CN15",
+            "value": "пт"
+          },
+          {
+            "coord": "CO15",
+            "value": "сб"
+          },
+          {
+            "coord": "CP15",
+            "value": "пн"
+          },
+          {
+            "coord": "CQ15",
+            "value": "вт"
+          },
+          {
+            "coord": "CR15",
+            "value": "ср"
+          },
+          {
+            "coord": "CS15",
+            "value": "чт"
+          },
+          {
+            "coord": "CT15",
+            "value": "пт"
+          },
+          {
+            "coord": "CU15",
+            "value": "сб"
+          },
+          {
+            "coord": "CV15",
+            "value": "пн"
+          },
+          {
+            "coord": "CW15",
+            "value": "вт"
+          },
+          {
+            "coord": "CX15",
+            "value": "ср"
+          },
+          {
+            "coord": "CY15",
+            "value": "сб"
+          },
+          {
+            "coord": "CZ15",
+            "value": "пн"
+          },
+          {
+            "coord": "DA15",
+            "value": "вт"
+          },
+          {
+            "coord": "DB15",
+            "value": "ср"
+          },
+          {
+            "coord": "DC15",
+            "value": "чт"
+          },
+          {
+            "coord": "DD15",
+            "value": "пт"
+          },
+          {
+            "coord": "DE15",
+            "value": "сб"
+          },
+          {
+            "coord": "DF15",
+            "value": "пн"
+          },
+          {
+            "coord": "DG15",
+            "value": "вт"
+          },
+          {
+            "coord": "DH15",
+            "value": "ср"
+          },
+          {
+            "coord": "DI15",
+            "value": "чт"
+          },
+          {
+            "coord": "DJ15",
+            "value": "пт"
+          },
+          {
+            "coord": "DK15",
+            "value": "сб"
+          },
+          {
+            "coord": "A16",
+            "value": "г"
+          },
+          {
+            "coord": "B16",
+            "value": "631"
+          },
+          {
+            "coord": "C16",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "M16",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "V16",
+            "value": "Госпитальн педиатрия"
+          },
+          {
+            "coord": "AI16",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "AS16",
+            "value": "Физкультура и спорт"
+          },
+          {
+            "coord": "AV16",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "BB16",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "BO16",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "BY16",
+            "value": "Гематология*"
+          },
+          {
+            "coord": "CD16",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "CR16",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "CX16",
+            "value": "Экзамены"
+          },
+          {
+            "coord": "DF16",
+            "value": "Каникулы"
+          },
+          {
+            "coord": "A17",
+            "value": "р"
+          },
+          {
+            "coord": "B17",
+            "value": "632"
+          },
+          {
+            "coord": "C17",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "M17",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "S17",
+            "value": "Физкультура  и спорт"
+          },
+          {
+            "coord": "V17",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "AI17",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "AS17",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "BB17",
+            "value": "Госпитальн педиатрия"
+          },
+          {
+            "coord": "BO17",
+            "value": "Поликлиническая и\nнеотложная педиатрия*"
+          },
+          {
+            "coord": "CA17",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "CK17",
+            "value": "Гематология*"
+          },
+          {
+            "coord": "CR17",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "A18",
+            "value": "у"
+          },
+          {
+            "coord": "B18",
+            "value": "633"
+          },
+          {
+            "coord": "C18",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "M18",
+            "value": "Гематология"
+          },
+          {
+            "coord": "R18",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "AD18",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "AJ18",
+            "value": "Физкультура  и спорт"
+          },
+          {
+            "coord": "AM18",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "AZ18",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "BJ18",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "BT18",
+            "value": "Госпитальн педиатрия"
+          },
+          {
+            "coord": "CG18",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "CR18",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "A19",
+            "value": "п"
+          },
+          {
+            "coord": "B19",
+            "value": "634"
+          },
+          {
+            "coord": "C19",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "O19",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "Y19",
+            "value": "Гематология*"
+          },
+          {
+            "coord": "AD19",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "AM19",
+            "value": "Госпитальн педиатрия"
+          },
+          {
+            "coord": "AZ19",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "BJ19",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "BP19",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "CC19",
+            "value": "Физкультура  и спорт"
+          },
+          {
+            "coord": "CF19",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "CR19",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "A20",
+            "value": "п"
+          },
+          {
+            "coord": "B20",
+            "value": "635"
+          },
+          {
+            "coord": "C20",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "P20",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "Z20",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "AJ20",
+            "value": "Гематология"
+          },
+          {
+            "coord": "AO20",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "BA20",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "BJ20",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "BT20",
+            "value": "Физкультура  и спорт*"
+          },
+          {
+            "coord": "BW20",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "CC20",
+            "value": "Госпитальн педиатрия*"
+          },
+          {
+            "coord": "CR20",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "A21",
+            "value": "ы"
+          },
+          {
+            "coord": "B21",
+            "value": "636"
+          },
+          {
+            "coord": "C21",
+            "value": "Госпитальн педиатрия"
+          },
+          {
+            "coord": "P21",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "Z21",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "AJ21",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "AP21",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "AZ21",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "BL21",
+            "value": "Физкультура  и спорт"
+          },
+          {
+            "coord": "BO21",
+            "value": "Гематология*"
+          },
+          {
+            "coord": "BT21",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "CC21",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "CR21",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "B22",
+            "value": "637"
+          },
+          {
+            "coord": "C22",
+            "value": "Анестезиология, реанимация,\nинтенсивная терапия"
+          },
+          {
+            "coord": "L22",
+            "value": "Физкультура  и спорт"
+          },
+          {
+            "coord": "O22",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "AB22",
+            "value": "Госпитальн педиатрия*"
+          },
+          {
+            "coord": "AO22",
+            "value": "Гематология*"
+          },
+          {
+            "coord": "AT22",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "BD22",
+            "value": "Инфекционные\nболезни у детей"
+          },
+          {
+            "coord": "BN22",
+            "value": "Поликлиническая и\nнеотложная педиатрия"
+          },
+          {
+            "coord": "BZ22",
+            "value": "Клиническая\nфармакология"
+          },
+          {
+            "coord": "CJ22",
+            "value": "Симуляционный\nкурс"
+          },
+          {
+            "coord": "CR22",
+            "value": "Электив\n6 дн по 6 часов"
+          },
+          {
+            "coord": "B23",
+            "value": "*"
+          },
+          {
+            "coord": "C23",
+            "value": "Первый день занятий во вторую смену"
+          },
+          {
+            "coord": "AJ23",
+            "value": ""
+          },
+          {
+            "coord": "B24",
+            "value": "5, 12, 19  сентября - дни самостоятельной работы"
+          },
+          {
+            "coord": "BQ24",
+            "value": ""
+          },
+          {
+            "coord": "AI25",
+            "value": ""
+          },
+          {
+            "coord": "B26",
+            "value": "№ п/п"
+          },
+          {
+            "coord": "C26",
+            "value": "Дисциплина"
+          },
+          {
+            "coord": "S26",
+            "value": "Форма промежуточной аттестации"
+          },
+          {
+            "coord": "Y26",
+            "value": "Кафедра"
+          },
+          {
+            "coord": "AN26",
+            "value": "База практической подготовки"
+          },
+          {
+            "coord": "BL26",
+            "value": "Адрес"
+          },
+          {
+            "coord": "BT26",
+            "value": "Время проведения занятий"
+          },
+          {
+            "coord": "CZ26",
+            "value": ""
+          },
+          {
+            "coord": "BT27",
+            "value": "1 смена"
+          },
+          {
+            "coord": "BX27",
+            "value": "2 смена"
+          },
+          {
+            "coord": "CF27",
+            "value": ""
+          },
+          {
+            "coord": "B28",
+            "value": "1"
+          },
+          {
+            "coord": "C28",
+            "value": "Детская хирургия"
+          },
+          {
+            "coord": "S28",
+            "value": "Экзамен"
+          },
+          {
+            "coord": "Y28",
+            "value": "Детской хирургии"
+          },
+          {
+            "coord": "AN28",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL28",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT28",
+            "value": "8:30-13:10"
+          },
+          {
+            "coord": "B29",
+            "value": "2"
+          },
+          {
+            "coord": "C29",
+            "value": "Клиническая фармакология"
+          },
+          {
+            "coord": "S29",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y29",
+            "value": "Пропедевтики детских болезней"
+          },
+          {
+            "coord": "AN29",
+            "value": "КОГБУЗ \"Детский клинический консультативно-диагностический центр\""
+          },
+          {
+            "coord": "BL29",
+            "value": "ул. Красноармейская, 43"
+          },
+          {
+            "coord": "BT29",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "CM29",
+            "value": ""
+          },
+          {
+            "coord": "B30",
+            "value": "3"
+          },
+          {
+            "coord": "C30",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "S30",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y30",
+            "value": "Внутренних болезней"
+          },
+          {
+            "coord": "AN30",
+            "value": "КОГБУЗ \"Областной клинический противотуберкулёзный диспансер\""
+          },
+          {
+            "coord": "BL30",
+            "value": "пр. Строителей, 25"
+          },
+          {
+            "coord": "BT30",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "B31",
+            "value": "4"
+          },
+          {
+            "coord": "C31",
+            "value": "Анестезиология, реанимация, интенсивная терапия"
+          },
+          {
+            "coord": "S31",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y31",
+            "value": "Детской хирургии"
+          },
+          {
+            "coord": "AN31",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL31",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT31",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "B32",
+            "value": "5"
+          },
+          {
+            "coord": "C32",
+            "value": "Поликлиническая и неотложная педиатрия"
+          },
+          {
+            "coord": "Y32",
+            "value": "Педиатрии"
+          },
+          {
+            "coord": "AN32",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL32",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT32",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "BX32",
+            "value": "13.00-17.40"
+          },
+          {
+            "coord": "B33",
+            "value": "6"
+          },
+          {
+            "coord": "C33",
+            "value": "Инфекционные болезни у детей"
+          },
+          {
+            "coord": "Y33",
+            "value": "Инфекционных болезней"
+          },
+          {
+            "coord": "AN33",
+            "value": "КОГБУЗ \"Инфекционная клиническая  больница\""
+          },
+          {
+            "coord": "BL33",
+            "value": "ул. Ленина, 207"
+          },
+          {
+            "coord": "BT33",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "B34",
+            "value": "7"
+          },
+          {
+            "coord": "C34",
+            "value": "Госпитальная педиатрия"
+          },
+          {
+            "coord": "Y34",
+            "value": "Педиатрии"
+          },
+          {
+            "coord": "AN34",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL34",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT34",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "BX34",
+            "value": "13.00-17.40"
+          },
+          {
+            "coord": "CE34",
+            "value": ""
+          },
+          {
+            "coord": "B35",
+            "value": "8"
+          },
+          {
+            "coord": "C35",
+            "value": "Физическая культура и спорт"
+          },
+          {
+            "coord": "S35",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y35",
+            "value": "Физической культуры"
+          },
+          {
+            "coord": "AN35",
+            "value": "Кировский ГМУ, учебный корпус № 3 Физкультурно-оздоровительный комплекс"
+          },
+          {
+            "coord": "BL35",
+            "value": "ул. Владимирская, 112"
+          },
+          {
+            "coord": "BT35",
+            "value": "8:30-13:10"
+          },
+          {
+            "coord": "BX35",
+            "value": "13:00-17:40"
+          },
+          {
+            "coord": "B36",
+            "value": "9"
+          },
+          {
+            "coord": "C36",
+            "value": "Госпитальная педиатрия раздел \" Гематология\""
+          },
+          {
+            "coord": "Y36",
+            "value": "Госпитальной терапии"
+          },
+          {
+            "coord": "AN36",
+            "value": "КОГБУЗ \"Кировская областная клиническая больница\""
+          },
+          {
+            "coord": "BL36",
+            "value": "ул. Воровского, 42"
+          },
+          {
+            "coord": "BT36",
+            "value": "8:30-13:10"
+          },
+          {
+            "coord": "BX36",
+            "value": "13:10-17:50"
+          },
+          {
+            "coord": "C37",
+            "value": "Фтизиатрия"
+          },
+          {
+            "coord": "S37",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y37",
+            "value": "Внутренних болезней"
+          },
+          {
+            "coord": "AN37",
+            "value": "КОГБУЗ \"Областной клинический противотуберкулёзный диспансер\""
+          },
+          {
+            "coord": "BL37",
+            "value": "пр. Строителей, 25"
+          },
+          {
+            "coord": "BT37",
+            "value": "8.00-12.40"
+          },
+          {
+            "coord": "B38",
+            "value": "10"
+          },
+          {
+            "coord": "C38",
+            "value": "Симуляционный курс"
+          },
+          {
+            "coord": "Y38",
+            "value": "Мультипрофильный аккредитационно-\nсимуляционный центр"
+          },
+          {
+            "coord": "AN38",
+            "value": "Кировский ГМУ, учебный корпус № 2"
+          },
+          {
+            "coord": "BL38",
+            "value": "ул. Пролетарская, 38"
+          },
+          {
+            "coord": "BT38",
+            "value": "8:30-11:35"
+          },
+          {
+            "coord": "C39",
+            "value": "Дисциплины по выбору"
+          },
+          {
+            "coord": "B40",
+            "value": "11"
+          },
+          {
+            "coord": "C40",
+            "value": "Детская и подростковая гинекология"
+          },
+          {
+            "coord": "S40",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y40",
+            "value": "Акушерства и гинекологии"
+          },
+          {
+            "coord": "AN40",
+            "value": "КОГБУЗ \"Кировский областной клинический перинатальный центр\""
+          },
+          {
+            "coord": "BL40",
+            "value": "ул. Московская, 163"
+          },
+          {
+            "coord": "BT40",
+            "value": "8.30-13.10"
+          },
+          {
+            "coord": "C41",
+            "value": "Детская гематология"
+          },
+          {
+            "coord": "Y41",
+            "value": "Госпитальной терапии"
+          },
+          {
+            "coord": "AN41",
+            "value": "КОГБУЗ \"Кировская областная клиническая больница\""
+          },
+          {
+            "coord": "BL41",
+            "value": "ул. Воровского, 42"
+          },
+          {
+            "coord": "BT41",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "BX41",
+            "value": ""
+          },
+          {
+            "coord": "C42",
+            "value": "Рациональное питание здорового\nи больного ребенка"
+          },
+          {
+            "coord": "Y42",
+            "value": "Пропедевтики детских болезней"
+          },
+          {
+            "coord": "AN42",
+            "value": "КОГБУЗ \"Детский клинический консультативно-диагностический центр\""
+          },
+          {
+            "coord": "BL42",
+            "value": "ул. Красноармейская, 43"
+          },
+          {
+            "coord": "BT42",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "C43",
+            "value": "Аллергодерматозы у детей"
+          },
+          {
+            "coord": "Y43",
+            "value": "Педиатрии"
+          },
+          {
+            "coord": "AN43",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL43",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT43",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "CE43",
+            "value": ""
+          },
+          {
+            "coord": "C44",
+            "value": "Глазные болезни в практике врача-педиатра"
+          },
+          {
+            "coord": "Y44",
+            "value": "Офтальмологмм"
+          },
+          {
+            "coord": "AN44",
+            "value": "КОГБУЗ \"Кировская клиническая офтальмологическая больница\""
+          },
+          {
+            "coord": "BL44",
+            "value": "Октябрьский проспект, 10а"
+          },
+          {
+            "coord": "BX44",
+            "value": "12:30-17:10"
+          },
+          {
+            "coord": "C45",
+            "value": "Неотложная хирургия детского возраста"
+          },
+          {
+            "coord": "Y45",
+            "value": "Детской хирургии"
+          },
+          {
+            "coord": "AN45",
+            "value": "КОГБУЗ \"Кировская областная детская клиническая больница\""
+          },
+          {
+            "coord": "BL45",
+            "value": "ул. Менделеева, 16"
+          },
+          {
+            "coord": "BT45",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "B46",
+            "value": "12"
+          },
+          {
+            "coord": "C46",
+            "value": "Б.1В.ДВ.05 Клиническая иммунология детского возраста / Клиническая аллергология детского возраста (по выбору)"
+          },
+          {
+            "coord": "S46",
+            "value": "Зачёт"
+          },
+          {
+            "coord": "Y46",
+            "value": "Пропедевтики детских болезней"
+          },
+          {
+            "coord": "AN46",
+            "value": "КОГБУЗ \"Детский клинический консультативно-диагностический центр\""
+          },
+          {
+            "coord": "BL46",
+            "value": "ул. Красноармейская, 43"
+          },
+          {
+            "coord": "BT46",
+            "value": "8:00-12:40"
+          },
+          {
+            "coord": "AP47",
+            "value": ""
+          },
+          {
+            "coord": "B48",
+            "value": "Лекции по дисциплинам размещенны на образовательном сайте Кировского ГМУ"
+          },
+          {
+            "coord": "AL48",
+            "value": ""
+          },
+          {
+            "coord": "AP48",
+            "value": ""
+          },
+          {
+            "coord": "BU48",
+            "value": ""
+          },
+          {
+            "coord": "AC49",
+            "value": ""
+          },
+          {
+            "coord": "AF49",
+            "value": ""
+          },
+          {
+            "coord": "AQ49",
+            "value": ""
+          },
+          {
+            "coord": "AX49",
+            "value": ""
+          },
+          {
+            "coord": "BC49",
+            "value": ""
+          },
+          {
+            "coord": "BH49",
+            "value": ""
+          },
+          {
+            "coord": "BL49",
+            "value": ""
+          },
+          {
+            "coord": "BP49",
+            "value": ""
+          },
+          {
+            "coord": "BZ49",
+            "value": ""
+          },
+          {
+            "coord": "Z50",
+            "value": ""
+          },
+          {
+            "coord": "AF50",
+            "value": ""
+          },
+          {
+            "coord": "AJ50",
+            "value": ""
+          },
+          {
+            "coord": "AK50",
+            "value": ""
+          },
+          {
+            "coord": "BV50",
+            "value": ""
+          },
+          {
+            "coord": "B51",
+            "value": "Начальник учебного отдела"
+          },
+          {
+            "coord": "N51",
+            "value": "Н.Л. Негодяева"
+          },
+          {
+            "coord": "T51",
+            "value": ""
+          },
+          {
+            "coord": "BJ51",
+            "value": ""
+          },
+          {
+            "coord": "B52",
+            "value": "2026-08-24 00:00:00"
+          },
+          {
+            "coord": "W52",
+            "value": ""
+          },
+          {
+            "coord": "AR52",
+            "value": ""
+          },
+          {
+            "coord": "BK52",
+            "value": ""
+          },
+          {
+            "coord": "BL52",
+            "value": ""
+          },
+          {
+            "coord": "BW52",
+            "value": ""
+          },
+          {
+            "coord": "AK53",
+            "value": ""
+          },
+          {
+            "coord": "BC53",
+            "value": ""
+          }
+        ]
+      }
+    ]
+  }
+}

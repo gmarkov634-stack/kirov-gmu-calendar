@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 
-const DECISION_SCHEMA = 'kgmu-explicit-semantic-decisions-v3';
+const DECISION_SCHEMA_V3 = 'kgmu-explicit-semantic-decisions-v3';
+const DECISION_SCHEMA_V4 = 'kgmu-explicit-semantic-decisions-v4';
 const SEMANTIC_MODE = 'operator-authored-explicit';
 const HEX_MASK = /^[0-9a-f]+$/i;
 
@@ -89,10 +90,75 @@ export function digestNormalizedEvents(events) {
   return `sha256:${sha256Hex(canonicalJson(events))}`;
 }
 
+function decodeDecisionTuple(manifest, tuple, decisionIndex) {
+  const label = `manifest.decisions[${decisionIndex}]`;
+  if (manifest.schema === DECISION_SCHEMA_V3) {
+    if (!Array.isArray(tuple) || tuple.length !== 8) {
+      throw new TypeError(`${label} must contain exactly 8 fields`);
+    }
+    const [locator, groupMaskHex, dateMaskHex, startTime, endTime, disciplineIndex, lessonTypeIndex, locationIndex] = tuple;
+    assertNonEmptyString(startTime, `${label}.startTime`);
+    assertNonEmptyString(endTime, `${label}.endTime`);
+    return {
+      locator,
+      groupMaskHex,
+      dateMaskHex,
+      timeSemantics: 'floating',
+      startTime,
+      endTime,
+      disciplineIndex,
+      lessonTypeIndex,
+      locationIndex,
+      legacyEventKey: true
+    };
+  }
+
+  if (manifest.schema === DECISION_SCHEMA_V4) {
+    if (!Array.isArray(tuple) || tuple.length !== 9) {
+      throw new TypeError(`${label} must contain exactly 9 fields`);
+    }
+    const [
+      locator,
+      groupMaskHex,
+      dateMaskHex,
+      timeSemantics,
+      startTime,
+      endTime,
+      disciplineIndex,
+      lessonTypeIndex,
+      locationIndex
+    ] = tuple;
+    if (timeSemantics === 'floating') {
+      assertNonEmptyString(startTime, `${label}.startTime`);
+      assertNonEmptyString(endTime, `${label}.endTime`);
+    } else if (timeSemantics === 'date-only') {
+      if (startTime !== null || endTime !== null) {
+        throw new TypeError(`${label} date-only decision must use null startTime/endTime`);
+      }
+    } else {
+      throw new TypeError(`${label}.timeSemantics must be floating or date-only`);
+    }
+    return {
+      locator,
+      groupMaskHex,
+      dateMaskHex,
+      timeSemantics,
+      startTime,
+      endTime,
+      disciplineIndex,
+      lessonTypeIndex,
+      locationIndex,
+      legacyEventKey: false
+    };
+  }
+
+  throw new Error(`unsupported explicit decision schema: ${manifest.schema}`);
+}
+
 export function expandExplicitDecisionManifest(manifest, context) {
   assertObject(manifest, 'manifest');
   assertObject(context, 'context');
-  if (manifest.schema !== DECISION_SCHEMA) {
+  if (![DECISION_SCHEMA_V3, DECISION_SCHEMA_V4].includes(manifest.schema)) {
     throw new Error(`unsupported explicit decision schema: ${manifest.schema}`);
   }
   if (manifest.semanticDecisionMode !== SEMANTIC_MODE) {
@@ -122,23 +188,21 @@ export function expandExplicitDecisionManifest(manifest, context) {
 
   const selectionMetadata = normalizeSelectionMetadata(manifest);
   const events = [];
-  for (const [decisionIndex, tuple] of manifest.decisions.entries()) {
-    if (!Array.isArray(tuple) || tuple.length !== 8) {
-      throw new TypeError(`manifest.decisions[${decisionIndex}] must contain exactly 8 fields`);
-    }
-    const [
+  for (const [decisionIndex, rawTuple] of manifest.decisions.entries()) {
+    const decision = decodeDecisionTuple(manifest, rawTuple, decisionIndex);
+    const {
       locator,
       groupMaskHex,
       dateMaskHex,
+      timeSemantics,
       startTime,
       endTime,
       disciplineIndex,
       lessonTypeIndex,
-      locationIndex
-    ] = tuple;
+      locationIndex,
+      legacyEventKey
+    } = decision;
     assertNonEmptyString(locator, `manifest.decisions[${decisionIndex}].locator`);
-    assertNonEmptyString(startTime, `manifest.decisions[${decisionIndex}].startTime`);
-    assertNonEmptyString(endTime, `manifest.decisions[${decisionIndex}].endTime`);
     assertIndex(disciplineIndex, manifest.disciplineTable, `manifest.decisions[${decisionIndex}].disciplineIndex`);
     assertIndex(lessonTypeIndex, manifest.lessonTypeTable, `manifest.decisions[${decisionIndex}].lessonTypeIndex`);
     assertIndex(locationIndex, manifest.locationTable, `manifest.decisions[${decisionIndex}].locationIndex`);
@@ -154,7 +218,9 @@ export function expandExplicitDecisionManifest(manifest, context) {
     for (const groupId of groups) {
       for (const date of dates) {
         const sourceLocator = `${manifest.sheetName}!${locator}`;
-        const eventKeyParts = [groupId, date, startTime, endTime, discipline, lessonType, sourceLocator];
+        const eventKeyParts = legacyEventKey
+          ? [groupId, date, startTime, endTime, discipline, lessonType, sourceLocator]
+          : [groupId, date, timeSemantics, startTime ?? '', endTime ?? '', discipline, lessonType, sourceLocator];
         if (selection != null) {
           eventKeyParts.push(selection.selectionGroupId, selection.selectionOptionId);
         }
@@ -165,15 +231,17 @@ export function expandExplicitDecisionManifest(manifest, context) {
           groupId,
           academicPeriodId,
           date,
-          startTime,
-          endTime,
-          timeSemantics: 'floating',
+          timeSemantics,
           discipline,
           lessonType,
           teacher: null,
           location,
           sourceRef: { sourceId, locator: sourceLocator }
         };
+        if (timeSemantics === 'floating') {
+          event.startTime = startTime;
+          event.endTime = endTime;
+        }
         if (assessment != null) event.assessment = structuredClone(assessment);
         if (selection != null) event.selection = structuredClone(selection);
         events.push(event);
@@ -184,8 +252,8 @@ export function expandExplicitDecisionManifest(manifest, context) {
   return events.sort((a, b) => [
     Number(a.groupId) - Number(b.groupId),
     a.date.localeCompare(b.date),
-    a.startTime.localeCompare(b.startTime),
-    a.endTime.localeCompare(b.endTime),
+    (a.startTime ?? '').localeCompare(b.startTime ?? ''),
+    (a.endTime ?? '').localeCompare(b.endTime ?? ''),
     a.discipline.localeCompare(b.discipline),
     a.lessonType.localeCompare(b.lessonType),
     a.sourceRef.locator.localeCompare(b.sourceRef.locator)

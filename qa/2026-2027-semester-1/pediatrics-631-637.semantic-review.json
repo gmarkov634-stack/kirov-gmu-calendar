@@ -1,0 +1,22 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "pediatrics-631-637-2026-2027-semester-1",
+  "profile": "C",
+  "status": "SEMANTIC_QA_PASS",
+  "sourceSha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+  "logicalLearningBlocks": 77,
+  "resolvedAmbiguities": 0,
+  "unresolvedAmbiguities": 0,
+  "operatorResolutions": [],
+  "notes": [
+    "C02: all 9 explicitly starred cycle blocks use the discipline-specific second shift only on the first calendar date; remaining dates use first shift.",
+    "C08: abbreviated grid labels map unambiguously to the full lower-reference discipline names; no source-specific guess is required.",
+    "C15: each of the 7 elective blocks expands to six neutral «Дисциплина по выбору» date-only events for its group because no exact time/location is common to the listed alternatives.",
+    "C07/C14: «Экзамены» and «Каникулы» are service periods and do not synthesize normalized events.",
+    "Assessment metadata from the lower reference is preserved for applicable ordinary disciplines; no assessment is inferred for the neutral C15 elective event."
+  ],
+  "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+  "publicationEligible": false,
+  "publicationBlocker": "Date-only persistence/ICS rendering is intentionally outside the normalization-only core PR #245 and must be implemented and regression-tested before publication.",
+  "publicationPerformed": false
+}

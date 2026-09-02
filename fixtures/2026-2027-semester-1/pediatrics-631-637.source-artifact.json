@@ -1,0 +1,22 @@
+{
+  "schema": "kgmu-source-artifact-evidence-v1",
+  "sourceArtifactId": "source-artifact-pediatrics-631-637-2026-09-02-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "pediatrics",
+  "originUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/6_ped-24-08-2026-13.xlsx",
+  "sha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+  "byteLength": 31283,
+  "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "sourceObjectKey": "qa-source-artifacts/kirov-gmu/2026-2027-semester-1/pediatrics-631-637/c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60.xlsx",
+  "evidence": {
+    "repository": "gmarkov634-stack/kirov-gmu-calendar",
+    "workflowRunId": 33593293119,
+    "workflowArtifactId": 9832499924,
+    "workflowArtifactName": "pediatrics-631-637-source-probe",
+    "xlsxFileName": "pediatrics-631-637-source.xlsx",
+    "mechanicalProbeFile": "qa/2026-2027-semester-1/pediatrics-631-637.source-probe.json"
+  },
+  "productionObjectStorageWritePerformed": false,
+  "publicationPerformed": false
+}
