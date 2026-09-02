@@ -17,6 +17,7 @@ TIMETABLE_PAGE = "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet"
 ALLOWED_PREFIX = "/sites/default/files/files/"
 SOURCE_PATTERN = re.compile(r"4_ped[^\"'<>\s]*\.xlsx", re.IGNORECASE)
 CYCLE_ROWS = range(13, 19)
+TARGET_MARKERS = ("МЕНЕДЖ", "ИОК")
 
 
 def request_bytes(url: str) -> bytes:
@@ -61,58 +62,47 @@ def color_dump(color) -> dict | None:
     return result
 
 
-def border_side_dump(side) -> dict:
-    return {"style": json_scalar(side.style), "color": color_dump(side.color)}
-
-
-def visual_dump(cell) -> dict:
+def visual_signature(cell) -> dict:
     return {
+        "cellType": cell.__class__.__name__,
         "styleId": json_scalar(getattr(cell, "style_id", None)),
-        "fill": {
-            "type": json_scalar(cell.fill.fill_type),
-            "fgColor": color_dump(cell.fill.fgColor),
-            "bgColor": color_dump(cell.fill.bgColor),
-        },
-        "font": {
-            "bold": json_scalar(cell.font.bold),
-            "italic": json_scalar(cell.font.italic),
-            "underline": json_scalar(cell.font.underline),
-            "color": color_dump(cell.font.color),
-        },
-        "border": {
-            "left": border_side_dump(cell.border.left),
-            "right": border_side_dump(cell.border.right),
-            "top": border_side_dump(cell.border.top),
-            "bottom": border_side_dump(cell.border.bottom),
-        },
-        "alignment": {
-            "horizontal": json_scalar(cell.alignment.horizontal),
-            "vertical": json_scalar(cell.alignment.vertical),
-            "textRotation": json_scalar(cell.alignment.textRotation),
-            "wrapText": json_scalar(cell.alignment.wrapText),
-        },
-        "numberFormat": json_scalar(cell.number_format),
+        "fillType": json_scalar(cell.fill.fill_type),
+        "fillFg": color_dump(cell.fill.fgColor),
+        "fontBold": json_scalar(cell.font.bold),
+        "fontItalic": json_scalar(cell.font.italic),
+        "fontColor": color_dump(cell.font.color),
+        "leftBorder": json_scalar(cell.border.left.style),
+        "rightBorder": json_scalar(cell.border.right.style),
+        "topBorder": json_scalar(cell.border.top.style),
+        "bottomBorder": json_scalar(cell.border.bottom.style),
     }
 
 
-def cycle_visual_evidence(sheet) -> list[dict]:
+def target_cycle_visual_evidence(sheet) -> list[dict]:
     evidence = []
     for merged in sorted(sheet.merged_cells.ranges, key=lambda item: (item.min_row, item.min_col, item.max_row, item.max_col)):
         if merged.min_row != merged.max_row or merged.min_row not in CYCLE_ROWS:
             continue
         anchor = sheet.cell(merged.min_row, merged.min_col)
         value = None if anchor.value is None else str(anchor.value).strip()
-        if not value:
+        if not value or not any(marker in value.upper() for marker in TARGET_MARKERS):
             continue
-        visual_cells = []
+        columns = []
         for column in range(merged.min_col, merged.max_col + 1):
             cell = sheet.cell(merged.min_row, column)
-            visual_cells.append({"coord": cell.coordinate, **visual_dump(cell)})
+            columns.append({
+                "coord": cell.coordinate,
+                "dayNumber": json_scalar(sheet.cell(11, column).value),
+                "weekday": json_scalar(sheet.cell(12, column).value),
+                "visual": visual_signature(cell),
+            })
         evidence.append({
+            "group": str(sheet.cell(merged.min_row, 2).value),
             "range": str(merged),
             "anchor": anchor.coordinate,
             "value": value,
-            "visualCells": visual_cells,
+            "anchorVisual": visual_signature(anchor),
+            "columns": columns,
         })
     return evidence
 
@@ -166,11 +156,11 @@ def workbook_dump(source: dict) -> dict:
                 "dataValidations": validations,
                 "imageCount": len(sheet._images),
                 "chartCount": len(sheet._charts),
-                "cycleMergedBlockVisuals": cycle_visual_evidence(sheet),
+                "targetCycleVisuals": target_cycle_visual_evidence(sheet),
                 "timeCells": {
                     coord: {
                         "value": None if sheet[coord].value is None else str(sheet[coord].value).strip(),
-                        **visual_dump(sheet[coord]),
+                        "visual": visual_signature(sheet[coord]),
                     }
                     for coord in ("CE35", "CE36")
                 },
@@ -194,7 +184,7 @@ def main() -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     source = payload["source"]
-    print(json.dumps({"program": source["program"], "course": source["course"], "groups": source["groups"], "url": source["url"], "sha256": source["sha256"], "byteLength": source["byteLength"], "sheetNames": source["sheetNames"], "dimensions": [[s["title"], s["maxRow"], s["maxColumn"], len(s["mergedRanges"]), s["nonEmptyCellCount"]] for s in source["sheets"]], "structuralEvidence": [[s["title"], len(s["structuralEvidence"]["hiddenRows"]), len(s["structuralEvidence"]["hiddenColumns"]), len(s["structuralEvidence"]["comments"]), len(s["structuralEvidence"]["formulas"]), len(s["structuralEvidence"]["dataValidations"]), s["structuralEvidence"]["imageCount"], s["structuralEvidence"]["chartCount"]] for s in source["sheets"]]}, ensure_ascii=False, indent=2))
+    print(json.dumps({"program": source["program"], "course": source["course"], "groups": source["groups"], "url": source["url"], "sha256": source["sha256"], "byteLength": source["byteLength"], "sheetNames": source["sheetNames"], "dimensions": [[s["title"], s["maxRow"], s["maxColumn"], len(s["mergedRanges"]), s["nonEmptyCellCount"]] for s in source["sheets"]], "structuralEvidence": [[s["title"], len(s["structuralEvidence"]["hiddenRows"]), len(s["structuralEvidence"]["hiddenColumns"]), len(s["structuralEvidence"]["comments"]), len(s["structuralEvidence"]["formulas"]), len(s["structuralEvidence"]["dataValidations"]), s["structuralEvidence"]["imageCount"], s["structuralEvidence"]["chartCount"], len(s["structuralEvidence"]["targetCycleVisuals"])] for s in source["sheets"]]}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
