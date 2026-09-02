@@ -1,0 +1,60 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-531-537-v2",
+  "parsingJobId": "parsing-job-pediatrics-531-537-2026-09-02-v1",
+  "sourceArtifactId": "source-artifact-pediatrics-531-537-2026-09-02-v1",
+  "candidateDigest": "sha256:62811141f1183c303ac854ea58012085bd2e15bf9b873148e31bb2f7fb49eb2a",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "source-artifact-pinned",
+      "status": "pass",
+      "message": "Official XLSX remains pinned by SHA-256 190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024 and immutable SourceArtifact metadata."
+    },
+    {
+      "code": "parsing-job-contract",
+      "status": "pass",
+      "message": "ParsingJob parsing-job-pediatrics-531-537-2026-09-02-v1 matches the current createKgmuParsingJob contract for groups 531-537."
+    },
+    {
+      "code": "upper-cycle-blocks-covered",
+      "status": "pass",
+      "message": "77/77 upper cyclic blocks normalize into 805 events under the existing G+C rules."
+    },
+    {
+      "code": "operator-resolution-applied",
+      "status": "pass",
+      "message": "PE ambiguity PED5-PE-WEEKDAY-RANGE-CONTRADICTION resolved by explicit operator confirmation: Thursdays, 15 occurrences, 14:30-16:00, groups 531-537."
+    },
+    {
+      "code": "event-bearing-source-coverage",
+      "status": "pass",
+      "message": "78/78 event-bearing logical source blocks are covered after the course-specific PE resolution."
+    },
+    {
+      "code": "source-overlap-policy",
+      "status": "pass",
+      "message": "10 explicit PE/Медицина катастроф time conflicts are preserved unchanged under cyclic rule C13; they are source conflicts, not parser errors."
+    },
+    {
+      "code": "normalized-event-integrity",
+      "status": "pass",
+      "message": "910 events, 130 per group, 0 duplicate signatures and 0 dates outside the source calendar."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved ambiguities remain."
+    },
+    {
+      "code": "shared-core-boundary",
+      "status": "pass",
+      "message": "No medical-calendar-core, shared schema, shared parser/pipeline, database or production-infrastructure change is required."
+    },
+    {
+      "code": "publication-scope",
+      "status": "pass",
+      "message": "ScheduleVersion publication is intentionally not executed by this draft+QA workflow."
+    }
+  ],
+  "createdAt": "2026-09-02T07:40:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "jobId": "parsing-job-pediatrics-531-537-2026-09-02-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "pediatrics-course-5-2026-2027-s1",
+  "sourceObjectKey": "sources/kirov-gmu/2026-2027/semester-1/190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024.xlsx",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "expectedGroupIds": [
+    "531",
+    "532",
+    "533",
+    "534",
+    "535",
+    "536",
+    "537"
+  ],
+  "requestedAt": "2026-09-02T05:15:00Z"
+}
