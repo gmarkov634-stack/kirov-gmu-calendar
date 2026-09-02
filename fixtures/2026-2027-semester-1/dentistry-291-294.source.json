@@ -14,6 +14,10 @@
     "byteLength": 18507,
     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   },
+  "idempotency": {
+    "sourceArtifactKey": "sha256:ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
+    "reuseIfShaMatches": true
+  },
   "expectedGroupIds": ["291", "292", "293", "294"],
   "workbookExpectations": {
     "sheetNames": ["2 стомат."],
