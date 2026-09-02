@@ -77,7 +77,12 @@
     {
       "code": "isolated-course-qa-workflow",
       "status": "pass",
-      "message": "GitHub Actions run 33595031340 completed successfully: normalized candidate computed, 11/11 Pediatrics course-4 normalization tests passed and the full normalized draft artifact was uploaded."
+      "message": "GitHub Actions run 33595335866 completed successfully: candidate digest reproduced, 13/13 Pediatrics course-4 normalization/snapshot tests passed and the normalized draft artifact was uploaded."
+    },
+    {
+      "code": "repository-regression-suite",
+      "status": "pass",
+      "message": "The same read-only GitHub Actions run executed npm test on the branch: 170/170 repository tests passed with 0 failures."
     },
     {
       "code": "production-contract-untouched",
@@ -103,17 +108,20 @@
     "eventDateMax": "2027-01-23"
   },
   "qaExecution": {
-    "workflowRunId": 33595031340,
-    "workflowHead": "f80b32f25421fb8ce549ce9f0690a869529a92b0",
-    "normalizedDraftArtifactId": 9833082673,
-    "normalizedDraftArtifactZipSha256": "93b1c89fa6512204c291ca25073d8fbb7d0a4bbd24db76e374b0982b5a360c09",
-    "testsPassed": 11,
-    "testsFailed": 0
+    "workflowRunId": 33595335866,
+    "workflowHead": "488d1cc0261a4bda8d3f13c97b40d19d95d81303",
+    "normalizedDraftArtifactId": 9833184142,
+    "normalizedDraftArtifactZipSha256": "2c5c3b536d09c99ff289782fc396d8bffd01227a2cf81473d229645d221e17d7",
+    "courseTestsPassed": 13,
+    "courseTestsFailed": 0,
+    "repositoryTestsPassed": 170,
+    "repositoryTestsFailed": 0
   },
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
     "observedMainCommit": "8643642a4aa889b8e8dc1b444a7c2ea3719d0602",
     "changedByThisWork": false
   },
-  "createdAt": "2026-09-02T05:32:00Z"
+  "createdAt": "2026-09-02T05:32:00Z",
+  "lastVerifiedAt": "2026-09-02T05:36:21Z"
 }
