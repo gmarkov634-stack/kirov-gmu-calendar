@@ -6,7 +6,7 @@
   "sourceSha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
   "parserProfile": "cyclic",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
-  "status": "REVIEW_REQUIRED",
+  "status": "PASS",
   "rulesApplied": [
     "G01",
     "G02",
@@ -23,7 +23,8 @@
     "C07",
     "C08",
     "C12",
-    "C14"
+    "C14",
+    "C13"
   ],
   "coverage": {
     "upperCycleBlockCount": 77,
@@ -32,9 +33,10 @@
     "serviceExamBlockCount": 1,
     "serviceExamDateCount": 7,
     "independentLowerScheduleCount": 1,
-    "normalizedIndependentLowerScheduleCount": 0,
+    "normalizedIndependentLowerScheduleCount": 1,
     "eventBearingLogicalSourceBlockCount": 78,
-    "coveredEventBearingSourceBlockCount": 77
+    "coveredEventBearingSourceBlockCount": 78,
+    "resolvedIndependentLowerScheduleEventCount": 105
   },
   "serviceBlocks": [
     {
@@ -1137,78 +1139,11 @@
       "dateCount": 9
     }
   ],
-  "unresolvedAmbiguities": [
-    {
-      "id": "PED5-PE-WEEKDAY-RANGE-CONTRADICTION",
-      "severity": "blocking",
-      "sourceRefs": [
-        "2026-2027 осень 5 курс  Пед!C36",
-        "2026-2027 осень 5 курс  Пед!BT36"
-      ],
-      "discipline": "Дисциплины по физической культуре и спорту",
-      "rawSchedule": "Четверг с 04.09 по 18.12 14:30-16:00",
-      "facts": {
-        "weekdayLabel": "Четверг",
-        "rangeStart": "2026-09-04",
-        "rangeStartWeekday": "Friday",
-        "rangeEnd": "2026-12-18",
-        "rangeEndWeekday": "Friday",
-        "time": "14:30-16:00",
-        "thursdayInterpretation": {
-          "dateCount": 15,
-          "dates": [
-            "2026-09-10",
-            "2026-09-17",
-            "2026-09-24",
-            "2026-10-01",
-            "2026-10-08",
-            "2026-10-15",
-            "2026-10-22",
-            "2026-10-29",
-            "2026-11-05",
-            "2026-11-12",
-            "2026-11-19",
-            "2026-11-26",
-            "2026-12-03",
-            "2026-12-10",
-            "2026-12-17"
-          ]
-        },
-        "fridayRangeEndpointInterpretation": {
-          "dateCount": 16,
-          "dates": [
-            "2026-09-04",
-            "2026-09-11",
-            "2026-09-18",
-            "2026-09-25",
-            "2026-10-02",
-            "2026-10-09",
-            "2026-10-16",
-            "2026-10-23",
-            "2026-10-30",
-            "2026-11-06",
-            "2026-11-13",
-            "2026-11-20",
-            "2026-11-27",
-            "2026-12-04",
-            "2026-12-11",
-            "2026-12-18"
-          ]
-        }
-      },
-      "rules": [
-        "G04",
-        "G06",
-        "G21",
-        "C12"
-      ],
-      "reason": "The source gives weekday 'Thursday' but both explicit range endpoints 04.09.2026 and 18.12.2026 are Fridays. Existing general/cyclic rules do not authorize choosing one interpretation for this source.",
-      "requiredConfirmation": "Confirm whether PE is scheduled on Thursdays within 04.09–18.12 or on Fridays following the explicit range endpoints; do not publish before confirmation."
-    }
-  ],
+  "unresolvedAmbiguities": [],
   "normalizationSummary": {
-    "draftScope": "all unambiguous upper cyclic blocks only",
+    "draftScope": "all event-bearing source blocks after explicit operator resolution",
     "normalizedUpperGridEvents": 805,
+    "normalizedIndependentLowerScheduleEvents": 105,
     "groups": [
       "531",
       "532",
@@ -1218,10 +1153,244 @@
       "536",
       "537"
     ],
-    "excludedPendingReview": [
-      "independent PE schedule C36/BT36"
-    ],
+    "excludedPendingReview": [],
     "sharedCoreChangeRequired": false,
-    "publicationAllowed": false
-  }
+    "publicationAllowed": false,
+    "sourceDefinedConflictCount": 10,
+    "sourceDefinedConflictsBlocking": false
+  },
+  "resolvedAmbiguities": [
+    {
+      "id": "PED5-PE-WEEKDAY-RANGE-CONTRADICTION",
+      "resolution": "weekday-label",
+      "weekdayLabel": "Четверг",
+      "dates": [
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-24",
+        "2026-10-01",
+        "2026-10-08",
+        "2026-10-15",
+        "2026-10-22",
+        "2026-10-29",
+        "2026-11-05",
+        "2026-11-12",
+        "2026-11-19",
+        "2026-11-26",
+        "2026-12-03",
+        "2026-12-10",
+        "2026-12-17"
+      ],
+      "time": "14:30-16:00",
+      "sourceRefs": [
+        "2026-2027 осень 5 курс  Пед!C36",
+        "2026-2027 осень 5 курс  Пед!BT36"
+      ],
+      "authority": "direct-user-confirmation",
+      "confirmedAt": "2026-09-02",
+      "resolutionFile": "fixtures/2026-2027-semester-1/pediatrics-531-537.operator-resolution.json"
+    }
+  ],
+  "sourceConflicts": [
+    {
+      "groupId": "532",
+      "date": "2026-12-17",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!CK14",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "533",
+      "date": "2026-10-01",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!AA15",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "533",
+      "date": "2026-10-08",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!AA15",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "534",
+      "date": "2026-09-10",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!C16",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "535",
+      "date": "2026-11-12",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!BI17",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "535",
+      "date": "2026-11-19",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!BI17",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "536",
+      "date": "2026-10-22",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!AS18",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "536",
+      "date": "2026-10-29",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!AS18",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "537",
+      "date": "2026-11-26",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!BW19",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    },
+    {
+      "groupId": "537",
+      "date": "2026-12-03",
+      "left": {
+        "locator": "2026-2027 осень 5 курс  Пед!BW19",
+        "discipline": "Медицина катастроф",
+        "startTime": "13:00",
+        "endTime": "16:05"
+      },
+      "right": {
+        "locator": "2026-2027 осень 5 курс  Пед!BT36",
+        "discipline": "Дисциплины по физической культуре и спорту",
+        "startTime": "14:30",
+        "endTime": "16:00"
+      },
+      "classification": "source-defined-time-conflict",
+      "handling": "preserve-both-events",
+      "rule": "C13",
+      "blocking": false
+    }
+  ]
 }
