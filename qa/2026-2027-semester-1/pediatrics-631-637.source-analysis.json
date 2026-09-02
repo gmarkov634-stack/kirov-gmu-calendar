@@ -78,13 +78,23 @@
       "id": "PED6-C15-DATE-ONLY-NORMALIZED-EVENT",
       "type": "shared-contract-capability-gap",
       "rule": "C15",
-      "reason": "The source has seven neutral elective blocks with six dates each and no exact time common to all choice variants. C15 therefore requires date-only/all-day events. medical-calendar-core NormalizedEvent v1 requires startTime and endTime and fixes timeSemantics to floating, so a complete compliant candidate cannot be represented without inventing source data.",
+      "reason": "The source has seven neutral elective blocks with six dates each and no exact time common to all choice variants. C15 therefore requires date-only/all-day events; profile/config alone cannot represent them under the original floating-only contract.",
       "profileOnlyResolutionPossible": false,
       "safeWorkaroundAvailable": false,
-      "publicationBlocked": true
+      "normalizedDraftResolution": {
+        "repository": "gmarkov634-stack/medical-calendar-core",
+        "pullRequest": 245,
+        "headCommit": "8d54784d8407ccc1fc817aa060039bc783f41fdf",
+        "coreCiRunId": 33594068472,
+        "coreCiConclusion": "success",
+        "scope": "date-only support in normalized contract and parsing validation only"
+      },
+      "normalizedDraftBlocked": false,
+      "publicationBlocked": true,
+      "publicationReason": "Date-only persistence and ICS rendering remain outside core PR #245."
     }
   ],
-  "normalizationStatus": "BLOCKED_BEFORE_COMPLETE_CANDIDATE",
-  "qaStatus": "NOT_ELIGIBLE_FOR_PASS",
+  "normalizationStatus": "COMPLETE_CANDIDATE_AVAILABLE_WITH_DRAFT_CORE_DEPENDENCY",
+  "qaStatus": "ELIGIBLE_FOR_NORMALIZED_DRAFT_PASS",
   "publicationPerformed": false
 }
