@@ -1,0 +1,40 @@
+name: Validate pediatrics 231-239 review candidate
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-231-239-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-231-239.*.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-231-239.source.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-231-239.decisions.json'
+      - 'qa/2026-2027-semester-1/pediatrics-231-239.*.json'
+      - 'ops/publish-pediatrics-231-239.mjs'
+      - 'test/pediatrics-231-239-review.test.js'
+      - 'test/pediatrics-231-239-publication-plan.test.js'
+      - '.github/workflows/validate-pediatrics-231-239-review.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-231-239.*.json'
+      - 'qa/2026-2027-semester-1/pediatrics-231-239.*.json'
+      - 'ops/publish-pediatrics-231-239.mjs'
+      - 'test/pediatrics-231-239-review.test.js'
+      - 'test/pediatrics-231-239-publication-plan.test.js'
+      - '.github/workflows/validate-pediatrics-231-239-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify native manifest expansion, digest, counts, and review gate
+        run: node --test test/pediatrics-231-239-review.test.js
+      - name: Verify guarded publication plan and no-op preflight
+        run: node --test test/pediatrics-231-239-publication-plan.test.js
