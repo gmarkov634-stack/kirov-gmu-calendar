@@ -1,0 +1,43 @@
+{
+  "fixtureId": "dentistry-591-594-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "dentistry",
+  "course": 5,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "mixed",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "courseParserRulesVersion": "dentistry-591-594-v1",
+  "source": {
+    "sourceId": "dentistry",
+    "sourceArtifactId": "source-artifact-dentistry-591-594-2026-09-03-v1",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/5_stomat-24-08-2026-14.xlsx",
+    "sha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+    "byteLength": 23857,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "objectKey": "sources/kirov-gmu/2026-2027/semester-1/0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109.xlsx"
+  },
+  "idempotency": {
+    "sourceArtifactKey": "sha256:0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+    "reuseIfShaMatches": true
+  },
+  "expectedGroupIds": ["591", "592", "593", "594"],
+  "workbookExpectations": {
+    "sheetNames": ["2026-2027 осень 5 курс Стом"],
+    "maxRow": 36,
+    "maxColumn": 124,
+    "mergedRangeCount": 127,
+    "nonEmptyCellCount": 407,
+    "semanticDataRange": "A12:DT31"
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-09-03"
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}
