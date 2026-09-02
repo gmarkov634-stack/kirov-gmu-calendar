@@ -1,0 +1,126 @@
+{
+  "schema": "kgmu-candidate-qa-report-v1",
+  "fixtureId": "pediatrics-331-337-2026-2027-semester-1",
+  "sourceSha256": "894e844bba40c75c8b7851d383974feba3a1a68f8b41b98312455c2593110555",
+  "candidateDigest": "sha256:19fcc970c203a672a4d2da12eb3e4791b48312c3c3d2d84943dc7ffd6b3129dc",
+  "decision": "pass",
+  "blockingIssues": [],
+  "checks": {
+    "sourceCells": {
+      "expected": 98,
+      "covered": 98,
+      "missing": [],
+      "extra": []
+    },
+    "sourceSegments": {
+      "expected": 131,
+      "covered": 131,
+      "missing": [],
+      "extra": []
+    },
+    "normalizedEvents": {
+      "count": 1781,
+      "invalidCount": 0,
+      "invalidEvents": []
+    },
+    "exactLogicalDuplicates": {
+      "count": 0,
+      "items": []
+    },
+    "overlaps": {
+      "count": 4,
+      "blocking": false,
+      "reason": "Explicit source overlaps are preserved as source facts.",
+      "items": [
+        {
+          "key": "333|2026-12-24",
+          "left": {
+            "discipline": "Топографическая анатомия и оперативная хирургия",
+            "startTime": "10:30",
+            "endTime": "13:40",
+            "sourceLocator": "3пед.!D23#s1#t2"
+          },
+          "right": {
+            "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
+            "startTime": "13:30",
+            "endTime": "15:55",
+            "sourceLocator": "3пед.!D25#s1"
+          }
+        },
+        {
+          "key": "334|2026-12-03",
+          "left": {
+            "discipline": "Патологическая анатомия, клиническая патологическая анатомия, патологическая анатомия (модуль)",
+            "startTime": "08:00",
+            "endTime": "10:25",
+            "sourceLocator": "3пед.!E23#s1"
+          },
+          "right": {
+            "discipline": "Фармакология",
+            "startTime": "08:00",
+            "endTime": "10:25",
+            "sourceLocator": "3пед.!E23#s2"
+          }
+        },
+        {
+          "key": "334|2026-12-24",
+          "left": {
+            "discipline": "Топографическая анатомия и оперативная хирургия",
+            "startTime": "10:30",
+            "endTime": "13:40",
+            "sourceLocator": "3пед.!E23#s3#t2"
+          },
+          "right": {
+            "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
+            "startTime": "13:30",
+            "endTime": "15:55",
+            "sourceLocator": "3пед.!E25#s1"
+          }
+        },
+        {
+          "key": "337|2026-11-25",
+          "left": {
+            "discipline": "Учебная практика. Практика по получению первичных профессиональных умений и навыков диагностического профиля",
+            "startTime": "13:30",
+            "endTime": "16:40",
+            "sourceLocator": "3пед.!H20#s2"
+          },
+          "right": {
+            "discipline": "Иммунология",
+            "startTime": "15:20",
+            "endTime": "16:50",
+            "sourceLocator": "3пед.!H21#s1"
+          }
+        }
+      ]
+    },
+    "crossDayAudit": {
+      "cueCount": 44,
+      "passCount": 43,
+      "sourceMismatchCount": 1,
+      "semanticResolutionCount": 1
+    },
+    "group333MicrobiologyResolution": {
+      "confirmationId": "USER-2026-09-02-PED3-KEEP-07-12",
+      "mondayEvents": [
+        {
+          "date": "2026-12-07",
+          "sourceLocator": "3пед.!D12#s2",
+          "startTime": "15:40",
+          "endTime": "18:05"
+        }
+      ],
+      "resolvedExplicitCount": 1,
+      "d20SyntheticCount": 0
+    },
+    "locationSafety": {
+      "suspiciousSourceAddressPropagatedCount": 0
+    }
+  },
+  "publicationGate": {
+    "candidateQaPass": true,
+    "productionPublished": false,
+    "landingExposed": false,
+    "note": "Publication and landing exposure remain separate explicit steps."
+  }
+}
