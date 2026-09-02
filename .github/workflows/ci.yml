@@ -17,4 +17,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm run check
+      - name: Run check with diagnostic log
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee /tmp/kgmu-check.log
+      - name: Upload diagnostic log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-check-log
+          path: /tmp/kgmu-check.log
+          retention-days: 1
