@@ -48,6 +48,13 @@ test('Pediatrics course 2 manifest is internally exact and semantic QA passes', 
   assert.equal(digest, qa.candidateDigest);
   assert.deepEqual(countByGroup(events), evidence.groupEventCounts);
 
+  assert.equal(evidence.unresolvedAmbiguities, 0);
+  const biochemistryExtra = evidence.crossDayCountChecks.find(
+    (check) => check.sourceLocator === '2пед.!D33' && check.discipline === 'Биохимия'
+  );
+  assert.equal(biochemistryExtra?.status, 'pass');
+  assert.equal(biochemistryExtra?.confirmationId, 'USER-2026-09-02-PED2-KEEP-08-12');
+
   assert.equal(review.status, 'PASS');
   assert.equal(review.blocksPublication, false);
   assert.equal(review.unresolvedAmbiguities.length, 0);
