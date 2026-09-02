@@ -1,0 +1,94 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-631-637-v1",
+  "parsingJobId": "parsing-job-pediatrics-631-637-2026-09-02-v1",
+  "candidateDigest": "sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "official-source-artifact-integrity",
+      "status": "pass",
+      "message": "Official XLSX is pinned at SHA-256 c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60, 31283 bytes; the GitHub Actions source artifact was re-downloaded and checksum-verified."
+    },
+    {
+      "code": "parsing-job-source-and-groups",
+      "status": "pass",
+      "message": "ParsingJob is pinned to the same source artifact, parser rules kgmu-2026-08-30-v4, and groups 631–637 only."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "77/77 learning blocks are covered by explicit semantic decisions; 2 service blocks are excluded."
+    },
+    {
+      "code": "c02-starred-first-day-second-shift",
+      "status": "pass",
+      "message": "9/9 starred cycle blocks use the discipline-specific second shift only on the first date."
+    },
+    {
+      "code": "c15-neutral-elective-date-only",
+      "status": "pass",
+      "message": "7 elective blocks expand to 42 neutral date-only «Дисциплина по выбору» events with no synthetic time or location."
+    },
+    {
+      "code": "service-periods-not-synthesized",
+      "status": "pass",
+      "message": "«Экзамены» and «Каникулы» create no normalized events."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Groups 631–637 only; exactly 97 events per group."
+    },
+    {
+      "code": "candidate-cardinality",
+      "status": "pass",
+      "message": "679 total events: 637 floating source-timed events and 42 date-only elective events."
+    },
+    {
+      "code": "dates-within-source-learning-window",
+      "status": "pass",
+      "message": "All normalized events are dated 01.09.2026–29.12.2026; no exam/vacation dates are synthesized."
+    },
+    {
+      "code": "times-source-bound",
+      "status": "pass",
+      "message": "All 637 floating events use lower-reference times; C02 is the only within-cycle shift rule and is source-declared."
+    },
+    {
+      "code": "locations-source-bound",
+      "status": "pass",
+      "message": "Floating event locations come from lower-reference practice base/address fields; neutral C15 events intentionally have null location."
+    },
+    {
+      "code": "assessment-metadata-lossless",
+      "status": "pass",
+      "message": "Exam/credit metadata from the lower reference is preserved for applicable ordinary disciplines; none is inferred for neutral electives."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "0 duplicate normalized event signatures."
+    },
+    {
+      "code": "explicit-overlaps-classified",
+      "status": "pass",
+      "message": "0 within-group floating time overlap pairs."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain; C02/C08/C15 are canonical profile rules, not guessed source-specific resolutions."
+    },
+    {
+      "code": "date-only-normalized-contract",
+      "status": "pass",
+      "message": "medical-calendar-core Draft PR #245 at 8d54784d8407ccc1fc817aa060039bc783f41fdf validates date-only events without time fields; Core CI run 33594068472 passed."
+    },
+    {
+      "code": "publication-path-date-only-support",
+      "status": "warning",
+      "message": "This QA pass is for the normalized draft only. Date-only persistence/ICS rendering is not yet implemented; publication remains blocked and no ScheduleVersion may be created from this candidate yet."
+    }
+  ],
+  "createdAt": "2026-09-02T08:35:00+03:00"
+}
