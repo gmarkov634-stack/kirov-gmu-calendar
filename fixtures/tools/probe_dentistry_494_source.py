@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Mechanical XLSX source probe for KGMU Dentistry course 4, group 494.
+"""Mechanical XLSX source probe for KGMU Dentistry course 4.
 
 This helper intentionally performs no semantic parsing. It discovers the current
 official XLSX link from the KGMU dentistry timetable page, then records checksum,
-workbook geometry, merged ranges, non-empty cell values and hyperlink targets
-for operator/ChatGPT review under canonical G/R/C/S rules.
+workbook geometry, merged ranges, non-empty cell values, discovered group scope
+and hyperlink targets for operator/ChatGPT review under canonical G/R/C/S rules.
 """
 import hashlib
 import html
@@ -23,6 +23,7 @@ XLSX_OUT = ROOT / "dentistry-494-source.xlsx"
 TIMETABLE_PAGE = "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet"
 ALLOWED_PREFIX = "/sites/default/files/files/"
 SOURCE_PATTERN = re.compile(r"4_stomat[^\"'<>\s]*\.xlsx", re.IGNORECASE)
+GROUP_PATTERN = re.compile(r"^\d{3}$")
 
 
 def request_bytes(url: str) -> bytes:
@@ -46,8 +47,8 @@ def discover_source() -> dict:
             matches.append(absolute)
     matches = sorted(set(matches))
     if len(matches) != 1:
-        raise SystemExit(f"expected exactly one current XLSX for dentistry 494, found {matches}")
-    return {"program": "dentistry", "course": 4, "groups": ["494"], "url": matches[0]}
+        raise SystemExit(f"expected exactly one current XLSX for dentistry course 4, found {matches}")
+    return {"program": "dentistry", "course": 4, "url": matches[0]}
 
 
 def workbook_dump(source: dict) -> dict:
@@ -57,13 +58,17 @@ def workbook_dump(source: dict) -> dict:
     XLSX_OUT.write_bytes(data)
     workbook = load_workbook(io.BytesIO(data), data_only=False)
     sheets = []
+    discovered_groups = []
     for sheet in workbook.worksheets:
         non_empty = []
         for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
             for cell in row:
                 if cell.value is None:
                     continue
-                entry = {"coord": cell.coordinate, "value": str(cell.value).strip()}
+                value = str(cell.value).strip()
+                entry = {"coord": cell.coordinate, "value": value}
+                if cell.column == 2 and GROUP_PATTERN.fullmatch(value):
+                    discovered_groups.append(value)
                 if cell.hyperlink is not None:
                     entry["hyperlink"] = {
                         "target": cell.hyperlink.target,
@@ -79,8 +84,12 @@ def workbook_dump(source: dict) -> dict:
             "nonEmptyCellCount": len(non_empty),
             "nonEmptyCells": non_empty,
         })
+    groups = sorted(set(discovered_groups))
+    if not groups:
+        raise SystemExit("no three-digit group ids discovered in workbook column B")
     return {
         **source,
+        "groups": groups,
         "sha256": hashlib.sha256(data).hexdigest(),
         "byteLength": len(data),
         "sheetNames": workbook.sheetnames,
