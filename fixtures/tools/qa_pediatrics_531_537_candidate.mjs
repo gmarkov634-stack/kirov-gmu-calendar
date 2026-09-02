@@ -13,45 +13,31 @@ const QA_DIR = resolve(ROOT, 'qa', PERIOD);
 const GROUPS = ['531', '532', '533', '534', '535', '536', '537'];
 const SOURCE_SHA = '190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024';
 const AMBIGUITY_ID = 'PED5-PE-WEEKDAY-RANGE-CONTRADICTION';
+const EXPECTED_UPPER_EVENTS = 805;
+const EXPECTED_PE_DATES = 15;
+const EXPECTED_EVENTS = EXPECTED_UPPER_EVENTS + EXPECTED_PE_DATES * GROUPS.length;
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
-const assert = (condition, message) => {
-  if (!condition) throw new Error(message);
-};
-const signature = (event) => [
-  event.groupId,
-  event.date,
-  event.startTime,
-  event.endTime,
-  event.discipline,
-  event.lessonType,
-  event.location ?? ''
-].join('|');
-const minutes = (value) => {
-  const [hours, mins] = value.split(':').map(Number);
-  return hours * 60 + mins;
-};
-const overlaps = (left, right) =>
-  minutes(left.startTime) < minutes(right.endTime) && minutes(right.startTime) < minutes(left.endTime);
+const assert = (condition, message) => { if (!condition) throw new Error(message); };
+const signature = (event) => [event.groupId, event.date, event.startTime, event.endTime, event.discipline, event.lessonType, event.location ?? ''].join('|');
+const minutes = (value) => { const [h, m] = value.split(':').map(Number); return h * 60 + m; };
+const overlaps = (left, right) => minutes(left.startTime) < minutes(right.endTime) && minutes(right.startTime) < minutes(left.endTime);
 
 const sourcePath = resolve(FIXTURE_DIR, 'pediatrics-531-537.source.json');
 const jobPath = resolve(FIXTURE_DIR, 'pediatrics-531-537.parsing-job.json');
 const manifestPath = resolve(FIXTURE_DIR, 'pediatrics-531-537.decisions.json');
+const resolutionPath = resolve(FIXTURE_DIR, 'pediatrics-531-537.operator-resolution.json');
 const reviewPath = resolve(QA_DIR, 'pediatrics-531-537.semantic-review.json');
 const draftPath = resolve(QA_DIR, 'pediatrics-531-537.normalized-draft.json');
 const evidencePath = resolve(QA_DIR, 'pediatrics-531-537.evidence.json');
 const reportPath = resolve(QA_DIR, 'pediatrics-531-537.qa-report.json');
 
-const [source, declaredJob, manifest, review] = await Promise.all([
-  readJson(sourcePath),
-  readJson(jobPath),
-  readJson(manifestPath),
-  readJson(reviewPath)
+const [source, declaredJob, manifest, resolution, review] = await Promise.all([
+  readJson(sourcePath), readJson(jobPath), readJson(manifestPath), readJson(resolutionPath), readJson(reviewPath)
 ]);
 
 assert(source.source.sha256 === SOURCE_SHA, 'unexpected pinned source SHA-256');
-assert(manifest.sourceSha256 === SOURCE_SHA, 'manifest/source SHA-256 mismatch');
-assert(review.sourceSha256 === SOURCE_SHA, 'review/source SHA-256 mismatch');
+assert(manifest.sourceSha256 === SOURCE_SHA && review.sourceSha256 === SOURCE_SHA && resolution.sourceSha256 === SOURCE_SHA, 'source SHA-256 binding mismatch');
 assert(JSON.stringify(source.expectedGroupIds) === JSON.stringify(GROUPS), 'source group set mismatch');
 assert(JSON.stringify(manifest.groupTable) === JSON.stringify(GROUPS), 'manifest group set mismatch');
 assert(review.parserProfile === 'cyclic', 'expected cyclic parser profile');
@@ -68,25 +54,24 @@ const job = createKgmuParsingJob({
 });
 assert(JSON.stringify(job) === JSON.stringify(declaredJob), 'declared ParsingJob differs from current createKgmuParsingJob contract');
 
-assert(review.status === 'REVIEW_REQUIRED', 'semantic review must fail closed while PE conflict is unresolved');
-assert(review.unresolvedAmbiguities?.length === 1, 'expected exactly one unresolved ambiguity');
-assert(review.unresolvedAmbiguities[0].id === AMBIGUITY_ID, 'unexpected unresolved ambiguity id');
-assert(review.coverage.upperCycleBlockCount === 77, 'expected 77 upper cycle blocks');
-assert(review.coverage.normalizedUpperCycleBlockCount === 77, 'all upper cycle blocks must normalize');
-assert(review.coverage.upperGridNormalizedEventCount === 805, 'expected 805 upper-grid normalized events');
-assert(review.coverage.serviceExamBlockCount === 1, 'expected one service exam block');
-assert(review.coverage.independentLowerScheduleCount === 1, 'expected one independent lower schedule');
-assert(review.coverage.normalizedIndependentLowerScheduleCount === 0, 'ambiguous PE schedule must not be normalized');
-assert(review.coverage.eventBearingLogicalSourceBlockCount === 78, 'expected 78 event-bearing logical source blocks');
-assert(review.coverage.coveredEventBearingSourceBlockCount === 77, 'expected 77/78 event-bearing blocks covered before confirmation');
+assert(resolution.decisionId === AMBIGUITY_ID, 'unexpected operator resolution id');
+assert(resolution.authority === 'direct-user-confirmation', 'resolution is not explicit operator confirmation');
+assert(resolution.resolution.chosenInterpretation === 'weekday-label', 'PE must use the confirmed weekday-label interpretation');
+assert(resolution.resolution.weekdayLabel === 'Четверг', 'confirmed PE weekday must be Thursday');
+assert(resolution.resolution.expectedOccurrenceCount === EXPECTED_PE_DATES, 'expected 15 confirmed Thursday occurrences');
+assert(JSON.stringify(resolution.resolution.appliesToGroups) === JSON.stringify(GROUPS), 'PE group scope mismatch');
 
-const ambiguity = review.unresolvedAmbiguities[0];
-assert(ambiguity.facts.weekdayLabel === 'Четверг', 'PE weekday label must be preserved');
-assert(ambiguity.facts.rangeStart === '2026-09-04', 'PE range start must be preserved');
-assert(ambiguity.facts.rangeEnd === '2026-12-18', 'PE range end must be preserved');
-assert(ambiguity.facts.rangeStartWeekday === 'Friday' && ambiguity.facts.rangeEndWeekday === 'Friday', 'PE endpoint weekday evidence changed');
-assert(ambiguity.facts.thursdayInterpretation.dateCount === 15, 'expected 15 Thursdays in source range');
-assert(ambiguity.facts.fridayRangeEndpointInterpretation.dateCount === 16, 'expected 16 Fridays in source range');
+assert(review.status === 'PASS', 'semantic review must pass after explicit operator resolution');
+assert(review.unresolvedAmbiguities?.length === 0, 'no unresolved ambiguities may remain');
+assert(review.resolvedAmbiguities?.length === 1 && review.resolvedAmbiguities[0].id === AMBIGUITY_ID, 'expected one resolved PE ambiguity');
+assert(review.coverage.upperCycleBlockCount === 77 && review.coverage.normalizedUpperCycleBlockCount === 77, 'upper cyclic coverage mismatch');
+assert(review.coverage.upperGridNormalizedEventCount === EXPECTED_UPPER_EVENTS, 'upper-grid event count mismatch');
+assert(review.coverage.serviceExamBlockCount === 1, 'expected one service exam block');
+assert(review.coverage.independentLowerScheduleCount === 1 && review.coverage.normalizedIndependentLowerScheduleCount === 1, 'PE lower schedule must be fully normalized');
+assert(review.coverage.eventBearingLogicalSourceBlockCount === 78 && review.coverage.coveredEventBearingSourceBlockCount === 78, 'all event-bearing source blocks must be covered');
+assert(review.coverage.resolvedIndependentLowerScheduleEventCount === EXPECTED_PE_DATES * GROUPS.length, 'resolved PE event count mismatch');
+assert(manifest.decisionCount === 78 && manifest.decisions.length === 78, 'expected 78 explicit semantic decisions');
+assert(manifest.operatorResolutions?.length === 1 && manifest.operatorResolutions[0].decisionId === AMBIGUITY_ID, 'manifest must record the operator resolution');
 
 const events = expandExplicitDecisionManifest(manifest, {
   universityId: source.universityId,
@@ -94,16 +79,19 @@ const events = expandExplicitDecisionManifest(manifest, {
   sourceId: source.source.sourceId
 });
 const candidateDigest = digestNormalizedEvents(events);
-assert(events.length === 805, `expected 805 normalized draft events, got ${events.length}`);
+assert(events.length === EXPECTED_EVENTS, `expected ${EXPECTED_EVENTS} normalized draft events, got ${events.length}`);
 
-const groupEventCounts = Object.fromEntries(GROUPS.map((groupId) => [
-  groupId,
-  events.filter((event) => event.groupId === groupId).length
-]));
-assert(Object.values(groupEventCounts).every((count) => count === 115), `each group must have 115 upper-grid events: ${JSON.stringify(groupEventCounts)}`);
+const groupEventCounts = Object.fromEntries(GROUPS.map((groupId) => [groupId, events.filter((event) => event.groupId === groupId).length]));
+assert(Object.values(groupEventCounts).every((count) => count === 130), `each group must have 130 events after PE resolution: ${JSON.stringify(groupEventCounts)}`);
 assert(events.every((event) => event.timeSemantics === 'floating'), 'all normalized events must preserve floating time semantics');
-assert(events.every((event) => event.lessonType === 'practice'), 'all upper cyclic events must be practice events');
-assert(events.every((event) => /^2026-2027 осень 5 курс  Пед![A-Z]+1[3-9]$/.test(event.sourceRef.locator)), 'normalized draft contains a non-upper-grid source locator');
+assert(events.every((event) => event.lessonType === 'practice'), 'all normalized course events must be practice events');
+assert(events.every((event) => /^2026-2027 осень 5 курс  Пед!(?:[A-Z]+1[3-9]|BT36)$/.test(event.sourceRef.locator)), 'normalized draft contains an unexpected source locator');
+
+const peEvents = events.filter((event) => event.sourceRef.locator.endsWith('!BT36'));
+assert(peEvents.length === EXPECTED_PE_DATES * GROUPS.length, `expected ${EXPECTED_PE_DATES * GROUPS.length} PE events, got ${peEvents.length}`);
+assert(new Set(peEvents.map((event) => event.date)).size === EXPECTED_PE_DATES, 'PE occurrence date count mismatch');
+assert(peEvents.every((event) => event.startTime === '14:30' && event.endTime === '16:00'), 'PE time mismatch');
+assert(peEvents.every((event) => new Date(`${event.date}T00:00:00Z`).getUTCDay() === 4), 'every resolved PE event must fall on Thursday');
 
 const seen = new Set();
 let duplicateEvents = 0;
@@ -131,36 +119,30 @@ for (const dayEvents of byGroupDate.values()) {
     for (let right = left + 1; right < dayEvents.length; right += 1) {
       if (!overlaps(dayEvents[left], dayEvents[right])) continue;
       overlapCount += 1;
-      if (overlapSamples.length < 20) {
-        overlapSamples.push({
-          groupId: dayEvents[left].groupId,
-          date: dayEvents[left].date,
-          left: dayEvents[left].sourceRef.locator,
-          right: dayEvents[right].sourceRef.locator
-        });
-      }
+      if (overlapSamples.length < 20) overlapSamples.push({ groupId: dayEvents[left].groupId, date: dayEvents[left].date, left: dayEvents[left].sourceRef.locator, right: dayEvents[right].sourceRef.locator });
     }
   }
 }
-assert(overlapCount === 0, `unexpected overlap in upper cyclic draft: ${overlapCount}`);
+assert(overlapCount === 0, `unexpected overlap in fully normalized draft: ${overlapCount}; ${JSON.stringify(overlapSamples)}`);
 
 const disciplineEventCounts = {};
 for (const event of events) disciplineEventCounts[event.discipline] = (disciplineEventCounts[event.discipline] ?? 0) + 1;
 
 const normalizedDraft = {
   schema: 'kgmu-normalized-draft-v1',
-  draftId: 'normalized-draft-pediatrics-531-537-2026-09-02-v1',
+  draftId: 'normalized-draft-pediatrics-531-537-2026-09-02-v2',
   parsingJobId: declaredJob.jobId,
   sourceArtifactId: source.source.sourceArtifactId,
   sourceSha256: SOURCE_SHA,
   parserProfile: source.parserProfile,
   parserRulesVersion: source.parserRulesVersion,
-  status: 'REVIEW_REQUIRED',
+  status: 'PASS',
   candidateDigest,
   eventCount: events.length,
   expectedGroupIds: GROUPS,
   events,
-  diagnostics: review.unresolvedAmbiguities
+  diagnostics: [],
+  operatorResolutions: manifest.operatorResolutions
 };
 
 const evidence = {
@@ -170,8 +152,9 @@ const evidence = {
   parsingJob: declaredJob,
   parserProfile: source.parserProfile,
   parserRulesVersion: source.parserRulesVersion,
-  semanticDecisionManifest: 'fixtures/2026-2027-semester-1/pediatrics-531-537.decisions.json',
-  normalizedDraft: 'qa/2026-2027-semester-1/pediatrics-531-537.normalized-draft.json',
+  semanticDecisionManifest: `fixtures/${PERIOD}/pediatrics-531-537.decisions.json`,
+  operatorResolution: `fixtures/${PERIOD}/pediatrics-531-537.operator-resolution.json`,
+  normalizedDraft: `qa/${PERIOD}/pediatrics-531-537.normalized-draft.json`,
   candidateDigest,
   eventCount: events.length,
   groupEventCounts,
@@ -181,63 +164,34 @@ const evidence = {
   overlapCount,
   overlapSamples,
   coverage: review.coverage,
-  unresolvedAmbiguityCount: review.unresolvedAmbiguities.length,
-  unresolvedAmbiguityIds: review.unresolvedAmbiguities.map((item) => item.id),
+  unresolvedAmbiguityCount: 0,
+  unresolvedAmbiguityIds: [],
+  qaPass: true,
   publicationAllowed: false,
+  publicationNotExecutedByScope: true,
   sharedCoreChangeRequired: false
 };
 
 const checks = [
-  {
-    code: 'source-artifact-pinned',
-    status: 'pass',
-    message: `Official XLSX is pinned by SHA-256 ${SOURCE_SHA}, immutable object key and workbook geometry 43x125.`
-  },
-  {
-    code: 'parsing-job-contract',
-    status: 'pass',
-    message: `ParsingJob ${declaredJob.jobId} exactly matches the current createKgmuParsingJob contract and expected groups 531-537.`
-  },
-  {
-    code: 'upper-cycle-blocks-covered',
-    status: 'pass',
-    message: '77/77 upper cyclic blocks normalized under existing G+C rules into 805 events.'
-  },
-  {
-    code: 'service-exam-period-classified',
-    status: 'pass',
-    message: 'DN13:DT19 is classified as a service exam period under C07/C14 and creates no event.'
-  },
-  {
-    code: 'normalized-event-integrity',
-    status: 'pass',
-    message: '805 events, 115 per group, 0 duplicates, 0 out-of-calendar dates and 0 upper-grid overlaps.'
-  },
-  {
-    code: 'shared-core-boundary',
-    status: 'pass',
-    message: 'No medical-calendar-core, shared schema, shared pipeline, database, publication or production infrastructure change is required for the normalized upper-grid draft.'
-  },
-  {
-    code: 'unresolved-ambiguities-zero-before-pass',
-    status: 'review_required',
-    message: '1 blocking source ambiguity remains: BT36 says Thursday, while the explicit range endpoints 04.09.2026 and 18.12.2026 are Fridays. G04/G21 prohibit choosing an interpretation without confirmation.'
-  },
-  {
-    code: 'publication-gate',
-    status: 'blocked',
-    message: 'ScheduleVersion publication remains blocked; this workflow creates draft/QA evidence only.'
-  }
+  { code: 'source-artifact-pinned', status: 'pass', message: `Official XLSX remains pinned by SHA-256 ${SOURCE_SHA} and immutable SourceArtifact metadata.` },
+  { code: 'parsing-job-contract', status: 'pass', message: `ParsingJob ${declaredJob.jobId} matches the current createKgmuParsingJob contract for groups 531-537.` },
+  { code: 'upper-cycle-blocks-covered', status: 'pass', message: '77/77 upper cyclic blocks normalize into 805 events under the existing G+C rules.' },
+  { code: 'operator-resolution-applied', status: 'pass', message: 'PE ambiguity PED5-PE-WEEKDAY-RANGE-CONTRADICTION resolved by explicit operator confirmation: Thursdays, 15 occurrences, 14:30-16:00, groups 531-537.' },
+  { code: 'event-bearing-source-coverage', status: 'pass', message: '78/78 event-bearing logical source blocks are covered after the course-specific PE resolution.' },
+  { code: 'normalized-event-integrity', status: 'pass', message: `${events.length} events, 130 per group, 0 duplicates, 0 dates outside the source calendar and 0 overlaps.` },
+  { code: 'unresolved-ambiguities-zero-before-pass', status: 'pass', message: '0 unresolved ambiguities remain.' },
+  { code: 'shared-core-boundary', status: 'pass', message: 'No medical-calendar-core, shared schema, shared parser/pipeline, database or production-infrastructure change is required.' },
+  { code: 'publication-scope', status: 'pass', message: 'ScheduleVersion publication is intentionally not executed by this draft+QA workflow.' }
 ];
 
 const report = {
-  qaReportId: 'qa-kgmu-2026-2027-s1-pediatrics-531-537-v1',
+  qaReportId: 'qa-kgmu-2026-2027-s1-pediatrics-531-537-v2',
   parsingJobId: declaredJob.jobId,
   sourceArtifactId: source.source.sourceArtifactId,
   candidateDigest,
-  decision: 'review_required',
+  decision: 'pass',
   checks,
-  createdAt: '2026-09-02T05:20:00Z'
+  createdAt: '2026-09-02T07:33:00Z'
 };
 
 await mkdir(QA_DIR, { recursive: true });
@@ -255,7 +209,7 @@ console.log(JSON.stringify({
   groupEventCounts,
   duplicateEvents,
   overlapCount,
-  unresolvedAmbiguityCount: review.unresolvedAmbiguities.length,
+  unresolvedAmbiguityCount: 0,
   qaDecision: report.decision,
   publicationAllowed: false
 }, null, 2));
