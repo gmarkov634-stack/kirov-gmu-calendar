@@ -1,0 +1,36 @@
+{
+  "schema": "kgmu-course-pipeline-evidence-v1",
+  "programId": "dentistry",
+  "course": 4,
+  "groupIds": ["491", "492", "493", "494"],
+  "officialSource": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "sourceByteLength": 26674,
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "verification": {
+    "workflowRunId": 33691705672,
+    "workflowArtifactId": 9870263800,
+    "workflowArtifactName": "dentistry-491-494-verified-draft",
+    "workflowArtifactDigest": "sha256:aa48a761d4e18f534e4d35ff9c1ce3dc236f89c6055e3ebbb569c53ca0611cd4",
+    "repositoryCheck": "PASS 209/209"
+  },
+  "normalizedDraft": {
+    "status": "REVIEW_REQUIRED",
+    "candidateDigest": "sha256:da7f3a547814fba3bdd48b805b6dfc376f25f4361f85d780d313fc7ff5c15a12",
+    "eventCount": 399,
+    "eventCountsByGroup": {"491": 100, "492": 100, "493": 100, "494": 99},
+    "duplicateEventSignatures": 0,
+    "timedOverlapPairs": 0
+  },
+  "reviewRequired": [
+    "C20: ENT has one 09:00-12:55 day per group cycle but the exact date is not identified.",
+    "G04/G21: PE base text says Friday but its written range starts 05.09.2026, which is Saturday; the inferred recurring series is withheld.",
+    "G21: shared Practice 18-30.01.2027 lacks an unambiguous full title, time and location; course-5-specific C22 is not generalized."
+  ],
+  "commonParserChanged": false,
+  "commonCoreChanged": false,
+  "productionWritePerformed": false,
+  "scheduleVersionCreated": false,
+  "publicationPerformed": false
+}
