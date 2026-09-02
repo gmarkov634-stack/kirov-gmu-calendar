@@ -1,0 +1,51 @@
+name: Probe pediatrics 431-436 official source
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-431-436-2026-27-s1
+    paths:
+      - 'fixtures/tools/probe_pediatrics_431_436_source.py'
+      - 'fixtures/tools/analyze_pediatrics_431_436_source.py'
+      - 'fixtures/tools/build_pediatrics_431_436_decisions.py'
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.source.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
+      - '.github/workflows/probe-pediatrics-431-436.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-431-436-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_pediatrics_431_436_source.py
+      - name: Build compact semantic source evidence
+        run: python fixtures/tools/analyze_pediatrics_431_436_source.py
+      - name: Build explicit semantic decisions
+        run: python fixtures/tools/build_pediatrics_431_436_decisions.py
+      - name: Commit course-specific source and normalization evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            fixtures/2026-2027-semester-1/pediatrics-431-436.source-probe.json \
+            fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json \
+            fixtures/2026-2027-semester-1/pediatrics-431-436.decisions.json \
+            qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json
+          if git diff --cached --quiet; then
+            echo 'course evidence unchanged'
+            exit 0
+          fi
+          git commit -m 'Record pediatrics 431-436 normalization decisions'
+          git push origin HEAD:feat/pediatrics-431-436-2026-27-s1

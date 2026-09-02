@@ -1,0 +1,56 @@
+name: QA pediatrics 431-436 normalization
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-431-436-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.decisions.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.source.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json'
+      - 'fixtures/tools/compute_pediatrics_431_436_candidate.mjs'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json'
+      - 'test/pediatrics-431-436-normalization.test.js'
+      - 'test/pediatrics-431-436-snapshot.test.js'
+      - '.github/workflows/qa-pediatrics-431-436.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.decisions.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.source.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json'
+      - 'fixtures/tools/compute_pediatrics_431_436_candidate.mjs'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json'
+      - 'test/pediatrics-431-436-normalization.test.js'
+      - 'test/pediatrics-431-436-snapshot.test.js'
+      - '.github/workflows/qa-pediatrics-431-436.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compute normalized draft and candidate metrics
+        run: node fixtures/tools/compute_pediatrics_431_436_candidate.mjs
+      - name: Run Pediatrics course-4 normalization and snapshot tests
+        run: node --test test/pediatrics-431-436-normalization.test.js test/pediatrics-431-436-snapshot.test.js
+      - name: Run repository regression tests
+        run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pediatrics-431-436-normalized-draft
+          path: |
+            pediatrics-431-436-candidate.json
+            pediatrics-431-436-normalized-draft.json
+          if-no-files-found: error

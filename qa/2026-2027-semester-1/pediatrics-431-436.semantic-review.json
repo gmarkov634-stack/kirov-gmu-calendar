@@ -1,0 +1,100 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "pediatrics-431-436-2026-2027-semester-1",
+  "sourceSha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "status": "PASS",
+  "blocksPublication": false,
+  "reviewedScope": {
+    "programId": "pediatrics",
+    "course": 4,
+    "groups": ["431", "432", "433", "434", "435", "436"],
+    "sheetName": "4 курс осень 2026 Пед"
+  },
+  "sourceChecks": {
+    "serverFetch": "pass",
+    "sourceHash": "pass",
+    "groupHeaders": "pass",
+    "workbookGeometry": "pass",
+    "parserProfile": "cyclic",
+    "structuralProbe": "pass",
+    "hiddenRows": 0,
+    "hiddenColumns": 0,
+    "comments": 0,
+    "formulas": 0,
+    "dataValidations": 0,
+    "definedNames": 0,
+    "images": 0,
+    "charts": 0,
+    "targetCycleBlocksInspected": 12
+  },
+  "unresolvedAmbiguities": [],
+  "resolvedAmbiguities": [
+    {
+      "ambiguityId": "PED4-C20-MANAGEMENT-EXTENDED-DAYS",
+      "rule": "C20/G21",
+      "discipline": "Менеджмент в здравоохранении",
+      "referenceCell": "4 курс осень 2026 Пед!CE35",
+      "groups": ["431", "432", "433", "434", "435", "436"],
+      "affectedCycleBlockCount": 6,
+      "baseTime": "08:30-11:35",
+      "exceptionTime": "08:30-13:10",
+      "exceptionDayCountPerCycle": 2,
+      "exceptionDatePolicy": "last-2-calendar-dates",
+      "decision": "For this source only, apply 08:30-13:10 to the last two calendar dates of every Management cycle block; all earlier dates in the block use 08:30-11:35.",
+      "confirmedBy": "user",
+      "confirmationDate": "2026-09-02",
+      "scope": "source-specific; do not generalize"
+    },
+    {
+      "ambiguityId": "PED4-C20-IOK-EXTENDED-DAY",
+      "rule": "C20/G21",
+      "discipline": "Инклюзивно ориентированная компетентность врача-педиатра",
+      "referenceCell": "4 курс осень 2026 Пед!CE36",
+      "groups": ["431", "432", "433", "434", "435", "436"],
+      "affectedCycleBlockCount": 6,
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40",
+      "exceptionDayCountPerCycle": 1,
+      "exceptionDatePolicy": "last-1-calendar-date",
+      "decision": "For this source only, apply 09:00-13:40 to the last calendar date of every IOK cycle block; all earlier dates in the block use 09:00-12:05.",
+      "confirmedBy": "user",
+      "confirmationDate": "2026-09-02",
+      "scope": "source-specific; do not generalize"
+    }
+  ],
+  "confirmedNonBlockingPatterns": [
+    "The workbook is a cyclic schedule and is covered by parser profile C; no common parser/core/schema change is required for the observed layout.",
+    "Merged horizontal subject blocks are interpreted by existing cyclic rules after their dates and time fragments are unambiguous.",
+    "The '*' first-day second-shift marker is covered by existing C02 rules.",
+    "The 'М' management-project-defense marker is covered by existing C03/C04 rules.",
+    "The lower-table Physical Education row is an independent event source under C12 because it provides an explicit weekday/date interval and time.",
+    "The C20 timing exception is resolved only for source SHA 2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86 by the operator decision recorded above.",
+    "Four source-backed Faculty Therapy / Physical Education overlaps are preserved under C13 and recorded as QA warnings rather than silently modified."
+  ],
+  "operatorPrompts": [
+    {
+      "promptId": "PED4-G21-C20-EXTENDED-DAYS",
+      "status": "resolved",
+      "resolution": "User instructed: 'Ставь на последние'. Management uses the last two calendar days of each cycle; IOK uses the last calendar day of each cycle."
+    }
+  ],
+  "qaGate": {
+    "sourceArtifactVerified": true,
+    "parserProfileResolved": true,
+    "sameSourceStructuralAmbiguitySearchCompleted": true,
+    "semanticAmbiguitiesResolved": true,
+    "normalizedDraftComplete": true,
+    "qaPassed": true,
+    "publicationAllowed": false
+  },
+  "qaEvidence": {
+    "candidateDigest": "sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd",
+    "eventCount": 768,
+    "groupEventCount": 128,
+    "duplicateEventSignatures": 0,
+    "sourceBackedOverlapPairCount": 4,
+    "qaReport": "qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json"
+  },
+  "nextGate": "Ready for review. ScheduleVersion publication remains a separate guarded step requiring a fresh publication preflight and explicit authorization; no publication is included here."
+}
