@@ -1,0 +1,45 @@
+name: Analyze pediatrics 331-337 source inventory
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-331-337-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source-probe.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
+      - 'fixtures/tools/analyze_pediatrics_331_337_source.py'
+      - 'fixtures/tools/audit_pediatrics_331_337_cross_day.py'
+      - '.github/workflows/analyze-pediatrics-331-337-source.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-331-337-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build mechanical semantic-review inventory
+        run: python fixtures/tools/analyze_pediatrics_331_337_source.py
+      - name: Audit all cross-day source cues
+        run: python fixtures/tools/audit_pediatrics_331_337_cross_day.py
+      - name: Commit inventory and cross-day evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            qa/2026-2027-semester-1/pediatrics-331-337.source-inventory.json \
+            qa/2026-2027-semester-1/pediatrics-331-337.cross-day-audit.json
+          if git diff --cached --quiet; then
+            echo 'review evidence unchanged'
+            exit 0
+          fi
+          git commit -m 'Record pediatrics 331-337 source review evidence'
+          git push origin HEAD:feat/pediatrics-331-337-2026-27-s1

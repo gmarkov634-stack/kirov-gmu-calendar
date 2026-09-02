@@ -1,0 +1,34 @@
+name: Validate pediatrics 331-337 source review
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-331-337-2026-27-s1
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.source-inventory.json'
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.cross-day-audit.json'
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.semantic-review.json'
+      - 'test/pediatrics-331-337-source-review.test.js'
+      - '.github/workflows/validate-pediatrics-331-337-source-review.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.*.json'
+      - 'test/pediatrics-331-337-source-review.test.js'
+      - '.github/workflows/validate-pediatrics-331-337-source-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact source review and fail-closed semantic gate
+        run: node --test test/pediatrics-331-337-source-review.test.js

@@ -1,0 +1,49 @@
+name: Build pediatrics 331-337 candidate
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-331-337-2026-27-s1
+    paths:
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.date-plan.json'
+      - 'qa/2026-2027-semester-1/pediatrics-331-337.semantic-review.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-331-337.source.json'
+      - 'fixtures/tools/build_pediatrics_331_337_manifest.mjs'
+      - 'src/explicit-decisions.js'
+      - '.github/workflows/build-pediatrics-331-337-candidate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-331-337-2026-27-s1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build deterministic candidate manifest
+        run: node fixtures/tools/build_pediatrics_331_337_manifest.mjs
+      - name: Rebuild candidate to prove determinism
+        run: |
+          cp fixtures/2026-2027-semester-1/pediatrics-331-337.decisions.json /tmp/manifest-before.json
+          cp qa/2026-2027-semester-1/pediatrics-331-337.evidence.json /tmp/evidence-before.json
+          node fixtures/tools/build_pediatrics_331_337_manifest.mjs
+          cmp /tmp/manifest-before.json fixtures/2026-2027-semester-1/pediatrics-331-337.decisions.json
+          cmp /tmp/evidence-before.json qa/2026-2027-semester-1/pediatrics-331-337.evidence.json
+      - name: Commit candidate evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add fixtures/2026-2027-semester-1/pediatrics-331-337.decisions.json qa/2026-2027-semester-1/pediatrics-331-337.evidence.json
+          if git diff --cached --quiet; then
+            echo 'candidate unchanged'
+            exit 0
+          fi
+          git commit -m 'Record pediatrics 331-337 normalized candidate'
+          git push origin HEAD:feat/pediatrics-331-337-2026-27-s1
