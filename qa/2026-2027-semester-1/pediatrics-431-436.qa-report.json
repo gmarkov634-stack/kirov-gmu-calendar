@@ -1,0 +1,119 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-431-436-v1",
+  "parsingJobId": "parsing-job-pediatrics-431-436-2026-09-02-v1",
+  "candidateDigest": "sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "verified-source-artifact",
+      "status": "pass",
+      "message": "Official KGMU Pediatrics course-4 XLSX is bound to SHA-256 2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86; groups 431-436 and workbook structure were re-fetched and verified in CI."
+    },
+    {
+      "code": "cyclic-profile-reused",
+      "status": "pass",
+      "message": "The source is covered by existing parser profile C with parser rules kgmu-2026-08-30-v4; no common parser, pipeline, schema or medical-calendar-core change is required."
+    },
+    {
+      "code": "upper-grid-blocks-accounted-for",
+      "status": "pass",
+      "message": "97/97 extracted upper-grid blocks are classified: 90 event-generating blocks and 7 service/no-event blocks."
+    },
+    {
+      "code": "c20-g21-management-last-two",
+      "status": "pass",
+      "message": "For all 6 Management cycles, the user-confirmed source-specific G21 rule applies 08:30-13:10 to the last two calendar dates and 08:30-11:35 to earlier dates."
+    },
+    {
+      "code": "c20-g21-iok-last-one",
+      "status": "pass",
+      "message": "For all 6 IOK cycles, the user-confirmed source-specific G21 rule applies 09:00-13:40 to the last calendar date and 09:00-12:05 to earlier dates."
+    },
+    {
+      "code": "c02-star-first-day-second-shift",
+      "status": "pass",
+      "message": "5/5 starred cycles use the lower-table second shift only on the first calendar date and first shift on subsequent dates."
+    },
+    {
+      "code": "c03-c04-management-defense",
+      "status": "pass",
+      "message": "6/6 explicit M markers create one first-shift management-project defense event per group with credit assessment metadata."
+    },
+    {
+      "code": "c12-physical-education",
+      "status": "pass",
+      "message": "The lower-table Physical Education schedule creates independent events for all 6 groups on the 16 explicit Wednesdays from 02.09.2026 through 23.12.2026 at 15:10-16:40."
+    },
+    {
+      "code": "source-specific-times-and-locations",
+      "status": "pass",
+      "message": "Group-specific Faculty Therapy shifts, Ophthalmology/Neurology starred shifts and Management room mappings 413/415/419 are preserved from the same-source lower table."
+    },
+    {
+      "code": "service-periods-not-synthesized",
+      "status": "pass",
+      "message": "Generic exam-period and vacation blocks create no synthetic daily events under C07/C14."
+    },
+    {
+      "code": "normalized-event-counts",
+      "status": "pass",
+      "message": "The normalized draft contains 768 events: exactly 128 events for each group 431, 432, 433, 434, 435 and 436, dated 01.09.2026-23.01.2027."
+    },
+    {
+      "code": "duplicate-events-zero",
+      "status": "pass",
+      "message": "0 duplicate normalized event signatures."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "4 source-backed C13 overlap pairs remain: group 431 on 16.12 and 23.12, group 432 on 09.12, and group 435 on 21.10; each is Faculty Therapy 13:00-16:05 versus explicit C12 Physical Education 15:10-16:40. Both events are preserved."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after the source-specific G21 operator decision."
+    },
+    {
+      "code": "isolated-course-qa-workflow",
+      "status": "pass",
+      "message": "GitHub Actions run 33595031340 completed successfully: normalized candidate computed, 11/11 Pediatrics course-4 normalization tests passed and the full normalized draft artifact was uploaded."
+    },
+    {
+      "code": "production-contract-untouched",
+      "status": "pass",
+      "message": "No ScheduleVersion publication, CalendarSubscription, Entitlement, CalendarPreferences, opaque ICS URL, database or production-infrastructure mutation was performed by this work."
+    }
+  ],
+  "candidate": {
+    "eventCount": 768,
+    "groupEventCounts": {
+      "431": 128,
+      "432": 128,
+      "433": 128,
+      "434": 128,
+      "435": 128,
+      "436": 128
+    },
+    "logicalSourceCellCount": 98,
+    "decisionCount": 108,
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 4,
+    "eventDateMin": "2026-09-01",
+    "eventDateMax": "2027-01-23"
+  },
+  "qaExecution": {
+    "workflowRunId": 33595031340,
+    "workflowHead": "f80b32f25421fb8ce549ce9f0690a869529a92b0",
+    "normalizedDraftArtifactId": 9833082673,
+    "normalizedDraftArtifactZipSha256": "93b1c89fa6512204c291ca25073d8fbb7d0a4bbd24db76e374b0982b5a360c09",
+    "testsPassed": 11,
+    "testsFailed": 0
+  },
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "observedMainCommit": "8643642a4aa889b8e8dc1b444a7c2ea3719d0602",
+    "changedByThisWork": false
+  },
+  "createdAt": "2026-09-02T05:32:00Z"
+}
