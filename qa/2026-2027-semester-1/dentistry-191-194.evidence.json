@@ -1,0 +1,145 @@
+{
+  "schema": "kgmu-dentistry-191-194-evidence-v1",
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
+  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "sourceArtifactId": "source-artifact-dentistry-191-194-719d8081-v1",
+  "parsingJobId": "parsing-job-dentistry-191-194-719d8081-v1",
+  "candidateDigest": "sha256:96b8b36d907a6a140b9818554ea871d1503583ca35cf5e8bfce99cd0402536b5",
+  "logicalMainTableSourceCellCount": 77,
+  "resolvedMainTableSourceCellCount": 76,
+  "normalizedBaseEventCount": 1364,
+  "eventCountByGroup": {
+    "191": 340,
+    "192": 340,
+    "193": 342,
+    "194": 342
+  },
+  "duplicateSignatureCount": 0,
+  "overlapPairs": [
+    {
+      "groupId": "191",
+      "date": "2026-09-08",
+      "left": "1 стомат.!B22#s1",
+      "right": "1 стомат.!B23#s1"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-09-21",
+      "left": "1 стомат.!B15#s2",
+      "right": "1 стомат.!B14#s1"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-05",
+      "left": "1 стомат.!B43#s1",
+      "right": "1 стомат.!B46#s1"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-12",
+      "left": "1 стомат.!B43#s1",
+      "right": "1 стомат.!B45#s1"
+    },
+    {
+      "groupId": "191",
+      "date": "2027-01-16",
+      "left": "1 стомат.!B43#s2",
+      "right": "1 стомат.!B45#s1"
+    },
+    {
+      "groupId": "192",
+      "date": "2026-09-21",
+      "left": "1 стомат.!B15#s2",
+      "right": "1 стомат.!B14#s1"
+    },
+    {
+      "groupId": "192",
+      "date": "2027-01-16",
+      "left": "1 стомат.!C43#s3",
+      "right": "1 стомат.!B45#s1"
+    },
+    {
+      "groupId": "193",
+      "date": "2026-09-21",
+      "left": "1 стомат.!B15#s2",
+      "right": "1 стомат.!B14#s1"
+    },
+    {
+      "groupId": "193",
+      "date": "2026-10-19",
+      "left": "1 стомат.!D16#s1",
+      "right": "1 стомат.!B14#s1"
+    },
+    {
+      "groupId": "194",
+      "date": "2026-09-21",
+      "left": "1 стомат.!B15#s2",
+      "right": "1 стомат.!B14#s1"
+    },
+    {
+      "groupId": "194",
+      "date": "2026-10-05",
+      "left": "1 стомат.!E16#s1",
+      "right": "1 стомат.!B14#s1"
+    }
+  ],
+  "assessmentMetadataCount": 7,
+  "crossCheckCount": 12,
+  "unresolved": [
+    {
+      "id": "dentistry-191-194-facultatives-weekly-periodicity",
+      "status": "REVIEW_REQUIRED",
+      "sourceCell": "B49",
+      "weekGridCell": "B50",
+      "groupIds": [
+        "191",
+        "192",
+        "193",
+        "194"
+      ],
+      "groupScopeResolved": true,
+      "serviceWeekGridResolved": true,
+      "periodicityConfirmed": false,
+      "rule": "R90",
+      "reason": "B49:E49 structurally covers groups 191-194 and B50:E50 supplies a complete service-week grid, but R90 requires manual confirmation that the external facultative row recurs every academic week before expansion.",
+      "proposedFacultatives": [
+        {
+          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-biology",
+          "discipline": "Актуальные вопросы биологии",
+          "weekday": 1,
+          "startTime": "16:50",
+          "endTime": "18:20"
+        },
+        {
+          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-russian",
+          "discipline": "Русский язык и культура речи",
+          "weekday": 3,
+          "startTime": "13:30",
+          "endTime": "15:00"
+        },
+        {
+          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-physics",
+          "discipline": "Физика",
+          "weekday": 1,
+          "startTime": "16:20",
+          "endTime": "18:45"
+        },
+        {
+          "facultativeId": "kgmu-2026-2027-s1-dentistry-facultative-math",
+          "discipline": "Математика",
+          "weekday": 4,
+          "startTime": "17:20",
+          "endTime": "19:45",
+          "assessment": {
+            "type": "credit",
+            "label": "зачет",
+            "sourceRef": {
+              "sourceId": "dentistry",
+              "locator": "1 стомат.!E58"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
