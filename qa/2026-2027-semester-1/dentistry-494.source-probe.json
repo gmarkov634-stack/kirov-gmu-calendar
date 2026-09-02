@@ -5,10 +5,13 @@
   "source": {
     "program": "dentistry",
     "course": 4,
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
     "groups": [
+      "491",
+      "492",
+      "493",
       "494"
     ],
-    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
     "sha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
     "byteLength": 26674,
     "sheetNames": [
