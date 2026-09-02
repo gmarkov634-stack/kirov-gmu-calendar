@@ -8,7 +8,7 @@ async function availabilityText() {
   return readFile(availabilityUrl, "utf8");
 }
 
-test("pediatrics course 1 remains exposed when course 3 is published", async () => {
+test("pediatrics course 1 remains exposed when course 4 is published", async () => {
   const source = await availabilityText();
 
   for (let group = 131; group <= 140; group += 1) {
@@ -17,14 +17,15 @@ test("pediatrics course 1 remains exposed when course 3 is published", async () 
   assert.doesNotMatch(source, /"141"/);
 
   assert.match(source, /program === "Педиатрия"/);
-  assert.match(source, /1–3 курсы доступны/);
-  assert.match(source, /Группы 131–140, 231–239 и 331–337 · опубликованы и доступны/);
-  assert.match(source, /Педиатрия: 1–3 курсы опубликованы/);
+  assert.match(source, /1–4 курсы доступны/);
+  assert.match(source, /Группы 131–140, 231–239, 331–337 и 431–436 · опубликованы и доступны/);
+  assert.match(source, /Педиатрия: 1–4 курсы опубликованы/);
   assert.match(source, /const isPediatrics = selectorHeading\.startsWith\("Педиатрический факультет"\)/);
   assert.match(source, /if \(isPediatrics\) \{/);
   assert.match(source, /if \(title === "1 курс"\) setText\(note, "Группы 131–140 доступны"\)/);
   assert.match(source, /if \(title === "2 курс"\) setText\(note, "Группы 231–239 доступны"\)/);
   assert.match(source, /if \(title === "3 курс"\) setText\(note, "Группы 331–337 доступны"\)/);
+  assert.match(source, /if \(title === "4 курс"\) setText\(note, "Группы 431–436 доступны"\)/);
 });
 
 test("medicine course labels remain faculty-scoped when pediatrics is exposed", async () => {
