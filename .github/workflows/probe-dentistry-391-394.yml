@@ -8,6 +8,7 @@ on:
     paths:
       - 'fixtures/tools/probe_dentistry_391_394_source.py'
       - 'fixtures/tools/probe_dentistry_391_394_exception_styles.py'
+      - 'fixtures/tools/review_dentistry_391_394_c20_styles.py'
       - '.github/workflows/probe-dentistry-391-394.yml'
 
 permissions:
@@ -28,6 +29,8 @@ jobs:
         run: python fixtures/tools/probe_dentistry_391_394_source.py
       - name: Probe C20 source-local visual evidence
         run: python fixtures/tools/probe_dentistry_391_394_exception_styles.py
+      - name: Review C20 visual evidence without semantic guessing
+        run: python fixtures/tools/review_dentistry_391_394_c20_styles.py
       - name: Commit immutable source evidence
         shell: bash
         run: |
@@ -36,7 +39,8 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             fixtures/2026-2027-semester-1/dentistry-391-394.source-probe.json \
-            qa/2026-2027-semester-1/dentistry-391-394.c20-style-probe.json
+            qa/2026-2027-semester-1/dentistry-391-394.c20-style-probe.json \
+            qa/2026-2027-semester-1/dentistry-391-394.c20-evidence-review.json
           if git diff --cached --quiet; then
             echo 'source evidence unchanged'
             exit 0
