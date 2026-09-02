@@ -1,0 +1,86 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "pediatrics-431-436-2026-2027-semester-1",
+  "sourceSha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "status": "REVIEW_REQUIRED",
+  "blocksPublication": true,
+  "reviewedScope": {
+    "programId": "pediatrics",
+    "course": 4,
+    "groups": ["431", "432", "433", "434", "435", "436"],
+    "sheetName": "4 курс осень 2026 Пед"
+  },
+  "sourceChecks": {
+    "serverFetch": "pass",
+    "sourceHash": "pass",
+    "groupHeaders": "pass",
+    "workbookGeometry": "pass",
+    "parserProfile": "cyclic",
+    "structuralProbe": "pass",
+    "hiddenRows": 0,
+    "hiddenColumns": 0,
+    "comments": 0,
+    "formulas": 0,
+    "dataValidations": 0,
+    "definedNames": 0,
+    "images": 0,
+    "charts": 0,
+    "targetCycleBlocksInspected": 12
+  },
+  "unresolvedAmbiguities": [
+    {
+      "ambiguityId": "PED4-C20-MANAGEMENT-EXTENDED-DAYS",
+      "rule": "C20/G21",
+      "discipline": "Менеджмент в здравоохранении",
+      "referenceCell": "4 курс осень 2026 Пед!CE35",
+      "groups": ["431", "432", "433", "434", "435", "436"],
+      "affectedCycleBlockCount": 6,
+      "baseTime": "08:30-11:35",
+      "exceptionText": "два дня 8:30-13:10",
+      "exceptionTime": "08:30-13:10",
+      "exceptionDayCountPerCycle": 2,
+      "problem": "The official XLSX specifies the number of extended days but does not identify their calendar dates. The same-XLSX structural probe found no hidden, formula, comment, validation, defined-name, image/chart, or day-specific visual marker that uniquely resolves those dates.",
+      "requiredDecision": "Confirm the source-specific rule for which two calendar dates in every Management cycle receive the extended time, or provide the exact dates."
+    },
+    {
+      "ambiguityId": "PED4-C20-IOK-EXTENDED-DAY",
+      "rule": "C20/G21",
+      "discipline": "Инклюзивно ориентированная компетентность врача-педиатра",
+      "referenceCell": "4 курс осень 2026 Пед!CE36",
+      "groups": ["431", "432", "433", "434", "435", "436"],
+      "affectedCycleBlockCount": 6,
+      "baseTime": "09:00-12:05",
+      "exceptionText": "один день 9:00-13:40",
+      "exceptionTime": "09:00-13:40",
+      "exceptionDayCountPerCycle": 1,
+      "problem": "The official XLSX specifies the number of extended days but does not identify its calendar date. The same-XLSX structural probe found no hidden, formula, comment, validation, defined-name, image/chart, or day-specific visual marker that uniquely resolves that date.",
+      "requiredDecision": "Confirm the source-specific rule for which calendar date in every IOK cycle receives the extended time, or provide the exact dates."
+    }
+  ],
+  "confirmedNonBlockingPatterns": [
+    "The workbook is a cyclic schedule and is covered by parser profile C; no common parser/core/schema change is required for the observed layout.",
+    "Merged horizontal subject blocks are interpreted by existing cyclic rules only after their dates and time fragments are unambiguous.",
+    "The '*' first-day second-shift marker is covered by existing C02 rules.",
+    "The 'М' management-project-defense marker is covered by existing C03/C04 rules.",
+    "The lower-table Physical Education row is eligible for independent event generation under C12 because it provides an explicit weekday/date interval and time.",
+    "The dentistry-specific C21 first-N-days decision is precedent only and is not applied to this XLSX without a new G21 confirmation."
+  ],
+  "operatorPrompts": [
+    {
+      "promptId": "PED4-G21-C20-EXTENDED-DAYS",
+      "status": "pending",
+      "prompt": "Подтвердите source-specific правило для 4_ped-24-08-2026-13.xlsx: в каждом цикле «Менеджмент в здравоохранении» время 08:30-13:10 применяется к первым двум календарным дням блока, а в каждом цикле ИОК 09:00-13:40 — к первому календарному дню блока; остальные дни идут по базовому времени 08:30-11:35 и 09:00-12:05 соответственно?"
+    }
+  ],
+  "qaGate": {
+    "sourceArtifactVerified": true,
+    "parserProfileResolved": true,
+    "sameSourceStructuralAmbiguitySearchCompleted": true,
+    "semanticAmbiguitiesResolved": false,
+    "normalizedDraftComplete": false,
+    "qaPassed": false,
+    "publicationAllowed": false
+  },
+  "nextGate": "G21 operator confirmation, then explicit semantic decisions -> normalized candidate -> QA. No ScheduleVersion publication before QA PASS."
+}
