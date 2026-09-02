@@ -3749,5 +3749,31 @@
       "logicalEventsUnique": true,
       "tupleIntegrity": true
     }
+  },
+  "finalNormalizedDraft": {
+    "schema": "kgmu-normalized-draft-v1",
+    "sourceArtifactId": "source-artifact-dentistry-291-294-2026-09-03-v1",
+    "candidateDigest": "sha256:6b47e359d9910ed04e84e059ea021a6901bf27b461b82c131c9e3f2e7c664c60",
+    "eventCount": 1066,
+    "groupEventCounts": {
+      "291": 265,
+      "292": 266,
+      "293": 266,
+      "294": 269
+    },
+    "assessmentEventCount": 395,
+    "assessmentDisciplines": [
+      "Анатомия человека-анатомия головы и шеи",
+      "Биологическая химия-биохимия полости рта",
+      "Нормальная физиология - физиология челюстно-лицевой области",
+      "Психология и педагогика"
+    ],
+    "propedeuticLocation": "Консультативно-диагностическое отделение клиники Кировского ГМУ, ул. Никитская, 161",
+    "normalizedEventV1Compatible": true
+  },
+  "timeOverlapAudit": {
+    "policy": "R69/S04 preserve source-defined overlaps",
+    "overlapCount": 0,
+    "overlaps": []
   }
 }
