@@ -31,5 +31,7 @@ jobs:
         if: always()
         with:
           name: pediatrics-231-239-source-probe
-          path: pediatrics-231-239-source-probe.json
+          path: |
+            pediatrics-231-239-source-probe.json
+            pediatrics-231-239-source.xlsx
           if-no-files-found: error
