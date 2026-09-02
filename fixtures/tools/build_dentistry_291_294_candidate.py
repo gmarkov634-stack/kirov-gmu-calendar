@@ -77,7 +77,7 @@ EVENT_HEAD_RE = re.compile(
     re.IGNORECASE,
 )
 COUNT_NOTE_RE = re.compile(
-    r"(?P<count>\d+)\s+заняти\w*\s+в[о.]?\s*(?P<weekday>пн|вт|ср|чт|пт|сб)\.?” ,
+    r"(?P<count>\d+)\s+заняти\w*\s+в[о.]?\s*(?P<weekday>пн|вт|ср|чт|пт|сб)\.?",
     re.IGNORECASE,
 )
 DATE_TIME_TRIPLE_RE = re.compile(
