@@ -9,10 +9,12 @@
   "parserRulesVersion": "kgmu-2026-08-27-v3",
   "source": {
     "sourceId": "dentistry",
+    "sourceArtifactId": "source-artifact-dentistry-291-294-2026-09-03-v1",
     "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/2_stomat-24-08-2026-14.xlsx",
     "sha256": "ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
     "byteLength": 18507,
-    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "objectKey": "sources/kirov-gmu/2026-2027/semester-1/ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610.xlsx"
   },
   "idempotency": {
     "sourceArtifactKey": "sha256:ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
