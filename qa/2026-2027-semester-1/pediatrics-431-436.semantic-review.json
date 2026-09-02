@@ -3,8 +3,8 @@
   "fixtureId": "pediatrics-431-436-2026-2027-semester-1",
   "sourceSha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
   "parserRulesVersion": "kgmu-2026-08-30-v4",
-  "status": "NORMALIZATION_ALLOWED",
-  "blocksPublication": true,
+  "status": "PASS",
+  "blocksPublication": false,
   "reviewedScope": {
     "programId": "pediatrics",
     "course": 4,
@@ -68,8 +68,9 @@
     "Merged horizontal subject blocks are interpreted by existing cyclic rules after their dates and time fragments are unambiguous.",
     "The '*' first-day second-shift marker is covered by existing C02 rules.",
     "The 'М' management-project-defense marker is covered by existing C03/C04 rules.",
-    "The lower-table Physical Education row is eligible for independent event generation under C12 because it provides an explicit weekday/date interval and time.",
-    "The C20 timing exception is resolved only for source SHA 2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86 by the operator decision recorded above."
+    "The lower-table Physical Education row is an independent event source under C12 because it provides an explicit weekday/date interval and time.",
+    "The C20 timing exception is resolved only for source SHA 2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86 by the operator decision recorded above.",
+    "Four source-backed Faculty Therapy / Physical Education overlaps are preserved under C13 and recorded as QA warnings rather than silently modified."
   ],
   "operatorPrompts": [
     {
@@ -83,9 +84,17 @@
     "parserProfileResolved": true,
     "sameSourceStructuralAmbiguitySearchCompleted": true,
     "semanticAmbiguitiesResolved": true,
-    "normalizedDraftComplete": false,
-    "qaPassed": false,
+    "normalizedDraftComplete": true,
+    "qaPassed": true,
     "publicationAllowed": false
   },
-  "nextGate": "Explicit semantic decisions -> normalized candidate -> isolated QA. No ScheduleVersion publication before QA PASS."
+  "qaEvidence": {
+    "candidateDigest": "sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd",
+    "eventCount": 768,
+    "groupEventCount": 128,
+    "duplicateEventSignatures": 0,
+    "sourceBackedOverlapPairCount": 4,
+    "qaReport": "qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json"
+  },
+  "nextGate": "Ready for review. ScheduleVersion publication remains a separate guarded step requiring a fresh publication preflight and explicit authorization; no publication is included here."
 }
