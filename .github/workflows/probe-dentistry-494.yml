@@ -1,4 +1,4 @@
-name: Probe dentistry 494 official source
+name: Probe dentistry 491-494 official source
 
 on:
   push:
@@ -16,11 +16,17 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: dentistry-course4-branch-writes
+  cancel-in-progress: false
+
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -37,13 +43,14 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Mechanical evidence unchanged'
           else
-            git commit -m 'Record Dentistry 494 mechanical source evidence'
+            git commit -m 'Record Dentistry 491-494 mechanical source evidence'
+            git pull --rebase origin feat/dentistry-494-2026-09-03
             git push origin HEAD:feat/dentistry-494-2026-09-03
           fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: dentistry-494-source-probe
+          name: dentistry-491-494-source-probe
           path: |
             dentistry-494-source-probe.json
             dentistry-494-source.xlsx
