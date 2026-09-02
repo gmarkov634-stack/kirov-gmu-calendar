@@ -15,6 +15,7 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 from openpyxl.cell.cell import MergedCell
+from openpyxl.utils import get_column_letter
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "fixtures/2026-2027-semester-1/pediatrics-431-436.source.json"
@@ -63,7 +64,7 @@ def date_axis(sheet):
         except ValueError:
             continue
         axis[column] = {
-            "column": sheet.cell(11, column).column_letter,
+            "column": get_column_letter(column),
             "date": iso,
             "weekday": None if sheet.cell(12, column).value is None else str(sheet.cell(12, column).value).strip(),
         }
@@ -97,8 +98,8 @@ def cycle_blocks(sheet, axis):
                 "group": group,
                 "locator": locator,
                 "value": str(value).strip(),
-                "startColumn": sheet.cell(row, min_col).column_letter,
-                "endColumn": sheet.cell(row, max_col).column_letter,
+                "startColumn": get_column_letter(min_col),
+                "endColumn": get_column_letter(max_col),
                 "dates": dates,
             })
     return blocks
