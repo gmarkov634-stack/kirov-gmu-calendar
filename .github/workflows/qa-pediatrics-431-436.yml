@@ -11,7 +11,9 @@ on:
       - 'fixtures/tools/compute_pediatrics_431_436_candidate.mjs'
       - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
       - 'qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json'
       - 'test/pediatrics-431-436-normalization.test.js'
+      - 'test/pediatrics-431-436-snapshot.test.js'
       - '.github/workflows/qa-pediatrics-431-436.yml'
   pull_request:
     branches: [main]
@@ -22,7 +24,9 @@ on:
       - 'fixtures/tools/compute_pediatrics_431_436_candidate.mjs'
       - 'qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'
       - 'qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json'
+      - 'qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json'
       - 'test/pediatrics-431-436-normalization.test.js'
+      - 'test/pediatrics-431-436-snapshot.test.js'
       - '.github/workflows/qa-pediatrics-431-436.yml'
 
 permissions:
@@ -38,8 +42,8 @@ jobs:
           node-version: '22'
       - name: Compute normalized draft and candidate metrics
         run: node fixtures/tools/compute_pediatrics_431_436_candidate.mjs
-      - name: Run Pediatrics course-4 normalization tests
-        run: node --test test/pediatrics-431-436-normalization.test.js
+      - name: Run Pediatrics course-4 normalization and snapshot tests
+        run: node --test test/pediatrics-431-436-normalization.test.js test/pediatrics-431-436-snapshot.test.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
