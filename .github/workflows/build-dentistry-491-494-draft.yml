@@ -13,11 +13,17 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: dentistry-course4-branch-writes
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -38,5 +44,6 @@ jobs:
             echo 'Draft artifacts unchanged'
           else
             git commit -m 'Record Dentistry 491-494 normalized draft and QA state'
+            git pull --rebase origin feat/dentistry-494-2026-09-03
             git push origin HEAD:feat/dentistry-494-2026-09-03
           fi
