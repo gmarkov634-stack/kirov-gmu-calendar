@@ -1,0 +1,3753 @@
+{
+  "fixtureId": "dentistry-291-294-2026-2027-semester-1",
+  "sourceSha256": "ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
+  "workbookGeometry": {
+    "maxRow": 68,
+    "maxColumn": 8,
+    "mergedRangeCount": 71,
+    "nonEmptyCellCount": 145
+  },
+  "serviceWeekIntervals": [
+    {
+      "week": 1,
+      "start": "2026-09-01",
+      "end": "2026-09-05"
+    },
+    {
+      "week": 1,
+      "start": "2026-09-14",
+      "end": "2026-09-19"
+    },
+    {
+      "week": 1,
+      "start": "2026-09-28",
+      "end": "2026-10-03"
+    },
+    {
+      "week": 1,
+      "start": "2026-10-12",
+      "end": "2026-10-17"
+    },
+    {
+      "week": 1,
+      "start": "2026-10-26",
+      "end": "2026-10-31"
+    },
+    {
+      "week": 1,
+      "start": "2026-11-09",
+      "end": "2026-11-14"
+    },
+    {
+      "week": 1,
+      "start": "2026-11-23",
+      "end": "2026-11-28"
+    },
+    {
+      "week": 1,
+      "start": "2026-12-07",
+      "end": "2026-12-12"
+    },
+    {
+      "week": 1,
+      "start": "2026-12-21",
+      "end": "2026-12-26"
+    },
+    {
+      "week": 1,
+      "start": "2027-01-09",
+      "end": "2027-01-09"
+    },
+    {
+      "week": 2,
+      "start": "2026-09-07",
+      "end": "2026-09-12"
+    },
+    {
+      "week": 2,
+      "start": "2026-09-21",
+      "end": "2026-09-26"
+    },
+    {
+      "week": 2,
+      "start": "2026-10-05",
+      "end": "2026-10-10"
+    },
+    {
+      "week": 2,
+      "start": "2026-10-19",
+      "end": "2026-10-24"
+    },
+    {
+      "week": 2,
+      "start": "2026-11-02",
+      "end": "2026-11-07"
+    },
+    {
+      "week": 2,
+      "start": "2026-11-16",
+      "end": "2026-11-21"
+    },
+    {
+      "week": 2,
+      "start": "2026-11-30",
+      "end": "2026-12-05"
+    },
+    {
+      "week": 2,
+      "start": "2026-12-14",
+      "end": "2026-12-19"
+    },
+    {
+      "week": 2,
+      "start": "2026-12-28",
+      "end": "2026-12-30"
+    }
+  ],
+  "sourceCorrections": [
+    {
+      "locator": "2 стомат.!B6",
+      "rule": "G04",
+      "from": "206-2027",
+      "to": "2026-2027",
+      "reason": "official page, source filename, semester start and project AcademicYear all identify 2026-2027"
+    },
+    {
+      "locator": "2 стомат.!E17",
+      "rule": "R06",
+      "from": "16.000",
+      "to": "16.00",
+      "reason": "impossible minute width; unique local time interpretation"
+    },
+    {
+      "locator": "2 стомат.!C28",
+      "rule": "R06/R47",
+      "from": "24.12.12",
+      "to": "24.12",
+      "reason": "duplicated .12 suffix inside 2026 semester; unique valid date"
+    }
+  ],
+  "lowerReferenceRows": {
+    "Биологическая химия-биохимия полости рта": {
+      "row": 50,
+      "sourceDiscipline": "Биологическая химия-биохимия полости рта",
+      "department": "биохимии (1 корпус, ул. Владимирская, 137)",
+      "practiceBase": null,
+      "location": "1 корпус, ул. Владимирская, 137",
+      "locationSource": "2 стомат.!C50",
+      "assessment": "экзамен",
+      "assessmentSource": "2 стомат.!E50"
+    },
+    "Анатомия человека-анатомия головы и шеи": {
+      "row": 51,
+      "sourceDiscipline": "Анатомия человека-анатомия головы и шеи",
+      "department": "анатомии (2 корпус, ул. Пролетарская, 38)",
+      "practiceBase": null,
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "locationSource": "2 стомат.!C51",
+      "assessment": "экзамен",
+      "assessmentSource": "2 стомат.!E51"
+    },
+    "Нормальная физиология - физиология челюстно-лицевой области": {
+      "row": 52,
+      "sourceDiscipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "department": "нормальной физиологии (3 корпус, ул. Владимирская, 112)",
+      "practiceBase": null,
+      "location": "3 корпус, ул. Владимирская, 112",
+      "locationSource": "2 стомат.!C52",
+      "assessment": "экзамен",
+      "assessmentSource": "2 стомат.!E52"
+    },
+    "Психология и педагогика": {
+      "row": 53,
+      "sourceDiscipline": "Психология и педагогика",
+      "department": "клинической психологии, психологии и педагогики (1 корпус, ул. Владимирская, 137)",
+      "practiceBase": null,
+      "location": "1 корпус, ул. Владимирская, 137",
+      "locationSource": "2 стомат.!C53",
+      "assessment": "зачет",
+      "assessmentSource": "2 стомат.!E53"
+    },
+    "Правоведение": {
+      "row": 54,
+      "sourceDiscipline": "Правоведение",
+      "department": "судебной медицины (1 корпус, ул. Владимирская, 137)",
+      "practiceBase": null,
+      "location": "1 корпус, ул. Владимирская, 137",
+      "locationSource": "2 стомат.!C54",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Микробиология, вирусология - микробиология полости рта": {
+      "row": 55,
+      "sourceDiscipline": "Микробиология, вирусология-микробиология полости рта",
+      "department": "микробиологии и вирусологии (3 корпус, ул. Владимирская, 112)",
+      "practiceBase": null,
+      "location": "3 корпус, ул. Владимирская, 112",
+      "locationSource": "2 стомат.!C55",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Иммунология-клиническая иммунология": {
+      "row": 56,
+      "sourceDiscipline": "Иммунология-клиническая иммунология",
+      "department": null,
+      "practiceBase": null,
+      "location": null,
+      "locationSource": null,
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Патофизиология-патофизиология головы и шеи": {
+      "row": 57,
+      "sourceDiscipline": "Патофизиология-патофизиология головы и шеи",
+      "department": "патофизиологии (3 корпус, ул. Владимирская, 112)",
+      "practiceBase": null,
+      "location": "3 корпус, ул. Владимирская, 112",
+      "locationSource": "2 стомат.!C57",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Патологическая анатомия-патологическая анатомия головы и шеи": {
+      "row": 58,
+      "sourceDiscipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "department": "патологической анатомии (3 корпус, ул. Владимирская, 112)",
+      "practiceBase": null,
+      "location": "3 корпус, ул. Владимирская, 112",
+      "locationSource": "2 стомат.!C58",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Топографическая анатомия и оперативная хирургия головы и шеи": {
+      "row": 59,
+      "sourceDiscipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "department": "топографической анатомии (2 корпус, ул. Пролетарская, 38)",
+      "practiceBase": null,
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "locationSource": "2 стомат.!C59",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Пропедевтическая стоматология": {
+      "row": 60,
+      "sourceDiscipline": "Пропедевтическая стоматология",
+      "department": "стоматологии (Консультативно-диагностическое отделение клиники Кировского ГМУ, ул. Никитская, 161)",
+      "practiceBase": null,
+      "location": "ул. Никитская, 161",
+      "locationSource": "2 стомат.!C60",
+      "assessment": null,
+      "assessmentSource": null
+    },
+    "Элективные дисциплины (модули) по физической культуре и спорту": {
+      "row": 62,
+      "sourceDiscipline": "Элективные дисциплины (модули) по физической культуре и спорту",
+      "department": "физической культуры (ФОК, 3 корпус, ул. Владимирская,112)",
+      "practiceBase": null,
+      "location": "ФОК, 3 корпус, ул. Владимирская, 112",
+      "locationSource": "2 стомат.!C62",
+      "assessment": null,
+      "assessmentSource": null
+    }
+  },
+  "scheduleCoverage": {
+    "expectedCells": [
+      "2 стомат.!B8",
+      "2 стомат.!B9",
+      "2 стомат.!B10",
+      "2 стомат.!C10",
+      "2 стомат.!D10",
+      "2 стомат.!E10",
+      "2 стомат.!B11",
+      "2 стомат.!C11",
+      "2 стомат.!D11",
+      "2 стомат.!E11",
+      "2 стомат.!B12",
+      "2 стомат.!C12",
+      "2 стомат.!D12",
+      "2 стомат.!B13",
+      "2 стомат.!B14",
+      "2 стомат.!B15",
+      "2 стомат.!B16",
+      "2 стомат.!C16",
+      "2 стомат.!D16",
+      "2 стомат.!E16",
+      "2 стомат.!B17",
+      "2 стомат.!C17",
+      "2 стомат.!D17",
+      "2 стомат.!E17",
+      "2 стомат.!C19",
+      "2 стомат.!D19",
+      "2 стомат.!E19",
+      "2 стомат.!B21",
+      "2 стомат.!C21",
+      "2 стомат.!D21",
+      "2 стомат.!E21",
+      "2 стомат.!B22",
+      "2 стомат.!C22",
+      "2 стомат.!D22",
+      "2 стомат.!E22",
+      "2 стомат.!B23",
+      "2 стомат.!C23",
+      "2 стомат.!D23",
+      "2 стомат.!E23",
+      "2 стомат.!B24",
+      "2 стомат.!B25",
+      "2 стомат.!B26",
+      "2 стомат.!B27",
+      "2 стомат.!B28",
+      "2 стомат.!C28",
+      "2 стомат.!D28",
+      "2 стомат.!E28",
+      "2 стомат.!B30",
+      "2 стомат.!C30",
+      "2 стомат.!D30",
+      "2 стомат.!E30",
+      "2 стомат.!B31",
+      "2 стомат.!B32",
+      "2 стомат.!C32",
+      "2 стомат.!D32",
+      "2 стомат.!E32",
+      "2 стомат.!B33",
+      "2 стомат.!B34",
+      "2 стомат.!C34",
+      "2 стомат.!D34",
+      "2 стомат.!E34",
+      "2 стомат.!B36",
+      "2 стомат.!D36",
+      "2 стомат.!E36",
+      "2 стомат.!B37",
+      "2 стомат.!C37",
+      "2 стомат.!D37",
+      "2 стомат.!B38",
+      "2 стомат.!C38",
+      "2 стомат.!D38",
+      "2 стомат.!E38",
+      "2 стомат.!B39",
+      "2 стомат.!C39",
+      "2 стомат.!D39",
+      "2 стомат.!E39",
+      "2 стомат.!B41",
+      "2 стомат.!C41",
+      "2 стомат.!D41",
+      "2 стомат.!E41"
+    ],
+    "coveredCells": [
+      "2 стомат.!B10",
+      "2 стомат.!B11",
+      "2 стомат.!B12",
+      "2 стомат.!B13",
+      "2 стомат.!B14",
+      "2 стомат.!B15",
+      "2 стомат.!B16",
+      "2 стомат.!B17",
+      "2 стомат.!B21",
+      "2 стомат.!B22",
+      "2 стомат.!B23",
+      "2 стомат.!B24",
+      "2 стомат.!B25",
+      "2 стомат.!B26",
+      "2 стомат.!B27",
+      "2 стомат.!B28",
+      "2 стомат.!B30",
+      "2 стомат.!B31",
+      "2 стомат.!B32",
+      "2 стомат.!B33",
+      "2 стомат.!B34",
+      "2 стомат.!B36",
+      "2 стомат.!B37",
+      "2 стомат.!B38",
+      "2 стомат.!B39",
+      "2 стомат.!B41",
+      "2 стомат.!B8",
+      "2 стомат.!B9",
+      "2 стомат.!C10",
+      "2 стомат.!C11",
+      "2 стомат.!C12",
+      "2 стомат.!C16",
+      "2 стомат.!C17",
+      "2 стомат.!C19",
+      "2 стомат.!C21",
+      "2 стомат.!C22",
+      "2 стомат.!C23",
+      "2 стомат.!C28",
+      "2 стомат.!C30",
+      "2 стомат.!C32",
+      "2 стомат.!C34",
+      "2 стомат.!C37",
+      "2 стомат.!C38",
+      "2 стомат.!C39",
+      "2 стомат.!C41",
+      "2 стомат.!D10",
+      "2 стомат.!D11",
+      "2 стомат.!D12",
+      "2 стомат.!D16",
+      "2 стомат.!D17",
+      "2 стомат.!D19",
+      "2 стомат.!D21",
+      "2 стомат.!D22",
+      "2 стомат.!D23",
+      "2 стомат.!D28",
+      "2 стомат.!D30",
+      "2 стомат.!D32",
+      "2 стомат.!D34",
+      "2 стомат.!D36",
+      "2 стомат.!D37",
+      "2 стомат.!D38",
+      "2 стомат.!D39",
+      "2 стомат.!D41",
+      "2 стомат.!E10",
+      "2 стомат.!E11",
+      "2 стомат.!E16",
+      "2 стомат.!E17",
+      "2 стомат.!E19",
+      "2 стомат.!E21",
+      "2 стомат.!E22",
+      "2 стомат.!E23",
+      "2 стомат.!E28",
+      "2 стомат.!E30",
+      "2 стомат.!E32",
+      "2 стомат.!E34",
+      "2 стомат.!E36",
+      "2 стомат.!E38",
+      "2 стомат.!E39",
+      "2 стомат.!E41"
+    ],
+    "unmatched": []
+  },
+  "fragments": [
+    {
+      "sourceLocator": "2 стомат.!B8#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-14",
+          "2026-09-28",
+          "2026-10-12",
+          "2026-10-26",
+          "2026-11-09",
+          "2026-11-23",
+          "2026-12-07",
+          "2026-12-21"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 406, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B9#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-07",
+          "2026-09-21",
+          "2026-10-05",
+          "2026-10-19",
+          "2026-11-02",
+          "2026-11-16",
+          "2026-11-30",
+          "2026-12-14",
+          "2026-12-28"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 406, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B10#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "10:40",
+        "12:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-05",
+            "2026-12-28"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 1,
+          "weekday": 1,
+          "token": "1 занятие во вт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!C10#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "10:40",
+        "12:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-07",
+            "2026-09-28"
+          ],
+          [
+            "2026-11-09",
+            "2026-12-28"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 2,
+          "token": "2 занятия в ср."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D10#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "10:40",
+        "12:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-07",
+            "2026-11-02"
+          ],
+          [
+            "2026-12-14",
+            "2026-12-28"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 2,
+          "token": "2 занятия в ср."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!E10#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "10:40",
+        "12:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-07",
+            "2026-11-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 5,
+          "token": "2 занятия в сб."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!B11#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-11-09",
+            "2026-12-28"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-28",
+            "startTime": "13:10",
+            "endTime": "16:20"
+          }
+        ]
+      },
+      "location": "1 корпус, аудитория 323, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C11#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-11-09",
+            "2026-12-28"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-28",
+            "startTime": "13:10",
+            "endTime": "16:20"
+          }
+        ]
+      },
+      "location": "1 корпус, аудитория 323, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D11#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-28",
+            "2026-10-26"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 323, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E11#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-28",
+            "2026-10-26"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 323, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B12#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "17:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-16",
+          "2026-11-23"
+        ],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B12#s2",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "17:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-30",
+          "2026-12-07",
+          "2026-12-14",
+          "2026-12-21"
+        ],
+        "timeOverrides": [
+          {
+            "date": "2026-12-28",
+            "startTime": "16:30",
+            "endTime": "18:00"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C12#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "15:30",
+        "17:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-21",
+          "2026-09-28"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C12#s2",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "time": [
+        "15:00",
+        "16:00"
+      ],
+      "datePlan": {
+        "mode": "first-two-non-overlapping",
+        "exclusions": [
+          "2026-09-21",
+          "2026-09-28"
+        ]
+      },
+      "location": null
+    },
+    {
+      "sourceLocator": "2 стомат.!D12#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "14:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-02"
+        ],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D12#s2",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "time": [
+        "15:00",
+        "16:00"
+      ],
+      "datePlan": {
+        "mode": "first-two-non-overlapping",
+        "exclusions": []
+      },
+      "location": null
+    },
+    {
+      "sourceLocator": "2 стомат.!B13#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-01",
+          "2026-09-15",
+          "2026-09-29",
+          "2026-10-13",
+          "2026-10-27",
+          "2026-11-03",
+          "2026-11-10",
+          "2026-11-17"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 114, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B13#s2",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Элективные дисциплины по физической культуре и спорту",
+      "lessonType": "practice",
+      "time": [
+        "08:50",
+        "10:20"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-15"
+        ],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B14#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-08",
+          "2026-09-22",
+          "2026-10-06",
+          "2026-10-20"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 114, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B15#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Элективные дисциплины по физической культуре и спорту",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-12-29"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B16#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Патофизиология-патофизиология головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:05",
+        "15:30"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-06",
+            "2026-12-08"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-15",
+            "startTime": "13:05",
+            "endTime": "14:35"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C16#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "14:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-09-29"
+          ],
+          [
+            "2026-11-10",
+            "2026-12-22"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D16#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "15:35"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-10-27"
+          ],
+          [
+            "2026-12-15",
+            "2026-12-29"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": [
+        {
+          "count": 3,
+          "weekday": 5,
+          "token": "3 занятий в сб."
+        },
+        {
+          "count": 3,
+          "weekday": 4,
+          "token": "3 занятия в пт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!E16#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "14:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-11-24"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 1,
+          "weekday": 3,
+          "token": "1 занятие в. чт"
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!B17#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "14:45",
+        "16:15"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-15"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B17#s2",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "time": [
+        "15:40",
+        "16:40"
+      ],
+      "datePlan": {
+        "mode": "first-two-non-overlapping",
+        "exclusions": [
+          "2026-12-08"
+        ]
+      },
+      "location": null
+    },
+    {
+      "sourceLocator": "2 стомат.!C17#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Патофизиология-патофизиология головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "18:05"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-09-29"
+          ],
+          [
+            "2026-11-10",
+            "2026-12-08"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-15",
+            "startTime": "15:40",
+            "endTime": "17:10"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D17#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "16:15",
+        "17:45"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-01",
+            "2026-10-20"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E17#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "time": [
+        "15:00",
+        "16:00"
+      ],
+      "datePlan": {
+        "mode": "first-two-non-overlapping",
+        "exclusions": []
+      },
+      "location": null
+    },
+    {
+      "sourceLocator": "2 стомат.!C19#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "08:50",
+        "10:20"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-09-30"
+          ],
+          [
+            "2026-11-11",
+            "2026-12-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 0,
+          "token": "2 занятия в пн."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D19#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Патофизиология-патофизиология головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "08:00",
+        "10:25"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-10-28"
+          ]
+        ],
+        "explicitDates": [
+          "2026-12-09"
+        ],
+        "timeOverrides": [
+          {
+            "date": "2026-12-16",
+            "startTime": "09:00",
+            "endTime": "10:30"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E19#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-11-25"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 4,
+          "weekday": 4,
+          "token": "4 занятия в пт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!B21#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-07",
+            "2026-12-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 5,
+          "weekday": 0,
+          "token": "5 занятий в пн."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!C21#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-09-30"
+          ],
+          [
+            "2026-11-11",
+            "2026-12-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 4,
+          "weekday": 3,
+          "token": "4 занятия в чт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D21#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "10:35",
+        "12:05"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-10-28"
+          ],
+          [
+            "2026-12-09",
+            "2026-12-30"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 3,
+          "weekday": 4,
+          "token": "3 занятия в пт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!E21#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Патофизиология-патофизиология головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:55"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-11-11"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-11-18",
+            "startTime": "10:30",
+            "endTime": "12:00"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B22#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "15:25"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-07",
+            "2026-12-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": [
+        {
+          "count": 5,
+          "weekday": 3,
+          "token": "5 занятий в чт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!C22#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "14:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-09-30"
+          ],
+          [
+            "2026-11-11",
+            "2026-11-25"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C22#s2",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "14:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-02",
+          "2026-12-09"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D22#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "14:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-10-28"
+          ],
+          [
+            "2026-12-09",
+            "2026-12-23"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 4,
+          "token": "2 занятия в пт."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D22#s2",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "16:10"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-30"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E22#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-11-25"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B23#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "17:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-11",
+          "2026-11-18",
+          "2026-11-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 306, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C23#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "17:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-11",
+          "2026-11-18",
+          "2026-11-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 306, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D23#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "15:10",
+        "16:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-07",
+          "2026-10-14",
+          "2026-10-21",
+          "2026-10-28"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E23#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "15:10",
+        "16:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-07",
+          "2026-10-14",
+          "2026-10-21",
+          "2026-10-28"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E23#s2",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "18:05"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-02",
+            "2026-09-30"
+          ]
+        ],
+        "explicitDates": [
+          "2026-11-11"
+        ],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B24#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-03",
+          "2026-09-17",
+          "2026-10-01",
+          "2026-10-15"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B25#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-10",
+          "2026-10-08",
+          "2026-11-05",
+          "2026-12-03"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 320, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B25#s2",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "lecture",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-24",
+          "2026-10-22",
+          "2026-11-19",
+          "2026-12-17"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 320, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B26#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Патофизиология-патофизиология головы и шеи",
+      "lessonType": "lecture",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-03",
+          "2026-09-17",
+          "2026-10-01",
+          "2026-10-15",
+          "2026-10-29",
+          "2026-11-05",
+          "2026-11-12",
+          "2026-11-19"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 114, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B27#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "lecture",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-10",
+          "2026-09-24",
+          "2026-10-08",
+          "2026-10-22"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 114, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B28#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:15",
+        "14:45"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-08",
+            "2026-12-17"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C28#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "15:35"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-03",
+            "2026-10-01"
+          ],
+          [
+            "2026-11-12",
+            "2026-12-24"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": [
+        {
+          "count": 6,
+          "weekday": 5,
+          "token": "6 занятий в сб."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D28#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "14:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-03",
+            "2026-10-29"
+          ]
+        ],
+        "explicitDates": [
+          "2026-12-10",
+          "2026-12-17"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E28#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:00",
+        "14:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-03",
+            "2026-10-22"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E28#s2",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "14:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-29"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B30#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "15:40",
+        "18:05"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-19",
+          "2026-11-26",
+          "2026-12-03",
+          "2026-12-10",
+          "2026-12-17"
+        ],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C30#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "16:00",
+        "17:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-19",
+          "2026-11-26",
+          "2026-12-03",
+          "2026-12-10"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D30#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "15:30",
+        "17:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-03",
+            "2026-11-05"
+          ],
+          [
+            "2026-12-10",
+            "2026-12-24"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": [
+        {
+          "count": 1,
+          "weekday": 0,
+          "token": "1 занятие в пн."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!E30#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "15:00",
+        "16:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-03",
+            "2026-11-05"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B31#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "lecture",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-04",
+          "2026-09-18",
+          "2026-10-02",
+          "2026-10-16",
+          "2026-10-30",
+          "2026-11-13",
+          "2026-11-27"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 320, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B32#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-06",
+          "2026-11-20",
+          "2026-12-04",
+          "2026-12-11",
+          "2026-12-18",
+          "2026-12-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C32#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-06",
+          "2026-11-20",
+          "2026-12-04",
+          "2026-12-11",
+          "2026-12-18",
+          "2026-12-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D32#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-11",
+          "2026-09-25",
+          "2026-10-09",
+          "2026-10-23"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E32#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-09-11",
+          "2026-09-25",
+          "2026-10-09",
+          "2026-10-23"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B33#s1",
+      "groups": [
+        "291",
+        "292",
+        "293",
+        "294"
+      ],
+      "discipline": "Пропедевтическая стоматология",
+      "lessonType": "lecture",
+      "time": [
+        "11:00",
+        "12:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-04",
+            "2026-11-06"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, аудитория 114, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B34#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Топографическая анатомия и оперативная хирургия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-09",
+            "2026-11-27"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C34#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "13:45",
+        "15:15"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-04",
+            "2026-10-02"
+          ],
+          [
+            "2026-11-06",
+            "2026-12-18"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-25",
+            "startTime": "13:45",
+            "endTime": "16:55"
+          }
+        ]
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D34#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-04",
+            "2026-10-30"
+          ]
+        ],
+        "explicitDates": [
+          "2026-12-11",
+          "2026-12-18"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E34#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:40",
+        "14:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-04",
+            "2026-11-20"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-11-27",
+            "startTime": "13:40",
+            "endTime": "15:50"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B36#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "15:30",
+        "17:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-09",
+            "2026-12-25"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": [
+        {
+          "count": 2,
+          "weekday": 0,
+          "token": "2 занятия в пн."
+        }
+      ]
+    },
+    {
+      "sourceLocator": "2 стомат.!D36#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "15:35",
+        "17:05"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-16",
+          "2026-10-23",
+          "2026-10-30"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D36#s2",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "16:00",
+        "18:25"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-11",
+          "2026-12-18",
+          "2026-12-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E36#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "lessonType": "practice",
+      "time": [
+        "15:30",
+        "17:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-09",
+          "2026-10-16",
+          "2026-10-23",
+          "2026-10-30"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B37#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "17:30",
+        "19:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-27",
+          "2026-12-04",
+          "2026-12-11",
+          "2026-12-18",
+          "2026-12-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C37#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "17:30",
+        "19:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-27",
+          "2026-12-04",
+          "2026-12-11",
+          "2026-12-18",
+          "2026-12-25"
+        ],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D37#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "11:00",
+        "12:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-12-11",
+          "2026-12-18"
+        ],
+        "timeOverrides": []
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B38#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-11-07",
+            "2026-12-26"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C38#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "09:00",
+        "10:30"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-11-07",
+            "2026-12-26"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D38#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-10-31"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E38#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Психология и педагогика",
+      "lessonType": "practice",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-10-31"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 313, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E38#s2",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Иммунология-клиническая иммунология",
+      "lessonType": "practice",
+      "time": [
+        "08:30",
+        "10:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-07",
+          "2026-11-14"
+        ],
+        "timeOverrides": []
+      },
+      "location": null,
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B39#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "11:30",
+        "13:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-03",
+            "2026-12-19"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": [
+          {
+            "date": "2026-12-26",
+            "startTime": "11:30",
+            "endTime": "14:40"
+          }
+        ]
+      },
+      "location": "3 корпус, ул. Владимирская, 112",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C39#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "10:40",
+        "12:10"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-09-26"
+          ],
+          [
+            "2026-11-07",
+            "2026-12-12"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D39#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-10-31"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E39#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Правоведение",
+      "lessonType": "practice",
+      "time": [
+        "10:30",
+        "12:00"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-10-31"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!B41#s1",
+      "groups": [
+        "291"
+      ],
+      "discipline": "Биологическая химия-биохимия полости рта",
+      "lessonType": "practice",
+      "time": [
+        "13:10",
+        "14:40"
+      ],
+      "intervalCount": 1,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-10-03",
+            "2026-12-12"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "1 корпус, ул. Владимирская, 137",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!C41#s1",
+      "groups": [
+        "292"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:05",
+        "15:30"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-11-21",
+          "2026-11-28",
+          "2026-12-05",
+          "2026-12-12",
+          "2026-12-19",
+          "2026-12-26"
+        ],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!D41#s1",
+      "groups": [
+        "293"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:30",
+        "15:55"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [],
+        "explicitDates": [
+          "2026-10-17",
+          "2026-10-24",
+          "2026-10-31"
+        ],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": []
+    },
+    {
+      "sourceLocator": "2 стомат.!E41#s1",
+      "groups": [
+        "294"
+      ],
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "time": [
+        "13:05",
+        "15:30"
+      ],
+      "intervalCount": 2,
+      "datePlan": {
+        "ranges": [
+          [
+            "2026-09-05",
+            "2026-11-21"
+          ]
+        ],
+        "explicitDates": [],
+        "timeOverrides": []
+      },
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "countNotes": [
+        {
+          "count": 6,
+          "weekday": 2,
+          "token": "6 занятий в ср."
+        }
+      ]
+    }
+  ],
+  "crossDayExpectations": [
+    {
+      "originLocator": "2 стомат.!B10#s1",
+      "groupId": "291",
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "expectedCount": 1,
+      "targetWeekday": 1,
+      "sourceStatement": "1 занятие во вт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-12-15",
+          "startTime": "14:45",
+          "endTime": "16:15",
+          "sourceLocator": "2 стомат.!B17#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 1,
+      "sourceIntervalCount": 1
+    },
+    {
+      "originLocator": "2 стомат.!C10#s1",
+      "groupId": "292",
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "expectedCount": 2,
+      "targetWeekday": 2,
+      "sourceStatement": "2 занятия в ср.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-12-02",
+          "startTime": "13:00",
+          "endTime": "14:30",
+          "sourceLocator": "2 стомат.!C22#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-09",
+          "startTime": "13:00",
+          "endTime": "14:30",
+          "sourceLocator": "2 стомат.!C22#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 2,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!D10#s1",
+      "groupId": "293",
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "expectedCount": 2,
+      "targetWeekday": 2,
+      "sourceStatement": "2 занятия в ср.",
+      "status": "PASS",
+      "countMode": "source-intervals-before-R12",
+      "matchedOccurrences": [
+        {
+          "date": "2026-12-30",
+          "startTime": "13:00",
+          "endTime": "16:10",
+          "sourceLocator": "2 стомат.!D22#s2",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 1,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!E10#s1",
+      "groupId": "294",
+      "discipline": "Иммунология-клиническая иммунология",
+      "expectedCount": 2,
+      "targetWeekday": 5,
+      "sourceStatement": "2 занятия в сб.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-07",
+          "startTime": "08:30",
+          "endTime": "10:00",
+          "sourceLocator": "2 стомат.!E38#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-11-14",
+          "startTime": "08:30",
+          "endTime": "10:00",
+          "sourceLocator": "2 стомат.!E38#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 2,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!D16#s1",
+      "groupId": "293",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "expectedCount": 3,
+      "targetWeekday": 5,
+      "sourceStatement": "3 занятий в сб.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-10-17",
+          "startTime": "13:30",
+          "endTime": "15:55",
+          "sourceLocator": "2 стомат.!D41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-24",
+          "startTime": "13:30",
+          "endTime": "15:55",
+          "sourceLocator": "2 стомат.!D41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-31",
+          "startTime": "13:30",
+          "endTime": "15:55",
+          "sourceLocator": "2 стомат.!D41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 3,
+      "sourceIntervalCount": 6
+    },
+    {
+      "originLocator": "2 стомат.!D16#s1",
+      "groupId": "293",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "expectedCount": 3,
+      "targetWeekday": 4,
+      "sourceStatement": "3 занятия в пт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-12-11",
+          "startTime": "16:00",
+          "endTime": "18:25",
+          "sourceLocator": "2 стомат.!D36#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-18",
+          "startTime": "16:00",
+          "endTime": "18:25",
+          "sourceLocator": "2 стомат.!D36#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-25",
+          "startTime": "16:00",
+          "endTime": "18:25",
+          "sourceLocator": "2 стомат.!D36#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 3,
+      "sourceIntervalCount": 3
+    },
+    {
+      "originLocator": "2 стомат.!E16#s1",
+      "groupId": "294",
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "expectedCount": 1,
+      "targetWeekday": 3,
+      "sourceStatement": "1 занятие в. чт",
+      "status": "PASS",
+      "countMode": "explicit-same-lesson-type-occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-10-29",
+          "startTime": "13:10",
+          "endTime": "14:40",
+          "sourceLocator": "2 стомат.!E28#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 1,
+      "sourceIntervalCount": 1,
+      "resolution": {
+        "rules": "R07-R09/R67",
+        "filter": "same discipline + same lessonType + explicitly dated source event",
+        "rationale": "The source says additional 'занятие', so separate lectures of the same discipline are not counted as the additional practical occurrence."
+      }
+    },
+    {
+      "originLocator": "2 стомат.!C19#s1",
+      "groupId": "292",
+      "discipline": "Нормальная физиология - физиология челюстно-лицевой области",
+      "expectedCount": 2,
+      "targetWeekday": 0,
+      "sourceStatement": "2 занятия в пн.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-09-21",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!C12#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-09-28",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!C12#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 2,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!E19#s1",
+      "groupId": "294",
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "expectedCount": 4,
+      "targetWeekday": 4,
+      "sourceStatement": "4 занятия в пт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-10-09",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!E36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-16",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!E36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-23",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!E36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-30",
+          "startTime": "15:30",
+          "endTime": "17:00",
+          "sourceLocator": "2 стомат.!E36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 4,
+      "sourceIntervalCount": 4
+    },
+    {
+      "originLocator": "2 стомат.!B21#s1",
+      "groupId": "291",
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "expectedCount": 5,
+      "targetWeekday": 0,
+      "sourceStatement": "5 занятий в пн.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-30",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-07",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-14",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-21",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-28",
+          "startTime": "16:30",
+          "endTime": "18:00",
+          "sourceLocator": "2 стомат.!B12#s2",
+          "intervalCount": 1,
+          "provenance": "explicit-date-time"
+        }
+      ],
+      "occurrenceCount": 5,
+      "sourceIntervalCount": 5
+    },
+    {
+      "originLocator": "2 стомат.!C21#s1",
+      "groupId": "292",
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "expectedCount": 4,
+      "targetWeekday": 3,
+      "sourceStatement": "4 занятия в чт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-19",
+          "startTime": "16:00",
+          "endTime": "17:30",
+          "sourceLocator": "2 стомат.!C30#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-11-26",
+          "startTime": "16:00",
+          "endTime": "17:30",
+          "sourceLocator": "2 стомат.!C30#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-03",
+          "startTime": "16:00",
+          "endTime": "17:30",
+          "sourceLocator": "2 стомат.!C30#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-10",
+          "startTime": "16:00",
+          "endTime": "17:30",
+          "sourceLocator": "2 стомат.!C30#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 4,
+      "sourceIntervalCount": 4
+    },
+    {
+      "originLocator": "2 стомат.!D21#s1",
+      "groupId": "293",
+      "discipline": "Микробиология, вирусология - микробиология полости рта",
+      "expectedCount": 3,
+      "targetWeekday": 4,
+      "sourceStatement": "3 занятия в пт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-10-16",
+          "startTime": "15:35",
+          "endTime": "17:05",
+          "sourceLocator": "2 стомат.!D36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-23",
+          "startTime": "15:35",
+          "endTime": "17:05",
+          "sourceLocator": "2 стомат.!D36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-10-30",
+          "startTime": "15:35",
+          "endTime": "17:05",
+          "sourceLocator": "2 стомат.!D36#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 3,
+      "sourceIntervalCount": 3
+    },
+    {
+      "originLocator": "2 стомат.!B22#s1",
+      "groupId": "291",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "expectedCount": 5,
+      "targetWeekday": 3,
+      "sourceStatement": "5 занятий в чт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-19",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!B30#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-11-26",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!B30#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-03",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!B30#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-10",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!B30#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-17",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!B30#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 5,
+      "sourceIntervalCount": 10
+    },
+    {
+      "originLocator": "2 стомат.!D22#s1",
+      "groupId": "293",
+      "discipline": "Патологическая анатомия-патологическая анатомия головы и шеи",
+      "expectedCount": 2,
+      "targetWeekday": 4,
+      "sourceStatement": "2 занятия в пт.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-12-11",
+          "startTime": "11:00",
+          "endTime": "12:30",
+          "sourceLocator": "2 стомат.!D37#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-18",
+          "startTime": "11:00",
+          "endTime": "12:30",
+          "sourceLocator": "2 стомат.!D37#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 2,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!C28#s1",
+      "groupId": "292",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "expectedCount": 6,
+      "targetWeekday": 5,
+      "sourceStatement": "6 занятий в сб.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-21",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-11-28",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-05",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-12",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-19",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-12-26",
+          "startTime": "13:05",
+          "endTime": "15:30",
+          "sourceLocator": "2 стомат.!C41#s1",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 6,
+      "sourceIntervalCount": 12
+    },
+    {
+      "originLocator": "2 стомат.!D30#s1",
+      "groupId": "293",
+      "discipline": "Иммунология-клиническая иммунология",
+      "expectedCount": 1,
+      "targetWeekday": 0,
+      "sourceStatement": "1 занятие в пн.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-02",
+          "startTime": "13:10",
+          "endTime": "14:40",
+          "sourceLocator": "2 стомат.!D12#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 1,
+      "sourceIntervalCount": 1
+    },
+    {
+      "originLocator": "2 стомат.!B36#s1",
+      "groupId": "291",
+      "discipline": "Иммунология-клиническая иммунология",
+      "expectedCount": 2,
+      "targetWeekday": 0,
+      "sourceStatement": "2 занятия в пн.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-11-16",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        },
+        {
+          "date": "2026-11-23",
+          "startTime": "15:40",
+          "endTime": "17:10",
+          "sourceLocator": "2 стомат.!B12#s1",
+          "intervalCount": 1,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 2,
+      "sourceIntervalCount": 2
+    },
+    {
+      "originLocator": "2 стомат.!E41#s1",
+      "groupId": "294",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "expectedCount": 6,
+      "targetWeekday": 2,
+      "sourceStatement": "6 занятий в ср.",
+      "status": "PASS",
+      "countMode": "occurrences",
+      "matchedOccurrences": [
+        {
+          "date": "2026-09-02",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "computed-range"
+        },
+        {
+          "date": "2026-09-09",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "computed-range"
+        },
+        {
+          "date": "2026-09-16",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "computed-range"
+        },
+        {
+          "date": "2026-09-23",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "computed-range"
+        },
+        {
+          "date": "2026-09-30",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "computed-range"
+        },
+        {
+          "date": "2026-11-11",
+          "startTime": "15:40",
+          "endTime": "18:05",
+          "sourceLocator": "2 стомат.!E23#s2",
+          "intervalCount": 2,
+          "provenance": "explicit-date"
+        }
+      ],
+      "occurrenceCount": 6,
+      "sourceIntervalCount": 12
+    }
+  ],
+  "mixedCycle": {
+    "rule": "S01/S08/S09",
+    "events": [
+      {
+        "groupId": "291",
+        "sourceLocator": "2 стомат.!B45",
+        "startDate": "2026-09-01",
+        "endDate": "2026-10-02",
+        "startTime": "13:00",
+        "endTime": "17:05",
+        "eventDays": 28,
+        "location": "ул. Никитская, 161"
+      },
+      {
+        "groupId": "292",
+        "sourceLocator": "2 стомат.!B46",
+        "startDate": "2026-10-03",
+        "endDate": "2026-11-05",
+        "startTime": "13:00",
+        "endTime": "17:05",
+        "eventDays": 29,
+        "location": "ул. Никитская, 161"
+      },
+      {
+        "groupId": "293",
+        "sourceLocator": "2 стомат.!B47",
+        "startDate": "2026-11-06",
+        "endDate": "2026-12-08",
+        "startTime": "13:00",
+        "endTime": "17:05",
+        "eventDays": 28,
+        "location": "ул. Никитская, 161"
+      },
+      {
+        "groupId": "294",
+        "sourceLocator": "2 стомат.!B48",
+        "startDate": "2026-11-28",
+        "endDate": "2026-12-30",
+        "startTime": "13:00",
+        "endTime": "17:05",
+        "eventDays": 28,
+        "location": "ул. Никитская, 161"
+      }
+    ]
+  },
+  "curatorHour": {
+    "rule": "R17/S07",
+    "events": [
+      {
+        "groupId": "292",
+        "weekday": 0,
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "exclusions": [
+          "2026-09-21",
+          "2026-09-28"
+        ],
+        "sourceLocator": "2 стомат.!C12#s2",
+        "selectedDates": [
+          "2026-09-07",
+          "2026-09-14"
+        ]
+      },
+      {
+        "groupId": "293",
+        "weekday": 0,
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "exclusions": [],
+        "sourceLocator": "2 стомат.!D12#s2",
+        "selectedDates": [
+          "2026-09-07",
+          "2026-09-14"
+        ]
+      },
+      {
+        "groupId": "291",
+        "weekday": 1,
+        "startTime": "15:40",
+        "endTime": "16:40",
+        "exclusions": [
+          "2026-12-08"
+        ],
+        "sourceLocator": "2 стомат.!B17#s2",
+        "selectedDates": [
+          "2026-10-06",
+          "2026-10-13"
+        ]
+      },
+      {
+        "groupId": "294",
+        "weekday": 1,
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "exclusions": [],
+        "sourceLocator": "2 стомат.!E17#s1",
+        "selectedDates": [
+          "2026-09-01",
+          "2026-09-08"
+        ]
+      }
+    ]
+  },
+  "deduplicatedSourceEvents": [],
+  "normalization": {
+    "disciplineCanonicalization": "R10/R36/R64/S05",
+    "dateExpansion": "R01-R05/R13/R47/R48/R50/R51/R52/R86",
+    "multiEventCells": "R34/R49",
+    "intervalMerge": "R12/S08",
+    "locations": "R18-R21/R35/R40/R42/R45/R57/R58/R62/S09",
+    "deduplication": "R27",
+    "explicitOverlapsPreserved": "R69/S04",
+    "postprocessingBoundary": "P01: calendar-note/progress rendering is downstream and does not mutate this normalized draft"
+  },
+  "qaResolution": {
+    "rules": "R07-R09/R67",
+    "courseSpecific": true,
+    "sharedParserChanged": false,
+    "unresolvedCountNotes": 0,
+    "normalizedIntegrity": {
+      "eventCount": 1066,
+      "groupEventCounts": {
+        "291": 265,
+        "292": 266,
+        "293": 266,
+        "294": 269
+      },
+      "eventIdsUnique": true,
+      "logicalEventsUnique": true,
+      "tupleIntegrity": true
+    }
+  }
+}

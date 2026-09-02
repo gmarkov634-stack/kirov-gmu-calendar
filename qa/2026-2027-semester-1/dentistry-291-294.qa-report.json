@@ -1,0 +1,53 @@
+{
+  "qaReportId": "qa-dentistry-291-294-ec51c194-v1",
+  "fixtureId": "dentistry-291-294-2026-2027-semester-1",
+  "parsingJobId": "parsing-job-dentistry-291-294-ec51c194-v1",
+  "sourceSha256": "ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
+  "parserProfile": "mixed",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "candidateDigest": "sha256:43757d7df1f2314e5424ff2dc4843569bab10b01f40ee5491b11a0deea0d178c",
+  "eventCount": 1066,
+  "groupEventCounts": {
+    "291": 265,
+    "292": 266,
+    "293": 266,
+    "294": 269
+  },
+  "status": "PASS",
+  "checks": {
+    "sourceIdentityPinned": true,
+    "workbookGeometryPinned": true,
+    "parserRulesPinned": true,
+    "scheduleCellCoverageComplete": true,
+    "noUnexplainedSourceFragments": true,
+    "crossDayCountNotesResolved": true,
+    "mixedCycleResolved": true,
+    "curatorRulesResolved": true,
+    "expectedGroupsPresent": true,
+    "eventIdsUnique": true,
+    "sourceLocatorsPresent": true,
+    "normalizedTupleIntegrity": true,
+    "noDuplicateNormalizedEvents": true
+  },
+  "warnings": [],
+  "scheduleVersionCreated": false,
+  "published": false,
+  "qaResolution": {
+    "rules": "R07-R09/R67",
+    "courseSpecific": true,
+    "sharedParserChanged": false,
+    "unresolvedCountNotes": 0,
+    "normalizedIntegrity": {
+      "eventCount": 1066,
+      "groupEventCounts": {
+        "291": 265,
+        "292": 266,
+        "293": 266,
+        "294": 269
+      },
+      "eventIdsUnique": true,
+      "logicalEventsUnique": true,
+      "tupleIntegrity": true
+    }
+  }
+}
