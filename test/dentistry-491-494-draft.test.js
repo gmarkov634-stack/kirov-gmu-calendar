@@ -1,9 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { digestNormalizedEvents } from '../src/explicit-decisions.js';
 
 const period = '2026-2027-semester-1';
+const root = fileURLToPath(new URL('../', import.meta.url));
+for (const script of [
+  'fixtures/tools/run_dentistry_491_494_prepost_candidate.py',
+  'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
+]) {
+  execFileSync('python3', [script], { cwd: root, stdio: 'pipe' });
+}
 const readJson = async (path) => JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'));
 
 const [catalog, probe, sourceArtifact, job, parsing, draft, review, qa] = await Promise.all([
