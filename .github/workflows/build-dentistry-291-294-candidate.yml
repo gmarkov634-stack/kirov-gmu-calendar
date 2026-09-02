@@ -9,6 +9,8 @@ on:
       - 'fixtures/2026-2027-semester-1/dentistry-291-294.parsing-job.json'
       - 'fixtures/tools/build_dentistry_291_294_candidate.py'
       - 'fixtures/tools/resolve_dentistry_291_294_qa.py'
+      - 'fixtures/tools/finalize_dentistry_291_294_draft.mjs'
+      - 'test/dentistry-291-294-normalized.test.js'
       - '.github/workflows/build-dentistry-291-294-candidate.yml'
 
 permissions:
@@ -24,6 +26,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - name: Build source-bound normalized draft and resolve course-specific QA
         shell: bash
@@ -36,6 +41,8 @@ jobs:
             exit "$builder_status"
           fi
           python fixtures/tools/resolve_dentistry_291_294_qa.py
+          node fixtures/tools/finalize_dentistry_291_294_draft.mjs
+          node --test test/dentistry-291-294-normalized.test.js
       - name: Commit deterministic candidate and QA evidence
         shell: bash
         run: |
@@ -44,6 +51,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add \
             fixtures/2026-2027-semester-1/normalized/dentistry-291-294.normalized.compact.json \
+            qa/2026-2027-semester-1/dentistry-291-294.normalized-draft.json \
             qa/2026-2027-semester-1/dentistry-291-294.qa-report.json \
             qa/2026-2027-semester-1/dentistry-291-294.evidence.json
           if git diff --cached --quiet; then
