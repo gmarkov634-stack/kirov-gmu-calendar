@@ -16,6 +16,7 @@ const AMBIGUITY_ID = 'PED5-PE-WEEKDAY-RANGE-CONTRADICTION';
 const EXPECTED_UPPER_EVENTS = 805;
 const EXPECTED_PE_DATES = 15;
 const EXPECTED_EVENTS = EXPECTED_UPPER_EVENTS + EXPECTED_PE_DATES * GROUPS.length;
+const EXPECTED_SOURCE_OVERLAPS = 10;
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
@@ -119,14 +120,45 @@ for (const dayEvents of byGroupDate.values()) {
     for (let right = left + 1; right < dayEvents.length; right += 1) {
       if (!overlaps(dayEvents[left], dayEvents[right])) continue;
       overlapCount += 1;
-      if (overlapSamples.length < 20) overlapSamples.push({ groupId: dayEvents[left].groupId, date: dayEvents[left].date, left: dayEvents[left].sourceRef.locator, right: dayEvents[right].sourceRef.locator });
+      overlapSamples.push({
+        groupId: dayEvents[left].groupId,
+        date: dayEvents[left].date,
+        left: {
+          locator: dayEvents[left].sourceRef.locator,
+          discipline: dayEvents[left].discipline,
+          startTime: dayEvents[left].startTime,
+          endTime: dayEvents[left].endTime
+        },
+        right: {
+          locator: dayEvents[right].sourceRef.locator,
+          discipline: dayEvents[right].discipline,
+          startTime: dayEvents[right].startTime,
+          endTime: dayEvents[right].endTime
+        }
+      });
     }
   }
 }
-assert(overlapCount === 0, `unexpected overlap in fully normalized draft: ${overlapCount}; ${JSON.stringify(overlapSamples)}`);
+assert(overlapCount === EXPECTED_SOURCE_OVERLAPS, `expected ${EXPECTED_SOURCE_OVERLAPS} source-defined overlaps, got ${overlapCount}: ${JSON.stringify(overlapSamples)}`);
+assert(overlapSamples.every((sample) => {
+  const pair = [sample.left, sample.right];
+  return pair.some((event) => event.locator.endsWith('!BT36') && event.discipline === 'Дисциплины по физической культуре и спорту') &&
+    pair.some((event) => event.discipline === 'Медицина катастроф' && event.startTime === '13:00' && event.endTime === '16:05');
+}), `unexpected overlap type; C13 may only preserve explicitly grounded source conflicts here: ${JSON.stringify(overlapSamples)}`);
 
 const disciplineEventCounts = {};
 for (const event of events) disciplineEventCounts[event.discipline] = (disciplineEventCounts[event.discipline] ?? 0) + 1;
+
+review.rulesApplied = [...new Set([...(review.rulesApplied ?? []), 'C13'])];
+review.sourceConflicts = overlapSamples.map((sample) => ({
+  ...sample,
+  classification: 'source-defined-time-conflict',
+  handling: 'preserve-both-events',
+  rule: 'C13',
+  blocking: false
+}));
+review.normalizationSummary.sourceDefinedConflictCount = overlapCount;
+review.normalizationSummary.sourceDefinedConflictsBlocking = false;
 
 const normalizedDraft = {
   schema: 'kgmu-normalized-draft-v1',
@@ -142,6 +174,7 @@ const normalizedDraft = {
   expectedGroupIds: GROUPS,
   events,
   diagnostics: [],
+  sourceConflicts: review.sourceConflicts,
   operatorResolutions: manifest.operatorResolutions
 };
 
@@ -161,8 +194,9 @@ const evidence = {
   disciplineEventCounts,
   duplicateEvents,
   datesOutsideSourceCalendar: datesOutsideSourceCalendar.length,
-  overlapCount,
-  overlapSamples,
+  sourceDefinedOverlapCount: overlapCount,
+  sourceDefinedOverlapPolicy: 'C13-preserve-both-events',
+  sourceDefinedOverlaps: overlapSamples,
   coverage: review.coverage,
   unresolvedAmbiguityCount: 0,
   unresolvedAmbiguityIds: [],
@@ -178,7 +212,8 @@ const checks = [
   { code: 'upper-cycle-blocks-covered', status: 'pass', message: '77/77 upper cyclic blocks normalize into 805 events under the existing G+C rules.' },
   { code: 'operator-resolution-applied', status: 'pass', message: 'PE ambiguity PED5-PE-WEEKDAY-RANGE-CONTRADICTION resolved by explicit operator confirmation: Thursdays, 15 occurrences, 14:30-16:00, groups 531-537.' },
   { code: 'event-bearing-source-coverage', status: 'pass', message: '78/78 event-bearing logical source blocks are covered after the course-specific PE resolution.' },
-  { code: 'normalized-event-integrity', status: 'pass', message: `${events.length} events, 130 per group, 0 duplicates, 0 dates outside the source calendar and 0 overlaps.` },
+  { code: 'source-overlap-policy', status: 'pass', message: `${overlapCount} explicit PE/Медицина катастроф time conflicts are preserved unchanged under cyclic rule C13; they are source conflicts, not parser errors.` },
+  { code: 'normalized-event-integrity', status: 'pass', message: `${events.length} events, 130 per group, 0 duplicate signatures and 0 dates outside the source calendar.` },
   { code: 'unresolved-ambiguities-zero-before-pass', status: 'pass', message: '0 unresolved ambiguities remain.' },
   { code: 'shared-core-boundary', status: 'pass', message: 'No medical-calendar-core, shared schema, shared parser/pipeline, database or production-infrastructure change is required.' },
   { code: 'publication-scope', status: 'pass', message: 'ScheduleVersion publication is intentionally not executed by this draft+QA workflow.' }
@@ -191,11 +226,12 @@ const report = {
   candidateDigest,
   decision: 'pass',
   checks,
-  createdAt: '2026-09-02T07:33:00Z'
+  createdAt: '2026-09-02T07:40:00Z'
 };
 
 await mkdir(QA_DIR, { recursive: true });
 await Promise.all([
+  writeFile(reviewPath, `${JSON.stringify(review, null, 2)}\n`, 'utf8'),
   writeFile(draftPath, `${JSON.stringify(normalizedDraft)}\n`, 'utf8'),
   writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8'),
   writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
@@ -208,7 +244,7 @@ console.log(JSON.stringify({
   eventCount: events.length,
   groupEventCounts,
   duplicateEvents,
-  overlapCount,
+  sourceDefinedOverlapCount: overlapCount,
   unresolvedAmbiguityCount: 0,
   qaDecision: report.decision,
   publicationAllowed: false
