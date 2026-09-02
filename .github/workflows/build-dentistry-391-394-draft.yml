@@ -8,7 +8,9 @@ on:
     paths:
       - 'fixtures/tools/build_dentistry_391_394_candidate.py'
       - 'fixtures/tools/run_dentistry_391_394_candidate.py'
+      - 'fixtures/tools/resolve_dentistry_391_394_manual_review.py'
       - 'fixtures/2026-2027-semester-1/dentistry-391-394.source-probe.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-391-394.manual-resolution.json'
       - 'catalog/2026-2027-semester-1.json'
       - '.github/workflows/build-dentistry-391-394-draft.yml'
 
@@ -40,7 +42,10 @@ jobs:
             qa/2026-2027-semester-1/dentistry-391-394.parsing-result.json \
             qa/2026-2027-semester-1/dentistry-391-394.normalized-draft.partial.json \
             qa/2026-2027-semester-1/dentistry-391-394.semantic-review.json \
-            qa/2026-2027-semester-1/dentistry-391-394.qa-report.json
+            qa/2026-2027-semester-1/dentistry-391-394.qa-report.json \
+            qa/2026-2027-semester-1/dentistry-391-394.normalized-draft.json \
+            qa/2026-2027-semester-1/dentistry-391-394.semantic-review.resolved.json \
+            qa/2026-2027-semester-1/dentistry-391-394.qa-report.final.json
           if git diff --cached --quiet; then
             echo 'draft/QA evidence unchanged'
             exit 0
