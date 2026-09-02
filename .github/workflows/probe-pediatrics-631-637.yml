@@ -14,7 +14,7 @@ on:
       - '.github/workflows/probe-pediatrics-631-637.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   probe:
@@ -27,6 +27,19 @@ jobs:
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - name: Fetch and mechanically dump official workbook
         run: python fixtures/tools/probe_pediatrics_631_637_source.py
+      - name: Persist text-only mechanical evidence on branch
+        if: github.event_name == 'push'
+        run: |
+          cp pediatrics-631-637-source-probe.json qa/2026-2027-semester-1/pediatrics-631-637.source-probe.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qa/2026-2027-semester-1/pediatrics-631-637.source-probe.json
+          if git diff --cached --quiet; then
+            echo 'Mechanical evidence unchanged'
+          else
+            git commit -m 'Record Pediatrics 631-637 mechanical source evidence'
+            git push origin HEAD:feat/pediatrics-631-637-2026-27-s1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
