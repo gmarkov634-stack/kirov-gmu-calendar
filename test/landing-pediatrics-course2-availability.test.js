@@ -8,15 +8,17 @@ async function availabilityText() {
   return readFile(availabilityUrl, "utf8");
 }
 
-test("pediatrics courses 2 and 3 are exposed in the landing availability status", async () => {
+test("pediatrics courses 2 through 4 are exposed in the landing availability status", async () => {
   const source = await availabilityText();
 
   assert.match(source, /"231", "232", "233", "234", "235", "236", "237", "238", "239"/);
   assert.match(source, /"331", "332", "333", "334", "335", "336", "337"/);
-  assert.match(source, /1–3 курсы доступны/);
-  assert.match(source, /Педиатрия: 1–3 курсы опубликованы/);
-  assert.match(source, /Группы 131–140, 231–239 и 331–337/);
+  assert.match(source, /"431", "432", "433", "434", "435", "436"/);
+  assert.match(source, /1–4 курсы доступны/);
+  assert.match(source, /Педиатрия: 1–4 курсы опубликованы/);
+  assert.match(source, /Группы 131–140, 231–239, 331–337 и 431–436/);
   assert.match(source, /if \(title === "2 курс"\) setText\(note, "Группы 231–239 доступны"\)/);
   assert.match(source, /if \(title === "3 курс"\) setText\(note, "Группы 331–337 доступны"\)/);
-  assert.match(source, /педиатрия: группы 131–140, 231–239 и 331–337/);
+  assert.match(source, /if \(title === "4 курс"\) setText\(note, "Группы 431–436 доступны"\)/);
+  assert.match(source, /педиатрия: группы 131–140, 231–239, 331–337 и 431–436/);
 });
