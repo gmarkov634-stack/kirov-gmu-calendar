@@ -15,7 +15,7 @@ OUT = ROOT / "qa/2026-2027-semester-1/pediatrics-331-337.source-inventory.json"
 
 CELL_RE = re.compile(r"^([A-Z]+)(\d+)$")
 CROSS_DAY_RE = re.compile(
-    r"\((\d+)\s+(занят(?:ие|ия|ий)|лекци(?:я|и|й))\s+в\s+([^)]+)\)",
+    r"\((\d+)\s+(занят(?:ие|ия|ий)|лекци(?:я|и|й))\s+в(?:о)?\s+([^)]+)\)",
     re.IGNORECASE,
 )
 DATE_RE = re.compile(r"(?<!\d)(\d{1,2}\.\d{1,2})(?!\d)")
