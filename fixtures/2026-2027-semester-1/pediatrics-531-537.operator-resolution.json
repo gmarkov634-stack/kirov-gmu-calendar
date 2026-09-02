@@ -1,0 +1,20 @@
+{
+  "schema": "kgmu-course-semantic-resolution-v1",
+  "fixtureId": "pediatrics-531-537-2026-2027-semester-1",
+  "sourceSha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+  "decisionId": "PED5-PE-WEEKDAY-RANGE-CONTRADICTION",
+  "sourceLocator": "2026-2027 осень 5 курс  Пед!BT36",
+  "rawSchedule": "Четверг с 04.09 по 18.12 14:30-16:00",
+  "resolution": {
+    "chosenInterpretation": "weekday-label",
+    "weekdayLabel": "Четверг",
+    "weekdayIndexMondayZero": 3,
+    "time": "14:30-16:00",
+    "rangeStart": "2026-09-04",
+    "rangeEnd": "2026-12-18",
+    "expectedOccurrenceCount": 15,
+    "appliesToGroups": ["531", "532", "533", "534", "535", "536", "537"]
+  },
+  "authority": "direct-user-confirmation",
+  "confirmedAt": "2026-09-02"
+}

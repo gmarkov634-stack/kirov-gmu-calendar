@@ -1,0 +1,47 @@
+{
+  "fixtureId": "pediatrics-531-537-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "pediatrics",
+  "course": 5,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "pediatrics-course-5-2026-2027-s1",
+    "sourceArtifactId": "source-artifact-pediatrics-531-537-2026-09-02-v1",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/5_ped-24-08-2026-13.xlsx",
+    "sha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+    "byteLength": 26428,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "objectKey": "sources/kirov-gmu/2026-2027/semester-1/190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024.xlsx"
+  },
+  "expectedGroupIds": [
+    "531",
+    "532",
+    "533",
+    "534",
+    "535",
+    "536",
+    "537"
+  ],
+  "workbookExpectations": {
+    "sheetNames": [
+      "2026-2027 осень 5 курс  Пед"
+    ],
+    "maxRow": 43,
+    "maxColumn": 125,
+    "mergedRangeCount": 194,
+    "nonEmptyCellCount": 473
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-09-02"
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}
