@@ -1,7 +1,7 @@
 {
   "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-631-637-v1",
   "parsingJobId": "parsing-job-pediatrics-631-637-2026-09-02-v1",
-  "candidateDigest": "sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b",
+  "candidateDigest": "sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f",
   "decision": "pass",
   "checks": [
     {
@@ -18,6 +18,11 @@
       "code": "main-table-content-accounted-for",
       "status": "pass",
       "message": "77/77 learning blocks are covered by explicit semantic decisions; 2 service blocks are excluded."
+    },
+    {
+      "code": "decision-masks-match-source-geometry",
+      "status": "pass",
+      "message": "All 86 decision tuples are checked against the committed mechanical source snapshot: every dateMask exactly matches the row-14 dates covered by its source merged range; C02 first/rest unions equal the original starred range."
     },
     {
       "code": "c02-starred-first-day-second-shift",
@@ -90,5 +95,5 @@
       "message": "This QA pass is for the normalized draft only. Date-only persistence/ICS rendering is not yet implemented; publication remains blocked and no ScheduleVersion may be created from this candidate yet."
     }
   ],
-  "createdAt": "2026-09-02T08:35:00+03:00"
+  "createdAt": "2026-09-02T08:46:00+03:00"
 }
