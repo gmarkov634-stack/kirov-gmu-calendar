@@ -7,6 +7,7 @@ on:
       - feat/dentistry-391-394-2026-27-s1
     paths:
       - 'fixtures/tools/build_dentistry_391_394_candidate.py'
+      - 'fixtures/tools/run_dentistry_391_394_candidate.py'
       - 'fixtures/2026-2027-semester-1/dentistry-391-394.source-probe.json'
       - 'catalog/2026-2027-semester-1.json'
       - '.github/workflows/build-dentistry-391-394-draft.yml'
@@ -25,7 +26,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Build deterministic normalized draft and QA evidence
-        run: python fixtures/tools/build_dentistry_391_394_candidate.py
+        run: python fixtures/tools/run_dentistry_391_394_candidate.py
       - name: Commit deterministic evidence
         shell: bash
         run: |
