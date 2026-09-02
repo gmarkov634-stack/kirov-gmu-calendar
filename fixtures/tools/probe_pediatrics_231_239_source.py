@@ -19,6 +19,7 @@ from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "pediatrics-231-239-source-probe.json"
+XLSX_OUT = ROOT / "pediatrics-231-239-source.xlsx"
 TIMETABLE_PAGE = "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet"
 ALLOWED_PREFIX = "/sites/default/files/files/"
 SOURCE_PATTERN = re.compile(r"2_ped[^\"'<>\s]*\.xlsx", re.IGNORECASE)
@@ -53,6 +54,7 @@ def workbook_dump(source: dict) -> dict:
     data = request_bytes(source["url"])
     if not data.startswith(b"PK"):
         raise SystemExit(f"source is not XLSX/ZIP: {source['url']}")
+    XLSX_OUT.write_bytes(data)
     workbook = load_workbook(io.BytesIO(data), data_only=False)
     sheets = []
     for sheet in workbook.worksheets:
