@@ -1,0 +1,80 @@
+name: Probe and QA pediatrics 531-537 normalized draft
+
+on:
+  push:
+    branches:
+      - feat/pediatrics-531-537-2026-27-s1
+    paths:
+      - 'fixtures/tools/probe_pediatrics_531_537_source.py'
+      - 'fixtures/tools/analyze_pediatrics_531_537_source.py'
+      - 'fixtures/tools/build_pediatrics_531_537_candidate.py'
+      - 'fixtures/tools/resolve_pediatrics_531_537_pe.py'
+      - 'fixtures/tools/qa_pediatrics_531_537_candidate.mjs'
+      - 'fixtures/2026-2027-semester-1/pediatrics-531-537.source.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-531-537.parsing-job.json'
+      - 'fixtures/2026-2027-semester-1/pediatrics-531-537.operator-resolution.json'
+      - '.github/workflows/probe-pediatrics-531-537.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  probe-build-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pediatrics-531-537-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_pediatrics_531_537_source.py
+      - name: Build structural source inventory
+        run: python fixtures/tools/analyze_pediatrics_531_537_source.py
+      - name: Build explicit normalized draft base
+        run: python fixtures/tools/build_pediatrics_531_537_candidate.py
+      - name: Apply confirmed Thursday PE resolution
+        run: python fixtures/tools/resolve_pediatrics_531_537_pe.py
+      - name: Run fully normalized draft QA
+        run: node fixtures/tools/qa_pediatrics_531_537_candidate.mjs
+      - name: Commit reproducible draft and QA evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            fixtures/2026-2027-semester-1/pediatrics-531-537.source-probe.json \
+            pediatrics-531-537-source-inventory.json \
+            fixtures/2026-2027-semester-1/pediatrics-531-537.decisions.json \
+            qa/2026-2027-semester-1/pediatrics-531-537.semantic-review.json \
+            qa/2026-2027-semester-1/pediatrics-531-537.normalized-draft.json \
+            qa/2026-2027-semester-1/pediatrics-531-537.evidence.json \
+            qa/2026-2027-semester-1/pediatrics-531-537.qa-report.json
+          if git diff --cached --quiet; then
+            echo 'draft and QA evidence unchanged'
+            exit 0
+          fi
+          git commit -m 'Record resolved pediatrics 531-537 normalized draft QA'
+          git push origin HEAD:feat/pediatrics-531-537-2026-27-s1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pediatrics-531-537-normalized-draft-qa
+          path: |
+            fixtures/2026-2027-semester-1/pediatrics-531-537.source-probe.json
+            pediatrics-531-537-source-inventory.json
+            fixtures/2026-2027-semester-1/pediatrics-531-537.source.json
+            fixtures/2026-2027-semester-1/pediatrics-531-537.parsing-job.json
+            fixtures/2026-2027-semester-1/pediatrics-531-537.operator-resolution.json
+            fixtures/2026-2027-semester-1/pediatrics-531-537.decisions.json
+            qa/2026-2027-semester-1/pediatrics-531-537.semantic-review.json
+            qa/2026-2027-semester-1/pediatrics-531-537.normalized-draft.json
+            qa/2026-2027-semester-1/pediatrics-531-537.evidence.json
+            qa/2026-2027-semester-1/pediatrics-531-537.qa-report.json
+          if-no-files-found: error

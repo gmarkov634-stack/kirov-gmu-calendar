@@ -1,0 +1,3208 @@
+{
+  "schema": "kgmu-source-structural-inventory-v1",
+  "semanticParsingPerformed": false,
+  "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/5_ped-24-08-2026-13.xlsx",
+  "sourceSha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+  "sourceByteLength": 26428,
+  "sheetName": "2026-2027 осень 5 курс  Пед",
+  "geometry": {
+    "maxRow": 43,
+    "maxColumn": 125,
+    "mergedRangeCount": 194,
+    "nonEmptyCellCount": 473
+  },
+  "calendarColumns": [
+    {
+      "column": "C",
+      "date": "2026-09-01",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "D",
+      "date": "2026-09-02",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "E",
+      "date": "2026-09-03",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "F",
+      "date": "2026-09-04",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "G",
+      "date": "2026-09-05",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "H",
+      "date": "2026-09-07",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "I",
+      "date": "2026-09-08",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "J",
+      "date": "2026-09-09",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "K",
+      "date": "2026-09-10",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "L",
+      "date": "2026-09-11",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "M",
+      "date": "2026-09-12",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "N",
+      "date": "2026-09-14",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "O",
+      "date": "2026-09-15",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "P",
+      "date": "2026-09-16",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "Q",
+      "date": "2026-09-17",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "R",
+      "date": "2026-09-18",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "S",
+      "date": "2026-09-19",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "T",
+      "date": "2026-09-21",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "U",
+      "date": "2026-09-22",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "V",
+      "date": "2026-09-23",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "W",
+      "date": "2026-09-24",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "X",
+      "date": "2026-09-25",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "Y",
+      "date": "2026-09-26",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "Z",
+      "date": "2026-09-28",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "AA",
+      "date": "2026-09-29",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "AB",
+      "date": "2026-09-30",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "AC",
+      "date": "2026-10-01",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "AD",
+      "date": "2026-10-02",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "AE",
+      "date": "2026-10-03",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "AF",
+      "date": "2026-10-05",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "AG",
+      "date": "2026-10-06",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "AH",
+      "date": "2026-10-07",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "AI",
+      "date": "2026-10-08",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "AJ",
+      "date": "2026-10-09",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "AK",
+      "date": "2026-10-10",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "AL",
+      "date": "2026-10-12",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "AM",
+      "date": "2026-10-13",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "AN",
+      "date": "2026-10-14",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "AO",
+      "date": "2026-10-15",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "AP",
+      "date": "2026-10-16",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "AQ",
+      "date": "2026-10-17",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "AR",
+      "date": "2026-10-19",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "AS",
+      "date": "2026-10-20",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "AT",
+      "date": "2026-10-21",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "AU",
+      "date": "2026-10-22",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "AV",
+      "date": "2026-10-23",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "AW",
+      "date": "2026-10-24",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "AX",
+      "date": "2026-10-26",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "AY",
+      "date": "2026-10-27",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "AZ",
+      "date": "2026-10-28",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "BA",
+      "date": "2026-10-29",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "BB",
+      "date": "2026-10-30",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "BC",
+      "date": "2026-10-31",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "BD",
+      "date": "2026-11-02",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "BE",
+      "date": "2026-11-03",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "BF",
+      "date": "2026-11-05",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "BG",
+      "date": "2026-11-06",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "BH",
+      "date": "2026-11-07",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "BI",
+      "date": "2026-11-09",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "BJ",
+      "date": "2026-11-10",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "BK",
+      "date": "2026-11-11",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "BL",
+      "date": "2026-11-12",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "BM",
+      "date": "2026-11-13",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "BN",
+      "date": "2026-11-14",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "BO",
+      "date": "2026-11-16",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "BP",
+      "date": "2026-11-17",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "BQ",
+      "date": "2026-11-18",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "BR",
+      "date": "2026-11-19",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "BS",
+      "date": "2026-11-20",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "BT",
+      "date": "2026-11-21",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "BU",
+      "date": "2026-11-23",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "BV",
+      "date": "2026-11-24",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "BW",
+      "date": "2026-11-25",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "BX",
+      "date": "2026-11-26",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "BY",
+      "date": "2026-11-27",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "BZ",
+      "date": "2026-11-28",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "CA",
+      "date": "2026-11-30",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "CB",
+      "date": "2026-12-01",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "CC",
+      "date": "2026-12-02",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "CD",
+      "date": "2026-12-03",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "CE",
+      "date": "2026-12-04",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "CF",
+      "date": "2026-12-05",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "CG",
+      "date": "2026-12-07",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "CH",
+      "date": "2026-12-08",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "CI",
+      "date": "2026-12-09",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "CJ",
+      "date": "2026-12-10",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "CK",
+      "date": "2026-12-11",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "CL",
+      "date": "2026-12-12",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "CM",
+      "date": "2026-12-14",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "CN",
+      "date": "2026-12-15",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "CO",
+      "date": "2026-12-16",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "CP",
+      "date": "2026-12-17",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "CQ",
+      "date": "2026-12-18",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "CR",
+      "date": "2026-12-19",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "CS",
+      "date": "2026-12-21",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "CT",
+      "date": "2026-12-22",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "CU",
+      "date": "2026-12-23",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "CV",
+      "date": "2026-12-24",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "CW",
+      "date": "2026-12-25",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "CX",
+      "date": "2026-12-26",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "CY",
+      "date": "2026-12-28",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "CZ",
+      "date": "2026-12-29",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "DA",
+      "date": "2026-12-30",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "DB",
+      "date": "2027-01-09",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "DC",
+      "date": "2027-01-11",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "DD",
+      "date": "2027-01-12",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "DE",
+      "date": "2027-01-13",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "DF",
+      "date": "2027-01-14",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "DG",
+      "date": "2027-01-15",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "DH",
+      "date": "2027-01-16",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "DI",
+      "date": "2027-01-18",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "DJ",
+      "date": "2027-01-19",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "DK",
+      "date": "2027-01-20",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "DL",
+      "date": "2027-01-21",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "DM",
+      "date": "2027-01-22",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "DN",
+      "date": "2027-01-23",
+      "weekdayLabel": "сб"
+    },
+    {
+      "column": "DO",
+      "date": "2027-01-25",
+      "weekdayLabel": "пн"
+    },
+    {
+      "column": "DP",
+      "date": "2027-01-26",
+      "weekdayLabel": "вт"
+    },
+    {
+      "column": "DQ",
+      "date": "2027-01-27",
+      "weekdayLabel": "ср"
+    },
+    {
+      "column": "DR",
+      "date": "2027-01-28",
+      "weekdayLabel": "чт"
+    },
+    {
+      "column": "DS",
+      "date": "2027-01-29",
+      "weekdayLabel": "пт"
+    },
+    {
+      "column": "DT",
+      "date": "2027-01-30",
+      "weekdayLabel": "сб"
+    }
+  ],
+  "uniqueBlockValues": [
+    {
+      "value": "Акушерство и \nгинекология",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "AL13",
+        "P14",
+        "BW15",
+        "BA16",
+        "DE17",
+        "CI18",
+        "C19"
+      ],
+      "dateCountAcrossBlocks": 63
+    },
+    {
+      "value": "Госпитальная \nхирургия",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "CS13",
+        "DF14",
+        "S15",
+        "AF16",
+        "BA17",
+        "BN18",
+        "CJ19"
+      ],
+      "dateCountAcrossBlocks": 56
+    },
+    {
+      "value": "Госпитальная терапия",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "P13",
+        "AU14",
+        "BN15",
+        "BW16",
+        "CI17",
+        "DE18",
+        "AG19"
+      ],
+      "dateCountAcrossBlocks": 63
+    },
+    {
+      "value": "Дерматовенерология",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "BH13",
+        "AL14",
+        "CS15",
+        "CF16",
+        "P17",
+        "C18",
+        "DE19"
+      ],
+      "dateCountAcrossBlocks": 63
+    },
+    {
+      "value": "Детская хирургия",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "BQ13",
+        "BD14",
+        "DB15",
+        "CO16",
+        "Y17",
+        "L18",
+        "AP19"
+      ],
+      "dateCountAcrossBlocks": 84
+    },
+    {
+      "value": "Инфекционные болезни",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "C13",
+        "Y14",
+        "AN15",
+        "BJ16",
+        "BV17",
+        "CR18",
+        "BB19"
+      ],
+      "dateCountAcrossBlocks": 91
+    },
+    {
+      "value": "Медицина катастроф",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "DA13",
+        "CK14",
+        "AA15",
+        "C16",
+        "BI17",
+        "AS18",
+        "BW19"
+      ],
+      "dateCountAcrossBlocks": 91
+    },
+    {
+      "value": "Онкология",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "Y13",
+        "C14",
+        "BA15",
+        "AN16",
+        "CR17",
+        "BV18",
+        "L19"
+      ],
+      "dateCountAcrossBlocks": 91
+    },
+    {
+      "value": "Психиатрия, мед. психология",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "CK13",
+        "CC14",
+        "K15",
+        "X16",
+        "AS17",
+        "AK18",
+        "BO19"
+      ],
+      "dateCountAcrossBlocks": 56
+    },
+    {
+      "value": "Травматология, ортопедия",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "AU13",
+        "BP14",
+        "CF15",
+        "DA16",
+        "C17",
+        "X18",
+        "CR19"
+      ],
+      "dateCountAcrossBlocks": 91
+    },
+    {
+      "value": "Факульт. педиатрия,\nэндокринология",
+      "groups": [
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537"
+      ],
+      "locators": [
+        "CC13",
+        "CX14",
+        "C15",
+        "P16",
+        "AK17",
+        "BF18",
+        "Y19"
+      ],
+      "dateCountAcrossBlocks": 56
+    }
+  ],
+  "groupRows": [
+    {
+      "group": "531",
+      "row": 13,
+      "blocks": [
+        {
+          "locator": "C13",
+          "range": "C13:O13",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-15",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "P13",
+          "range": "P13:X13",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-09-16",
+          "endDate": "2026-09-25",
+          "dateCount": 9,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "Y13",
+          "range": "Y13:AK13",
+          "value": "Онкология",
+          "startDate": "2026-09-26",
+          "endDate": "2026-10-10",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09",
+            "2026-10-10"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AL13",
+          "range": "AL13:AT13",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-10-12",
+          "endDate": "2026-10-21",
+          "dateCount": 9,
+          "dates": [
+            "2026-10-12",
+            "2026-10-13",
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-10-21"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AU13",
+          "range": "AU13:BG13",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-10-22",
+          "endDate": "2026-11-06",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28",
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BH13",
+          "range": "BH13:BP13",
+          "value": "Дерматовенерология",
+          "startDate": "2026-11-07",
+          "endDate": "2026-11-17",
+          "dateCount": 9,
+          "dates": [
+            "2026-11-07",
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13",
+            "2026-11-14",
+            "2026-11-16",
+            "2026-11-17"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BQ13",
+          "range": "BQ13:CB13",
+          "value": "Детская хирургия",
+          "startDate": "2026-11-18",
+          "endDate": "2026-12-01",
+          "dateCount": 12,
+          "dates": [
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23",
+            "2026-11-24",
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CC13",
+          "range": "CC13:CJ13",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-12-02",
+          "endDate": "2026-12-10",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04",
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08",
+            "2026-12-09",
+            "2026-12-10"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CK13",
+          "range": "CK13:CR13",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-12-11",
+          "endDate": "2026-12-19",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18",
+            "2026-12-19"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CS13",
+          "range": "CS13:CZ13",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-12-21",
+          "endDate": "2026-12-29",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DA13",
+          "range": "DA13:DM13",
+          "value": "Медицина катастроф",
+          "startDate": "2026-12-30",
+          "endDate": "2027-01-22",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12",
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "532",
+      "row": 14,
+      "blocks": [
+        {
+          "locator": "C14",
+          "range": "C14:O14",
+          "value": "Онкология",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-15",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "P14",
+          "range": "P14:X14",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-09-16",
+          "endDate": "2026-09-25",
+          "dateCount": 9,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "Y14",
+          "range": "Y14:AK14",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-09-26",
+          "endDate": "2026-10-10",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09",
+            "2026-10-10"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AL14",
+          "range": "AL14:AT14",
+          "value": "Дерматовенерология",
+          "startDate": "2026-10-12",
+          "endDate": "2026-10-21",
+          "dateCount": 9,
+          "dates": [
+            "2026-10-12",
+            "2026-10-13",
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-10-21"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AU14",
+          "range": "AU14:BC14",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-10-22",
+          "endDate": "2026-10-31",
+          "dateCount": 9,
+          "dates": [
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28",
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BD14",
+          "range": "BD14:BO14",
+          "value": "Детская хирургия",
+          "startDate": "2026-11-02",
+          "endDate": "2026-11-16",
+          "dateCount": 12,
+          "dates": [
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13",
+            "2026-11-14",
+            "2026-11-16"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BP14",
+          "range": "BP14:CB14",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-11-17",
+          "endDate": "2026-12-01",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23",
+            "2026-11-24",
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CC14",
+          "range": "CC14:CJ14",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-12-02",
+          "endDate": "2026-12-10",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04",
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08",
+            "2026-12-09",
+            "2026-12-10"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CK14",
+          "range": "CK14:CW14",
+          "value": "Медицина катастроф",
+          "startDate": "2026-12-11",
+          "endDate": "2026-12-25",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18",
+            "2026-12-19",
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CX14",
+          "range": "CX14:DE14",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-12-26",
+          "endDate": "2027-01-13",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29",
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12",
+            "2027-01-13"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DF14",
+          "range": "DF14:DM14",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2027-01-14",
+          "endDate": "2027-01-22",
+          "dateCount": 8,
+          "dates": [
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "533",
+      "row": 15,
+      "blocks": [
+        {
+          "locator": "C15",
+          "range": "C15:J15",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-09",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "K15",
+          "range": "K15:R15",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-09-10",
+          "endDate": "2026-09-18",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "S15",
+          "range": "S15:Z15",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-09-19",
+          "endDate": "2026-09-28",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-28"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AA15",
+          "range": "AA15:AM15",
+          "value": "Медицина катастроф",
+          "startDate": "2026-09-29",
+          "endDate": "2026-10-13",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09",
+            "2026-10-10",
+            "2026-10-12",
+            "2026-10-13"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AN15",
+          "range": "AN15:AZ15",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-10-14",
+          "endDate": "2026-10-28",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-10-21",
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BA15",
+          "range": "BA15:BM15",
+          "value": "Онкология",
+          "startDate": "2026-10-29",
+          "endDate": "2026-11-13",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BN15",
+          "range": "BN15:BV15",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-11-14",
+          "endDate": "2026-11-24",
+          "dateCount": 9,
+          "dates": [
+            "2026-11-14",
+            "2026-11-16",
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23",
+            "2026-11-24"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BW15",
+          "range": "BW15:CE15",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-11-25",
+          "endDate": "2026-12-04",
+          "dateCount": 9,
+          "dates": [
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01",
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CF15",
+          "range": "CF15:CR15",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-12-05",
+          "endDate": "2026-12-19",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08",
+            "2026-12-09",
+            "2026-12-10",
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18",
+            "2026-12-19"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CS15",
+          "range": "CS15:DA15",
+          "value": "Дерматовенерология",
+          "startDate": "2026-12-21",
+          "endDate": "2026-12-30",
+          "dateCount": 9,
+          "dates": [
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29",
+            "2026-12-30"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DB15",
+          "range": "DB15:DM15",
+          "value": "Детская хирургия",
+          "startDate": "2027-01-09",
+          "endDate": "2027-01-22",
+          "dateCount": 12,
+          "dates": [
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12",
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "534",
+      "row": 16,
+      "blocks": [
+        {
+          "locator": "C16",
+          "range": "C16:O16",
+          "value": "Медицина катастроф",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-15",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "P16",
+          "range": "P16:W16",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-09-16",
+          "endDate": "2026-09-24",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "X16",
+          "range": "X16:AE16",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-09-25",
+          "endDate": "2026-10-03",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AF16",
+          "range": "AF16:AM16",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-10-05",
+          "endDate": "2026-10-13",
+          "dateCount": 8,
+          "dates": [
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09",
+            "2026-10-10",
+            "2026-10-12",
+            "2026-10-13"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AN16",
+          "range": "AN16:AZ16",
+          "value": "Онкология",
+          "startDate": "2026-10-14",
+          "endDate": "2026-10-28",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-10-21",
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BA16",
+          "range": "BA16:BI16",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-10-29",
+          "endDate": "2026-11-09",
+          "dateCount": 9,
+          "dates": [
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-09"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BJ16",
+          "range": "BJ16:BV16",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-11-10",
+          "endDate": "2026-11-24",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13",
+            "2026-11-14",
+            "2026-11-16",
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23",
+            "2026-11-24"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BW16",
+          "range": "BW16:CE16",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-11-25",
+          "endDate": "2026-12-04",
+          "dateCount": 9,
+          "dates": [
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01",
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CF16",
+          "range": "CF16:CN16",
+          "value": "Дерматовенерология",
+          "startDate": "2026-12-05",
+          "endDate": "2026-12-15",
+          "dateCount": 9,
+          "dates": [
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08",
+            "2026-12-09",
+            "2026-12-10",
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CO16",
+          "range": "CO16:CZ16",
+          "value": "Детская хирургия",
+          "startDate": "2026-12-16",
+          "endDate": "2026-12-29",
+          "dateCount": 12,
+          "dates": [
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18",
+            "2026-12-19",
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DA16",
+          "range": "DA16:DM16",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-12-30",
+          "endDate": "2027-01-22",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12",
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "535",
+      "row": 17,
+      "blocks": [
+        {
+          "locator": "C17",
+          "range": "C17:O17",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-15",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "P17",
+          "range": "P17:X17",
+          "value": "Дерматовенерология",
+          "startDate": "2026-09-16",
+          "endDate": "2026-09-25",
+          "dateCount": 9,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "Y17",
+          "range": "Y17:AJ17",
+          "value": "Детская хирургия",
+          "startDate": "2026-09-26",
+          "endDate": "2026-10-09",
+          "dateCount": 12,
+          "dates": [
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AK17",
+          "range": "AK17:AR17",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-10-10",
+          "endDate": "2026-10-19",
+          "dateCount": 8,
+          "dates": [
+            "2026-10-10",
+            "2026-10-12",
+            "2026-10-13",
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AS17",
+          "range": "AS17:AZ17",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-10-20",
+          "endDate": "2026-10-28",
+          "dateCount": 8,
+          "dates": [
+            "2026-10-20",
+            "2026-10-21",
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BA17",
+          "range": "BA17:BH17",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-10-29",
+          "endDate": "2026-11-07",
+          "dateCount": 8,
+          "dates": [
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BI17",
+          "range": "BI17:BU17",
+          "value": "Медицина катастроф",
+          "startDate": "2026-11-09",
+          "endDate": "2026-11-23",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13",
+            "2026-11-14",
+            "2026-11-16",
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BV17",
+          "range": "BV17:CH17",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-11-24",
+          "endDate": "2026-12-08",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-24",
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01",
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04",
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CI17",
+          "range": "CI17:CQ17",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-12-09",
+          "endDate": "2026-12-18",
+          "dateCount": 9,
+          "dates": [
+            "2026-12-09",
+            "2026-12-10",
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CR17",
+          "range": "CR17:DD17",
+          "value": "Онкология",
+          "startDate": "2026-12-19",
+          "endDate": "2027-01-12",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-19",
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29",
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DE17",
+          "range": "DE17:DM17",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2027-01-13",
+          "endDate": "2027-01-22",
+          "dateCount": 9,
+          "dates": [
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "536",
+      "row": 18,
+      "blocks": [
+        {
+          "locator": "C18",
+          "range": "C18:K18",
+          "value": "Дерматовенерология",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-10",
+          "dateCount": 9,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "L18",
+          "range": "L18:W18",
+          "value": "Детская хирургия",
+          "startDate": "2026-09-11",
+          "endDate": "2026-09-24",
+          "dateCount": 12,
+          "dates": [
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "X18",
+          "range": "X18:AJ18",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-09-25",
+          "endDate": "2026-10-09",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AK18",
+          "range": "AK18:AR18",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-10-10",
+          "endDate": "2026-10-19",
+          "dateCount": 8,
+          "dates": [
+            "2026-10-10",
+            "2026-10-12",
+            "2026-10-13",
+            "2026-10-14",
+            "2026-10-15",
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AS18",
+          "range": "AS18:BE18",
+          "value": "Медицина катастроф",
+          "startDate": "2026-10-20",
+          "endDate": "2026-11-03",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-20",
+            "2026-10-21",
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28",
+            "2026-10-29",
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BF18",
+          "range": "BF18:BM18",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-11-05",
+          "endDate": "2026-11-13",
+          "dateCount": 8,
+          "dates": [
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BN18",
+          "range": "BN18:BU18",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-11-14",
+          "endDate": "2026-11-23",
+          "dateCount": 8,
+          "dates": [
+            "2026-11-14",
+            "2026-11-16",
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BV18",
+          "range": "BV18:CH18",
+          "value": "Онкология",
+          "startDate": "2026-11-24",
+          "endDate": "2026-12-08",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-24",
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01",
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04",
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CI18",
+          "range": "CI18:CQ18",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-12-09",
+          "endDate": "2026-12-18",
+          "dateCount": 9,
+          "dates": [
+            "2026-12-09",
+            "2026-12-10",
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CR18",
+          "range": "CR18:DD18",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-12-19",
+          "endDate": "2027-01-12",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-19",
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29",
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DE18",
+          "range": "DE18:DM18",
+          "value": "Госпитальная терапия",
+          "startDate": "2027-01-13",
+          "endDate": "2027-01-22",
+          "dateCount": 9,
+          "dates": [
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    },
+    {
+      "group": "537",
+      "row": 19,
+      "blocks": [
+        {
+          "locator": "C19",
+          "range": "C19:K19",
+          "value": "Акушерство и \nгинекология",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-10",
+          "dateCount": 9,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10"
+          ],
+          "styleId": 194,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "L19",
+          "range": "L19:X19",
+          "value": "Онкология",
+          "startDate": "2026-09-11",
+          "endDate": "2026-09-25",
+          "dateCount": 13,
+          "dates": [
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "styleId": 193,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "Y19",
+          "range": "Y19:AF19",
+          "value": "Факульт. педиатрия,\nэндокринология",
+          "startDate": "2026-09-26",
+          "endDate": "2026-10-05",
+          "dateCount": 8,
+          "dates": [
+            "2026-09-26",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-03",
+            "2026-10-05"
+          ],
+          "styleId": 187,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AG19",
+          "range": "AG19:AO19",
+          "value": "Госпитальная терапия",
+          "startDate": "2026-10-06",
+          "endDate": "2026-10-15",
+          "dateCount": 9,
+          "dates": [
+            "2026-10-06",
+            "2026-10-07",
+            "2026-10-08",
+            "2026-10-09",
+            "2026-10-10",
+            "2026-10-12",
+            "2026-10-13",
+            "2026-10-14",
+            "2026-10-15"
+          ],
+          "styleId": 188,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "AP19",
+          "range": "AP19:BA19",
+          "value": "Детская хирургия",
+          "startDate": "2026-10-16",
+          "endDate": "2026-10-29",
+          "dateCount": 12,
+          "dates": [
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-10-21",
+            "2026-10-22",
+            "2026-10-23",
+            "2026-10-24",
+            "2026-10-26",
+            "2026-10-27",
+            "2026-10-28",
+            "2026-10-29"
+          ],
+          "styleId": 190,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BB19",
+          "range": "BB19:BN19",
+          "value": "Инфекционные болезни",
+          "startDate": "2026-10-30",
+          "endDate": "2026-11-14",
+          "dateCount": 13,
+          "dates": [
+            "2026-10-30",
+            "2026-10-31",
+            "2026-11-02",
+            "2026-11-03",
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12",
+            "2026-11-13",
+            "2026-11-14"
+          ],
+          "styleId": 184,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BO19",
+          "range": "BO19:BV19",
+          "value": "Психиатрия, мед. психология",
+          "startDate": "2026-11-16",
+          "endDate": "2026-11-24",
+          "dateCount": 8,
+          "dates": [
+            "2026-11-16",
+            "2026-11-17",
+            "2026-11-18",
+            "2026-11-19",
+            "2026-11-20",
+            "2026-11-21",
+            "2026-11-23",
+            "2026-11-24"
+          ],
+          "styleId": 191,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "BW19",
+          "range": "BW19:CI19",
+          "value": "Медицина катастроф",
+          "startDate": "2026-11-25",
+          "endDate": "2026-12-09",
+          "dateCount": 13,
+          "dates": [
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-30",
+            "2026-12-01",
+            "2026-12-02",
+            "2026-12-03",
+            "2026-12-04",
+            "2026-12-05",
+            "2026-12-07",
+            "2026-12-08",
+            "2026-12-09"
+          ],
+          "styleId": 192,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CJ19",
+          "range": "CJ19:CQ19",
+          "value": "Госпитальная \nхирургия",
+          "startDate": "2026-12-10",
+          "endDate": "2026-12-18",
+          "dateCount": 8,
+          "dates": [
+            "2026-12-10",
+            "2026-12-11",
+            "2026-12-12",
+            "2026-12-14",
+            "2026-12-15",
+            "2026-12-16",
+            "2026-12-17",
+            "2026-12-18"
+          ],
+          "styleId": 186,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "CR19",
+          "range": "CR19:DD19",
+          "value": "Травматология, ортопедия",
+          "startDate": "2026-12-19",
+          "endDate": "2027-01-12",
+          "dateCount": 13,
+          "dates": [
+            "2026-12-19",
+            "2026-12-21",
+            "2026-12-22",
+            "2026-12-23",
+            "2026-12-24",
+            "2026-12-25",
+            "2026-12-26",
+            "2026-12-28",
+            "2026-12-29",
+            "2026-12-30",
+            "2027-01-09",
+            "2027-01-11",
+            "2027-01-12"
+          ],
+          "styleId": 189,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        },
+        {
+          "locator": "DE19",
+          "range": "DE19:DM19",
+          "value": "Дерматовенерология",
+          "startDate": "2027-01-13",
+          "endDate": "2027-01-22",
+          "dateCount": 9,
+          "dates": [
+            "2027-01-13",
+            "2027-01-14",
+            "2027-01-15",
+            "2027-01-16",
+            "2027-01-18",
+            "2027-01-19",
+            "2027-01-20",
+            "2027-01-21",
+            "2027-01-22"
+          ],
+          "styleId": 185,
+          "font": {
+            "bold": true,
+            "italic": false,
+            "superscript": false,
+            "subscript": false
+          }
+        }
+      ]
+    }
+  ],
+  "sharedGroupBlocks": [
+    {
+      "locator": "DN13",
+      "range": "DN13:DT19",
+      "value": "экзамены",
+      "rows": [
+        13,
+        19
+      ],
+      "startDate": "2027-01-23",
+      "endDate": "2027-01-30",
+      "dateCount": 7,
+      "dates": [
+        "2027-01-23",
+        "2027-01-25",
+        "2027-01-26",
+        "2027-01-27",
+        "2027-01-28",
+        "2027-01-29",
+        "2027-01-30"
+      ]
+    }
+  ],
+  "referenceSummary": [
+    {
+      "row": 25,
+      "number": "1",
+      "discipline": "Дерматовенерология",
+      "assessment": "Зачет",
+      "department": "Дерматовенерологии и  косметологии",
+      "base": "КОГБУЗ \"Кировский областной клинический кожно-венерологический диспансер\"",
+      "address": "ул. Семашко, 2а",
+      "firstShift": "9:00-12:05",
+      "secondShift": null
+    },
+    {
+      "row": 26,
+      "number": "2",
+      "discipline": "Психиатрия, медицинская психология",
+      "assessment": "Экзамен",
+      "department": "Психиатрии им. професора В.И. Багаева",
+      "base": "КОГБУЗ \"Кировская областная клиническая психиатрическая больница им. академика В. М. Бехтерева\"",
+      "address": "пос. Ганино",
+      "firstShift": "9:00-12:05",
+      "secondShift": null
+    },
+    {
+      "row": 27,
+      "number": "3",
+      "discipline": "Госпитальная хирургия",
+      "assessment": "Зачет",
+      "department": "Госпитальной хирургии",
+      "base": "КОГБУЗ \"Кировская областная клиническая больница\"",
+      "address": "ул. Воровского, 42, кор.7",
+      "firstShift": "8:30-12:25",
+      "secondShift": null
+    },
+    {
+      "row": 28,
+      "number": "4",
+      "discipline": "Инфекционные болезни",
+      "assessment": "Экзамен",
+      "department": "Инфекционных болезней",
+      "base": "КОГБУЗ \"Инфекционная клиническая  больница\"",
+      "address": "ул. Ленина, 207",
+      "firstShift": "8:30-11:35",
+      "secondShift": null
+    },
+    {
+      "row": 29,
+      "number": "5",
+      "discipline": "Онкология",
+      "assessment": "Зачет",
+      "department": "Онкологии",
+      "base": "КОГБУЗ \"Центр онкологии и медицинской радиологии\"",
+      "address": "пр. Строителей, 23",
+      "firstShift": "8:30-11:35",
+      "secondShift": null
+    },
+    {
+      "row": 30,
+      "number": "6",
+      "discipline": "Травматология, ортопедия",
+      "assessment": "Зачет",
+      "department": "Общей хирургии (курс травматологии)",
+      "base": "КОГКБУЗ \"Центр травматологии, ортопедии и нейрохирургии\"",
+      "address": "ул. Московская 163а",
+      "firstShift": "8:30-11:35",
+      "secondShift": null
+    },
+    {
+      "row": 31,
+      "number": "7",
+      "discipline": "Медицина катастроф",
+      "assessment": "Зачет",
+      "department": "БЖД и медицины катастроф",
+      "base": "Кировский ГМУ",
+      "address": "ул. Красноармейская, 35",
+      "firstShift": null,
+      "secondShift": "13:00-16:05"
+    },
+    {
+      "row": 32,
+      "number": "8",
+      "discipline": "Акушерство и гинекология",
+      "assessment": null,
+      "department": "Акушерства и гинекологии",
+      "base": "КОГБУЗ \"Кировский областной клинический перинатальный центр\"",
+      "address": "ул. Московская, 163",
+      "firstShift": "9:00-12:05",
+      "secondShift": null
+    },
+    {
+      "row": 33,
+      "number": "9",
+      "discipline": "Госпитальная терапия",
+      "assessment": null,
+      "department": "Внутренних болезней",
+      "base": "Клиническая больница \"РЖД-Медицина\" города  Кирова",
+      "address": "Октябрьский пр., 151",
+      "firstShift": "8:30-11:35",
+      "secondShift": null
+    },
+    {
+      "row": 34,
+      "number": "10",
+      "discipline": "Факультетская педиатрия, эндокринология",
+      "assessment": null,
+      "department": "Педиатрии",
+      "base": "КОГБУЗ \"Кировская областная детская клиническая больница\"",
+      "address": "ул. Менделеева, 16",
+      "firstShift": "8:30-12:25",
+      "secondShift": null
+    },
+    {
+      "row": 35,
+      "number": "11",
+      "discipline": "Детская хирургия",
+      "assessment": "Зачет",
+      "department": "Детской хирургии",
+      "base": "КОГБУЗ \"Кировская областная детская клиническая больница\"",
+      "address": "ул. Менделеева, 16",
+      "firstShift": "9:00-12:55",
+      "secondShift": null
+    },
+    {
+      "row": 36,
+      "number": "12",
+      "discipline": "Дисциплины по физической культуре\n и спорту",
+      "assessment": null,
+      "department": "Физической культуры",
+      "base": "Кировский ГМУ, учебный корпус № 3 Физкультурно-оздоровительный комплекс",
+      "address": "ул. Владимирская, 112",
+      "firstShift": "Четверг\nс 04.09 по 18.12\n14:30-16:00",
+      "secondShift": null
+    }
+  ],
+  "starCells": [
+    {
+      "coord": "C20",
+      "value": "*",
+      "styleId": 86,
+      "font": {
+        "bold": true,
+        "italic": false,
+        "superscript": false
+      }
+    },
+    {
+      "coord": "B21",
+      "value": "*",
+      "styleId": 87,
+      "font": {
+        "bold": true,
+        "italic": false,
+        "superscript": false
+      }
+    }
+  ],
+  "drawings": []
+}
