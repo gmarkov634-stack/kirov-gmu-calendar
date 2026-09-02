@@ -1,0 +1,91 @@
+{
+  "evidenceId": "evidence-kgmu-2026-2027-s1-pediatrics-631-637-v1",
+  "source": {
+    "sourceArtifactId": "source-artifact-pediatrics-631-637-2026-09-02-v1",
+    "sha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+    "sheetName": "6 курс осень 2026-2027 Пед",
+    "profile": "C",
+    "groups": ["631", "632", "633", "634", "635", "636", "637"],
+    "mechanicalProbeWorkflowRunId": 33593293119,
+    "mechanicalProbeArtifactId": 9832499924
+  },
+  "pipeline": {
+    "parsingJobId": "parsing-job-pediatrics-631-637-2026-09-02-v1",
+    "parserRulesVersion": "kgmu-2026-08-30-v4",
+    "semanticDecisionSchema": "kgmu-explicit-semantic-decisions-v4",
+    "sharedNormalizedContract": {
+      "repository": "gmarkov634-stack/medical-calendar-core",
+      "pullRequest": 245,
+      "headCommit": "8d54784d8407ccc1fc817aa060039bc783f41fdf",
+      "normalizedEventSchemaBlob": "264f87a5b655315f8f5d41538525b5d4382a7aa9",
+      "coreCiRunId": 33594068472,
+      "coreCiConclusion": "success",
+      "scope": "normalization-only date-only support"
+    }
+  },
+  "coverage": {
+    "learningBlocks": 77,
+    "coveredLearningBlocks": 77,
+    "timedLearningBlocks": 70,
+    "neutralElectiveBlocks": 7,
+    "serviceBlocksExcluded": 2,
+    "unresolvedLearningBlocks": 0
+  },
+  "specialRules": {
+    "starredFirstDaySecondShift": {
+      "rule": "C02",
+      "cycles": 9,
+      "applied": 9,
+      "position": "first day only"
+    },
+    "neutralElective": {
+      "rule": "C15",
+      "blocks": 7,
+      "datesPerGroup": 6,
+      "eventCount": 42,
+      "discipline": "Дисциплина по выбору",
+      "timeSemantics": "date-only",
+      "syntheticTimeCount": 0,
+      "syntheticLocationCount": 0
+    },
+    "examAndVacation": {
+      "rules": ["C07", "C14"],
+      "synthesizedEvents": 0
+    },
+    "abbreviatedGridLabels": {
+      "rule": "C08",
+      "unresolvedMappings": 0
+    }
+  },
+  "candidate": {
+    "candidateDigest": "sha256:5cf638779377057eb6307a460f669505c291e781fb59ceb81add089f732d263b",
+    "eventCount": 679,
+    "floatingEventCount": 637,
+    "dateOnlyEventCount": 42,
+    "groupEventCounts": {
+      "631": 97,
+      "632": 97,
+      "633": 97,
+      "634": 97,
+      "635": 97,
+      "636": 97,
+      "637": 97
+    },
+    "logicalLearningBlockCount": 77,
+    "decisionCount": 86,
+    "starredFirstDaySecondShiftCount": 9,
+    "duplicateEventSignatures": 0,
+    "floatingOverlapPairCount": 0,
+    "eventDateMin": "2026-09-01",
+    "eventDateMax": "2026-12-29"
+  },
+  "ambiguities": {
+    "resolved": 0,
+    "unresolved": 0
+  },
+  "publication": {
+    "eligible": false,
+    "reason": "Normalized draft QA is independent from publication support. Date-only persistence/ICS rendering is not included in core PR #245.",
+    "performed": false
+  }
+}
