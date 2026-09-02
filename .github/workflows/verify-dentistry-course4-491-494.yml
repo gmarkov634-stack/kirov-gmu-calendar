@@ -6,6 +6,7 @@ on:
       - feat/dentistry-course4-491-494-2026-09-03
     paths:
       - 'fixtures/tools/build_dentistry_491_494_candidate.py'
+      - 'fixtures/tools/run_dentistry_491_494_prepost_candidate.py'
       - 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
       - 'test/dentistry-491-494-draft.test.js'
       - '.github/workflows/verify-dentistry-course4-491-494.yml'
@@ -28,8 +29,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build course-local candidate
-        run: python fixtures/tools/build_dentistry_491_494_candidate.py
+      - name: Build course-local pre-postprocessing candidate
+        run: python fixtures/tools/run_dentistry_491_494_prepost_candidate.py
       - name: Apply fail-closed postprocessing
         run: python fixtures/tools/postprocess_dentistry_491_494_candidate.py
       - name: Run repository checks
