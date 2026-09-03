@@ -19,162 +19,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Fix generator, regenerate evidence, and verify
+      - name: Regenerate corrected Dentistry course 4 candidate
+        run: python3 fixtures/tools/oneoff_fix_dentistry_491_494_date_only.py
+      - name: Verify corrected candidate
+        run: npm run check
+      - name: Commit regenerated branch artifacts
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import json
-          import subprocess
-
-          OLD_DIGEST = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1'
-          DISCOVER = '__DISCOVER__'
-
-          def replace_once(path, old, new):
-              p = Path(path)
-              text = p.read_text(encoding='utf-8')
-              if text.count(old) != 1:
-                  raise SystemExit(f'{path}: expected exactly one match, got {text.count(old)}')
-              p.write_text(text.replace(old, new), encoding='utf-8')
-
-          generators = [
-              'fixtures/tools/build_dentistry_491_494_candidate.py',
-              'fixtures/tools/postprocess_dentistry_491_494_candidate.py',
-          ]
-          for path in generators:
-              replace_once(
-                  path,
-                  '        "startTime": None if date_only else start,\n        "endTime": None if date_only else end,\n        "timeSemantics": "date-only" if date_only else "floating",',
-                  '        "timeSemantics": "date-only" if date_only else "floating",'
-              )
-              replace_once(
-                  path,
-                  '        "sourceRef": {"sourceId": SOURCE_ID, "locator": source_locator},\n    }\n    if assessment is not None:' if path.endswith('build_dentistry_491_494_candidate.py') else '        "sourceRef": {"sourceId": "dentistry", "locator": source_locator},\n    }\n    if assessment is not None:',
-                  ('        "sourceRef": {"sourceId": SOURCE_ID, "locator": source_locator},\n    }\n    if not date_only:\n        event["startTime"] = start\n        event["endTime"] = end\n    if assessment is not None:' if path.endswith('build_dentistry_491_494_candidate.py') else '        "sourceRef": {"sourceId": "dentistry", "locator": source_locator},\n    }\n    if not date_only:\n        event["startTime"] = start\n        event["endTime"] = end\n    if assessment is not None:')
-              )
-              replace_once(
-                  path,
-                  'event["groupId"], event["date"], event["startTime"] or "99:99",',
-                  'event["groupId"], event["date"], event.get("startTime") or "99:99",'
-              )
-
-          post = 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
-          replace_once(
-              post,
-              '        event["groupId"], event["date"], event["startTime"], event["endTime"],',
-              '        event["groupId"], event["date"], event.get("startTime"), event.get("endTime"),'
-          )
-          replace_once(
-              post,
-              '    if len(practice) != 48 or not all(event["timeSemantics"] == "date-only" for event in practice):\n        raise SystemExit("Practice must be 48 all-day/date-only events")',
-              '    if len(practice) != 48 or not all(\n        event["timeSemantics"] == "date-only"\n        and "startTime" not in event\n        and "endTime" not in event\n        for event in practice\n    ):\n        raise SystemExit("Practice must be 48 all-day/date-only events without time keys")'
-          )
-          replace_once(post, f'EXPECTED_DIGEST = "{OLD_DIGEST}"', f'EXPECTED_DIGEST = "{DISCOVER}"')
-          replace_once(
-              post,
-              '    if candidate_digest != EXPECTED_DIGEST:\n        raise SystemExit(f"candidate digest changed: {candidate_digest}")',
-              '    if EXPECTED_DIGEST != "__DISCOVER__" and candidate_digest != EXPECTED_DIGEST:\n        raise SystemExit(f"candidate digest changed: {candidate_digest}")'
-          )
-
-          subprocess.run(['python3', 'fixtures/tools/run_dentistry_491_494_prepost_candidate.py'], check=True)
-          subprocess.run(['python3', post], check=True)
-          draft_path = Path('qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json')
-          draft = json.loads(draft_path.read_text(encoding='utf-8'))
-          new_digest = draft['candidateDigest']
-          if not isinstance(new_digest, str) or not new_digest.startswith('sha256:') or len(new_digest) != 71:
-              raise SystemExit(f'invalid regenerated digest: {new_digest!r}')
-          if new_digest == OLD_DIGEST:
-              raise SystemExit('date-only representation changed but candidate digest did not')
-          practice = [e for e in draft['events'] if e.get('discipline') == 'Практика']
-          if len(practice) != 48 or any('startTime' in e or 'endTime' in e for e in practice):
-              raise SystemExit('regenerated Practice events still contain time keys')
-
-          replace_once(post, f'EXPECTED_DIGEST = "{DISCOVER}"', f'EXPECTED_DIGEST = "{new_digest}"')
-          replace_once(
-              post,
-              '    if EXPECTED_DIGEST != "__DISCOVER__" and candidate_digest != EXPECTED_DIGEST:',
-              '    if candidate_digest != EXPECTED_DIGEST:'
-          )
-
-          draft_test = 'test/dentistry-491-494-draft.test.js'
-          replace_once(draft_test, f"const candidateDigest = '{OLD_DIGEST}';", f"const candidateDigest = '{new_digest}';")
-          replace_once(
-              draft_test,
-              "  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && event.startTime === null && event.endTime === null));",
-              "  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));"
-          )
-
-          pub_test = 'test/dentistry-491-494-publication.check.mjs'
-          replace_once(pub_test, f"const digest = '{OLD_DIGEST}';", f"const digest = '{new_digest}';")
-          old_suffix = OLD_DIGEST.removeprefix('sha256:')[:16]
-          new_suffix = new_digest.removeprefix('sha256:')[:16]
-          replace_once(
-              pub_test,
-              f'kgmu-2026-2027-s1-dentistry-${{groupId}}-{old_suffix}',
-              f'kgmu-2026-2027-s1-dentistry-${{groupId}}-{new_suffix}'
-          )
-          replace_once(
-              pub_test,
-              "  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика'));",
-              "  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));"
-          )
-
-          publisher = 'ops/publish-dentistry-491-494.mjs'
-          replace_once(publisher, f"const CANDIDATE_DIGEST = '{OLD_DIGEST}';", f"const CANDIDATE_DIGEST = '{new_digest}';")
-          replace_once(
-              publisher,
-              "  if (events.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');\n  if (events.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');",
-              "  if (events.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');\n  if (events.some((event) => event.timeSemantics === 'date-only' && (Object.hasOwn(event, 'startTime') || Object.hasOwn(event, 'endTime')))) throw new Error('Dentistry course-4 date-only events must not contain startTime or endTime');\n  if (events.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');"
-          )
-
-          publication_path = Path('qa/2026-2027-semester-1/dentistry-491-494.publication-evidence.json')
-          publication = json.loads(publication_path.read_text(encoding='utf-8'))
-          if publication.get('candidateDigest') != OLD_DIGEST or publication.get('eventSetDigest') != OLD_DIGEST:
-              raise SystemExit('publication evidence old digest baseline mismatch')
-          publication['candidateDigest'] = new_digest
-          publication['eventSetDigest'] = new_digest
-          publication_path.write_text(json.dumps(publication, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          pipeline_path = Path('qa/2026-2027-semester-1/dentistry-491-494.pipeline-evidence.json')
-          pipeline = json.loads(pipeline_path.read_text(encoding='utf-8'))
-          if pipeline.get('normalizedDraft', {}).get('candidateDigest') != OLD_DIGEST:
-              raise SystemExit('pipeline evidence old digest baseline mismatch')
-          pipeline['normalizedDraft']['candidateDigest'] = new_digest
-          pipeline['verification'] = {
-              'status': 'PENDING_REVERIFICATION',
-              'reason': 'Date-only Practice events now omit startTime/endTime keys to match the deployed Core contract; branch CI must reverify the regenerated candidate before merge.'
-          }
-          pipeline_path.write_text(json.dumps(pipeline, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          subprocess.run(['python3', 'fixtures/tools/run_dentistry_491_494_prepost_candidate.py'], check=True)
-          subprocess.run(['python3', post], check=True)
-          strict_draft = json.loads(draft_path.read_text(encoding='utf-8'))
-          if strict_draft['candidateDigest'] != new_digest:
-              raise SystemExit('strict regeneration digest drifted')
-          if any('startTime' in e or 'endTime' in e for e in strict_draft['events'] if e['timeSemantics'] == 'date-only'):
-              raise SystemExit('strict regeneration reintroduced date-only time keys')
-          print(f'NEW_DENTISTRY_COURSE4_DIGEST={new_digest}')
-          print(f'NEW_DENTISTRY_COURSE4_SUFFIX={new_suffix}')
-          PY
-
-          npm run check
-
           git status --short
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add \
-            fixtures/tools/build_dentistry_491_494_candidate.py \
-            fixtures/tools/postprocess_dentistry_491_494_candidate.py \
-            qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json \
-            qa/2026-2027-semester-1/dentistry-491-494.parsing-result.json \
-            qa/2026-2027-semester-1/dentistry-491-494.semantic-review.json \
-            qa/2026-2027-semester-1/dentistry-491-494.qa-report.json \
-            qa/2026-2027-semester-1/dentistry-491-494.publication-evidence.json \
-            qa/2026-2027-semester-1/dentistry-491-494.pipeline-evidence.json \
-            ops/publish-dentistry-491-494.mjs \
-            test/dentistry-491-494-draft.test.js \
-            test/dentistry-491-494-publication.check.mjs
+          git add -u
           if git diff --cached --quiet; then
             echo '::error::Expected regenerated Dentistry course 4 changes were not produced.'
             exit 1
