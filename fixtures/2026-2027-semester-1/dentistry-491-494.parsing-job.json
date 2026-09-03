@@ -1,0 +1,19 @@
+{
+  "jobId": "parsing-job-dentistry-491-494-2e945ca99ec75bfb-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "dentistry",
+  "sourceArtifactId": "source-artifact-dentistry-491-494-2e945ca99ec75bfb",
+  "sourceObjectKey": "qa-source-artifacts/kirov-gmu/2026-2027-semester-1/dentistry-491-494/2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265.xlsx",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "expectedGroupIds": [
+    "491",
+    "492",
+    "493",
+    "494"
+  ],
+  "idempotencyKey": "kirov-gmu:2026-2027-semester-1:dentistry:course4:2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265:kgmu-2026-08-27-v3",
+  "publicationRequested": false
+}

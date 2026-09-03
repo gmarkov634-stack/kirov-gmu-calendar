@@ -1,0 +1,72 @@
+{
+  "schema": "kgmu-qa-report-v1",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "draftId": "normalized-draft-dentistry-491-494-2e945ca99ec75bfb-v1",
+  "status": "PASS",
+  "publishEligible": true,
+  "checks": [
+    {
+      "name": "official-source-hash",
+      "status": "PASS",
+      "detail": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265"
+    },
+    {
+      "name": "group-scope",
+      "status": "PASS",
+      "detail": [
+        "491",
+        "492",
+        "493",
+        "494"
+      ]
+    },
+    {
+      "name": "parser-profile",
+      "status": "PASS",
+      "detail": "existing cyclic/C; no common parser/core modification"
+    },
+    {
+      "name": "normalized-events",
+      "status": "PASS",
+      "detail": {
+        "eventCount": 531,
+        "byGroup": {
+          "491": 133,
+          "492": 133,
+          "493": 133,
+          "494": 132
+        }
+      }
+    },
+    {
+      "name": "ENT-last-day-exception",
+      "status": "PASS",
+      "detail": "32 events; last date of each group cycle ends 12:55."
+    },
+    {
+      "name": "PE-series",
+      "status": "PASS",
+      "detail": "52 base Friday events + 8 replacement-time events; 4 conflict dates omitted."
+    },
+    {
+      "name": "January-Practice",
+      "status": "PASS",
+      "detail": "48 all-day/date-only events."
+    },
+    {
+      "name": "duplicates",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "name": "timed-overlaps",
+      "status": "PASS",
+      "detail": 0
+    }
+  ],
+  "blockers": [],
+  "scheduleVersionReady": true,
+  "publicationPerformed": false,
+  "candidateDigest": "sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1",
+  "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json"
+}

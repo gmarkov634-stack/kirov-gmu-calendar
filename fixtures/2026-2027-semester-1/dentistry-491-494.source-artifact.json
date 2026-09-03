@@ -1,0 +1,23 @@
+{
+  "schema": "kgmu-source-artifact-evidence-v1",
+  "sourceArtifactId": "source-artifact-dentistry-491-494-2e945ca99ec75bfb",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "dentistry",
+  "originUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
+  "sha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "byteLength": 26674,
+  "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "sourceObjectKey": "qa-source-artifacts/kirov-gmu/2026-2027-semester-1/dentistry-491-494/2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265.xlsx",
+  "expectedGroupIds": [
+    "491",
+    "492",
+    "493",
+    "494"
+  ],
+  "evidence": {
+    "mechanicalProbeFile": "qa/2026-2027-semester-1/dentistry-494.source-probe.json"
+  },
+  "productionObjectStorageWritePerformed": false,
+  "publicationPerformed": false
+}
