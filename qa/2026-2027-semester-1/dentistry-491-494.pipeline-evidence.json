@@ -7,7 +7,7 @@
   "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
   "sourceByteLength": 26674,
   "parserProfile": "cyclic",
-  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
   "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json",
   "decisionProvenance": "direct-user-confirmation",
   "normalizedDraft": {
