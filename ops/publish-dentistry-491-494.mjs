@@ -20,6 +20,7 @@ const SOURCE_SHA256 = '2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7
 const CANDIDATE_DIGEST = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
 const EXPECTED_COUNTS = Object.freeze({ '491': 133, '492': 133, '493': 133, '494': 132 });
 const EXPECTED_DATE_ONLY_COUNTS = Object.freeze({ '491': 12, '492': 12, '493': 12, '494': 12 });
+const PERSISTENCE_PROJECTION = 'drop-null-date-only-times-v1';
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
@@ -52,6 +53,38 @@ function countByGroup(events) {
   const counts = {};
   for (const event of events) counts[event.groupId] = (counts[event.groupId] ?? 0) + 1;
   return counts;
+}
+
+function projectApprovedEventForCore(event, index) {
+  if (!event || typeof event !== 'object' || Array.isArray(event)) throw new TypeError(`events[${index}] must be an object`);
+  const projected = structuredClone(event);
+  if (event.timeSemantics === 'floating') {
+    assertNonEmptyString(event.startTime, `events[${index}].startTime`);
+    assertNonEmptyString(event.endTime, `events[${index}].endTime`);
+    return projected;
+  }
+  if (event.timeSemantics === 'date-only') {
+    if (!Object.hasOwn(event, 'startTime') || !Object.hasOwn(event, 'endTime') || event.startTime !== null || event.endTime !== null) {
+      throw new Error(`events[${index}] date-only legacy candidate must contain exactly null startTime/endTime before projection`);
+    }
+    delete projected.startTime;
+    delete projected.endTime;
+    if (Object.hasOwn(projected, 'startTime') || Object.hasOwn(projected, 'endTime')) {
+      throw new Error(`events[${index}] date-only persistence projection failed`);
+    }
+    return projected;
+  }
+  throw new Error(`events[${index}] contains unsupported time semantics`);
+}
+
+function projectApprovedEventsForCore(events) {
+  const projected = events.map(projectApprovedEventForCore);
+  const dateOnly = projected.filter((event) => event.timeSemantics === 'date-only');
+  if (dateOnly.length !== 48) throw new Error(`Dentistry course-4 persistence projection expected 48 date-only events, got ${dateOnly.length}`);
+  if (dateOnly.some((event) => Object.hasOwn(event, 'startTime') || Object.hasOwn(event, 'endTime'))) {
+    throw new Error('Dentistry course-4 persistence projection left time fields on date-only events');
+  }
+  return projected;
 }
 
 function stableVersionId({ academicPeriodId, programId, groupId, candidateDigest }) {
@@ -88,15 +121,24 @@ async function loadPlan() {
   if (!Array.isArray(qa.blockers) || qa.blockers.length !== 0) throw new Error('QA blockers must be empty before publication');
   if (!Array.isArray(draft.events)) throw new Error('normalized draft events must be an array');
 
-  const events = draft.events;
+  const approvedEvents = draft.events;
   const candidateDigest = assertNonEmptyString(draft.candidateDigest, 'draft.candidateDigest');
   if (candidateDigest !== CANDIDATE_DIGEST || candidateDigest !== qa.candidateDigest || candidateDigest !== publication.candidateDigest) throw new Error(`Dentistry course-4 approved artifact digest mismatch: ${candidateDigest}`);
-  const normalizedEventSetDigest = digestNormalizedEvents(events);
+  const normalizedEventSetDigest = digestNormalizedEvents(approvedEvents);
   if (normalizedEventSetDigest !== publication.eventSetDigest || normalizedEventSetDigest !== CANDIDATE_DIGEST) throw new Error(`Dentistry course-4 event-set digest mismatch: ${normalizedEventSetDigest}`);
-  if (events.length !== 531 || events.length !== draft.eventCount || events.length !== publication.eventCount) throw new Error(`Dentistry course-4 event count mismatch: ${events.length}`);
-  if (new Set(events.map((event) => event.eventId)).size !== events.length) throw new Error('Dentistry course-4 duplicate eventId detected');
-  if (events.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');
-  if (events.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');
+  if (approvedEvents.length !== 531 || approvedEvents.length !== draft.eventCount || approvedEvents.length !== publication.eventCount) throw new Error(`Dentistry course-4 event count mismatch: ${approvedEvents.length}`);
+  if (new Set(approvedEvents.map((event) => event.eventId)).size !== approvedEvents.length) throw new Error('Dentistry course-4 duplicate eventId detected');
+  if (approvedEvents.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');
+  if (approvedEvents.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');
+
+  const events = projectApprovedEventsForCore(approvedEvents);
+  if (events.length !== approvedEvents.length) throw new Error('Dentistry course-4 persistence projection changed event count');
+  for (let index = 0; index < events.length; index += 1) {
+    if (events[index].eventId !== approvedEvents[index].eventId || events[index].groupId !== approvedEvents[index].groupId || events[index].date !== approvedEvents[index].date) {
+      throw new Error(`Dentistry course-4 persistence projection changed event identity at index ${index}`);
+    }
+  }
+  const persistenceEventSetDigest = digestNormalizedEvents(events);
 
   if (JSON.stringify(sourceArtifact.expectedGroupIds) !== JSON.stringify(GROUPS) || JSON.stringify(parsingJob.expectedGroupIds) !== JSON.stringify(GROUPS)) throw new Error('unexpected Dentistry course-4 group scope');
   const actualCounts = countByGroup(events);
@@ -127,6 +169,8 @@ async function loadPlan() {
       sourceSha256: SOURCE_SHA256,
       candidateDigest,
       eventSetDigest: normalizedEventSetDigest,
+      persistenceProjection: PERSISTENCE_PROJECTION,
+      persistenceEventSetDigest,
       coreEvidence: publication.sharedContractEvidence,
       events,
       versions,
@@ -174,6 +218,8 @@ console.log(JSON.stringify({
   sourceSha256: plan.sourceSha256,
   candidateDigest: plan.candidateDigest,
   eventSetDigest: plan.eventSetDigest,
+  persistenceProjection: plan.persistenceProjection,
+  persistenceEventSetDigest: plan.persistenceEventSetDigest,
   eventCount: plan.events.length,
   dateOnlyEventCount: plan.events.filter((event) => event.timeSemantics === 'date-only').length,
   facultativeIds: plan.publication.facultativeIds,
@@ -214,7 +260,7 @@ try {
     });
     if (current) {
       if (current.scheduleVersion.versionId !== version.versionId) throw new Error(`group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}`);
-      if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) throw new Error(`group ${version.groupId} published target does not match the approved candidate`);
+      if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) throw new Error(`group ${version.groupId} published target does not match the approved candidate projection`);
       console.log(`group ${version.groupId}: already published and verified; skipping`);
       continue;
     }
@@ -224,7 +270,7 @@ try {
     if (targetRow) {
       const storedRows = database.prepare('SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id').all(version.versionId);
       const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
-      if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) throw new Error(`group ${version.groupId} ready target does not match the approved candidate`);
+      if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) throw new Error(`group ${version.groupId} ready target does not match the approved candidate projection`);
       console.log(`group ${version.groupId}: resuming existing verified ready version`);
     } else {
       const snapshot = core.createReadyScheduleVersion({
@@ -282,6 +328,8 @@ try {
     groupCount: plan.versions.length,
     eventCount: plan.events.length,
     dateOnlyEventCount: 48,
+    persistenceProjection: plan.persistenceProjection,
+    persistenceEventSetDigest: plan.persistenceEventSetDigest,
     oldScheduleVersionRowsPreserved: true,
     trialChanged: false,
     checkoutChanged: false,
