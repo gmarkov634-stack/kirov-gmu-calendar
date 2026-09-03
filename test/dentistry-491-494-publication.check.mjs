@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import test from 'node:test';
 
+import { toCorePersistenceEvents } from '../src/core-persistence-events.js';
 import { digestNormalizedEvents } from '../src/explicit-decisions.js';
 
 const execFileAsync = promisify(execFile);
@@ -54,9 +55,23 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
   assert.deepEqual(publication.groupFacultativeEventCounts, { '491': 0, '492': 0, '493': 0, '494': 0 });
   assert.deepEqual(publication.facultativeIds, []);
   assert.equal(new Set(draft.events.map((event) => event.eventId)).size, 531);
-  assert.equal(draft.events.filter((event) => event.timeSemantics === 'date-only').length, 48);
-  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика'));
+  const rawDateOnly = draft.events.filter((event) => event.timeSemantics === 'date-only');
+  assert.equal(rawDateOnly.length, 48);
+  assert.ok(rawDateOnly.every((event) => event.discipline === 'Практика'));
+  assert.ok(rawDateOnly.every((event) => event.startTime === null && event.endTime === null));
   assert.ok(draft.events.every((event) => event.facultativeId == null));
+
+  const persistenceEvents = toCorePersistenceEvents(draft.events);
+  const persistenceDateOnly = persistenceEvents.filter((event) => event.timeSemantics === 'date-only');
+  const persistenceFloating = persistenceEvents.filter((event) => event.timeSemantics === 'floating');
+  assert.equal(persistenceEvents.length, draft.events.length);
+  assert.deepEqual(persistenceEvents.map((event) => event.eventId), draft.events.map((event) => event.eventId));
+  assert.equal(persistenceDateOnly.length, 48);
+  assert.ok(persistenceDateOnly.every((event) => !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));
+  assert.ok(persistenceFloating.every((event) => typeof event.startTime === 'string' && event.startTime.length > 0));
+  assert.ok(persistenceFloating.every((event) => typeof event.endTime === 'string' && event.endTime.length > 0));
+  assert.equal(draft.candidateDigest, digest);
+  assert.equal(digestNormalizedEvents(draft.events), digest);
 });
 
 test('Dentistry course 4 publisher is fail-closed around production contracts', async () => {
@@ -84,6 +99,7 @@ test('Dentistry course 4 publisher preflight reproduces exact stable version pla
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
   assert.match(stdout, /"eventCount": 531/);
   assert.match(stdout, /"dateOnlyEventCount": 48/);
+  assert.match(stdout, /"persistenceDateOnlyTimingFieldsOmitted": true/);
   assert.match(stdout, new RegExp(digest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(stdout, /"facultativeIds": \[\]/);
   for (const groupId of groups) {
