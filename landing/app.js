@@ -39,8 +39,8 @@ const notice = document.querySelector("#notice");
 const heroRuntimeNote = document.querySelector("#hero-runtime-note");
 
 let catalog = null;
-let view = "course";
-let selectedProgramId = "medicine";
+let view = "faculty";
+let selectedProgramId = null;
 let selectedCourse = null;
 let selectedGroupId = null;
 let selectedProductCode = "semester-access";
@@ -102,6 +102,7 @@ function setHeading(kicker, title) {
 
 function renderFaculties() {
   view = "faculty";
+  selectedProgramId = null;
   selectedCourse = null;
   selectedGroupId = null;
   setNotice();
@@ -458,14 +459,7 @@ async function submitCheckout(event) {
   }
 }
 
-function wireSavedInitialCourseView() {
-  const buttons = [...(choiceGrid?.querySelectorAll(".choice-card") ?? [])];
-  buttons.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      selectedCourse = index + 1;
-      renderGroups();
-    });
-  });
+function wireSelectorNavigation() {
   backButton?.addEventListener("click", () => {
     if (view === "selected") return renderGroups();
     if (view === "group") return renderCourses();
@@ -483,7 +477,8 @@ async function loadCatalog() {
   const allowed = new Set(Object.keys(programMeta));
   loaded.programs = loaded.programs.filter((program) => allowed.has(program.programId));
   catalog = loaded;
-  wireSavedInitialCourseView();
+  wireSelectorNavigation();
+  renderFaculties();
 }
 
 if (heroRuntimeNote && (config.trialEnabled || config.checkoutEnabled)) {
