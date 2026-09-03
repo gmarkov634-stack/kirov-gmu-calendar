@@ -20,7 +20,9 @@ sed -i '/<script src="\.\.\/runtime-config\.js"><\/script>/i\  <script src="../e
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./trial-personalization.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ui.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ux-refinements.js"></script>' "$OUT_DIR/index.html"
+sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script type="module" src="./group-share.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/manage\.js"><\/script>/i\  <script src="./elective-empty-state.js"></script>' "$OUT_DIR/manage/index.html"
+sed -i '/<script type="module" src="\.\/manage\.js"><\/script>/i\  <script type="module" src="../group-share.js"></script>' "$OUT_DIR/manage/index.html"
 sed -i '/<\/body>/i\    <script src="./availability-status.js"></script>' "$OUT_DIR/index.html"
 : > "$OUT_DIR/.nojekyll"
 
