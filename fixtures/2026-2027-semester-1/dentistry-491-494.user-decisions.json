@@ -1,0 +1,46 @@
+{
+  "schema": "kgmu-course-local-semantic-decisions-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "programId": "dentistry",
+  "course": 4,
+  "groupIds": ["491", "492", "493", "494"],
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "confirmedOn": "2026-09-03",
+  "provenance": "direct-user-confirmation",
+  "decisions": [
+    {
+      "id": "ent-last-day-long",
+      "sourceCell": "CE31",
+      "discipline": "Оториноларингология",
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55",
+      "exceptionPlacement": "last-date-of-each-group-cycle"
+    },
+    {
+      "id": "pe-friday-series-with-replacements-and-conflict-exclusions",
+      "sourceCell": "CE34",
+      "weekday": "Friday",
+      "rangeStart": "2026-09-05",
+      "rangeEnd": "2026-12-25",
+      "baseTime": "14:30-16:00",
+      "replacementDates": ["2026-12-18", "2026-12-25"],
+      "replacementTime": "16:10-17:40",
+      "excludeBaseDatesByGroup": {
+        "491": ["2026-09-25"],
+        "492": ["2026-10-09"],
+        "493": ["2026-09-18"],
+        "494": ["2026-11-27"]
+      },
+      "conflictResolution": "omit-physical-culture"
+    },
+    {
+      "id": "january-practice-all-day",
+      "sourceCell": "DJ14",
+      "label": "Практика",
+      "timeSemantics": "date-only",
+      "location": null
+    }
+  ],
+  "publicationPerformed": false
+}

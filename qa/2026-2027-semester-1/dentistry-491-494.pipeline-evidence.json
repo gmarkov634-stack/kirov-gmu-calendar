@@ -1,0 +1,46 @@
+{
+  "schema": "kgmu-course-pipeline-evidence-v1",
+  "programId": "dentistry",
+  "course": 4,
+  "groupIds": ["491", "492", "493", "494"],
+  "officialSource": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "sourceByteLength": 26674,
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json",
+  "decisionProvenance": "direct-user-confirmation",
+  "normalizedDraft": {
+    "status": "PASS",
+    "candidateDigest": "sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1",
+    "eventCount": 531,
+    "eventCountsByGroup": {"491": 133, "492": 133, "493": 133, "494": 132},
+    "entEvents": 32,
+    "practiceAllDayEvents": 48,
+    "physicalCultureBaseEvents": 52,
+    "physicalCultureReplacementEvents": 8,
+    "physicalCultureConflictOmissions": 4,
+    "duplicateEventSignatures": 0,
+    "timedOverlapPairs": 0
+  },
+  "semanticDecisions": [
+    "ENT: the final date of each group cycle uses 09:00-12:55; preceding dates use 09:00-12:05.",
+    "PE: Friday recurrence is accepted; 18.12 and 25.12 use 16:10-17:40 instead of the base time; PE is omitted on four confirmed ophthalmology-conflict dates.",
+    "Practice: explicit 18-30.01.2027 source dates are represented as all-day/date-only events."
+  ],
+  "reviewRequired": [],
+  "verification": {
+    "status": "PASS",
+    "verifiedHeadSha": "180652742477a6b5734281e9b5d18d9eb196ddd4",
+    "workflowRunId": 33758410768,
+    "workflowName": "KGMU CI",
+    "repositoryCheck": "npm run check PASS",
+    "syncedMainSha": "5d0f93b755d7faa12732d67a53bcca4235c28b1c",
+    "behindMainAtVerification": 0
+  },
+  "commonParserChanged": false,
+  "commonCoreChanged": false,
+  "productionWritePerformed": false,
+  "scheduleVersionCreated": false,
+  "publicationPerformed": false
+}

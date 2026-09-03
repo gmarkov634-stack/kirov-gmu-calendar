@@ -31,7 +31,7 @@ const EXPECTED_GROUPS = {
     1: range(191, 194),
     2: range(291, 294),
     3: range(391, 394),
-    4: ['494'],
+    4: range(491, 494),
     5: range(591, 594)
   }
 };
@@ -99,6 +99,6 @@ test('matches the published 2026-2027 semester 1 groups for the three supported 
   }
 
   assert.deepEqual([...seenPrograms], PROJECT_PROGRAMS);
-  assert.equal(seenGroups.size, 168);
+  assert.equal(seenGroups.size, 171);
   assert.equal(catalog.programs.some((program) => program.programId === 'medical-biochemistry'), false);
 });
