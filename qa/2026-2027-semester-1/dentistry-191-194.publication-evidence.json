@@ -2,6 +2,7 @@
   "schema": "kgmu-dentistry-publication-evidence-v1",
   "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
   "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+  "eventSetDigest": "sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374",
   "eventCount": 1656,
   "groupEventCounts": {
     "191": 413,
