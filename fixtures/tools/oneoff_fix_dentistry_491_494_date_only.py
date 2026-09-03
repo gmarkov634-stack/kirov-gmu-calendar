@@ -84,6 +84,13 @@ def main():
         "  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && event.startTime === null && event.endTime === null));",
         "  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));"
     )
+    replace_once(draft_test, "import { execFileSync } from 'node:child_process';\n", '')
+    replace_once(draft_test, "import { fileURLToPath } from 'node:url';\n", '')
+    replace_once(
+        draft_test,
+        "const root = fileURLToPath(new URL('../', import.meta.url));\nfor (const script of [\n  'fixtures/tools/run_dentistry_491_494_prepost_candidate.py',\n  'fixtures/tools/postprocess_dentistry_491_494_candidate.py'\n]) {\n  execFileSync('python3', [script], { cwd: root, stdio: 'pipe' });\n}\n",
+        ''
+    )
 
     pub_test = 'test/dentistry-491-494-publication.check.mjs'
     replace_once(pub_test, f"const digest = '{OLD_DIGEST}';", f"const digest = '{new_digest}';")
@@ -99,6 +106,9 @@ def main():
         "  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика'));",
         "  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));"
     )
+
+    landing_test = 'test/landing-dentistry-course4-readiness.test.js'
+    replace_once(landing_test, f"const digest = '{OLD_DIGEST}';", f"const digest = '{new_digest}';")
 
     publisher = 'ops/publish-dentistry-491-494.mjs'
     replace_once(publisher, f"const CANDIDATE_DIGEST = '{OLD_DIGEST}';", f"const CANDIDATE_DIGEST = '{new_digest}';")
@@ -126,6 +136,19 @@ def main():
         'reason': 'Date-only Practice events now omit startTime/endTime keys to match the deployed Core contract; branch CI must reverify the regenerated candidate before merge.'
     }
     pipeline_path.write_text(json.dumps(pipeline, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+    package_path = Path('package.json')
+    package = json.loads(package_path.read_text(encoding='utf-8'))
+    old_check = package['scripts']['check']
+    marker = 'node --test && node --test test/dentistry-491-494-publication.check.mjs'
+    serial_regeneration = (
+        'python3 fixtures/tools/run_dentistry_491_494_prepost_candidate.py && '
+        'python3 fixtures/tools/postprocess_dentistry_491_494_candidate.py && '
+    )
+    if old_check.count(marker) != 1:
+        raise SystemExit('package.json check script marker mismatch')
+    package['scripts']['check'] = old_check.replace(marker, serial_regeneration + marker)
+    package_path.write_text(json.dumps(package, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
     subprocess.run(['python3', 'fixtures/tools/run_dentistry_491_494_prepost_candidate.py'], check=True)
     subprocess.run(['python3', post], check=True)
