@@ -1,0 +1,34 @@
+{
+  "schema": "kgmu-dentistry-publication-evidence-v1",
+  "sourceSha256": "ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610",
+  "candidateDigest": "sha256:6b47e359d9910ed04e84e059ea021a6901bf27b461b82c131c9e3f2e7c664c60",
+  "eventSetDigest": "sha256:6b47e359d9910ed04e84e059ea021a6901bf27b461b82c131c9e3f2e7c664c60",
+  "eventCount": 1066,
+  "groupEventCounts": {
+    "291": 265,
+    "292": 266,
+    "293": 266,
+    "294": 269
+  },
+  "groupDefaultVisibleEventCounts": {
+    "291": 265,
+    "292": 266,
+    "293": 266,
+    "294": 269
+  },
+  "groupFacultativeEventCounts": {
+    "291": 0,
+    "292": 0,
+    "293": 0,
+    "294": 0
+  },
+  "facultativeIds": [],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "createdAt": "2026-09-03T09:57:00Z"
+}
