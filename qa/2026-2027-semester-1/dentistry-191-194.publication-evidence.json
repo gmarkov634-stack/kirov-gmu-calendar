@@ -11,16 +11,32 @@
     "194": 415
   },
   "groupDefaultVisibleEventCounts": {
-    "191": 340,
-    "192": 340,
-    "193": 342,
-    "194": 342
+    "191": 328,
+    "192": 328,
+    "193": 330,
+    "194": 330
   },
   "groupFacultativeEventCounts": {
-    "191": 73,
-    "192": 73,
-    "193": 73,
-    "194": 73
+    "191": 85,
+    "192": 85,
+    "193": 85,
+    "194": 85
+  },
+  "facultativeEventCountsPerGroup": {
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": 18,
+    "kgmu-2026-2027-s1-dentistry-facultative-russian": 31,
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": 18,
+    "kgmu-2026-2027-s1-dentistry-facultative-math": 18
+  },
+  "facultativeSourceDecisionEvidence": {
+    "kgmu-2026-2027-s1-dentistry-facultative-russian": [
+      "B15#s3",
+      "B26#s2",
+      "B49#r90-2"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": ["B49#r90-1"],
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": ["B49#r90-3"],
+    "kgmu-2026-2027-s1-dentistry-facultative-math": ["B49#r90-4"]
   },
   "facultativeIds": [
     "kgmu-2026-2027-s1-dentistry-facultative-biology",
