@@ -1,0 +1,70 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-291-294-v1",
+  "parsingJobId": "parsing-job-dentistry-291-294-ec51c194-v1",
+  "sourceArtifactId": "source-artifact-dentistry-291-294-2026-09-03-v1",
+  "candidateDigest": "sha256:6b47e359d9910ed04e84e059ea021a6901bf27b461b82c131c9e3f2e7c664c60",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "source-artifact-pinned",
+      "status": "pass",
+      "message": "Official XLSX is pinned by SHA-256 ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610; SourceArtifact identity source-artifact-dentistry-291-294-2026-09-03-v1 uses a SHA-addressed object key and reuseIfShaMatches=true."
+    },
+    {
+      "code": "parsing-job-contract",
+      "status": "pass",
+      "message": "ParsingJob parsing-job-dentistry-291-294-ec51c194-v1 is source-object-key-bound and targets only groups 291-294 with parser rules kgmu-2026-08-27-v3."
+    },
+    {
+      "code": "event-bearing-source-coverage",
+      "status": "pass",
+      "message": "79/79 weekly event-bearing source cells are covered; unexplained source fragments: 0."
+    },
+    {
+      "code": "cross-day-count-notes",
+      "status": "pass",
+      "message": "18 R07-R09/R67 count/day expectations are resolved with 0 unresolved notes."
+    },
+    {
+      "code": "mixed-cycle-s-profile",
+      "status": "pass",
+      "message": "Propedeutic Dentistry cycles for groups 291-294 are expanded under S01/S08/S09 at 13:00-17:05 with source-confirmed location \"Консультативно-диагностическое отделение клиники Кировского ГМУ, ул. Никитская, 161\"."
+    },
+    {
+      "code": "curator-hour-resolution",
+      "status": "pass",
+      "message": "4 undated curator-hour fragments are resolved by R17/S07 after mandatory-event conflict checks."
+    },
+    {
+      "code": "assessment-metadata-preserved",
+      "status": "pass",
+      "message": "395 events across 4 disciplines preserve lower-reference exam/credit metadata under R41/S09."
+    },
+    {
+      "code": "normalized-event-v1-integrity",
+      "status": "pass",
+      "message": "1066 full NormalizedEvent-v1-compatible events; group counts 291=265, 292=266, 293=266, 294=269; unique eventIds and 0 duplicate logical signatures."
+    },
+    {
+      "code": "source-overlap-policy",
+      "status": "pass",
+      "message": "0 time-overlap pairs are preserved unchanged and recorded as source conflicts under R69/S04; overlap presence is not treated as a parser failure."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unexplained source fragments and 0 unresolved count/day notes remain before PASS."
+    },
+    {
+      "code": "shared-core-boundary",
+      "status": "pass",
+      "message": "No medical-calendar-core, shared schema, shared parser/pipeline, database, publish mechanism, or production-infrastructure change is required."
+    },
+    {
+      "code": "publication-scope",
+      "status": "pass",
+      "message": "ScheduleVersion creation/publication is intentionally not executed by this draft+QA workflow."
+    }
+  ],
+  "createdAt": "2026-09-02T22:30:00Z"
+}
