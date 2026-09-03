@@ -1,0 +1,184 @@
+name: Dentistry 4 date-only regeneration
+
+on:
+  push:
+    branches:
+      - fix/dentistry-course4-date-only-shape
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.event.head_commit.message != 'Regenerate Dentistry 4 date-only artifacts'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Normalize date-only event shape and patch generators
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+
+          root = Path('.')
+          period = root / 'qa' / '2026-2027-semester-1'
+          draft_path = period / 'dentistry-491-494.normalized-draft.json'
+          old_digest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1'
+          old_hex = old_digest.removeprefix('sha256:')
+          old_suffix = old_hex[:16]
+
+          def canonical_event_id(event):
+              payload = {key: value for key, value in event.items() if key != 'eventId'}
+              stable = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+              return 'kgmu-' + hashlib.sha256(stable.encode('utf-8')).hexdigest()[:24]
+
+          draft = json.loads(draft_path.read_text(encoding='utf-8'))
+          if draft.get('candidateDigest') != old_digest:
+              raise SystemExit(f'unexpected input candidate digest: {draft.get("candidateDigest")}')
+          events = draft.get('events')
+          if not isinstance(events, list) or len(events) != 531:
+              raise SystemExit('unexpected Dentistry 4 event set')
+
+          date_only_count = 0
+          changed_ids = 0
+          for event in events:
+              semantics = event.get('timeSemantics')
+              if semantics == 'date-only':
+                  date_only_count += 1
+                  if event.get('startTime') is not None or event.get('endTime') is not None:
+                      raise SystemExit(f'date-only event contains non-null clock: {event.get("eventId")}')
+                  event.pop('startTime', None)
+                  event.pop('endTime', None)
+                  new_id = canonical_event_id(event)
+                  if new_id != event.get('eventId'):
+                      changed_ids += 1
+                  event['eventId'] = new_id
+              elif semantics == 'floating':
+                  if not isinstance(event.get('startTime'), str) or not event.get('startTime'):
+                      raise SystemExit(f'floating event missing startTime: {event.get("eventId")}')
+                  if not isinstance(event.get('endTime'), str) or not event.get('endTime'):
+                      raise SystemExit(f'floating event missing endTime: {event.get("eventId")}')
+              else:
+                  raise SystemExit(f'unsupported time semantics: {semantics!r}')
+
+          if date_only_count != 48 or changed_ids != 48:
+              raise SystemExit(f'unexpected date-only normalization counts: date_only={date_only_count} changed_ids={changed_ids}')
+          if len({event['eventId'] for event in events}) != 531:
+              raise SystemExit('eventId collision after date-only normalization')
+
+          payload = json.dumps(events, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+          new_digest = 'sha256:' + hashlib.sha256(payload.encode('utf-8')).hexdigest()
+          if new_digest == old_digest:
+              raise SystemExit('candidate digest did not change')
+          new_hex = new_digest.removeprefix('sha256:')
+          new_suffix = new_hex[:16]
+          draft['candidateDigest'] = new_digest
+          draft_path.write_text(json.dumps(draft, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          # Update every exact evidence/guard reference to the old approved digest/suffix.
+          for path in root.rglob('*'):
+              if not path.is_file() or '.git' in path.parts or path == Path('.github/workflows/dentistry4-date-only-regenerate.yml'):
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              updated = text.replace(old_digest, new_digest).replace(old_hex, new_hex).replace(old_suffix, new_suffix)
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8')
+
+          # Both builder and postprocessor must emit contract-canonical date-only objects.
+          for relative in (
+              'fixtures/tools/build_dentistry_491_494_candidate.py',
+              'fixtures/tools/postprocess_dentistry_491_494_candidate.py',
+          ):
+              path = root / relative
+              text = path.read_text(encoding='utf-8')
+              old = '''        "startTime": None if date_only else start,\n        "endTime": None if date_only else end,\n        "timeSemantics": "date-only" if date_only else "floating",'''
+              if old not in text:
+                  raise SystemExit(f'make_event timing block not found in {relative}')
+              text = text.replace(old, '        "timeSemantics": "date-only" if date_only else "floating",', 1)
+              marker = '''    if assessment is not None:\n        event["assessment"] = assessment'''
+              replacement = '''    if not date_only:\n        event["startTime"] = start\n        event["endTime"] = end\n    if assessment is not None:\n        event["assessment"] = assessment'''
+              if marker not in text:
+                  raise SystemExit(f'make_event assessment marker not found in {relative}')
+              text = text.replace(marker, replacement, 1)
+              text = text.replace('event["startTime"] or "99:99"', 'event.get("startTime") or "99:99"')
+              path.write_text(text, encoding='utf-8')
+
+          # Postprocessor duplicate signature must also tolerate absent date-only clocks.
+          post_path = root / 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
+          post = post_path.read_text(encoding='utf-8')
+          signature_old = 'event["groupId"], event["date"], event["startTime"], event["endTime"],'
+          signature_new = 'event["groupId"], event["date"], event.get("startTime"), event.get("endTime"),'
+          if signature_old not in post:
+              raise SystemExit('postprocessor signature timing block not found')
+          post = post.replace(signature_old, signature_new, 1)
+          practice_old = '''    if len(practice) != 48 or not all(event["timeSemantics"] == "date-only" for event in practice):\n        raise SystemExit("Practice must be 48 all-day/date-only events")'''
+          practice_new = '''    if len(practice) != 48 or not all(event["timeSemantics"] == "date-only" for event in practice):\n        raise SystemExit("Practice must be 48 all-day/date-only events")\n    if any("startTime" in event or "endTime" in event for event in practice):\n        raise SystemExit("date-only Practice events must omit startTime/endTime")'''
+          if practice_old not in post:
+              raise SystemExit('postprocessor Practice assertion not found')
+          post_path.write_text(post.replace(practice_old, practice_new, 1), encoding='utf-8')
+
+          # Add a focused contract regression test without weakening existing tests.
+          test_path = root / 'test' / 'dentistry-course4-date-only-shape.test.js'
+          test_path.write_text('''import assert from 'node:assert/strict';\nimport { readFile } from 'node:fs/promises';\nimport test from 'node:test';\n\nconst draft = JSON.parse(await readFile(new URL('../qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', import.meta.url), 'utf8'));\n\ntest('Dentistry 4 date-only events omit clock fields', () => {\n  const dateOnly = draft.events.filter((event) => event.timeSemantics === 'date-only');\n  assert.equal(dateOnly.length, 48);\n  for (const event of dateOnly) {\n    assert.equal(Object.hasOwn(event, 'startTime'), false);\n    assert.equal(Object.hasOwn(event, 'endTime'), false);\n  }\n  const floating = draft.events.filter((event) => event.timeSemantics === 'floating');\n  for (const event of floating) {\n    assert.equal(typeof event.startTime, 'string');\n    assert.equal(typeof event.endTime, 'string');\n    assert.ok(event.startTime.length > 0);\n    assert.ok(event.endTime.length > 0);\n  }\n});\n''', encoding='utf-8')
+
+          (root / '.dentistry4-new-digest').write_text(new_digest + '\n', encoding='ascii')
+          print(f'OLD_DIGEST={old_digest}')
+          print(f'NEW_DIGEST={new_digest}')
+          print(f'NEW_VERSION_SUFFIX={new_suffix}')
+          PY
+
+      - name: Regenerate from source-bound pipeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(cat .dentistry4-new-digest)"
+          python3 fixtures/tools/run_dentistry_491_494_prepost_candidate.py
+          actual="$(python3 - <<'PY'
+          import json
+          print(json.load(open('qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', encoding='utf-8'))['candidateDigest'])
+          PY
+          )"
+          test "$actual" = "$expected"
+          python3 - <<'PY'
+          import json
+          draft=json.load(open('qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', encoding='utf-8'))
+          date_only=[e for e in draft['events'] if e.get('timeSemantics') == 'date-only']
+          assert len(draft['events']) == 531
+          assert len(date_only) == 48
+          assert all('startTime' not in e and 'endTime' not in e for e in date_only)
+          assert len({e['eventId'] for e in draft['events']}) == 531
+          print('DATE_ONLY_CONTRACT=verified')
+          PY
+          rm -f .dentistry4-new-digest
+
+      - name: Run repository checks
+        run: npm check
+
+      - name: Commit regenerated fix and remove bootstrap workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/dentistry4-date-only-regenerate.yml
+          git status --short
+          if git diff --quiet && git diff --cached --quiet; then
+            echo 'No regenerated changes found' >&2
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Regenerate Dentistry 4 date-only artifacts'
+          git push origin HEAD:fix/dentistry-course4-date-only-shape
