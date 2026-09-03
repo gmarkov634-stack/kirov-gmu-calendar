@@ -51,12 +51,13 @@ test("saved marketing copy and calendar demo are retained", async () => {
   ]) assert.ok(html.includes(phrase), phrase);
 });
 
-test("only current KGMU product-scope programs remain", async () => {
+test("landing omits KGMU directions overview while keeping group selector", async () => {
   const html = await text("index");
-  assert.match(html, />Лечебное дело</);
-  assert.match(html, />Педиатрия</);
-  assert.match(html, />Стоматология</);
-  assert.doesNotMatch(html, /Иностранные обучающиеся/);
+  assert.doesNotMatch(html, /id="directions"/);
+  assert.doesNotMatch(html, /href="\.\/#directions"/);
+  assert.doesNotMatch(html, /Направления КГМУ/);
+  assert.match(html, /id="selector"/);
+  assert.match(html, /id="choice-grid"/);
 });
 
 test("legacy project runtime dependencies are removed", async () => {
