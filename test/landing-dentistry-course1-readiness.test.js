@@ -49,6 +49,17 @@ test('Pages and production configs expose exactly the Dentistry course 1 faculta
   }
 });
 
+test('Dentistry landing exposure is bound to the exact merged publication evidence', async () => {
+  const evidence = JSON.parse(await read('qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json'));
+  assert.equal(evidence.schema, 'kgmu-dentistry-publication-evidence-v1');
+  assert.equal(evidence.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
+  assert.equal(evidence.eventSetDigest, 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
+  assert.equal(evidence.eventCount, 1656);
+  assert.deepEqual(evidence.groupEventCounts, { '191': 413, '192': 413, '193': 415, '194': 415 });
+  assert.deepEqual(evidence.groupDefaultVisibleEventCounts, { '191': 328, '192': 328, '193': 330, '194': 330 });
+  assert.deepEqual(evidence.facultativeIds, facultatives.map(({ facultativeId }) => facultativeId));
+});
+
 test('Dentistry landing preparation does not change trial or checkout policy', async () => {
   const pages = evaluateRuntimeConfig(await read('deploy/runtime-config.pages.js'));
   const production = evaluateRuntimeConfig(await read('deploy/runtime-config.production.js'));
