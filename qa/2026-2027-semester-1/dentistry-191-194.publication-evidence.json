@@ -1,0 +1,38 @@
+{
+  "schema": "kgmu-dentistry-publication-evidence-v1",
+  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+  "eventCount": 1656,
+  "groupEventCounts": {
+    "191": 413,
+    "192": 413,
+    "193": 415,
+    "194": 415
+  },
+  "groupDefaultVisibleEventCounts": {
+    "191": 340,
+    "192": 340,
+    "193": 342,
+    "194": 342
+  },
+  "groupFacultativeEventCounts": {
+    "191": 73,
+    "192": 73,
+    "193": 73,
+    "194": 73
+  },
+  "facultativeIds": [
+    "kgmu-2026-2027-s1-dentistry-facultative-biology",
+    "kgmu-2026-2027-s1-dentistry-facultative-russian",
+    "kgmu-2026-2027-s1-dentistry-facultative-physics",
+    "kgmu-2026-2027-s1-dentistry-facultative-math"
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "createdAt": "2026-09-03T07:23:00Z"
+}
