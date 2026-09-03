@@ -30,9 +30,13 @@
   ],
   "reviewRequired": [],
   "verification": {
-    "status": "PENDING_CURRENT_HEAD",
-    "supersededWorkflowRunId": 33691705672,
-    "supersededRepositoryCheck": "PASS 209/209 for the earlier 399-event fail-closed draft"
+    "status": "PASS",
+    "verifiedHeadSha": "eacee38e954fc545df52d6c85c594ef2aaf621d2",
+    "workflowRunId": 33756419251,
+    "workflowName": "KGMU CI",
+    "repositoryCheck": "npm run check PASS",
+    "syncedMainSha": "5d0f93b755d7faa12732d67a53bcca4235c28b1c",
+    "behindMainAtVerification": 0
   },
   "commonParserChanged": false,
   "commonCoreChanged": false,
