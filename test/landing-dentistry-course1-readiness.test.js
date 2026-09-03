@@ -22,15 +22,15 @@ const facultatives = [
   { facultativeId: 'kgmu-2026-2027-s1-dentistry-facultative-math', label: 'Математика' }
 ];
 
-test('Dentistry course 1 is prepared as published landing availability only for groups 191-194', async () => {
+test('Dentistry course 1 remains published when course 4 is also exposed', async () => {
   const source = await read('landing/availability-status.js');
   for (const groupId of groups) assert.match(source, new RegExp(`"${groupId}"`));
   assert.match(source, /program === "Стоматология"/);
-  assert.match(source, /"1 курс доступен"/);
-  assert.match(source, /"Группы 191–194 · опубликованы и доступны для 7-дневной бесплатной пробы"/);
+  assert.match(source, /"1 и 4 курсы доступны"/);
+  assert.match(source, /"Группы 191–194 и 491–494 · опубликованы и доступны для 7-дневной бесплатной пробы"/);
   assert.match(source, /isDentistry/);
   assert.match(source, /"Группы 191–194 доступны"/);
-  assert.match(source, /Стоматология: 1 курс опубликован/);
+  assert.match(source, /Стоматология: 1 и 4 курсы опубликованы/);
 });
 
 test('Pages and production configs expose exactly the Dentistry course 1 facultatives for all four groups', async () => {
