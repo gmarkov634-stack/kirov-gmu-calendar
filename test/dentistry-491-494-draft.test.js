@@ -1,18 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import { digestNormalizedEvents } from '../src/explicit-decisions.js';
 
 const period = '2026-2027-semester-1';
-const root = fileURLToPath(new URL('../', import.meta.url));
-for (const script of [
-  'fixtures/tools/run_dentistry_491_494_prepost_candidate.py',
-  'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
-]) {
-  execFileSync('python3', [script], { cwd: root, stdio: 'pipe' });
-}
 const readJson = async (path) => JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'));
 
 const [catalog, probe, sourceArtifact, job, decisions, parsing, draft, review, qa] = await Promise.all([
@@ -30,7 +21,7 @@ const [catalog, probe, sourceArtifact, job, decisions, parsing, draft, review, q
 const groups = ['491', '492', '493', '494'];
 const counts = { '491': 133, '492': 133, '493': 133, '494': 132 };
 const sourceSha = '2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265';
-const candidateDigest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const candidateDigest = 'sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15';
 const peConflictDates = {
   '491': '2026-09-25',
   '492': '2026-10-09',
@@ -101,7 +92,7 @@ test('ENT uses the last date of each group cycle for the 12:55 exception', () =>
 test('Practice is all-day and PE follows confirmed replacements and conflict omissions', () => {
   const practice = draft.events.filter((event) => event.discipline === 'Практика');
   assert.equal(practice.length, 48);
-  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && event.startTime === null && event.endTime === null));
+  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));
 
   const pe = draft.events.filter((event) => event.discipline.startsWith('Дисциплины по физической культуре'));
   const peBase = pe.filter((event) => event.startTime === '14:30' && event.endTime === '16:00');

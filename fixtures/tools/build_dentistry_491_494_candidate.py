@@ -115,8 +115,6 @@ def make_event(*, group: str, date: str, discipline: str, lesson_type: str,
         "groupId": group,
         "academicPeriodId": PERIOD,
         "date": date,
-        "startTime": None if date_only else start,
-        "endTime": None if date_only else end,
         "timeSemantics": "date-only" if date_only else "floating",
         "discipline": discipline,
         "lessonType": lesson_type,
@@ -124,6 +122,9 @@ def make_event(*, group: str, date: str, discipline: str, lesson_type: str,
         "location": location,
         "sourceRef": {"sourceId": SOURCE_ID, "locator": source_locator},
     }
+    if not date_only:
+        event["startTime"] = start
+        event["endTime"] = end
     if assessment is not None:
         event["assessment"] = assessment
     return {"eventId": event_id(event), **event}
@@ -322,7 +323,7 @@ def main() -> None:
             ))
 
     events.sort(key=lambda event: (
-        event["groupId"], event["date"], event["startTime"] or "99:99",
+        event["groupId"], event["date"], event.get("startTime") or "99:99",
         event["discipline"], event["sourceRef"]["locator"],
     ))
     if len(events) != 511:

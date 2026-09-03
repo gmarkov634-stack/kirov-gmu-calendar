@@ -17,7 +17,7 @@ const ACADEMIC_YEAR_ID = '2026-2027';
 const ACADEMIC_PERIOD_ID = '2026-2027-semester-1';
 const GROUPS = ['491', '492', '493', '494'];
 const SOURCE_SHA256 = '2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265';
-const CANDIDATE_DIGEST = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const CANDIDATE_DIGEST = 'sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15';
 const EXPECTED_COUNTS = Object.freeze({ '491': 133, '492': 133, '493': 133, '494': 132 });
 const EXPECTED_DATE_ONLY_COUNTS = Object.freeze({ '491': 12, '492': 12, '493': 12, '494': 12 });
 
@@ -96,6 +96,7 @@ async function loadPlan() {
   if (events.length !== 531 || events.length !== draft.eventCount || events.length !== publication.eventCount) throw new Error(`Dentistry course-4 event count mismatch: ${events.length}`);
   if (new Set(events.map((event) => event.eventId)).size !== events.length) throw new Error('Dentistry course-4 duplicate eventId detected');
   if (events.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');
+  if (events.some((event) => event.timeSemantics === 'date-only' && (Object.hasOwn(event, 'startTime') || Object.hasOwn(event, 'endTime')))) throw new Error('Dentistry course-4 date-only events must not contain startTime or endTime');
   if (events.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');
 
   if (JSON.stringify(sourceArtifact.expectedGroupIds) !== JSON.stringify(GROUPS) || JSON.stringify(parsingJob.expectedGroupIds) !== JSON.stringify(GROUPS)) throw new Error('unexpected Dentistry course-4 group scope');

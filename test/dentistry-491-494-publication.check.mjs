@@ -15,7 +15,7 @@ async function readJson(relativePath) {
 const groups = ['491', '492', '493', '494'];
 const expectedCounts = { '491': 133, '492': 133, '493': 133, '494': 132 };
 const expectedDateOnlyCounts = { '491': 12, '492': 12, '493': 12, '494': 12 };
-const digest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const digest = 'sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15';
 
 test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate', async () => {
   const [sourceArtifact, parsingJob, draft, qa, publication] = await Promise.all([
@@ -55,7 +55,7 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
   assert.deepEqual(publication.facultativeIds, []);
   assert.equal(new Set(draft.events.map((event) => event.eventId)).size, 531);
   assert.equal(draft.events.filter((event) => event.timeSemantics === 'date-only').length, 48);
-  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика'));
+  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика' && !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')));
   assert.ok(draft.events.every((event) => event.facultativeId == null));
 });
 
@@ -87,6 +87,6 @@ test('Dentistry course 4 publisher preflight reproduces exact stable version pla
   assert.match(stdout, new RegExp(digest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(stdout, /"facultativeIds": \[\]/);
   for (const groupId of groups) {
-    assert.match(stdout, new RegExp(`kgmu-2026-2027-s1-dentistry-${groupId}-2a0490e90c89cfb4`));
+    assert.match(stdout, new RegExp(`kgmu-2026-2027-s1-dentistry-${groupId}-73cb833fb0f175a4`));
   }
 });

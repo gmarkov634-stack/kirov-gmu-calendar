@@ -15,7 +15,7 @@ function evaluateRuntimeConfig(source) {
 }
 
 const groups = ['491', '492', '493', '494'];
-const digest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const digest = 'sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15';
 
 test('Dentistry course 4 is prepared as published landing availability only for groups 491-494', async () => {
   const source = await read('landing/availability-status.js');

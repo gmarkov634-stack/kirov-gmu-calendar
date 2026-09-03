@@ -2,7 +2,12 @@
   "schema": "kgmu-course-pipeline-evidence-v1",
   "programId": "dentistry",
   "course": 4,
-  "groupIds": ["491", "492", "493", "494"],
+  "groupIds": [
+    "491",
+    "492",
+    "493",
+    "494"
+  ],
   "officialSource": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/4_stomat-24-08-2026-14.xlsx",
   "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
   "sourceByteLength": 26674,
@@ -12,9 +17,14 @@
   "decisionProvenance": "direct-user-confirmation",
   "normalizedDraft": {
     "status": "PASS",
-    "candidateDigest": "sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1",
+    "candidateDigest": "sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15",
     "eventCount": 531,
-    "eventCountsByGroup": {"491": 133, "492": 133, "493": 133, "494": 132},
+    "eventCountsByGroup": {
+      "491": 133,
+      "492": 133,
+      "493": 133,
+      "494": 132
+    },
     "entEvents": 32,
     "practiceAllDayEvents": 48,
     "physicalCultureBaseEvents": 52,
@@ -31,12 +41,11 @@
   "reviewRequired": [],
   "verification": {
     "status": "PASS",
-    "verifiedHeadSha": "180652742477a6b5734281e9b5d18d9eb196ddd4",
-    "workflowRunId": 33758410768,
-    "workflowName": "KGMU CI",
-    "repositoryCheck": "npm run check PASS",
-    "syncedMainSha": "5d0f93b755d7faa12732d67a53bcca4235c28b1c",
-    "behindMainAtVerification": 0
+    "workflow": "KGMU CI",
+    "runNumber": 609,
+    "runId": 33793666993,
+    "headSha": "224dda347bc35c2e86de77bcf70e4008179f3439",
+    "result": "npm run check passed on the cleaned branch after deterministic Dentistry 491-494 regeneration; temporary regeneration helpers are absent from the final diff."
   },
   "commonParserChanged": false,
   "commonCoreChanged": false,
