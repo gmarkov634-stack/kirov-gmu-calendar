@@ -64,7 +64,7 @@ test('source geometry and existing cyclic profile stay unchanged', () => {
   assert.equal(sheet.mergedRanges.length, 159);
   assert.equal(sheet.nonEmptyCellCount, 425);
   assert.equal(job.parserProfile, 'cyclic');
-  assert.equal(job.parserRulesVersion, 'kgmu-2026-08-30-v4');
+  assert.equal(job.parserRulesVersion, 'kgmu-2026-08-27-v3');
 });
 
 test('direct user decisions are persisted as course-local evidence', () => {
