@@ -36,9 +36,7 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
   assert.equal(sourceArtifact.sha256, '2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265');
   assert.equal(parsingJob.parserRulesVersion, 'kgmu-2026-08-27-v3');
 
-  // The dedicated preflight test below is the publication-status gate. The general
-  // node --test run concurrently rebuilds this historical draft through the
-  // course-local pre/post test, where status is transiently REVIEW_REQUIRED.
+  assert.equal(draft.status, 'PASS');
   assert.equal(qa.status, 'PASS');
   assert.equal(qa.publishEligible, true);
   assert.equal(qa.scheduleVersionReady, true);
