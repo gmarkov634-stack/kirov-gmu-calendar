@@ -40,7 +40,8 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   facultativeCatalog: Object.freeze({ "2026-2027-semester-1": SEMESTER_1_FACULTATIVE_CATALOG }),
   trialEnabled: true,
   managementEnabled: true,
-  checkoutEnabled: true
+  checkoutEnabled: true,
+  referralAnalyticsEnabled: false
 });
 
 (() => {
