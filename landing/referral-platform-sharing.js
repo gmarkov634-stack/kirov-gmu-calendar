@@ -108,7 +108,7 @@ function trackShare(context, source, referralId, action) {
 
 function shareAnchor(label, href, platform, context, source, referralId) {
   const anchor = document.createElement("a");
-  anchor.className = "pay-button button button-primary referral-platform-action";
+  anchor.className = "secondary-action button button-secondary referral-platform-action";
   anchor.href = href;
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
@@ -138,9 +138,6 @@ function decorateShareCard(card) {
 
   const actions = card.querySelector(".referral-share-actions");
   if (!actions) return;
-  const generic = [...actions.querySelectorAll("button")]
-    .find((button) => /Отправить в чат группы/i.test(button.textContent ?? ""));
-  if (generic) generic.hidden = true;
 
   const max = shareAnchor(
     "Отправить в MAX",
@@ -158,7 +155,7 @@ function decorateShareCard(card) {
     "vk-share",
     vkReferralId
   );
-  actions.prepend(max, vk);
+  actions.append(max, vk);
   card.dataset.platformShareReady = "true";
 }
 
