@@ -142,6 +142,7 @@ jobs:
           set -euo pipefail
           expected="$(cat .dentistry4-new-digest)"
           python3 fixtures/tools/run_dentistry_491_494_prepost_candidate.py
+          python3 fixtures/tools/postprocess_dentistry_491_494_candidate.py
           actual="$(python3 - <<'PY'
           import json
           print(json.load(open('qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', encoding='utf-8'))['candidateDigest'])
@@ -152,6 +153,7 @@ jobs:
           import json
           draft=json.load(open('qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', encoding='utf-8'))
           date_only=[e for e in draft['events'] if e.get('timeSemantics') == 'date-only']
+          assert draft['status'] == 'PASS'
           assert len(draft['events']) == 531
           assert len(date_only) == 48
           assert all('startTime' not in e and 'endTime' not in e for e in date_only)
