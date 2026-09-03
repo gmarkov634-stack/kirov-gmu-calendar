@@ -19,7 +19,7 @@ QA_REPORT = QA / "dentistry-491-494.qa-report.json"
 PROBE = QA / "dentistry-494.source-probe.json"
 DECISIONS = FIXTURES / "dentistry-491-494.user-decisions.json"
 GROUPS = ["491", "492", "493", "494"]
-EXPECTED_DIGEST = "sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1"
+EXPECTED_DIGEST = "sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15"
 EXPECTED_COUNTS = {"491": 133, "492": 133, "493": 133, "494": 132}
 REPLACEMENT_DATES = {"2026-12-18", "2026-12-25"}
 PE_CONFLICT_DATES = {
@@ -56,8 +56,6 @@ def make_event(*, group: str, date: str, discipline: str, lesson_type: str,
         "groupId": group,
         "academicPeriodId": PERIOD,
         "date": date,
-        "startTime": None if date_only else start,
-        "endTime": None if date_only else end,
         "timeSemantics": "date-only" if date_only else "floating",
         "discipline": discipline,
         "lessonType": lesson_type,
@@ -65,6 +63,9 @@ def make_event(*, group: str, date: str, discipline: str, lesson_type: str,
         "location": location,
         "sourceRef": {"sourceId": "dentistry", "locator": source_locator},
     }
+    if not date_only:
+        event["startTime"] = start
+        event["endTime"] = end
     if assessment is not None:
         event["assessment"] = assessment
     return {"eventId": event_id(event), **event}
@@ -173,7 +174,7 @@ def main():
             ))
 
     events.sort(key=lambda event: (
-        event["groupId"], event["date"], event["startTime"] or "99:99",
+        event["groupId"], event["date"], event.get("startTime") or "99:99",
         event["discipline"], event["sourceRef"]["locator"],
     ))
     counts = dict(Counter(event["groupId"] for event in events))
@@ -181,8 +182,13 @@ def main():
         raise SystemExit(f"resolved candidate mismatch: {len(events)} {counts}")
 
     practice = [event for event in events if event["discipline"] == "Практика"]
-    if len(practice) != 48 or not all(event["timeSemantics"] == "date-only" for event in practice):
-        raise SystemExit("Practice must be 48 all-day/date-only events")
+    if len(practice) != 48 or not all(
+        event["timeSemantics"] == "date-only"
+        and "startTime" not in event
+        and "endTime" not in event
+        for event in practice
+    ):
+        raise SystemExit("Practice must be 48 all-day/date-only events without time keys")
     ent = [event for event in events if event["discipline"] == "Оториноларингология"]
     if len(ent) != 32:
         raise SystemExit("expected 32 ENT events")
@@ -202,7 +208,7 @@ def main():
         raise SystemExit("PE leaked into an explicitly excluded conflict date")
 
     signatures = [(
-        event["groupId"], event["date"], event["startTime"], event["endTime"],
+        event["groupId"], event["date"], event.get("startTime"), event.get("endTime"),
         event["discipline"], event["lessonType"], event.get("location"),
     ) for event in events]
     duplicate_count = len(signatures) - len(set(signatures))

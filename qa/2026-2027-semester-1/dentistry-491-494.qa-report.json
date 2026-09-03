@@ -67,6 +67,6 @@
   "blockers": [],
   "scheduleVersionReady": true,
   "publicationPerformed": false,
-  "candidateDigest": "sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1",
+  "candidateDigest": "sha256:73cb833fb0f175a449e488c0125153e94f5528f5eebd0d46f5dab7719341ac15",
   "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json"
 }
