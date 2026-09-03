@@ -1,0 +1,57 @@
+name: QA dentistry 191-194 normalized draft
+
+on:
+  push:
+    branches:
+      - feat/dentistry-191-194-2026-09-03
+    paths:
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.source.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.source-artifact.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.parsing-job.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.decisions.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.r90-confirmation.json'
+      - 'fixtures/tools/build_dentistry_191_194_candidate.py'
+      - 'qa/2026-2027-semester-1/dentistry-191-194.source-probe.json'
+      - '.github/workflows/qa-dentistry-191-194.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.source.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.source-artifact.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.parsing-job.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.decisions.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194.r90-confirmation.json'
+      - 'fixtures/tools/build_dentistry_191_194_candidate.py'
+      - 'qa/2026-2027-semester-1/dentistry-191-194.source-probe.json'
+      - '.github/workflows/qa-dentistry-191-194.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build deterministic normalized draft and QA evidence
+        run: python fixtures/tools/build_dentistry_191_194_candidate.py
+      - name: Persist generated QA evidence on branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            fixtures/2026-2027-semester-1/dentistry-191-194.decisions.json \
+            fixtures/2026-2027-semester-1/normalized/dentistry-191-194.normalized.json \
+            qa/2026-2027-semester-1/dentistry-191-194.evidence.json \
+            qa/2026-2027-semester-1/dentistry-191-194.semantic-review.json \
+            qa/2026-2027-semester-1/dentistry-191-194.qa-report.json
+          if git diff --cached --quiet; then
+            echo 'Dentistry normalized draft and QA evidence unchanged'
+          else
+            git commit -m 'Record Dentistry 191-194 normalized draft QA evidence'
+            git push origin HEAD:feat/dentistry-191-194-2026-09-03
+          fi

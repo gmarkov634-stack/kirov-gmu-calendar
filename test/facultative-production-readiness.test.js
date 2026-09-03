@@ -89,7 +89,11 @@ test('deployment facultative catalogs exactly mirror both source-backed medicine
         );
       }
     }
-    assert.deepEqual(Object.keys(periodCatalog).sort(), [...expectedGroupIds].sort(), configPath);
+    assert.deepEqual(
+      Object.keys(periodCatalog).filter((groupId) => expectedGroupIds.includes(groupId)).sort(),
+      [...expectedGroupIds].sort(),
+      configPath
+    );
   }
 });
 

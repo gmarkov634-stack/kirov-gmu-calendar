@@ -1,0 +1,19 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
+  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "status": "RESOLVED",
+  "items": [],
+  "manualConfirmations": [
+    {
+      "id": "dentistry-191-194-facultatives-weekly-periodicity",
+      "rule": "R90",
+      "sourceCell": "B49",
+      "weekGridCell": "B50",
+      "periodicityConfirmed": true,
+      "recurrence": "every-service-week",
+      "confirmedOn": "2026-09-03",
+      "provenance": "direct-user-confirmation"
+    }
+  ]
+}

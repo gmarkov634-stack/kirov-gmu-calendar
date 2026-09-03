@@ -1,0 +1,30 @@
+{
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "dentistry",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "dentistry",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1097/1_stomat-02-09-2026-09.xlsx",
+    "sha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+    "byteLength": 17899,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": ["191", "192", "193", "194"],
+  "workbookExpectations": {
+    "sheetNames": ["1 стомат."],
+    "maxRow": 75,
+    "maxColumn": 6,
+    "mergedRangeCount": 91,
+    "nonEmptyCellCount": 145
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  }
+}

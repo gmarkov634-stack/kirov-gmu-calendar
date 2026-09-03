@@ -1,0 +1,22 @@
+{
+  "schema": "kgmu-source-artifact-evidence-v1",
+  "sourceArtifactId": "source-artifact-dentistry-191-194-719d8081-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "dentistry",
+  "originUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1097/1_stomat-02-09-2026-09.xlsx",
+  "sha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "byteLength": 17899,
+  "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "sourceObjectKey": "qa-source-artifacts/kirov-gmu/2026-2027-semester-1/dentistry-191-194/719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a.xlsx",
+  "evidence": {
+    "repository": "gmarkov634-stack/kirov-gmu-calendar",
+    "workflowRunId": 33688559597,
+    "workflowArtifactId": 9869093281,
+    "workflowArtifactName": "dentistry-191-194-source-probe",
+    "xlsxFileName": "dentistry-191-194-source.xlsx",
+    "mechanicalProbeFile": "qa/2026-2027-semester-1/dentistry-191-194.source-probe.json"
+  },
+  "productionObjectStorageWritePerformed": false,
+  "publicationPerformed": false
+}
