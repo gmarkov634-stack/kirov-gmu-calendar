@@ -31,8 +31,8 @@
   "reviewRequired": [],
   "verification": {
     "status": "PASS",
-    "verifiedHeadSha": "eacee38e954fc545df52d6c85c594ef2aaf621d2",
-    "workflowRunId": 33756419251,
+    "verifiedHeadSha": "180652742477a6b5734281e9b5d18d9eb196ddd4",
+    "workflowRunId": 33758410768,
     "workflowName": "KGMU CI",
     "repositoryCheck": "npm run check PASS",
     "syncedMainSha": "5d0f93b755d7faa12732d67a53bcca4235c28b1c",
