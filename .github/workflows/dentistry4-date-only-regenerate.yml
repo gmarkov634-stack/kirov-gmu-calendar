@@ -85,7 +85,6 @@ jobs:
           draft['candidateDigest'] = new_digest
           draft_path.write_text(json.dumps(draft, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
-          # Update every exact evidence/guard reference to the old approved digest/suffix.
           for path in root.rglob('*'):
               if not path.is_file() or '.git' in path.parts or path == Path('.github/workflows/dentistry4-date-only-regenerate.yml'):
                   continue
@@ -97,7 +96,6 @@ jobs:
               if updated != text:
                   path.write_text(updated, encoding='utf-8')
 
-          # Both builder and postprocessor must emit contract-canonical date-only objects.
           for relative in (
               'fixtures/tools/build_dentistry_491_494_candidate.py',
               'fixtures/tools/postprocess_dentistry_491_494_candidate.py',
@@ -116,7 +114,6 @@ jobs:
               text = text.replace('event["startTime"] or "99:99"', 'event.get("startTime") or "99:99"')
               path.write_text(text, encoding='utf-8')
 
-          # Postprocessor duplicate signature must also tolerate absent date-only clocks.
           post_path = root / 'fixtures/tools/postprocess_dentistry_491_494_candidate.py'
           post = post_path.read_text(encoding='utf-8')
           signature_old = 'event["groupId"], event["date"], event["startTime"], event["endTime"],'
@@ -130,7 +127,6 @@ jobs:
               raise SystemExit('postprocessor Practice assertion not found')
           post_path.write_text(post.replace(practice_old, practice_new, 1), encoding='utf-8')
 
-          # Add a focused contract regression test without weakening existing tests.
           test_path = root / 'test' / 'dentistry-course4-date-only-shape.test.js'
           test_path.write_text('''import assert from 'node:assert/strict';\nimport { readFile } from 'node:fs/promises';\nimport test from 'node:test';\n\nconst draft = JSON.parse(await readFile(new URL('../qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json', import.meta.url), 'utf8'));\n\ntest('Dentistry 4 date-only events omit clock fields', () => {\n  const dateOnly = draft.events.filter((event) => event.timeSemantics === 'date-only');\n  assert.equal(dateOnly.length, 48);\n  for (const event of dateOnly) {\n    assert.equal(Object.hasOwn(event, 'startTime'), false);\n    assert.equal(Object.hasOwn(event, 'endTime'), false);\n  }\n  const floating = draft.events.filter((event) => event.timeSemantics === 'floating');\n  for (const event of floating) {\n    assert.equal(typeof event.startTime, 'string');\n    assert.equal(typeof event.endTime, 'string');\n    assert.ok(event.startTime.length > 0);\n    assert.ok(event.endTime.length > 0);\n  }\n});\n''', encoding='utf-8')
 
@@ -165,7 +161,7 @@ jobs:
           rm -f .dentistry4-new-digest
 
       - name: Run repository checks
-        run: npm check
+        run: npm run check
 
       - name: Commit regenerated fix and remove bootstrap workflow
         shell: bash
