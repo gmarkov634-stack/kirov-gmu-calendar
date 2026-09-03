@@ -1,0 +1,47 @@
+name: TEMP Dentistry course 4 publication artifact
+
+on:
+  push:
+    branches:
+      - feat/dentistry-course4-publish-2026-09-03
+
+permissions:
+  contents: read
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reproduce resolved candidate
+        run: |
+          python3 fixtures/tools/run_dentistry_491_494_prepost_candidate.py
+          python3 fixtures/tools/postprocess_dentistry_491_494_candidate.py
+      - name: Verify resolved outputs
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          draft = json.loads((root/'qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json').read_text())
+          qa = json.loads((root/'qa/2026-2027-semester-1/dentistry-491-494.qa-report.json').read_text())
+          assert draft['status'] == 'PASS'
+          assert draft['eventCount'] == 531
+          assert draft['candidateDigest'] == 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1'
+          assert qa['status'] == 'PASS'
+          assert qa['scheduleVersionReady'] is True
+          assert qa['blockers'] == []
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dentistry-491-494-resolved-publication-inputs
+          path: |
+            fixtures/2026-2027-semester-1/dentistry-491-494.source-artifact.json
+            fixtures/2026-2027-semester-1/dentistry-491-494.parsing-job.json
+            qa/2026-2027-semester-1/dentistry-491-494.parsing-result.json
+            qa/2026-2027-semester-1/dentistry-491-494.normalized-draft.json
+            qa/2026-2027-semester-1/dentistry-491-494.semantic-review.json
+            qa/2026-2027-semester-1/dentistry-491-494.qa-report.json
