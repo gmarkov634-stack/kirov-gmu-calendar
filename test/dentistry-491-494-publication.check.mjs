@@ -16,6 +16,8 @@ const groups = ['491', '492', '493', '494'];
 const expectedCounts = { '491': 133, '492': 133, '493': 133, '494': 132 };
 const expectedDateOnlyCounts = { '491': 12, '492': 12, '493': 12, '494': 12 };
 const digest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const persistenceProjection = 'drop-null-date-only-times-v1';
+const persistenceDigest = 'sha256:e3a606160cf5ccea01ff3be839b70c4364b851111989c3b5249d2f3d7aa6f32c';
 
 test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate', async () => {
   const [sourceArtifact, parsingJob, draft, qa, publication] = await Promise.all([
@@ -54,8 +56,11 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
   assert.deepEqual(publication.groupFacultativeEventCounts, { '491': 0, '492': 0, '493': 0, '494': 0 });
   assert.deepEqual(publication.facultativeIds, []);
   assert.equal(new Set(draft.events.map((event) => event.eventId)).size, 531);
-  assert.equal(draft.events.filter((event) => event.timeSemantics === 'date-only').length, 48);
-  assert.ok(draft.events.filter((event) => event.timeSemantics === 'date-only').every((event) => event.discipline === 'Практика'));
+  const legacyDateOnly = draft.events.filter((event) => event.timeSemantics === 'date-only');
+  assert.equal(legacyDateOnly.length, 48);
+  assert.ok(legacyDateOnly.every((event) => event.discipline === 'Практика'));
+  assert.ok(legacyDateOnly.every((event) => Object.hasOwn(event, 'startTime') && Object.hasOwn(event, 'endTime')));
+  assert.ok(legacyDateOnly.every((event) => event.startTime === null && event.endTime === null));
   assert.ok(draft.events.every((event) => event.facultativeId == null));
 });
 
@@ -71,21 +76,29 @@ test('Dentistry course 4 publisher is fail-closed around production contracts', 
     'MEDICAL_CALENDAR_DB_PATH',
     'PREFLIGHT_OK_NO_DATABASE_CHANGES',
     'subscriptionTokensChanged: false',
-    'calendarPreferencesChanged: false'
+    'calendarPreferencesChanged: false',
+    persistenceProjection,
+    'projectApprovedEventsForCore',
+    'delete projected.startTime',
+    'delete projected.endTime'
   ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
   assert.doesNotMatch(source, /DELETE\s+FROM\s+schedule_versions/i);
   assert.doesNotMatch(source, /rotate|revoke/i);
 });
 
-test('Dentistry course 4 publisher preflight reproduces exact stable version plan without DB access', async () => {
+test('Dentistry course 4 publisher preflight reproduces exact stable version plan and core-safe date-only projection without DB access', async () => {
   const publisher = new URL('../ops/publish-dentistry-491-494.mjs', import.meta.url);
   const { stdout, stderr } = await execFileAsync(process.execPath, [publisher.pathname, '--preflight'], { encoding: 'utf8' });
   assert.equal(stderr, '');
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
-  assert.match(stdout, /"eventCount": 531/);
-  assert.match(stdout, /"dateOnlyEventCount": 48/);
-  assert.match(stdout, new RegExp(digest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(stdout, /"facultativeIds": \[\]/);
+  const payload = JSON.parse(stdout.slice(0, stdout.indexOf('\nPREFLIGHT_OK_NO_DATABASE_CHANGES')));
+  assert.equal(payload.eventCount, 531);
+  assert.equal(payload.dateOnlyEventCount, 48);
+  assert.equal(payload.candidateDigest, digest);
+  assert.equal(payload.eventSetDigest, digest);
+  assert.equal(payload.persistenceProjection, persistenceProjection);
+  assert.equal(payload.persistenceEventSetDigest, persistenceDigest);
+  assert.deepEqual(payload.facultativeIds, []);
   for (const groupId of groups) {
     assert.match(stdout, new RegExp(`kgmu-2026-2027-s1-dentistry-${groupId}-2a0490e90c89cfb4`));
   }
