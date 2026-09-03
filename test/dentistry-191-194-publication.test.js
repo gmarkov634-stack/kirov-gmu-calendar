@@ -22,15 +22,16 @@ test('Dentistry course 1 normalized draft is the approved publication candidate'
     readJson('../qa/2026-2027-semester-1/dentistry-191-194.qa-report.json'),
     readJson('../qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json')
   ]);
-  const digest = digestNormalizedEvents(draft.events);
 
   assert.equal(source.programId, 'dentistry');
   assert.equal(source.course, 1);
   assert.deepEqual(source.expectedGroupIds, ['191', '192', '193', '194']);
   assert.equal(draft.events.length, 1656);
-  assert.equal(digest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
-  assert.equal(digest, qa.candidateDigest);
-  assert.equal(digest, publication.candidateDigest);
+  assert.equal(draft.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
+  assert.equal(draft.candidateDigest, qa.candidateDigest);
+  assert.equal(draft.candidateDigest, publication.candidateDigest);
+  assert.equal(digestNormalizedEvents(draft.events), 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
+  assert.equal(digestNormalizedEvents(draft.events), publication.eventSetDigest);
   assert.equal(draft.status, 'NORMALIZED');
   assert.equal(qa.decision, 'pass');
   assert.equal(qa.readyForScheduleVersion, true);
@@ -65,6 +66,7 @@ test('Dentistry course 1 publication preflight is deterministic and does not ope
   assert.equal(stderr, '');
   assert.match(stdout, /"eventCount": 1656/);
   assert.match(stdout, /sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91/);
+  assert.match(stdout, /sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374/);
   assert.match(stdout, /kgmu-2026-2027-s1-dentistry-191-60851036434561da/);
   assert.match(stdout, /kgmu-2026-2027-s1-dentistry-facultative-biology/);
   assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
