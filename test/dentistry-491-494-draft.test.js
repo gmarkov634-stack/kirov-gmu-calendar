@@ -15,11 +15,12 @@ for (const script of [
 }
 const readJson = async (path) => JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'));
 
-const [catalog, probe, sourceArtifact, job, parsing, draft, review, qa] = await Promise.all([
+const [catalog, probe, sourceArtifact, job, decisions, parsing, draft, review, qa] = await Promise.all([
   readJson(`catalog/${period}.json`),
   readJson(`qa/${period}/dentistry-494.source-probe.json`),
   readJson(`fixtures/${period}/dentistry-491-494.source-artifact.json`),
   readJson(`fixtures/${period}/dentistry-491-494.parsing-job.json`),
+  readJson(`fixtures/${period}/dentistry-491-494.user-decisions.json`),
   readJson(`qa/${period}/dentistry-491-494.parsing-result.json`),
   readJson(`qa/${period}/dentistry-491-494.normalized-draft.json`),
   readJson(`qa/${period}/dentistry-491-494.semantic-review.json`),
@@ -27,10 +28,17 @@ const [catalog, probe, sourceArtifact, job, parsing, draft, review, qa] = await 
 ]);
 
 const groups = ['491', '492', '493', '494'];
-const counts = { '491': 100, '492': 100, '493': 100, '494': 99 };
+const counts = { '491': 133, '492': 133, '493': 133, '494': 132 };
 const sourceSha = '2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265';
+const candidateDigest = 'sha256:2a0490e90c89cfb40004b128c8429f896108ff9fc98e98cd1426adae171931a1';
+const peConflictDates = {
+  '491': '2026-09-25',
+  '492': '2026-10-09',
+  '493': '2026-09-18',
+  '494': '2026-11-27'
+};
 
-test('Dentistry course 4 scope is 491-494 and all pipeline artifacts stay source-bound', () => {
+test('Dentistry course 4 scope is 491-494 and pipeline artifacts stay source-bound', () => {
   const dentistry = catalog.programs.find((program) => program.programId === 'dentistry');
   assert.deepEqual(dentistry.courses.find((course) => course.course === 4).groupIds, groups);
   assert.deepEqual(probe.source.groups, groups);
@@ -59,29 +67,55 @@ test('source geometry and existing cyclic profile stay unchanged', () => {
   assert.equal(job.parserRulesVersion, 'kgmu-2026-08-30-v4');
 });
 
-test('fail-closed postprocessing leaves exactly 399 deterministic normalized events', () => {
-  assert.equal(draft.status, 'REVIEW_REQUIRED');
-  assert.equal(draft.eventCount, 399);
-  assert.deepEqual(draft.eventCountsByGroup, counts);
-  assert.equal(draft.candidateDigest, digestNormalizedEvents(draft.events));
-  const actual = Object.fromEntries(groups.map((group) => [group, draft.events.filter((event) => event.groupId === group).length]));
-  assert.deepEqual(actual, counts);
-  assert.equal(new Set(draft.events.map((event) => event.eventId)).size, 399);
-
-  assert.equal(draft.events.filter((event) => event.discipline === 'Оториноларингология').length, 0);
-  assert.equal(draft.events.filter((event) => event.discipline === 'Практика').length, 0);
-
-  const pe = draft.events.filter((event) => event.discipline.startsWith('Дисциплины по физической культуре'));
-  assert.equal(pe.length, 8);
-  assert.deepEqual([...new Set(pe.map((event) => event.date))].sort(), ['2026-12-18', '2026-12-25']);
-  assert.ok(pe.every((event) => event.startTime === '16:10' && event.endTime === '17:40'));
-
-  const management = draft.events.filter((event) => event.date === '2027-01-12' && event.discipline === 'Менеджмент в здравоохранении');
-  assert.equal(management.length, 4);
-  assert.deepEqual(management.map((event) => event.groupId), groups);
+test('direct user decisions are persisted as course-local evidence', () => {
+  assert.equal(decisions.provenance, 'direct-user-confirmation');
+  assert.equal(decisions.confirmedOn, '2026-09-03');
+  const byId = Object.fromEntries(decisions.decisions.map((item) => [item.id, item]));
+  assert.equal(byId['ent-last-day-long'].exceptionPlacement, 'last-date-of-each-group-cycle');
+  assert.deepEqual(byId['pe-friday-series-with-replacements-and-conflict-exclusions'].replacementDates, ['2026-12-18', '2026-12-25']);
+  assert.equal(byId['pe-friday-series-with-replacements-and-conflict-exclusions'].conflictResolution, 'omit-physical-culture');
+  assert.equal(byId['january-practice-all-day'].timeSemantics, 'date-only');
 });
 
-test('postprocessed deterministic draft contains no duplicate signatures or timed overlaps', () => {
+test('resolved draft contains exactly 531 events with deterministic digest', () => {
+  assert.equal(draft.status, 'PASS');
+  assert.equal(draft.eventCount, 531);
+  assert.deepEqual(draft.eventCountsByGroup, counts);
+  assert.equal(draft.candidateDigest, candidateDigest);
+  assert.equal(draft.candidateDigest, digestNormalizedEvents(draft.events));
+  assert.equal(new Set(draft.events.map((event) => event.eventId)).size, 531);
+});
+
+test('ENT uses the last date of each group cycle for the 12:55 exception', () => {
+  const ent = draft.events.filter((event) => event.discipline === 'Оториноларингология');
+  assert.equal(ent.length, 32);
+  for (const group of groups) {
+    const groupEnt = ent.filter((event) => event.groupId === group).sort((a, b) => a.date.localeCompare(b.date));
+    assert.equal(groupEnt.length, 8);
+    assert.ok(groupEnt.slice(0, -1).every((event) => event.startTime === '09:00' && event.endTime === '12:05'));
+    assert.equal(groupEnt.at(-1).startTime, '09:00');
+    assert.equal(groupEnt.at(-1).endTime, '12:55');
+  }
+});
+
+test('Practice is all-day and PE follows confirmed replacements and conflict omissions', () => {
+  const practice = draft.events.filter((event) => event.discipline === 'Практика');
+  assert.equal(practice.length, 48);
+  assert.ok(practice.every((event) => event.timeSemantics === 'date-only' && event.startTime === null && event.endTime === null));
+
+  const pe = draft.events.filter((event) => event.discipline.startsWith('Дисциплины по физической культуре'));
+  const peBase = pe.filter((event) => event.startTime === '14:30' && event.endTime === '16:00');
+  const peReplacement = pe.filter((event) => event.startTime === '16:10' && event.endTime === '17:40');
+  assert.equal(peBase.length, 52);
+  assert.equal(peReplacement.length, 8);
+  assert.deepEqual([...new Set(peReplacement.map((event) => event.date))].sort(), ['2026-12-18', '2026-12-25']);
+  assert.ok(peBase.every((event) => !['2026-12-18', '2026-12-25'].includes(event.date)));
+  for (const group of groups) {
+    assert.equal(pe.some((event) => event.groupId === group && event.date === peConflictDates[group]), false);
+  }
+});
+
+test('final resolved draft has no duplicate signatures or timed overlaps', () => {
   const signatures = new Set();
   const byDay = new Map();
   for (const event of draft.events) {
@@ -104,28 +138,28 @@ test('postprocessed deterministic draft contains no duplicate signatures or time
   assert.equal(overlaps, 0);
 });
 
-test('three REVIEW_REQUIRED classes explicitly block ScheduleVersion readiness', () => {
-  assert.equal(parsing.status, 'REVIEW_REQUIRED');
-  assert.equal(parsing.resolvedOccurrenceCount, 399);
-  assert.equal(parsing.unresolvedOccurrenceCount, 144);
-  assert.equal(parsing.postprocessing.removedInferredPracticeEvents, 48);
-  assert.equal(parsing.postprocessing.removedInferredPeBaseEvents, 64);
-  assert.equal(parsing.postprocessing.retainedExplicitPeExtraEvents, 8);
+test('QA is pass and ScheduleVersion is ready but publication is not performed', () => {
+  assert.equal(parsing.status, 'PASS');
+  assert.equal(parsing.resolvedOccurrenceCount, 531);
+  assert.equal(parsing.unresolvedOccurrenceCount, 0);
+  assert.equal(parsing.excludedByDecisionOccurrenceCount, 12);
+  assert.equal(parsing.postprocessing.resolvedEntEvents, 32);
+  assert.equal(parsing.postprocessing.retainedPracticeAllDayEvents, 48);
+  assert.equal(parsing.postprocessing.retainedPeBaseEvents, 52);
+  assert.equal(parsing.postprocessing.supersededPeBaseEvents, 8);
+  assert.equal(parsing.postprocessing.omittedPeConflictEvents, 4);
+  assert.equal(parsing.postprocessing.retainedExplicitPeReplacementEvents, 8);
   assert.equal(parsing.postprocessing.commonParserChanged, false);
-  assert.equal(parsing.warnings.length, 3);
-  assert.ok(parsing.warnings.every((warning) => warning.startsWith('REVIEW_REQUIRED ')));
 
-  assert.equal(review.status, 'REVIEW_REQUIRED');
-  assert.equal(review.reviewRequiredClassCount, 3);
-  assert.equal(review.publishEligible, false);
-  assert.ok(review.ruleApplications.some((item) => item.rule === 'C20' && item.result === 'REVIEW_REQUIRED'));
-  assert.ok(review.ruleApplications.some((item) => item.rule === 'G04/G21/C12' && item.result === 'REVIEW_REQUIRED'));
-  assert.ok(review.ruleApplications.some((item) => item.rule === 'G21' && item.result === 'REVIEW_REQUIRED'));
+  assert.equal(review.status, 'PASS');
+  assert.equal(review.reviewRequiredClassCount, 0);
+  assert.equal(review.publishEligible, true);
+  assert.deepEqual(review.unresolved, []);
 
-  assert.equal(qa.status, 'REVIEW_REQUIRED');
-  assert.equal(qa.candidateDigest, draft.candidateDigest);
-  assert.equal(qa.blockers.length, 3);
-  assert.equal(qa.scheduleVersionReady, false);
-  assert.equal(qa.publishEligible, false);
+  assert.equal(qa.status, 'PASS');
+  assert.equal(qa.candidateDigest, candidateDigest);
+  assert.deepEqual(qa.blockers, []);
+  assert.equal(qa.scheduleVersionReady, true);
+  assert.equal(qa.publishEligible, true);
   assert.equal(qa.publicationPerformed, false);
 });
