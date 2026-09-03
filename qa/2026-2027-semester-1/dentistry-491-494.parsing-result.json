@@ -1,0 +1,49 @@
+{
+  "schema": "kgmu-parsing-result-v1",
+  "jobId": "parsing-job-dentistry-491-494-2e945ca99ec75bfb-v1",
+  "sourceArtifactId": "source-artifact-dentistry-491-494-2e945ca99ec75bfb",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "status": "PASS",
+  "expectedGroupIds": [
+    "491",
+    "492",
+    "493",
+    "494"
+  ],
+  "sheetName": "4 курс осень 2026 Стом",
+  "logicalSourceBlockCount": 52,
+  "groupLocalCycleBlockCount": 48,
+  "eventBearingOccurrenceCount": 543,
+  "resolvedOccurrenceCount": 531,
+  "unresolvedOccurrenceCount": 0,
+  "excludedServiceOccurrenceCount": 16,
+  "diagnostics": [],
+  "serviceBlocks": [
+    {
+      "rule": "C07/C14",
+      "locator": "DF14",
+      "label": "экзамены",
+      "dates": [
+        "2027-01-13",
+        "2027-01-14",
+        "2027-01-15",
+        "2027-01-16"
+      ]
+    }
+  ],
+  "excludedByDecisionOccurrenceCount": 12,
+  "warnings": [],
+  "postprocessing": {
+    "mode": "course-local-user-resolved",
+    "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json",
+    "resolvedEntEvents": 32,
+    "retainedPracticeAllDayEvents": 48,
+    "retainedPeBaseEvents": 52,
+    "supersededPeBaseEvents": 8,
+    "omittedPeConflictEvents": 4,
+    "retainedExplicitPeReplacementEvents": 8,
+    "commonParserChanged": false
+  }
+}

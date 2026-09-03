@@ -1,0 +1,53 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "sourceSha256": "2e945ca99ec75bfbe7f98402d0752ebe96afbd12780d29c7f5cdf32f7e22b265",
+  "status": "PASS",
+  "parserProfile": "C",
+  "sourceScope": {
+    "program": "dentistry",
+    "course": 4,
+    "groupIds": [
+      "491",
+      "492",
+      "493",
+      "494"
+    ]
+  },
+  "ruleApplications": [
+    {
+      "rule": "C01/C08",
+      "result": "PASS",
+      "detail": "Unambiguous group-local source cycles remain source-bound."
+    },
+    {
+      "rule": "C07/C14",
+      "result": "PASS",
+      "detail": "13-16 January exam period remains service metadata only; no synthetic events."
+    },
+    {
+      "rule": "C01/G11/G12/G14",
+      "result": "PASS",
+      "detail": "Shared Management block on 12 January remains four timed events."
+    },
+    {
+      "rule": "direct-user-confirmation/C20",
+      "result": "PASS",
+      "detail": "For each ENT cycle, the final source date is 09:00-12:55; preceding dates are 09:00-12:05."
+    },
+    {
+      "rule": "direct-user-confirmation/G04/G21/C12",
+      "result": "PASS",
+      "detail": "PE recurs on Fridays; 18.12 and 25.12 replace base time with 16:10-17:40; PE is omitted on four confirmed ophthalmology-conflict dates."
+    },
+    {
+      "rule": "direct-user-confirmation/G21",
+      "result": "PASS",
+      "detail": "Shared Practice 18-30 January is retained as source-date all-day/date-only events."
+    }
+  ],
+  "unresolved": [],
+  "publishEligible": true,
+  "finalDeterministicEventCount": 531,
+  "reviewRequiredClassCount": 0,
+  "decisionFixture": "fixtures/2026-2027-semester-1/dentistry-491-494.user-decisions.json"
+}
