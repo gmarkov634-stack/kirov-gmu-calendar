@@ -1,0 +1,74 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v3",
+  "parsingJobId": "parsing-job-dentistry-191-194-719d8081-v1",
+  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "source-identity-coherent",
+      "status": "pass",
+      "message": "source fixture, SourceArtifact, ParsingJob and mechanical probe resolve to the same official XLSX SHA-256"
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "77/77 main-table cells normalized; 0 represented explicitly in semantic review"
+    },
+    {
+      "code": "source-cell-locator-coverage",
+      "status": "pass",
+      "message": "all 105 decision segments point to cells present in the hash-pinned mechanical probe"
+    },
+    {
+      "code": "groups-match-expected",
+      "status": "pass",
+      "message": "groups 191-194 only"
+    },
+    {
+      "code": "dates-within-service-grid",
+      "status": "pass",
+      "message": "all 1656 normalized base events fall inside B50 service-week intervals"
+    },
+    {
+      "code": "hard-count-cross-checks",
+      "status": "pass",
+      "message": "all 12 R07/R08/R83 cross-checks match explicit source events"
+    },
+    {
+      "code": "assessment-metadata-lossless",
+      "status": "pass",
+      "message": "7 source-explicit assessment metadata mappings preserved"
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "0 duplicate normalized event signatures"
+    },
+    {
+      "code": "source-backed-overlaps-preserved",
+      "status": "warning",
+      "message": "181 overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"
+    },
+    {
+      "code": "publication-not-performed",
+      "status": "pass",
+      "message": "QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"
+    }
+  ],
+  "eventCount": 1656,
+  "eventCountByGroup": {
+    "191": 413,
+    "192": 413,
+    "193": 415,
+    "194": 415
+  },
+  "overlapPairCount": 181,
+  "unresolvedSemanticItemCount": 0,
+  "readyForScheduleVersion": true,
+  "publicationPerformed": false
+}

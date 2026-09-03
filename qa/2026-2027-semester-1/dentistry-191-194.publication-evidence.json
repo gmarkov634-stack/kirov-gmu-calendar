@@ -1,0 +1,55 @@
+{
+  "schema": "kgmu-dentistry-publication-evidence-v1",
+  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+  "eventSetDigest": "sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374",
+  "eventCount": 1656,
+  "groupEventCounts": {
+    "191": 413,
+    "192": 413,
+    "193": 415,
+    "194": 415
+  },
+  "groupDefaultVisibleEventCounts": {
+    "191": 328,
+    "192": 328,
+    "193": 330,
+    "194": 330
+  },
+  "groupFacultativeEventCounts": {
+    "191": 85,
+    "192": 85,
+    "193": 85,
+    "194": 85
+  },
+  "facultativeEventCountsPerGroup": {
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": 18,
+    "kgmu-2026-2027-s1-dentistry-facultative-russian": 31,
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": 18,
+    "kgmu-2026-2027-s1-dentistry-facultative-math": 18
+  },
+  "facultativeSourceDecisionEvidence": {
+    "kgmu-2026-2027-s1-dentistry-facultative-russian": [
+      "B15#s3",
+      "B26#s2",
+      "B49#r90-2"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": ["B49#r90-1"],
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": ["B49#r90-3"],
+    "kgmu-2026-2027-s1-dentistry-facultative-math": ["B49#r90-4"]
+  },
+  "facultativeIds": [
+    "kgmu-2026-2027-s1-dentistry-facultative-biology",
+    "kgmu-2026-2027-s1-dentistry-facultative-russian",
+    "kgmu-2026-2027-s1-dentistry-facultative-physics",
+    "kgmu-2026-2027-s1-dentistry-facultative-math"
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "createdAt": "2026-09-03T07:23:00Z"
+}
