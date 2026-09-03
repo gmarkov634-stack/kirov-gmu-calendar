@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { toCorePersistenceEvents } from '../src/core-persistence-events.js';
 import { canonicalJson, digestNormalizedEvents, sha256Hex } from '../src/explicit-decisions.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -98,6 +99,14 @@ async function loadPlan() {
   if (events.some((event) => !['floating', 'date-only'].includes(event.timeSemantics))) throw new Error('Dentistry course-4 contains unsupported time semantics');
   if (events.filter((event) => event.timeSemantics === 'date-only').length !== 48) throw new Error('Dentistry course-4 must contain exactly 48 date-only Practice events');
 
+  const persistenceEvents = toCorePersistenceEvents(events);
+  if (persistenceEvents.length !== events.length) throw new Error('Dentistry course-4 persistence adaptation changed event count');
+  if (persistenceEvents.some((event, index) => event.eventId !== events[index].eventId || event.groupId !== events[index].groupId || event.timeSemantics !== events[index].timeSemantics)) throw new Error('Dentistry course-4 persistence adaptation changed event identity');
+  const persistenceDateOnlyEvents = persistenceEvents.filter((event) => event.timeSemantics === 'date-only');
+  if (persistenceDateOnlyEvents.length !== 48) throw new Error('Dentistry course-4 persistence adaptation changed date-only count');
+  if (persistenceDateOnlyEvents.some((event) => Object.hasOwn(event, 'startTime') || Object.hasOwn(event, 'endTime'))) throw new Error('Dentistry course-4 persistence date-only events must omit startTime and endTime');
+  const persistenceEventSetDigest = eventSetDigest(persistenceEvents);
+
   if (JSON.stringify(sourceArtifact.expectedGroupIds) !== JSON.stringify(GROUPS) || JSON.stringify(parsingJob.expectedGroupIds) !== JSON.stringify(GROUPS)) throw new Error('unexpected Dentistry course-4 group scope');
   const actualCounts = countByGroup(events);
   for (const groupId of GROUPS) {
@@ -127,15 +136,17 @@ async function loadPlan() {
       sourceSha256: SOURCE_SHA256,
       candidateDigest,
       eventSetDigest: normalizedEventSetDigest,
+      persistenceEventSetDigest,
       coreEvidence: publication.sharedContractEvidence,
       events,
+      persistenceEvents,
       versions,
       publication,
       parsingResult: {
         jobId: parsingJob.jobId,
         universityId: UNIVERSITY_ID,
         academicPeriodId: ACADEMIC_PERIOD_ID,
-        events
+        events: persistenceEvents
       }
     },
     qaForPublication: {
@@ -174,8 +185,10 @@ console.log(JSON.stringify({
   sourceSha256: plan.sourceSha256,
   candidateDigest: plan.candidateDigest,
   eventSetDigest: plan.eventSetDigest,
+  persistenceEventSetDigest: plan.persistenceEventSetDigest,
   eventCount: plan.events.length,
   dateOnlyEventCount: plan.events.filter((event) => event.timeSemantics === 'date-only').length,
+  persistenceDateOnlyTimingFieldsOmitted: plan.persistenceEvents.filter((event) => event.timeSemantics === 'date-only').every((event) => !Object.hasOwn(event, 'startTime') && !Object.hasOwn(event, 'endTime')),
   facultativeIds: plan.publication.facultativeIds,
   versions: plan.versions
 }, null, 2));
@@ -204,7 +217,7 @@ try {
   const repository = core.createSqliteScheduleRepository(database);
 
   for (const version of plan.versions) {
-    const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+    const expectedEvents = plan.persistenceEvents.filter((event) => event.groupId === version.groupId);
     const expectedDigest = eventSetDigest(expectedEvents);
     const current = await repository.getPublishedSchedule({
       universityId: plan.universityId,
@@ -214,7 +227,7 @@ try {
     });
     if (current) {
       if (current.scheduleVersion.versionId !== version.versionId) throw new Error(`group ${version.groupId} already has another published production version ${current.scheduleVersion.versionId}`);
-      if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) throw new Error(`group ${version.groupId} published target does not match the approved candidate`);
+      if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) throw new Error(`group ${version.groupId} published target does not match the approved candidate persistence form`);
       console.log(`group ${version.groupId}: already published and verified; skipping`);
       continue;
     }
@@ -224,7 +237,7 @@ try {
     if (targetRow) {
       const storedRows = database.prepare('SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id').all(version.versionId);
       const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
-      if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) throw new Error(`group ${version.groupId} ready target does not match the approved candidate`);
+      if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) throw new Error(`group ${version.groupId} ready target does not match the approved candidate persistence form`);
       console.log(`group ${version.groupId}: resuming existing verified ready version`);
     } else {
       const snapshot = core.createReadyScheduleVersion({
@@ -246,7 +259,7 @@ try {
   }
 
   for (const version of plan.versions) {
-    const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+    const expectedEvents = plan.persistenceEvents.filter((event) => event.groupId === version.groupId);
     const expectedDigest = eventSetDigest(expectedEvents);
     const published = await repository.getPublishedSchedule({
       universityId: plan.universityId,
