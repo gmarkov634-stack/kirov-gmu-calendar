@@ -1,0 +1,13 @@
+{
+  "jobId": "parsing-job-dentistry-191-194-719d8081-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "dentistry",
+  "sourceObjectKey": "qa-source-artifacts/kirov-gmu/2026-2027-semester-1/dentistry-191-194/719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a.xlsx",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "expectedGroupIds": ["191", "192", "193", "194"],
+  "requestedAt": "2026-09-03T01:05:03+03:00",
+  "executionMode": "qa-only-operator-authored-explicit",
+  "productionPersistencePerformed": false,
+  "publicationPerformed": false
+}
