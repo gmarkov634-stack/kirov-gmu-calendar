@@ -40,8 +40,12 @@
   ],
   "reviewRequired": [],
   "verification": {
-    "status": "PENDING_REVERIFICATION",
-    "reason": "Date-only Practice events now omit startTime/endTime keys to match the deployed Core contract; branch CI must reverify the regenerated candidate before merge."
+    "status": "PASS",
+    "workflow": "KGMU CI",
+    "runNumber": 609,
+    "runId": 33793666993,
+    "headSha": "224dda347bc35c2e86de77bcf70e4008179f3439",
+    "result": "npm run check passed on the cleaned branch after deterministic Dentistry 491-494 regeneration; temporary regeneration helpers are absent from the final diff."
   },
   "commonParserChanged": false,
   "commonCoreChanged": false,
