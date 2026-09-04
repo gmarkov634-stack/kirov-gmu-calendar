@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-test('same-origin production artifact sends a persistent browser identity with trial requests', () => {
+test('production artifact temporarily bypasses persistent browser binding while preserving trial API contract', () => {
   const tempRoot = mkdtempSync(join(tmpdir(), 'kgmu-production-browser-trial-'));
   const output = join(tempRoot, 'site');
 
@@ -18,9 +18,12 @@ test('same-origin production artifact sends a persistent browser identity with t
 
     const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
     assert.match(runtimeConfig, /trialEnabled:\s*true/);
-    assert.match(runtimeConfig, /kgmu-calendar:trial-browser-id-v1/);
+    assert.match(runtimeConfig, /trialBrowserBindingEnabled:\s*false/);
     assert.match(runtimeConfig, /X-Trial-Browser-Id/);
     assert.match(runtimeConfig, /crypto\?\.randomUUID/);
+    assert.match(runtimeConfig, /trialBrowserBindingEnabled !== true/);
+    assert.match(runtimeConfig, /return createBrowserId\(\)\.toLowerCase\(\)/);
+    assert.match(runtimeConfig, /function persistentBrowserId\(\)/);
     assert.match(runtimeConfig, /localStorage\.getItem\(STORAGE_KEY\)/);
     assert.match(runtimeConfig, /localStorage\.setItem\(STORAGE_KEY, memoryBrowserId\)/);
     assert.match(runtimeConfig, /pathname\.endsWith\("\/trial"\)/);
