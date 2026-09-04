@@ -166,15 +166,15 @@ test('updated medicine 101-110 source produces a quarantined fresh normalized ca
   };
   console.log(`SOURCE_CHANGE_CANDIDATE ${JSON.stringify(candidate)}`);
   if (process.env.GITHUB_ACTIONS === 'true') {
-    await mkdir('.artifacts', { recursive: true });
+    await mkdir('artifacts', { recursive: true });
     await Promise.all([
       writeFile(
-        '.artifacts/medicine-101-110-source-change-candidate.json',
+        'artifacts/medicine-101-110-source-change-candidate.json',
         `${JSON.stringify(candidate, null, 2)}\n`,
         'utf8',
       ),
       writeFile(
-        '.artifacts/medicine-101-110-2026-08-31.decisions.json',
+        'artifacts/medicine-101-110-2026-08-31.decisions.json',
         `${JSON.stringify(reviewedManifest)}\n`,
         'utf8',
       ),
