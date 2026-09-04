@@ -23,5 +23,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: medicine-101-110-source-change-candidate
-          path: .artifacts/*.json
+          path: artifacts/*.json
           if-no-files-found: ignore
