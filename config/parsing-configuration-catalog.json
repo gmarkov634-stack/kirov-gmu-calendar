@@ -3,12 +3,17 @@
   "scheduleSources": [
     {
       "academicPeriodId": "2026-2027-semester-1",
-      "sourceId": "medicine",
+      "scheduleSourceId": "medicine-101-110",
       "documentRef": "config/schedule-sources/2026-2027-semester-1/medicine-101-110.json"
     },
     {
       "academicPeriodId": "2026-2027-semester-1",
-      "sourceId": "dentistry",
+      "scheduleSourceId": "medicine-111-120",
+      "documentRef": "config/schedule-sources/2026-2027-semester-1/medicine-111-120.json"
+    },
+    {
+      "academicPeriodId": "2026-2027-semester-1",
+      "scheduleSourceId": "dentistry-291-294",
       "documentRef": "config/schedule-sources/2026-2027-semester-1/dentistry-291-294.json"
     }
   ],
