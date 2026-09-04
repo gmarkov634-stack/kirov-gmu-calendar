@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "kgmu-normalized-candidate-evidence-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "medicine",
+  "sourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "candidateDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469",
+  "eventCount": 4314,
+  "baseEventCount": 3394,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "101": 428,
+    "102": 427,
+    "103": 427,
+    "104": 427,
+    "105": 428,
+    "106": 428,
+    "107": 439,
+    "108": 439,
+    "109": 444,
+    "110": 427
+  },
+  "duplicateEventSignatures": 0,
+  "overlapPairCount": 134,
+  "overlapPairsInvolvingFacultatives": 126,
+  "baseOverlapPairCount": 8,
+  "approvedBaselineComparison": {
+    "approvedCandidateDigest": "sha256:1d56b5b52c6eb6b7e389198309e3dee6dc3b09d6f367357c977d52b2f53755bd",
+    "approvedEventCount": 4349,
+    "approvedBaseEventCount": 3429,
+    "approvedFacultativeEventCount": 920,
+    "approvedBaseOverlapPairCount": 8,
+    "eventCountDelta": -35,
+    "baseEventCountDelta": -35,
+    "facultativeEventCountDelta": 0,
+    "baseOverlapPairCountDelta": 0
+  },
+  "compatibilityStatus": "pending",
+  "publicationAllowed": false,
+  "evidenceRun": {
+    "workflowRunId": 33910268140,
+    "artifactId": 9951071282,
+    "headSha": "a45820a32747202cd411d0ae088eb22915d792d9"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "kgmu-normalization-review-delta-v1",
+  "status": "qa-pass-awaiting-compatibility",
+  "publicationAllowed": false,
+  "sourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+  "approvedSourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "sheetName": "1 леч.1",
+  "fullWorkbookDiffEvidence": "qa/2026-2027-semester-1/medicine-101-110.source-change-full-diff.json",
+  "reviewMethod": {
+    "unchangedCells": "approved semantic decisions are revalidated only where the old and current workbook dumps have exactly equal raw cell content and unchanged merge geometry",
+    "changedCells": "each changed or removed source cell is explicitly represented by remove/add decision operations below",
+    "optionalAndAssessmentArea": "no workbook cell differences occur in rows 43-56; existing facultative and assessment semantics are revalidated against byte-identical source cells",
+    "automaticCrossShaReuse": false
+  },
+  "decisionDelta": {
+    "removeExactTuples": [
+      ["J26#s1", "100", "1001001001001001001001001", "14:50", "16:20", 10, 3, 6],
+      ["K26#s1", "200", "1001001001001001001001001", "14:50", "16:20", 10, 3, 6],
+      ["J34#s1", "300", "4104104104104104104104104", "10:35", "12:05", 15, 3, 11],
+      ["J37#s1", "100", "804104104104104104104104104", "15:40", "18:05", 0, 3, 5],
+      ["K37#s1", "200", "804104104104104104104104104", "14:20", "16:45", 0, 3, 5]
+    ],
+    "addTuples": [
+      ["J34#s1", "100", "804104104104104104104104104", "08:00", "10:25", 0, 3, 5],
+      ["J35#s1", "100", "4104104104104104104104104", "10:35", "12:05", 15, 3, 11],
+      ["K37#s1", "200", "804104104104104104104104104", "14:15", "16:40", 0, 3, 5]
+    ],
+    "resultingLogicalSourceCellCount": 144,
+    "resultingDecisionCount": 194
+  },
+  "semanticReview": [
+    {
+      "source": "J26",
+      "groups": ["109"],
+      "decision": "remove",
+      "reason": "current source cell is empty; approved Правоведение no longer exists at this source position"
+    },
+    {
+      "source": "K26",
+      "groups": ["110"],
+      "decision": "remove-one-segment",
+      "reason": "current cell retains only Библиотечный час; approved Правоведение segment is absent"
+    },
+    {
+      "source": "J34/J35",
+      "groups": ["109", "110"],
+      "decision": "split-former-merge",
+      "reason": "former J34:K35 merge containing Экономика for both groups is gone; J34 now contains Анатомия for group 109 and J35 contains Экономика for group 109 only"
+    },
+    {
+      "source": "J37",
+      "groups": ["109"],
+      "decision": "remove-and-correspond-to-J34",
+      "reason": "J37 is empty; Анатомия 04.09-15.01 is now explicitly present in J34 at 08.00-10.25"
+    },
+    {
+      "source": "K37",
+      "groups": ["110"],
+      "decision": "replace-time",
+      "reason": "Анатомия remains 04.09-15.01 but the current source time is 14.15-15.45, 15.55-16.40"
+    }
+  ],
+  "expectedCandidate": {
+    "eventCount": 4314,
+    "baseEventCount": 3394,
+    "facultativeEventCount": 920,
+    "groupEventCounts": {
+      "101": 428,
+      "102": 427,
+      "103": 427,
+      "104": 427,
+      "105": 428,
+      "106": 428,
+      "107": 439,
+      "108": 439,
+      "109": 444,
+      "110": 427
+    },
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 134,
+    "overlapPairsInvolvingFacultatives": 126,
+    "baseOverlapPairCount": 8,
+    "candidateDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469"
+  },
+  "qaState": {
+    "freshCandidateComputed": true,
+    "candidateDigestPinned": true,
+    "qaDecision": "pass",
+    "compatibilityGate": "pending",
+    "scheduleVersionAllowed": false
+  }
+}

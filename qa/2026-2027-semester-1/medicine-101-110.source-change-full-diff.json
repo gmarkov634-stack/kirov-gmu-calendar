@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-101-110",
+    "sourceId": "medicine",
+    "expectedGroupIds": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110"]
+  },
+  "approvedWorkbook": {
+    "sha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+    "byteLength": 21119,
+    "sheet": "1 леч.1",
+    "maxRow": 56,
+    "maxColumn": 19,
+    "nonEmptyCellCount": 225,
+    "mergedRangeCount": 109,
+    "evidence": {
+      "workflowRunId": 33331423347,
+      "workflowRunNumber": 37,
+      "artifactId": 9737746607,
+      "artifactName": "medicine-101-110-workbook-dump",
+      "headSha": "a371af1b25dce562a791f838ee03f4a6d2f600c9"
+    }
+  },
+  "currentWorkbook": {
+    "sha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+    "byteLength": 21079,
+    "sheet": "1 леч.1",
+    "maxRow": 56,
+    "maxColumn": 19,
+    "nonEmptyCellCount": 224,
+    "mergedRangeCount": 108,
+    "evidence": {
+      "workflowRunId": 33860062533,
+      "artifactId": 9931745278,
+      "headSha": "8425307c3311e945409c7165eb7715a2cbc6ee58"
+    }
+  },
+  "cellDiff": {
+    "removed": [
+      {
+        "coord": "J26",
+        "oldValue": "14.50-16.20 Правоведение 1 неделя по 23.12  1-323"
+      },
+      {
+        "coord": "J37",
+        "oldValue": "15.40-17.10, 17.20-18.05 Анатомия 04.09-15.01"
+      }
+    ],
+    "added": [
+      {
+        "coord": "J35",
+        "newValue": "10.35-12.05  Экономика 04.09-25.12   1-305"
+      }
+    ],
+    "changed": [
+      {
+        "coord": "K26",
+        "oldValue": "14.50-16.20 Правоведение 1 неделя по 23.12  1-323  14.10-15.50 Библиотечный час 08.09 1-404",
+        "newValue": "14.10-15.50 Библиотечный час 08.09 1-404"
+      },
+      {
+        "coord": "J34",
+        "oldValue": "10.35-12.05  Экономика 04.09-25.12   1-305",
+        "newValue": "8.00-9.30, 9.40-10.25 Анатомия 04.09-15.01"
+      },
+      {
+        "coord": "K37",
+        "oldValue": "14.20-15.50, 16.00-16.45 Анатомия  04.09-15.01",
+        "newValue": "14.15-15.45, 15.55-16.40 Анатомия  04.09-15.01"
+      }
+    ],
+    "counts": {
+      "removed": 2,
+      "added": 1,
+      "changed": 3,
+      "totalChangedCoordinates": 6
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": ["J34:K35"],
+    "added": [],
+    "counts": {
+      "removed": 1,
+      "added": 0
+    }
+  },
+  "mechanicallyAffectedColumns": ["J", "K"],
+  "mechanicallyAffectedGroupIds": ["109", "110"],
+  "reviewObservations": [
+    "J26 is now empty: the approved group-109 Правоведение source cell is absent.",
+    "K26 retains only Библиотечный час: the Правоведение portion previously present for group 110 is absent.",
+    "The approved merged range J34:K35 is removed. J34 now contains Анатомия and J35 contains Экономика; K34/K35 contain no non-empty cell.",
+    "J37 is now empty while J34 contains Анатомия with the same 04.09-15.01 date range but a different time block; semantic correspondence requires fresh review.",
+    "K37 remains Анатомия 04.09-15.01 but changes from 14.20-15.50 / 16.00-16.45 to 14.15-15.45 / 15.55-16.40."
+  ],
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "CELL_CONTENT_CHANGED",
+      "MERGED_RANGE_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  }
+}

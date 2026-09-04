@@ -1,0 +1,33 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-2026-08-31-v1",
+  "parsingJobId": "parsing-job-medicine-101-110-9c5fa026-v1",
+  "candidateDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469",
+  "decision": "pass",
+  "publicationAllowed": false,
+  "checks": [
+    {"code":"source-fingerprint-reviewed","status":"pass","message":"Current official workbook SHA-256 9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca was reviewed as a distinct source version; the approved 27.08 baseline remains immutable."},
+    {"code":"full-workbook-diff-reviewed","status":"pass","message":"Full old↔new workbook diff accounts for 6 changed coordinates and removal of merged range J34:K35; cross-SHA semantic reuse was not allowed."},
+    {"code":"main-table-content-accounted-for","status":"pass","message":"144/144 logical source cells in B9:K42 are accounted for by 194 explicit reviewed decisions."},
+    {"code":"changed-source-cells-reviewed","status":"pass","message":"J26, K26, J34, J35, J37 and K37 were explicitly reviewed; removed Правоведение, split Экономика/Анатомия semantics and the updated K37 Анатомия time are represented in the new manifest."},
+    {"code":"facultative-source-revalidated","status":"pass","message":"Rows 43-56 are byte-identical across approved/current workbook dumps; five operator-confirmed R90 facultatives were revalidated for the new source SHA and still expand to 920 events."},
+    {"code":"dates-within-academic-period","status":"pass","message":"All 4314 normalized events remain within the 2026-2027 semester-1 academic period/service-week grid."},
+    {"code":"source-groups-match-expected-groups","status":"pass","message":"Groups 101-110 only; exact counts are 428, 427, 427, 427, 428, 428, 439, 439, 444 and 427."},
+    {"code":"duplicate-events-resolved","status":"pass","message":"No duplicate normalized event signatures."},
+    {"code":"explicit-overlaps-preserved","status":"warning","message":"134 source-backed overlap pairs remain; 126 involve facultatives. The remaining 8 base overlap pairs equal the approved baseline base-overlap count, so this source update introduces no additional base overlaps."},
+    {"code":"unresolved-ambiguities-zero-before-pass","status":"pass","message":"0 unresolved semantic ambiguities remain after explicit review of all changed source coordinates."},
+    {"code":"shared-core-compatibility","status":"warning","message":"Shared-core NormalizedEvent validation and ICS parity for this new candidate have not yet been reverified; publication remains blocked until that compatibility gate passes."}
+  ],
+  "sourceReviewEvidence": {
+    "fullWorkbookDiff": "qa/2026-2027-semester-1/medicine-101-110.source-change-full-diff.json",
+    "normalizationReview": "qa/2026-2027-semester-1/medicine-101-110.normalization-review-2026-08-31.json",
+    "candidateEvidence": "qa/2026-2027-semester-1/medicine-101-110-2026-08-31.candidate-evidence.json",
+    "decisionsManifest": "fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json",
+    "facultatives": "fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.facultatives.json"
+  },
+  "compatibilityGate": {
+    "status": "pending",
+    "requiredChecks": ["NormalizedEvent-v1-validation", "ICS-renderer-parity", "current-core-evidence"]
+  },
+  "sharedContractEvidence": null,
+  "createdAt": "2026-09-04T22:06:00+03:00"
+}

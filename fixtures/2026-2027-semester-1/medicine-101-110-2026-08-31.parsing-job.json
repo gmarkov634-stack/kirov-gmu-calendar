@@ -1,0 +1,10 @@
+{
+  "jobId": "parsing-job-medicine-101-110-9c5fa026-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "medicine",
+  "sourceObjectKey": "sources/kirov-gmu/2026-2027/semester-1/9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca.xlsx",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "expectedGroupIds": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110"],
+  "requestedAt": "2026-09-04T22:06:00+03:00"
+}
