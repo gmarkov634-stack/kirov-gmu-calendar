@@ -22,9 +22,8 @@ function publicHttpUrl(value, label) {
 }
 
 export function buildMaxShareUrl(shareUrl, text) {
-  const target = new URL("https://max.ru/:share");
-  target.searchParams.set("text", `${String(text).trim()}\n${publicHttpUrl(shareUrl, "shareUrl")}`);
-  return target.toString();
+  const payload = `${String(text).trim()}\n${publicHttpUrl(shareUrl, "shareUrl")}`;
+  return `https://max.ru/:share?text=${encodeURIComponent(payload)}`;
 }
 
 export function buildVkShareUrl(shareUrl, title) {
@@ -118,6 +117,21 @@ function shareAnchor(label, href, platform, context, source, referralId) {
   return anchor;
 }
 
+function installPlatformShareStyles() {
+  if (document.querySelector("style[data-referral-platform-sharing-style]")) return;
+  const style = document.createElement("style");
+  style.dataset.referralPlatformSharingStyle = "true";
+  style.textContent = `
+    .referral-share-actions > .button {
+      width: 100%;
+      flex: 0 0 100%;
+      justify-content: center;
+      text-align: center;
+    }
+  `;
+  document.head.append(style);
+}
+
 function decorateShareCard(card) {
   if (card.dataset.platformShareReady === "true") return;
   const context = readContext();
@@ -164,6 +178,7 @@ function apply() {
 }
 
 if (typeof window !== "undefined" && typeof document !== "undefined") {
+  installPlatformShareStyles();
   const root = document.querySelector("main") ?? document.body;
   const observer = new MutationObserver(apply);
   observer.observe(root, { childList: true, subtree: true });

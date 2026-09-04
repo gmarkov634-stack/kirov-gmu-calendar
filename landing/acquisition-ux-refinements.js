@@ -61,11 +61,26 @@
     });
   }
 
+  function revealTrialResultContainer() {
+    const copyButton = grid.querySelector("#copy-trial-url");
+    const card = copyButton?.closest(".trial-connect-card");
+    if (!copyButton || !card || card.dataset.trialResultAnchorReady === "true") return;
+
+    card.id = "trial-calendar-ready";
+    card.dataset.trialResultAnchorReady = "true";
+    card.dataset.trialResultAnchor = "true";
+
+    requestAnimationFrame(() => {
+      card.scrollIntoView({ block: "start", inline: "nearest" });
+    });
+  }
+
   function applyRefinements() {
     suppressPreChoicePersonalization();
     ensureManagementSettingsNote();
     ensureIphoneReminderGuidance();
     revealEmailContainer();
+    revealTrialResultContainer();
   }
 
   installPreChoicePersonalizationGuard();

@@ -30,6 +30,14 @@ test("trial and checkout email handoffs anchor at the start of their container w
   assert.doesNotMatch(script, /\.focus\(/);
 });
 
+test("successful trial result anchors at the start of the Calendar ready container", async () => {
+  const script = await read("landing/acquisition-ux-refinements.js");
+  assert.match(script, /#copy-trial-url/);
+  assert.match(script, /trialResultAnchor/);
+  assert.match(script, /card\.id = "trial-calendar-ready"/);
+  assert.match(script, /card\.scrollIntoView\(\{ block: "start", inline: "nearest" \}\)/);
+});
+
 test("both public landing builders make email-form preferences the final request preferences", async () => {
   for (const path of ["deploy/build-pages.sh", "deploy/build-landing.sh"]) {
     const builder = await read(path);
