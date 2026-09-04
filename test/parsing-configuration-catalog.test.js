@@ -19,19 +19,24 @@ async function loadCatalogDocuments() {
   return { catalog, sourceDocuments, profileDocuments };
 }
 
-test('KGMU parsing catalog indexes both verified schedule canaries without duplicating their documents', async () => {
+test('KGMU parsing catalog indexes three verified schedule configs including two medicine streams', async () => {
   const { catalog, sourceDocuments, profileDocuments } = await loadCatalogDocuments();
 
   assert.equal(catalog.universityId, 'kirov-gmu');
   assert.deepEqual(catalog.scheduleSources, [
     {
       academicPeriodId: '2026-2027-semester-1',
-      sourceId: 'medicine',
+      scheduleSourceId: 'medicine-101-110',
       documentRef: 'config/schedule-sources/2026-2027-semester-1/medicine-101-110.json'
     },
     {
       academicPeriodId: '2026-2027-semester-1',
-      sourceId: 'dentistry',
+      scheduleSourceId: 'medicine-111-120',
+      documentRef: 'config/schedule-sources/2026-2027-semester-1/medicine-111-120.json'
+    },
+    {
+      academicPeriodId: '2026-2027-semester-1',
+      scheduleSourceId: 'dentistry-291-294',
       documentRef: 'config/schedule-sources/2026-2027-semester-1/dentistry-291-294.json'
     }
   ]);
@@ -41,13 +46,26 @@ test('KGMU parsing catalog indexes both verified schedule canaries without dupli
   ]);
 
   assert.deepEqual(
-    sourceDocuments.map(source => [source.academicPeriodId, source.sourceId]),
-    catalog.scheduleSources.map(entry => [entry.academicPeriodId, entry.sourceId])
+    sourceDocuments.map(source => [source.academicPeriodId, source.scheduleSourceId]),
+    catalog.scheduleSources.map(entry => [entry.academicPeriodId, entry.scheduleSourceId])
   );
   assert.deepEqual(
     profileDocuments.map(profile => profile.profileId),
     catalog.parsingProfiles.map(entry => entry.profileId)
   );
+});
+
+test('two medicine ScheduleSource documents coexist while preserving stable sourceId', async () => {
+  const { sourceDocuments } = await loadCatalogDocuments();
+  const medicine = sourceDocuments.filter(source => source.sourceId === 'medicine');
+
+  assert.deepEqual(medicine.map(source => source.scheduleSourceId), [
+    'medicine-101-110',
+    'medicine-111-120'
+  ]);
+  assert.notEqual(medicine[0].sourceObjectKey, medicine[1].sourceObjectKey);
+  assert.deepEqual(medicine[0].expectedGroupIds, ['101','102','103','104','105','106','107','108','109','110']);
+  assert.deepEqual(medicine[1].expectedGroupIds, ['111','112','113','114','115','116','117','118','119','120']);
 });
 
 test('every catalog source references an indexed parsing profile owned by KGMU', async () => {
@@ -63,10 +81,10 @@ test('every catalog source references an indexed parsing profile owned by KGMU',
   }
 });
 
-test('catalog identities and document references are unique', async () => {
+test('catalog configuration identities and document references are unique', async () => {
   const catalog = await readJson(catalogPath);
   const sourceIdentities = catalog.scheduleSources.map(
-    entry => `${entry.academicPeriodId}\u0000${entry.sourceId}`
+    entry => `${entry.academicPeriodId}\u0000${entry.scheduleSourceId}`
   );
   const profileIdentities = catalog.parsingProfiles.map(entry => entry.profileId);
   const refs = [
