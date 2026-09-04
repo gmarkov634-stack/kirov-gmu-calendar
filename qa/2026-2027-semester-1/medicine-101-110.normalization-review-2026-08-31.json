@@ -1,6 +1,6 @@
 {
   "schemaVersion": "kgmu-normalization-review-delta-v1",
-  "status": "candidate-reviewed",
+  "status": "qa-pass-awaiting-compatibility",
   "publicationAllowed": false,
   "sourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
   "approvedSourceSha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
@@ -77,12 +77,17 @@
       "109": 444,
       "110": 427
     },
-    "candidateDigest": null
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 134,
+    "overlapPairsInvolvingFacultatives": 126,
+    "baseOverlapPairCount": 8,
+    "candidateDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469"
   },
   "qaState": {
-    "freshCandidateComputed": false,
-    "candidateDigestPinned": false,
-    "qaDecision": "pending",
+    "freshCandidateComputed": true,
+    "candidateDigestPinned": true,
+    "qaDecision": "pass",
+    "compatibilityGate": "pending",
     "scheduleVersionAllowed": false
   }
 }
