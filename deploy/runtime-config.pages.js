@@ -39,6 +39,7 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   electiveCatalog: globalThis.KGMU_ELECTIVE_CATALOG ?? Object.freeze({}),
   facultativeCatalog: Object.freeze({ "2026-2027-semester-1": SEMESTER_1_FACULTATIVE_CATALOG }),
   trialEnabled: true,
+  trialBrowserBindingEnabled: false,
   managementEnabled: true,
   checkoutEnabled: true,
   referralAnalyticsEnabled: false
@@ -60,7 +61,7 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
     return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
   }
 
-  function browserId() {
+  function persistentBrowserId() {
     if (memoryBrowserId) return memoryBrowserId;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -72,6 +73,13 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
     memoryBrowserId = createBrowserId().toLowerCase();
     try { localStorage.setItem(STORAGE_KEY, memoryBrowserId); } catch {}
     return memoryBrowserId;
+  }
+
+  function browserId() {
+    if (window.KGMU_CALENDAR_CONFIG.trialBrowserBindingEnabled !== true) {
+      return createBrowserId().toLowerCase();
+    }
+    return persistentBrowserId();
   }
 
   function requestUrl(input) {
