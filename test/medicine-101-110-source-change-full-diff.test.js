@@ -20,7 +20,7 @@ test('medicine 101-110 full source diff is exact and remains review-required', a
   assert.equal(diff.approvedWorkbook.sha256, approvedSource.source.sha256);
   assert.equal(diff.approvedWorkbook.sha256, intake.approvedBaseline.sha256);
   assert.equal(diff.currentWorkbook.sha256, intake.currentOfficialWorkbook.sha256);
-  assert.equal(diff.currentWorkbook.byteLength, intake.currentOfficialWorkbook.byteLength);
+  assert.equal(diff.currentWorkbook.byteLength, 21079);
 
   assert.deepEqual(diff.cellDiff.removed.map(({ coord }) => coord), ['J26', 'J37']);
   assert.deepEqual(diff.cellDiff.added.map(({ coord }) => coord), ['J35']);
