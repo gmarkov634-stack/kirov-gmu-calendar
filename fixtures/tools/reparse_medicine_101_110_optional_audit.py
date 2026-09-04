@@ -56,6 +56,24 @@ def dates_for_weekday(intervals, weekday: int):
     return sorted(set(result))
 
 
+def inspect_sheet(workbook):
+    if SHEET_NAME not in workbook.sheetnames:
+        return None, [], []
+    sheet = workbook[SHEET_NAME]
+    full_cells = []
+    full_sheet_optional = []
+    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
+        for cell in row:
+            if cell.value is None:
+                continue
+            text = str(cell.value).strip()
+            entry = {"coord": cell.coordinate, "value": text}
+            full_cells.append(entry)
+            if OPTIONAL_RE.search(text):
+                full_sheet_optional.append(entry)
+    return sheet, full_cells, full_sheet_optional
+
+
 def main():
     meta = json.loads(SOURCE_META.read_text(encoding="utf-8"))
     manifest = json.loads(DECISIONS.read_text(encoding="utf-8"))
@@ -69,8 +87,24 @@ def main():
     )
     data = fetch_url_bytes(discovered.url, timeout=30)
     actual_sha = hashlib.sha256(data).hexdigest()
+    workbook = load_workbook(io.BytesIO(data), data_only=False)
+    sheet, full_cells, full_sheet_optional = inspect_sheet(workbook)
+
+    current_workbook = {
+        "sheetNames": workbook.sheetnames,
+        "selectedSheet": SHEET_NAME if sheet is not None else None,
+        "maxRow": sheet.max_row if sheet is not None else None,
+        "maxColumn": sheet.max_column if sheet is not None else None,
+        "mergedRangeCount": len(sheet.merged_cells.ranges) if sheet is not None else None,
+        "nonEmptyCellCount": len(full_cells) if sheet is not None else None,
+        "optionalTermMatchCount": len(full_sheet_optional) if sheet is not None else None,
+    }
+    fingerprint_matches = (
+        actual_sha == meta["source"]["sha256"]
+        and len(data) == meta["source"]["byteLength"]
+    )
     discovery_report = {
-        "status": "MATCH" if actual_sha == meta["source"]["sha256"] else "REVIEW_REQUIRED_SOURCE_CHANGED",
+        "status": "MATCH" if fingerprint_matches else "REVIEW_REQUIRED_SOURCE_CHANGED",
         "discoveryPage": DISCOVERY_PAGE,
         "groupLabel": GROUP_LABEL,
         "academicYear": meta["academicYear"],
@@ -82,48 +116,40 @@ def main():
         "frozenSha256": meta["source"]["sha256"],
         "discoveredByteLength": len(data),
         "frozenByteLength": meta["source"]["byteLength"],
+        "discoveredWorkbook": current_workbook,
+        "frozenWorkbookExpectations": meta["workbookExpectations"],
     }
     DISCOVERY_REPORT_PATH.write_text(
         json.dumps(discovery_report, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
-    if actual_sha != meta["source"]["sha256"] or len(data) != meta["source"]["byteLength"]:
+    dump = {
+        "reviewStatus": discovery_report["status"],
+        "sourceUrl": discovered.url,
+        "sourceSha256": actual_sha,
+        "byteLength": len(data),
+        "sheetNames": workbook.sheetnames,
+        "sheet": SHEET_NAME if sheet is not None else None,
+        "maxRow": sheet.max_row if sheet is not None else None,
+        "maxColumn": sheet.max_column if sheet is not None else None,
+        "nonEmptyCells": full_cells,
+        "mergedRanges": [str(rng) for rng in sheet.merged_cells.ranges] if sheet is not None else [],
+        "optionalTermMatches": full_sheet_optional,
+    }
+    DUMP_PATH.write_text(json.dumps(dump, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if not fingerprint_matches:
         raise SystemExit(
-            "REVIEW_REQUIRED: official workbook fingerprint changed; "
+            "REVIEW_REQUIRED: official workbook fingerprint changed; structural dump preserved; "
             f"discoveredUrl={discovered.url} discoveredSha256={actual_sha} "
             f"frozenSha256={meta['source']['sha256']}"
         )
 
-    workbook = load_workbook(io.BytesIO(data), data_only=False)
     if workbook.sheetnames != meta["workbookExpectations"]["sheetNames"]:
         raise SystemExit(f"sheet set changed: {workbook.sheetnames}")
-    sheet = workbook[SHEET_NAME]
-
-    full_cells = []
-    full_sheet_optional = []
-    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
-        for cell in row:
-            if cell.value is None:
-                continue
-            text = str(cell.value).strip()
-            entry = {"coord": cell.coordinate, "value": text}
-            full_cells.append(entry)
-            if OPTIONAL_RE.search(text):
-                full_sheet_optional.append(entry)
-
-    dump = {
-        "sourceUrl": discovered.url,
-        "sourceSha256": actual_sha,
-        "byteLength": len(data),
-        "sheet": SHEET_NAME,
-        "maxRow": sheet.max_row,
-        "maxColumn": sheet.max_column,
-        "nonEmptyCells": full_cells,
-        "mergedRanges": [str(rng) for rng in sheet.merged_cells.ranges],
-        "optionalTermMatches": full_sheet_optional,
-    }
-    DUMP_PATH.write_text(json.dumps(dump, ensure_ascii=False, indent=2), encoding="utf-8")
+    if sheet is None:
+        raise SystemExit(f"expected worksheet is missing: {SHEET_NAME}")
 
     logical = []
     for row in sheet.iter_rows(min_row=9, max_row=42, min_col=2, max_col=11):
