@@ -1,0 +1,80 @@
+{
+  "schema": "kgmu-medicine-publication-evidence-v1",
+  "sourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+  "candidateDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469",
+  "eventSetDigest": "sha256:4834a447edd3cccf25bf1105486f34b23c64b8ab56c98db0de591e7b4da68469",
+  "eventCount": 4314,
+  "baseEventCount": 3394,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "101": 428,
+    "102": 427,
+    "103": 427,
+    "104": 427,
+    "105": 428,
+    "106": 428,
+    "107": 439,
+    "108": 439,
+    "109": 444,
+    "110": 427
+  },
+  "groupDefaultVisibleEventCounts": {
+    "101": 336,
+    "102": 335,
+    "103": 335,
+    "104": 335,
+    "105": 336,
+    "106": 336,
+    "107": 347,
+    "108": 347,
+    "109": 352,
+    "110": 335
+  },
+  "groupFacultativeEventCounts": {
+    "101": 92,
+    "102": 92,
+    "103": 92,
+    "104": 92,
+    "105": 92,
+    "106": 92,
+    "107": 92,
+    "108": 92,
+    "109": 92,
+    "110": 92
+  },
+  "facultativeIds": [
+    "kgmu-2026-2027-s1-medicine-facultative-biology",
+    "kgmu-2026-2027-s1-medicine-facultative-chemistry",
+    "kgmu-2026-2027-s1-medicine-facultative-math",
+    "kgmu-2026-2027-s1-medicine-facultative-physics",
+    "kgmu-2026-2027-s1-medicine-facultative-russian"
+  ],
+  "compatibilityValidation": {
+    "coreRepository": "gmarkov634-stack/medical-calendar-core",
+    "coreBaseCommit": "58368c03d487ae7e20298f45e4b24891a54df613",
+    "validationCommit": "f87f401bae76cc77a63392c061a231d1ff5aad35",
+    "kgmuReviewedCommit": "462a5e73d6ba647debe1ec0b75efd9c9d1ff5d25",
+    "workflowRunId": 33918531499,
+    "workflowRunNumber": 6,
+    "conclusion": "success",
+    "completedAt": "2026-09-04T20:54:30Z"
+  },
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "58368c03d487ae7e20298f45e4b24891a54df613",
+    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "publicationScheduleBlob": "6a3b8b4efc946133ba665712cf910720e5979d7b",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "productionRuntimeParity": {
+    "method": "publication-contract-blob-parity",
+    "coreMainCommit": "58368c03d487ae7e20298f45e4b24891a54df613",
+    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "publicationScheduleBlob": "6a3b8b4efc946133ba665712cf910720e5979d7b",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "publicationAllowed": true,
+  "createdAt": "2026-09-04T20:54:30Z"
+}
