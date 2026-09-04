@@ -28,6 +28,7 @@ test('university-owned ScheduleSource is derived exactly from the current medici
   const { scheduleSource, sourceFixture } = await loadCanary();
 
   assert.deepEqual(scheduleSource, {
+    scheduleSourceId: 'medicine-101-110',
     sourceId: sourceFixture.source.sourceId,
     universityId: sourceFixture.universityId,
     academicPeriodId: sourceFixture.academicPeriodId,
@@ -67,6 +68,7 @@ test('declarative config produces the exact legacy KGMU ParsingJob at the migrat
     requestedAt: qaReport.createdAt
   });
 
+  assert.equal(Object.hasOwn(job, 'scheduleSourceId'), false);
   assert.deepEqual(job, {
     jobId: 'parsing-job-101-110-latin-correction-v4',
     universityId: 'kirov-gmu',
