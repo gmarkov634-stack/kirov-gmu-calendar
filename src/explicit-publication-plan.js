@@ -117,6 +117,7 @@ export function buildExplicitPublicationPlan({ manifest, source, evidence, qa })
   }
 
   const candidateDigest = assertNonEmptyString(qa.candidateDigest, 'qa.candidateDigest');
+  if (evidence.candidateDigest !== candidateDigest) throw new Error('evidence/QA candidate digest mismatch');
   const baseEvents = expandExplicitDecisionManifest(manifest, {
     universityId,
     academicPeriodId,
