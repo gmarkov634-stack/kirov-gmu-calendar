@@ -7,6 +7,7 @@ const files = {
   index: new URL("../landing/index.html", import.meta.url),
   app: new URL("../landing/app.js", import.meta.url),
   config: new URL("../landing/runtime-config.js", import.meta.url),
+  acquisition: new URL("../landing/acquisition-ui.js", import.meta.url),
   preview: new URL("../landing/assets/landing-preview.js", import.meta.url),
   styles: new URL("../landing/assets/styles.css", import.meta.url),
   pricing: new URL("../landing/assets/pricing.css", import.meta.url),
@@ -83,6 +84,20 @@ test("trial wiring follows current core contract", async () => {
   for (const field of ["email", "universityId", "groupId", "academicYearId", "academicPeriodId"]) assert.match(app, new RegExp(`${field}[,:]`));
   assert.match(app, /fetch\(apiUrl\("\/trial"\)/);
   assert.doesNotMatch(app, /customerId/);
+});
+
+test("Android Google Calendar handoff keeps the opaque ICS URL out of the Google destination", async () => {
+  const acquisition = await text("acquisition");
+  assert.match(acquisition, /GOOGLE_CALENDAR_ADD_BY_URL = "https:\/\/calendar\.google\.com\/calendar\/u\/0\/r\/settings\/addbyurl"/);
+  assert.match(acquisition, /navigator\.clipboard\.writeText\(url\)/);
+  assert.match(acquisition, /googleOpen\.href = GOOGLE_CALENDAR_ADD_BY_URL/);
+  assert.match(acquisition, /googleOpen\.target = "_blank"/);
+  assert.match(acquisition, /googleOpen\.rel = "noopener noreferrer"/);
+  assert.match(acquisition, /Добавить в Google Календарь/);
+  assert.match(acquisition, /Вставьте её в поле URL календаря/);
+  assert.doesNotMatch(acquisition, /calendar\.google\.com[^\n]*lastCalendarUrl/);
+  assert.doesNotMatch(acquisition, /GOOGLE_CALENDAR_ADD_BY_URL\s*\+\s*state\.lastCalendarUrl/);
+  assert.doesNotMatch(acquisition, /[?&]cid=/);
 });
 
 test("management proof still uses fragment to POST", async () => {
