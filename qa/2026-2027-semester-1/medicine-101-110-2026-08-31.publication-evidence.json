@@ -50,9 +50,25 @@
   "sharedContractEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
     "commit": "58368c03d487ae7e20298f45e4b24891a54df613",
-    "productionRuntimeCommit": "e5414c1d8b8754f8e47397f24d7aeb5d413431ec",
+    "productionRuntimeCommit": "c47bdd44da83971dc6c909cfb2f0296fbfb39d4d",
     "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
     "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
+  },
+  "runtimeCompatibilityEvidence": {
+    "productionRuntimeCommit": "c47bdd44da83971dc6c909cfb2f0296fbfb39d4d",
+    "coreMainAncestor": "58368c03d487ae7e20298f45e4b24891a54df613",
+    "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
+    "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96",
+    "deployedMarkerAudit": {
+      "repository": "gmarkov634-stack/medical-calendar-core",
+      "workflow": "Referral acquisition production audit bridge",
+      "workflowRunId": 33922951330,
+      "workflowConclusion": "failure",
+      "markerStepConclusion": "success",
+      "markerVerified": true,
+      "laterFailure": "GitHub API compare response exceeded audit limit before DB/health steps"
+    },
+    "verifiedAt": "2026-09-04T21:51:02Z"
   },
   "compatibilityGateEvidence": {
     "repository": "gmarkov634-stack/medical-calendar-core",
