@@ -1,14 +1,10 @@
 {
+  "scheduleSourceId": "dentistry-291-294",
   "sourceId": "dentistry",
   "universityId": "kirov-gmu",
   "academicPeriodId": "2026-2027-semester-1",
   "sourceObjectKey": "sources/kirov-gmu/2026-2027/semester-1/ec51c194d2f91d33230da4d93d8bad1dfe885d70ec4bd0e2eec959071b4ff610.xlsx",
   "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "expectedGroupIds": [
-    "291",
-    "292",
-    "293",
-    "294"
-  ],
+  "expectedGroupIds": ["291", "292", "293", "294"],
   "parsingProfileId": "mixed"
 }
