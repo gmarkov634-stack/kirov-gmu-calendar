@@ -1,8 +1,9 @@
 import {
-  digestNormalizedEvents,
   expandExplicitDecisionManifest,
   sha256Hex
 } from './explicit-decisions.js';
+import { finalizePublicationPlan } from './publication-plan-foundation.js';
+export { toCorePublicationQa } from './publication-plan-foundation.js';
 
 function assertObject(value, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -28,12 +29,6 @@ function compareEvents(a, b) {
     a.lessonType.localeCompare(b.lessonType),
     a.sourceRef.locator.localeCompare(b.sourceRef.locator)
   ].find((value) => value !== 0) ?? 0;
-}
-
-function countByGroup(events) {
-  const counts = {};
-  for (const event of events) counts[event.groupId] = (counts[event.groupId] ?? 0) + 1;
-  return counts;
 }
 
 function stableVersionId({ groupId, candidateDigest }) {
@@ -119,18 +114,6 @@ export function expandMedicineFacultativeFixture(facultatives, context) {
   return events.sort(compareEvents);
 }
 
-export function toCorePublicationQa(qa) {
-  assertObject(qa, 'qa');
-  return Object.freeze({
-    qaReportId: assertNonEmptyString(qa.qaReportId, 'qa.qaReportId'),
-    parsingJobId: assertNonEmptyString(qa.parsingJobId, 'qa.parsingJobId'),
-    candidateDigest: assertNonEmptyString(qa.candidateDigest, 'qa.candidateDigest'),
-    decision: qa.decision,
-    checks: qa.checks,
-    createdAt: assertNonEmptyString(qa.createdAt, 'qa.createdAt')
-  });
-}
-
 export function buildMedicinePublicationPlan({ manifest, facultatives, source, evidence, qa }) {
   assertObject(manifest, 'manifest');
   assertObject(facultatives, 'facultatives');
@@ -140,7 +123,6 @@ export function buildMedicinePublicationPlan({ manifest, facultatives, source, e
   assertObject(source.source, 'source.source');
 
   const universityId = assertNonEmptyString(source.universityId, 'source.universityId');
-  const academicYearId = assertNonEmptyString(source.academicYear, 'source.academicYear');
   const academicPeriodId = assertNonEmptyString(source.academicPeriodId, 'source.academicPeriodId');
   const sourceId = assertNonEmptyString(source.source.sourceId, 'source.source.sourceId');
   const sourceSha256 = assertNonEmptyString(source.source.sha256, 'source.source.sha256');
@@ -150,13 +132,6 @@ export function buildMedicinePublicationPlan({ manifest, facultatives, source, e
   if (evidence.sourceSha256 !== sourceSha256) throw new Error('evidence/source SHA-256 mismatch');
   if (manifest.parserRulesVersion !== source.parserRulesVersion) throw new Error('manifest/source parserRulesVersion mismatch');
   if (evidence.parserRulesVersion !== source.parserRulesVersion) throw new Error('evidence/source parserRulesVersion mismatch');
-  if (qa.decision !== 'pass') throw new Error('QA decision must be pass before publication planning');
-  if (!Array.isArray(qa.checks) || qa.checks.some((check) => check?.status === 'fail')) {
-    throw new Error('QA checks must contain no fail status before publication planning');
-  }
-
-  const candidateDigest = assertNonEmptyString(qa.candidateDigest, 'qa.candidateDigest');
-  if (evidence.candidateDigest !== candidateDigest) throw new Error('evidence/QA candidate digest mismatch');
 
   if (!Array.isArray(source.expectedGroupIds) || source.expectedGroupIds.length === 0) {
     throw new TypeError('source.expectedGroupIds must be a non-empty array');
@@ -179,45 +154,12 @@ export function buildMedicinePublicationPlan({ manifest, facultatives, source, e
     sourceId
   });
   const events = [...baseEvents, ...facultativeEvents].sort(compareEvents);
-  if (events.length !== evidence.eventCount) throw new Error('expanded event count does not match evidence');
-  const actualDigest = digestNormalizedEvents(events);
-  if (actualDigest !== candidateDigest) {
-    throw new Error(`expanded events do not match QA candidate digest: actual ${actualDigest}`);
-  }
 
-  const actualCounts = countByGroup(events);
-  for (const groupId of source.expectedGroupIds) {
-    if (actualCounts[groupId] !== evidence.groupEventCounts?.[groupId]) {
-      throw new Error(`group ${groupId} event count does not match evidence`);
-    }
-  }
-  if (Object.keys(actualCounts).length !== source.expectedGroupIds.length) {
-    throw new Error('expanded events contain unexpected groups');
-  }
-
-  const versions = source.expectedGroupIds.map((groupId) => Object.freeze({
-    groupId,
-    versionId: stableVersionId({ groupId, candidateDigest }),
-    eventCount: actualCounts[groupId]
-  }));
-
-  return Object.freeze({
-    universityId,
-    academicYearId,
-    academicPeriodId,
-    sourceId,
-    sourceSha256,
-    candidateDigest,
-    qaReportId: assertNonEmptyString(qa.qaReportId, 'qa.qaReportId'),
-    parsingJobId: assertNonEmptyString(qa.parsingJobId, 'qa.parsingJobId'),
-    coreEvidence: Object.freeze({ ...assertObject(qa.sharedContractEvidence, 'qa.sharedContractEvidence') }),
-    events: Object.freeze(events),
-    versions: Object.freeze(versions),
-    parsingResult: Object.freeze({
-      jobId: qa.parsingJobId,
-      universityId,
-      academicPeriodId,
-      events: Object.freeze(events)
-    })
+  return finalizePublicationPlan({
+    source,
+    evidence,
+    qa,
+    events,
+    versionIdFactory: ({ groupId, candidateDigest }) => stableVersionId({ groupId, candidateDigest })
   });
 }
