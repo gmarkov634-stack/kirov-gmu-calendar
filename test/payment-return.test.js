@@ -20,13 +20,19 @@ test('acquisition personalization is applied before trial and checkout', () => {
   assert.match(acquisitionUi, /const isCheckout =/);
 });
 
-test('trial result exposes direct iPhone and Android Google Calendar actions', () => {
+test('trial result exposes direct iPhone and copy-only Google Calendar actions', () => {
   assert.match(acquisitionUi, /return `webcal:\/\/\$\{parsed\.host\}\$\{parsed\.pathname\}\$\{parsed\.search\}\$\{parsed\.hash\}`;/);
   assert.doesNotMatch(acquisitionUi, /parsed\.protocol\s*=\s*"webcal:"/);
   assert.match(acquisitionUi, /Добавить в iPhone/);
-  assert.match(acquisitionUi, /Добавить в Google Календарь/);
-  assert.match(androidGoogle, /window\.open\(GOOGLE_CALENDAR_ADD_BY_URL, "_blank", "noopener,noreferrer"\)/);
-  assert.match(androidGoogle, /calendar\.google\.com\/calendar\/u\/0\/r\/settings\/addbyurl/);
+  assert.match(acquisitionUi, /navigator\.clipboard\.writeText\(url\)/);
+  assert.match(androidGoogle, /Скопировать для Google Calendar/);
+  assert.match(androidGoogle, /Другие календари/);
+  assert.match(androidGoogle, /По URL/);
+  assert.match(androidGoogle, /calendar-google-open/);
+  assert.match(androidGoogle, /\.remove\(\)/);
+  assert.doesNotMatch(androidGoogle, /window\.open\(/);
+  assert.doesNotMatch(androidGoogle, /intent:\/\//);
+  assert.doesNotMatch(androidGoogle, /calendar\.google\.com/);
   assert.doesNotMatch(androidGoogle, /lastCalendarUrl|calendarPath|[?&]cid=/);
   for (const build of [pagesBuild, productionBuild]) {
     assert.match(build, /android-google-calendar\.js/);
