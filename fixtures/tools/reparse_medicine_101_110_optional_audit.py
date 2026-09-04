@@ -3,17 +3,22 @@ import hashlib
 import io
 import json
 import re
-import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
 
 from openpyxl import load_workbook
+
+from official_schedule_discovery import discover_schedule_link, fetch_url_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_META = ROOT / "fixtures/2026-2027-semester-1/medicine-101-110.source.json"
 DECISIONS = ROOT / "fixtures/2026-2027-semester-1/medicine-101-110.decisions.json"
 FACULTATIVES = ROOT / "fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json"
 DUMP_PATH = ROOT / "medicine-101-110-workbook-dump.json"
+DISCOVERY_REPORT_PATH = ROOT / "medicine-101-110-source-discovery.json"
+DISCOVERY_PAGE = "https://kirovgma.ru/lechebnyy-fakultet-raspisanie"
+GROUP_LABEL = "101-110"
+SEMESTER_LABEL = "первое полугодие"
 SHEET_NAME = "1 леч.1"
 EXPECTED_LOGICAL_CELLS = 145
 OPTIONAL_RE = re.compile(r"факульт|электив|по выбор", re.IGNORECASE)
@@ -51,23 +56,10 @@ def dates_for_weekday(intervals, weekday: int):
     return sorted(set(result))
 
 
-def main():
-    meta = json.loads(SOURCE_META.read_text(encoding="utf-8"))
-    manifest = json.loads(DECISIONS.read_text(encoding="utf-8"))
-    facultatives = json.loads(FACULTATIVES.read_text(encoding="utf-8"))
-
-    data = urllib.request.urlopen(meta["source"]["url"], timeout=30).read()
-    actual_sha = hashlib.sha256(data).hexdigest()
-    if actual_sha != meta["source"]["sha256"]:
-        raise SystemExit(f"source SHA mismatch: {actual_sha}")
-    if len(data) != meta["source"]["byteLength"]:
-        raise SystemExit(f"source byteLength mismatch: {len(data)}")
-
-    workbook = load_workbook(io.BytesIO(data), data_only=False)
-    if workbook.sheetnames != meta["workbookExpectations"]["sheetNames"]:
-        raise SystemExit(f"sheet set changed: {workbook.sheetnames}")
+def inspect_sheet(workbook):
+    if SHEET_NAME not in workbook.sheetnames:
+        return None, [], []
     sheet = workbook[SHEET_NAME]
-
     full_cells = []
     full_sheet_optional = []
     for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
@@ -79,18 +71,85 @@ def main():
             full_cells.append(entry)
             if OPTIONAL_RE.search(text):
                 full_sheet_optional.append(entry)
+    return sheet, full_cells, full_sheet_optional
+
+
+def main():
+    meta = json.loads(SOURCE_META.read_text(encoding="utf-8"))
+    manifest = json.loads(DECISIONS.read_text(encoding="utf-8"))
+    facultatives = json.loads(FACULTATIVES.read_text(encoding="utf-8"))
+
+    discovered = discover_schedule_link(
+        page_url=DISCOVERY_PAGE,
+        group_label=GROUP_LABEL,
+        academic_year=meta["academicYear"],
+        semester_label=SEMESTER_LABEL,
+    )
+    data = fetch_url_bytes(discovered.url, timeout=30)
+    actual_sha = hashlib.sha256(data).hexdigest()
+    workbook = load_workbook(io.BytesIO(data), data_only=False)
+    sheet, full_cells, full_sheet_optional = inspect_sheet(workbook)
+
+    current_workbook = {
+        "sheetNames": workbook.sheetnames,
+        "selectedSheet": SHEET_NAME if sheet is not None else None,
+        "maxRow": sheet.max_row if sheet is not None else None,
+        "maxColumn": sheet.max_column if sheet is not None else None,
+        "mergedRangeCount": len(sheet.merged_cells.ranges) if sheet is not None else None,
+        "nonEmptyCellCount": len(full_cells) if sheet is not None else None,
+        "optionalTermMatchCount": len(full_sheet_optional) if sheet is not None else None,
+    }
+    fingerprint_matches = (
+        actual_sha == meta["source"]["sha256"]
+        and len(data) == meta["source"]["byteLength"]
+    )
+    discovery_report = {
+        "status": "MATCH" if fingerprint_matches else "REVIEW_REQUIRED_SOURCE_CHANGED",
+        "discoveryPage": DISCOVERY_PAGE,
+        "groupLabel": GROUP_LABEL,
+        "academicYear": meta["academicYear"],
+        "semesterLabel": SEMESTER_LABEL,
+        "discoveredLabel": discovered.label,
+        "discoveredUrl": discovered.url,
+        "frozenUrl": meta["source"]["url"],
+        "discoveredSha256": actual_sha,
+        "frozenSha256": meta["source"]["sha256"],
+        "discoveredByteLength": len(data),
+        "frozenByteLength": meta["source"]["byteLength"],
+        "discoveredWorkbook": current_workbook,
+        "frozenWorkbookExpectations": meta["workbookExpectations"],
+    }
+    DISCOVERY_REPORT_PATH.write_text(
+        json.dumps(discovery_report, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     dump = {
+        "reviewStatus": discovery_report["status"],
+        "sourceUrl": discovered.url,
         "sourceSha256": actual_sha,
         "byteLength": len(data),
-        "sheet": SHEET_NAME,
-        "maxRow": sheet.max_row,
-        "maxColumn": sheet.max_column,
+        "sheetNames": workbook.sheetnames,
+        "sheet": SHEET_NAME if sheet is not None else None,
+        "maxRow": sheet.max_row if sheet is not None else None,
+        "maxColumn": sheet.max_column if sheet is not None else None,
         "nonEmptyCells": full_cells,
-        "mergedRanges": [str(rng) for rng in sheet.merged_cells.ranges],
+        "mergedRanges": [str(rng) for rng in sheet.merged_cells.ranges] if sheet is not None else [],
         "optionalTermMatches": full_sheet_optional,
     }
     DUMP_PATH.write_text(json.dumps(dump, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if not fingerprint_matches:
+        raise SystemExit(
+            "REVIEW_REQUIRED: official workbook fingerprint changed; structural dump preserved; "
+            f"discoveredUrl={discovered.url} discoveredSha256={actual_sha} "
+            f"frozenSha256={meta['source']['sha256']}"
+        )
+
+    if workbook.sheetnames != meta["workbookExpectations"]["sheetNames"]:
+        raise SystemExit(f"sheet set changed: {workbook.sheetnames}")
+    if sheet is None:
+        raise SystemExit(f"expected worksheet is missing: {SHEET_NAME}")
 
     logical = []
     for row in sheet.iter_rows(min_row=9, max_row=42, min_col=2, max_col=11):
@@ -159,6 +218,7 @@ def main():
         counts[item["facultativeId"]] = len(item["dates"]) * len(facultatives["groupIds"])
 
     result = {
+        "sourceUrl": discovered.url,
         "sourceSha256": actual_sha,
         "logicalSourceCellCount": len(logical),
         "coveredSourceCellCount": len(covered),
@@ -169,7 +229,7 @@ def main():
         "facultativeEventCount": sum(counts.values()),
         "facultativeCountsById": counts,
         "decision": "PASS_CONFIRMED_FACULTATIVES_R90",
-        "note": "A43 facultatives cover groups 101-110 by merged geometry and expand over every academic service week in A44 under operator-confirmed R90 semantics; default selection is none."
+        "note": "A43 facultatives cover groups 101-110 by merged geometry and expand over every academic service week in A44 under operator-confirmed R90 semantics; default selection is none.",
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
