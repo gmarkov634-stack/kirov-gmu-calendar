@@ -19,6 +19,7 @@ sed -i '/<script src="\.\/runtime-config\.js"><\/script>/i\    <script src="./el
 sed -i '/<script src="\.\.\/runtime-config\.js"><\/script>/i\  <script src="../elective-catalog.generated.js"></script>' "$OUT_DIR/manage/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./trial-personalization.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ui.js"></script>' "$OUT_DIR/index.html"
+sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./android-google-calendar.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script src="./acquisition-ux-refinements.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script type="module" src="./referral-sharing.js"></script>' "$OUT_DIR/index.html"
 sed -i '/<script type="module" src="\.\/app\.js"><\/script>/i\    <script type="module" src="./referral-platform-sharing.js"></script>' "$OUT_DIR/index.html"
