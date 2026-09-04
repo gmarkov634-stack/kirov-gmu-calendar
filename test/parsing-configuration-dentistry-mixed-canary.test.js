@@ -49,6 +49,7 @@ test('dentistry mixed ScheduleSource is derived exactly from its immutable sourc
   const { scheduleSource, sourceFixture } = await loadCanary();
 
   assert.deepEqual(scheduleSource, {
+    scheduleSourceId: 'dentistry-291-294',
     sourceId: sourceFixture.source.sourceId,
     universityId: sourceFixture.universityId,
     academicPeriodId: sourceFixture.academicPeriodId,
@@ -91,6 +92,7 @@ test('dentistry mixed declarative config produces the exact existing canonical P
     requestedAt: parsingJob.requestedAt
   });
 
+  assert.equal(Object.hasOwn(resolved, 'scheduleSourceId'), false);
   assert.deepEqual(resolved, parsingJob);
 });
 
