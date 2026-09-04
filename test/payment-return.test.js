@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const acquisitionUi = readFileSync(new URL('../landing/acquisition-ui.js', import.meta.url), 'utf8');
+const androidGoogle = readFileSync(new URL('../landing/android-google-calendar.js', import.meta.url), 'utf8');
 const handoff = readFileSync(new URL('../landing/manage/handoff.js', import.meta.url), 'utf8');
 const manageHtml = readFileSync(new URL('../landing/manage/index.html', import.meta.url), 'utf8');
 const trialCss = readFileSync(new URL('../landing/assets/trial.css', import.meta.url), 'utf8');
@@ -19,11 +20,17 @@ test('acquisition personalization is applied before trial and checkout', () => {
   assert.match(acquisitionUi, /const isCheckout =/);
 });
 
-test('trial result exposes direct iPhone and Google Calendar actions', () => {
+test('trial result exposes direct iPhone and Android Google Calendar actions', () => {
   assert.match(acquisitionUi, /return `webcal:\/\/\$\{parsed\.host\}\$\{parsed\.pathname\}\$\{parsed\.search\}\$\{parsed\.hash\}`;/);
   assert.doesNotMatch(acquisitionUi, /parsed\.protocol\s*=\s*"webcal:"/);
   assert.match(acquisitionUi, /Добавить в iPhone/);
-  assert.match(acquisitionUi, /Скопировать для Google Calendar/);
+  assert.match(acquisitionUi, /Добавить в Google Календарь/);
+  assert.match(androidGoogle, /window\.open\(GOOGLE_CALENDAR_ADD_BY_URL, "_blank", "noopener,noreferrer"\)/);
+  assert.match(androidGoogle, /calendar\.google\.com\/calendar\/u\/0\/r\/settings\/addbyurl/);
+  assert.doesNotMatch(androidGoogle, /lastCalendarUrl|calendarPath|[?&]cid=/);
+  for (const build of [pagesBuild, productionBuild]) {
+    assert.match(build, /android-google-calendar\.js/);
+  }
 });
 
 test('facultative checkboxes stay compact and email fields are touch-friendly', () => {
