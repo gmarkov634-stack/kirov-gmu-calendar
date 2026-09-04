@@ -1,12 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 
 import {
   digestNormalizedEvents,
   expandExplicitDecisionManifest,
 } from '../src/explicit-decisions.js';
-import { expandMedicineFacultativeFixture } from '../src/medicine-publication-plan.js';
+import {
+  buildMedicinePublicationPlan,
+  expandMedicineFacultativeFixture,
+} from '../src/medicine-publication-plan.js';
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8'));
@@ -63,19 +66,41 @@ function applyReviewedDelta(approvedManifest, review, source) {
   };
 }
 
-test('updated medicine 101-110 source produces a quarantined fresh normalized candidate', async () => {
-  const [approvedManifest, facultatives, source, review, fullDiff] = await Promise.all([
+test('updated medicine 101-110 source has a committed QA-pass candidate while publication stays fail-closed', async () => {
+  const [
+    approvedManifest,
+    reviewedManifest,
+    approvedFacultatives,
+    reviewedFacultatives,
+    source,
+    parsingJob,
+    review,
+    evidence,
+    qa,
+    fullDiff,
+  ] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110.facultatives.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.facultatives.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.source.json'),
+    readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.parsing-job.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.normalization-review-2026-08-31.json'),
+    readJson('qa/2026-2027-semester-1/medicine-101-110-2026-08-31.candidate-evidence.json'),
+    readJson('qa/2026-2027-semester-1/medicine-101-110-2026-08-31.qa-report.json'),
     readJson('qa/2026-2027-semester-1/medicine-101-110.source-change-full-diff.json'),
   ]);
 
   assert.equal(review.publicationAllowed, false);
-  assert.equal(review.qaState.qaDecision, 'pending');
+  assert.equal(review.qaState.qaDecision, 'pass');
+  assert.equal(review.qaState.compatibilityGate, 'pending');
+  assert.equal(review.qaState.scheduleVersionAllowed, false);
   assert.equal(source.lifecycle.publicationAllowed, false);
   assert.equal(fullDiff.semanticDecisionReuseAllowed, false);
+  assert.equal(qa.decision, 'pass');
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.compatibilityGate.status, 'pending');
+  assert.equal(qa.sharedContractEvidence, null);
 
   const changedCoords = [
     ...fullDiff.cellDiff.removed.map(({ coord }) => coord),
@@ -85,14 +110,33 @@ test('updated medicine 101-110 source produces a quarantined fresh normalized ca
   assert.ok(changedCoords.every((coord) => Number(coord.match(/\d+/)[0]) < 43));
   assert.deepEqual(fullDiff.mergedRangeDiff.removed, ['J34:K35']);
 
-  const manifest = applyReviewedDelta(approvedManifest, review, source);
+  const derivedManifest = applyReviewedDelta(approvedManifest, review, source);
+  assert.deepEqual(reviewedManifest, {
+    ...derivedManifest,
+    candidateDigest: review.expectedCandidate.candidateDigest,
+  });
+
+  const { sourceSha256: approvedFacultativeSha, ...approvedFacultativeContent } = approvedFacultatives;
+  const { sourceSha256: reviewedFacultativeSha, ...reviewedFacultativeContent } = reviewedFacultatives;
+  assert.equal(approvedFacultativeSha, review.approvedSourceSha256);
+  assert.equal(reviewedFacultativeSha, source.source.sha256);
+  assert.deepEqual(reviewedFacultativeContent, approvedFacultativeContent);
+
+  assert.equal(parsingJob.jobId, qa.parsingJobId);
+  assert.equal(parsingJob.universityId, source.universityId);
+  assert.equal(parsingJob.academicPeriodId, source.academicPeriodId);
+  assert.equal(parsingJob.sourceId, source.source.sourceId);
+  assert.equal(parsingJob.parserRulesVersion, source.parserRulesVersion);
+  assert.deepEqual(parsingJob.expectedGroupIds, source.expectedGroupIds);
+  assert.ok(parsingJob.sourceObjectKey.endsWith(`/${source.source.sha256}.xlsx`));
+
   const context = {
     universityId: source.universityId,
     academicPeriodId: source.academicPeriodId,
     sourceId: source.source.sourceId,
   };
-  const baseEvents = expandExplicitDecisionManifest(manifest, context);
-  const facultativeEvents = expandMedicineFacultativeFixture(facultatives, context);
+  const baseEvents = expandExplicitDecisionManifest(reviewedManifest, context);
+  const facultativeEvents = expandMedicineFacultativeFixture(reviewedFacultatives, context);
   const events = [...baseEvents, ...facultativeEvents].sort(compareEvents);
 
   const groupEventCounts = Object.fromEntries(source.expectedGroupIds.map((groupId) => [
@@ -145,12 +189,24 @@ test('updated medicine 101-110 source produces a quarantined fresh normalized ca
     duplicateEventSignatures,
     overlapPairCount,
     overlapPairsInvolvingFacultatives,
+    baseOverlapPairCount: overlapPairCount - overlapPairsInvolvingFacultatives,
   };
 
-  assert.equal(candidate.eventCount, review.expectedCandidate.eventCount);
-  assert.equal(candidate.baseEventCount, review.expectedCandidate.baseEventCount);
-  assert.equal(candidate.facultativeEventCount, review.expectedCandidate.facultativeEventCount);
-  assert.deepEqual(candidate.groupEventCounts, review.expectedCandidate.groupEventCounts);
+  assert.deepEqual(candidate, {
+    candidateDigest: evidence.candidateDigest,
+    eventCount: evidence.eventCount,
+    baseEventCount: evidence.baseEventCount,
+    facultativeEventCount: evidence.facultativeEventCount,
+    groupEventCounts: evidence.groupEventCounts,
+    duplicateEventSignatures: evidence.duplicateEventSignatures,
+    overlapPairCount: evidence.overlapPairCount,
+    overlapPairsInvolvingFacultatives: evidence.overlapPairsInvolvingFacultatives,
+    baseOverlapPairCount: evidence.baseOverlapPairCount,
+  });
+  assert.equal(candidate.candidateDigest, reviewedManifest.candidateDigest);
+  assert.equal(candidate.candidateDigest, review.expectedCandidate.candidateDigest);
+  assert.equal(candidate.candidateDigest, qa.candidateDigest);
+  assert.equal(candidate.baseOverlapPairCount, evidence.approvedBaselineComparison.approvedBaseOverlapPairCount);
   assert.equal(candidate.duplicateEventSignatures, 0);
 
   assert.equal(events.some((event) => event.groupId === '109' && event.discipline === 'Правоведение' && event.sourceRef.locator === '1 леч.1!J26#s1'), false);
@@ -160,24 +216,14 @@ test('updated medicine 101-110 source produces a quarantined fresh normalized ca
   assert.ok(events.some((event) => event.groupId === '109' && event.discipline === 'Анатомия' && event.startTime === '08:00' && event.endTime === '10:25' && event.sourceRef.locator === '1 леч.1!J34#s1'));
   assert.ok(events.some((event) => event.groupId === '110' && event.discipline === 'Анатомия' && event.startTime === '14:15' && event.endTime === '16:40' && event.sourceRef.locator === '1 леч.1!K37#s1'));
 
-  const reviewedManifest = {
-    ...manifest,
-    candidateDigest: candidate.candidateDigest,
-  };
-  console.log(`SOURCE_CHANGE_CANDIDATE ${JSON.stringify(candidate)}`);
-  if (process.env.GITHUB_ACTIONS === 'true') {
-    await mkdir('artifacts', { recursive: true });
-    await Promise.all([
-      writeFile(
-        'artifacts/medicine-101-110-source-change-candidate.json',
-        `${JSON.stringify(candidate, null, 2)}\n`,
-        'utf8',
-      ),
-      writeFile(
-        'artifacts/medicine-101-110-2026-08-31.decisions.json',
-        `${JSON.stringify(reviewedManifest)}\n`,
-        'utf8',
-      ),
-    ]);
-  }
+  assert.throws(
+    () => buildMedicinePublicationPlan({
+      manifest: reviewedManifest,
+      facultatives: reviewedFacultatives,
+      source,
+      evidence,
+      qa,
+    }),
+    /qa\.sharedContractEvidence must be an object/,
+  );
 });
