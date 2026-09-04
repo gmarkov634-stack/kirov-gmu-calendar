@@ -224,6 +224,6 @@ test('updated medicine 101-110 source has a committed QA-pass candidate while pu
       evidence,
       qa,
     }),
-    /qa\.sharedContractEvidence must be an object/,
+    /coreEvidence must be an object/,
   );
 });
