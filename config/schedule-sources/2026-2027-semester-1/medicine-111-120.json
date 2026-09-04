@@ -1,0 +1,12 @@
+{
+  "scheduleSourceId": "medicine-111-120",
+  "sourceId": "medicine",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceObjectKey": "sources/kirov-gmu/2026-2027/semester-1/781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e.xlsx",
+  "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "expectedGroupIds": [
+    "111", "112", "113", "114", "115", "116", "117", "118", "119", "120"
+  ],
+  "parsingProfileId": "weekly"
+}
