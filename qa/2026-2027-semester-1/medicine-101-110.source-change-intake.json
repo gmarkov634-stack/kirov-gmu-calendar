@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "source-change-intake-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "medicine",
+  "groupRange": "101-110",
+  "officialSchedulePageUrl": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+  "currentOfficialWorkbook": {
+    "publishedDate": "2026-08-31",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/1_lech._1_potok-31-08-2026-10.xlsx",
+    "sha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca"
+  },
+  "approvedBaseline": {
+    "sha256": "341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b",
+    "logicalSourceCellCount": 145
+  },
+  "structuralReview": {
+    "currentLogicalSourceCellCount": 144,
+    "missingApprovedSourceCells": ["J26", "J37"],
+    "newUnreviewedSourceCells": ["J35"],
+    "semanticDecisionReuseAllowed": false,
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "APPROVED_SOURCE_CELL_REMOVED",
+      "UNREVIEWED_SOURCE_CELL_ADDED"
+    ]
+  },
+  "publicationBlocked": true,
+  "requiredNextSteps": [
+    "capture the current workbook as a new immutable source artifact",
+    "perform fresh normalization against the current workbook",
+    "perform fresh semantic review for changed and affected source cells",
+    "produce a new QA evidence/report and candidate digest",
+    "create a new ScheduleVersion only after QA pass",
+    "verify existing subscriptions and opaque ICS URLs remain unchanged before publication"
+  ],
+  "productionSafety": {
+    "calendarSubscriptionMutation": false,
+    "entitlementMutation": false,
+    "calendarPreferencesMutation": false,
+    "tokenRotationOrRevocation": false,
+    "opaqueIcsUrlMutation": false,
+    "scheduleVersionPublished": false,
+    "deployPerformed": false
+  }
+}
