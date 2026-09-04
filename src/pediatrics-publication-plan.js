@@ -137,6 +137,8 @@ export function buildPediatricsPublicationPlan({ manifest, facultatives, source,
   if (evidence.sourceSha256 !== sourceSha256) throw new Error('evidence/source SHA-256 mismatch');
   if (manifest.parserRulesVersion !== source.parserRulesVersion) throw new Error('manifest/source parserRulesVersion mismatch');
   if (evidence.parserRulesVersion !== source.parserRulesVersion) throw new Error('evidence/source parserRulesVersion mismatch');
+  const candidateDigest = assertNonEmptyString(qa.candidateDigest, 'qa.candidateDigest');
+  if (evidence.candidateDigest !== candidateDigest) throw new Error('evidence/QA candidate digest mismatch');
 
   if (!Array.isArray(source.expectedGroupIds) || source.expectedGroupIds.length === 0) {
     throw new TypeError('source.expectedGroupIds must be a non-empty array');
