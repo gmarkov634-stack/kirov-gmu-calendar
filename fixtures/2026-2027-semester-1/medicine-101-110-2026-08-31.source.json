@@ -28,7 +28,7 @@
     "immutableSourceStoredInObjectStorage": true
   },
   "lifecycle": {
-    "status": "review-required",
+    "status": "qa-pass-awaiting-compatibility",
     "supersedesApprovedSource": false,
     "publicationAllowed": false
   }
