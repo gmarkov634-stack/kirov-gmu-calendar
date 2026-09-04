@@ -11,6 +11,7 @@
 
   const CHECKOUT_CONTEXT_KEY = "kgmu-calendar:pending-checkout-v2";
   const PAID_HANDOFF_KEY = "kgmu-calendar:paid-handoff-v1";
+  const GOOGLE_CALENDAR_ADD_BY_URL = "https://calendar.google.com/calendar/u/0/r/settings/addbyurl";
   const nativeFetch = globalThis.fetch.bind(globalThis);
   const DEFAULT_REMINDERS = Object.freeze([10, 60]);
   const REMINDER_OPTIONS = Object.freeze([10, 30, 60, 1440]);
@@ -278,30 +279,63 @@
   async function copyCalendar(button, url) {
     await navigator.clipboard.writeText(url);
     const previous = button.textContent;
-    button.textContent = "Скопировано";
+    button.textContent = "Ссылка скопирована";
     setTimeout(() => { button.textContent = previous; }, 1600);
+  }
+
+  function revealGoogleCalendarHandoff(handoff, message) {
+    const help = handoff.querySelector(".calendar-google-help");
+    if (help) help.textContent = message;
+    handoff.hidden = false;
   }
 
   function ensureCalendarActions() {
     const copy = document.querySelector("#copy-trial-url");
     if (!copy || copy.dataset.calendarActionsReady === "true" || !state.lastCalendarUrl) return;
     copy.dataset.calendarActionsReady = "true";
-    copy.textContent = "Скопировать для Google Calendar";
+    copy.textContent = "Добавить в Google Календарь";
     copy.onclick = null;
-    copy.addEventListener("click", (event) => {
-      event.preventDefault();
-      copyCalendar(copy, state.lastCalendarUrl).catch(() => {
-        copy.textContent = "Не удалось скопировать";
-      });
-    }, { capture: true });
 
     const actions = copy.closest(".connect-actions");
     if (!actions) return;
+
+    const googleHandoff = document.createElement("div");
+    googleHandoff.className = "calendar-google-handoff";
+    googleHandoff.hidden = true;
+
+    const googleHelp = document.createElement("p");
+    googleHelp.className = "calendar-google-help";
+
+    const googleOpen = document.createElement("a");
+    googleOpen.className = "secondary-action calendar-google-open";
+    googleOpen.href = GOOGLE_CALENDAR_ADD_BY_URL;
+    googleOpen.target = "_blank";
+    googleOpen.rel = "noopener noreferrer";
+    googleOpen.textContent = "Открыть Google Календарь";
+    googleHandoff.append(googleHelp, googleOpen);
+
+    copy.addEventListener("click", (event) => {
+      event.preventDefault();
+      copyCalendar(copy, state.lastCalendarUrl).then(() => {
+        revealGoogleCalendarHandoff(
+          googleHandoff,
+          "Ссылка скопирована. Вставьте её в поле URL календаря и нажмите «Добавить календарь»."
+        );
+      }).catch(() => {
+        copy.textContent = "Скопируйте ссылку вручную";
+        revealGoogleCalendarHandoff(
+          googleHandoff,
+          "Не удалось скопировать автоматически. Скопируйте ссылку из поля выше, затем откройте Google Календарь и вставьте её в поле URL календаря."
+        );
+      });
+    }, { capture: true });
+
     const iphone = document.createElement("a");
     iphone.className = "pay-button calendar-device-action";
     iphone.href = webcalUrl(state.lastCalendarUrl);
     iphone.textContent = "Добавить в iPhone";
     actions.insertBefore(iphone, copy);
+    actions.append(googleHandoff);
   }
 
   function requestUrl(input) {
