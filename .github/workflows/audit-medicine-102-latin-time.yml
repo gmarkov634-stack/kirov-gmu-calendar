@@ -1,0 +1,92 @@
+name: Audit medicine 102 Latin time
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-medicine-102-latin-time.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check requests==2.32.5 openpyxl==3.1.5
+      - name: Verify official source cells
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import io
+          import json
+          import requests
+          from openpyxl import load_workbook
+
+          url = 'https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/1_lech._1_potok-27-08-2026-11.xlsx'
+          response = requests.get(url, timeout=30, headers={'User-Agent': 'medical-calendar-source-audit/1.0'})
+          response.raise_for_status()
+          data = response.content
+          sha = hashlib.sha256(data).hexdigest()
+          wb = load_workbook(io.BytesIO(data), data_only=False)
+          ws = wb['1 леч.1']
+          result = {
+              'url': url,
+              'sha256': sha,
+              'C22': ws['C22'].value,
+              'C36': ws['C36'].value,
+          }
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          assert sha == '341f5bce70de3b6a483f7edfe83fe37ec02e70a4aaccb043aa77a23f9222255b'
+          assert str(ws['C22'].value).startswith('8.40-10.10 Латинский язык')
+          assert str(ws['C36'].value).startswith('14.30-16.00 Латинский язык')
+          PY
+      - name: Simulate 02.09 Latin at Wednesday time
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          matches = [item for item in data['decisions'] if item[0] == 'C36#s1']
+          assert len(matches) == 1
+          decision = matches[0]
+          assert decision[1] == '2'
+          assert decision[2] == '1'
+          assert decision[3:5] == ['14:30', '16:00']
+          decision[3] = '08:40'
+          decision[4] = '10:10'
+          path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
+          PY
+          node fixtures/tools/compute_medicine_candidate.mjs
+          node --input-type=module <<'JS'
+          import { readFile } from 'node:fs/promises';
+          import { digestNormalizedEvents, expandExplicitDecisionManifest } from './src/explicit-decisions.js';
+          const manifest = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-101-110.decisions.json', 'utf8'));
+          const source = JSON.parse(await readFile('fixtures/2026-2027-semester-1/medicine-101-110.source.json', 'utf8'));
+          const events = expandExplicitDecisionManifest(manifest, {
+            universityId: source.universityId,
+            academicPeriodId: source.academicPeriodId,
+            sourceId: source.source.sourceId
+          });
+          const latin = events.filter((event) => event.groupId === '102' && event.date === '2026-09-02' && event.discipline === 'Латинский язык');
+          const day = events.filter((event) => event.groupId === '102' && event.date === '2026-09-02');
+          console.log(`BASE_DIGEST=${digestNormalizedEvents(events)}`);
+          console.log(`GROUP_102_0209=${JSON.stringify(day)}`);
+          console.log(`GROUP_102_LATIN_0209=${JSON.stringify(latin)}`);
+          if (latin.length !== 1 || latin[0].startTime !== '08:40' || latin[0].endTime !== '10:10') process.exit(1);
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: medicine-102-latin-time-simulation
+          path: |
+            fixtures/2026-2027-semester-1/medicine-101-110.decisions.json
+            medicine-101-110-candidate.json
+          if-no-files-found: error
