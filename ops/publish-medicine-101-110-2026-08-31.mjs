@@ -22,7 +22,10 @@ const UNKNOWN_ARGS = process.argv.slice(2).filter((arg) => ![
   '--preflight',
   '--replace-existing'
 ].includes(arg));
-if (UNKNOWN_ARGS.length > 0) throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
+
+if (UNKNOWN_ARGS.length > 0) {
+  throw new Error(`unsupported arguments: ${UNKNOWN_ARGS.join(', ')}`);
+}
 if (APPLY && !REPLACE_EXISTING) {
   throw new Error('--apply requires --replace-existing for this production ScheduleVersion replacement');
 }
@@ -42,16 +45,12 @@ async function readJson(relativePath) {
   return JSON.parse(await readFile(resolve(ROOT, relativePath), 'utf8'));
 }
 
-function assertNonEmptyString(value, label) {
-  if (typeof value !== 'string' || value.length === 0) {
-    throw new TypeError(`${label} must be a non-empty string`);
-  }
-  return value;
-}
-
 function gitBlobSha(content) {
   const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content);
-  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+  return createHash('sha1')
+    .update(`blob ${bytes.length}\0`)
+    .update(bytes)
+    .digest('hex');
 }
 
 function eventSetDigest(events) {
@@ -65,7 +64,9 @@ function countVevents(ics) {
 
 function countByGroup(events) {
   const counts = {};
-  for (const event of events) counts[event.groupId] = (counts[event.groupId] ?? 0) + 1;
+  for (const event of events) {
+    counts[event.groupId] = (counts[event.groupId] ?? 0) + 1;
+  }
   return counts;
 }
 
@@ -73,20 +74,18 @@ function groupEvents(plan, groupId) {
   return plan.events.filter((event) => event.groupId === groupId);
 }
 
-function tableDigest(database, table) {
-  const rows = database.prepare(`SELECT * FROM ${table}`).all();
-  const canonicalRows = rows.map((row) => canonicalJson(row)).sort();
-  return `sha256:${sha256Hex(canonicalJson(canonicalRows))}`;
-}
-
-function protectedState(database) {
-  return Object.fromEntries(PROTECTED_TABLES.map((table) => [table, tableDigest(database, table)]));
-}
-
-function assertProtectedStateUnchanged(before, after) {
+function installProtectedWriteGuards(database) {
+  const operations = ['INSERT', 'UPDATE', 'DELETE'];
   for (const table of PROTECTED_TABLES) {
-    if (before[table] !== after[table]) {
-      throw new Error(`protected production table changed during schedule publication: ${table}`);
+    for (const operation of operations) {
+      const triggerName = `medcal_guard_${table}_${operation.toLowerCase()}`;
+      database.exec(`
+        CREATE TEMP TRIGGER ${triggerName}
+        BEFORE ${operation} ON main.${table}
+        BEGIN
+          SELECT RAISE(ABORT, 'protected production table mutation: ${table}');
+        END
+      `);
     }
   }
 }
@@ -118,7 +117,9 @@ async function loadPlans() {
     readJson('qa/2026-2027-semester-1/medicine-101-110.qa-report.json')
   ]);
 
-  if (targetQa.decision !== 'pass') throw new Error('target QA decision must be pass');
+  if (targetQa.decision !== 'pass') {
+    throw new Error('target QA decision must be pass');
+  }
   if (!Array.isArray(targetQa.checks) || targetQa.checks.some((check) => check?.status === 'fail')) {
     throw new Error('target QA must contain no failing checks');
   }
@@ -141,20 +142,22 @@ async function loadPlans() {
   if (publication.compatibilityGateEvidence?.workflowRunId !== 33918531499) {
     throw new Error('unexpected compatibility workflow run');
   }
-  if (publication.compatibilityGateEvidence?.kgmuMainMergeCommit !== '2349545ed58036e9be68b57d994d82fc3c91b00b') {
+  if (
+    publication.compatibilityGateEvidence?.kgmuMainMergeCommit
+    !== '2349545ed58036e9be68b57d994d82fc3c91b00b'
+  ) {
     throw new Error('publication evidence is not pinned to the merged KGMU candidate');
   }
 
-  const targetQaForPlanning = {
-    ...targetQa,
-    sharedContractEvidence: publication.sharedContractEvidence
-  };
   const targetPlan = buildMedicinePublicationPlan({
     manifest: targetManifest,
     facultatives: targetFacultatives,
     source: targetSource,
     evidence: targetEvidence,
-    qa: targetQaForPlanning
+    qa: {
+      ...targetQa,
+      sharedContractEvidence: publication.sharedContractEvidence
+    }
   });
   const previousPlan = buildMedicinePublicationPlan({
     manifest: previousManifest,
@@ -215,10 +218,14 @@ async function loadPlans() {
     }
   }
 
-  const previousVersionByGroup = new Map(previousPlan.versions.map((version) => [version.groupId, version]));
+  const previousVersionByGroup = new Map(
+    previousPlan.versions.map((version) => [version.groupId, version])
+  );
   for (const targetVersion of targetPlan.versions) {
     const previousVersion = previousVersionByGroup.get(targetVersion.groupId);
-    if (!previousVersion) throw new Error(`missing previous production version for group ${targetVersion.groupId}`);
+    if (!previousVersion) {
+      throw new Error(`missing previous production version for group ${targetVersion.groupId}`);
+    }
     if (previousVersion.versionId === targetVersion.versionId) {
       throw new Error(`target version must differ from previous production version for group ${targetVersion.groupId}`);
     }
@@ -257,8 +264,12 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
 }
 
 async function verifyCurrentProduction({ repository, database, targetPlan, previousPlan }) {
-  const previousVersionByGroup = new Map(previousPlan.versions.map((version) => [version.groupId, version]));
-  const targetVersionByGroup = new Map(targetPlan.versions.map((version) => [version.groupId, version]));
+  const previousVersionByGroup = new Map(
+    previousPlan.versions.map((version) => [version.groupId, version])
+  );
+  const targetVersionByGroup = new Map(
+    targetPlan.versions.map((version) => [version.groupId, version])
+  );
   const state = new Map();
 
   for (const groupId of targetPlan.versions.map((version) => version.groupId)) {
@@ -270,11 +281,16 @@ async function verifyCurrentProduction({ repository, database, targetPlan, previ
       academicYearId: targetPlan.academicYearId,
       academicPeriodId: targetPlan.academicPeriodId
     });
-    if (!current) throw new Error(`group ${groupId} has no current published production schedule`);
+    if (!current) {
+      throw new Error(`group ${groupId} has no current published production schedule`);
+    }
 
     if (current.scheduleVersion.versionId === previousVersion.versionId) {
       const expected = groupEvents(previousPlan, groupId);
-      if (current.events.length !== previousVersion.eventCount || eventSetDigest(current.events) !== eventSetDigest(expected)) {
+      if (
+        current.events.length !== previousVersion.eventCount
+        || eventSetDigest(current.events) !== eventSetDigest(expected)
+      ) {
         throw new Error(`group ${groupId} current production events do not match expected previous candidate`);
       }
       state.set(groupId, 'previous');
@@ -283,10 +299,15 @@ async function verifyCurrentProduction({ repository, database, targetPlan, previ
 
     if (current.scheduleVersion.versionId === targetVersion.versionId) {
       const expected = groupEvents(targetPlan, groupId);
-      if (current.events.length !== targetVersion.eventCount || eventSetDigest(current.events) !== eventSetDigest(expected)) {
+      if (
+        current.events.length !== targetVersion.eventCount
+        || eventSetDigest(current.events) !== eventSetDigest(expected)
+      ) {
         throw new Error(`group ${groupId} current target events do not match approved target candidate`);
       }
-      const previousRow = database.prepare('SELECT status FROM schedule_versions WHERE version_id = ?').get(previousVersion.versionId);
+      const previousRow = database
+        .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
+        .get(previousVersion.versionId);
       if (!previousRow || !['superseded', 'rolled_back'].includes(previousRow.status)) {
         throw new Error(`group ${groupId} target is published but previous version is not preserved`);
       }
@@ -302,8 +323,33 @@ async function verifyCurrentProduction({ repository, database, targetPlan, previ
   return state;
 }
 
+async function verifyPlanPublished({ repository, plan }) {
+  const versionByGroup = new Map(plan.versions.map((version) => [version.groupId, version]));
+  for (const groupId of plan.versions.map((version) => version.groupId)) {
+    const expectedVersion = versionByGroup.get(groupId);
+    const current = await repository.getPublishedSchedule({
+      universityId: plan.universityId,
+      groupId,
+      academicYearId: plan.academicYearId,
+      academicPeriodId: plan.academicPeriodId
+    });
+    const expectedEvents = groupEvents(plan, groupId);
+    if (!current || current.scheduleVersion.versionId !== expectedVersion.versionId) {
+      throw new Error(`group ${groupId} published baseline verification failed`);
+    }
+    if (
+      current.events.length !== expectedVersion.eventCount
+      || eventSetDigest(current.events) !== eventSetDigest(expectedEvents)
+    ) {
+      throw new Error(`group ${groupId} published baseline event-set verification failed`);
+    }
+  }
+}
+
 async function rollbackGroups({ repository, targetPlan, previousPlan, groupIds }) {
-  const previousVersionByGroup = new Map(previousPlan.versions.map((version) => [version.groupId, version]));
+  const previousVersionByGroup = new Map(
+    previousPlan.versions.map((version) => [version.groupId, version])
+  );
   for (const groupId of [...groupIds].reverse()) {
     const current = await repository.getPublishedSchedule({
       universityId: targetPlan.universityId,
@@ -312,7 +358,9 @@ async function rollbackGroups({ repository, targetPlan, previousPlan, groupIds }
       academicPeriodId: targetPlan.academicPeriodId
     });
     const targetVersion = targetPlan.versions.find((version) => version.groupId === groupId);
-    if (!current || current.scheduleVersion.versionId !== targetVersion.versionId) continue;
+    if (!current || current.scheduleVersion.versionId !== targetVersion.versionId) {
+      continue;
+    }
     const previousVersion = previousVersionByGroup.get(groupId);
     await repository.rollbackToVersion({ versionId: previousVersion.versionId });
     console.error(`group ${groupId}: rolled back to ${previousVersion.versionId}`);
@@ -320,7 +368,9 @@ async function rollbackGroups({ repository, targetPlan, previousPlan, groupIds }
 }
 
 const { targetPlan, previousPlan, publication, qaForPublication } = await loadPlans();
-const previousVersionByGroup = new Map(previousPlan.versions.map((version) => [version.groupId, version]));
+const previousVersionByGroup = new Map(
+  previousPlan.versions.map((version) => [version.groupId, version])
+);
 const transitionPlan = targetPlan.versions.map((version) => ({
   groupId: version.groupId,
   fromVersionId: previousVersionByGroup.get(version.groupId).versionId,
@@ -361,17 +411,26 @@ for (const name of [
   'createReadyScheduleVersion',
   'renderPublishedScheduleIcs'
 ]) {
-  if (typeof core[name] !== 'function') throw new Error(`deployed core is missing ${name}`);
+  if (typeof core[name] !== 'function') {
+    throw new Error(`deployed core is missing ${name}`);
+  }
 }
 
 const database = core.openSqliteRuntimeDatabase({ path: databasePath });
 try {
   const integrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-  if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
+  if (integrity !== 'ok') {
+    throw new Error(`SQLite integrity_check failed: ${integrity}`);
+  }
 
-  const protectedBefore = protectedState(database);
+  installProtectedWriteGuards(database);
   const repository = core.createSqliteScheduleRepository(database);
-  const initialState = await verifyCurrentProduction({ repository, database, targetPlan, previousPlan });
+  const initialState = await verifyCurrentProduction({
+    repository,
+    database,
+    targetPlan,
+    previousPlan
+  });
   const targetGroupsAtStart = [...initialState.entries()]
     .filter(([, state]) => state === 'target')
     .map(([groupId]) => groupId);
@@ -390,7 +449,10 @@ try {
       });
 
       if (current?.scheduleVersion.versionId === version.versionId) {
-        if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) {
+        if (
+          current.events.length !== version.eventCount
+          || eventSetDigest(current.events) !== expectedDigest
+        ) {
           throw new Error(`group ${groupId} already-published target does not match approved candidate`);
         }
         console.log(`group ${groupId}: target already published and verified`);
@@ -402,16 +464,22 @@ try {
         throw new Error(`group ${groupId} changed after production preflight`);
       }
 
-      const targetRow = database.prepare('SELECT status FROM schedule_versions WHERE version_id = ?').get(version.versionId);
+      const targetRow = database
+        .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
+        .get(version.versionId);
       if (targetRow && targetRow.status !== 'ready') {
         throw new Error(`group ${groupId} target version has unexpected status ${targetRow.status}`);
       }
+
       if (targetRow) {
-        const storedRows = database.prepare(
-          'SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id'
-        ).all(version.versionId);
+        const storedRows = database
+          .prepare('SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id')
+          .all(version.versionId);
         const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
-        if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) {
+        if (
+          storedEvents.length !== version.eventCount
+          || eventSetDigest(storedEvents) !== expectedDigest
+        ) {
           throw new Error(`group ${groupId} ready target does not match approved candidate`);
         }
         console.log(`group ${groupId}: resuming existing verified ready target`);
@@ -448,7 +516,10 @@ try {
       if (!published || published.scheduleVersion.versionId !== version.versionId) {
         throw new Error(`group ${groupId} final published version verification failed`);
       }
-      if (published.events.length !== version.eventCount || eventSetDigest(published.events) !== eventSetDigest(expectedEvents)) {
+      if (
+        published.events.length !== version.eventCount
+        || eventSetDigest(published.events) !== eventSetDigest(expectedEvents)
+      ) {
         throw new Error(`group ${groupId} final event-set verification failed`);
       }
 
@@ -471,7 +542,9 @@ try {
       }
 
       const previousVersion = previousVersionByGroup.get(groupId);
-      const previousRow = database.prepare('SELECT status FROM schedule_versions WHERE version_id = ?').get(previousVersion.versionId);
+      const previousRow = database
+        .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
+        .get(previousVersion.versionId);
       if (!previousRow || previousRow.status !== 'superseded') {
         throw new Error(`group ${groupId} previous production version is not preserved as superseded`);
       }
@@ -499,10 +572,10 @@ try {
       }
     }
 
-    const protectedAfter = protectedState(database);
-    assertProtectedStateUnchanged(protectedBefore, protectedAfter);
     const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-    if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+    if (finalIntegrity !== 'ok') {
+      throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+    }
 
     console.log(JSON.stringify({
       result: 'PRODUCTION_MEDICINE_101_110_UPDATED_AND_VERIFIED',
@@ -512,6 +585,7 @@ try {
       groupCount: targetPlan.versions.length,
       eventCount: targetPlan.events.length,
       previousVersionsPreservedAsSuperseded: true,
+      protectedTableWriteGuards: PROTECTED_TABLES,
       CalendarSubscriptionChanged: false,
       EntitlementChanged: false,
       SubscriptionTokenChanged: false,
@@ -526,14 +600,16 @@ try {
         previousPlan,
         groupIds: rollbackSet
       });
-      await verifyCurrentProduction({ repository, database, targetPlan: previousPlan, previousPlan });
-      const protectedAfterRollback = protectedState(database);
-      assertProtectedStateUnchanged(protectedBefore, protectedAfterRollback);
+      await verifyPlanPublished({ repository, plan: previousPlan });
       const rollbackIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-      if (rollbackIntegrity !== 'ok') throw new Error(`post-rollback SQLite integrity_check failed: ${rollbackIntegrity}`);
+      if (rollbackIntegrity !== 'ok') {
+        throw new Error(`post-rollback SQLite integrity_check failed: ${rollbackIntegrity}`);
+      }
       console.error('ROLLBACK_TO_PREVIOUS_MEDICINE_101_110_COMPLETED');
     } catch (rollbackError) {
-      console.error(`ROLLBACK_FAILED: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`);
+      console.error(
+        `ROLLBACK_FAILED: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`
+      );
     }
     throw error;
   }
