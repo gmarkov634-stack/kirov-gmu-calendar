@@ -160,10 +160,24 @@ test('updated medicine 101-110 source produces a quarantined fresh normalized ca
   assert.ok(events.some((event) => event.groupId === '109' && event.discipline === 'Анатомия' && event.startTime === '08:00' && event.endTime === '10:25' && event.sourceRef.locator === '1 леч.1!J34#s1'));
   assert.ok(events.some((event) => event.groupId === '110' && event.discipline === 'Анатомия' && event.startTime === '14:15' && event.endTime === '16:40' && event.sourceRef.locator === '1 леч.1!K37#s1'));
 
-  const candidateSummary = `${JSON.stringify(candidate, null, 2)}\n`;
+  const reviewedManifest = {
+    ...manifest,
+    candidateDigest: candidate.candidateDigest,
+  };
   console.log(`SOURCE_CHANGE_CANDIDATE ${JSON.stringify(candidate)}`);
   if (process.env.GITHUB_ACTIONS === 'true') {
     await mkdir('.artifacts', { recursive: true });
-    await writeFile('.artifacts/medicine-101-110-source-change-candidate.json', candidateSummary, 'utf8');
+    await Promise.all([
+      writeFile(
+        '.artifacts/medicine-101-110-source-change-candidate.json',
+        `${JSON.stringify(candidate, null, 2)}\n`,
+        'utf8',
+      ),
+      writeFile(
+        '.artifacts/medicine-101-110-2026-08-31.decisions.json',
+        `${JSON.stringify(reviewedManifest)}\n`,
+        'utf8',
+      ),
+    ]);
   }
 });
