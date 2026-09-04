@@ -18,3 +18,10 @@ jobs:
         with:
           node-version: '22'
       - run: npm run check
+      - name: Upload source-change candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medicine-101-110-source-change-candidate
+          path: .artifacts/medicine-101-110-source-change-candidate.json
+          if-no-files-found: ignore
