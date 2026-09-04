@@ -6,6 +6,8 @@ on:
     paths:
       - 'fixtures/tools/official_schedule_discovery.py'
       - 'fixtures/tools/test_official_schedule_discovery.py'
+      - 'fixtures/tools/source_change_review.py'
+      - 'fixtures/tools/test_source_change_review.py'
       - 'fixtures/tools/reparse_medicine_101_110_optional_audit.py'
       - 'fixtures/tools/compute_medicine_candidate.mjs'
       - 'fixtures/2026-2027-semester-1/medicine-101-110.source.json'
@@ -26,20 +28,33 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
-      - name: Test official source discovery
-        run: python fixtures/tools/test_official_schedule_discovery.py
+      - name: Test source discovery and structural review
+        run: |
+          python fixtures/tools/test_official_schedule_discovery.py
+          python fixtures/tools/test_source_change_review.py
       - name: Compute normalized candidate evidence
         run: node fixtures/tools/compute_medicine_candidate.mjs
       - name: Discover and scan official workbook
         id: audit
         continue-on-error: true
         run: python fixtures/tools/reparse_medicine_101_110_optional_audit.py
+      - name: Build source-change structural review
+        if: always()
+        run: |
+          if [ -f medicine-101-110-workbook-dump.json ]; then
+            python fixtures/tools/source_change_review.py \
+              --dump medicine-101-110-workbook-dump.json \
+              --decisions fixtures/2026-2027-semester-1/medicine-101-110.decisions.json \
+              --output medicine-101-110-source-change-review.json \
+              --min-row 9 --max-row 42 --min-col 2 --max-col 11
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: medicine-101-110-workbook-dump
           path: |
             medicine-101-110-source-discovery.json
+            medicine-101-110-source-change-review.json
             medicine-101-110-workbook-dump.json
             medicine-101-110-candidate.json
           if-no-files-found: error
