@@ -43,7 +43,7 @@ const expectedDefaultCounts = {
   '110': 335
 };
 
-test('updated medicine 101-110 post-QA publication evidence pins the exact compatibility-approved candidate', async () => {
+test('updated medicine 101-110 post-QA publication evidence pins the exact compatibility-approved candidate and live runtime boundary', async () => {
   const [manifest, facultatives, source, evidence, qa, publication] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.facultatives.json'),
@@ -96,7 +96,7 @@ test('updated medicine 101-110 post-QA publication evidence pins the exact compa
   );
   assert.equal(
     publication.sharedContractEvidence.productionRuntimeCommit,
-    'e5414c1d8b8754f8e47397f24d7aeb5d413431ec'
+    'c47bdd44da83971dc6c909cfb2f0296fbfb39d4d'
   );
   assert.equal(
     publication.sharedContractEvidence.normalizedEventSchemaBlob,
@@ -105,6 +105,31 @@ test('updated medicine 101-110 post-QA publication evidence pins the exact compa
   assert.equal(
     publication.sharedContractEvidence.icsRendererBlob,
     'b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96'
+  );
+
+  assert.equal(
+    publication.runtimeCompatibilityEvidence.productionRuntimeCommit,
+    publication.sharedContractEvidence.productionRuntimeCommit
+  );
+  assert.equal(
+    publication.runtimeCompatibilityEvidence.coreMainAncestor,
+    publication.sharedContractEvidence.commit
+  );
+  assert.equal(
+    publication.runtimeCompatibilityEvidence.normalizedEventSchemaBlob,
+    publication.sharedContractEvidence.normalizedEventSchemaBlob
+  );
+  assert.equal(
+    publication.runtimeCompatibilityEvidence.icsRendererBlob,
+    publication.sharedContractEvidence.icsRendererBlob
+  );
+  assert.equal(publication.runtimeCompatibilityEvidence.deployedMarkerAudit.workflowRunId, 33922951330);
+  assert.equal(publication.runtimeCompatibilityEvidence.deployedMarkerAudit.workflowConclusion, 'failure');
+  assert.equal(publication.runtimeCompatibilityEvidence.deployedMarkerAudit.markerStepConclusion, 'success');
+  assert.equal(publication.runtimeCompatibilityEvidence.deployedMarkerAudit.markerVerified, true);
+  assert.match(
+    publication.runtimeCompatibilityEvidence.deployedMarkerAudit.laterFailure,
+    /compare response exceeded audit limit before DB\/health steps/
   );
 
   const plan = buildMedicinePublicationPlan({
