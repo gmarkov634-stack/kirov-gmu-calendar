@@ -55,16 +55,35 @@ async function verifyCoreBoundary(coreRoot, coreEvidence, {
   return boundary;
 }
 
+function validateOptionalHook(name, hook) {
+  if (hook != null && typeof hook !== 'function') {
+    throw new TypeError(`${name} must be a function when provided`);
+  }
+}
+
+function validatePlainObject(name, value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`${name} must be an object`);
+  }
+}
+
 function validateInput({
   plan,
   qaForPublication,
   coreEvidence,
   compatibleRendererBlobs,
   verifyForeignKeys,
+  verifyCoreEvidence,
+  prepareDatabase,
+  beforePublication,
+  verifyConflictingPublishedVersion,
+  afterPublish,
   verifyPublishedIcs,
   formatIcsVerificationLog,
+  onPublicationError,
   result,
-  resultFields
+  resultFields,
+  standardResultFields
 }) {
   if (!plan || typeof plan !== 'object') throw new TypeError('plan is required');
   if (plan.universityId !== 'kirov-gmu') throw new Error(`unexpected universityId: ${plan.universityId}`);
@@ -80,16 +99,17 @@ function validateInput({
   if (!coreEvidence || typeof coreEvidence !== 'object') throw new TypeError('coreEvidence is required');
   if (!Array.isArray(compatibleRendererBlobs)) throw new TypeError('compatibleRendererBlobs must be an array');
   if (typeof verifyForeignKeys !== 'boolean') throw new TypeError('verifyForeignKeys must be a boolean');
-  if (verifyPublishedIcs != null && typeof verifyPublishedIcs !== 'function') {
-    throw new TypeError('verifyPublishedIcs must be a function when provided');
-  }
-  if (formatIcsVerificationLog != null && typeof formatIcsVerificationLog !== 'function') {
-    throw new TypeError('formatIcsVerificationLog must be a function when provided');
-  }
+  validateOptionalHook('verifyCoreEvidence', verifyCoreEvidence);
+  validateOptionalHook('prepareDatabase', prepareDatabase);
+  validateOptionalHook('beforePublication', beforePublication);
+  validateOptionalHook('verifyConflictingPublishedVersion', verifyConflictingPublishedVersion);
+  validateOptionalHook('afterPublish', afterPublish);
+  validateOptionalHook('verifyPublishedIcs', verifyPublishedIcs);
+  validateOptionalHook('formatIcsVerificationLog', formatIcsVerificationLog);
+  validateOptionalHook('onPublicationError', onPublicationError);
   if (typeof result !== 'string' || result.length === 0) throw new TypeError('result is required');
-  if (!resultFields || typeof resultFields !== 'object' || Array.isArray(resultFields)) {
-    throw new TypeError('resultFields must be an object');
-  }
+  validatePlainObject('resultFields', resultFields);
+  validatePlainObject('standardResultFields', standardResultFields);
 }
 
 function verifyForeignKeyState(database, phase) {
@@ -106,10 +126,20 @@ export async function applyMedicinePublicationPlan({
   compatibleRendererBlobs = [],
   reportRendererCompatibility = false,
   verifyForeignKeys = false,
+  verifyCoreEvidence = null,
+  prepareDatabase = null,
+  beforePublication = null,
+  verifyConflictingPublishedVersion = null,
+  afterPublish = null,
   verifyPublishedIcs = null,
   formatIcsVerificationLog = null,
+  onPublicationError = null,
   result = 'PRODUCTION_SCHEDULES_PUBLISHED_AND_VERIFIED',
-  resultFields = {}
+  resultFields = {},
+  standardResultFields = {
+    trialChanged: false,
+    checkoutChanged: false
+  }
 }) {
   validateInput({
     plan,
@@ -117,10 +147,17 @@ export async function applyMedicinePublicationPlan({
     coreEvidence,
     compatibleRendererBlobs,
     verifyForeignKeys,
+    verifyCoreEvidence,
+    prepareDatabase,
+    beforePublication,
+    verifyConflictingPublishedVersion,
+    afterPublish,
     verifyPublishedIcs,
     formatIcsVerificationLog,
+    onPublicationError,
     result,
-    resultFields
+    resultFields,
+    standardResultFields
   });
 
   const coreRoot = resolve(process.env.MEDICAL_CALENDAR_CORE_ROOT || '/opt/medical-calendar-core');
@@ -129,10 +166,12 @@ export async function applyMedicinePublicationPlan({
     throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
   }
 
-  const boundary = await verifyCoreBoundary(coreRoot, coreEvidence, {
-    compatibleRendererBlobs,
-    reportRendererCompatibility
-  });
+  const boundary = verifyCoreEvidence
+    ? await verifyCoreEvidence(coreRoot, coreEvidence)
+    : await verifyCoreBoundary(coreRoot, coreEvidence, {
+      compatibleRendererBlobs,
+      reportRendererCompatibility
+    });
   const core = await import(pathToFileURL(resolve(coreRoot, 'src/index.js')).href);
   for (const name of [
     'openSqliteRuntimeDatabase',
@@ -149,139 +188,209 @@ export async function applyMedicinePublicationPlan({
     if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
     if (verifyForeignKeys) verifyForeignKeyState(database, 'before-publication');
 
+    if (prepareDatabase) {
+      await prepareDatabase({
+        core,
+        database,
+        plan,
+        qaForPublication,
+        coreEvidence,
+        coreBoundary: boundary
+      });
+    }
+
     const repository = core.createSqliteScheduleRepository(database);
+    const publicationContext = beforePublication
+      ? await beforePublication({
+        core,
+        database,
+        repository,
+        plan,
+        qaForPublication,
+        coreEvidence,
+        coreBoundary: boundary
+      })
+      : null;
 
-    for (const version of plan.versions) {
-      const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
-      const expectedDigest = eventSetDigest(expectedEvents);
-      const current = await repository.getPublishedSchedule({
-        universityId: plan.universityId,
-        groupId: version.groupId,
-        academicYearId: plan.academicYearId,
-        academicPeriodId: plan.academicPeriodId
-      });
-
-      if (current) {
-        if (current.scheduleVersion.versionId !== version.versionId) {
-          throw new Error(`group ${version.groupId} already has another published version ${current.scheduleVersion.versionId}`);
-        }
-        if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) {
-          throw new Error(`group ${version.groupId} published target does not match approved candidate`);
-        }
-        console.log(`group ${version.groupId}: already published and verified; skipping`);
-        continue;
-      }
-
-      const targetRow = database.prepare(
-        'SELECT version_id, status FROM schedule_versions WHERE version_id = ?'
-      ).get(version.versionId);
-      if (targetRow && targetRow.status !== 'ready') {
-        throw new Error(`group ${version.groupId} target version has unexpected status ${targetRow.status}`);
-      }
-
-      if (targetRow) {
-        const storedRows = database.prepare(
-          'SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id'
-        ).all(version.versionId);
-        const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
-        if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) {
-          throw new Error(`group ${version.groupId} ready target does not match approved candidate`);
-        }
-        console.log(`group ${version.groupId}: resuming verified ready version`);
-      } else {
-        const snapshot = core.createReadyScheduleVersion({
-          parsingResult: plan.parsingResult,
-          qaReport: qaForPublication,
-          candidateDigest: plan.candidateDigest,
+    try {
+      for (const version of plan.versions) {
+        const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+        const expectedDigest = eventSetDigest(expectedEvents);
+        const current = await repository.getPublishedSchedule({
+          universityId: plan.universityId,
           groupId: version.groupId,
-          versionId: version.versionId
-        });
-        await repository.saveReadySnapshot({
           academicYearId: plan.academicYearId,
-          scheduleVersion: snapshot.scheduleVersion,
-          events: snapshot.events
+          academicPeriodId: plan.academicPeriodId
         });
-        console.log(`group ${version.groupId}: saved ready version ${version.versionId}`);
+
+        if (current) {
+          if (current.scheduleVersion.versionId === version.versionId) {
+            if (current.events.length !== version.eventCount || eventSetDigest(current.events) !== expectedDigest) {
+              throw new Error(`group ${version.groupId} published target does not match approved candidate`);
+            }
+            console.log(`group ${version.groupId}: already published and verified; skipping`);
+            continue;
+          }
+
+          if (!verifyConflictingPublishedVersion) {
+            throw new Error(`group ${version.groupId} already has another published version ${current.scheduleVersion.versionId}`);
+          }
+          await verifyConflictingPublishedVersion({
+            core,
+            database,
+            repository,
+            plan,
+            version,
+            current,
+            expectedEvents,
+            expectedDigest,
+            publicationContext
+          });
+        }
+
+        const targetRow = database.prepare(
+          'SELECT version_id, status FROM schedule_versions WHERE version_id = ?'
+        ).get(version.versionId);
+        if (targetRow && targetRow.status !== 'ready') {
+          throw new Error(`group ${version.groupId} target version has unexpected status ${targetRow.status}`);
+        }
+
+        if (targetRow) {
+          const storedRows = database.prepare(
+            'SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id'
+          ).all(version.versionId);
+          const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
+          if (storedEvents.length !== version.eventCount || eventSetDigest(storedEvents) !== expectedDigest) {
+            throw new Error(`group ${version.groupId} ready target does not match approved candidate`);
+          }
+          console.log(`group ${version.groupId}: resuming verified ready version`);
+        } else {
+          const snapshot = core.createReadyScheduleVersion({
+            parsingResult: plan.parsingResult,
+            qaReport: qaForPublication,
+            candidateDigest: plan.candidateDigest,
+            groupId: version.groupId,
+            versionId: version.versionId
+          });
+          await repository.saveReadySnapshot({
+            academicYearId: plan.academicYearId,
+            scheduleVersion: snapshot.scheduleVersion,
+            events: snapshot.events
+          });
+          console.log(`group ${version.groupId}: saved ready version ${version.versionId}`);
+        }
+
+        await repository.publishVersion({ versionId: version.versionId });
+        if (afterPublish) {
+          await afterPublish({
+            core,
+            database,
+            repository,
+            plan,
+            version,
+            publicationContext
+          });
+        }
+        console.log(`group ${version.groupId}: published ${version.versionId}`);
       }
 
-      await repository.publishVersion({ versionId: version.versionId });
-      console.log(`group ${version.groupId}: published ${version.versionId}`);
-    }
-
-    for (const version of plan.versions) {
-      const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
-      const expectedDigest = eventSetDigest(expectedEvents);
-      const published = await repository.getPublishedSchedule({
-        universityId: plan.universityId,
-        groupId: version.groupId,
-        academicYearId: plan.academicYearId,
-        academicPeriodId: plan.academicPeriodId
-      });
-      if (!published || published.scheduleVersion.versionId !== version.versionId) {
-        throw new Error(`group ${version.groupId} final published version verification failed`);
-      }
-      if (published.events.length !== version.eventCount || eventSetDigest(published.events) !== expectedDigest) {
-        throw new Error(`group ${version.groupId} final event-set verification failed`);
-      }
-
-      const publishedCount = Number(database.prepare(`
-        SELECT COUNT(*) AS count FROM schedule_versions
-        WHERE university_id = ? AND group_id = ? AND academic_year_id = ? AND academic_period_id = ? AND status = 'published'
-      `).get(
-        plan.universityId,
-        version.groupId,
-        plan.academicYearId,
-        plan.academicPeriodId
-      )?.count ?? 0);
-      if (publishedCount !== 1) {
-        throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
-      }
-
-      const calendarName = `КГМУ ${version.groupId}`;
-      if (verifyPublishedIcs) {
-        const verification = await verifyPublishedIcs({
-          core,
-          renderPublishedScheduleIcs: core.renderPublishedScheduleIcs,
-          published,
-          scheduleVersion: published.scheduleVersion,
-          events: published.events,
-          version,
-          plan,
-          calendarName,
-          unfoldIcs,
-          countVevents
+      for (const version of plan.versions) {
+        const expectedEvents = plan.events.filter((event) => event.groupId === version.groupId);
+        const expectedDigest = eventSetDigest(expectedEvents);
+        const published = await repository.getPublishedSchedule({
+          universityId: plan.universityId,
+          groupId: version.groupId,
+          academicYearId: plan.academicYearId,
+          academicPeriodId: plan.academicPeriodId
         });
-        if (formatIcsVerificationLog) {
-          console.log(formatIcsVerificationLog({ groupId: version.groupId, verification }));
+        if (!published || published.scheduleVersion.versionId !== version.versionId) {
+          throw new Error(`group ${version.groupId} final published version verification failed`);
         }
-      } else {
-        const ics = unfoldIcs(core.renderPublishedScheduleIcs({
-          scheduleVersion: published.scheduleVersion,
-          events: published.events,
-          calendarName
-        }));
-        if (countVevents(ics) !== version.eventCount) {
-          throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+        if (published.events.length !== version.eventCount || eventSetDigest(published.events) !== expectedDigest) {
+          throw new Error(`group ${version.groupId} final event-set verification failed`);
         }
-        if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
-          throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+
+        const publishedCount = Number(database.prepare(`
+          SELECT COUNT(*) AS count FROM schedule_versions
+          WHERE university_id = ? AND group_id = ? AND academic_year_id = ? AND academic_period_id = ? AND status = 'published'
+        `).get(
+          plan.universityId,
+          version.groupId,
+          plan.academicYearId,
+          plan.academicPeriodId
+        )?.count ?? 0);
+        if (publishedCount !== 1) {
+          throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
+        }
+
+        const calendarName = `КГМУ ${version.groupId}`;
+        if (verifyPublishedIcs) {
+          const verification = await verifyPublishedIcs({
+            core,
+            database,
+            repository,
+            renderPublishedScheduleIcs: core.renderPublishedScheduleIcs,
+            published,
+            scheduleVersion: published.scheduleVersion,
+            events: published.events,
+            version,
+            plan,
+            calendarName,
+            unfoldIcs,
+            countVevents,
+            publicationContext,
+            coreBoundary: boundary
+          });
+          if (formatIcsVerificationLog) {
+            console.log(formatIcsVerificationLog({ groupId: version.groupId, verification }));
+          }
+        } else {
+          const ics = unfoldIcs(core.renderPublishedScheduleIcs({
+            scheduleVersion: published.scheduleVersion,
+            events: published.events,
+            calendarName
+          }));
+          if (countVevents(ics) !== version.eventCount) {
+            throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+          }
+          if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
+            throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+          }
         }
       }
+
+      const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
+      if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+      if (verifyForeignKeys) verifyForeignKeyState(database, 'after-publication');
+
+      console.log(JSON.stringify({
+        result,
+        coreBoundary: boundary,
+        groupCount: plan.versions.length,
+        eventCount: plan.events.length,
+        ...resultFields,
+        ...standardResultFields
+      }, null, 2));
+    } catch (error) {
+      if (onPublicationError) {
+        try {
+          await onPublicationError({
+            error,
+            core,
+            database,
+            repository,
+            plan,
+            publicationContext,
+            coreBoundary: boundary
+          });
+        } catch (handlerError) {
+          console.error(
+            `PUBLICATION_ERROR_HANDLER_FAILED: ${handlerError instanceof Error ? handlerError.message : String(handlerError)}`
+          );
+        }
+      }
+      throw error;
     }
-
-    const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-    if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
-    if (verifyForeignKeys) verifyForeignKeyState(database, 'after-publication');
-
-    console.log(JSON.stringify({
-      result,
-      coreBoundary: boundary,
-      groupCount: plan.versions.length,
-      eventCount: plan.events.length,
-      ...resultFields,
-      trialChanged: false,
-      checkoutChanged: false
-    }, null, 2));
   } finally {
     database.close();
   }

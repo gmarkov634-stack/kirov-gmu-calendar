@@ -2,8 +2,9 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
+import { applyMedicinePublicationPlan } from './lib/publish-medicine-plan.mjs';
 import {
   buildMedicinePublicationPlan,
   toCorePublicationQa
@@ -397,201 +398,82 @@ if (!APPLY) {
   process.exit(0);
 }
 
-const coreRoot = resolve(process.env.MEDICAL_CALENDAR_CORE_ROOT || '/opt/medical-calendar-core');
-const databasePath = process.env.MEDICAL_CALENDAR_DB_PATH;
-if (typeof databasePath !== 'string' || databasePath.length === 0) {
-  throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
-}
+let changedGroups = [];
 
-const boundary = await verifyCoreBoundary(coreRoot, targetPlan.coreEvidence);
-const core = await import(pathToFileURL(resolve(coreRoot, 'src/index.js')).href);
-for (const name of [
-  'openSqliteRuntimeDatabase',
-  'createSqliteScheduleRepository',
-  'createReadyScheduleVersion',
-  'renderPublishedScheduleIcs'
-]) {
-  if (typeof core[name] !== 'function') {
-    throw new Error(`deployed core is missing ${name}`);
-  }
-}
-
-const database = core.openSqliteRuntimeDatabase({ path: databasePath });
-try {
-  const integrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-  if (integrity !== 'ok') {
-    throw new Error(`SQLite integrity_check failed: ${integrity}`);
-  }
-
-  installProtectedWriteGuards(database);
-  const repository = core.createSqliteScheduleRepository(database);
-  const initialState = await verifyCurrentProduction({
-    repository,
+await applyMedicinePublicationPlan({
+  plan: targetPlan,
+  qaForPublication,
+  coreEvidence: targetPlan.coreEvidence,
+  verifyCoreEvidence: verifyCoreBoundary,
+  prepareDatabase: async ({ database }) => {
+    installProtectedWriteGuards(database);
+  },
+  beforePublication: async ({ repository, database }) => {
+    const initialState = await verifyCurrentProduction({
+      repository,
+      database,
+      targetPlan,
+      previousPlan
+    });
+    changedGroups = [...initialState.entries()]
+      .filter(([, state]) => state === 'target')
+      .map(([groupId]) => groupId);
+    return { initialState };
+  },
+  verifyConflictingPublishedVersion: async ({ current, version }) => {
+    const previousVersion = previousVersionByGroup.get(version.groupId);
+    if (!current || current.scheduleVersion.versionId !== previousVersion.versionId) {
+      throw new Error(`group ${version.groupId} changed after production preflight`);
+    }
+  },
+  afterPublish: async ({ version }) => {
+    changedGroups.push(version.groupId);
+  },
+  verifyPublishedIcs: async ({
     database,
-    targetPlan,
-    previousPlan
-  });
-  const targetGroupsAtStart = [...initialState.entries()]
-    .filter(([, state]) => state === 'target')
-    .map(([groupId]) => groupId);
-  const changedGroups = [...targetGroupsAtStart];
-
-  try {
-    for (const version of targetPlan.versions) {
-      const groupId = version.groupId;
-      const expectedEvents = groupEvents(targetPlan, groupId);
-      const expectedDigest = eventSetDigest(expectedEvents);
-      const current = await repository.getPublishedSchedule({
-        universityId: targetPlan.universityId,
-        groupId,
-        academicYearId: targetPlan.academicYearId,
-        academicPeriodId: targetPlan.academicPeriodId
-      });
-
-      if (current?.scheduleVersion.versionId === version.versionId) {
-        if (
-          current.events.length !== version.eventCount
-          || eventSetDigest(current.events) !== expectedDigest
-        ) {
-          throw new Error(`group ${groupId} already-published target does not match approved candidate`);
-        }
-        console.log(`group ${groupId}: target already published and verified`);
-        continue;
-      }
-
-      const previousVersion = previousVersionByGroup.get(groupId);
-      if (!current || current.scheduleVersion.versionId !== previousVersion.versionId) {
-        throw new Error(`group ${groupId} changed after production preflight`);
-      }
-
-      const targetRow = database
-        .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
-        .get(version.versionId);
-      if (targetRow && targetRow.status !== 'ready') {
-        throw new Error(`group ${groupId} target version has unexpected status ${targetRow.status}`);
-      }
-
-      if (targetRow) {
-        const storedRows = database
-          .prepare('SELECT event_json FROM schedule_events WHERE version_id = ? ORDER BY event_id')
-          .all(version.versionId);
-        const storedEvents = storedRows.map((row) => JSON.parse(row.event_json));
-        if (
-          storedEvents.length !== version.eventCount
-          || eventSetDigest(storedEvents) !== expectedDigest
-        ) {
-          throw new Error(`group ${groupId} ready target does not match approved candidate`);
-        }
-        console.log(`group ${groupId}: resuming existing verified ready target`);
-      } else {
-        const snapshot = core.createReadyScheduleVersion({
-          parsingResult: targetPlan.parsingResult,
-          qaReport: qaForPublication,
-          candidateDigest: targetPlan.candidateDigest,
-          groupId,
-          versionId: version.versionId
-        });
-        await repository.saveReadySnapshot({
-          academicYearId: targetPlan.academicYearId,
-          scheduleVersion: snapshot.scheduleVersion,
-          events: snapshot.events
-        });
-        console.log(`group ${groupId}: saved ready version ${version.versionId}`);
-      }
-
-      await repository.publishVersion({ versionId: version.versionId });
-      changedGroups.push(groupId);
-      console.log(`group ${groupId}: published ${version.versionId}`);
+    renderPublishedScheduleIcs,
+    published,
+    version,
+    calendarName
+  }) => {
+    const groupId = version.groupId;
+    const previousVersion = previousVersionByGroup.get(groupId);
+    const previousRow = database
+      .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
+      .get(previousVersion.versionId);
+    if (!previousRow || previousRow.status !== 'superseded') {
+      throw new Error(`group ${groupId} previous production version is not preserved as superseded`);
     }
 
-    for (const version of targetPlan.versions) {
-      const groupId = version.groupId;
-      const expectedEvents = groupEvents(targetPlan, groupId);
-      const published = await repository.getPublishedSchedule({
-        universityId: targetPlan.universityId,
-        groupId,
-        academicYearId: targetPlan.academicYearId,
-        academicPeriodId: targetPlan.academicPeriodId
-      });
-      if (!published || published.scheduleVersion.versionId !== version.versionId) {
-        throw new Error(`group ${groupId} final published version verification failed`);
-      }
-      if (
-        published.events.length !== version.eventCount
-        || eventSetDigest(published.events) !== eventSetDigest(expectedEvents)
-      ) {
-        throw new Error(`group ${groupId} final event-set verification failed`);
-      }
-
-      const publishedCount = Number(database.prepare(`
-        SELECT COUNT(*) AS count
-        FROM schedule_versions
-        WHERE university_id = ?
-          AND group_id = ?
-          AND academic_year_id = ?
-          AND academic_period_id = ?
-          AND status = 'published'
-      `).get(
-        targetPlan.universityId,
-        groupId,
-        targetPlan.academicYearId,
-        targetPlan.academicPeriodId
-      )?.count ?? 0);
-      if (publishedCount !== 1) {
-        throw new Error(`group ${groupId} must have exactly one published version, got ${publishedCount}`);
-      }
-
-      const previousVersion = previousVersionByGroup.get(groupId);
-      const previousRow = database
-        .prepare('SELECT status FROM schedule_versions WHERE version_id = ?')
-        .get(previousVersion.versionId);
-      if (!previousRow || previousRow.status !== 'superseded') {
-        throw new Error(`group ${groupId} previous production version is not preserved as superseded`);
-      }
-
-      const defaultIcs = core.renderPublishedScheduleIcs({
-        scheduleVersion: published.scheduleVersion,
-        events: published.events,
-        calendarName: `КГМУ ${groupId}`
-      });
-      if (countVevents(defaultIcs) !== publication.groupDefaultVisibleEventCounts[groupId]) {
-        throw new Error(`group ${groupId} default-off ICS VEVENT count verification failed`);
-      }
-
-      const allFacultativeChoices = Object.fromEntries(
-        publication.facultativeIds.map((facultativeId) => [facultativeId, true])
-      );
-      const fullIcs = core.renderPublishedScheduleIcs({
-        scheduleVersion: published.scheduleVersion,
-        events: published.events,
-        calendarName: `КГМУ ${groupId}`,
-        preferences: { facultativeChoices: allFacultativeChoices }
-      });
-      if (countVevents(fullIcs) !== version.eventCount) {
-        throw new Error(`group ${groupId} full ICS VEVENT count verification failed`);
-      }
+    const defaultIcs = renderPublishedScheduleIcs({
+      scheduleVersion: published.scheduleVersion,
+      events: published.events,
+      calendarName
+    });
+    if (countVevents(defaultIcs) !== publication.groupDefaultVisibleEventCounts[groupId]) {
+      throw new Error(`group ${groupId} default-off ICS VEVENT count verification failed`);
     }
 
-    const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
-    if (finalIntegrity !== 'ok') {
-      throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+    const allFacultativeChoices = Object.fromEntries(
+      publication.facultativeIds.map((facultativeId) => [facultativeId, true])
+    );
+    const fullIcs = renderPublishedScheduleIcs({
+      scheduleVersion: published.scheduleVersion,
+      events: published.events,
+      calendarName,
+      preferences: { facultativeChoices: allFacultativeChoices }
+    });
+    if (countVevents(fullIcs) !== version.eventCount) {
+      throw new Error(`group ${groupId} full ICS VEVENT count verification failed`);
     }
 
-    console.log(JSON.stringify({
-      result: 'PRODUCTION_MEDICINE_101_110_UPDATED_AND_VERIFIED',
-      coreBoundary: boundary,
-      previousCandidateDigest: previousPlan.candidateDigest,
-      targetCandidateDigest: targetPlan.candidateDigest,
-      groupCount: targetPlan.versions.length,
-      eventCount: targetPlan.events.length,
-      previousVersionsPreservedAsSuperseded: true,
-      protectedTableWriteGuards: PROTECTED_TABLES,
-      CalendarSubscriptionChanged: false,
-      EntitlementChanged: false,
-      SubscriptionTokenChanged: false,
-      CalendarPreferencesChanged: false
-    }, null, 2));
-  } catch (error) {
+    return {
+      previousVersionId: previousVersion.versionId,
+      defaultEventCount: publication.groupDefaultVisibleEventCounts[groupId],
+      fullEventCount: version.eventCount
+    };
+  },
+  onPublicationError: async ({ repository, database }) => {
     const rollbackSet = [...new Set(changedGroups)];
     try {
       await rollbackGroups({
@@ -611,8 +493,18 @@ try {
         `ROLLBACK_FAILED: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`
       );
     }
-    throw error;
+  },
+  result: 'PRODUCTION_MEDICINE_101_110_UPDATED_AND_VERIFIED',
+  resultFields: {
+    previousCandidateDigest: previousPlan.candidateDigest,
+    targetCandidateDigest: targetPlan.candidateDigest,
+    previousVersionsPreservedAsSuperseded: true,
+    protectedTableWriteGuards: PROTECTED_TABLES
+  },
+  standardResultFields: {
+    CalendarSubscriptionChanged: false,
+    EntitlementChanged: false,
+    SubscriptionTokenChanged: false,
+    CalendarPreferencesChanged: false
   }
-} finally {
-  database.close();
-}
+});

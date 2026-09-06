@@ -40,3 +40,42 @@ test('medicine publication lifecycle is shared without changing explicit plan ad
   assert.match(medicine111120, /ЗАЧЕТ С ОЦЕНКОЙ/);
   assert.doesNotMatch(medicine111120, /verifyForeignKeys: true/);
 });
+
+test('medicine replacement publication keeps production safety in an adapter over the shared lifecycle', async () => {
+  const [runtime, medicine101110] = await Promise.all([
+    source('ops/lib/publish-medicine-plan.mjs'),
+    source('ops/publish-medicine-101-110-2026-08-31.mjs')
+  ]);
+
+  for (const hook of [
+    'verifyCoreEvidence',
+    'prepareDatabase',
+    'beforePublication',
+    'verifyConflictingPublishedVersion',
+    'afterPublish',
+    'onPublicationError',
+    'standardResultFields'
+  ]) {
+    assert.match(runtime, new RegExp(hook));
+    assert.match(medicine101110, new RegExp(hook));
+  }
+
+  assert.match(medicine101110, /applyMedicinePublicationPlan/);
+  assert.match(medicine101110, /--apply requires --replace-existing/);
+  assert.match(medicine101110, /\.deployed-commit/);
+  assert.match(medicine101110, /CREATE TEMP TRIGGER/);
+  assert.match(medicine101110, /calendar_subscriptions/);
+  assert.match(medicine101110, /entitlements/);
+  assert.match(medicine101110, /subscription_tokens/);
+  assert.match(medicine101110, /calendar_preferences/);
+  assert.match(medicine101110, /verifyCurrentProduction/);
+  assert.match(medicine101110, /changed after production preflight/);
+  assert.match(medicine101110, /previous production version is not preserved as superseded/);
+  assert.match(medicine101110, /rollbackToVersion/);
+  assert.match(medicine101110, /ROLLBACK_TO_PREVIOUS_MEDICINE_101_110_COMPLETED/);
+
+  assert.doesNotMatch(medicine101110, /openSqliteRuntimeDatabase/);
+  assert.doesNotMatch(medicine101110, /createReadyScheduleVersion/);
+  assert.doesNotMatch(medicine101110, /saveReadySnapshot/);
+  assert.doesNotMatch(medicine101110, /publishVersion\(/);
+});
