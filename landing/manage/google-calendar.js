@@ -60,6 +60,31 @@ export function resolveGoogleOAuthMessageSubscriptionId({ message, source, popup
   return matching[0];
 }
 
+export function resolveGoogleSubscriptionForCard(card, subscriptions) {
+  if (!card || typeof card.querySelector !== "function" || !Array.isArray(subscriptions)) return null;
+  const titleText = card.querySelector("h3")?.textContent?.trim();
+  const metaText = card.querySelector(".subscription-meta")?.textContent?.trim();
+  if (!titleText || !metaText) return null;
+
+  const matches = subscriptions.filter((item) => {
+    const subscription = item?.subscription;
+    if (
+      !subscription
+      || typeof subscription.subscriptionId !== "string"
+      || typeof subscription.universityId !== "string"
+      || typeof subscription.groupId !== "string"
+      || typeof subscription.academicYearId !== "string"
+    ) {
+      return false;
+    }
+    const expectedTitle = `${subscription.universityId} · группа ${subscription.groupId}`;
+    return titleText === expectedTitle
+      && (metaText === subscription.academicYearId || metaText.startsWith(`${subscription.academicYearId} ·`));
+  });
+
+  return matches.length === 1 ? matches[0] : null;
+}
+
 function runtimeConfig() {
   return Object.freeze({
     apiBase: "",
@@ -92,6 +117,32 @@ async function apiRequest(config, path, options = {}) {
   });
   const payload = response.status === 204 ? null : await response.json().catch(() => null);
   return { response, payload };
+}
+
+function installSubscriptionSnapshotCapture(config, onSnapshot) {
+  const upstreamFetch = window.fetch;
+  const subscriptionsUrl = apiUrl(config, "/management/subscriptions");
+
+  window.fetch = async function captureManagementSubscriptions(input, init) {
+    const response = await upstreamFetch.call(window, input, init);
+    let requestUrl = null;
+    try {
+      requestUrl = input instanceof Request
+        ? input.url
+        : new URL(String(input), window.location.href).toString();
+    } catch {
+      return response;
+    }
+    const method = String(init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
+    if (method === "GET" && requestUrl === subscriptionsUrl && response.ok) {
+      void response.clone().json()
+        .then((payload) => {
+          if (Array.isArray(payload?.subscriptions)) onSnapshot(payload.subscriptions);
+        })
+        .catch(() => {});
+    }
+    return response;
+  };
 }
 
 function cleanupOAuthReturn() {
@@ -266,7 +317,9 @@ function createPanel(item, config, popupState) {
   }
 
   connect.addEventListener("click", async () => {
-    const popup = window.open("about:blank", "kgmu-google-calendar-oauth", "popup,width=520,height=720");
+    const previousPopup = popupState.get(subscriptionId);
+    if (previousPopup && !previousPopup.closed) previousPopup.close();
+    const popup = window.open("about:blank", "_blank", "popup,width=520,height=720");
     if (!popup) {
       setPanelStatus(panel, "Браузер заблокировал окно Google. Разрешите всплывающие окна и повторите.", "error");
       return;
@@ -321,23 +374,26 @@ function bootstrapGoogleCalendarManagement() {
   if (!list) return;
   const panels = new Map();
   const popupState = new Map();
+  let subscriptionSnapshot = [];
   let decorating = false;
 
   async function decorate() {
-    if (decorating) return;
+    if (decorating || !subscriptionSnapshot.length) return;
     const cards = [...list.querySelectorAll(".subscription-item")];
     if (!cards.length) return;
     decorating = true;
     try {
-      const { response, payload } = await apiRequest(config, "/management/subscriptions", { method: "GET" });
-      if (!response.ok || !Array.isArray(payload?.subscriptions)) return;
-      for (let index = 0; index < Math.min(cards.length, payload.subscriptions.length); index += 1) {
-        const item = payload.subscriptions[index];
+      for (const card of cards) {
+        if (card.querySelector("[data-google-calendar-panel=\"true\"]")) continue;
+        const item = resolveGoogleSubscriptionForCard(card, subscriptionSnapshot);
         const subscriptionId = item?.subscription?.subscriptionId;
-        if (typeof subscriptionId !== "string" || panels.has(subscriptionId)) continue;
+        if (typeof subscriptionId !== "string") continue;
+        const existing = panels.get(subscriptionId);
+        if (existing?.section?.isConnected) continue;
+        if (existing) panels.delete(subscriptionId);
         const panel = createPanel(item, config, popupState);
         panels.set(subscriptionId, panel);
-        cards[index].append(panel.section);
+        card.append(panel.section);
         panel.loadStatus().catch((error) => {
           setPanelStatus(panel, error instanceof Error ? error.message : "Не удалось проверить Google.", "error");
         });
@@ -346,6 +402,11 @@ function bootstrapGoogleCalendarManagement() {
       decorating = false;
     }
   }
+
+  installSubscriptionSnapshotCapture(config, (subscriptions) => {
+    subscriptionSnapshot = subscriptions;
+    void decorate();
+  });
 
   window.addEventListener("message", (event) => {
     if (event.origin !== window.location.origin || event.data?.type !== GOOGLE_OAUTH_MESSAGE_TYPE) return;
