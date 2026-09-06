@@ -40,6 +40,26 @@ export function normalizeGoogleCalendarCandidates(value) {
     }));
 }
 
+export function resolveGoogleOAuthMessageSubscriptionId({ message, source, popupEntries }) {
+  if (!message || !["select", "error"].includes(message.status)) return null;
+  const entries = Array.isArray(popupEntries) ? popupEntries : [...popupEntries];
+  if (message.status === "select") {
+    if (typeof message.subscriptionId !== "string" || message.subscriptionId.length === 0) return null;
+    const popup = entries.find(([subscriptionId]) => subscriptionId === message.subscriptionId)?.[1];
+    return popup && popup === source ? message.subscriptionId : null;
+  }
+  const matching = entries.find(([, popup]) => popup === source);
+  if (!matching) return null;
+  if (
+    typeof message.subscriptionId === "string"
+    && message.subscriptionId.length > 0
+    && message.subscriptionId !== matching[0]
+  ) {
+    return null;
+  }
+  return matching[0];
+}
+
 function runtimeConfig() {
   return Object.freeze({
     apiBase: "",
@@ -98,7 +118,7 @@ function button(text, className = "button button-secondary") {
   return node;
 }
 
-function statusNode() {
+function createStatusNode() {
   const node = document.createElement("p");
   node.className = "preference-local-status google-calendar-status";
   node.setAttribute("role", "status");
@@ -187,7 +207,7 @@ function createPanel(item, config, popupState) {
   disconnect.hidden = true;
   actions.append(connect, disconnect);
 
-  const status = statusNode();
+  const status = createStatusNode();
   const candidates = document.createElement("div");
   candidates.className = "google-calendar-selection";
   section.append(heading, description, actions, status, candidates);
@@ -329,17 +349,19 @@ function bootstrapGoogleCalendarManagement() {
 
   window.addEventListener("message", (event) => {
     if (event.origin !== window.location.origin || event.data?.type !== GOOGLE_OAUTH_MESSAGE_TYPE) return;
-    const subscriptionId = event.data?.subscriptionId;
-    if (typeof subscriptionId !== "string" || !panels.has(subscriptionId)) return;
-    const popup = popupState.get(subscriptionId);
-    if (!popup || event.source !== popup) return;
+    const subscriptionId = resolveGoogleOAuthMessageSubscriptionId({
+      message: event.data,
+      source: event.source,
+      popupEntries: popupState
+    });
+    if (!subscriptionId || !panels.has(subscriptionId)) return;
     popupState.delete(subscriptionId);
     const panel = panels.get(subscriptionId);
     if (event.data.status === "select") {
       panel.loadCandidates().catch((error) => {
         setPanelStatus(panel, error instanceof Error ? error.message : "Не удалось продолжить подключение Google.", "error");
       });
-    } else if (event.data.status === "error") {
+    } else {
       setPanelStatus(panel, "Google OAuth не завершён. Повторите подключение.", "error");
     }
   });
