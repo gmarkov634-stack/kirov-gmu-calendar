@@ -6,21 +6,37 @@ async function source(relativePath) {
   return readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8');
 }
 
-test('medicine publication lifecycle is shared without changing explicit plan adapters', async () => {
-  const [runtime, explicitRunner, medicine111120] = await Promise.all([
+test('medicine publication delegates the common apply lifecycle without changing explicit plan adapters', async () => {
+  const [generic, runtime, explicitRunner, medicine111120] = await Promise.all([
+    source('ops/lib/apply-schedule-publication-plan.mjs'),
     source('ops/lib/publish-medicine-plan.mjs'),
     source('ops/lib/publish-explicit-medicine-course.mjs'),
     source('ops/publish-medicine-111-120.mjs')
   ]);
 
   assert.match(runtime, /export async function applyMedicinePublicationPlan/);
-  assert.match(runtime, /createSqliteScheduleRepository/);
-  assert.match(runtime, /createReadyScheduleVersion/);
-  assert.match(runtime, /saveReadySnapshot/);
-  assert.match(runtime, /publishVersion/);
-  assert.match(runtime, /must have exactly one published version/);
-  assert.match(runtime, /verifyPublishedIcs/);
+  assert.match(runtime, /applySchedulePublicationPlan/);
+  assert.doesNotMatch(runtime, /saveReadySnapshot/);
+  assert.doesNotMatch(runtime, /publishVersion\(/);
+  assert.doesNotMatch(runtime, /SELECT COUNT\(\*\) AS count FROM schedule_versions/);
+
+  for (const invariant of [
+    'createSqliteScheduleRepository',
+    'createReadyScheduleVersion',
+    'saveReadySnapshot',
+    'publishVersion',
+    'must have exactly one published version',
+    'verifyPublishedIcs'
+  ]) {
+    assert.match(generic, new RegExp(invariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+
   assert.match(runtime, /verifyForeignKeys/);
+  assert.match(runtime, /verifyForeignKeyState/);
+  assert.match(runtime, /compatibleRendererBlobs/);
+  assert.match(runtime, /reportRendererCompatibility/);
+  assert.match(runtime, /coreEvidence\.normalizedEventSchemaBlob/);
+  assert.match(runtime, /coreEvidence\.icsRendererBlob/);
 
   assert.match(explicitRunner, /applyMedicinePublicationPlan/);
   assert.match(explicitRunner, /expandExplicitDecisionManifest/);
@@ -41,26 +57,31 @@ test('medicine publication lifecycle is shared without changing explicit plan ad
   assert.doesNotMatch(medicine111120, /verifyForeignKeys: true/);
 });
 
-test('medicine replacement publication keeps production safety in an adapter over the shared lifecycle', async () => {
-  const [runtime, medicine101110] = await Promise.all([
+test('medicine replacement publication keeps production safety in an adapter over the generic lifecycle', async () => {
+  const [generic, runtime, medicine101110] = await Promise.all([
+    source('ops/lib/apply-schedule-publication-plan.mjs'),
     source('ops/lib/publish-medicine-plan.mjs'),
     source('ops/publish-medicine-101-110-2026-08-31.mjs')
   ]);
 
   for (const hook of [
-    'verifyCoreEvidence',
     'prepareDatabase',
     'beforePublication',
     'verifyConflictingPublishedVersion',
     'afterPublish',
-    'onPublicationError',
-    'standardResultFields'
+    'onPublicationError'
   ]) {
+    assert.match(generic, new RegExp(hook));
     assert.match(runtime, new RegExp(hook));
     assert.match(medicine101110, new RegExp(hook));
   }
+  assert.match(runtime, /verifyCoreEvidence/);
+  assert.match(medicine101110, /verifyCoreEvidence/);
+  assert.match(runtime, /standardResultFields/);
+  assert.match(medicine101110, /standardResultFields/);
 
   assert.match(medicine101110, /applyMedicinePublicationPlan/);
+  assert.doesNotMatch(medicine101110, /applySchedulePublicationPlan/);
   assert.match(medicine101110, /--apply requires --replace-existing/);
   assert.match(medicine101110, /\.deployed-commit/);
   assert.match(medicine101110, /CREATE TEMP TRIGGER/);
@@ -78,4 +99,7 @@ test('medicine replacement publication keeps production safety in an adapter ove
   assert.doesNotMatch(medicine101110, /createReadyScheduleVersion/);
   assert.doesNotMatch(medicine101110, /saveReadySnapshot/);
   assert.doesNotMatch(medicine101110, /publishVersion\(/);
+
+  assert.doesNotMatch(generic, /calendar_subscriptions|entitlements|subscription_tokens|calendar_preferences/i);
+  assert.doesNotMatch(generic, /rollbackToVersion|replace-existing|medicine/i);
 });
