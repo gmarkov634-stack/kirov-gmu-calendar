@@ -50,7 +50,16 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   return { commit: deployedCommit, schemaBlob, rendererBlob };
 }
 
-function validatePublicationInput({ apply, plan, qaForPublication, result }) {
+function validatePublicationInput({
+  apply,
+  plan,
+  qaForPublication,
+  result,
+  verifyDatabaseState,
+  verifyPublishedIcs,
+  preflightMetadata,
+  resultMetadata
+}) {
   if (typeof apply !== 'boolean') throw new TypeError('apply must be a boolean');
   if (!plan || typeof plan !== 'object') throw new TypeError('plan is required');
   if (plan.universityId !== 'kirov-gmu') throw new Error(`unexpected universityId: ${plan.universityId}`);
@@ -62,10 +71,40 @@ function validatePublicationInput({ apply, plan, qaForPublication, result }) {
   if (!plan.coreEvidence || typeof plan.coreEvidence !== 'object') throw new TypeError('plan.coreEvidence is required');
   if (!qaForPublication || qaForPublication.decision !== 'pass') throw new Error('qaForPublication must be a passing QA report');
   if (typeof result !== 'string' || result.length === 0) throw new TypeError('result is required');
+  if (verifyDatabaseState != null && typeof verifyDatabaseState !== 'function') {
+    throw new TypeError('verifyDatabaseState must be a function when provided');
+  }
+  if (verifyPublishedIcs != null && typeof verifyPublishedIcs !== 'function') {
+    throw new TypeError('verifyPublishedIcs must be a function when provided');
+  }
+  if (!preflightMetadata || typeof preflightMetadata !== 'object' || Array.isArray(preflightMetadata)) {
+    throw new TypeError('preflightMetadata must be an object');
+  }
+  if (!resultMetadata || typeof resultMetadata !== 'object' || Array.isArray(resultMetadata)) {
+    throw new TypeError('resultMetadata must be an object');
+  }
 }
 
-export async function runDentistryPublication({ apply, plan, qaForPublication, result }) {
-  validatePublicationInput({ apply, plan, qaForPublication, result });
+export async function runDentistryPublication({
+  apply,
+  plan,
+  qaForPublication,
+  result,
+  verifyDatabaseState = null,
+  verifyPublishedIcs = null,
+  preflightMetadata = {},
+  resultMetadata = {}
+}) {
+  validatePublicationInput({
+    apply,
+    plan,
+    qaForPublication,
+    result,
+    verifyDatabaseState,
+    verifyPublishedIcs,
+    preflightMetadata,
+    resultMetadata
+  });
 
   console.log(JSON.stringify({
     mode: apply ? 'apply' : 'preflight',
@@ -77,6 +116,7 @@ export async function runDentistryPublication({ apply, plan, qaForPublication, r
     candidateDigest: plan.candidateDigest,
     eventSetDigest: plan.eventSetDigest,
     eventCount: plan.events.length,
+    ...preflightMetadata,
     facultativeIds: plan.publication.facultativeIds,
     versions: plan.versions
   }, null, 2));
@@ -107,6 +147,8 @@ export async function runDentistryPublication({ apply, plan, qaForPublication, r
   try {
     const integrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
     if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
+    if (verifyDatabaseState) await verifyDatabaseState({ database, phase: 'before-publication' });
+
     const repository = core.createSqliteScheduleRepository(database);
 
     for (const version of plan.versions) {
@@ -192,41 +234,47 @@ export async function runDentistryPublication({ apply, plan, qaForPublication, r
         throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
       }
 
-      const defaultIcs = unfoldIcs(core.renderPublishedScheduleIcs({
-        scheduleVersion: published.scheduleVersion,
-        events: published.events,
-        calendarName: `КГМУ стоматология ${version.groupId}`
-      }));
-      const expectedDefaultCount = plan.publication.groupDefaultVisibleEventCounts[version.groupId];
-      if (countVevents(defaultIcs) !== expectedDefaultCount) {
-        throw new Error(`group ${version.groupId} default-off facultative ICS count verification failed`);
-      }
+      if (verifyPublishedIcs) {
+        await verifyPublishedIcs({ core, published, version, plan, unfoldIcs, countVevents });
+      } else {
+        const defaultIcs = unfoldIcs(core.renderPublishedScheduleIcs({
+          scheduleVersion: published.scheduleVersion,
+          events: published.events,
+          calendarName: `КГМУ стоматология ${version.groupId}`
+        }));
+        const expectedDefaultCount = plan.publication.groupDefaultVisibleEventCounts[version.groupId];
+        if (countVevents(defaultIcs) !== expectedDefaultCount) {
+          throw new Error(`group ${version.groupId} default-off facultative ICS count verification failed`);
+        }
 
-      const allFacultativeChoices = Object.fromEntries(
-        plan.publication.facultativeIds.map((facultativeId) => [facultativeId, true])
-      );
-      const allChoicesIcs = unfoldIcs(core.renderPublishedScheduleIcs({
-        scheduleVersion: published.scheduleVersion,
-        events: published.events,
-        calendarName: `КГМУ стоматология ${version.groupId}`,
-        preferences: { facultativeChoices: allFacultativeChoices }
-      }));
-      if (countVevents(allChoicesIcs) !== version.eventCount) {
-        throw new Error(`group ${version.groupId} all-facultatives ICS VEVENT count verification failed`);
-      }
-      if (published.events.some((event) => event.assessment) && !allChoicesIcs.includes('DESCRIPTION:')) {
-        throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+        const allFacultativeChoices = Object.fromEntries(
+          plan.publication.facultativeIds.map((facultativeId) => [facultativeId, true])
+        );
+        const allChoicesIcs = unfoldIcs(core.renderPublishedScheduleIcs({
+          scheduleVersion: published.scheduleVersion,
+          events: published.events,
+          calendarName: `КГМУ стоматология ${version.groupId}`,
+          preferences: { facultativeChoices: allFacultativeChoices }
+        }));
+        if (countVevents(allChoicesIcs) !== version.eventCount) {
+          throw new Error(`group ${version.groupId} all-facultatives ICS VEVENT count verification failed`);
+        }
+        if (published.events.some((event) => event.assessment) && !allChoicesIcs.includes('DESCRIPTION:')) {
+          throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+        }
       }
     }
 
     const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
     if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+    if (verifyDatabaseState) await verifyDatabaseState({ database, phase: 'after-publication' });
     console.log(JSON.stringify({
       result,
       coreBoundary: boundary,
       groupCount: plan.versions.length,
       eventCount: plan.events.length,
       oldScheduleVersionRowsPreserved: true,
+      ...resultMetadata,
       trialChanged: false,
       checkoutChanged: false,
       subscriptionTokensChanged: false,
