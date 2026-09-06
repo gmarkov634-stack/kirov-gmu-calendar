@@ -6,8 +6,19 @@ import {
   normalizeGoogleCalendarCandidates,
   parseGoogleOAuthReturn,
   resolveGoogleOAuthMessageSubscriptionId,
+  resolveGoogleSubscriptionForCard,
   validateGoogleAuthorizationUrl
 } from "../landing/manage/google-calendar.js";
+
+function fakeCard(title, meta) {
+  return {
+    querySelector(selector) {
+      if (selector === "h3") return { textContent: title };
+      if (selector === ".subscription-meta") return { textContent: meta };
+      return null;
+    }
+  };
+}
 
 test("Google OAuth return requires one explicit status and subscription for selection", () => {
   assert.deepEqual(
@@ -81,6 +92,60 @@ test("OAuth popup source binds both success and provider error to the opened sub
     source: popupB,
     popupEntries: entries
   }), null);
+});
+
+test("Google panel resolves a subscription from the rendered card only when identity is unique", () => {
+  const first = {
+    subscription: {
+      subscriptionId: "sub-1",
+      universityId: "kirov-gmu",
+      groupId: "114",
+      academicYearId: "2026-2027"
+    }
+  };
+  const second = {
+    subscription: {
+      subscriptionId: "sub-2",
+      universityId: "kirov-gmu",
+      groupId: "115",
+      academicYearId: "2026-2027"
+    }
+  };
+
+  assert.equal(
+    resolveGoogleSubscriptionForCard(
+      fakeCard("kirov-gmu · группа 114", "2026-2027 · Активный доступ"),
+      [first, second]
+    ),
+    first
+  );
+  assert.equal(
+    resolveGoogleSubscriptionForCard(
+      fakeCard("kirov-gmu · группа 114", "2025-2026 · Активный доступ"),
+      [first, second]
+    ),
+    null
+  );
+  assert.equal(
+    resolveGoogleSubscriptionForCard(
+      fakeCard("kirov-gmu · группа 114", "2026-2027 · Активный доступ"),
+      [first, { ...first, subscription: { ...first.subscription, subscriptionId: "duplicate" } }]
+    ),
+    null
+  );
+});
+
+test("Google UI observes the existing subscription response instead of issuing a second list request", async () => {
+  const source = await readFile(new URL("../landing/manage/google-calendar.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /apiRequest\(config,\s*["']\/management\/subscriptions["']/);
+  assert.match(source, /response\.clone\(\)\.json\(\)/);
+  assert.match(source, /resolveGoogleSubscriptionForCard\(card, subscriptionSnapshot\)/);
+});
+
+test("each Google OAuth connect opens a distinct browsing context", async () => {
+  const source = await readFile(new URL("../landing/manage/google-calendar.js", import.meta.url), "utf8");
+  assert.match(source, /window\.open\("about:blank",\s*"_blank"/);
+  assert.doesNotMatch(source, /window\.open\("about:blank",\s*"kgmu-google-calendar-oauth"/);
 });
 
 test("GitHub Pages bearer management credential is not persisted in browser storage", async () => {
