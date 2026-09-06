@@ -72,7 +72,10 @@ function validatePublicationInput({
   result,
   requireProductionRuntimeCommit,
   includeApprovedMainCommit,
+  validateCoreEvidence,
+  verifyDatabaseState,
   verifyPublishedIcs,
+  preflightMetadata,
   resultMetadata
 }) {
   if (typeof apply !== 'boolean') throw new TypeError('apply must be a boolean');
@@ -90,8 +93,17 @@ function validatePublicationInput({
   if (typeof includeApprovedMainCommit !== 'boolean') {
     throw new TypeError('includeApprovedMainCommit must be a boolean');
   }
+  if (validateCoreEvidence != null && typeof validateCoreEvidence !== 'function') {
+    throw new TypeError('validateCoreEvidence must be a function when provided');
+  }
+  if (verifyDatabaseState != null && typeof verifyDatabaseState !== 'function') {
+    throw new TypeError('verifyDatabaseState must be a function when provided');
+  }
   if (verifyPublishedIcs != null && typeof verifyPublishedIcs !== 'function') {
     throw new TypeError('verifyPublishedIcs must be a function when provided');
+  }
+  if (!preflightMetadata || typeof preflightMetadata !== 'object' || Array.isArray(preflightMetadata)) {
+    throw new TypeError('preflightMetadata must be an object');
   }
   if (!resultMetadata || typeof resultMetadata !== 'object' || Array.isArray(resultMetadata)) {
     throw new TypeError('resultMetadata must be an object');
@@ -119,7 +131,10 @@ export async function runPediatricsPublication({
   result,
   requireProductionRuntimeCommit = true,
   includeApprovedMainCommit = false,
+  validateCoreEvidence = null,
+  verifyDatabaseState = null,
   verifyPublishedIcs = null,
+  preflightMetadata = {},
   resultMetadata = {}
 }) {
   validatePublicationInput({
@@ -129,7 +144,10 @@ export async function runPediatricsPublication({
     result,
     requireProductionRuntimeCommit,
     includeApprovedMainCommit,
+    validateCoreEvidence,
+    verifyDatabaseState,
     verifyPublishedIcs,
+    preflightMetadata,
     resultMetadata
   });
 
@@ -142,6 +160,7 @@ export async function runPediatricsPublication({
     sourceSha256: plan.sourceSha256,
     candidateDigest: plan.candidateDigest,
     eventCount: plan.events.length,
+    ...preflightMetadata,
     versions: plan.versions
   }, null, 2));
 
@@ -156,6 +175,7 @@ export async function runPediatricsPublication({
     throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
   }
 
+  if (validateCoreEvidence) await validateCoreEvidence(plan.coreEvidence);
   const boundary = await verifyCoreBoundary(coreRoot, plan.coreEvidence, {
     requireProductionRuntimeCommit,
     includeApprovedMainCommit
@@ -174,6 +194,7 @@ export async function runPediatricsPublication({
   try {
     const integrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
     if (integrity !== 'ok') throw new Error(`SQLite integrity_check failed: ${integrity}`);
+    if (verifyDatabaseState) await verifyDatabaseState({ database, phase: 'before-publication' });
 
     const repository = core.createSqliteScheduleRepository(database);
 
@@ -272,6 +293,7 @@ export async function runPediatricsPublication({
 
     const finalIntegrity = database.prepare('PRAGMA integrity_check').get()?.integrity_check;
     if (finalIntegrity !== 'ok') throw new Error(`post-publication SQLite integrity_check failed: ${finalIntegrity}`);
+    if (verifyDatabaseState) await verifyDatabaseState({ database, phase: 'after-publication' });
     console.log(JSON.stringify({
       result,
       coreBoundary: boundary,
