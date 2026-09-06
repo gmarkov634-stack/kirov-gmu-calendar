@@ -54,6 +54,7 @@ await runPediatricsPublication({
   plan,
   qaForPublication: toCorePublicationQa(qa),
   result: 'PRODUCTION_PEDIATRICS_COURSE_2_SCHEDULES_PUBLISHED_AND_VERIFIED',
+  includeApprovedMainCommit: true,
   verifyPublishedIcs: verifyCourse2Ics,
   resultMetadata: {
     trialChanged: false,
