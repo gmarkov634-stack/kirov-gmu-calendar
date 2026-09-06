@@ -19,6 +19,13 @@ const CASES = [
     firstVersionId: 'kgmu-2026-2027-s1-pediatrics-231-59ea4ed15af1678e'
   },
   {
+    script: 'ops/publish-pediatrics-331-337.mjs',
+    candidateDigest: 'sha256:19fcc970c203a672a4d2da12eb3e4791b48312c3c3d2d84943dc7ffd6b3129dc',
+    eventCount: 1781,
+    firstGroupId: '331',
+    firstVersionId: 'kgmu-2026-2027-s1-pediatrics-331-19fcc970c203a672'
+  },
+  {
     script: 'ops/publish-pediatrics-431-436.mjs',
     candidateDigest: 'sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd',
     eventCount: 768,
@@ -85,4 +92,12 @@ test('early pediatrics entrypoints delegate publication lifecycle while retainin
   assert.match(course1, /ЗАЧЕТ С ОЦЕНКОЙ/);
   assert.match(course2, /includeApprovedMainCommit: true/);
   assert.match(course2, /lecture display prefix is missing from rendered ICS/);
+});
+
+test('Pediatrics course 3 delegates shared publication lifecycle and retains lecture ICS verification', () => {
+  const course3 = readFileSync('ops/publish-pediatrics-331-337.mjs', 'utf8');
+  assert.match(course3, /runPediatricsPublication/);
+  assert.match(course3, /verifyPublishedIcs: verifyCourse3Ics/);
+  assert.match(course3, /lecture display prefix is missing from rendered ICS/);
+  assert.match(course3, /PRODUCTION_PEDIATRICS_COURSE_3_SCHEDULES_PUBLISHED_AND_VERIFIED/);
 });
