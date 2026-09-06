@@ -26,7 +26,10 @@ function countVevents(ics) {
   return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
 }
 
-async function verifyCoreBoundary(coreRoot, coreEvidence, { requireProductionRuntimeCommit }) {
+async function verifyCoreBoundary(coreRoot, coreEvidence, {
+  requireProductionRuntimeCommit,
+  includeApprovedMainCommit
+}) {
   let deployedCommit = null;
   const approvedProductionCommit = coreEvidence.productionRuntimeCommit;
   if (requireProductionRuntimeCommit || approvedProductionCommit != null) {
@@ -56,13 +59,22 @@ async function verifyCoreBoundary(coreRoot, coreEvidence, { requireProductionRun
   }
   return {
     ...(deployedCommit == null ? {} : { commit: deployedCommit }),
-    ...(coreEvidence.commit == null ? {} : { approvedMainCommit: coreEvidence.commit }),
+    ...(includeApprovedMainCommit ? { approvedMainCommit: coreEvidence.commit } : {}),
     schemaBlob,
     rendererBlob
   };
 }
 
-function validatePublicationInput({ apply, plan, qaForPublication, result, verifyPublishedIcs, resultMetadata }) {
+function validatePublicationInput({
+  apply,
+  plan,
+  qaForPublication,
+  result,
+  requireProductionRuntimeCommit,
+  includeApprovedMainCommit,
+  verifyPublishedIcs,
+  resultMetadata
+}) {
   if (typeof apply !== 'boolean') throw new TypeError('apply must be a boolean');
   if (!plan || typeof plan !== 'object') throw new TypeError('plan is required');
   if (plan.universityId !== 'kirov-gmu') throw new Error(`unexpected universityId: ${plan.universityId}`);
@@ -72,6 +84,12 @@ function validatePublicationInput({ apply, plan, qaForPublication, result, verif
   if (!plan.coreEvidence || typeof plan.coreEvidence !== 'object') throw new TypeError('plan.coreEvidence is required');
   if (!qaForPublication || qaForPublication.decision !== 'pass') throw new Error('qaForPublication must be a passing QA report');
   if (typeof result !== 'string' || result.length === 0) throw new TypeError('result is required');
+  if (typeof requireProductionRuntimeCommit !== 'boolean') {
+    throw new TypeError('requireProductionRuntimeCommit must be a boolean');
+  }
+  if (typeof includeApprovedMainCommit !== 'boolean') {
+    throw new TypeError('includeApprovedMainCommit must be a boolean');
+  }
   if (verifyPublishedIcs != null && typeof verifyPublishedIcs !== 'function') {
     throw new TypeError('verifyPublishedIcs must be a function when provided');
   }
@@ -100,10 +118,20 @@ export async function runPediatricsPublication({
   qaForPublication,
   result,
   requireProductionRuntimeCommit = true,
+  includeApprovedMainCommit = false,
   verifyPublishedIcs = null,
   resultMetadata = {}
 }) {
-  validatePublicationInput({ apply, plan, qaForPublication, result, verifyPublishedIcs, resultMetadata });
+  validatePublicationInput({
+    apply,
+    plan,
+    qaForPublication,
+    result,
+    requireProductionRuntimeCommit,
+    includeApprovedMainCommit,
+    verifyPublishedIcs,
+    resultMetadata
+  });
 
   console.log(JSON.stringify({
     mode: apply ? 'apply' : 'preflight',
@@ -128,7 +156,10 @@ export async function runPediatricsPublication({
     throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
   }
 
-  const boundary = await verifyCoreBoundary(coreRoot, plan.coreEvidence, { requireProductionRuntimeCommit });
+  const boundary = await verifyCoreBoundary(coreRoot, plan.coreEvidence, {
+    requireProductionRuntimeCommit,
+    includeApprovedMainCommit
+  });
   const core = await import(pathToFileURL(resolve(coreRoot, 'src/index.js')).href);
   for (const name of [
     'openSqliteRuntimeDatabase',
