@@ -70,7 +70,8 @@ function validateInput({
   onPublicationError,
   result,
   resultFields,
-  standardResultFields
+  standardResultFields,
+  emitResult
 }) {
   if (!plan || typeof plan !== 'object') throw new TypeError('plan is required');
   if (plan.universityId !== 'kirov-gmu') throw new Error(`unexpected universityId: ${plan.universityId}`);
@@ -97,6 +98,7 @@ function validateInput({
   if (typeof result !== 'string' || result.length === 0) throw new TypeError('result is required');
   validatePlainObject('resultFields', resultFields);
   validatePlainObject('standardResultFields', standardResultFields);
+  if (typeof emitResult !== 'boolean') throw new TypeError('emitResult must be a boolean');
 }
 
 function verifyForeignKeyState(database, phase) {
@@ -126,7 +128,8 @@ export async function applyMedicinePublicationPlan({
   standardResultFields = {
     trialChanged: false,
     checkoutChanged: false
-  }
+  },
+  emitResult = true
 }) {
   validateInput({
     plan,
@@ -144,7 +147,8 @@ export async function applyMedicinePublicationPlan({
     onPublicationError,
     result,
     resultFields,
-    standardResultFields
+    standardResultFields,
+    emitResult
   });
 
   const coreRoot = resolve(process.env.MEDICAL_CALENDAR_CORE_ROOT || '/opt/medical-calendar-core');
@@ -245,14 +249,16 @@ export async function applyMedicinePublicationPlan({
         : null
     });
 
-    console.log(JSON.stringify({
+    const output = {
       result,
       coreBoundary: boundary,
       groupCount: applied.groupCount,
       eventCount: applied.eventCount,
       ...resultFields,
       ...standardResultFields
-    }, null, 2));
+    };
+    if (emitResult) console.log(JSON.stringify(output, null, 2));
+    return output;
   } finally {
     database.close();
   }
