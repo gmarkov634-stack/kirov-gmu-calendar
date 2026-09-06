@@ -60,9 +60,10 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
 });
 
 test('Dentistry course 4 shared publisher remains fail-closed around production contracts', async () => {
-  const [adapter, shared] = await Promise.all([
+  const [adapter, shared, generic] = await Promise.all([
     readFile(new URL('../ops/publish-dentistry-491-494.mjs', import.meta.url), 'utf8'),
-    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8')
+    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8'),
+    readFile(new URL('../ops/lib/apply-schedule-publication-plan.mjs', import.meta.url), 'utf8')
   ]);
 
   for (const required of [
@@ -76,22 +77,31 @@ test('Dentistry course 4 shared publisher remains fail-closed around production 
   ]) assert.match(adapter, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
 
   for (const required of [
-    'PRAGMA integrity_check',
+    'applySchedulePublicationPlan',
     '.deployed-commit',
     'normalizedEventSchemaBlob',
     'icsRendererBlob',
-    'exactly one published version',
     'MEDICAL_CALENDAR_DB_PATH',
     'PREFLIGHT_OK_NO_DATABASE_CHANGES',
-    'verifyDatabaseState',
-    'verifyPublishedIcs',
     'subscriptionTokensChanged: false',
     'calendarPreferencesChanged: false'
   ]) assert.match(shared, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
 
+  for (const required of [
+    'PRAGMA integrity_check',
+    'exactly one published version',
+    'verifyDatabaseState',
+    'verifyPublishedIcs',
+    'createReadyScheduleVersion',
+    'saveReadySnapshot',
+    'publishVersion'
+  ]) assert.match(generic, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
   assert.doesNotMatch(adapter, /openSqliteRuntimeDatabase/);
   assert.doesNotMatch(adapter, /createSqliteScheduleRepository/);
-  const combined = `${adapter}\n${shared}`;
+  assert.doesNotMatch(shared, /saveReadySnapshot/);
+  assert.doesNotMatch(shared, /publishVersion\(/);
+  const combined = `${adapter}\n${shared}\n${generic}`;
   assert.doesNotMatch(combined, /DELETE\s+FROM\s+schedule_versions/i);
   assert.doesNotMatch(combined, /rotate|revoke/i);
 });
