@@ -38,6 +38,15 @@ const CASES = [
     eventCount: 910,
     firstGroupId: '531',
     firstVersionId: 'kgmu-2026-2027-s1-pediatrics-531-62811141f1183c30'
+  },
+  {
+    script: 'ops/publish-pediatrics-631-637.mjs',
+    candidateDigest: 'sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f',
+    eventCount: 679,
+    firstGroupId: '631',
+    firstVersionId: 'kgmu-2026-2027-s1-pediatrics-631-d2e3987a60ea05fc',
+    floatingEventCount: 637,
+    dateOnlyEventCount: 42
   }
 ];
 
@@ -64,6 +73,8 @@ test('pediatrics publication entrypoints preserve their approved preflight contr
     assert.equal(summary.academicPeriodId, '2026-2027-semester-1');
     assert.equal(summary.candidateDigest, fixture.candidateDigest);
     assert.equal(summary.eventCount, fixture.eventCount);
+    if (fixture.floatingEventCount != null) assert.equal(summary.floatingEventCount, fixture.floatingEventCount);
+    if (fixture.dateOnlyEventCount != null) assert.equal(summary.dateOnlyEventCount, fixture.dateOnlyEventCount);
     assert.ok(Array.isArray(summary.versions));
     assert.ok(summary.versions.length > 0);
     assert.equal(summary.versions[0].groupId, fixture.firstGroupId);
@@ -100,4 +111,18 @@ test('Pediatrics course 3 delegates shared publication lifecycle and retains lec
   assert.match(course3, /verifyPublishedIcs: verifyCourse3Ics/);
   assert.match(course3, /lecture display prefix is missing from rendered ICS/);
   assert.match(course3, /PRODUCTION_PEDIATRICS_COURSE_3_SCHEDULES_PUBLISHED_AND_VERIFIED/);
+});
+
+test('Pediatrics course 6 delegates shared lifecycle while retaining date-only compatibility boundaries', () => {
+  const course6 = readFileSync('ops/publish-pediatrics-631-637.mjs', 'utf8');
+  assert.match(course6, /runPediatricsPublication/);
+  assert.match(course6, /validateCoreEvidence: validateCourse6CoreEvidence/);
+  assert.match(course6, /verifyDatabaseState: verifyCourse6DatabaseState/);
+  assert.match(course6, /verifyPublishedIcs: verifyCourse6Ics/);
+  assert.match(course6, /008_date_only_event_timing/);
+  assert.match(course6, /PRAGMA foreign_key_check/);
+  assert.match(course6, /DTSTART;VALUE=DATE/);
+  assert.match(course6, /BEGIN:VALARM/);
+  assert.match(course6, /acquired synthetic timing\/alarm/);
+  assert.match(course6, /PRODUCTION_PEDIATRICS_COURSE_6_SCHEDULES_PUBLISHED_AND_VERIFIED/);
 });
