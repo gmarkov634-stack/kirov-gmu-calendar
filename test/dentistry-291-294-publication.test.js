@@ -51,7 +51,12 @@ test('Dentistry course 2 publication evidence pins the exact QA-PASS candidate',
 });
 
 test('Dentistry course 2 publisher is fail-closed around production contracts', async () => {
-  const source = await readFile(new URL('../ops/publish-dentistry-291-294.mjs', import.meta.url), 'utf8');
+  const [entrypoint, sharedRuntime] = await Promise.all([
+    readFile(new URL('../ops/publish-dentistry-291-294.mjs', import.meta.url), 'utf8'),
+    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8')
+  ]);
+  const publicationBoundary = `${entrypoint}\n${sharedRuntime}`;
+  assert.match(entrypoint, /runDentistryPublication/);
   for (const required of [
     'PRAGMA integrity_check',
     '.deployed-commit',
@@ -61,9 +66,9 @@ test('Dentistry course 2 publisher is fail-closed around production contracts', 
     'CalendarPreferences',
     'MEDICAL_CALENDAR_DB_PATH',
     'PREFLIGHT_OK_NO_DATABASE_CHANGES'
-  ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
-  assert.doesNotMatch(source, /DELETE\s+FROM\s+schedule_versions/i);
-  assert.doesNotMatch(source, /rotate|revoke/i);
+  ]) assert.match(publicationBoundary, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+  assert.doesNotMatch(publicationBoundary, /DELETE\s+FROM\s+schedule_versions/i);
+  assert.doesNotMatch(publicationBoundary, /rotate|revoke/i);
 });
 
 test('Dentistry course 2 publisher preflight reproduces exact stable version plan without DB access', async () => {
