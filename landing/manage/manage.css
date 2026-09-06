@@ -128,6 +128,53 @@
   width: 100%;
 }
 
+.google-calendar-description,
+.google-calendar-candidate-help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.google-calendar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.google-calendar-selection,
+.google-calendar-candidates {
+  display: grid;
+  gap: 10px;
+}
+
+.google-calendar-candidate {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.google-calendar-candidate input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  flex: 0 0 18px;
+  accent-color: var(--blue);
+}
+
+.google-calendar-candidate span {
+  display: grid;
+  gap: 3px;
+}
+
+.google-calendar-candidate small {
+  color: var(--muted);
+}
+
 @media (max-width: 620px) {
   .preference-heading {
     display: grid;
@@ -139,7 +186,9 @@
     grid-template-columns: 1fr;
   }
 
-  .preference-save {
+  .preference-save,
+  .google-calendar-actions .button,
+  .google-calendar-selection > .button {
     width: 100%;
   }
 }
