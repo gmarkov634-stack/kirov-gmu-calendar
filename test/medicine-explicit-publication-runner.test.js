@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const CASES = [
@@ -18,6 +19,10 @@ function run(script, args) {
     cwd: process.cwd(),
     encoding: 'utf8'
   });
+}
+
+async function source(relativePath) {
+  return readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8');
 }
 
 test('legacy medicine publication entrypoints preserve their preflight contract through the shared runner', () => {
@@ -48,4 +53,34 @@ test('legacy medicine publication entrypoints keep rejecting unsupported CLI arg
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /unsupported arguments: --unexpected/);
   }
+});
+
+test('medicine 201-317 stream runner delegates database publication to the shared medicine runtime', async () => {
+  const [runner, medicineRuntime] = await Promise.all([
+    source('ops/lib/publish-explicit-medicine-streams.mjs'),
+    source('ops/lib/publish-medicine-plan.mjs')
+  ]);
+
+  assert.match(runner, /applyMedicinePublicationPlan/);
+  assert.match(runner, /toCorePublicationQa/);
+  assert.match(runner, /streams disagree on shared core evidence/);
+  assert.match(runner, /emitResult:\s*false/);
+  assert.match(runner, /lecture display prefix is missing from rendered ICS/);
+  assert.match(runner, /ЛЕКЦ\./);
+
+  for (const duplicatedApi of [
+    'openSqliteRuntimeDatabase',
+    'createSqliteScheduleRepository',
+    'createReadyScheduleVersion',
+    'saveReadySnapshot',
+    'publishVersion',
+    'PRAGMA integrity_check',
+    'SELECT COUNT(*) AS count FROM schedule_versions'
+  ]) {
+    assert.doesNotMatch(runner, new RegExp(duplicatedApi.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+
+  assert.match(medicineRuntime, /emitResult = true/);
+  assert.match(medicineRuntime, /if \(emitResult\) console\.log/);
+  assert.match(medicineRuntime, /return output/);
 });
