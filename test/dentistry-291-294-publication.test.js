@@ -51,22 +51,36 @@ test('Dentistry course 2 publication evidence pins the exact QA-PASS candidate',
 });
 
 test('Dentistry course 2 publisher is fail-closed around production contracts', async () => {
-  const [entrypoint, sharedRuntime] = await Promise.all([
+  const [entrypoint, sharedRuntime, genericRuntime] = await Promise.all([
     readFile(new URL('../ops/publish-dentistry-291-294.mjs', import.meta.url), 'utf8'),
-    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8')
+    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8'),
+    readFile(new URL('../ops/lib/apply-schedule-publication-plan.mjs', import.meta.url), 'utf8')
   ]);
-  const publicationBoundary = `${entrypoint}\n${sharedRuntime}`;
+  const publicationBoundary = `${entrypoint}\n${sharedRuntime}\n${genericRuntime}`;
   assert.match(entrypoint, /runDentistryPublication/);
+  assert.match(sharedRuntime, /applySchedulePublicationPlan/);
+
   for (const required of [
-    'PRAGMA integrity_check',
     '.deployed-commit',
     'normalizedEventSchemaBlob',
     'icsRendererBlob',
-    'exactly one published version',
     'CalendarPreferences',
     'MEDICAL_CALENDAR_DB_PATH',
     'PREFLIGHT_OK_NO_DATABASE_CHANGES'
   ]) assert.match(publicationBoundary, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
+  for (const required of [
+    'PRAGMA integrity_check',
+    'exactly one published version',
+    'createReadyScheduleVersion',
+    'saveReadySnapshot',
+    'publishVersion',
+    'verifyDatabaseState',
+    'verifyPublishedIcs'
+  ]) assert.match(genericRuntime, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
+  assert.doesNotMatch(sharedRuntime, /saveReadySnapshot/);
+  assert.doesNotMatch(sharedRuntime, /publishVersion\(/);
   assert.doesNotMatch(publicationBoundary, /DELETE\s+FROM\s+schedule_versions/i);
   assert.doesNotMatch(publicationBoundary, /rotate|revoke/i);
 });
