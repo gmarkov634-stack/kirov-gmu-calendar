@@ -59,22 +59,41 @@ test('Dentistry course 4 publication evidence pins the exact QA-PASS candidate',
   assert.ok(draft.events.every((event) => event.facultativeId == null));
 });
 
-test('Dentistry course 4 publisher is fail-closed around production contracts', async () => {
-  const source = await readFile(new URL('../ops/publish-dentistry-491-494.mjs', import.meta.url), 'utf8');
+test('Dentistry course 4 shared publisher remains fail-closed around production contracts', async () => {
+  const [adapter, shared] = await Promise.all([
+    readFile(new URL('../ops/publish-dentistry-491-494.mjs', import.meta.url), 'utf8'),
+    readFile(new URL('../ops/lib/publish-dentistry-course.mjs', import.meta.url), 'utf8')
+  ]);
+
+  for (const required of [
+    'runDentistryPublication',
+    'verifyDatabaseState: verifyCourse4DatabaseState',
+    'verifyPublishedIcs: verifyCourse4Ics',
+    'PRAGMA foreign_key_check',
+    'DTSTART;VALUE=DATE',
+    'Practice start date is missing from ICS',
+    'PRODUCTION_DENTISTRY_COURSE_4_SCHEDULES_PUBLISHED_AND_VERIFIED'
+  ]) assert.match(adapter, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
   for (const required of [
     'PRAGMA integrity_check',
-    'PRAGMA foreign_key_check',
     '.deployed-commit',
     'normalizedEventSchemaBlob',
     'icsRendererBlob',
     'exactly one published version',
     'MEDICAL_CALENDAR_DB_PATH',
     'PREFLIGHT_OK_NO_DATABASE_CHANGES',
+    'verifyDatabaseState',
+    'verifyPublishedIcs',
     'subscriptionTokensChanged: false',
     'calendarPreferencesChanged: false'
-  ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
-  assert.doesNotMatch(source, /DELETE\s+FROM\s+schedule_versions/i);
-  assert.doesNotMatch(source, /rotate|revoke/i);
+  ]) assert.match(shared, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
+  assert.doesNotMatch(adapter, /openSqliteRuntimeDatabase/);
+  assert.doesNotMatch(adapter, /createSqliteScheduleRepository/);
+  const combined = `${adapter}\n${shared}`;
+  assert.doesNotMatch(combined, /DELETE\s+FROM\s+schedule_versions/i);
+  assert.doesNotMatch(combined, /rotate|revoke/i);
 });
 
 test('Dentistry course 4 publisher preflight reproduces exact stable version plan without DB access', async () => {
