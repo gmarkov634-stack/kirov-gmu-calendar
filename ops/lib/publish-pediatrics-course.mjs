@@ -26,13 +26,23 @@ function countVevents(ics) {
   return (ics.match(/BEGIN:VEVENT/g) ?? []).length;
 }
 
-async function verifyCoreBoundary(coreRoot, coreEvidence) {
-  const deployedCommit = (await readFile(resolve(coreRoot, '.deployed-commit'), 'utf8')).trim();
-  if (!/^[0-9a-f]{40}$/.test(deployedCommit)) {
-    throw new Error(`deployed core commit marker is invalid: ${deployedCommit}`);
-  }
-  if (deployedCommit !== coreEvidence.productionRuntimeCommit) {
-    throw new Error(`deployed core commit mismatch: ${deployedCommit}`);
+async function verifyCoreBoundary(coreRoot, coreEvidence, {
+  requireProductionRuntimeCommit,
+  includeApprovedMainCommit
+}) {
+  let deployedCommit = null;
+  const approvedProductionCommit = coreEvidence.productionRuntimeCommit;
+  if (requireProductionRuntimeCommit || approvedProductionCommit != null) {
+    deployedCommit = (await readFile(resolve(coreRoot, '.deployed-commit'), 'utf8')).trim();
+    if (!/^[0-9a-f]{40}$/.test(deployedCommit)) {
+      throw new Error(`deployed core commit marker is invalid: ${deployedCommit}`);
+    }
+    if (typeof approvedProductionCommit !== 'string' || !/^[0-9a-f]{40}$/.test(approvedProductionCommit)) {
+      throw new Error('approved production core commit is missing or invalid');
+    }
+    if (deployedCommit !== approvedProductionCommit) {
+      throw new Error(`deployed core commit mismatch: ${deployedCommit}`);
+    }
   }
 
   const [schema, renderer] = await Promise.all([
@@ -47,10 +57,24 @@ async function verifyCoreBoundary(coreRoot, coreEvidence) {
   if (rendererBlob !== coreEvidence.icsRendererBlob) {
     throw new Error(`deployed core ICS renderer blob mismatch: ${rendererBlob}`);
   }
-  return { commit: deployedCommit, schemaBlob, rendererBlob };
+  return {
+    ...(deployedCommit == null ? {} : { commit: deployedCommit }),
+    ...(includeApprovedMainCommit ? { approvedMainCommit: coreEvidence.commit } : {}),
+    schemaBlob,
+    rendererBlob
+  };
 }
 
-function validatePublicationInput({ apply, plan, qaForPublication, result }) {
+function validatePublicationInput({
+  apply,
+  plan,
+  qaForPublication,
+  result,
+  requireProductionRuntimeCommit,
+  includeApprovedMainCommit,
+  verifyPublishedIcs,
+  resultMetadata
+}) {
   if (typeof apply !== 'boolean') throw new TypeError('apply must be a boolean');
   if (!plan || typeof plan !== 'object') throw new TypeError('plan is required');
   if (plan.universityId !== 'kirov-gmu') throw new Error(`unexpected universityId: ${plan.universityId}`);
@@ -60,10 +84,54 @@ function validatePublicationInput({ apply, plan, qaForPublication, result }) {
   if (!plan.coreEvidence || typeof plan.coreEvidence !== 'object') throw new TypeError('plan.coreEvidence is required');
   if (!qaForPublication || qaForPublication.decision !== 'pass') throw new Error('qaForPublication must be a passing QA report');
   if (typeof result !== 'string' || result.length === 0) throw new TypeError('result is required');
+  if (typeof requireProductionRuntimeCommit !== 'boolean') {
+    throw new TypeError('requireProductionRuntimeCommit must be a boolean');
+  }
+  if (typeof includeApprovedMainCommit !== 'boolean') {
+    throw new TypeError('includeApprovedMainCommit must be a boolean');
+  }
+  if (verifyPublishedIcs != null && typeof verifyPublishedIcs !== 'function') {
+    throw new TypeError('verifyPublishedIcs must be a function when provided');
+  }
+  if (!resultMetadata || typeof resultMetadata !== 'object' || Array.isArray(resultMetadata)) {
+    throw new TypeError('resultMetadata must be an object');
+  }
 }
 
-export async function runPediatricsPublication({ apply, plan, qaForPublication, result }) {
-  validatePublicationInput({ apply, plan, qaForPublication, result });
+function verifyStandardPublishedIcs({ core, published, version }) {
+  const ics = unfoldIcs(core.renderPublishedScheduleIcs({
+    scheduleVersion: published.scheduleVersion,
+    events: published.events,
+    calendarName: `КГМУ педиатрия ${version.groupId}`
+  }));
+  if (countVevents(ics) !== version.eventCount) {
+    throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
+  }
+  if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
+    throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+  }
+}
+
+export async function runPediatricsPublication({
+  apply,
+  plan,
+  qaForPublication,
+  result,
+  requireProductionRuntimeCommit = true,
+  includeApprovedMainCommit = false,
+  verifyPublishedIcs = null,
+  resultMetadata = {}
+}) {
+  validatePublicationInput({
+    apply,
+    plan,
+    qaForPublication,
+    result,
+    requireProductionRuntimeCommit,
+    includeApprovedMainCommit,
+    verifyPublishedIcs,
+    resultMetadata
+  });
 
   console.log(JSON.stringify({
     mode: apply ? 'apply' : 'preflight',
@@ -88,7 +156,10 @@ export async function runPediatricsPublication({ apply, plan, qaForPublication, 
     throw new Error('MEDICAL_CALENDAR_DB_PATH is required for --apply');
   }
 
-  const boundary = await verifyCoreBoundary(coreRoot, plan.coreEvidence);
+  const boundary = await verifyCoreBoundary(coreRoot, plan.coreEvidence, {
+    requireProductionRuntimeCommit,
+    includeApprovedMainCommit
+  });
   const core = await import(pathToFileURL(resolve(coreRoot, 'src/index.js')).href);
   for (const name of [
     'openSqliteRuntimeDatabase',
@@ -192,16 +263,10 @@ export async function runPediatricsPublication({ apply, plan, qaForPublication, 
         throw new Error(`group ${version.groupId} must have exactly one published version, got ${publishedCount}`);
       }
 
-      const ics = unfoldIcs(core.renderPublishedScheduleIcs({
-        scheduleVersion: published.scheduleVersion,
-        events: published.events,
-        calendarName: `КГМУ педиатрия ${version.groupId}`
-      }));
-      if (countVevents(ics) !== version.eventCount) {
-        throw new Error(`group ${version.groupId} ICS VEVENT count verification failed`);
-      }
-      if (published.events.some((event) => event.assessment) && !ics.includes('DESCRIPTION:')) {
-        throw new Error(`group ${version.groupId} assessment metadata is missing from rendered ICS`);
+      if (verifyPublishedIcs) {
+        await verifyPublishedIcs({ core, published, version, unfoldIcs, countVevents });
+      } else {
+        verifyStandardPublishedIcs({ core, published, version });
       }
     }
 
@@ -212,7 +277,8 @@ export async function runPediatricsPublication({ apply, plan, qaForPublication, 
       coreBoundary: boundary,
       groupCount: plan.versions.length,
       eventCount: plan.events.length,
-      oldScheduleVersionRowsPreserved: true
+      oldScheduleVersionRowsPreserved: true,
+      ...resultMetadata
     }, null, 2));
   } finally {
     database.close();

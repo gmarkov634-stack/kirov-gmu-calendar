@@ -1,8 +1,23 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const CASES = [
+  {
+    script: 'ops/publish-pediatrics-131-140.mjs',
+    candidateDigest: 'sha256:ffd0fc5cc78fe0dbfb9f8577c5dd37d58713c3551260a810c5f77096bda7626e',
+    eventCount: 3819,
+    firstGroupId: '131',
+    firstVersionId: 'kgmu-2026-2027-s1-pediatrics-131-ffd0fc5cc78fe0db'
+  },
+  {
+    script: 'ops/publish-pediatrics-231-239.mjs',
+    candidateDigest: 'sha256:59ea4ed15af1678e205f62c56ee9fa7c7fc74e40570d19c8b1f6b4098e1bfb20',
+    eventCount: 2353,
+    firstGroupId: '231',
+    firstVersionId: 'kgmu-2026-2027-s1-pediatrics-231-59ea4ed15af1678e'
+  },
   {
     script: 'ops/publish-pediatrics-431-436.mjs',
     candidateDigest: 'sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd',
@@ -55,4 +70,19 @@ test('pediatrics publication entrypoints keep rejecting unsupported CLI argument
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /unsupported arguments: --unexpected/);
   }
+});
+
+test('early pediatrics entrypoints delegate publication lifecycle while retaining course-specific ICS policies', () => {
+  const course1 = readFileSync('ops/publish-pediatrics-131-140.mjs', 'utf8');
+  const course2 = readFileSync('ops/publish-pediatrics-231-239.mjs', 'utf8');
+  for (const source of [course1, course2]) {
+    assert.match(source, /runPediatricsPublication/);
+    assert.match(source, /verifyPublishedIcs/);
+  }
+  assert.match(course1, /requireProductionRuntimeCommit: false/);
+  assert.match(course1, /default-off ICS VEVENT count verification failed/);
+  assert.match(course1, /all-facultatives ICS VEVENT count verification failed/);
+  assert.match(course1, /ЗАЧЕТ С ОЦЕНКОЙ/);
+  assert.match(course2, /includeApprovedMainCommit: true/);
+  assert.match(course2, /lecture display prefix is missing from rendered ICS/);
 });
