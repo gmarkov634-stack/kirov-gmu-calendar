@@ -18,6 +18,8 @@ const files = {
   fonts: new URL("../landing/assets/fonts.css", import.meta.url),
   manage: new URL("../landing/manage/index.html", import.meta.url),
   manageJs: new URL("../landing/manage/manage.js", import.meta.url),
+  manageBootstrap: new URL("../landing/manage/max-link-bootstrap.js", import.meta.url),
+  maxLink: new URL("../landing/manage/max-link.js", import.meta.url),
   manageCss: new URL("../landing/manage/manage.css", import.meta.url)
 };
 
@@ -100,15 +102,18 @@ test("Android Google Calendar handoff keeps the opaque ICS URL out of the Google
   assert.doesNotMatch(acquisition, /[?&]cid=/);
 });
 
-test("management proof still uses fragment to POST", async () => {
+test("management proof still uses fragment to POST before normal management starts", async () => {
   const manageHtml = await text("manage");
-  const manageJs = await text("manageJs");
-  assert.match(manageHtml, /manage\.js/);
-  assert.match(manageJs, /window\.location\.hash/);
-  assert.match(manageJs, /history\.replaceState/);
-  assert.match(manageJs, /"\/management\/verify"/);
-  assert.match(manageJs, /JSON\.stringify\(\{ magicToken: token \}\)/);
-  assert.doesNotMatch(manageJs, /management\/verify\?/);
+  const bootstrap = await text("manageBootstrap");
+  const maxLink = await text("maxLink");
+  assert.match(manageHtml, /max-link-bootstrap\.js/);
+  assert.match(bootstrap, /bootstrapMaxManagement/);
+  assert.match(bootstrap, /import\("\.\/manage\.js"\)/);
+  assert.match(maxLink, /windowObj\.location\.hash/);
+  assert.match(maxLink, /history\.replaceState/);
+  assert.match(maxLink, /"\/management\/verify"/);
+  assert.match(maxLink, /JSON\.stringify\(\{ magicToken \}\)/);
+  assert.doesNotMatch(maxLink, /management\/verify\?/);
 });
 
 test("management UI exposes only supported calendar preferences", async () => {
@@ -158,7 +163,7 @@ test("elective and facultative selectors are omitted when covered periods have n
 });
 
 test("landing contains no embedded production secrets", async () => {
-  const combined = [await text("index"), await text("app"), await text("config"), await text("manageJs")].join("\n");
+  const combined = [await text("index"), await text("app"), await text("config"), await text("manageJs"), await text("maxLink")].join("\n");
   assert.doesNotMatch(combined, /RESEND_API_KEY/);
   assert.doesNotMatch(combined, /re_[A-Za-z0-9_-]{12,}/);
 });

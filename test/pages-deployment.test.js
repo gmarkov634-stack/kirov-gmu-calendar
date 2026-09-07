@@ -24,9 +24,14 @@ test('Pages management client keeps bearer credential in memory only', () => {
   assert.match(client, /credentials: usesBearerSession\(\) \? "omit" : "include"/);
   assert.match(client, /managementToken = payload\.managementToken/);
   assert.doesNotMatch(client, /localStorage|sessionStorage|document\.cookie/);
+
+  const maxLink = read('landing/manage/max-link.js');
+  assert.doesNotMatch(maxLink, /localStorage|document\.cookie/);
+  assert.match(maxLink, /windowObj\.sessionStorage/);
+  assert.match(maxLink, /body: JSON\.stringify\(\{ linkToken \}\)/);
 });
 
-test('Pages artifact builder preserves the landing and project-relative catalog', () => {
+test('Pages artifact builder preserves the landing, MAX management modules, and project-relative catalog', () => {
   const tempRoot = mkdtempSync(join(tmpdir(), 'kgmu-pages-'));
   const output = join(tempRoot, 'site');
 
@@ -38,9 +43,17 @@ test('Pages artifact builder preserves the landing and project-relative catalog'
     assert.equal(result.status, 0, result.stderr || result.stdout);
     assert.ok(existsSync(join(output, 'index.html')));
     assert.ok(existsSync(join(output, 'manage', 'index.html')));
+    assert.ok(existsSync(join(output, 'manage', 'max-link.js')));
+    assert.ok(existsSync(join(output, 'manage', 'max-link-bootstrap.js')));
     assert.ok(existsSync(join(output, 'catalog', '2026-2027-semester-1.json')));
     assert.ok(existsSync(join(output, '.nojekyll')));
     assert.equal(existsSync(join(output, 'README.md')), false);
+
+    const manageHtml = readFileSync(join(output, 'manage', 'index.html'), 'utf8');
+    assert.match(manageHtml, /src="\.\/max-link-bootstrap\.js"/);
+    assert.match(manageHtml, /src="\.\/elective-empty-state\.js"/);
+    assert.match(manageHtml, /src="\.\.\/referral-sharing\.js"/);
+    assert.match(manageHtml, /src="\.\.\/referral-platform-sharing\.js"/);
 
     const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
     assert.match(runtimeConfig, /managementSessionTransport:\s*"bearer"/);

@@ -141,12 +141,14 @@ test("in-memory bearer session is cleared after logout", async () => {
   assert.equal(authorizations[2], null);
 });
 
-test("management session script is loaded before Google and base management modules", async () => {
+test("management session script is loaded before Google and the MAX/bootstrap management client", async () => {
   const html = await readFile(new URL("../landing/manage/index.html", import.meta.url), "utf8");
+  const bootstrap = await readFile(new URL("../landing/manage/max-link-bootstrap.js", import.meta.url), "utf8");
   const transportIndex = html.indexOf("session-transport.js");
   const googleIndex = html.indexOf("google-calendar.js");
-  const manageIndex = html.indexOf("manage.js");
+  const bootstrapIndex = html.indexOf("max-link-bootstrap.js");
   assert.ok(transportIndex >= 0);
   assert.ok(googleIndex > transportIndex);
-  assert.ok(manageIndex > googleIndex);
+  assert.ok(bootstrapIndex > googleIndex);
+  assert.match(bootstrap, /import\("\.\/manage\.js"\)/);
 });
