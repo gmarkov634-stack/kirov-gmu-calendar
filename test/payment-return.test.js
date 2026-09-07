@@ -6,6 +6,7 @@ const acquisitionUi = readFileSync(new URL('../landing/acquisition-ui.js', impor
 const androidGoogle = readFileSync(new URL('../landing/android-google-calendar.js', import.meta.url), 'utf8');
 const handoff = readFileSync(new URL('../landing/manage/handoff.js', import.meta.url), 'utf8');
 const manageHtml = readFileSync(new URL('../landing/manage/index.html', import.meta.url), 'utf8');
+const manageBootstrap = readFileSync(new URL('../landing/manage/max-link-bootstrap.js', import.meta.url), 'utf8');
 const trialCss = readFileSync(new URL('../landing/assets/trial.css', import.meta.url), 'utf8');
 const manageCss = readFileSync(new URL('../landing/manage/manage.css', import.meta.url), 'utf8');
 const pagesBuild = readFileSync(new URL('../deploy/build-pages.sh', import.meta.url), 'utf8');
@@ -70,12 +71,13 @@ test('management calendar actions do not duplicate the Google copy control', () 
   assert.match(handoff, /existingCopy\.textContent = "Скопировать для Google Calendar"/);
 });
 
-test('management handoff loads before the normal management client', () => {
+test('management handoff loads before MAX bootstrap and the normal management client', () => {
   const handoffIndex = manageHtml.indexOf('./handoff.js');
-  const manageIndex = manageHtml.indexOf('./manage.js');
+  const bootstrapIndex = manageHtml.indexOf('./max-link-bootstrap.js');
   assert.ok(handoffIndex >= 0, 'handoff.js must be loaded');
-  assert.ok(manageIndex >= 0, 'manage.js must be loaded');
-  assert.ok(handoffIndex < manageIndex, 'handoff.js must wrap fetch before manage.js starts');
+  assert.ok(bootstrapIndex >= 0, 'max-link-bootstrap.js must be loaded');
+  assert.ok(handoffIndex < bootstrapIndex, 'handoff.js must wrap fetch before MAX/bootstrap management starts');
+  assert.match(manageBootstrap, /import\("\.\/manage\.js"\)/);
 });
 
 test('deployed landing artifacts use acquisition UI and no longer inject the legacy payment-return script', () => {
