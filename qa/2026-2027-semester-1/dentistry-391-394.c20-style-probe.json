@@ -1,0 +1,6679 @@
+{
+  "schema": "kgmu-c20-source-style-probe-v1",
+  "semanticInferencePerformed": false,
+  "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/3_stomat-24-08-2026-14.xlsx",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "sheetName": "3 Стомат 2026-27 студ",
+  "targetRangeCount": 12,
+  "conditionalFormatting": [],
+  "targetRanges": [
+    {
+      "range": "CI13:CN13",
+      "groupId": "391",
+      "kind": "obstetrics",
+      "rawLabel": "Акушерство",
+      "normalizedLabel": "Акушерство",
+      "columnCount": 6,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "CI13",
+          "dateLabelRow11": "9",
+          "value": "Акушерство",
+          "semanticStyle": {
+            "styleId": 152,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCFF66",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CJ13",
+          "dateLabelRow11": "10",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CK13",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CL13",
+          "dateLabelRow11": "12",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CM13",
+          "dateLabelRow11": "14",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CN13",
+          "dateLabelRow11": "15",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "CO13:CR13",
+      "groupId": "391",
+      "kind": "iok",
+      "rawLabel": "ИОК врача- стоматолога",
+      "normalizedLabel": "ИОК врача-стоматолога",
+      "columnCount": 4,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "CO13",
+          "dateLabelRow11": "16",
+          "value": "ИОК врача- стоматолога",
+          "semanticStyle": {
+            "styleId": 151,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFFFC1C1",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": null
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": true,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CP13",
+          "dateLabelRow11": "17",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CQ13",
+          "dateLabelRow11": "18",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CR13",
+          "dateLabelRow11": "19",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "CW13:DC13",
+      "groupId": "391",
+      "kind": "philosophy",
+      "rawLabel": "Философия",
+      "normalizedLabel": "Философия",
+      "columnCount": 7,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "CW13",
+          "dateLabelRow11": "25",
+          "value": "Философия",
+          "semanticStyle": {
+            "styleId": 148,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCCC00",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CX13",
+          "dateLabelRow11": "26",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CY13",
+          "dateLabelRow11": "28",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CZ13",
+          "dateLabelRow11": "29",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DA13",
+          "dateLabelRow11": "30",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DB13",
+          "dateLabelRow11": "9",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DC13",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "BI14:BN14",
+      "groupId": "392",
+      "kind": "obstetrics",
+      "rawLabel": "Акушерство",
+      "normalizedLabel": "Акушерство",
+      "columnCount": 6,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "BI14",
+          "dateLabelRow11": "9",
+          "value": "Акушерство",
+          "semanticStyle": {
+            "styleId": 152,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCFF66",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BJ14",
+          "dateLabelRow11": "10",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BK14",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BL14",
+          "dateLabelRow11": "12",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BM14",
+          "dateLabelRow11": "13",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BN14",
+          "dateLabelRow11": "14",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "CH14:CK14",
+      "groupId": "392",
+      "kind": "iok",
+      "rawLabel": "ИОК врача- стоматолога",
+      "normalizedLabel": "ИОК врача-стоматолога",
+      "columnCount": 4,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "CH14",
+          "dateLabelRow11": "8",
+          "value": "ИОК врача- стоматолога",
+          "semanticStyle": {
+            "styleId": 151,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFFFC1C1",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": null
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": true,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CI14",
+          "dateLabelRow11": "9",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CJ14",
+          "dateLabelRow11": "10",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CK14",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "CW14:DC14",
+      "groupId": "392",
+      "kind": "philosophy",
+      "rawLabel": "Философия",
+      "normalizedLabel": "Философия",
+      "columnCount": 7,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "CW14",
+          "dateLabelRow11": "25",
+          "value": "Философия",
+          "semanticStyle": {
+            "styleId": 148,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCCC00",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CX14",
+          "dateLabelRow11": "26",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CY14",
+          "dateLabelRow11": "28",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "CZ14",
+          "dateLabelRow11": "29",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DA14",
+          "dateLabelRow11": "30",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DB14",
+          "dateLabelRow11": "9",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "DC14",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "AB15:AE15",
+      "groupId": "393",
+      "kind": "iok",
+      "rawLabel": "ИОК врача- стоматолога",
+      "normalizedLabel": "ИОК врача-стоматолога",
+      "columnCount": 4,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "AB15",
+          "dateLabelRow11": "30",
+          "value": "ИОК врача- стоматолога",
+          "semanticStyle": {
+            "styleId": 101,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFFFC1C1",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": null
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": true,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AC15",
+          "dateLabelRow11": "1",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AD15",
+          "dateLabelRow11": "2",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AE15",
+          "dateLabelRow11": "3",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "BA15:BG15",
+      "groupId": "393",
+      "kind": "philosophy",
+      "rawLabel": "Философия",
+      "normalizedLabel": "Философия",
+      "columnCount": 7,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "BA15",
+          "dateLabelRow11": "29",
+          "value": "Философия",
+          "semanticStyle": {
+            "styleId": 148,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCCC00",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BB15",
+          "dateLabelRow11": "30",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BC15",
+          "dateLabelRow11": "31",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BD15",
+          "dateLabelRow11": "2",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BE15",
+          "dateLabelRow11": "3",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BF15",
+          "dateLabelRow11": "5",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BG15",
+          "dateLabelRow11": "6",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "I15:N15",
+      "groupId": "393",
+      "kind": "obstetrics",
+      "rawLabel": "Акушерство",
+      "normalizedLabel": "Акушерство",
+      "columnCount": 6,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "I15",
+          "dateLabelRow11": "8",
+          "value": "Акушерство",
+          "semanticStyle": {
+            "styleId": 152,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCFF66",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "J15",
+          "dateLabelRow11": "9",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "K15",
+          "dateLabelRow11": "10",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "L15",
+          "dateLabelRow11": "11",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "M15",
+          "dateLabelRow11": "12",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "N15",
+          "dateLabelRow11": "14",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "AQ16:AV16",
+      "groupId": "394",
+      "kind": "obstetrics",
+      "rawLabel": "Акушерство",
+      "normalizedLabel": "Акушерство",
+      "columnCount": 6,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "AQ16",
+          "dateLabelRow11": "17",
+          "value": "Акушерство",
+          "semanticStyle": {
+            "styleId": 152,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCFF66",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AR16",
+          "dateLabelRow11": "19",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AS16",
+          "dateLabelRow11": "20",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AT16",
+          "dateLabelRow11": "21",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AU16",
+          "dateLabelRow11": "22",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AV16",
+          "dateLabelRow11": "23",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "AW16:AZ16",
+      "groupId": "394",
+      "kind": "iok",
+      "rawLabel": "ИОК врача- стоматолога",
+      "normalizedLabel": "ИОК врача-стоматолога",
+      "columnCount": 4,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "AW16",
+          "dateLabelRow11": "24",
+          "value": "ИОК врача- стоматолога",
+          "semanticStyle": {
+            "styleId": 101,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFFFC1C1",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": null
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": true,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AX16",
+          "dateLabelRow11": "26",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AY16",
+          "dateLabelRow11": "27",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "AZ16",
+          "dateLabelRow11": "28",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "range": "BA16:BG16",
+      "groupId": "394",
+      "kind": "philosophy",
+      "rawLabel": "Философия",
+      "normalizedLabel": "Философия",
+      "columnCount": 7,
+      "distinctSemanticStyleCount": 2,
+      "hasWithinRangeSemanticStyleVariation": true,
+      "cells": [
+        {
+          "coordinate": "BA16",
+          "dateLabelRow11": "29",
+          "value": "Философия",
+          "semanticStyle": {
+            "styleId": 148,
+            "cellClass": "Cell",
+            "fill": {
+              "fillType": "solid",
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "FFCCCC00",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Arial",
+              "size": 12.0,
+              "bold": true,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": "center",
+              "vertical": "center",
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BB16",
+          "dateLabelRow11": "30",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BC16",
+          "dateLabelRow11": "31",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BD16",
+          "dateLabelRow11": "2",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BE16",
+          "dateLabelRow11": "3",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BF16",
+          "dateLabelRow11": "5",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 149,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": null,
+              "color": null
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        },
+        {
+          "coordinate": "BG16",
+          "dateLabelRow11": "6",
+          "value": null,
+          "semanticStyle": {
+            "styleId": 150,
+            "cellClass": "MergedCell",
+            "fill": {
+              "fillType": null,
+              "fgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              },
+              "bgColor": {
+                "type": "rgb",
+                "rgb": "00000000",
+                "indexed": null,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "font": {
+              "name": "Calibri",
+              "size": 11.0,
+              "bold": false,
+              "italic": false,
+              "underline": null,
+              "strike": null,
+              "color": {
+                "type": "theme",
+                "rgb": null,
+                "indexed": null,
+                "theme": 1,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "alignment": {
+              "horizontal": null,
+              "vertical": null,
+              "textRotation": 0,
+              "wrapText": null,
+              "shrinkToFit": null,
+              "indent": 0.0
+            },
+            "numberFormat": "General",
+            "protection": {
+              "locked": true,
+              "hidden": false
+            }
+          },
+          "border": {
+            "left": {
+              "style": null,
+              "color": null
+            },
+            "right": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "top": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "bottom": {
+              "style": "medium",
+              "color": {
+                "type": "indexed",
+                "rgb": null,
+                "indexed": 64,
+                "theme": null,
+                "tint": 0.0,
+                "auto": "Values must be of type <class 'bool'>"
+              }
+            },
+            "diagonal": {
+              "style": null,
+              "color": null
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "rangesWithWithinRangeSemanticStyleVariation": 12,
+    "allTargetRangesSemanticallyUniformByCellStyle": false
+  }
+}

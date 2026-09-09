@@ -1,0 +1,214 @@
+{
+  "schema": "kgmu-c20-source-evidence-review-v1",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "status": "NO_DATE_LEVEL_SOURCE_EVIDENCE",
+  "c20Resolution": "REVIEW_REQUIRED",
+  "semanticInferencePerformed": false,
+  "targetRangeCount": 12,
+  "conditionalFormattingCount": 0,
+  "finding": "All 12 ambiguous cycles are single merged Excel ranges. The apparent within-range style variation is the top-left real Cell versus inner MergedCell placeholders (plus merged-edge borders), not a per-date source encoding. No conditional formatting or inner date-level values/fills identify which calendar dates use the exceptional time.",
+  "ruleConclusion": "Canonical C20 remains applicable. Exceptional dates must not be guessed. C21 remains inapplicable because it is source-specific to a different historical XLSX.",
+  "diagnostics": [
+    {
+      "range": "CI13:CN13",
+      "groupId": "391",
+      "kind": "obstetrics",
+      "dateLabels": [
+        "9",
+        "10",
+        "11",
+        "12",
+        "14",
+        "15"
+      ],
+      "topLeftCell": "CI13",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "CO13:CR13",
+      "groupId": "391",
+      "kind": "iok",
+      "dateLabels": [
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "topLeftCell": "CO13",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "CW13:DC13",
+      "groupId": "391",
+      "kind": "philosophy",
+      "dateLabels": [
+        "25",
+        "26",
+        "28",
+        "29",
+        "30",
+        "9",
+        "11"
+      ],
+      "topLeftCell": "CW13",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "BI14:BN14",
+      "groupId": "392",
+      "kind": "obstetrics",
+      "dateLabels": [
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "topLeftCell": "BI14",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "CH14:CK14",
+      "groupId": "392",
+      "kind": "iok",
+      "dateLabels": [
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "topLeftCell": "CH14",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "CW14:DC14",
+      "groupId": "392",
+      "kind": "philosophy",
+      "dateLabels": [
+        "25",
+        "26",
+        "28",
+        "29",
+        "30",
+        "9",
+        "11"
+      ],
+      "topLeftCell": "CW14",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "AB15:AE15",
+      "groupId": "393",
+      "kind": "iok",
+      "dateLabels": [
+        "30",
+        "1",
+        "2",
+        "3"
+      ],
+      "topLeftCell": "AB15",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "BA15:BG15",
+      "groupId": "393",
+      "kind": "philosophy",
+      "dateLabels": [
+        "29",
+        "30",
+        "31",
+        "2",
+        "3",
+        "5",
+        "6"
+      ],
+      "topLeftCell": "BA15",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "I15:N15",
+      "groupId": "393",
+      "kind": "obstetrics",
+      "dateLabels": [
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "14"
+      ],
+      "topLeftCell": "I15",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "AQ16:AV16",
+      "groupId": "394",
+      "kind": "obstetrics",
+      "dateLabels": [
+        "17",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23"
+      ],
+      "topLeftCell": "AQ16",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "AW16:AZ16",
+      "groupId": "394",
+      "kind": "iok",
+      "dateLabels": [
+        "24",
+        "26",
+        "27",
+        "28"
+      ],
+      "topLeftCell": "AW16",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    },
+    {
+      "range": "BA16:BG16",
+      "groupId": "394",
+      "kind": "philosophy",
+      "dateLabels": [
+        "29",
+        "30",
+        "31",
+        "2",
+        "3",
+        "5",
+        "6"
+      ],
+      "topLeftCell": "BA16",
+      "innerCellsAreMergedPlaceholders": true,
+      "innerCellsCarryDateLevelValues": false,
+      "innerCellsCarryDateLevelFills": false
+    }
+  ],
+  "publishEligible": false
+}
