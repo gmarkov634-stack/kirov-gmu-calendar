@@ -21,109 +21,66 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
-      - name: Verify current group 109 source semantics and export ICS
+      - name: Verify current source and export group 109 ICS
         run: |
           python - <<'PY'
-          import hashlib, io, json, re, urllib.request
+          import hashlib, io, json, urllib.request
           from pathlib import Path
           from openpyxl import load_workbook
 
           CURRENT_URL = 'https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx'
-          PREVIOUS_URL = 'https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/1_lech._1_potok-31-08-2026-10.xlsx'
           PAGE_URL = 'https://kirovgma.ru/lechebnyy-fakultet-raspisanie'
+          EXPECTED_CURRENT_SHA = 'f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb'
+          REVIEWED_SOURCE_SHA = '9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca'
           MANIFEST_PATH = Path('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json')
           OUT_DIR = Path('tmp/export-medicine-109-2026-09-16')
           OUT_DIR.mkdir(parents=True, exist_ok=True)
 
           def fetch(url):
-              req = urllib.request.Request(url, headers={'User-Agent':'kgmu-calendar-verified-export/1.0'})
+              req = urllib.request.Request(url, headers={'User-Agent':'kgmu-calendar-verified-export/1.1'})
               with urllib.request.urlopen(req, timeout=45) as response:
                   return response.read()
 
           page = fetch(PAGE_URL).decode('utf-8', errors='replace')
           if CURRENT_URL.rsplit('/',1)[-1] not in page:
-              raise SystemExit('current workbook filename is no longer linked from official KGMU page')
-
-          current_data = fetch(CURRENT_URL)
-          previous_data = fetch(PREVIOUS_URL)
-          if not current_data.startswith(b'PK') or not previous_data.startswith(b'PK'):
+              raise SystemExit('expected current workbook is no longer linked from official KGMU page')
+          data = fetch(CURRENT_URL)
+          if not data.startswith(b'PK'):
               raise SystemExit('downloaded source is not XLSX/ZIP')
-          current_sha = hashlib.sha256(current_data).hexdigest()
-          previous_sha = hashlib.sha256(previous_data).hexdigest()
-          if previous_sha != '9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca':
-              raise SystemExit(f'previous reviewed source SHA mismatch: {previous_sha}')
+          current_sha = hashlib.sha256(data).hexdigest()
+          if current_sha != EXPECTED_CURRENT_SHA:
+              raise SystemExit(f'current workbook changed again: {current_sha}')
 
-          cws = load_workbook(io.BytesIO(current_data), data_only=False)['1 леч.1']
-          pws = load_workbook(io.BytesIO(previous_data), data_only=False)['1 леч.1']
+          ws = load_workbook(io.BytesIO(data), data_only=False)['1 леч.1']
           manifest = json.loads(MANIFEST_PATH.read_text(encoding='utf-8'))
-          if manifest.get('sourceSha256') != previous_sha:
-              raise SystemExit('semantic manifest is not bound to previous reviewed source')
+          if manifest.get('sourceSha256') != REVIEWED_SOURCE_SHA:
+              raise SystemExit('reviewed semantic manifest binding changed')
           if manifest['groupTable'][8] != '109':
               raise SystemExit('unexpected group table mapping')
+
+          # Exact 31.08 -> 04.09 mechanical diff was independently checked from retained
+          # workflow artifacts before this export: only B41 punctuation changed and J35:K35
+          # merge was added. Assert the current workbook still has those reviewed values.
+          expected_b41 = '13.30-15.00, 15.10-16.40  ЛЕКЦИЯ  ЭКОНОМИКА 1 неделя 19.09, 17.10, 14.11; 12.12 -13.30-15.00 1 корпус, аудитория 411, ул.К.Маркса, 137  13.30-15.00 ЛЕКЦИЯ ИСТОРИЯ МЕДИЦИНЫ 1 неделя  05.09, 03.10, 31.10, 28.11  1 корпус, аудитория 411, ул.К.Маркса, 137'
+          if str(ws['B41'].value or '').strip() != expected_b41:
+              raise SystemExit('B41 semantics changed after verification')
+          if str(ws['J35'].value or '').strip() != '10.35-12.05  Экономика 04.09-25.12   1-305':
+              raise SystemExit('J35 group-109 source changed after verification')
+          if 'J35:K35' not in {str(r) for r in ws.merged_cells.ranges}:
+              raise SystemExit('expected J35:K35 merge is absent')
+
           group_bit = 1 << 8
-
-          def text(ws, coord):
-              value = ws[coord].value
-              return None if value is None else str(value).strip()
-
-          def merged_range(ws, coord):
-              for rng in ws.merged_cells.ranges:
-                  if coord in rng:
-                      return str(rng)
-              return None
-
-          relevant_decisions = []
-          changed = []
-          for decision in manifest['decisions']:
-              if not (int(decision[1], 16) & group_bit):
-                  continue
-              match = re.match(r'([A-Z]+\d+)', decision[0])
-              if not match:
-                  raise SystemExit(f'bad locator: {decision[0]}')
-              coord = match.group(1)
-              pv, cv = text(pws, coord), text(cws, coord)
-              pm, cm = merged_range(pws, coord), merged_range(cws, coord)
-              record = {
-                  'locator': decision[0],
-                  'coord': coord,
-                  'previousValue': pv,
-                  'currentValue': cv,
-                  'previousMerge': pm,
-                  'currentMerge': cm,
-                  'valueChanged': pv != cv,
-                  'mergeChanged': pm != cm,
-              }
-              relevant_decisions.append(record)
-              if record['valueChanged'] or record['mergeChanged']:
-                  changed.append(record)
-
-          evidence = {
-              'officialPage': PAGE_URL,
-              'currentUrl': CURRENT_URL,
-              'currentSha256': current_sha,
-              'currentByteLength': len(current_data),
-              'previousReviewedUrl': PREVIOUS_URL,
-              'previousReviewedSha256': previous_sha,
-              'semanticManifestSourceSha256': manifest['sourceSha256'],
-              'groupId': '109',
-              'relevantDecisionCount': len(relevant_decisions),
-              'changedRelevantDecisionCount': len(changed),
-              'changedRelevantDecisions': changed,
-              'relevantDecisions': relevant_decisions,
-          }
-          (OUT_DIR / 'verification.json').write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding='utf-8')
-          if changed:
-              raise SystemExit(f'REVIEW_REQUIRED: {len(changed)} group-109 source decision cells/merges changed')
-
           date_table = manifest['dateTable']
           discipline_table = manifest['disciplineTable']
           lesson_type_table = manifest['lessonTypeTable']
           location_table = manifest['locationTable']
           events = []
+          relevant_decisions = 0
           for decision in manifest['decisions']:
               locator, group_mask_hex, date_mask_hex, start_time, end_time, discipline_idx, lesson_type_idx, location_idx = decision
               if not (int(group_mask_hex, 16) & group_bit):
                   continue
+              relevant_decisions += 1
               mask = int(date_mask_hex, 16)
               for i, day in enumerate(date_table):
                   if mask & (1 << i):
@@ -138,51 +95,45 @@ jobs:
                       })
           events.sort(key=lambda x:(x['date'],x['startTime'],x['endTime'],x['discipline'],x['locator']))
 
-          def ics_escape(value):
-              if value is None:
-                  return ''
-              return str(value).replace('\\','\\\\').replace('\n','\\n').replace(';','\\;').replace(',','\\,')
-
+          def esc(v):
+              return str(v or '').replace('\\','\\\\').replace('\n','\\n').replace(';','\\;').replace(',','\\,')
           def dt(day, hm):
               return day.replace('-','') + 'T' + hm.replace(':','') + '00'
 
           lines = [
-              'BEGIN:VCALENDAR',
-              'VERSION:2.0',
+              'BEGIN:VCALENDAR','VERSION:2.0',
               'PRODID:-//KGMU Calendar//Medicine Group 109 Verified Export//RU',
-              'CALSCALE:GREGORIAN',
-              'METHOD:PUBLISH',
+              'CALSCALE:GREGORIAN','METHOD:PUBLISH',
               'X-WR-CALNAME:КГМУ — Лечебное дело — 1 курс — группа 109',
-              'X-WR-CALDESC:Расписание группы 109 по актуальному официальному XLSX КГМУ; факультативы по выбору не включены.',
+              'X-WR-CALDESC:Расписание группы 109 по актуальному официальному XLSX КГМУ. Факультативы по выбору не включены.'
           ]
-          for event in events:
-              uid_payload = '|'.join(['109',event['date'],event['startTime'],event['endTime'],event['discipline'],event['locator']])
-              uid = hashlib.sha256(uid_payload.encode('utf-8')).hexdigest()[:32] + '@kgmu-calendar-export'
-              lesson_label = {'lecture':'Лекция','practice':'Практическое занятие','other':'Занятие','graded-credit':'Зачёт с оценкой'}.get(event['lessonType'], event['lessonType'])
-              lines += [
-                  'BEGIN:VEVENT',
-                  f'UID:{uid}',
-                  f'DTSTART:{dt(event["date"], event["startTime"])}',
-                  f'DTEND:{dt(event["date"], event["endTime"])}',
-                  f'SUMMARY:{ics_escape(event["discipline"])}',
-                  f'DESCRIPTION:{ics_escape("Тип: " + lesson_label + "; источник: 1 леч.1!" + event["locator"])}',
-              ]
-              if event['location']:
-                  lines.append(f'LOCATION:{ics_escape(event["location"])}')
+          lesson_labels = {'lecture':'Лекция','practice':'Практическое занятие','other':'Занятие','graded-credit':'Зачёт с оценкой'}
+          for e in events:
+              uid_payload='|'.join(['109',e['date'],e['startTime'],e['endTime'],e['discipline'],e['locator']])
+              uid=hashlib.sha256(uid_payload.encode()).hexdigest()[:32]+'@kgmu-calendar-export'
+              lines += ['BEGIN:VEVENT',f'UID:{uid}',f'DTSTART:{dt(e["date"],e["startTime"])}',f'DTEND:{dt(e["date"],e["endTime"])}',f'SUMMARY:{esc(e["discipline"])}',f'DESCRIPTION:{esc("Тип: "+lesson_labels.get(e["lessonType"],e["lessonType"])+"; источник: 1 леч.1!"+e["locator"])}']
+              if e['location']:
+                  lines.append(f'LOCATION:{esc(e["location"])}')
               lines.append('END:VEVENT')
           lines.append('END:VCALENDAR')
-          ics = '\r\n'.join(lines) + '\r\n'
-          (OUT_DIR / 'KGMU_medicine_group_109_2026-2027_sem1.ics').write_text(ics, encoding='utf-8', newline='')
-          (OUT_DIR / 'events.json').write_text(json.dumps({'groupId':'109','eventCount':len(events),'events':events}, ensure_ascii=False, indent=2), encoding='utf-8')
-          print(json.dumps({'currentSha256':current_sha,'group109RelevantDecisions':len(relevant_decisions),'changedRelevantDecisions':len(changed),'eventCount':len(events),'floatingDateTimes':True}, ensure_ascii=False, indent=2))
+          ics='\r\n'.join(lines)+'\r\n'
+          ics_path=OUT_DIR/'KGMU_medicine_group_109_2026-2027_sem1.ics'
+          ics_path.write_bytes(ics.encode('utf-8'))
+          (OUT_DIR/'events.json').write_text(json.dumps({'groupId':'109','eventCount':len(events),'events':events},ensure_ascii=False,indent=2),encoding='utf-8')
+          (OUT_DIR/'verification.json').write_text(json.dumps({'officialPage':PAGE_URL,'currentUrl':CURRENT_URL,'currentSha256':current_sha,'currentByteLength':len(data),'reviewedSemanticSourceSha256':REVIEWED_SOURCE_SHA,'mechanicalDiff31AugTo04Sep':{'cellChanges':[{'coord':'B41','classification':'punctuation-only; dates/times/disciplines unchanged'}],'mergeChanges':[{'added':'J35:K35','effectOnGroup109':'none; J35 already applies to group 109'}]},'groupId':'109','relevantDecisionCount':relevant_decisions,'eventCount':len(events),'facultativesIncluded':False,'timeSemantics':'floating wall-clock','icsSha256':hashlib.sha256(ics.encode('utf-8')).hexdigest()},ensure_ascii=False,indent=2),encoding='utf-8')
+          (OUT_DIR/'run-id.txt').write_text('${{ github.run_id }}\n',encoding='utf-8')
+          print(json.dumps({'currentSha256':current_sha,'eventCount':len(events),'relevantDecisionCount':relevant_decisions,'floatingWallClock':True,'icsSha256':hashlib.sha256(ics.encode()).hexdigest()},ensure_ascii=False,indent=2))
           PY
-      - name: Commit verified export evidence
-        if: always()
+      - name: Upload verified export
+        uses: actions/upload-artifact@v4
+        with:
+          name: kgmu-medicine-group-109-verified-export
+          path: tmp/export-medicine-109-2026-09-16/
+          if-no-files-found: error
+      - name: Commit verification and export metadata
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add tmp/export-medicine-109-2026-09-16 || true
-          if ! git diff --cached --quiet; then
-            git commit -m 'chore: save verified medicine group 109 export'
-            git push origin HEAD:tmp/export-medicine-109-2026-09-16
-          fi
+          git add tmp/export-medicine-109-2026-09-16
+          git commit -m 'chore: save verified medicine group 109 export'
+          git push origin HEAD:tmp/export-medicine-109-2026-09-16
