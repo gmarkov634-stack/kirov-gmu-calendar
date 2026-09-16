@@ -1,0 +1,1472 @@
+{
+  "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx",
+  "sha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+  "byteLength": 21090,
+  "sheetNames": [
+    "1 леч.1"
+  ],
+  "sheets": [
+    {
+      "title": "1 леч.1",
+      "maxRow": 56,
+      "maxColumn": 19,
+      "mergedRanges": [
+        "F29:G29",
+        "C47:E47",
+        "A51:B51",
+        "B31:C31",
+        "C10:C11",
+        "H19:I20",
+        "D31:E31",
+        "D36:D37",
+        "D45:E45",
+        "G10:G11",
+        "D32:D33",
+        "A38:A42",
+        "H36:H37",
+        "A49:B50",
+        "H31:H33",
+        "J21:K21",
+        "K9:K10",
+        "A34:A37",
+        "D51:E51",
+        "B26:C26",
+        "K30:K33",
+        "B35:C35",
+        "A48:B48",
+        "H51:J51",
+        "D34:E34",
+        "A45:B45",
+        "B18:C18",
+        "C46:E46",
+        "C52:E52",
+        "I31:I33",
+        "A46:B46",
+        "C48:E48",
+        "J36:K36",
+        "H17:I17",
+        "B29:C29",
+        "B39:K39",
+        "C32:C33",
+        "H28:I28",
+        "J22:K22",
+        "K19:K20",
+        "B23:K23",
+        "B32:B33",
+        "A52:B52",
+        "B13:K13",
+        "F10:F11",
+        "H46:J46",
+        "H52:J52",
+        "I36:I37",
+        "I45:J45",
+        "F21:G21",
+        "B41:K41",
+        "H47:J47",
+        "B25:K25",
+        "D10:E11",
+        "C36:C37",
+        "J35:K35",
+        "E32:E33",
+        "B36:B37",
+        "B12:K12",
+        "H53:J53",
+        "F49:F50",
+        "F36:G37",
+        "H9:H11",
+        "F18:F20",
+        "B30:C30",
+        "J9:J11",
+        "B14:K14",
+        "D30:E30",
+        "H50:J50",
+        "A43:K43",
+        "B38:K38",
+        "B19:B21",
+        "F30:G31",
+        "G18:G20",
+        "C54:E54",
+        "H49:J49",
+        "B15:K15",
+        "G54:J54",
+        "B24:K24",
+        "E19:E20",
+        "J31:J33",
+        "D21:E21",
+        "F32:F33",
+        "A6:K6",
+        "C49:E50",
+        "A16:A21",
+        "C19:C21",
+        "B16:K16",
+        "B10:B11",
+        "F26:G26",
+        "I9:I11",
+        "H48:J48",
+        "C53:E53",
+        "A47:B47",
+        "E36:E37",
+        "A5:K5",
+        "G32:G33",
+        "H27:I27",
+        "B42:K42",
+        "D19:D20",
+        "A22:A27",
+        "D17:E18",
+        "H18:I18",
+        "J18:K18",
+        "A28:A33",
+        "A44:K44",
+        "J19:J20",
+        "J17:K17",
+        "H26:I26"
+      ],
+      "nonEmptyCells": [
+        {
+          "coord": "B1",
+          "value": "СОГЛАСОВАНО",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I1",
+          "value": "УТВЕРЖДЕНО",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B2",
+          "value": "Декан лечебного факультета",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I2",
+          "value": "Проректор по учебной  работе",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B3",
+          "value": "доцент_______________",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C3",
+          "value": "Э.М Иутинский",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I3",
+          "value": "доцент _______________Е.Н. Касаткин",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B4",
+          "value": "24.08.2026",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J4",
+          "value": "24.08.2026",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A5",
+          "value": "РАСПИСАНИЕ ЗАНЯТИЙ ДЛЯ СТУДЕНТОВ 1 КУРСА СПЕЦИАЛЬНОСТИ ЛЕЧЕБНОЕ ДЕЛО  (1 поток)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A6",
+          "value": "на первое полугодие  2026-2027 учебного года. Начало семестра 01 сентября 2026 г.",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B8",
+          "value": "группа  101",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C8",
+          "value": "группа  102",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D8",
+          "value": "группа  103",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E8",
+          "value": "группа  104",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F8",
+          "value": "группа  105",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G8",
+          "value": "группа  106",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H8",
+          "value": "группа  107",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I8",
+          "value": "группа  108",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J8",
+          "value": "группа  109",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K8",
+          "value": "группа  110",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A9",
+          "value": "ПН",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B9",
+          "value": "8.30-10.00 Латинский язык 07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C9",
+          "value": "8.30-10.00 Биология 07.09-28.12, 11.01-8.00-10.25 (1 занятие в пт.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D9",
+          "value": "8.00-9.30, 9.40-10.25 Анатомия 07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E9",
+          "value": "8.00-9.30, 9.40-10.25  Общая и биоорганическая химия 07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F9",
+          "value": "8.50-10.20 История медицины  1 неделя  по 21.12  1-323                                            8.50-10.20 Библиотечный час 07.09 1-307",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G9",
+          "value": "8.50-10.20 История медицины  1 неделя по  21.12  1-323                                         8.50-10.20 Библиотечный час 07.09 1-404",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H9",
+          "value": "8.30-10.00, 11.10-11.40 УПО.Общий уход 07.09-02.11 8.30-10.00 Основы российской государственности 11.01 1-305  8.00-10.25 Общая и биоорганическая химия 30.11 11.50-13.20 История России 07.12, 14.12, 21.12 1-303",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I9",
+          "value": "8.30-10.00, 11.10-11.40 УПО.Общий уход 07.09-02.11 8.30-12.35 Физика, математика 30.11  8.30-10.00 Основы российской государственности 11.01 1-305  11.50-13.20 История России 07.12, 14.12, 21.12 1-303",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J9",
+          "value": "8.50-10.20 Библиотечный час 07.09 1-408                                                        8.30-10.00, 10.10-11.40 УПО.Общий уход  09.11-11.01 10.00-12.25 Биология 19.10, 26.10",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K9",
+          "value": "8.30-10.00 Биология 07.09-28.12 (2 занятия в ср.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B10",
+          "value": "10.30-12.00 Биология 07.09-28.12, 11.01-10.30-12.55 (1 занятие в пт.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C10",
+          "value": "10.30-12.00, 12.10-12.55 Общая и биоорганическая химия  07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D10",
+          "value": "10.35-12.05, 12.15-13.00  Психология и педагогика  07.09-28.12, 11.01-10.30-11.15 1-407",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F10",
+          "value": "10.35-12.05, 12.15-13.00 Иностранный язык  07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G10",
+          "value": "11.00-12.30 Безопасность жизнедеятельности 07.09-07.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K11",
+          "value": "10.30-12.00, 12.10-12.55  Общая и биоорганическая химия 07.09-11.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B12",
+          "value": "13.30-15.00 ЛЕКЦИЯ УПО. ЛЕКЦИЯ ОБЩИЙ УХОД  1 неделя 14.09, 12.10, 09.11, 07.12 1 корпус, аудитория 411, ул. Владимирская, 137   13.30-15.00  ЛЕКЦИЯ БЕЗОПАСНОСТЬ ЖИЗНЕДЕЯТЕЛЬНОСТИ 28.09, 26.10, 23.11, 21.12 1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B13",
+          "value": "13.30-15.00 ЛЕКЦИЯ  ОБЩАЯ И БИООРГАНИЧЕСКАЯ ХИМИЯ 2 неделя 07.09, 21.09, 05.10, 19.10, 02.11, 16.11, 30.11, 14.12, 28.12 1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B14",
+          "value": "15.10-16.40 ЛЕКЦИЯ ИСТОРИЯ РОССИИ 1 неделя 14.09, 28.09, 12.10 1 корпус, аудитория 411, ул. Владимирская, 137   15.10-16.40 ЛЕКЦИЯ УПО. ЛЕКЦИЯ ОБЩИЙ УХОД 1 неделя 26.10, 09.11 1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B15",
+          "value": "15.55-17.25 ЛЕКЦИЯ ПРАВОВЕДЕНИЕ 2 неделя 07.09, 21.09, 05.10 3 корпус, аудитория 803, ул. Владимирская, 112",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A16",
+          "value": "ВТ",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B16",
+          "value": "8.30-10.00 ЭЛЕКТИВНЫЕ ДИСЦИПЛИНЫ (МОДУЛИ) ПО ФИЗИЧЕСКОЙ КУЛЬТУРЕ И СПОРТУ 08.09-29.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B17",
+          "value": "10.30-12.00, 12.10-12.55 Анатомия 08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C17",
+          "value": "10.30-12.00, 12.10-12.55 Анатомия 08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D17",
+          "value": "10.30-12.00  Основы российской государственности  08.09-29.12, (12.01 10.30-14.35-зачет с оценкой 1-320) 1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F17",
+          "value": "10.40-12.10 Биология 08.09-29.12, 12.01-10.40-13.05  (1 занятие в ср.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G17",
+          "value": "10.30-12.00 Латинский язык  08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H17",
+          "value": "10.30-12.00 Правоведение 1 неделя  с 15.09 по 12.01  1- 306",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J17",
+          "value": "10.35-12.05 История медицины 1 неделя по с 15.09 по 22.12 1-313",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B18",
+          "value": "13.45-15.15  История России 08.09-12.01 1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F18",
+          "value": "12.30-14.00 Безопасность жизнедеятельности  08.09-08.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G18",
+          "value": "12.30-14.00 Биология 08.09-29.12, 12.01-12.30-14.55 (1 занятие в ср.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H18",
+          "value": "10.35-12.05 История медицины 2 неделя по 15.12 1-313",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J18",
+          "value": "10.30-12.00 Правоведение 2 неделя  по 29.12  1- 306",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B19",
+          "value": "15.50-17.20 Библиотечный час  08.09 1-408",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C19",
+          "value": "15.50-17.20 Безопасность жизнедеятельности  08.09-08.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D19",
+          "value": "13.05-14.35 Латинский язык 08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E19",
+          "value": "12.30-14.00 Безопасность жизнедеятельности  08.09-08.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H19",
+          "value": "12.40-14.10  Экономика 08.09-29.12    1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J19",
+          "value": "12.25-13.55, 14.05-14.50  Иностранный язык   08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K19",
+          "value": "12.25-13.55, 14.05-14.50  Иностранный язык   08.09-12.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D21",
+          "value": "15.25-16.55 История России 08.09-12.01 1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F21",
+          "value": "14.30-16.00, 16.10-16.55  Психология и педагогика   08.09-29.12, 12.01-14.30- 15.15 1-407",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H21",
+          "value": "14.20-15.50 Библиотечный час 08.09 1-404",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I21",
+          "value": "14.20-15.50 Библиотечный час 08.09 1-408",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J21",
+          "value": "15.10-16.40 История России  08.09-12.01 1-319",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A22",
+          "value": "СР",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B22",
+          "value": "8.00-9.30, 9.40-10.25  Общая и биоорганическая химия  02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C22",
+          "value": "8.40-10.10 Латинский язык  13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D22",
+          "value": "8.00-9.30, 9.40-10.25 Иностранный язык  02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E22",
+          "value": "8.30-10.00 Биология 02.09-30.12, 13.01-8.00-10.25 (1 занятие в 14.40.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F22",
+          "value": "8.00-9.30, 9.40-10.25  Физика, математика  02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G22",
+          "value": "8.00-9.30, 9.40-10.25 Иностранный язык  02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H22",
+          "value": "8.00-9.30, 9.40-10.25 Анатомия 02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I22",
+          "value": "8.00-9.30, 9.40-10.25 Иностранный язык  02.09-13.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J22",
+          "value": "8.00-9.30, 9.40-10.25 Психология и педагогика  02.09-30.12, 13.01- 9.40-10.25 1-320",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B23",
+          "value": "10.50-12.20 ЛЕКЦИЯ  ФИЗИКА, МАТЕМАТИКА  1 неделя 02.09, 16.09, 30.09, 14.10, 28.10, 11.11, 25.11, 09.12, 23.12  3 корпус, аудитория 819, ул. Владимирская, 112",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B24",
+          "value": "10.50-12.20 ЛЕКЦИЯ  ПСИХОЛОГИЯ И ПЕДАГОГИКА 2 неделя 09.09, 23.09, 07.10, 21.10, 18.11, 02.12, 16.12, 30.12  (2 лекции 12.30-14.00) 3 корпус, аудитория 819, ул. Владимирская, 112",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B25",
+          "value": "12.30-14.00 ЛЕКЦИЯ  БИОЛОГИЯ  02.09-09.12  3 корпус, аудитория 819, ул. Владимирская, 112     12.30-14.00 ЛЕКЦИЯ  ПСИХОЛОГИЯ И ПЕДАГОГИКА  16.12, 23.12 3 корпус, аудитория 819, ул. Владимирская, 112",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B26",
+          "value": "14.50-16.20 Основы российской государственности 02.09-30.12, 13.01-14.50-18.55-зачет с оценкой  (09.09, 23.09, 07.10-1-313) 1-406",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D26",
+          "value": "14.40-17.05 Биология 28.10  14.45-17.10 Физика, математика 23.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E26",
+          "value": "14.40-17.05 Биология 21.10",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F26",
+          "value": "14.30-16.00 Правоведение 2 неделя по 30.12, 13.01   1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H26",
+          "value": "14.45-16.15 История России  02.09,16.09, 30.09, 14.10-13.01 (3 занятия в пн.) 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K26",
+          "value": "14.10-15.50 Библиотечный час 08.09 1-404",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C27",
+          "value": "16.40-17.40 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D27",
+          "value": "14.40-16.10 Библиотечный час  09.09 1-307",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E27",
+          "value": "14.40-16.10 Библиотечный час  09.09 1-408",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F27",
+          "value": "14.30-16.55 Биология 09.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G27",
+          "value": "14.30-16.55 Биология 25.11",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H27",
+          "value": "16.25-17.55 Основы российской государственности  02.09- 30.12, 13.01-зачет с оценкой 16.25-18.50, 1 занятие в пн.) 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J27",
+          "value": "14.30-15.30 Час куратора (2 неделя), 16.30-17.30 (1 неделя)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K27",
+          "value": "14.30-16.55 Биология 02.12, 16.12  14.30-15.30 Час куратора (2 неделя), 16.30-17.30 (1 неделя)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A28",
+          "value": "ЧТ",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B28",
+          "value": "8.00-9.30, 9.40-10.25 Физика, математика 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C28",
+          "value": "8.00-9.30, 9.40-10.25 Физика, математика 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D28",
+          "value": "8.40-10.10 Безопасность жизнедеятельности 03.09-03.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E28",
+          "value": "8.00-9.30, 9.40-10.25 Иностранный язык 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F28",
+          "value": "9.00-10.30, 10.40-12.10 УПО.Общий уход 03.09-29.10",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G28",
+          "value": "9.00-10.30, 10.40-12.10 УПО.Общий уход 03.09-29.10         9.00-11.25 Физика, математика 03.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H28",
+          "value": "8.00-9.30, 9.40-10.25 Психология и педагогика 03.09-24.12, 14.01-9.40-10.25 1-319",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J28",
+          "value": "8.00-9.30, 9.40-10.25 Общая и биоорганическая химия  03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K28",
+          "value": "9.00-10.30, 10.40-12.10  УПО.Общий уход 05.11-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B29",
+          "value": "10.50-12.20, 12.30-13.15 Психология и педагогика 03.09-24.12, 14.01-10.50-11.35  1-319",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D29",
+          "value": "10.40-12.10, 12.20-13.05 Общая и биоорганическая химия 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E29",
+          "value": "11.00-12.30, 12.40-13.25 Физика, математика 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F29",
+          "value": "12.50-14.20 Экономика 03.09-24.12 1-318",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H29",
+          "value": "11.00-12.30 Безопасность жизнедеятельности 03.09-03.12   10.40-13.05 Биология 14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I29",
+          "value": "10.40-12.10, 12.20-13.05 Общая и биоорганическая химия 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J29",
+          "value": "10.45-12.15 Биология 03.09-24.12 (2 занятия в пн.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K29",
+          "value": "13.00-14.30 Латинский язык 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B30",
+          "value": "13.35-15.05 Правоведение  1 неделя по 24.12 1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D30",
+          "value": "14.50-16.20 История медицины 1 неделя по 10.12 1-313",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F30",
+          "value": "14.50-16.20 Основы российской государственности 03.09-24.12, 14.01-14.50-18.55 зачет с оценкой 1-318",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H30",
+          "value": "13.10-14.40, 14.50-15.35 Физика, математика  03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I30",
+          "value": "13.40-15.10 Безопасность жизнедеятельности 03.09-03.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J30",
+          "value": "13.00-14.30 Безопасность жизнедеятельности 03.09-03.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K30",
+          "value": "14.50-16.20 Безопасность жизнедеятельности 03.09-03.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B31",
+          "value": "13.35-15.05 История медицины 2 неделя по 17.12 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D31",
+          "value": "13.50-15.20   Правоведение  2 неделя по 17.12, 14.01 1-323",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H31",
+          "value": "16.00-17.00 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I31",
+          "value": "15.40-16.40 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J31",
+          "value": "14.50-16.20, 16.30-17.15  Физика, математика 03.09-14.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B32",
+          "value": "15.30-16.30 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D32",
+          "value": "15.50-16.50 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E32",
+          "value": "15.50-16.50 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F32",
+          "value": "16.50-17.50 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G32",
+          "value": "16.50-17.50 Час куратора",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A34",
+          "value": "ПТ",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B34",
+          "value": "8.30-10.00, 10.10-11.40 УПО.Общий уход 04.09-30.10     10.30-12.55 Биология 15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C34",
+          "value": "8.30-10.00, 10.10-11.40 УПО.Общий уход 04.09-30.10      10.30-12.55 Биология 15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D34",
+          "value": "8.30-10.00 Экономика 04.09-25.12 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F34",
+          "value": "8.00-9.30, 9.40-10.25 Анатомия 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G34",
+          "value": "8.00-9.30, 9.40-10.25 Физика, математика  04.09-25.12 (1 занятие в чт.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H34",
+          "value": "8.30-10.00 Латинский язык 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I34",
+          "value": "8.00-9.30, 9.40-10.25 Физика, математика  04.09-25.12 (1 занятие в пн.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J34",
+          "value": "8.00-9.30, 9.40-10.25 Анатомия 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B35",
+          "value": "12.40-14.10 Экономика 04.09-25.12 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D35",
+          "value": "10.35-12.05 Биология 04.09-25.12, 15.01-10.35-13.00 (1 занятие в ср.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E35",
+          "value": "10.10-11.40  Латинский язык 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F35",
+          "value": "11.05-12.35, 12.45-13.30  Общая и биоорганическая химия 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G35",
+          "value": "11.00-12.30, 12.40-13.25 Анатомия 04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H35",
+          "value": "10.30-12.00 Биология 04.09-25.12, 15.01-10.30-12.55 (1 занятие в чт.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I35",
+          "value": "10.35-12.05 Биология 04.09-25.12, 15.01-10.35-13.00 (1 занятие в пн. 30.11 15.30-17.55)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J35",
+          "value": "10.35-12.05  Экономика 04.09-25.12   1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B36",
+          "value": "14.30-16.00 Безопасность жизнедеятельности 04.09-04.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C36",
+          "value": "14.30-16.00 Латинский язык 04.09, 18.09-15.01 14.20-15.50 Библиотечный час 11.09 1-408",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D36",
+          "value": "12.50-14.20, 14.30-16.00 УПО.Общий уход 06.11-15.01 (15.01-13.30-16.40)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E36",
+          "value": "12.50-14.20, 14.30-16.00 УПО.Общий уход 06.11-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F36",
+          "value": "14.10-15.40 История России 04.09-15.01 1-305",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H36",
+          "value": "13.00-14.30, 14.40-15.25 Общая и биоорганическая химия  04.09-25.12 (1 занятие в пн.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I36",
+          "value": "12.40-14.10 Латинский язык 04.09-25.12, 15.01-13.30-15.00",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J36",
+          "value": "12.35-14.05 Основы российской государственности 04.09-25.12 (1 занятие и зачет с оценкой в сб. 16.01  16.40-20.45  1-320) 1-407",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K37",
+          "value": "14.15-15.45, 15.55-16.40 Анатомия  04.09-15.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A38",
+          "value": "СБ",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B38",
+          "value": "8.40-10.10 ЛЕКЦИЯ ОСНОВЫ РОССИЙСКОЙ ГОСУДАРСТВЕННОСТИ  1 неделя 05.09, 19.09, 03.10, 17.10, 31.10, 14.11, 28.11, 12.12, 26.12  1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B39",
+          "value": "8.40-10.10 ЛЕКЦИЯ  АНАТОМИЯ  2 неделя 12.09, 26.09, 10.10, 24.10, 07.11, 21.11, 05.12, 19.12, 16.01 1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B40",
+          "value": "10.30-12.00, 12.10-12.55 Иностранный язык 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C40",
+          "value": "10.30-12.00, 12.10-12.55 Иностранный язык 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D40",
+          "value": "10.40-12.10, 12.20-13.05 Физика, математика  05.09-26.12 (1 занятие в ср.)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E40",
+          "value": "10.35-12.05-12.15-13.00 Анатомия 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F40",
+          "value": "10.30-12.00  Латинский 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G40",
+          "value": "10.30-12.00, 12.10-12.55 Общая и биоорганическая химия 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H40",
+          "value": "10.30-12.00, 12.10-12.55 Иностранный язык 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I40",
+          "value": "10.35-12.05-12.15-13.00 Анатомия 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "J40",
+          "value": "10.30-12.00  Латинский 05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K40",
+          "value": "10.40-12.10, 12.20-13.05 Физика, математика  05.09-16.01",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B41",
+          "value": "13.30-15.00, 15.10-16.40  ЛЕКЦИЯ  ЭКОНОМИКА 1 неделя 19.09, 17.10, 14.11; 12.12 -13.30-15.00 1 корпус, аудитория 411, ул.К.Маркса, 137  13.30-15.00 ЛЕКЦИЯ ИСТОРИЯ МЕДИЦИНЫ 1 неделя  05.09, 03.10, 31.10, 28.11  1 корпус, аудитория 411, ул.К.Маркса, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B42",
+          "value": "13.30-15.00  ЛЕКЦИЯ ИСТОРИЯ РОССИИ 2 неделя 12.09, 26.09, 10.10, 24.10, 07.11, 21.11, 05.12, 19.12, 26.12 (26.12 1 нед., 3 лекции в пн.) 1 корпус, аудитория 411, ул. Владимирская, 137",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A43",
+          "value": "ФАКУЛЬТАТИВЫ: понедельник 16.50-18.20 Актуальные вопросы биологии (каф.биологии) ; вторник- 16.50-18.20 Основы химии (каф. химии); среда-18.00-20.25 Физика (каф.физики и мед.информатики); четверг-17.20-19.45 Математика (каф.физики и мед.информатики); пятница-16.50-18.20 Русский язык и культура речи (каф. русского языка и МК)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A44",
+          "value": "1 неделя - 01.09-05.09; 14.09-19.09; 28.09-03.10; 12.10-17.10; 26.10-31.10; 09.11-14.11; 23.11-28.11; 07.12-12.12; 21.12-26.12; 11.01-16.01    2 неделя - 07.09-12.09; 21.09-26.09; 05.10-10.10; 19.10-24.10; 02.11-07.11; 16.11-21.11; 30.11-05.12; 14.12-19.12; 28.12-30.12",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A45",
+          "value": "Дисциплина",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C45",
+          "value": "Кафедра",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D45",
+          "value": "База практической подготовки",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F45",
+          "value": "Форма промежуточной аттестации",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G45",
+          "value": "Дисциплина",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H45",
+          "value": "Кафедра",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "I45",
+          "value": "База практической подготовки",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K45",
+          "value": "Форма промежуточной аттестации",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A46",
+          "value": "История России",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C46",
+          "value": "гуманитарных и социальных наук (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G46",
+          "value": "Иностранный язык",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H46",
+          "value": "иностранных языков (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A47",
+          "value": "Экономика",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C47",
+          "value": "общественного здоровья и здравоохранения с курсом ЭУ (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F47",
+          "value": "зачет",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G47",
+          "value": "Латинский язык",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H47",
+          "value": "иностранных языков (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A48",
+          "value": "Общая и биоорганическая химия",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C48",
+          "value": "химии (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G48",
+          "value": "Биология",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H48",
+          "value": "биологии (3 корпус, ул. Владимирская, 112)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A49",
+          "value": "Физика, математика",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C49",
+          "value": "физики и медицинской информатики (3 корпус, ул. Владимировская,112)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F49",
+          "value": "зачет",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G49",
+          "value": "Анатомия",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H49",
+          "value": "анатомии (2 корпус, ул. Пролетарская, 38)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G50",
+          "value": "Правоведение",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H50",
+          "value": "судебной медицины (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A51",
+          "value": "Учебная практика ознокомительная. Общий уход",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C51",
+          "value": "сестринского дела                                                                                                                 (1 корпус, ул. Владимировская,137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "D51",
+          "value": "КОГБУЗ \"Кировский областной клинический онкологический диспансер\" пр-т Строителей, 23",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F51",
+          "value": "зачет с оценкой",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G51",
+          "value": "Элективные дисциплины (модули) по физической культуре и спорту",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H51",
+          "value": "физической культуры (ФОК, ул. Владимирская,112)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "A52",
+          "value": "Математика (факультатив)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C52",
+          "value": "физики и медицинской информатики (3 корпус, ул. Владимирская,112)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F52",
+          "value": "зачет",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G52",
+          "value": "История медицины",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H52",
+          "value": "общественного здоровья и здравоохранения с курсом ЭУ (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B53",
+          "value": "Безопасность жизнедеятельности",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C53",
+          "value": "безопасности жизнедеятельности и медицины катастроф (ул. Красноармейская, 35)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G53",
+          "value": "Основы российской государственности",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H53",
+          "value": "гуманитарных и социальных наук (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "K53",
+          "value": "зачет с оценкой",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "B54",
+          "value": "Психология и педагогика",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "C54",
+          "value": "клинической психологии, психологии и педагогики (1 корпус, ул. Владимирская, 137)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "F54",
+          "value": "зачет",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "G54",
+          "value": "ФАКУЛЬТАТИВЫ: Актуальные вопросы биологии (каф.биологии);  Основы химии (каф. химии);  Математика. Физика (каф.физики и мед.информатики);   Русский язык и культура речи (каф. русского языка и МК, ул. Красноармейская, 35)",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E55",
+          "value": "Начальник учебного отдела",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "H55",
+          "value": "Н.Л. Негодяева",
+          "dataType": "s",
+          "numberFormat": "General"
+        },
+        {
+          "coord": "E56",
+          "value": "24.08.2026",
+          "dataType": "s",
+          "numberFormat": "General"
+        }
+      ]
+    }
+  ]
+}
