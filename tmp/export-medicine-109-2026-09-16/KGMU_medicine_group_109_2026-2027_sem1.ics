@@ -1,0 +1,2805 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//KGMU Calendar//Medicine Group 109 Verified Export//RU
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:КГМУ — Лечебное дело — 1 курс — группа 109
+X-WR-CALDESC:Расписание группы 109 по актуальному официальному XLSX КГМУ. Факультативы по выбору не включены.
+BEGIN:VEVENT
+UID:6af28faae37760211db790a776dbb31e@kgmu-calendar-export
+DTSTART:20260902T080000
+DTEND:20260902T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:62e2d07fe76e9641df1d29b91b4ec8af@kgmu-calendar-export
+DTSTART:20260902T105000
+DTEND:20260902T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4588cbcc4b0b1cad856ff3c4a084e934@kgmu-calendar-export
+DTSTART:20260902T123000
+DTEND:20260902T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8b53898a27f349829531a0dfcbc43add@kgmu-calendar-export
+DTSTART:20260902T163000
+DTEND:20260902T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:0c762d0e10c075fb8b9594e8d5f9c890@kgmu-calendar-export
+DTSTART:20260903T080000
+DTEND:20260903T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fb441212773954c51b65d4483e118a5b@kgmu-calendar-export
+DTSTART:20260903T104500
+DTEND:20260903T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c2582efb1417b364289ed360a086e74f@kgmu-calendar-export
+DTSTART:20260903T130000
+DTEND:20260903T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:995cfb56d69ee225b7b32c494d1a0036@kgmu-calendar-export
+DTSTART:20260903T145000
+DTEND:20260903T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:599e05c4b86c1113a51a5e46ed013750@kgmu-calendar-export
+DTSTART:20260904T080000
+DTEND:20260904T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:78d53aff428137abb8f9c91f78c2bda1@kgmu-calendar-export
+DTSTART:20260904T103500
+DTEND:20260904T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:27a5de9440076c3187ef38044f3f3345@kgmu-calendar-export
+DTSTART:20260904T123500
+DTEND:20260904T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3bc72b00abb5eb4a046b5bd4b6edfc3f@kgmu-calendar-export
+DTSTART:20260905T084000
+DTEND:20260905T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:058f57bed8ed523d2cacda781f6db4d9@kgmu-calendar-export
+DTSTART:20260905T103000
+DTEND:20260905T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e286bd54fc3a77521a35930f9e4e0298@kgmu-calendar-export
+DTSTART:20260905T133000
+DTEND:20260905T150000
+SUMMARY:История медицины
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:529f7b7d4281c2ec6e24114ba64bd7af@kgmu-calendar-export
+DTSTART:20260907T085000
+DTEND:20260907T102000
+SUMMARY:Библиотечный час
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J9#s1
+LOCATION:1 корпус\, аудитория 408\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5c2a2bac26b403284e0a53c476aab2c0@kgmu-calendar-export
+DTSTART:20260907T133000
+DTEND:20260907T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cdfe8a7f399b155d39366754f7619a05@kgmu-calendar-export
+DTSTART:20260907T155500
+DTEND:20260907T172500
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:3e357e36e94fb9757ad5863388c0aab0@kgmu-calendar-export
+DTSTART:20260908T083000
+DTEND:20260908T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6cc8cf89b020eb30c65c2ec01d91a079@kgmu-calendar-export
+DTSTART:20260908T103000
+DTEND:20260908T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6fe85c48be0b55366556d977546d9ee6@kgmu-calendar-export
+DTSTART:20260908T122500
+DTEND:20260908T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a9673a4be15c04ace4ac0c95dd49673e@kgmu-calendar-export
+DTSTART:20260908T151000
+DTEND:20260908T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fa392999e2e02b8f3401abc4d34f513f@kgmu-calendar-export
+DTSTART:20260909T080000
+DTEND:20260909T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7310367f23d71c4bda10d791e5ef8e60@kgmu-calendar-export
+DTSTART:20260909T105000
+DTEND:20260909T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:584d8ce9f8e9ccf7f837641369f34478@kgmu-calendar-export
+DTSTART:20260909T123000
+DTEND:20260909T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:caebafe76b6554b8dfc1d9f074e52e6c@kgmu-calendar-export
+DTSTART:20260909T143000
+DTEND:20260909T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:e113cb5c91eb120cee4aba37b58571c9@kgmu-calendar-export
+DTSTART:20260910T080000
+DTEND:20260910T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4f4e725f742097c9090dacb17d3bbdef@kgmu-calendar-export
+DTSTART:20260910T104500
+DTEND:20260910T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6a3c545c1520cca10cc5237b7e893352@kgmu-calendar-export
+DTSTART:20260910T130000
+DTEND:20260910T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:1468d1f1e90f5ce254a35d44c45c1c7f@kgmu-calendar-export
+DTSTART:20260910T145000
+DTEND:20260910T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:20b58624810afeb74108b51ff8acb441@kgmu-calendar-export
+DTSTART:20260911T080000
+DTEND:20260911T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:533f694190a1886f7558d93b3a3d0a25@kgmu-calendar-export
+DTSTART:20260911T103500
+DTEND:20260911T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b575a3db2a4b2f08a63e4018c9c63f64@kgmu-calendar-export
+DTSTART:20260911T123500
+DTEND:20260911T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:03ecadbb691b87450d33c89124b9c6dd@kgmu-calendar-export
+DTSTART:20260912T084000
+DTEND:20260912T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:29608662fa06f28e336953315b90d1d7@kgmu-calendar-export
+DTSTART:20260912T103000
+DTEND:20260912T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:40922ef9e0e0c0092f7a99aa08fa627d@kgmu-calendar-export
+DTSTART:20260912T133000
+DTEND:20260912T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:41f160b1ebf18355f799bdeb30fc5e23@kgmu-calendar-export
+DTSTART:20260914T133000
+DTEND:20260914T150000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:88db69c5449b10c0b26709966e76bd48@kgmu-calendar-export
+DTSTART:20260914T151000
+DTEND:20260914T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2edfae2ab5d7f533953f2cd4f461557e@kgmu-calendar-export
+DTSTART:20260915T083000
+DTEND:20260915T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:dc5c537b48c3f49029ffa65ba64ae106@kgmu-calendar-export
+DTSTART:20260915T103500
+DTEND:20260915T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:aa3e3224673449a22831e7fdfd4f3d44@kgmu-calendar-export
+DTSTART:20260915T122500
+DTEND:20260915T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b7199976ce55cdd859c999c444b73ab4@kgmu-calendar-export
+DTSTART:20260915T151000
+DTEND:20260915T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3babfe618a2bf1db849d214b99efb98a@kgmu-calendar-export
+DTSTART:20260916T080000
+DTEND:20260916T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a7b0ef82be8647ca8f2c9b76a2ba3624@kgmu-calendar-export
+DTSTART:20260916T105000
+DTEND:20260916T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c89a3629ecdf59abc81bc74ac2f5e07b@kgmu-calendar-export
+DTSTART:20260916T123000
+DTEND:20260916T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0efde37653abec9ff72c50fdc2a8c767@kgmu-calendar-export
+DTSTART:20260916T163000
+DTEND:20260916T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:8ecc3cf2777ebbfaa57e06761dc2b06c@kgmu-calendar-export
+DTSTART:20260917T080000
+DTEND:20260917T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8e7f93fc5bbb8e9998915f6c9efc3656@kgmu-calendar-export
+DTSTART:20260917T104500
+DTEND:20260917T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f6321a1d256204d0d028de7d7ddf9a1b@kgmu-calendar-export
+DTSTART:20260917T130000
+DTEND:20260917T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:5c4d9e4abe7ad4090c983a7c0046bef4@kgmu-calendar-export
+DTSTART:20260917T145000
+DTEND:20260917T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:323e3ff2236d3c7a4d7360229371a9fd@kgmu-calendar-export
+DTSTART:20260918T080000
+DTEND:20260918T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:c5fdee5171bbdc288f538cb2141bb62c@kgmu-calendar-export
+DTSTART:20260918T103500
+DTEND:20260918T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:79ad9dd29ae7d06a2ccd4c8d6de75210@kgmu-calendar-export
+DTSTART:20260918T123500
+DTEND:20260918T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7cc3b2f753d66328217c712c161037f9@kgmu-calendar-export
+DTSTART:20260919T084000
+DTEND:20260919T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:67fe777738fd04377ec71cca1e5651d0@kgmu-calendar-export
+DTSTART:20260919T103000
+DTEND:20260919T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e6bc7e7d244a894bd2c57eeee0f5a427@kgmu-calendar-export
+DTSTART:20260919T133000
+DTEND:20260919T164000
+SUMMARY:Экономика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e21a033e777a9464b52d604ceb73dac6@kgmu-calendar-export
+DTSTART:20260921T133000
+DTEND:20260921T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8c0a07f73bef757cf1e358599bbaf986@kgmu-calendar-export
+DTSTART:20260921T155500
+DTEND:20260921T172500
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c200d25ca8c0b5381a3b9dbe1379c00c@kgmu-calendar-export
+DTSTART:20260922T083000
+DTEND:20260922T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b206a6b49bb8c0bfb024c85a376156f2@kgmu-calendar-export
+DTSTART:20260922T103000
+DTEND:20260922T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:17ffa8d1530cf698bea4546e3efc8fa2@kgmu-calendar-export
+DTSTART:20260922T122500
+DTEND:20260922T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:99b21d4f058f17a73ec8a58cc8c747bb@kgmu-calendar-export
+DTSTART:20260922T151000
+DTEND:20260922T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ae27472330f9ba4d8e8c91315d1baa2b@kgmu-calendar-export
+DTSTART:20260923T080000
+DTEND:20260923T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eaceeaf1617731285eecb41456a8eb21@kgmu-calendar-export
+DTSTART:20260923T105000
+DTEND:20260923T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:eb39d1862fe8b08c358644a61fa70b48@kgmu-calendar-export
+DTSTART:20260923T123000
+DTEND:20260923T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:67246d657346ac25d6b0c8d6b87318e1@kgmu-calendar-export
+DTSTART:20260923T143000
+DTEND:20260923T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:39e8d168a5d622f4a0ee6bc480eed27f@kgmu-calendar-export
+DTSTART:20260924T080000
+DTEND:20260924T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:22e610e64757587fed35352b08920f6a@kgmu-calendar-export
+DTSTART:20260924T104500
+DTEND:20260924T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:3a847b8c02ffbfd54ccfdd4753f6e2b7@kgmu-calendar-export
+DTSTART:20260924T130000
+DTEND:20260924T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:ebf2d2e431a4d61bd8f078e2f6f1a314@kgmu-calendar-export
+DTSTART:20260924T145000
+DTEND:20260924T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a3f7cde152e9e9af5c6ceee47da641c7@kgmu-calendar-export
+DTSTART:20260925T080000
+DTEND:20260925T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:1ddf59389aa42ab7fd02e7b535c8c3c3@kgmu-calendar-export
+DTSTART:20260925T103500
+DTEND:20260925T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:35c1c8742316618bf6fd1d20709d6b2b@kgmu-calendar-export
+DTSTART:20260925T123500
+DTEND:20260925T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9d2ec8514532eb5969897a1cd46da941@kgmu-calendar-export
+DTSTART:20260926T084000
+DTEND:20260926T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1270247754fc1325d027cffb2a1415e4@kgmu-calendar-export
+DTSTART:20260926T103000
+DTEND:20260926T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:37284c812f4606e1e4f7a5b79524eb54@kgmu-calendar-export
+DTSTART:20260926T133000
+DTEND:20260926T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:97ce0f4e14d5c7d47f5afe15e3a02dfe@kgmu-calendar-export
+DTSTART:20260928T133000
+DTEND:20260928T150000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4917338f5ede986a795cd09e71ecdcfb@kgmu-calendar-export
+DTSTART:20260928T151000
+DTEND:20260928T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:777f8a5348bc0d069e835c1857d4fee9@kgmu-calendar-export
+DTSTART:20260929T083000
+DTEND:20260929T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:73939e83152079918a086c64678e1396@kgmu-calendar-export
+DTSTART:20260929T103500
+DTEND:20260929T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e23e765eb91ae686b6e5b1abf2682668@kgmu-calendar-export
+DTSTART:20260929T122500
+DTEND:20260929T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:06d71e87abc09b1766eaac77a7bbb0ee@kgmu-calendar-export
+DTSTART:20260929T151000
+DTEND:20260929T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:09ebf0538334d6d272a1cfad126b3836@kgmu-calendar-export
+DTSTART:20260930T080000
+DTEND:20260930T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e757c2eecf2173caad7b50f103d7797a@kgmu-calendar-export
+DTSTART:20260930T105000
+DTEND:20260930T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:89a6362b3b86a6eb9b7033b221c0727a@kgmu-calendar-export
+DTSTART:20260930T123000
+DTEND:20260930T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b644ae8b693240ca0c250f048d19685c@kgmu-calendar-export
+DTSTART:20260930T163000
+DTEND:20260930T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:029ba82d2e4d8ff620a81f933caa26e7@kgmu-calendar-export
+DTSTART:20261001T080000
+DTEND:20261001T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0d4136be5113ec1cdf5ae8e2778d1492@kgmu-calendar-export
+DTSTART:20261001T104500
+DTEND:20261001T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:391bdf6014f7453d4745a48a00878e93@kgmu-calendar-export
+DTSTART:20261001T130000
+DTEND:20261001T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:3f2947e8a4d9841e7e0b1f33d884e119@kgmu-calendar-export
+DTSTART:20261001T145000
+DTEND:20261001T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:60a74968707b719a2d300762ae7708ae@kgmu-calendar-export
+DTSTART:20261002T080000
+DTEND:20261002T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:8bbd6371b5877ec4d7d6c79929e9772f@kgmu-calendar-export
+DTSTART:20261002T103500
+DTEND:20261002T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fa2a31d91947f4acf00bf9371e5ed8b3@kgmu-calendar-export
+DTSTART:20261002T123500
+DTEND:20261002T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0dd231b71e8389680ed66e9d74683b47@kgmu-calendar-export
+DTSTART:20261003T084000
+DTEND:20261003T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1386fff675db1d18cda9385b2e4256a7@kgmu-calendar-export
+DTSTART:20261003T103000
+DTEND:20261003T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:dc14be1808f07b2372fcc827aef6b419@kgmu-calendar-export
+DTSTART:20261003T133000
+DTEND:20261003T150000
+SUMMARY:История медицины
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:772614469a93a51cd17c04b1ed32a332@kgmu-calendar-export
+DTSTART:20261005T133000
+DTEND:20261005T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b1c7356b246515ae975effb950968af2@kgmu-calendar-export
+DTSTART:20261005T155500
+DTEND:20261005T172500
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a3fc336b05170defcf8fdb82e7283669@kgmu-calendar-export
+DTSTART:20261006T083000
+DTEND:20261006T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b8f2dc4649bc65767482e73034c55ff1@kgmu-calendar-export
+DTSTART:20261006T103000
+DTEND:20261006T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ba6ed5e7a17452cc36c4b284b098efa8@kgmu-calendar-export
+DTSTART:20261006T122500
+DTEND:20261006T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:21c0a60820de3b8cfd0438d6a383dcee@kgmu-calendar-export
+DTSTART:20261006T151000
+DTEND:20261006T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:367875fd9c70241509d10213ab0506a4@kgmu-calendar-export
+DTSTART:20261007T080000
+DTEND:20261007T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3a161d14f36e134386c7cd5ab30b6987@kgmu-calendar-export
+DTSTART:20261007T105000
+DTEND:20261007T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:097bfe27888e5cc02ca533b88ce16c82@kgmu-calendar-export
+DTSTART:20261007T123000
+DTEND:20261007T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ae2656502e39697152b63e077b7286ea@kgmu-calendar-export
+DTSTART:20261007T143000
+DTEND:20261007T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:083f386c67f6c4763b37d98614cae064@kgmu-calendar-export
+DTSTART:20261008T080000
+DTEND:20261008T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ca682f09fcbddf33769491ef77c0d882@kgmu-calendar-export
+DTSTART:20261008T104500
+DTEND:20261008T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:360fea3a34a0ff6be8f60e28a5422618@kgmu-calendar-export
+DTSTART:20261008T130000
+DTEND:20261008T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:6d4520cc9d8bb17130b2bbc168cae8a9@kgmu-calendar-export
+DTSTART:20261008T145000
+DTEND:20261008T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:282977f7c13b913172b96643cf33a181@kgmu-calendar-export
+DTSTART:20261009T080000
+DTEND:20261009T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:45f7fa6973b8f81ed20063c54894eafe@kgmu-calendar-export
+DTSTART:20261009T103500
+DTEND:20261009T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e1cfc87874f0c23d7dd04f6b9683965c@kgmu-calendar-export
+DTSTART:20261009T123500
+DTEND:20261009T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:178ec206e1f8c49ceb7c21ea07b9ed5a@kgmu-calendar-export
+DTSTART:20261010T084000
+DTEND:20261010T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:61003497ee832018b747eae5e24756cd@kgmu-calendar-export
+DTSTART:20261010T103000
+DTEND:20261010T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a7b36f223c07546a4b5f7cdc9674ecf8@kgmu-calendar-export
+DTSTART:20261010T133000
+DTEND:20261010T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:db66f0303c500dace5b85c31d82bbf1c@kgmu-calendar-export
+DTSTART:20261012T133000
+DTEND:20261012T150000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f7ac1a30576f06d695bc77a902662b51@kgmu-calendar-export
+DTSTART:20261012T151000
+DTEND:20261012T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9efa14dadba54d9959fd0fa246db6501@kgmu-calendar-export
+DTSTART:20261013T083000
+DTEND:20261013T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8832efb6aec3a268869930d1e2bb7160@kgmu-calendar-export
+DTSTART:20261013T103500
+DTEND:20261013T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9b97891d6b8405b80b6f1f42e0617a0f@kgmu-calendar-export
+DTSTART:20261013T122500
+DTEND:20261013T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7e2e878ec6128c629bed376abb83ea5c@kgmu-calendar-export
+DTSTART:20261013T151000
+DTEND:20261013T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cb880a656c7461388ddcdb32d59bac89@kgmu-calendar-export
+DTSTART:20261014T080000
+DTEND:20261014T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2d920a59b28bed1d983ba3b761b84718@kgmu-calendar-export
+DTSTART:20261014T105000
+DTEND:20261014T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:af521d75a790793473f360dabd5f53a4@kgmu-calendar-export
+DTSTART:20261014T123000
+DTEND:20261014T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:246ff41c187f01f820aba5446ec05ae1@kgmu-calendar-export
+DTSTART:20261014T163000
+DTEND:20261014T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:626ccf142f7a91a5670d589c98363785@kgmu-calendar-export
+DTSTART:20261015T080000
+DTEND:20261015T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:231faa7453ba5be74baf06f9332b61ab@kgmu-calendar-export
+DTSTART:20261015T104500
+DTEND:20261015T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:527e7a22dc20e3c3f91036d9ffa4fbef@kgmu-calendar-export
+DTSTART:20261015T130000
+DTEND:20261015T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:328903a0bc61e456af691515ca47358f@kgmu-calendar-export
+DTSTART:20261015T145000
+DTEND:20261015T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:bc820fd7f1e92de167c050299188c63d@kgmu-calendar-export
+DTSTART:20261016T080000
+DTEND:20261016T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:5ff7c15ad4bee6784f38d9768b1aa62e@kgmu-calendar-export
+DTSTART:20261016T103500
+DTEND:20261016T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d2f1941f5122a3a307c8000dc52c870a@kgmu-calendar-export
+DTSTART:20261016T123500
+DTEND:20261016T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a2e577b0e8a02828e3b6dd2b2d495b30@kgmu-calendar-export
+DTSTART:20261017T084000
+DTEND:20261017T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7e11d626cd2e486567b871b9f7cbaa1e@kgmu-calendar-export
+DTSTART:20261017T103000
+DTEND:20261017T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:508485d6213b363f0b786cf24ad6bd0c@kgmu-calendar-export
+DTSTART:20261017T133000
+DTEND:20261017T164000
+SUMMARY:Экономика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2cb47e941872d9ddbd513cf67bffe694@kgmu-calendar-export
+DTSTART:20261019T100000
+DTEND:20261019T122500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s3
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9f88f70667fe872e9b6e98426d1cd3c3@kgmu-calendar-export
+DTSTART:20261019T133000
+DTEND:20261019T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a6bf52fb4049b757a9fa46e08bb606b4@kgmu-calendar-export
+DTSTART:20261020T083000
+DTEND:20261020T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a19efca98854afc7bdaef1e4ffda4829@kgmu-calendar-export
+DTSTART:20261020T103000
+DTEND:20261020T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c99d00ba3c70f61ff3d70f67a26b3a3c@kgmu-calendar-export
+DTSTART:20261020T122500
+DTEND:20261020T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7623f4dccfb87972ba6b679a02deb9a0@kgmu-calendar-export
+DTSTART:20261020T151000
+DTEND:20261020T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8f0f77fe27dd449caceb689f4310d135@kgmu-calendar-export
+DTSTART:20261021T080000
+DTEND:20261021T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4604fdbc912eb03aefd1a3f54bb1b271@kgmu-calendar-export
+DTSTART:20261021T105000
+DTEND:20261021T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:de4ca90cc07b390ff45866153271c113@kgmu-calendar-export
+DTSTART:20261021T123000
+DTEND:20261021T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:da6c61f4ac6b68c2137942ff5299fb61@kgmu-calendar-export
+DTSTART:20261021T143000
+DTEND:20261021T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:3f75758499a0ed9fe3d9fe76b1760051@kgmu-calendar-export
+DTSTART:20261022T080000
+DTEND:20261022T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e4cad6921dd0cffa7cce59be3a7c2440@kgmu-calendar-export
+DTSTART:20261022T104500
+DTEND:20261022T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:150e4129e1307921d1ee08b0ae79b269@kgmu-calendar-export
+DTSTART:20261022T130000
+DTEND:20261022T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:9cb27e02ab1be19d81a25c9277fd536d@kgmu-calendar-export
+DTSTART:20261022T145000
+DTEND:20261022T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0e487def99dc1fc1e4964cb0a8ff7f06@kgmu-calendar-export
+DTSTART:20261023T080000
+DTEND:20261023T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:4f42c2193370239d319bdf7e3899991e@kgmu-calendar-export
+DTSTART:20261023T103500
+DTEND:20261023T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a32be20a70a869bdc1826f941eed0bec@kgmu-calendar-export
+DTSTART:20261023T123500
+DTEND:20261023T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:98304989092f911faed34a223cb47b73@kgmu-calendar-export
+DTSTART:20261024T084000
+DTEND:20261024T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5aab45d399ba294e7c5239c4f65d589b@kgmu-calendar-export
+DTSTART:20261024T103000
+DTEND:20261024T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8f1c5af758014123bde6a33c817fbc4a@kgmu-calendar-export
+DTSTART:20261024T133000
+DTEND:20261024T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:634914ce50c8dd7cbcd5a9e71f90e890@kgmu-calendar-export
+DTSTART:20261026T100000
+DTEND:20261026T122500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s3
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:163312690bf7ebcfc2e7b8017dd566d5@kgmu-calendar-export
+DTSTART:20261026T133000
+DTEND:20261026T150000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7461421cb0c1e47a52b2e42bceae196b@kgmu-calendar-export
+DTSTART:20261026T151000
+DTEND:20261026T164000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B14#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:03373e0214f4dfb1b319ab3877edabb0@kgmu-calendar-export
+DTSTART:20261027T083000
+DTEND:20261027T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0b5d79fa18e80277419e35488525949a@kgmu-calendar-export
+DTSTART:20261027T103500
+DTEND:20261027T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a82ccab2f90c078d64af5a1f066495e3@kgmu-calendar-export
+DTSTART:20261027T122500
+DTEND:20261027T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:77278dc5ec0682a5fee1185cd814699d@kgmu-calendar-export
+DTSTART:20261027T151000
+DTEND:20261027T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:50606266862cce49ebc7d1a0b41e137f@kgmu-calendar-export
+DTSTART:20261028T080000
+DTEND:20261028T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5b977f06fb94dddcedd7d94b88f424d9@kgmu-calendar-export
+DTSTART:20261028T105000
+DTEND:20261028T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0d97121717c41b10168db537632c4fc9@kgmu-calendar-export
+DTSTART:20261028T123000
+DTEND:20261028T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:179522cfc5fe4a38cc84ec8b1bf65828@kgmu-calendar-export
+DTSTART:20261028T163000
+DTEND:20261028T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:be8404d5bc47898544008656c526b094@kgmu-calendar-export
+DTSTART:20261029T080000
+DTEND:20261029T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1aeb38fc7b2379e8186596671e635253@kgmu-calendar-export
+DTSTART:20261029T104500
+DTEND:20261029T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8b107788f6f466d6748e010d276ef56d@kgmu-calendar-export
+DTSTART:20261029T130000
+DTEND:20261029T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:d4dafbac3d96d1e422d002c096ff4587@kgmu-calendar-export
+DTSTART:20261029T145000
+DTEND:20261029T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c179c4730780f9de186237b017f1edf5@kgmu-calendar-export
+DTSTART:20261030T080000
+DTEND:20261030T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:9e2af43bdd58753a0a1cea906f7b8832@kgmu-calendar-export
+DTSTART:20261030T103500
+DTEND:20261030T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a61dfc54662b6b9f931ed1f4a2655fc0@kgmu-calendar-export
+DTSTART:20261030T123500
+DTEND:20261030T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9535dc66aae70a378e9cd7f8f26343ac@kgmu-calendar-export
+DTSTART:20261031T084000
+DTEND:20261031T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d028f0a9d109481341d3b3dcceb98a8d@kgmu-calendar-export
+DTSTART:20261031T103000
+DTEND:20261031T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5cc330e2d1e89e3df67ea946eeaa5ee4@kgmu-calendar-export
+DTSTART:20261031T133000
+DTEND:20261031T150000
+SUMMARY:История медицины
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:72c6b83f5f081034f7388bd8138c6894@kgmu-calendar-export
+DTSTART:20261102T133000
+DTEND:20261102T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e0696fc56c366fcc86cad8c082833905@kgmu-calendar-export
+DTSTART:20261103T083000
+DTEND:20261103T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9264a39bd3a04391b9cc30b0d7384ef7@kgmu-calendar-export
+DTSTART:20261103T103000
+DTEND:20261103T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:55ffb1c54b52d361930aec4099827fae@kgmu-calendar-export
+DTSTART:20261103T122500
+DTEND:20261103T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b4d4d57c9042f9b15a80b0543b02d926@kgmu-calendar-export
+DTSTART:20261103T151000
+DTEND:20261103T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:337811e6fa36ef1dd826af15f92e368c@kgmu-calendar-export
+DTSTART:20261104T080000
+DTEND:20261104T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f227b1bb75ab26e00d0d4820e75eb203@kgmu-calendar-export
+DTSTART:20261104T123000
+DTEND:20261104T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:627705314979a7953f41618b87de12ab@kgmu-calendar-export
+DTSTART:20261104T143000
+DTEND:20261104T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:b158d7d5cc2d0e4529487877316c5687@kgmu-calendar-export
+DTSTART:20261105T080000
+DTEND:20261105T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:21bd4fbb8d5be863d9baf98b7fb1182e@kgmu-calendar-export
+DTSTART:20261105T104500
+DTEND:20261105T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8d98b6adaf87bbb840d3d9f4cf444911@kgmu-calendar-export
+DTSTART:20261105T130000
+DTEND:20261105T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:2253c6c28f1444a8c310f3ce6fb0de0d@kgmu-calendar-export
+DTSTART:20261105T145000
+DTEND:20261105T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:76db44edf4cbe22c79d2a0a44e1eb1ac@kgmu-calendar-export
+DTSTART:20261106T080000
+DTEND:20261106T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:f89b03c143c093119694590d06785734@kgmu-calendar-export
+DTSTART:20261106T103500
+DTEND:20261106T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:676b251f4797c61afceba75f8094d4ff@kgmu-calendar-export
+DTSTART:20261106T123500
+DTEND:20261106T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:98f5230cea807fd15b86e1afed9d55e5@kgmu-calendar-export
+DTSTART:20261107T084000
+DTEND:20261107T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4cd66d7de66f82ea99c7618403cbcd03@kgmu-calendar-export
+DTSTART:20261107T103000
+DTEND:20261107T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:45460fd7f37d21d5c214b90998746b9e@kgmu-calendar-export
+DTSTART:20261107T133000
+DTEND:20261107T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d20aaf00ff6525900ca279f8b339028d@kgmu-calendar-export
+DTSTART:20261109T083000
+DTEND:20261109T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:57ded5dbb942e0fcc1dd52f4c54d2e4f@kgmu-calendar-export
+DTSTART:20261109T133000
+DTEND:20261109T150000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bb48531786bd47eefc5907e946c99c5a@kgmu-calendar-export
+DTSTART:20261109T151000
+DTEND:20261109T164000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B14#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:aa8f8714143f7f527fb56da1281e4dc1@kgmu-calendar-export
+DTSTART:20261110T083000
+DTEND:20261110T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9ba702d2224d7b95d6fda2bdd1958ddf@kgmu-calendar-export
+DTSTART:20261110T103500
+DTEND:20261110T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4ac09f36f1bca5263d05f54943d0958d@kgmu-calendar-export
+DTSTART:20261110T122500
+DTEND:20261110T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eb32ba431cb494eaaa512f7f449a917e@kgmu-calendar-export
+DTSTART:20261110T151000
+DTEND:20261110T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0fb782e7f53bcf1c9f15399c0bee18d9@kgmu-calendar-export
+DTSTART:20261111T080000
+DTEND:20261111T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:029d88c7b35d4d1fcc380d06fbfe9bd0@kgmu-calendar-export
+DTSTART:20261111T105000
+DTEND:20261111T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:92cd18716d7d37d8047c251674b3d0fe@kgmu-calendar-export
+DTSTART:20261111T123000
+DTEND:20261111T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:5a327de72ebd2c6755642acffe2c8a6b@kgmu-calendar-export
+DTSTART:20261111T163000
+DTEND:20261111T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:3d7398c8e6b8b7a132a01f4225eb11cf@kgmu-calendar-export
+DTSTART:20261112T080000
+DTEND:20261112T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c57741bc58e2f89b5948f5e663b7c3f4@kgmu-calendar-export
+DTSTART:20261112T104500
+DTEND:20261112T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0526384ef79a951a0c44e290460a19bd@kgmu-calendar-export
+DTSTART:20261112T130000
+DTEND:20261112T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:29d58501d49181eb20f9747df80b609d@kgmu-calendar-export
+DTSTART:20261112T145000
+DTEND:20261112T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b13fbdc1c0f078a2181ccdc3eff5a929@kgmu-calendar-export
+DTSTART:20261113T080000
+DTEND:20261113T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:f921084af1dd4b06f0cb9876dbff364b@kgmu-calendar-export
+DTSTART:20261113T103500
+DTEND:20261113T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:47800ca1c461a373471d494582fe9591@kgmu-calendar-export
+DTSTART:20261113T123500
+DTEND:20261113T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:63fa7611936efe49dd607261ae06cc4a@kgmu-calendar-export
+DTSTART:20261114T084000
+DTEND:20261114T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1f1956feff20b373ef95ac70f5a6e21a@kgmu-calendar-export
+DTSTART:20261114T103000
+DTEND:20261114T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b1741004adb62acd6a9dec3b4c16b902@kgmu-calendar-export
+DTSTART:20261114T133000
+DTEND:20261114T164000
+SUMMARY:Экономика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2c575388e01109db2db10a60f4a4a0db@kgmu-calendar-export
+DTSTART:20261116T083000
+DTEND:20261116T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:b9c606e057b9acb2faf3e12c6aa1cd83@kgmu-calendar-export
+DTSTART:20261116T133000
+DTEND:20261116T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:30e84dc1a345c857bd3c38ab9991c8f4@kgmu-calendar-export
+DTSTART:20261117T083000
+DTEND:20261117T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:2fbd2d52c974ed6598b2d4db71fd4399@kgmu-calendar-export
+DTSTART:20261117T103000
+DTEND:20261117T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5885a889007a1b7cd7c0456e91745bc3@kgmu-calendar-export
+DTSTART:20261117T122500
+DTEND:20261117T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:83ae9bebb14559c5f4c16804f06a51f3@kgmu-calendar-export
+DTSTART:20261117T151000
+DTEND:20261117T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:99036a5e06541559c21b4de586fd628e@kgmu-calendar-export
+DTSTART:20261118T080000
+DTEND:20261118T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6cfc26a804d72b04b162aeba90b690e4@kgmu-calendar-export
+DTSTART:20261118T105000
+DTEND:20261118T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f37cc31c6eff865b606087cbeb4fb210@kgmu-calendar-export
+DTSTART:20261118T123000
+DTEND:20261118T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c41f485d570cea6377b6aee36176b4fc@kgmu-calendar-export
+DTSTART:20261118T143000
+DTEND:20261118T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:cc0a40e76a29760c2114a434e60516b5@kgmu-calendar-export
+DTSTART:20261119T080000
+DTEND:20261119T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:07ff9187311bcf1785ceb992960061a3@kgmu-calendar-export
+DTSTART:20261119T104500
+DTEND:20261119T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ee95f35657611c1011e74f9b5bdd7f71@kgmu-calendar-export
+DTSTART:20261119T130000
+DTEND:20261119T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:cd8cd5b76cb13544cdc7dc95f521b4aa@kgmu-calendar-export
+DTSTART:20261119T145000
+DTEND:20261119T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:46bee98aeacf653a0b4055c68507daf2@kgmu-calendar-export
+DTSTART:20261120T080000
+DTEND:20261120T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:d17c7ef6d677ddc6e092797c4731121f@kgmu-calendar-export
+DTSTART:20261120T103500
+DTEND:20261120T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:05fd614c4caa6378ad396af4067d35aa@kgmu-calendar-export
+DTSTART:20261120T123500
+DTEND:20261120T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e215c091944284bcec03c926083b2955@kgmu-calendar-export
+DTSTART:20261121T084000
+DTEND:20261121T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ca71a01e9974f3b85ecef504d606a370@kgmu-calendar-export
+DTSTART:20261121T103000
+DTEND:20261121T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eee1b4c745bcba79a9104287b9704dfc@kgmu-calendar-export
+DTSTART:20261121T133000
+DTEND:20261121T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a1bd0f5c79ce22194fb300ff9c1c7829@kgmu-calendar-export
+DTSTART:20261123T083000
+DTEND:20261123T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:53a12908d827583620582bbdb67a69f9@kgmu-calendar-export
+DTSTART:20261123T133000
+DTEND:20261123T150000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f953c49a32276588ecd89298588f709d@kgmu-calendar-export
+DTSTART:20261124T083000
+DTEND:20261124T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:2f8a258697636322ccd269a6f35e5519@kgmu-calendar-export
+DTSTART:20261124T103500
+DTEND:20261124T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:84395ef8c0b5bc87f836d36d5e9d0ad2@kgmu-calendar-export
+DTSTART:20261124T122500
+DTEND:20261124T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b8ec0d5760bb4e750bbb42c04f278255@kgmu-calendar-export
+DTSTART:20261124T151000
+DTEND:20261124T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6e87c5a550a06d11ee7fb3d562c187d3@kgmu-calendar-export
+DTSTART:20261125T080000
+DTEND:20261125T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:96bce93115c633d3aa3087f29d8ce37b@kgmu-calendar-export
+DTSTART:20261125T105000
+DTEND:20261125T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c73615a6a474f40ea2d98a5bb42a0394@kgmu-calendar-export
+DTSTART:20261125T123000
+DTEND:20261125T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8f1b807530a29a65facc0d5b77428ac7@kgmu-calendar-export
+DTSTART:20261125T163000
+DTEND:20261125T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:6d7c6c17f8cad65ddebcb416e877cdf7@kgmu-calendar-export
+DTSTART:20261126T080000
+DTEND:20261126T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a56df41ffe29fae43a388f64e3daffa5@kgmu-calendar-export
+DTSTART:20261126T104500
+DTEND:20261126T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:48fc4aeb938388d7f0f16a752bc3fd06@kgmu-calendar-export
+DTSTART:20261126T130000
+DTEND:20261126T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:9efc0520ec330510b6ba8fa021e0ac44@kgmu-calendar-export
+DTSTART:20261126T145000
+DTEND:20261126T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:2df792d5d73670e66c6a3a2683cdf238@kgmu-calendar-export
+DTSTART:20261127T080000
+DTEND:20261127T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:219e818e72c355ca6f4748cf4bca15fd@kgmu-calendar-export
+DTSTART:20261127T103500
+DTEND:20261127T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:69ec7a13e3846d303cb9f4705e1e4422@kgmu-calendar-export
+DTSTART:20261127T123500
+DTEND:20261127T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f9c1ac1d2a9fc636e3613df6d3851574@kgmu-calendar-export
+DTSTART:20261128T084000
+DTEND:20261128T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bb13d44bf33f98c293f97c2329b1984c@kgmu-calendar-export
+DTSTART:20261128T103000
+DTEND:20261128T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e67e1a779341c2637de6b5018549a3b2@kgmu-calendar-export
+DTSTART:20261128T133000
+DTEND:20261128T150000
+SUMMARY:История медицины
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:39c191d4f47b3ce01f550c4a45a0819e@kgmu-calendar-export
+DTSTART:20261130T083000
+DTEND:20261130T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:3f8cd01ee86cc4d9c1315f4d4d2fa63e@kgmu-calendar-export
+DTSTART:20261130T133000
+DTEND:20261130T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:222b3307080824af0bc8869fe387ca93@kgmu-calendar-export
+DTSTART:20261201T083000
+DTEND:20261201T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:3d3a28abb34174703b2b933412ff15c8@kgmu-calendar-export
+DTSTART:20261201T103000
+DTEND:20261201T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3808871e8ccf769427e3d3bab8236e64@kgmu-calendar-export
+DTSTART:20261201T122500
+DTEND:20261201T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bf8246f6389a6f953e7f3f6d387e37cb@kgmu-calendar-export
+DTSTART:20261201T151000
+DTEND:20261201T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:886113a59d6b5f8cce5dc70415b20817@kgmu-calendar-export
+DTSTART:20261202T080000
+DTEND:20261202T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:98eb3c01705b8c041c8bc992c662d794@kgmu-calendar-export
+DTSTART:20261202T105000
+DTEND:20261202T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:067b126d214ac05fbc4fac616f7a0a5c@kgmu-calendar-export
+DTSTART:20261202T123000
+DTEND:20261202T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9718b6aefb72ffc9d759439ac14a58e3@kgmu-calendar-export
+DTSTART:20261202T143000
+DTEND:20261202T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:943e91ecbb9489dda29346a4f47b75ed@kgmu-calendar-export
+DTSTART:20261203T080000
+DTEND:20261203T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:987246f1b6c524b87c78d865cc0b9ecc@kgmu-calendar-export
+DTSTART:20261203T104500
+DTEND:20261203T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:38dbe98e8200c7879e5be0b415285d06@kgmu-calendar-export
+DTSTART:20261203T130000
+DTEND:20261203T143000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:556390f4286d3405b5f5ee06edf7a4aa@kgmu-calendar-export
+DTSTART:20261203T145000
+DTEND:20261203T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:e7ed0acbb163a91da5c81aea89eada00@kgmu-calendar-export
+DTSTART:20261204T080000
+DTEND:20261204T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:13f8b2af425cba5764f5ea6f5c2618ab@kgmu-calendar-export
+DTSTART:20261204T103500
+DTEND:20261204T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bc4793d7b43bd4705fc538cbd7b01018@kgmu-calendar-export
+DTSTART:20261204T123500
+DTEND:20261204T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:65da309922fc1fd96785cbbe1ccd93f1@kgmu-calendar-export
+DTSTART:20261205T084000
+DTEND:20261205T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bbc4ec2009324159e8c51b53c66c111c@kgmu-calendar-export
+DTSTART:20261205T103000
+DTEND:20261205T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:79dd027ebd317ef39fdf8ac43faef76e@kgmu-calendar-export
+DTSTART:20261205T133000
+DTEND:20261205T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:858837a824f444d8ced1dff96f1b6a2d@kgmu-calendar-export
+DTSTART:20261207T083000
+DTEND:20261207T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:384509b420e7f2f12ced9ef5010e588c@kgmu-calendar-export
+DTSTART:20261207T133000
+DTEND:20261207T150000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3c97231dacdc4861ed8068c88d4ec0ee@kgmu-calendar-export
+DTSTART:20261208T083000
+DTEND:20261208T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:3303b19990e49f7259c404f1bf06be77@kgmu-calendar-export
+DTSTART:20261208T103500
+DTEND:20261208T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eda93b416ed40e2316500736fe5d0ae3@kgmu-calendar-export
+DTSTART:20261208T122500
+DTEND:20261208T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:22e12a062d076f4e5815e1c51f84c21b@kgmu-calendar-export
+DTSTART:20261208T151000
+DTEND:20261208T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b6eab7b5f7f5d9d75a7b1f644da84ca0@kgmu-calendar-export
+DTSTART:20261209T080000
+DTEND:20261209T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:91b95c7e7086d6a796a0e42fb4655c4b@kgmu-calendar-export
+DTSTART:20261209T105000
+DTEND:20261209T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:341d3d9d7699874f777474b612d185bf@kgmu-calendar-export
+DTSTART:20261209T123000
+DTEND:20261209T140000
+SUMMARY:Биология
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:d0e1fb9351355e0f3de54cb40041e4a2@kgmu-calendar-export
+DTSTART:20261209T163000
+DTEND:20261209T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:7a6d8d846f810827621fa7ca1012fea6@kgmu-calendar-export
+DTSTART:20261210T080000
+DTEND:20261210T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c2e01f2edb54b0d5baa8c809f2f6eb81@kgmu-calendar-export
+DTSTART:20261210T104500
+DTEND:20261210T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c8e5a15b0aa8de1ad9bf528b1ee8e4d7@kgmu-calendar-export
+DTSTART:20261210T145000
+DTEND:20261210T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:865348d530963a856a85f754a03dd1a8@kgmu-calendar-export
+DTSTART:20261211T080000
+DTEND:20261211T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:718dcdce3a935abe4894aeb5b2e61c91@kgmu-calendar-export
+DTSTART:20261211T103500
+DTEND:20261211T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6ab91de480eb7476d6b5c4aa185f3b6b@kgmu-calendar-export
+DTSTART:20261211T123500
+DTEND:20261211T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:84bcebb11e85998c066e352c0711326e@kgmu-calendar-export
+DTSTART:20261212T084000
+DTEND:20261212T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:51caa05d1f4d76ed3fdccb3a1f60b941@kgmu-calendar-export
+DTSTART:20261212T103000
+DTEND:20261212T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a1aaa7b275f2eea62f5108b80ad24c0e@kgmu-calendar-export
+DTSTART:20261212T133000
+DTEND:20261212T150000
+SUMMARY:Экономика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:67af0ecb557c4c4159c555451d477b07@kgmu-calendar-export
+DTSTART:20261214T083000
+DTEND:20261214T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:80fa323a92795bf73ffde53dc68b1d93@kgmu-calendar-export
+DTSTART:20261214T133000
+DTEND:20261214T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:596ef551498dc59e8d1b7c6f18a0301b@kgmu-calendar-export
+DTSTART:20261215T083000
+DTEND:20261215T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7d584565d9dd4b8104c0b73c86302b32@kgmu-calendar-export
+DTSTART:20261215T103000
+DTEND:20261215T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fc1b926a01dde7c9b7b96d361b145358@kgmu-calendar-export
+DTSTART:20261215T122500
+DTEND:20261215T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0dd8ff385e533b7a6c9a076112b2b44a@kgmu-calendar-export
+DTSTART:20261215T151000
+DTEND:20261215T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:41f3a2c1bfbc5b7306119522fb2f7783@kgmu-calendar-export
+DTSTART:20261216T080000
+DTEND:20261216T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:69948a3e3122b2ca5401e5feb282de12@kgmu-calendar-export
+DTSTART:20261216T105000
+DTEND:20261216T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:925567bd963e36215ebf1ee8af462f35@kgmu-calendar-export
+DTSTART:20261216T123000
+DTEND:20261216T140000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s2
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a774ace2a6c25984cb43c387df599034@kgmu-calendar-export
+DTSTART:20261216T143000
+DTEND:20261216T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:e934565c97884c1c77d563139bc5f99a@kgmu-calendar-export
+DTSTART:20261217T080000
+DTEND:20261217T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:dfaf3116a492747f7948171c6acc76a6@kgmu-calendar-export
+DTSTART:20261217T104500
+DTEND:20261217T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ea75e6a87e183429a63c3a440ce84c9e@kgmu-calendar-export
+DTSTART:20261217T145000
+DTEND:20261217T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b6bb9788f09e43b48ce323623222ab8b@kgmu-calendar-export
+DTSTART:20261218T080000
+DTEND:20261218T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:1474a8c3c61ddbd8255334ca44b1df51@kgmu-calendar-export
+DTSTART:20261218T103500
+DTEND:20261218T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:19a5a5c04805e1c9a12b998b02d46b76@kgmu-calendar-export
+DTSTART:20261218T123500
+DTEND:20261218T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:961a920603497800f23840cfa56ec083@kgmu-calendar-export
+DTSTART:20261219T084000
+DTEND:20261219T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ed5cbf0489d001fb747fe41b8ff81326@kgmu-calendar-export
+DTSTART:20261219T103000
+DTEND:20261219T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3f8c8d5d63b148c069a8864d52994fb3@kgmu-calendar-export
+DTSTART:20261219T133000
+DTEND:20261219T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:08c1c0afe6d418bc143535a32bdf54a1@kgmu-calendar-export
+DTSTART:20261221T083000
+DTEND:20261221T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:5e5272d721f23a99c40588ebe338cc5b@kgmu-calendar-export
+DTSTART:20261221T133000
+DTEND:20261221T150000
+SUMMARY:Безопасность жизнедеятельности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9d7ac6cb8a6a442ce31ff3b92230871e@kgmu-calendar-export
+DTSTART:20261222T083000
+DTEND:20261222T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7002245b2473065bfeb2cf24e0f3c614@kgmu-calendar-export
+DTSTART:20261222T103500
+DTEND:20261222T120500
+SUMMARY:История медицины
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a3a6387e8ff66b4e9e6b6e9f47366335@kgmu-calendar-export
+DTSTART:20261222T122500
+DTEND:20261222T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ff0c07646331a5eac96db0fdf8845be0@kgmu-calendar-export
+DTSTART:20261222T151000
+DTEND:20261222T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:435010771380bd094b50e8abb469a245@kgmu-calendar-export
+DTSTART:20261223T080000
+DTEND:20261223T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:92e0cd63697c22d756c14a624b869188@kgmu-calendar-export
+DTSTART:20261223T105000
+DTEND:20261223T122000
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:88266a65a8a7b6b10d9db8fbcf7d1f70@kgmu-calendar-export
+DTSTART:20261223T123000
+DTEND:20261223T140000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B25#s2
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b99570303d44c99c5661c7b5c3bd057b@kgmu-calendar-export
+DTSTART:20261223T163000
+DTEND:20261223T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:c567891d85df64b5246aa6bccea59aba@kgmu-calendar-export
+DTSTART:20261224T080000
+DTEND:20261224T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fddb32379d8924e741f4185ae7c4f65f@kgmu-calendar-export
+DTSTART:20261224T104500
+DTEND:20261224T121500
+SUMMARY:Биология
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:1d4c1cc406d1878fa47295591e002443@kgmu-calendar-export
+DTSTART:20261224T145000
+DTEND:20261224T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c230a78246dd7e100be9f8e0f08663fb@kgmu-calendar-export
+DTSTART:20261225T080000
+DTEND:20261225T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:d248deb1789b1d8689d905fd4c45630c@kgmu-calendar-export
+DTSTART:20261225T103500
+DTEND:20261225T120500
+SUMMARY:Экономика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d21cb9a2fc1a1d9f9f4ca51578497e32@kgmu-calendar-export
+DTSTART:20261225T123500
+DTEND:20261225T140500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:da57b9416114723fafb873d0e7f848e3@kgmu-calendar-export
+DTSTART:20261226T084000
+DTEND:20261226T101000
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8911c95a7910e96b6935eb770a34f6c1@kgmu-calendar-export
+DTSTART:20261226T103000
+DTEND:20261226T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8abeeaa7e2982e9c7ded4e2b6098f8e6@kgmu-calendar-export
+DTSTART:20261226T133000
+DTEND:20261226T150000
+SUMMARY:История России
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7faef7160decc3fdd408c0baf2fe07e2@kgmu-calendar-export
+DTSTART:20261228T083000
+DTEND:20261228T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:5138bf06daca7b1f7349528f49dc5037@kgmu-calendar-export
+DTSTART:20261228T133000
+DTEND:20261228T150000
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a71c64525289548306f06cba92696773@kgmu-calendar-export
+DTSTART:20261229T083000
+DTEND:20261229T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f28d56f9d083466f5080cd00cfa94ed7@kgmu-calendar-export
+DTSTART:20261229T103000
+DTEND:20261229T120000
+SUMMARY:Правоведение
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c5995cb0f44d2964ae7cff42c1ef728b@kgmu-calendar-export
+DTSTART:20261229T122500
+DTEND:20261229T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:42e1e757c23cab793b46427eb4a821c2@kgmu-calendar-export
+DTSTART:20261229T151000
+DTEND:20261229T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:84c6f5db2f8ab803fe99f8bd28504c65@kgmu-calendar-export
+DTSTART:20261230T080000
+DTEND:20261230T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1c857837d9f92777278381dd0e30da35@kgmu-calendar-export
+DTSTART:20261230T105000
+DTEND:20261230T122000
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7b8a115fa55c445297f9bbe27a9baa1f@kgmu-calendar-export
+DTSTART:20261230T143000
+DTEND:20261230T153000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:49be0265a5f8b3cfc593c0a9d9aea604@kgmu-calendar-export
+DTSTART:20270111T083000
+DTEND:20270111T114000
+SUMMARY:УПО. Общий уход
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:142dd4e8d26a5b84963e0b7e1bf8e414@kgmu-calendar-export
+DTSTART:20270112T122500
+DTEND:20270112T145000
+SUMMARY:Иностранный язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:609902ec36f8e9b97aef02823b30a85f@kgmu-calendar-export
+DTSTART:20270112T151000
+DTEND:20270112T164000
+SUMMARY:История России
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4fed40d78901c9e766ecace3e71322f6@kgmu-calendar-export
+DTSTART:20270113T094000
+DTEND:20270113T102500
+SUMMARY:Психология и педагогика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J22#s2
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9eb3def352ffd95db6840d294b617ffe@kgmu-calendar-export
+DTSTART:20270113T163000
+DTEND:20270113T173000
+SUMMARY:Час куратора
+DESCRIPTION:Тип: Занятие\; источник: 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:e58ec2859f05c622ea136e6596871903@kgmu-calendar-export
+DTSTART:20270114T080000
+DTEND:20270114T102500
+SUMMARY:Общая и биоорганическая химия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3e98a2125cb3f2cd8ef2ff9a48de8dc4@kgmu-calendar-export
+DTSTART:20270114T145000
+DTEND:20270114T171500
+SUMMARY:Физика\, математика
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4d252ac9e97a9725a26f31e483a8d1a3@kgmu-calendar-export
+DTSTART:20270115T080000
+DTEND:20270115T102500
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:50ab9c28f3187968815a1c9b509bdd9e@kgmu-calendar-export
+DTSTART:20270116T084000
+DTEND:20270116T101000
+SUMMARY:Анатомия
+DESCRIPTION:Тип: Лекция\; источник: 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6f20912fa90212656db48a9ed58d4b2f@kgmu-calendar-export
+DTSTART:20270116T103000
+DTEND:20270116T120000
+SUMMARY:Латинский язык
+DESCRIPTION:Тип: Практическое занятие\; источник: 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ccd1e7b9c18fb77db802ef9c26750dda@kgmu-calendar-export
+DTSTART:20270116T164000
+DTEND:20270116T204500
+SUMMARY:Основы российской государственности
+DESCRIPTION:Тип: Зачёт с оценкой\; источник: 1 леч.1!J36#s2
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+END:VCALENDAR

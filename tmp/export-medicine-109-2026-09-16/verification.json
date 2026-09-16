@@ -1,0 +1,27 @@
+{
+  "officialPage": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+  "currentUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx",
+  "currentSha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+  "currentByteLength": 21090,
+  "reviewedSemanticSourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+  "mechanicalDiff31AugTo04Sep": {
+    "cellChanges": [
+      {
+        "coord": "B41",
+        "classification": "punctuation-only; dates/times/disciplines unchanged"
+      }
+    ],
+    "mergeChanges": [
+      {
+        "added": "J35:K35",
+        "effectOnGroup109": "none; J35 already applies to group 109"
+      }
+    ]
+  },
+  "groupId": "109",
+  "relevantDecisionCount": 37,
+  "eventCount": 352,
+  "facultativesIncluded": false,
+  "timeSemantics": "floating wall-clock",
+  "icsSha256": "134f70568e8b43d8b0d310a215c74b555a12ba7b34e89d3e0ade2ec1836aec3f"
+}
