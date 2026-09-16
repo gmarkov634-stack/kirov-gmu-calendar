@@ -1,0 +1,106 @@
+name: Temporary compare medicine group 109 source
+
+on:
+  push:
+    branches:
+      - tmp/fetch-medicine-101-110-2026-09-16
+    paths:
+      - '.github/workflows/tmp-compare-medicine-109-2026-09-16.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/fetch-medicine-101-110-2026-09-16
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Compare prior reviewed source with current official source
+        run: |
+          python - <<'PY'
+          import io, json, re, urllib.request
+          from pathlib import Path
+          from openpyxl import load_workbook
+
+          prev_url = 'https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/1_lech._1_potok-31-08-2026-10.xlsx'
+          cur_url = 'https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx'
+          def get(url):
+              req = urllib.request.Request(url, headers={'User-Agent':'kgmu-calendar-temp-compare/1.0'})
+              with urllib.request.urlopen(req, timeout=45) as r: return r.read()
+          def wb(url): return load_workbook(io.BytesIO(get(url)), data_only=False)['1 леч.1']
+          pws, cws = wb(prev_url), wb(cur_url)
+          def val(ws, coord):
+              v = ws[coord].value
+              return None if v is None else str(v).strip()
+
+          manifest = json.loads(Path('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json').read_text(encoding='utf-8'))
+          group_bit = 1 << manifest['groupTable'].index('109')
+          relevant = []
+          relevant_cells = set()
+          for d in manifest['decisions']:
+              locator, mask = d[0], int(d[1], 16)
+              if not (mask & group_bit): continue
+              coord = re.match(r'([A-Z]+\d+)', locator).group(1)
+              relevant_cells.add(coord)
+              relevant.append({
+                  'decision': d,
+                  'coord': coord,
+                  'previousValue': val(pws, coord),
+                  'currentValue': val(cws, coord),
+                  'cellChanged': val(pws, coord) != val(cws, coord),
+              })
+
+          for coord in ['A43','A44']:
+              relevant_cells.add(coord)
+
+          all_coords = set()
+          for ws in [pws,cws]:
+              for row in ws.iter_rows():
+                  for cell in row:
+                      if cell.value is not None: all_coords.add(cell.coordinate)
+          changed_cells = []
+          for coord in sorted(all_coords):
+              pv, cv = val(pws, coord), val(cws, coord)
+              if pv != cv:
+                  changed_cells.append({'coord':coord,'previousValue':pv,'currentValue':cv,'group109Relevant':coord in relevant_cells})
+
+          prev_merges = {str(r) for r in pws.merged_cells.ranges}
+          cur_merges = {str(r) for r in cws.merged_cells.ranges}
+          out = {
+              'previousUrl': prev_url,
+              'currentUrl': cur_url,
+              'group109DecisionCount': len(relevant),
+              'group109RelevantCellCount': len(relevant_cells),
+              'group109ChangedDecisionCells': [x for x in relevant if x['cellChanged']],
+              'group109Decisions': relevant,
+              'changedCells': changed_cells,
+              'A43': {'previous': val(pws,'A43'), 'current': val(cws,'A43'), 'changed': val(pws,'A43') != val(cws,'A43')},
+              'A44': {'previous': val(pws,'A44'), 'current': val(cws,'A44'), 'changed': val(pws,'A44') != val(cws,'A44')},
+              'mergesAdded': sorted(cur_merges-prev_merges),
+              'mergesRemoved': sorted(prev_merges-cur_merges),
+          }
+          path = Path('tmp/medicine-109-current-vs-2026-08-31.json')
+          path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps({
+              'group109DecisionCount': out['group109DecisionCount'],
+              'changedDecisionCells': len(out['group109ChangedDecisionCells']),
+              'changedCellsTotal': len(changed_cells),
+              'A43Changed': out['A43']['changed'],
+              'A44Changed': out['A44']['changed'],
+              'mergesAdded': out['mergesAdded'],
+              'mergesRemoved': out['mergesRemoved'],
+          }, ensure_ascii=False, indent=2))
+          PY
+      - name: Commit comparison
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tmp/medicine-109-current-vs-2026-08-31.json
+          git commit -m 'chore: compare current medicine source for group 109'
+          git push origin HEAD:tmp/fetch-medicine-101-110-2026-09-16
