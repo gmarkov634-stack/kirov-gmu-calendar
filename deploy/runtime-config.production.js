@@ -38,7 +38,7 @@ window.KGMU_CALENDAR_CONFIG = Object.freeze({
   electiveCatalog: globalThis.KGMU_ELECTIVE_CATALOG ?? Object.freeze({}),
   facultativeCatalog: Object.freeze({ "2026-2027-semester-1": SEMESTER_1_FACULTATIVE_CATALOG }),
   trialEnabled: true,
-  trialBrowserBindingEnabled: false,
+  trialBrowserBindingEnabled: true,
   managementEnabled: true,
   checkoutEnabled: false
 });
