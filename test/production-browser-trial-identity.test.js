@@ -11,7 +11,7 @@ const BUILD_TARGETS = [
 ];
 
 for (const { name, script } of BUILD_TARGETS) {
-  test(`${name} artifact temporarily bypasses persistent browser binding while preserving trial API contract`, () => {
+  test(`${name} artifact restores persistent browser binding while preserving trial API contract`, () => {
     const tempRoot = mkdtempSync(join(tmpdir(), 'kgmu-browser-trial-'));
     const output = join(tempRoot, 'site');
 
@@ -24,7 +24,7 @@ for (const { name, script } of BUILD_TARGETS) {
 
       const runtimeConfig = readFileSync(join(output, 'runtime-config.js'), 'utf8');
       assert.match(runtimeConfig, /trialEnabled:\s*true/);
-      assert.match(runtimeConfig, /trialBrowserBindingEnabled:\s*false/);
+      assert.match(runtimeConfig, /trialBrowserBindingEnabled:\s*true/);
       assert.match(runtimeConfig, /X-Trial-Browser-Id/);
       assert.match(runtimeConfig, /crypto\?\.randomUUID/);
       assert.match(runtimeConfig, /trialBrowserBindingEnabled !== true/);
@@ -32,6 +32,7 @@ for (const { name, script } of BUILD_TARGETS) {
       assert.match(runtimeConfig, /function persistentBrowserId\(\)/);
       assert.match(runtimeConfig, /localStorage\.getItem\(STORAGE_KEY\)/);
       assert.match(runtimeConfig, /localStorage\.setItem\(STORAGE_KEY, memoryBrowserId\)/);
+      assert.match(runtimeConfig, /return persistentBrowserId\(\)/);
       assert.match(runtimeConfig, /pathname\.endsWith\("\/trial"\)/);
       assert.match(runtimeConfig, /method !== "POST"/);
       assert.doesNotMatch(runtimeConfig, /pathname\.endsWith\("\/checkout"\).*X-Trial-Browser-Id/s);
