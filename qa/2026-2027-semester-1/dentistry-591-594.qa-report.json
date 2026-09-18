@@ -1,0 +1,160 @@
+{
+  "schema": "kgmu-qa-report-v1",
+  "sourceSha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+  "draftId": "normalized-draft-dentistry-591-594-0c8b13b7e4dc409e-v1",
+  "status": "REVIEW_REQUIRED",
+  "publishEligible": false,
+  "checks": [
+    {
+      "name": "official-source-hash",
+      "status": "PASS",
+      "detail": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109"
+    },
+    {
+      "name": "group-scope",
+      "status": "PASS",
+      "detail": [
+        "591",
+        "592",
+        "593",
+        "594"
+      ]
+    },
+    {
+      "name": "parser-profile",
+      "status": "PASS",
+      "detail": "cyclic/C @ kgmu-2026-08-27-v3"
+    },
+    {
+      "name": "idempotent-identities",
+      "status": "PASS",
+      "detail": {
+        "sourceArtifactId": "source-artifact-dentistry-591-594-2026-09-03-v1",
+        "parsingJobId": "parsing-job-dentistry-591-594-0c8b13b7-v1"
+      }
+    },
+    {
+      "name": "logical-source-accounting",
+      "status": "PASS",
+      "detail": "37 logical blocks: 33 group-local cycles + 1 independent elective schedule + 2 service periods + 1 unresolved common Practice period."
+    },
+    {
+      "name": "group-local-source-coverage",
+      "status": "PASS",
+      "detail": {
+        "blocks": 33,
+        "byGroup": {
+          "591": 8,
+          "592": 8,
+          "593": 8,
+          "594": 9
+        }
+      }
+    },
+    {
+      "name": "safe-normalized-events",
+      "status": "PASS",
+      "detail": {
+        "eventCount": 492,
+        "byGroup": {
+          "591": 123,
+          "592": 123,
+          "593": 123,
+          "594": 123
+        }
+      }
+    },
+    {
+      "name": "assessment-metadata",
+      "status": "PASS",
+      "detail": {
+        "eventCount": 292
+      }
+    },
+    {
+      "name": "combined-discipline-split",
+      "status": "PASS",
+      "detail": {
+        "sourceBlocks": 4
+      }
+    },
+    {
+      "name": "physical-culture-independent-schedule",
+      "status": "PASS",
+      "detail": {
+        "events": 64,
+        "perGroup": 16
+      }
+    },
+    {
+      "name": "duplicates",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "name": "source-backed-overlaps",
+      "status": "SOURCE_CONFLICT",
+      "detail": [
+        {
+          "groupId": "592",
+          "date": "2026-09-04",
+          "left": "12:30-16:25 Костнопластические материалы и технологии",
+          "right": "14:30-16:00 Элективные дисциплины по физической культуре и спорту",
+          "sourceBacked": true
+        },
+        {
+          "groupId": "594",
+          "date": "2026-10-30",
+          "left": "12:30-16:25 Костнопластические материалы и технологии",
+          "right": "14:30-16:00 Элективные дисциплины по физической культуре и спорту",
+          "sourceBacked": true
+        },
+        {
+          "groupId": "594",
+          "date": "2026-11-06",
+          "left": "12:30-16:25 Костнопластические материалы и технологии",
+          "right": "14:30-16:00 Элективные дисциплины по физической культуре и спорту",
+          "sourceBacked": true
+        }
+      ]
+    },
+    {
+      "name": "practice-period-resolution",
+      "status": "REVIEW_REQUIRED",
+      "detail": {
+        "locator": "DC15:DN18",
+        "dates": [
+          "2027-01-11",
+          "2027-01-12",
+          "2027-01-13",
+          "2027-01-14",
+          "2027-01-15",
+          "2027-01-16",
+          "2027-01-18",
+          "2027-01-19",
+          "2027-01-20",
+          "2027-01-21",
+          "2027-01-22",
+          "2027-01-23"
+        ],
+        "impactedGroups": [
+          "591",
+          "592",
+          "593",
+          "594"
+        ],
+        "unresolvedOccurrences": 48
+      }
+    },
+    {
+      "name": "production-write-boundary",
+      "status": "PASS",
+      "detail": "No production object-storage write, DB write, ScheduleVersion creation or publication performed."
+    }
+  ],
+  "blockers": [
+    "Current XLSX block DC15:DN18 is labelled only 'Практика'. Exact practice title, daily time and location are not present and cannot be imported from historical C22 evidence."
+  ],
+  "scheduleVersionReady": false,
+  "publicationPerformed": false
+}
