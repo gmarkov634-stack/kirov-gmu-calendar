@@ -1,0 +1,250 @@
+{
+  "schema": "kgmu-semantic-review-resolution-v1",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "status": "PASS",
+  "parserProfile": "C",
+  "sourceScope": {
+    "program": "dentistry",
+    "course": 3,
+    "groupIds": [
+      "391",
+      "392",
+      "393",
+      "394"
+    ]
+  },
+  "upstreamReviewFile": "qa/2026-2027-semester-1/dentistry-391-394.semantic-review.json",
+  "manualResolutionFile": "fixtures/2026-2027-semester-1/dentistry-391-394.manual-resolution.json",
+  "resolution": [
+    {
+      "sourceLocator": "BA16",
+      "groupId": "394",
+      "kind": "philosophy",
+      "dates": [
+        "2026-10-29",
+        "2026-10-30",
+        "2026-10-31",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-05",
+        "2026-11-06"
+      ],
+      "exceptionDates": [
+        "2026-11-06"
+      ],
+      "baseTime": "11:10-14:15",
+      "exceptionTime": "11:10-12:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "CO13",
+      "groupId": "391",
+      "kind": "iok",
+      "dates": [
+        "2026-12-16",
+        "2026-12-17",
+        "2026-12-18",
+        "2026-12-19"
+      ],
+      "exceptionDates": [
+        "2026-12-19"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "CW13",
+      "groupId": "391",
+      "kind": "philosophy",
+      "dates": [
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2027-01-09",
+        "2027-01-11"
+      ],
+      "exceptionDates": [
+        "2027-01-11"
+      ],
+      "baseTime": "11:10-14:15",
+      "exceptionTime": "11:10-12:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "BA15",
+      "groupId": "393",
+      "kind": "philosophy",
+      "dates": [
+        "2026-10-29",
+        "2026-10-30",
+        "2026-10-31",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-05",
+        "2026-11-06"
+      ],
+      "exceptionDates": [
+        "2026-11-06"
+      ],
+      "baseTime": "11:10-14:15",
+      "exceptionTime": "11:10-12:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "AQ16",
+      "groupId": "394",
+      "kind": "obstetrics",
+      "dates": [
+        "2026-10-17",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23"
+      ],
+      "exceptionDates": [
+        "2026-10-22",
+        "2026-10-23"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "CH14",
+      "groupId": "392",
+      "kind": "iok",
+      "dates": [
+        "2026-12-08",
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11"
+      ],
+      "exceptionDates": [
+        "2026-12-11"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "I15",
+      "groupId": "393",
+      "kind": "obstetrics",
+      "dates": [
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-12",
+        "2026-09-14"
+      ],
+      "exceptionDates": [
+        "2026-09-12",
+        "2026-09-14"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "BI14",
+      "groupId": "392",
+      "kind": "obstetrics",
+      "dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14"
+      ],
+      "exceptionDates": [
+        "2026-11-13",
+        "2026-11-14"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "CI13",
+      "groupId": "391",
+      "kind": "obstetrics",
+      "dates": [
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11",
+        "2026-12-12",
+        "2026-12-14",
+        "2026-12-15"
+      ],
+      "exceptionDates": [
+        "2026-12-14",
+        "2026-12-15"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "AW16",
+      "groupId": "394",
+      "kind": "iok",
+      "dates": [
+        "2026-10-24",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28"
+      ],
+      "exceptionDates": [
+        "2026-10-28"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "CW14",
+      "groupId": "392",
+      "kind": "philosophy",
+      "dates": [
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2027-01-09",
+        "2027-01-11"
+      ],
+      "exceptionDates": [
+        "2027-01-11"
+      ],
+      "baseTime": "11:10-14:15",
+      "exceptionTime": "11:10-12:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    },
+    {
+      "sourceLocator": "AB15",
+      "groupId": "393",
+      "kind": "iok",
+      "dates": [
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03"
+      ],
+      "exceptionDates": [
+        "2026-10-03"
+      ],
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40",
+      "provenance": "direct-user-confirmation-2026-09-03"
+    }
+  ],
+  "remainingUnresolved": [],
+  "publishEligible": true
+}

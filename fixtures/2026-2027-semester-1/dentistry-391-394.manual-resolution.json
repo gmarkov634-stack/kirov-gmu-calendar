@@ -1,0 +1,37 @@
+{
+  "schema": "kgmu-source-specific-manual-resolution-v1",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "sourceBasename": "3_stomat-24-08-2026-14.xlsx",
+  "scope": {
+    "program": "dentistry",
+    "course": 3,
+    "groupIds": ["391", "392", "393", "394"]
+  },
+  "provenance": "direct-user-confirmation-2026-09-03",
+  "appliesOnlyToThisSourceSha": true,
+  "rules": {
+    "obstetrics": {
+      "sourceText": "9.00-12.05 (два дня 9.00-12.55)",
+      "exceptionDates": "last-two-calendar-dates-of-each-cycle",
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-12:55"
+    },
+    "iok": {
+      "sourceText": "9.00-12.05 (один день 9.00-13.40)",
+      "exceptionDates": "last-calendar-date-of-each-cycle",
+      "baseTime": "09:00-12:05",
+      "exceptionTime": "09:00-13:40"
+    },
+    "philosophy": {
+      "sourceBaseTime": "11.10-14.15",
+      "sourceAdjacentTimeNote": "1 день 2 часа",
+      "exceptionDates": "last-calendar-date-of-each-cycle",
+      "baseTime": "11:10-14:15",
+      "exceptionStartTime": "11:10",
+      "exceptionDurationAcademicHours": 2,
+      "academicHourMinutes": 45,
+      "exceptionTime": "11:10-12:40"
+    }
+  },
+  "publicationRequested": false
+}

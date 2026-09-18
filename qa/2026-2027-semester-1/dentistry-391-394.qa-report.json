@@ -1,0 +1,101 @@
+{
+  "schema": "kgmu-qa-report-v1",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "draftId": "normalized-draft-dentistry-391-394-82fcb87377663455-v1",
+  "status": "REVIEW_REQUIRED",
+  "publishEligible": false,
+  "checks": [
+    {
+      "name": "official-source-hash",
+      "status": "PASS",
+      "detail": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d"
+    },
+    {
+      "name": "group-scope",
+      "status": "PASS",
+      "detail": [
+        "391",
+        "392",
+        "393",
+        "394"
+      ]
+    },
+    {
+      "name": "parser-profile",
+      "status": "PASS",
+      "detail": "cyclic/C @ kgmu-2026-08-30-v4"
+    },
+    {
+      "name": "idempotent-identities",
+      "status": "PASS",
+      "detail": {
+        "sourceArtifactId": "source-artifact-dentistry-391-394-82fcb87377663455",
+        "parsingJobId": "parsing-job-dentistry-391-394-82fcb87377663455-v1"
+      }
+    },
+    {
+      "name": "logical-source-accounting",
+      "status": "PASS",
+      "detail": "54 logical blocks: 52 group-local cycles + 1 common exam service block + 1 independent physical-culture elective schedule."
+    },
+    {
+      "name": "safe-normalized-events",
+      "status": "PASS",
+      "detail": {
+        "eventCount": 464,
+        "byGroup": {
+          "391": 116,
+          "392": 116,
+          "393": 116,
+          "394": 116
+        }
+      }
+    },
+    {
+      "name": "physical-culture-independent-schedule",
+      "status": "PASS",
+      "detail": {
+        "dates": 20,
+        "events": 80
+      }
+    },
+    {
+      "name": "duplicates",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "name": "resolved-timed-overlaps",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "name": "C20-current-source-time-exceptions",
+      "status": "REVIEW_REQUIRED",
+      "detail": {
+        "blocks": 12,
+        "occurrences": 68,
+        "byKind": {
+          "philosophy": 4,
+          "obstetrics": 4,
+          "iok": 4
+        }
+      }
+    },
+    {
+      "name": "C21-source-specific-guard",
+      "status": "PASS",
+      "detail": "C21 not transplanted from 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx to 3_stomat-24-08-2026-14.xlsx."
+    },
+    {
+      "name": "production-write-boundary",
+      "status": "PASS",
+      "detail": "No production object-storage write, DB write, ScheduleVersion creation or publication performed."
+    }
+  ],
+  "blockers": [
+    "C20: the current official XLSX contains 12 cycle blocks whose exceptional-time days are specified only by count, not by calendar date. Canonical C21 applies only to a different historical XLSX, so these dates cannot be inferred automatically."
+  ],
+  "scheduleVersionReady": false,
+  "publicationPerformed": false
+}

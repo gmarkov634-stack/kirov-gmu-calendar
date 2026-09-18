@@ -1,0 +1,49 @@
+name: Probe dentistry 391-394 official source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/dentistry-391-394-2026-27-s1
+    paths:
+      - 'fixtures/tools/probe_dentistry_391_394_source.py'
+      - 'fixtures/tools/probe_dentistry_391_394_exception_styles.py'
+      - 'fixtures/tools/review_dentistry_391_394_c20_styles.py'
+      - '.github/workflows/probe-dentistry-391-394.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dentistry-391-394-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Fetch and mechanically dump official workbook
+        run: python fixtures/tools/probe_dentistry_391_394_source.py
+      - name: Probe C20 source-local visual evidence
+        run: python fixtures/tools/probe_dentistry_391_394_exception_styles.py
+      - name: Review C20 visual evidence without semantic guessing
+        run: python fixtures/tools/review_dentistry_391_394_c20_styles.py
+      - name: Commit immutable source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            fixtures/2026-2027-semester-1/dentistry-391-394.source-probe.json \
+            qa/2026-2027-semester-1/dentistry-391-394.c20-style-probe.json \
+            qa/2026-2027-semester-1/dentistry-391-394.c20-evidence-review.json
+          if git diff --cached --quiet; then
+            echo 'source evidence unchanged'
+            exit 0
+          fi
+          git commit -m 'Record dentistry 391-394 source evidence'
+          git push origin HEAD:feat/dentistry-391-394-2026-27-s1
