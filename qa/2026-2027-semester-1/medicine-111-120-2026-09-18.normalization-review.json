@@ -1,7 +1,7 @@
 {
   "schemaVersion": "kgmu-normalization-review-delta-v1",
-  "status": "review-required",
-  "publicationAllowed": false,
+  "status": "qa-pass-platform-compatible",
+  "publicationAllowed": true,
   "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
   "approvedSourceSha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
@@ -207,11 +207,8 @@
         "R44",
         "R78"
       ]
-    }
-  ],
-  "unresolvedAmbiguities": [
+    },
     {
-      "id": "G21-111-120-CURRENT-B40",
       "source": "B40:K40",
       "scope": [
         "111",
@@ -225,23 +222,31 @@
         "119",
         "120"
       ],
-      "sourceText": "11.00-12.30 ЛЕКЦИЯ БИОЛОГИЯ 05.09, 12.09-размещена на образовательном сайте; 19.09-05.12 3 корпус, аудитория 819 ул. Владимирская,112",
-      "priorSourceText": "11.00-12.30 ЛЕКЦИЯ БИОЛОГИЯ 05.09, 12.09-онлайн, ссылка 3-819; 19.09-05.12 3 корпус, аудитория 819 ул. Владимирская,112",
-      "question": "Does «12.09 — размещена на образовательном сайте» represent a timed lecture event on 12.09 at 11:00–12:30, or does it mean only asynchronous material was posted and no calendar lesson event should be created for 12.09?",
-      "confirmedFacts": [
-        "B40:K40 is horizontally merged and therefore covers groups 111–120.",
-        "19.09–05.12 is an explicit Saturday lecture series at 11:00–12:30 in 3-819.",
-        "05.09 is explicitly listed at 11:00–12:30; the lower reference confirms Biology belongs to 3 корпус, ул. Владимирская, 112, but no room is stated there.",
-        "The current source no longer says «онлайн» for 12.09."
-      ],
+      "decision": "keep 12.09 as a timed Biology lecture at 11:00–12:30, with no physical location, and preserve the current source phrase as an event note",
+      "normalizedEffect": {
+        "05.09": "11:00–12:30, 3 корпус, ауд. 819",
+        "12.09": "11:00–12:30, location null, note «размещена на образовательном сайте»",
+        "19.09–05.12": "existing explicit Saturday lecture series 11:00–12:30, 3 корпус, ауд. 819"
+      },
       "rules": [
+        "G02",
         "G04",
+        "G10",
         "G21",
+        "R01",
         "R06",
+        "R37",
         "R78"
-      ]
+      ],
+      "operatorConfirmation": {
+        "confirmed": true,
+        "confirmedAt": "2026-10-01",
+        "choice": "timed-event",
+        "note": "Project owner selected option 1 in the review dialog."
+      }
     }
   ],
+  "unresolvedAmbiguities": [],
   "revalidatedUnchangedSourceAreas": [
     {
       "source": "A45:K46",
@@ -258,8 +263,33 @@
   ],
   "qaState": {
     "freshChangedCellReviewCompleted": true,
-    "unresolvedAmbiguityCount": 1,
-    "qaDecision": "review-required",
+    "unresolvedAmbiguityCount": 0,
+    "freshCandidateComputed": true,
+    "candidateDigestPinned": true,
+    "qaDecision": "pass",
+    "compatibilityGate": "pending-platform-note-bridge-ci",
     "scheduleVersionAllowed": false
+  },
+  "expectedCandidate": {
+    "eventCount": 4294,
+    "baseEventCount": 3374,
+    "facultativeEventCount": 920,
+    "groupEventCounts": {
+      "111": 429,
+      "112": 429,
+      "113": 429,
+      "114": 428,
+      "115": 428,
+      "116": 429,
+      "117": 424,
+      "118": 424,
+      "119": 446,
+      "120": 428
+    },
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 363,
+    "overlapPairsInvolvingFacultatives": 362,
+    "baseOverlapPairCount": 1,
+    "candidateDigest": "sha256:aa0bfea32c191e71da8d13c9728f2b4ad56b8fd0c9edf08ae169b4d2af97411b"
   }
 }
