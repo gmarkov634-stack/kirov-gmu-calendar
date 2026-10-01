@@ -17,13 +17,14 @@ const overlaps = (a, b) =>
   minutes(a.startTime) < minutes(b.endTime) && minutes(b.startTime) < minutes(a.endTime);
 
 test('current medicine 111-120 source has a fully reviewed candidate', async () => {
-  const [manifest, facultatives, source, review, semantic, evidence, diff] = await Promise.all([
+  const [manifest, facultatives, source, review, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-111-120-2026-09-18.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-111-120-2026-09-18.facultatives.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-111-120-2026-09-18.source.json'),
     readJson('qa/2026-2027-semester-1/medicine-111-120-2026-09-18.normalization-review.json'),
     readJson('qa/2026-2027-semester-1/medicine-111-120-2026-09-18.semantic-review.json'),
     readJson('qa/2026-2027-semester-1/medicine-111-120-2026-09-18.evidence.json'),
+    readJson('qa/2026-2027-semester-1/medicine-111-120-2026-09-18.qa-report.json'),
     readJson('qa/2026-2027-semester-1/medicine-111-120-2026-09-18.source-change-full-diff.json'),
   ]);
 
@@ -35,6 +36,19 @@ test('current medicine 111-120 source has a fully reviewed candidate', async () 
   assert.equal(evidence.sourceSha256, source.source.sha256);
   assert.equal(semantic.stream.unresolvedAmbiguities, 0);
   assert.equal(review.qaState.unresolvedAmbiguityCount, 0);
+  assert.equal(source.parserRulesVersion, 'kgmu-2026-10-01-v5');
+  assert.equal(manifest.parserRulesVersion, 'kgmu-2026-10-01-v5');
+  assert.equal(semantic.parserRulesVersion, 'kgmu-2026-10-01-v5');
+  assert.ok(semantic.rules.includes('R91'));
+  assert.ok(semantic.operatorConfirmations[0].rules.includes('R91'));
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(review.publicationAllowed, true);
+  assert.equal(review.qaState.scheduleVersionAllowed, true);
+  assert.equal(semantic.platformPublicationGate, 'PASS');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(qa.decision, 'pass');
+  assert.equal(qa.publicationAllowed, true);
+  assert.equal(qa.compatibilityGate.status, 'pass');
   assert.equal(source.lifecycle.publicationAllowed, true);
   assert.equal(review.publicationAllowed, true);
   assert.equal(review.qaState.compatibilityGate, 'pass');
