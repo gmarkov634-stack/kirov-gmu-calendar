@@ -3,7 +3,7 @@
   "parsingJobId": "reviewed-medicine-111-120-bcfe7e65-v1",
   "candidateDigest": "sha256:aa0bfea32c191e71da8d13c9728f2b4ad56b8fd0c9edf08ae169b4d2af97411b",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -57,8 +57,8 @@
     },
     {
       "code": "platform-source-note-bridge",
-      "status": "pending",
-      "message": "Platform PR #39 must pass CI and be merged before this reviewed source may be published to ScheduleVersion."
+      "status": "pass",
+      "message": "medschedule-platform 1c7d4d4f492384ee77ebf52a12ef81b51dee0da4 preserves reviewed KGMU source notes in ScheduleEvent.note; PR #39 CI passed before merge."
     }
   ],
   "semanticReview": {
@@ -67,10 +67,10 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "pending",
+    "status": "pass",
+    "platformCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
     "platformPullRequest": 39,
-    "platformHead": "a583388fcfc963d635ddbcb6fc71071d637eea5c",
-    "stagingPublicationGate": "blocked until platform note bridge is green and merged"
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "createdAt": "2026-10-01T20:58:00+03:00"
 }
