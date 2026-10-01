@@ -39,6 +39,18 @@ function selectByMask(table, maskHex, label) {
   return selected;
 }
 
+function normalizeNoteMetadata(manifest) {
+  if (manifest.noteMetadataByLocator == null) return new Map();
+  const metadata = assertObject(manifest.noteMetadataByLocator, 'manifest.noteMetadataByLocator');
+  const result = new Map();
+  for (const [locator, note] of Object.entries(metadata)) {
+    assertNonEmptyString(locator, 'manifest.noteMetadataByLocator key');
+    assertNonEmptyString(note, `manifest.noteMetadataByLocator[${locator}]`);
+    result.set(locator, note.trim());
+  }
+  return result;
+}
+
 function normalizeSelectionMetadata(manifest) {
   if (manifest.selectionMetadataByDisciplineIndex == null) return new Map();
   const metadata = assertObject(
@@ -187,6 +199,7 @@ export function expandExplicitDecisionManifest(manifest, context) {
   }
 
   const selectionMetadata = normalizeSelectionMetadata(manifest);
+  const noteMetadata = normalizeNoteMetadata(manifest);
   const events = [];
   for (const [decisionIndex, rawTuple] of manifest.decisions.entries()) {
     const decision = decodeDecisionTuple(manifest, rawTuple, decisionIndex);
@@ -212,6 +225,7 @@ export function expandExplicitDecisionManifest(manifest, context) {
     const location = manifest.locationTable[locationIndex];
     const assessment = manifest.assessmentMetadataByDisciplineIndex?.[String(disciplineIndex)] ?? null;
     const selection = selectionMetadata.get(disciplineIndex) ?? null;
+    const note = noteMetadata.get(locator) ?? null;
     const groups = selectByMask(manifest.groupTable, groupMaskHex, `manifest.decisions[${decisionIndex}].groupMaskHex`);
     const dates = selectByMask(manifest.dateTable, dateMaskHex, `manifest.decisions[${decisionIndex}].dateMaskHex`);
 
@@ -243,6 +257,7 @@ export function expandExplicitDecisionManifest(manifest, context) {
           event.endTime = endTime;
         }
         if (assessment != null) event.assessment = structuredClone(assessment);
+        if (note != null) event.note = note;
         if (selection != null) event.selection = structuredClone(selection);
         events.push(event);
       }
