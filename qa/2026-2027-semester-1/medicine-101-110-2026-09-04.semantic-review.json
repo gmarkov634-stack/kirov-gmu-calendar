@@ -65,7 +65,7 @@
   ],
   "normalizationPolicy": "Fresh source review under G01/G02/G06/G09/G10/G19/G20 and R01/R04/R13/R37/R39/R56/R78/R90; no semantic decision is reused merely because the SHA changed.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "PENDING_FACULTATIVE_BRIDGE",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-01"
 }
