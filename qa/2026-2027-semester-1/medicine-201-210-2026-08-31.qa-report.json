@@ -83,5 +83,11 @@
       "aggregate-clone-publication"
     ]
   },
-  "createdAt": "2026-10-01T21:20:00+03:00"
+  "createdAt": "2026-10-01T21:20:00+03:00",
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "2d5877892aa790826f3e149defcd5d156e0a25cc",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  }
 }
