@@ -1,0 +1,76 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-111-120-2026-09-18-v1",
+  "parsingJobId": "reviewed-medicine-111-120-bcfe7e65-v1",
+  "candidateDigest": "sha256:aa0bfea32c191e71da8d13c9728f2b4ad56b8fd0c9edf08ae169b4d2af97411b",
+  "decision": "pass",
+  "publicationAllowed": false,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 bcfe7e65... was reviewed as a distinct source version; no automatic cross-SHA semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "All 12 substantive changed coordinates were freshly reviewed; merge geometry is unchanged."
+    },
+    {
+      "code": "operator-confirmed-b40",
+      "status": "pass",
+      "message": "Owner confirmed 12.09 Biology remains a timed 11:00–12:30 lecture, location null, with the current source phrase preserved as a note."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "147/147 logical source cells are accounted for by 190 explicit reviewed decisions."
+    },
+    {
+      "code": "facultative-source-revalidated",
+      "status": "pass",
+      "message": "A45:K46 remains source-backed and expands to 920 R90 facultative events."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Reviewed candidate contains 4294 events: 3374 base plus 920 facultative."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Candidate contains groups 111–120 only with pinned per-group counts."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "363 source-backed overlap pairs remain; 362 involve facultatives and 1 is a base timetable overlap."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after owner confirmation of B40."
+    },
+    {
+      "code": "platform-source-note-bridge",
+      "status": "pending",
+      "message": "Platform PR #39 must pass CI and be merged before this reviewed source may be published to ScheduleVersion."
+    }
+  ],
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-111-120-2026-09-18-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "compatibilityGate": {
+    "status": "pending",
+    "platformPullRequest": 39,
+    "platformHead": "a583388fcfc963d635ddbcb6fc71071d637eea5c",
+    "stagingPublicationGate": "blocked until platform note bridge is green and merged"
+  },
+  "createdAt": "2026-10-01T20:58:00+03:00"
+}
