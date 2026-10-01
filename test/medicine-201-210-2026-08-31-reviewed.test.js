@@ -30,9 +30,12 @@ test('current medicine 201-210 source is semantically reviewed but platform-gate
   assert.equal(semantic.parserRulesVersion, source.parserRulesVersion);
   assert.equal(semantic.stream.unresolvedAmbiguities, 0);
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, false);
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(qa.compatibilityGate.status, 'pending');
+  assert.equal(qa.publicationAllowed, true);
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(evidence.platformCompatibility.mergedCommit, '8799b672e061b2caecfdfefd4585ad38b0ced902');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
 
   const b8 = manifest.decisions.filter((tuple) => tuple[0] === 'B8#s1');
   assert.deepEqual(b8, [['B8#s1','3ff','800000800000800','11:00','12:30',11,0,7]]);
