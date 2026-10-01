@@ -46,10 +46,15 @@
     "events": 920
   },
   "platformCompatibility": {
-    "status": "pending",
+    "status": "pass",
     "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
     "pullRequest": 39,
-    "headCommit": "a583388fcfc963d635ddbcb6fc71071d637eea5c",
-    "requirement": "reviewed KGMU source note must map to ScheduleEvent.note without changing parsing semantics"
+    "evidence": [
+      "reviewed KGMU event note is accepted by the platform adapter",
+      "source note is persisted in ScheduleEvent.note and therefore reaches MAX and ICS rendering",
+      "existing assessment notes are preserved and combined without changing schedule semantics"
+    ],
+    "aggregatePublication": "must still pass isolated clone publication and continuity before live publication"
   }
 }
