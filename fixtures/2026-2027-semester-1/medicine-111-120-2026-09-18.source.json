@@ -46,8 +46,8 @@
     "immutableSourceStoredInObjectStorage": true
   },
   "lifecycle": {
-    "status": "semantic-qa-pass-platform-compatible",
+    "status": "semantic-qa-pass-platform-note-bridge-pending",
     "supersedesApprovedSource": true,
-    "publicationAllowed": true
+    "publicationAllowed": false
   }
 }
