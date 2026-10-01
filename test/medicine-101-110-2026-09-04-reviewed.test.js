@@ -15,6 +15,15 @@ const minutes = (value) => {
 };
 const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime) && minutes(right.startTime) < minutes(left.endTime);
+const compareEvents = (a, b) => [
+  Number(a.groupId) - Number(b.groupId),
+  a.date.localeCompare(b.date),
+  a.startTime.localeCompare(b.startTime),
+  a.endTime.localeCompare(b.endTime),
+  a.discipline.localeCompare(b.discipline),
+  a.lessonType.localeCompare(b.lessonType),
+  a.sourceRef.locator.localeCompare(b.sourceRef.locator),
+].find((value) => value !== 0) ?? 0;
 
 test('current medicine 101-110 source is freshly reviewed and remains publication-blocked for platform facultative support', async () => {
   const [previous, current, facultatives, source, review, semantic, evidence, qa, diff] = await Promise.all([
@@ -47,7 +56,7 @@ test('current medicine 101-110 source is freshly reviewed and remains publicatio
   const context = { universityId: source.universityId, academicPeriodId: source.academicPeriodId, sourceId: source.source.sourceId };
   const baseEvents = expandExplicitDecisionManifest(current, context);
   const facultativeEvents = expandMedicineFacultativeFixture(facultatives, context);
-  const events = [...baseEvents, ...facultativeEvents];
+  const events = [...baseEvents, ...facultativeEvents].sort(compareEvents);
 
   assert.equal(baseEvents.length, 3411);
   assert.equal(facultativeEvents.length, 920);
