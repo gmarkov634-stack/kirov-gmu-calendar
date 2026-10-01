@@ -3,7 +3,7 @@
   "parsingJobId": "reviewed-medicine-101-110-f83baaf4-v1",
   "candidateDigest": "sha256:ab39f5ccf8d4678222f6c27b668581197c00d083cedf463ee8750cf1cadddf79",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -62,8 +62,8 @@
     },
     {
       "code": "platform-facultative-bridge",
-      "status": "warning",
-      "message": "Canonical semantic QA is PASS, but platform publication remains blocked until medschedule reviewed-source ingestion expands the R90 facultative fixture and preserves user-choice semantics."
+      "status": "pass",
+      "message": "medschedule-platform eba644505fe3541c023bf45c5d5ef7f0ec92eefc expands all 920 reviewed R90 facultative events, projects their stable IDs into optional MULTIPLE user choices, and preserves fail-closed source review."
     }
   ],
   "semanticReview": {
@@ -72,12 +72,14 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "pending",
-    "requiredChecks": [
+    "status": "pass",
+    "platformCommit": "eba644505fe3541c023bf45c5d5ef7f0ec92eefc",
+    "verifiedChecks": [
       "platform-reviewed-source-facultative-expansion",
       "ScheduleEvent-choice-projection",
-      "aggregate-clone-publication"
-    ]
+      "reviewed-engine-requeue-after-revision"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "sharedContractEvidence": null,
   "createdAt": "2026-10-01T19:55:00+03:00"
