@@ -1,0 +1,58 @@
+{
+  "fixtureId": "medicine-101-110-2026-2027-semester-1-2026-09-04",
+  "sourceSha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-101-110-2026-09-04.decisions.json",
+  "facultativeFixture": "fixtures/2026-2027-semester-1/medicine-101-110-2026-09-04.facultatives.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review + operator-confirmed-r90",
+  "baseCandidateDigest": "sha256:6af6d7be189d5de64ac172bb8e0a5de3978fe980e956306e8fa646fa56544e07",
+  "candidateDigest": "sha256:ab39f5ccf8d4678222f6c27b668581197c00d083cedf463ee8750cf1cadddf79",
+  "eventCount": 4331,
+  "baseEventCount": 3411,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "101": 428,
+    "102": 427,
+    "103": 427,
+    "104": 427,
+    "105": 428,
+    "106": 428,
+    "107": 439,
+    "108": 439,
+    "109": 444,
+    "110": 444
+  },
+  "logicalSourceCellCount": 144,
+  "coveredSourceCellCount": 144,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 134,
+  "baseExplicitOverlapCount": 8,
+  "facultativeOverlapCount": 126,
+  "overlapPolicy": "Preserved under G16/R69; a source-backed timetable overlap is not a parsing error.",
+  "currentSourceReview": {
+    "B41": "fresh review preserves the prior explicit lecture event set",
+    "J35:K35": "fresh review broadens the J35 Economics scope from group 109 to groups 109+110 by R37/R56",
+    "addedGroup110EconomicsEvents": 17
+  },
+  "facultatives": {
+    "scope": "groups 101-110 from merged A43:K43",
+    "weekGrid": "A44:K44, all 19 academic service-week intervals",
+    "defaultSelected": false,
+    "facultativeCount": 5,
+    "events": 920
+  },
+  "platformCompatibility": {
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "eba644505fe3541c023bf45c5d5ef7f0ec92eefc",
+    "evidence": [
+      "reviewed-source bridge expands the source-backed R90 facultative fixture into the same 4331-event candidate digest",
+      "stable facultativeId values project to optional MULTIPLE ChoiceGroup/ChoiceOption records without changing source semantics",
+      "unselected facultatives remain hidden by the shared Visibility Resolver and user choices stay outside ScheduleVersion",
+      "GRADED_CREDIT reference data is supported for the reviewed course-1 event set",
+      "old engine-level REVIEW_REQUIRED imports can be requeued only after a reviewed-engine revision change"
+    ],
+    "aggregatePublication": "must still pass the staging clone publication/continuity gate before live ScheduleVersion publication"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-211-220",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "211",
+      "212",
+      "213",
+      "214",
+      "215",
+      "216",
+      "217",
+      "218",
+      "219",
+      "220"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "dcac53458b56d0b2c2c5d7657bd39d09fe28233567ce6e51551f87483d71c4ca",
+    "byteLength": 19874,
+    "publishedDate": "2026-08-27",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/2_lech._2_potok-27-08-2026-10.xlsx",
+    "sheet": "2леч.2",
+    "maxRow": 55,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 198,
+    "mergedRangeCount": 119
+  },
+  "currentWorkbook": {
+    "sha256": "aad51a270f56edf79e668f9a84e44bb089fcc4b02450fe7c1e30b8b37f736e38",
+    "publishedDate": "2026-09-01",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/01/1078/2_lech._2_potok-01-09-2026-12.xlsx",
+    "sheet": "2леч.2",
+    "maxRow": 55,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 199,
+    "mergedRangeCount": 118,
+    "byteLength": 19912
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "J21",
+        "old": "10.45-12.15, 12.25-13.10   Сестринское дело 02.09-25.11",
+        "new": "8.30-10.00 Экология 1 неделя 02.09, 16.09, 30.09, 14.10, 28.10 1-419 "
+      },
+      {
+        "coord": "J22",
+        "old": "10.40-12.10 Экология 2 неделя по 16.12, 30.12-10.40-13.50 1-419",
+        "new": "10.45-12.15, 12.25-13.10   Сестринское дело 02.09-25.11"
+      },
+      {
+        "coord": "J23",
+        "old": null,
+        "new": "14.00-15.30 Экология 09.09, 23.09, 07.10, 21.10"
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 3
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [
+      "J22:J23"
+    ],
+    "added": [],
+    "counts": {
+      "removed": 1,
+      "added": 0
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED",
+      "MERGED_RANGE_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}

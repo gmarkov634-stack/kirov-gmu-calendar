@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-101-110",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "101",
+      "102",
+      "103",
+      "104",
+      "105",
+      "106",
+      "107",
+      "108",
+      "109",
+      "110"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+    "byteLength": 21079,
+    "publishedDate": "2026-08-31",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/1_lech._1_potok-31-08-2026-10.xlsx",
+    "sheet": "1 леч.1",
+    "maxRow": 56,
+    "maxColumn": 19,
+    "nonEmptyCellCount": 224,
+    "mergedRangeCount": 108
+  },
+  "currentWorkbook": {
+    "sha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+    "publishedDate": "2026-09-04",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx",
+    "sheet": "1 леч.1",
+    "maxRow": 56,
+    "maxColumn": 19,
+    "nonEmptyCellCount": 224,
+    "mergedRangeCount": 109,
+    "byteLength": 21090
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "B41",
+        "old": "13.30-15.00, 15.10-16.40  ЛЕКЦИЯ  ЭКОНОМИКА 1 неделя 19.09, 17.10, 14.11, 12.12 -13.30-15.00 1 корпус, аудитория 411, ул.К.Маркса, 137  13.30-15.00 ЛЕКЦИЯ ИСТОРИЯ МЕДИЦИНЫ 1 неделя  05.09, 03.10, 31.10, 28.11  1 корпус, аудитория 411, ул.К.Маркса, 137",
+        "new": "13.30-15.00, 15.10-16.40  ЛЕКЦИЯ  ЭКОНОМИКА 1 неделя 19.09, 17.10, 14.11; 12.12 -13.30-15.00 1 корпус, аудитория 411, ул.К.Маркса, 137  13.30-15.00 ЛЕКЦИЯ ИСТОРИЯ МЕДИЦИНЫ 1 неделя  05.09, 03.10, 31.10, 28.11  1 корпус, аудитория 411, ул.К.Маркса, 137  "
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 1
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [],
+    "added": [
+      "J35:K35"
+    ],
+    "counts": {
+      "removed": 0,
+      "added": 1
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED",
+      "MERGED_RANGE_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}

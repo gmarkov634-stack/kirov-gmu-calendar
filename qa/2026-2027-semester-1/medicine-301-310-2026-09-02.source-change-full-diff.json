@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-301-310",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "301",
+      "302",
+      "303",
+      "304",
+      "305",
+      "306",
+      "307",
+      "308",
+      "309",
+      "310"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "e9bfa806ed25d48545abdd26dc5d9cf9111cc093edb8a42d94e6eb4c67f4df58",
+    "byteLength": 19122,
+    "publishedDate": "2026-08-27",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/27/1078/3_lech._1_potok-27-08-2026-14.xlsx",
+    "sheet": "3 леч.1",
+    "maxRow": 49,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 177,
+    "mergedRangeCount": 74
+  },
+  "currentWorkbook": {
+    "sha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+    "publishedDate": "2026-09-02",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech._1_potok-02-09-2026-12.xlsx",
+    "sheet": "3 леч.1",
+    "maxRow": 49,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 177,
+    "mergedRangeCount": 74,
+    "byteLength": 19404
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "J16",
+        "old": "10.50-12.20, 12.30-13.15 Патофизиология, клиническая патофизиология. Патофизиология (модуль) 01.09-29.12 (1 занятие в пт.)",
+        "new": "10.40-12.10, 12.20-13.05 Патофизиология, клиническая патофизиология. Патофизиология (модуль) 01.09-29.12 (1 занятие в пт.) "
+      },
+      {
+        "coord": "B27",
+        "old": "14.20-15.50, 16.00-16.45 Статистические методы в доказательной медицине с использованием информационных технологий  (дисциплина по выбору) (каф. физики и мед. инф.)  03.09-19.11 группа №1",
+        "new": "14.20-15.50, 16.00-16.45 Статистические методы в доказательной медицине с использованием информационных технологий  (дисциплина по выбору) (каф. физики и мед. инф.)  03.09-19.11 "
+      },
+      {
+        "coord": "B31",
+        "old": "13.00-14.30, 14.40-15.25 ДИСЦИПЛИНА ПО ВЫБОРУ (пр. занятия) 09.10-14.40-17.05; 16.10-25.12 Диетология (каф. гигиены);   Современные методы функциональной диагностики донозологических состояний человека (каф. патофизиологии, гр.№2 (кроме 304, 305, 306, 310 гр.); Биохимические основы здорового образа жизни (каф. биохимии); Латинская фармацевтическая терминология 04.09-18.12 (каф. ин.яз); Межкультурная профессиональная коммуникация 04.09-18.12   (каф. ин.яз) ГР. №2, кроме  гр. 301, 302, 309-занятия  в пн.  Статистические методы в доказательной медицине с использованием информационных технологий  (дисциплина по выбору) (каф. физики и мед. инф.)",
+        "new": "13.00-14.30, 14.40-15.25 ДИСЦИПЛИНА ПО ВЫБОРУ (пр. занятия) 09.10-14.40-17.05; 16.10-25.12 Диетология (каф. гигиены);   Современные методы функциональной диагностики донозологических состояний человека (каф. патофизиологии, гр.№2 (кроме 304, 305, 306, 310 гр.); Биохимические основы здорового образа жизни (каф. биохимии); Латинская фармацевтическая терминология 04.09-18.12 (каф. ин.яз); Межкультурная профессиональная коммуникация 04.09-18.12   (каф. ин.яз) "
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 3
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [],
+    "added": [],
+    "counts": {
+      "removed": 0,
+      "added": 0
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}

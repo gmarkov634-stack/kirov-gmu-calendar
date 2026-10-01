@@ -1,0 +1,71 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-101-110-2026-09-04-review-v1",
+  "sourceSha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G06",
+    "G09",
+    "G10",
+    "G19",
+    "G20",
+    "R01",
+    "R04",
+    "R13",
+    "R37",
+    "R39",
+    "R56",
+    "R78",
+    "R90"
+  ],
+  "stream": {
+    "groups": [
+      "101",
+      "102",
+      "103",
+      "104",
+      "105",
+      "106",
+      "107",
+      "108",
+      "109",
+      "110"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx",
+    "sourceSha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+    "sheet": "1 леч.1",
+    "mainTableLogicalSourceCells": 144,
+    "facultativeSource": "A43:K43",
+    "serviceWeekSource": "A44:K44",
+    "facultativeRule": "R39 + R90",
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "coverage": {
+    "logicalSourceCellCount": 144,
+    "coveredSourceCellCount": 144
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "B41",
+      "status": "PASS under G06/G09/R01/R04/R13/R78: punctuation update does not change the explicit Economics/History of Medicine lecture event set after fresh review."
+    },
+    {
+      "locator": "J35:K35",
+      "status": "PASS under G02/G10/R37/R56/R78: horizontal merge explicitly scopes Economics to groups 109 and 110."
+    },
+    {
+      "locator": "A43:K44",
+      "status": "PASS under R39/R90: five facultatives and the service-week grid are unchanged and remain source-backed."
+    }
+  ],
+  "normalizationPolicy": "Fresh source review under G01/G02/G06/G09/G10/G19/G20 and R01/R04/R13/R37/R39/R56/R78/R90; no semantic decision is reused merely because the SHA changed.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "PASS",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-01"
+}

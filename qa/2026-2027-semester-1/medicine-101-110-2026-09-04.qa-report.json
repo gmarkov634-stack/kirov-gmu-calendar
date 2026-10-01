@@ -1,0 +1,86 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-101-110-2026-09-04-v1",
+  "parsingJobId": "reviewed-medicine-101-110-f83baaf4-v1",
+  "candidateDigest": "sha256:ab39f5ccf8d4678222f6c27b668581197c00d083cedf463ee8750cf1cadddf79",
+  "decision": "pass",
+  "publicationAllowed": true,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb was reviewed as a distinct source version; no cross-SHA automatic semantic reuse was allowed."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "The only substantive cell delta is B41 and the only merge delta is added J35:K35; both were freshly reviewed."
+    },
+    {
+      "code": "b41-lecture-semantics",
+      "status": "pass",
+      "message": "B41 punctuation now separates 14.11 from the explicit 12.12 time exception; fresh review yields the same source-explicit Economics and History of Medicine lecture events under G06/G09/R01/R04/R13."
+    },
+    {
+      "code": "j35-merge-scope",
+      "status": "pass",
+      "message": "Added merged range J35:K35 expands the Economics block to groups 109 and 110 under G02/G10/R37/R56, adding exactly 17 group-110 base events."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "144/144 logical source cells are accounted for by 194 explicit reviewed decisions."
+    },
+    {
+      "code": "facultative-source-revalidated",
+      "status": "pass",
+      "message": "A43:K44 has no substantive source delta; five R90 facultatives remain source-backed and expand to 920 events."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Reviewed candidate contains 4331 events: 3411 base plus 920 facultative events."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Groups 101-110 only; group 110 increases from 427 to 444 because J35:K35 explicitly covers its column."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "134 source-backed overlap pairs remain; 126 involve facultatives and 8 are base timetable overlaps, unchanged from the reviewed 31.08 candidate."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh review of B41 and J35:K35."
+    },
+    {
+      "code": "platform-facultative-bridge",
+      "status": "pass",
+      "message": "medschedule-platform eba644505fe3541c023bf45c5d5ef7f0ec92eefc expands all 920 reviewed R90 facultative events, projects their stable IDs into optional MULTIPLE user choices, and preserves fail-closed source review."
+    }
+  ],
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-101-110-2026-09-04-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "compatibilityGate": {
+    "status": "pass",
+    "platformCommit": "eba644505fe3541c023bf45c5d5ef7f0ec92eefc",
+    "verifiedChecks": [
+      "platform-reviewed-source-facultative-expansion",
+      "ScheduleEvent-choice-projection",
+      "reviewed-engine-requeue-after-revision"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
+  },
+  "sharedContractEvidence": null,
+  "createdAt": "2026-10-01T19:55:00+03:00"
+}

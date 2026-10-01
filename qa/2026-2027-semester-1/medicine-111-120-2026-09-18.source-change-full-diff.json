@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-111-120",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "111",
+      "112",
+      "113",
+      "114",
+      "115",
+      "116",
+      "117",
+      "118",
+      "119",
+      "120"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
+    "byteLength": 21666,
+    "publishedDate": "2026-08-24",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/1_lech._2_potok-24-08-2026-13.xlsx",
+    "sheet": "1 леч. 2  ",
+    "maxRow": 58,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 225,
+    "mergedRangeCount": 153
+  },
+  "currentWorkbook": {
+    "sha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
+    "publishedDate": "2026-09-18",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/18/1078/1_lech._2_potok-18-09-2026-11.xlsx",
+    "sheet": "1 леч. 2  ",
+    "maxRow": 58,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 225,
+    "mergedRangeCount": 153,
+    "byteLength": 21927
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "K12",
+        "old": "15.35-17.05 Правоведение 1 неделя по 11.01  1-323",
+        "new": "15.35-17.05 Правоведение 1 неделя по 11.01  1-323                                                     16.20-17.50 Безопасность жизнедеятельности  21.09, 05.10, 19.10, 02.11 "
+      },
+      {
+        "coord": "H14",
+        "old": "8.50-10.20 Экономика 08.09-29.12    1-305",
+        "new": "8.30-10.00 Экономика 08.09-29.12    1-305"
+      },
+      {
+        "coord": "I15",
+        "old": "10.30-12.00 Латинский  язык   08.09-12.01",
+        "new": "10.10-11.40, 11.50-12.35 Иностранный  язык   08.09-12.01"
+      },
+      {
+        "coord": "I16",
+        "old": "13.00-14.30, 14.40-15.25  Физика, математика 08.09-12.01",
+        "new": "13.15-14.45, 14.55-15.40 Физика, математика 08.09-12.01"
+      },
+      {
+        "coord": "B17",
+        "old": "16.50-18.20 Основы российской государственности 08.09-12.01  (зачет с оценкой в пт.) 1-320",
+        "new": "16.20-17.50 Основы российской государственности 08.09-12.01  (зачет с оценкой в пт.) 1-320"
+      },
+      {
+        "coord": "K19",
+        "old": "8.50-10.20 Безопасность жизнедеятельности 02.09-09.12",
+        "new": "8.50-10.20 Безопасность жизнедеятельности 1 неделя 02.09, 16.09, 30.09, 14.10, 28.10, 11.11, 25.11, 09.12, 23.12, 13.01"
+      },
+      {
+        "coord": "K22",
+        "old": "13.10-14.40, 14.50-16.20  Общая и биоорганическая химия  02.09-13.01",
+        "new": "13.10-14.40, 14.50-15.35  Общая и биоорганическая химия  02.09-13.01"
+      },
+      {
+        "coord": "J30",
+        "old": "15.25-16.55 Экономика  03.09-24.12 1-323",
+        "new": "14.45-16.15 Экономика  03.09-24.12 1-407"
+      },
+      {
+        "coord": "J31",
+        "old": "17.10-18.40 Истрия России 03.09-14.01 1-303",
+        "new": "16.25-17.55 Истрия России 03.09-14.01 1-407"
+      },
+      {
+        "coord": "I38",
+        "old": "8.00-9.30, 9.40-10.25 Иностранный язык 05.09-16.01",
+        "new": "8.50-10.20 Латинский язык 05.09-16.01"
+      },
+      {
+        "coord": "B40",
+        "old": "11.00-12.30 ЛЕКЦИЯ  БИОЛОГИЯ  05.09, 12.09-онлайн, ссылка 3-819; 19.09-05.12  3 корпус, аудитория 819 ул. Владимирская,112",
+        "new": "11.00-12.30 ЛЕКЦИЯ  БИОЛОГИЯ  05.09, 12.09-размещена на образовательном сайте; 19.09-05.12  3 корпус, аудитория 819 ул. Владимирская,112                                   "
+      },
+      {
+        "coord": "B42",
+        "old": "12.40-14.10, 14.20-15.50 ЛЕКЦИЯ  ЭКОНОМИКА 2 неделя 12.09-онлайн, ссылка 3-819, 26.09, 10.10, 24.10-12.40-14.10 3 корпус, аудитория 819 ул. Владимирская,112",
+        "new": "12.40-14.10, 14.20-15.50 ЛЕКЦИЯ  ЭКОНОМИКА 2 неделя 12.09-3-803; 26.09;  10.10, 24.10, 07.11-12.40-14.10  3 корпус, аудитория 819 ул. Владимирская,112   "
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 12
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [],
+    "added": [],
+    "counts": {
+      "removed": 0,
+      "added": 0
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}

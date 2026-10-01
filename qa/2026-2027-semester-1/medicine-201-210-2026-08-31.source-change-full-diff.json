@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-201-210",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "201",
+      "202",
+      "203",
+      "204",
+      "205",
+      "206",
+      "207",
+      "208",
+      "209",
+      "210"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "1f606b90433347211546d9caa55ff42e4462c3f81f9d78ad7508c5c290dae7c3",
+    "byteLength": 20065,
+    "publishedDate": "2026-08-24",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/2_lech._1_potok-24-08-2026-13.xlsx",
+    "sheet": "2 леч.1",
+    "maxRow": 53,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 206,
+    "mergedRangeCount": 125
+  },
+  "currentWorkbook": {
+    "sha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+    "publishedDate": "2026-08-31",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/2_lech._1_potok-31-08-2026-13.xlsx",
+    "sheet": "2 леч.1",
+    "maxRow": 53,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 206,
+    "mergedRangeCount": 125,
+    "byteLength": 20049
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "B8",
+        "old": "11.00-12.30  ЛЕКЦИЯ ЭКОЛОГИЯ 1 неделя  14.09, 12.10, 09.11, 07.12 1 корпус, аудитория 411,  ул. Владимирская, 137    11.00-12.30  ЛЕКЦИЯ СЕСТРИНСКОЕ ДЕЛО 1 неделя 28.09, 26.10, 23.11; 30.11-1-106; 14.12-1-106; 21.12 1 корпус, аудитория 411,  ул. Владимирская, 137",
+        "new": "11.00-12.30  ЛЕКЦИЯ ЭКОЛОГИЯ 1 неделя  14.09, 12.10, 09.11 1 корпус, аудитория 411,  ул. Владимирская, 137    11.00-12.30  ЛЕКЦИЯ СЕСТРИНСКОЕ ДЕЛО 1 неделя 28.09, 26.10, 23.11; 30.11-1-106; 14.12-1-106; 21.12 1 корпус, аудитория 411,  ул. Владимирская, 137 "
+      },
+      {
+        "coord": "B36",
+        "old": "8.40-10.10  ЛЕКЦИЯ ИММУНОЛОГИЯ 1 неделя 05.09, 19.09, 03.10, 17.10, 31.10, 14.11, 28.11, 12.12, 26.12   3 корпус, аудитория 819,  ул. Владимирская, 112",
+        "new": "8.30-10.00  ЛЕКЦИЯ ИММУНОЛОГИЯ 1 неделя 05.09, 19.09, 03.10, 17.10, 31.10, 14.11, 28.11, 12.12, 26.12   3 корпус, аудитория 819,  ул. Владимирская, 112    "
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 2
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [],
+    "added": [],
+    "counts": {
+      "removed": 0,
+      "added": 0
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}

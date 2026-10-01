@@ -1,0 +1,48 @@
+{
+  "fixtureId": "medicine-101-110-2026-2027-semester-1-2026-09-04",
+  "universityId": "kirov-gmu",
+  "programId": "medicine",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "medicine",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/04/1078/1_lech._1_potok-04-09-2026-12.xlsx",
+    "sha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+    "byteLength": 21090,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": [
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "110"
+  ],
+  "workbookExpectations": {
+    "sheetNames": [
+      "1 леч.1"
+    ],
+    "maxRow": 56,
+    "maxColumn": 19,
+    "mergedRangeCount": 109,
+    "nonEmptyCellCount": 224
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": true
+  },
+  "lifecycle": {
+    "status": "semantic-qa-pass-platform-compatible",
+    "supersedesApprovedSource": true,
+    "publicationAllowed": true
+  }
+}
