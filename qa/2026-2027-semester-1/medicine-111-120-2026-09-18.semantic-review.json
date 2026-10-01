@@ -1,0 +1,151 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-111-120-2026-09-18-review-v1",
+  "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "G21",
+    "R01",
+    "R02",
+    "R04",
+    "R06",
+    "R12",
+    "R13",
+    "R34",
+    "R37",
+    "R39",
+    "R40",
+    "R45",
+    "R69",
+    "R78",
+    "R86",
+    "R90"
+  ],
+  "stream": {
+    "groups": [
+      "111",
+      "112",
+      "113",
+      "114",
+      "115",
+      "116",
+      "117",
+      "118",
+      "119",
+      "120"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/18/1078/1_lech._2_potok-18-09-2026-11.xlsx",
+    "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
+    "sheet": "1 леч. 2",
+    "mainTableLogicalSourceCells": 147,
+    "facultativeSource": "A45:K45",
+    "serviceWeekSource": "A46:K46",
+    "facultativeRule": "R39 + R90",
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "operatorConfirmations": [
+    {
+      "id": "G21-111-120-CURRENT-B40",
+      "locator": "B40:K40",
+      "groups": [
+        "111",
+        "112",
+        "113",
+        "114",
+        "115",
+        "116",
+        "117",
+        "118",
+        "119",
+        "120"
+      ],
+      "sourceText": "11.00-12.30 ЛЕКЦИЯ БИОЛОГИЯ 05.09, 12.09-размещена на образовательном сайте; 19.09-05.12 3 корпус, аудитория 819 ул. Владимирская,112",
+      "question": "Does 12.09 remain a timed 11:00–12:30 lecture or is it asynchronous material only?",
+      "decision": "Keep a timed Biology lecture on 12.09 at 11:00–12:30; do not assign a physical location; preserve «размещена на образовательном сайте» as the event note.",
+      "confirmed": true,
+      "confirmedAt": "2026-10-01",
+      "rules": [
+        "G04",
+        "G21",
+        "R06",
+        "R78"
+      ]
+    }
+  ],
+  "coverage": {
+    "logicalSourceCellCount": 147,
+    "coveredSourceCellCount": 147
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "K12",
+      "status": "PASS: keep Pravovedenie and add four explicit Safety events 16:20–17:50."
+    },
+    {
+      "locator": "H14",
+      "status": "PASS: Economics time becomes 08:30–10:00."
+    },
+    {
+      "locator": "I15",
+      "status": "PASS: replace Latin with Foreign Language, 10:10–12:35."
+    },
+    {
+      "locator": "I16",
+      "status": "PASS: Physics/Math becomes 13:15–15:40."
+    },
+    {
+      "locator": "B17",
+      "status": "PASS: Fundamentals of Russian Statehood becomes 16:20–17:50."
+    },
+    {
+      "locator": "K19",
+      "status": "PASS: Safety uses exactly the ten explicit listed dates."
+    },
+    {
+      "locator": "K22",
+      "status": "PASS: Chemistry becomes 13:10–15:35."
+    },
+    {
+      "locator": "J30",
+      "status": "PASS: Economics becomes 14:45–16:15 in 1-407."
+    },
+    {
+      "locator": "J31",
+      "status": "PASS: History of Russia becomes 16:25–17:55 in 1-407."
+    },
+    {
+      "locator": "I38",
+      "status": "PASS: replace Foreign Language with Latin, 08:50–10:20."
+    },
+    {
+      "locator": "B40:K40",
+      "status": "PASS after owner confirmation: 12.09 remains timed 11:00–12:30, location null, source phrase preserved as note."
+    },
+    {
+      "locator": "B42:K42",
+      "status": "PASS: 12.09 in 3-803; 24.10 and 07.11 use 12:40–14:10 in 3-819."
+    },
+    {
+      "locator": "A45:K46",
+      "status": "PASS under R39/R90: facultative row and service-week grid remain source-backed."
+    }
+  ],
+  "normalizationPolicy": "Fresh current-source review; no semantic decision was reused solely because most workbook cells were unchanged.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "PENDING",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-01"
+}
