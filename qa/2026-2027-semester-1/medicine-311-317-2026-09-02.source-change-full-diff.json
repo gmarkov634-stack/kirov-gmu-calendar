@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "source-change-full-diff-v1",
+  "status": "review-required",
+  "reviewRequired": true,
+  "publicationBlocked": true,
+  "semanticDecisionReuseAllowed": false,
+  "scope": {
+    "universityId": "kirov-gmu",
+    "academicPeriodId": "2026-2027-semester-1",
+    "scheduleSourceId": "medicine-311-317",
+    "sourceId": "medicine",
+    "expectedGroupIds": [
+      "311",
+      "312",
+      "313",
+      "314",
+      "315",
+      "316",
+      "317"
+    ]
+  },
+  "approvedWorkbook": {
+    "sha256": "cd6aa3253e6fa7dcd2a1f58cd9480cb6f3be114dbd09a3220c7a38196ad81ffe",
+    "byteLength": 17825,
+    "publishedDate": "2026-08-28",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/28/1078/3_lech_2_potok-28-08-2026-13.xlsx",
+    "sheet": "3 леч.2",
+    "maxRow": 46,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 127,
+    "mergedRangeCount": 58
+  },
+  "currentWorkbook": {
+    "sha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+    "publishedDate": "2026-09-02",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech_2_potok-02-09-2026-12.xlsx",
+    "sheet": "3 леч.2",
+    "maxRow": 46,
+    "maxColumn": 11,
+    "nonEmptyCellCount": 127,
+    "mergedRangeCount": 58,
+    "byteLength": 17892
+  },
+  "cellDiff": {
+    "changed": [
+      {
+        "coord": "B29",
+        "old": "13.00-14.30, 14.40-15.25 ДИСЦИПЛИНА ПО ВЫБОРУ (пр. занятия) 09.10-14.40-17.05; 16.10-25.12    Молекулярные механизмы в патологии человека; Современные методы функциональной диагностики донозологических состояний человека (каф. патофизиологии) гр. №2; Биохимические основы здорового образа жизни (каф. биохимии);  Межкультурная профессиональная коммуникация 04.09-18.12   (каф. ин.яз)",
+        "new": "13.00-14.30, 14.40-15.25 ДИСЦИПЛИНА ПО ВЫБОРУ (пр. занятия) 09.10-14.40-17.05; 16.10-25.12    Молекулярные механизмы в патологии человека; Современные методы функциональной диагностики донозологических состояний человека (каф. патофизиологии) гр. №2; Биохимические основы здорового образа жизни (каф. биохимии);  Межкультурная профессиональная коммуникация 04.09-18.12   (каф. ин.яз) Статистические методы в доказательной медицине с использованием информационных технологий (физики и мед. информатики)"
+      }
+    ],
+    "counts": {
+      "substantiveChangedCoordinates": 1
+    }
+  },
+  "mergedRangeDiff": {
+    "removed": [],
+    "added": [],
+    "counts": {
+      "removed": 0,
+      "added": 0
+    }
+  },
+  "decision": {
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "FRESH_SEMANTIC_REVIEW_REQUIRED",
+      "CELL_CONTENT_CHANGED"
+    ],
+    "nextRequiredStep": "fresh-normalization-and-semantic-review",
+    "approvedBaselineMutationAllowed": false,
+    "publicationAllowed": false
+  },
+  "notes": [
+    "Whitespace-only cell changes are excluded from cellDiff.",
+    "Excel date storage-format-only equivalence is excluded from cellDiff.",
+    "No new G/R rule is inferred by this artifact."
+  ]
+}
