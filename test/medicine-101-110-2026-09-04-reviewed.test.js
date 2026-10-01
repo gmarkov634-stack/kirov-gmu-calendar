@@ -25,7 +25,7 @@ const compareEvents = (a, b) => [
   a.sourceRef.locator.localeCompare(b.sourceRef.locator),
 ].find((value) => value !== 0) ?? 0;
 
-test('current medicine 101-110 source is freshly reviewed and remains publication-blocked for platform facultative support', async () => {
+test('current medicine 101-110 source is freshly reviewed and platform-compatible', async () => {
   const [previous, current, facultatives, source, review, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-08-31.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-101-110-2026-09-04.decisions.json'),
@@ -45,8 +45,16 @@ test('current medicine 101-110 source is freshly reviewed and remains publicatio
   assert.equal(semantic.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, false);
-  assert.equal(review.qaState.compatibilityGate, 'platform-facultative-bridge-pending');
+  assert.equal(qa.publicationAllowed, true);
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(review.qaState.compatibilityGate, 'pass');
+  assert.equal(review.qaState.scheduleVersionAllowed, true);
+  assert.equal(semantic.platformPublicationGate, 'PASS');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(
+    evidence.platformCompatibility.commit,
+    'eba644505fe3541c023bf45c5d5ef7f0ec92eefc',
+  );
 
   const oldJ35 = previous.decisions.filter((t) => t[0] === 'J35#s1');
   const newJ35 = current.decisions.filter((t) => t[0] === 'J35#s1');
