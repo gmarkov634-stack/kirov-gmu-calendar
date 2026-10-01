@@ -1,0 +1,3929 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//KGMU group 109 normalized calendar//RU
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:КГМУ — группа 109
+X-WR-CALDESC:Лечебное дело\, 1 курс\, группа 109
+BEGIN:VEVENT
+UID:293a5ba4-20260901@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260901T165000
+DTEND:20260901T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:39807654-20260902@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260902T080000
+DTEND:20260902T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5fdea2fa-20260902@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260902T105000
+DTEND:20260902T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:5ed54e40-20260902@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260902T123000
+DTEND:20260902T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:caa829ed-20260902@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260902T163000
+DTEND:20260902T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:35d709ce-20260902@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260902T180000
+DTEND:20260902T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:cb7d41df-20260903@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260903T080000
+DTEND:20260903T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9f225f4f-20260903@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260903T104500
+DTEND:20260903T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:e3e7ea2a-20260903@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260903T130000
+DTEND:20260903T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:763dfa61-20260903@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260903T145000
+DTEND:20260903T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:304dbcc7-20260903@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260903T172000
+DTEND:20260903T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a8d67a77-20260904@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260904T080000
+DTEND:20260904T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:9db2d0fd-20260904@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260904T103500
+DTEND:20260904T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:80247d06-20260904@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260904T123500
+DTEND:20260904T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c783f94c-20260904@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260904T165000
+DTEND:20260904T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:1ce1c8e8-20260905@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260905T084000
+DTEND:20260905T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:42dc50eb-20260905@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260905T103000
+DTEND:20260905T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:77fa9a9d-20260905@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260905T133000
+DTEND:20260905T150000
+SUMMARY:История медицины — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3fac89a6-20260907@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260907T085000
+DTEND:20260907T102000
+SUMMARY:Библиотечный час — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s1
+LOCATION:1 корпус\, аудитория 408\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e4ea5faa-20260907@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260907T133000
+DTEND:20260907T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:df41c485-20260907@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260907T155500
+DTEND:20260907T172500
+SUMMARY:Правоведение — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:d515a01a-20260907@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260907T165000
+DTEND:20260907T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:edf7f891-20260908@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260908T083000
+DTEND:20260908T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a82035f7-20260908@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260908T103000
+DTEND:20260908T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5766228f-20260908@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260908T122500
+DTEND:20260908T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d85843af-20260908@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260908T151000
+DTEND:20260908T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5bd50ccb-20260908@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260908T165000
+DTEND:20260908T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:bd9f9fd1-20260909@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260909T080000
+DTEND:20260909T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:790ab6cc-20260909@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260909T105000
+DTEND:20260909T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0528199b-20260909@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260909T123000
+DTEND:20260909T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6f2edfc6-20260909@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260909T143000
+DTEND:20260909T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:e90a0eb3-20260909@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260909T180000
+DTEND:20260909T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:e927a36f-20260910@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260910T080000
+DTEND:20260910T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:784d3a1f-20260910@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260910T104500
+DTEND:20260910T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:374cd61a-20260910@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260910T130000
+DTEND:20260910T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:463d6531-20260910@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260910T145000
+DTEND:20260910T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:24662ad7-20260910@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260910T172000
+DTEND:20260910T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4881bc8d-20260911@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260911T080000
+DTEND:20260911T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:a66086e7-20260911@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260911T103500
+DTEND:20260911T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:583573f4-20260911@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260911T123500
+DTEND:20260911T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d6e5c742-20260911@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260911T165000
+DTEND:20260911T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:f42ad0ab-20260912@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260912T084000
+DTEND:20260912T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c83cf63f-20260912@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260912T103000
+DTEND:20260912T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d2eddf82-20260912@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260912T133000
+DTEND:20260912T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4e5dd04e-20260914@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260914T133000
+DTEND:20260914T150000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:df877b4c-20260914@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260914T151000
+DTEND:20260914T164000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fddc50aa-20260914@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260914T165000
+DTEND:20260914T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:3bee22a7-20260915@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260915T083000
+DTEND:20260915T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:87b45372-20260915@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260915T103500
+DTEND:20260915T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b779c37d-20260915@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260915T122500
+DTEND:20260915T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:222f85d1-20260915@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260915T151000
+DTEND:20260915T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:aeb4ed9d-20260915@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260915T165000
+DTEND:20260915T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:dfc6bf1d-20260916@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260916T080000
+DTEND:20260916T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1343be29-20260916@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260916T105000
+DTEND:20260916T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a99d5de7-20260916@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260916T123000
+DTEND:20260916T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:e3c239de-20260916@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260916T163000
+DTEND:20260916T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:3ba72f3f-20260916@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260916T180000
+DTEND:20260916T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:b6d7b5a6-20260917@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260917T080000
+DTEND:20260917T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8f93c448-20260917@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260917T104500
+DTEND:20260917T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:92be2311-20260917@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260917T130000
+DTEND:20260917T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:5ba9622a-20260917@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260917T145000
+DTEND:20260917T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6434f97c-20260917@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260917T172000
+DTEND:20260917T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:5caef2d4-20260918@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260918T080000
+DTEND:20260918T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:d8ad2318-20260918@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260918T103500
+DTEND:20260918T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cb21bee3-20260918@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260918T123500
+DTEND:20260918T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b4783cc1-20260918@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260918T165000
+DTEND:20260918T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:993fe0e5-20260919@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260919T084000
+DTEND:20260919T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:be4140c8-20260919@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260919T103000
+DTEND:20260919T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d119ac95-20260919@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260919T133000
+DTEND:20260919T164000
+SUMMARY:Экономика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cc7f6a0a-20260921@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260921T133000
+DTEND:20260921T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d0c76e25-20260921@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260921T155500
+DTEND:20260921T172500
+SUMMARY:Правоведение — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:573861fa-20260921@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260921T165000
+DTEND:20260921T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:ea897c4d-20260922@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260922T083000
+DTEND:20260922T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:20efe9e3-20260922@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260922T103000
+DTEND:20260922T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ec20512b-20260922@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260922T122500
+DTEND:20260922T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3e609f83-20260922@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260922T151000
+DTEND:20260922T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a43e8f9f-20260922@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260922T165000
+DTEND:20260922T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:8523302d-20260923@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260923T080000
+DTEND:20260923T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d65e03a0-20260923@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260923T105000
+DTEND:20260923T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a2e26697-20260923@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260923T123000
+DTEND:20260923T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:1ec62d92-20260923@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260923T143000
+DTEND:20260923T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:a1c6a6ef-20260923@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260923T180000
+DTEND:20260923T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:6539be98-20260924@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260924T080000
+DTEND:20260924T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:444e33ae-20260924@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260924T104500
+DTEND:20260924T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a033c6af-20260924@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260924T130000
+DTEND:20260924T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:292be170-20260924@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260924T145000
+DTEND:20260924T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:5995663a-20260924@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260924T172000
+DTEND:20260924T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:71f66fec-20260925@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260925T080000
+DTEND:20260925T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:ef7c7cc0-20260925@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260925T103500
+DTEND:20260925T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8cb5c33b-20260925@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260925T123500
+DTEND:20260925T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:de1feb19-20260925@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260925T165000
+DTEND:20260925T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:a99caaaa-20260926@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260926T084000
+DTEND:20260926T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7dff140e-20260926@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260926T103000
+DTEND:20260926T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:38e24ee3-20260926@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260926T133000
+DTEND:20260926T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4e2dce39-20260928@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260928T133000
+DTEND:20260928T150000
+SUMMARY:Безопасность жизнедеятельности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fcd41c01-20260928@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260928T151000
+DTEND:20260928T164000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d3228acf-20260928@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260928T165000
+DTEND:20260928T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:6376db48-20260929@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260929T083000
+DTEND:20260929T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:72c6bca3-20260929@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260929T103500
+DTEND:20260929T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0e104ae8-20260929@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260929T122500
+DTEND:20260929T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9d493774-20260929@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260929T151000
+DTEND:20260929T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b2330e3e-20260929@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260929T165000
+DTEND:20260929T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:ef533191-20260930@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260930T080000
+DTEND:20260930T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4a48b31d-20260930@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260930T105000
+DTEND:20260930T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b188c7db-20260930@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260930T123000
+DTEND:20260930T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:78644422-20260930@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260930T163000
+DTEND:20260930T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:a1b0a273-20260930@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20260930T180000
+DTEND:20260930T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:689fe553-20261001@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261001T080000
+DTEND:20261001T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:647b9fbb-20261001@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261001T104500
+DTEND:20261001T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4734995e-20261001@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261001T130000
+DTEND:20261001T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:7f1ffbed-20261001@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261001T145000
+DTEND:20261001T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c663c65b-20261001@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261001T172000
+DTEND:20261001T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7c660e97-20261002@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261002T080000
+DTEND:20261002T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:303e61dd-20261002@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261002T103500
+DTEND:20261002T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1d436ae6-20261002@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261002T123500
+DTEND:20261002T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:92d254ec-20261002@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261002T165000
+DTEND:20261002T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:d9c57ec8-20261003@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261003T084000
+DTEND:20261003T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4d199b8b-20261003@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261003T103000
+DTEND:20261003T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7aa34dbd-20261003@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261003T133000
+DTEND:20261003T150000
+SUMMARY:История медицины — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:546abc36-20261005@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261005T133000
+DTEND:20261005T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:04183991-20261005@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261005T155500
+DTEND:20261005T172500
+SUMMARY:Правоведение — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B15#s1
+LOCATION:3 корпус\, аудитория 803\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:e6f643e6-20261005@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261005T165000
+DTEND:20261005T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:f7a0f089-20261006@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261006T083000
+DTEND:20261006T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:599fcf0f-20261006@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261006T103000
+DTEND:20261006T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:470e5de7-20261006@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261006T122500
+DTEND:20261006T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e577dc07-20261006@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261006T151000
+DTEND:20261006T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ed62d1c3-20261006@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261006T165000
+DTEND:20261006T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:de8f36d9-20261007@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261007T080000
+DTEND:20261007T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:74b5c7f4-20261007@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261007T105000
+DTEND:20261007T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8b00e8f3-20261007@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261007T123000
+DTEND:20261007T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ec84b4fe-20261007@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261007T143000
+DTEND:20261007T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:36baf4ab-20261007@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261007T180000
+DTEND:20261007T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:e6ae0574-20261008@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261008T080000
+DTEND:20261008T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2c1a5d62-20261008@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261008T104500
+DTEND:20261008T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:63925bbb-20261008@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261008T130000
+DTEND:20261008T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:db97f344-20261008@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261008T145000
+DTEND:20261008T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a7556cb6-20261008@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261008T172000
+DTEND:20261008T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:27752ca0-20261009@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261009T080000
+DTEND:20261009T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:9c8c311c-20261009@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261009T103500
+DTEND:20261009T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:06f00acf-20261009@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261009T123500
+DTEND:20261009T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:36388015-20261009@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261009T165000
+DTEND:20261009T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:43aaf373-20261010@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261010T084000
+DTEND:20261010T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:be508897-20261010@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261010T103000
+DTEND:20261010T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:165a194a-20261010@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261010T133000
+DTEND:20261010T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2bfbf032-20261012@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261012T133000
+DTEND:20261012T150000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4a18bd40-20261012@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261012T151000
+DTEND:20261012T164000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B14#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eb819bfe-20261012@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261012T165000
+DTEND:20261012T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:dbd3497b-20261013@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261013T083000
+DTEND:20261013T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c6241d6e-20261013@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261013T103500
+DTEND:20261013T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fc853eb1-20261013@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261013T122500
+DTEND:20261013T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e2a18e9d-20261013@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261013T151000
+DTEND:20261013T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1dbb40d9-20261013@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261013T165000
+DTEND:20261013T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:fb99d085-20261014@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261014T080000
+DTEND:20261014T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f2c6d701-20261014@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261014T105000
+DTEND:20261014T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:03a1f0df-20261014@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261014T123000
+DTEND:20261014T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:1eaafe96-20261014@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261014T163000
+DTEND:20261014T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:669a88d7-20261014@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261014T180000
+DTEND:20261014T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:c8d3702e-20261015@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261015T080000
+DTEND:20261015T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:06cf2ec0-20261015@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261015T104500
+DTEND:20261015T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:474c9649-20261015@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261015T130000
+DTEND:20261015T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:53940592-20261015@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261015T145000
+DTEND:20261015T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b99fb264-20261015@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261015T172000
+DTEND:20261015T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:805a9300-20261016@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261016T080000
+DTEND:20261016T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:a027203c-20261016@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261016T103500
+DTEND:20261016T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:dac0ee6f-20261016@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261016T123500
+DTEND:20261016T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:438bff75-20261016@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261016T165000
+DTEND:20261016T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:bc3e0e99-20261017@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261017T084000
+DTEND:20261017T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:590bf554-20261017@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261017T103000
+DTEND:20261017T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c330b059-20261017@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261017T133000
+DTEND:20261017T164000
+SUMMARY:Экономика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b5e5dbb0-20261019@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261019T100000
+DTEND:20261019T122500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s3
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b9ee07ab-20261019@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261019T133000
+DTEND:20261019T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:57ef0855-20261019@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261019T165000
+DTEND:20261019T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:ee82fca9-20261020@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261020T083000
+DTEND:20261020T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ec930c6f-20261020@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261020T103000
+DTEND:20261020T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3ff02887-20261020@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261020T122500
+DTEND:20261020T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b7835527-20261020@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261020T151000
+DTEND:20261020T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e68efbe3-20261020@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261020T165000
+DTEND:20261020T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:75e02fb9-20261021@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261021T080000
+DTEND:20261021T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a28e83d4-20261021@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261021T105000
+DTEND:20261021T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:20c77c53-20261021@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261021T123000
+DTEND:20261021T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4469379e-20261021@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261021T143000
+DTEND:20261021T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:82a1be4b-20261021@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261021T180000
+DTEND:20261021T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:b6bcbc78-20261022@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261022T080000
+DTEND:20261022T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c12b5fce-20261022@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261022T104500
+DTEND:20261022T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ce280a4f-20261022@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261022T130000
+DTEND:20261022T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:5384b590-20261022@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261022T145000
+DTEND:20261022T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9ff8325a-20261022@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261022T172000
+DTEND:20261022T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4491754c-20261023@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261023T080000
+DTEND:20261023T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:b70dce60-20261023@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261023T103500
+DTEND:20261023T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cd0acf5b-20261023@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261023T123500
+DTEND:20261023T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:583e4479-20261023@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261023T165000
+DTEND:20261023T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:f138f01e-20261024@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261024T084000
+DTEND:20261024T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:47f173da-20261024@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261024T103000
+DTEND:20261024T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:effe18b7-20261024@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261024T133000
+DTEND:20261024T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:483506fe-20261026@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261026T100000
+DTEND:20261026T122500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s3
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c46991a1-20261026@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261026T133000
+DTEND:20261026T150000
+SUMMARY:Безопасность жизнедеятельности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:475ac691-20261026@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261026T151000
+DTEND:20261026T164000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B14#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b2e67317-20261026@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261026T165000
+DTEND:20261026T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:05496da0-20261027@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261027T083000
+DTEND:20261027T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:edd315db-20261027@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261027T103500
+DTEND:20261027T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ecc86200-20261027@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261027T122500
+DTEND:20261027T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2f13572c-20261027@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261027T151000
+DTEND:20261027T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3e327c76-20261027@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261027T165000
+DTEND:20261027T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:5cb01902-20261028@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261028T080000
+DTEND:20261028T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bc2a7d44-20261028@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261028T105000
+DTEND:20261028T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:720270d6-20261028@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261028T123000
+DTEND:20261028T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:d4875c13-20261028@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261028T163000
+DTEND:20261028T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:87393cc0-20261028@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261028T180000
+DTEND:20261028T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:b5c9a339-20261029@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261029T080000
+DTEND:20261029T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1081a2d5-20261029@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261029T104500
+DTEND:20261029T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:92083778-20261029@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261029T130000
+DTEND:20261029T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:855e71ef-20261029@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261029T145000
+DTEND:20261029T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:cfa563ad-20261029@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261029T172000
+DTEND:20261029T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:868109bc-20261030@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261030T080000
+DTEND:20261030T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:d95028f0-20261030@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261030T103500
+DTEND:20261030T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7cbb646b-20261030@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261030T123500
+DTEND:20261030T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:935d7ae9-20261030@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261030T165000
+DTEND:20261030T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:bad0f83d-20261031@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261031T084000
+DTEND:20261031T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:eb7869a0-20261031@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261031T103000
+DTEND:20261031T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:58e00cae-20261031@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261031T133000
+DTEND:20261031T150000
+SUMMARY:История медицины — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:de473722-20261102@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261102T133000
+DTEND:20261102T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:be49c202-20261102@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261102T165000
+DTEND:20261102T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:2661e38f-20261103@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261103T083000
+DTEND:20261103T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b783cc81-20261103@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261103T103000
+DTEND:20261103T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:29601ac5-20261103@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261103T122500
+DTEND:20261103T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b9496e79-20261103@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261103T151000
+DTEND:20261103T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:49e393e5-20261103@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261103T165000
+DTEND:20261103T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:89607f81-20261104@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261104T080000
+DTEND:20261104T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:225587ab-20261104@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261104T123000
+DTEND:20261104T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:bf0d0216-20261104@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261104T143000
+DTEND:20261104T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:978c5003-20261104@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261104T180000
+DTEND:20261104T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:4c6780ba-20261105@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261105T080000
+DTEND:20261105T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1b0fa2b4-20261105@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261105T104500
+DTEND:20261105T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:a1f4a465-20261105@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261105T130000
+DTEND:20261105T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:d37cc306-20261105@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261105T145000
+DTEND:20261105T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:919def90-20261105@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261105T172000
+DTEND:20261105T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f44d2074-20261106@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261106T080000
+DTEND:20261106T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:be0fa3f8-20261106@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261106T103500
+DTEND:20261106T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a0874843-20261106@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261106T123500
+DTEND:20261106T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5cbed7e1-20261106@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261106T165000
+DTEND:20261106T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:365253e4-20261107@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261107T084000
+DTEND:20261107T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:c4f0cfe8-20261107@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261107T103000
+DTEND:20261107T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b9515539-20261107@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261107T133000
+DTEND:20261107T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8de1c9a4-20261109@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261109T083000
+DTEND:20261109T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:5f70013b-20261109@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261109T133000
+DTEND:20261109T150000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8d55bf4f-20261109@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261109T151000
+DTEND:20261109T164000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B14#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:49cdb339-20261109@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261109T165000
+DTEND:20261109T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:66d8d61b-20261110@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261110T083000
+DTEND:20261110T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7a1b880e-20261110@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261110T103500
+DTEND:20261110T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:66385d51-20261110@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261110T122500
+DTEND:20261110T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2fe707bd-20261110@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261110T151000
+DTEND:20261110T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:09d13a79-20261110@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261110T165000
+DTEND:20261110T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:e6701293-20261111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261111T080000
+DTEND:20261111T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d58d2763-20261111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261111T105000
+DTEND:20261111T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:1693d1fd-20261111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261111T123000
+DTEND:20261111T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:e7f014b4-20261111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261111T163000
+DTEND:20261111T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:93496199-20261111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261111T180000
+DTEND:20261111T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:e8a4a9ea-20261112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261112T080000
+DTEND:20261112T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:66894f64-20261112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261112T104500
+DTEND:20261112T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:383e3e35-20261112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261112T130000
+DTEND:20261112T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:f4d02f76-20261112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261112T145000
+DTEND:20261112T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:66443700-20261112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261112T172000
+DTEND:20261112T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:65cc3022-20261113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261113T080000
+DTEND:20261113T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:6728de32-20261113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261113T103500
+DTEND:20261113T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6970d809-20261113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261113T123500
+DTEND:20261113T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:49e61f3f-20261113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261113T165000
+DTEND:20261113T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:2dd237f9-20261114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261114T084000
+DTEND:20261114T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e96558f4-20261114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261114T103000
+DTEND:20261114T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:038f0639-20261114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261114T133000
+DTEND:20261114T164000
+SUMMARY:Экономика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:45c2cb8c-20261116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261116T083000
+DTEND:20261116T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:20a34847-20261116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261116T133000
+DTEND:20261116T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:730850e1-20261116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261116T165000
+DTEND:20261116T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:18f3759e-20261117@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261117T083000
+DTEND:20261117T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c07cbbce-20261117@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261117T103000
+DTEND:20261117T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ed039f6e-20261117@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261117T122500
+DTEND:20261117T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:38207856-20261117@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261117T151000
+DTEND:20261117T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:3e4d6878-20261117@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261117T165000
+DTEND:20261117T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:3edb8db4-20261118@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261118T080000
+DTEND:20261118T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:175c7601-20261118@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261118T105000
+DTEND:20261118T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9592c0a0-20261118@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261118T123000
+DTEND:20261118T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7be78069-20261118@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261118T143000
+DTEND:20261118T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:4dca57ee-20261118@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261118T180000
+DTEND:20261118T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:c7d60a7f-20261119@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261119T080000
+DTEND:20261119T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5df8a4af-20261119@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261119T104500
+DTEND:20261119T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:c7e6a60a-20261119@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261119T130000
+DTEND:20261119T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:e9ce3dc1-20261119@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261119T145000
+DTEND:20261119T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:820afa27-20261119@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261119T172000
+DTEND:20261119T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:7b2fcf28-20261120@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261120T080000
+DTEND:20261120T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:9b5e7914-20261120@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261120T103500
+DTEND:20261120T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cda9b0d7-20261120@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261120T123500
+DTEND:20261120T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5b6ae67d-20261120@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261120T165000
+DTEND:20261120T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:2e0bd310-20261121@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261121T084000
+DTEND:20261121T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a128ef8c-20261121@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261121T103000
+DTEND:20261121T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d301b935-20261121@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261121T133000
+DTEND:20261121T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0496a8b4-20261123@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261123T083000
+DTEND:20261123T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:92379f1f-20261123@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261123T133000
+DTEND:20261123T150000
+SUMMARY:Безопасность жизнедеятельности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:66f33809-20261123@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261123T165000
+DTEND:20261123T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:d9e743dc-20261124@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261124T083000
+DTEND:20261124T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:50e522bf-20261124@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261124T103500
+DTEND:20261124T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f40cac7c-20261124@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261124T122500
+DTEND:20261124T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7f1aad00-20261124@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261124T151000
+DTEND:20261124T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d1034e1a-20261124@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261124T165000
+DTEND:20261124T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:f98d9794-20261125@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261125T080000
+DTEND:20261125T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7686c23a-20261125@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261125T105000
+DTEND:20261125T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6c0fb400-20261125@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261125T123000
+DTEND:20261125T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:039e63ad-20261125@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261125T163000
+DTEND:20261125T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:cb94b60e-20261125@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261125T180000
+DTEND:20261125T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:af3c53e1-20261126@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261126T080000
+DTEND:20261126T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:ba8b082d-20261126@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261126T104500
+DTEND:20261126T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:ae97eef0-20261126@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261126T130000
+DTEND:20261126T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:0368e557-20261126@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261126T145000
+DTEND:20261126T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:34708755-20261126@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261126T172000
+DTEND:20261126T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:89a01d8b-20261127@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261127T080000
+DTEND:20261127T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:28e96bf9-20261127@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261127T103500
+DTEND:20261127T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:69674aea-20261127@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261127T123500
+DTEND:20261127T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:5562cac8-20261127@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261127T165000
+DTEND:20261127T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:aa5660aa-20261128@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261128T084000
+DTEND:20261128T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:fbed51dd-20261128@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261128T103000
+DTEND:20261128T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:0dd5613f-20261128@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261128T133000
+DTEND:20261128T150000
+SUMMARY:История медицины — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s2
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2fb6ac64-20261130@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261130T083000
+DTEND:20261130T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:bc2ccacf-20261130@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261130T133000
+DTEND:20261130T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7d4ab079-20261130@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261130T165000
+DTEND:20261130T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:cc7a34ce-20261201@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261201T083000
+DTEND:20261201T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6b80715e-20261201@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261201T103000
+DTEND:20261201T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:664b27fe-20261201@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261201T122500
+DTEND:20261201T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:936bfe86-20261201@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261201T151000
+DTEND:20261201T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f1a77848-20261201@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261201T165000
+DTEND:20261201T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:2e92ccc0-20261202@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261202T080000
+DTEND:20261202T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:394099a5-20261202@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261202T105000
+DTEND:20261202T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:90c3dddc-20261202@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261202T123000
+DTEND:20261202T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6fabebd5-20261202@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261202T143000
+DTEND:20261202T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:5c42180a-20261202@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261202T180000
+DTEND:20261202T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:e028581b-20261203@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261203T080000
+DTEND:20261203T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:98bac733-20261203@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261203T104500
+DTEND:20261203T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0d08a796-20261203@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261203T130000
+DTEND:20261203T143000
+SUMMARY:Безопасность жизнедеятельности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J30#s1
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:c5819fb5-20261203@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261203T145000
+DTEND:20261203T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:19fcfd43-20261203@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261203T172000
+DTEND:20261203T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4c843fb3-20261204@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261204T080000
+DTEND:20261204T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:2145bad1-20261204@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261204T103500
+DTEND:20261204T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:53098f72-20261204@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261204T123500
+DTEND:20261204T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:55ba8530-20261204@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261204T165000
+DTEND:20261204T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:3f227a63-20261205@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261205T084000
+DTEND:20261205T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2ffbdf07-20261205@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261205T103000
+DTEND:20261205T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6a0d297a-20261205@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261205T133000
+DTEND:20261205T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bcc1bc7f-20261207@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261207T083000
+DTEND:20261207T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:45feed02-20261207@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261207T133000
+DTEND:20261207T150000
+SUMMARY:УПО. Общий уход — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:096221ee-20261207@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261207T165000
+DTEND:20261207T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:b017573d-20261208@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261208T083000
+DTEND:20261208T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:66e5068c-20261208@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261208T103500
+DTEND:20261208T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:db4d21fb-20261208@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261208T122500
+DTEND:20261208T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:338b06f3-20261208@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261208T151000
+DTEND:20261208T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:8745436f-20261208@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261208T165000
+DTEND:20261208T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:36cb60fd-20261209@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261209T080000
+DTEND:20261209T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4bbf3709-20261209@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261209T105000
+DTEND:20261209T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:899e51c7-20261209@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261209T123000
+DTEND:20261209T140000
+SUMMARY:Биология — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:71343bfe-20261209@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261209T163000
+DTEND:20261209T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:4f3200df-20261209@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261209T180000
+DTEND:20261209T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:bbb38eeb-20261210@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261210T080000
+DTEND:20261210T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b7f86ec3-20261210@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261210T104500
+DTEND:20261210T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:fb151805-20261210@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261210T145000
+DTEND:20261210T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:922c7913-20261210@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261210T172000
+DTEND:20261210T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:9ba179b1-20261211@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261211T080000
+DTEND:20261211T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:67c51d53-20261211@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261211T103500
+DTEND:20261211T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d872b9a8-20261211@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261211T123500
+DTEND:20261211T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d11dddee-20261211@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261211T165000
+DTEND:20261211T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:f5d5fd70-20261212@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261212T084000
+DTEND:20261212T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:12001953-20261212@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261212T103000
+DTEND:20261212T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:465a63c7-20261212@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261212T133000
+DTEND:20261212T150000
+SUMMARY:Экономика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B41#s1
+LOCATION:1 корпус\, аудитория 411\, ул. К. Маркса\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:b729668f-20261214@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261214T083000
+DTEND:20261214T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:dce2a8de-20261214@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261214T133000
+DTEND:20261214T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d1395cfe-20261214@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261214T165000
+DTEND:20261214T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:77ee7c7b-20261215@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261215T083000
+DTEND:20261215T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:20dd4d2d-20261215@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261215T103000
+DTEND:20261215T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6642b7b1-20261215@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261215T122500
+DTEND:20261215T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a41cd79d-20261215@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261215T151000
+DTEND:20261215T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:57d0ebd9-20261215@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261215T165000
+DTEND:20261215T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:d6b01a51-20261216@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261216T080000
+DTEND:20261216T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:9f4d754c-20261216@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261216T105000
+DTEND:20261216T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:fba5d488-20261216@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261216T123000
+DTEND:20261216T140000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s2
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:d2fc8b46-20261216@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261216T143000
+DTEND:20261216T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:560ec533-20261216@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261216T180000
+DTEND:20261216T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:fdf848ca-20261217@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261217T080000
+DTEND:20261217T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6cd55f84-20261217@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261217T104500
+DTEND:20261217T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:aa79e596-20261217@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261217T145000
+DTEND:20261217T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f3aae020-20261217@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261217T172000
+DTEND:20261217T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:4c539268-20261218@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261218T080000
+DTEND:20261218T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:1d2857d4-20261218@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261218T103500
+DTEND:20261218T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:7f560e17-20261218@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261218T123500
+DTEND:20261218T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:92af5fbd-20261218@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261218T165000
+DTEND:20261218T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:13993350-20261219@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261219T084000
+DTEND:20261219T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:43c999cc-20261219@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261219T103000
+DTEND:20261219T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:53b91375-20261219@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261219T133000
+DTEND:20261219T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cc3349a7-20261221@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261221T083000
+DTEND:20261221T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:3d4f4228-20261221@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261221T133000
+DTEND:20261221T150000
+SUMMARY:Безопасность жизнедеятельности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B12#s2
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f7de9dd6-20261221@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261221T165000
+DTEND:20261221T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:80f5d199-20261222@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261222T083000
+DTEND:20261222T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:fa3b3620-20261222@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261222T103500
+DTEND:20261222T120500
+SUMMARY:История медицины — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J17#s1
+LOCATION:1 корпус\, аудитория 313\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:36542717-20261222@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261222T122500
+DTEND:20261222T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:e8e06d57-20261222@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261222T151000
+DTEND:20261222T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:6eba1073-20261222@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261222T165000
+DTEND:20261222T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:386e90c9-20261223@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261223T080000
+DTEND:20261223T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:bbea0b25-20261223@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261223T105000
+DTEND:20261223T122000
+SUMMARY:Физика\, математика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B23#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6813c240-20261223@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261223T123000
+DTEND:20261223T140000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B25#s2
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:b026afea-20261223@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261223T163000
+DTEND:20261223T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:a94d707b-20261223@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261223T180000
+DTEND:20261223T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:d322632c-20261224@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261224T080000
+DTEND:20261224T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f6313aca-20261224@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261224T104500
+DTEND:20261224T121500
+SUMMARY:Биология — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J29#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f961cb7c-20261224@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261224T145000
+DTEND:20261224T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:508057ee-20261224@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261224T172000
+DTEND:20261224T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:6c98e998-20261225@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261225T080000
+DTEND:20261225T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:0cb589a4-20261225@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261225T103500
+DTEND:20261225T120500
+SUMMARY:Экономика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J35#s1
+LOCATION:1 корпус\, аудитория 305\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:99346527-20261225@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261225T123500
+DTEND:20261225T140500
+SUMMARY:Основы российской государственности — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s1
+LOCATION:1 корпус\, аудитория 407\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:dc2bb8ed-20261225@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261225T165000
+DTEND:20261225T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:db9143e7-20261226@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261226T084000
+DTEND:20261226T101000
+SUMMARY:Основы российской государственности — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B38#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:149f1bea-20261226@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261226T103000
+DTEND:20261226T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:90dc56c7-20261226@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261226T133000
+DTEND:20261226T150000
+SUMMARY:История России — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B42#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:d9429d12-20261228@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261228T083000
+DTEND:20261228T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:d3b6cb69-20261228@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261228T133000
+DTEND:20261228T150000
+SUMMARY:Общая и биоорганическая химия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B13#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:2cc3860b-20261228@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261228T165000
+DTEND:20261228T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:e238cf14-20261229@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261229T083000
+DTEND:20261229T100000
+SUMMARY:Элективные дисциплины по физической культуре и спорту — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B16#s1
+LOCATION:ФОК\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:0cb03cb0-20261229@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261229T103000
+DTEND:20261229T120000
+SUMMARY:Правоведение — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J18#s1
+LOCATION:1 корпус\, аудитория 306\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4c930c94-20261229@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261229T122500
+DTEND:20261229T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:1340fb98-20261229@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261229T151000
+DTEND:20261229T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:da5e95d2-20261229@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261229T165000
+DTEND:20261229T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:cb161aad-20261230@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261230T080000
+DTEND:20261230T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s1
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:4ffd9220-20261230@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261230T105000
+DTEND:20261230T122000
+SUMMARY:Психология и педагогика — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B24#s1
+LOCATION:3 корпус\, аудитория 819\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:f7965912-20261230@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261230T143000
+DTEND:20261230T153000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:c02f356f-20261230@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20261230T180000
+DTEND:20261230T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:1df0891b-20270111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270111T083000
+DTEND:20270111T114000
+SUMMARY:УПО. Общий уход — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J9#s2
+LOCATION:КОГБУЗ «Кировский областной клинический онкологический диспансер»\, пр-т Строителей\, 23
+END:VEVENT
+BEGIN:VEVENT
+UID:a6ba7592-20270111@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270111T165000
+DTEND:20270111T182000
+SUMMARY:Актуальные вопросы биологии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-biology
+END:VEVENT
+BEGIN:VEVENT
+UID:bfdffdb3-20270112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270112T122500
+DTEND:20270112T145000
+SUMMARY:Иностранный язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J19#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:069837ab-20270112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270112T151000
+DTEND:20270112T164000
+SUMMARY:История России — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J21#s1
+LOCATION:1 корпус\, аудитория 319\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:a41e1167-20270112@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270112T165000
+DTEND:20270112T182000
+SUMMARY:Основы химии — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-chemistry
+END:VEVENT
+BEGIN:VEVENT
+UID:ebb74581-20270113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270113T094000
+DTEND:20270113T102500
+SUMMARY:Психология и педагогика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J22#s2
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:77604516-20270113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270113T163000
+DTEND:20270113T173000
+SUMMARY:Час куратора — другое
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J27#s1
+END:VEVENT
+BEGIN:VEVENT
+UID:266c1857-20270113@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270113T180000
+DTEND:20270113T202500
+SUMMARY:Физика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-physics
+END:VEVENT
+BEGIN:VEVENT
+UID:6d431dd0-20270114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270114T080000
+DTEND:20270114T102500
+SUMMARY:Общая и биоорганическая химия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J28#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:da3a79a8-20270114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270114T145000
+DTEND:20270114T171500
+SUMMARY:Физика\, математика — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J31#s1
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:8fad8f32-20270114@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270114T172000
+DTEND:20270114T194500
+SUMMARY:Математика — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-math
+LOCATION:3 корпус\, ул. Владимирская\, 112
+END:VEVENT
+BEGIN:VEVENT
+UID:24623ba4-20270115@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270115T080000
+DTEND:20270115T102500
+SUMMARY:Анатомия — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J34#s1
+LOCATION:2 корпус\, ул. Пролетарская\, 38
+END:VEVENT
+BEGIN:VEVENT
+UID:52939a91-20270115@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270115T165000
+DTEND:20270115T182000
+SUMMARY:Русский язык и культура речи — факультатив
+DESCRIPTION:Группа 109\nФакультатив\nИсточник: КГМУ\, 1 леч.1!A43#kgmu-2026-2027-s1-medicine-facultative-russian
+LOCATION:ул. Красноармейская\, 35
+END:VEVENT
+BEGIN:VEVENT
+UID:b30bc702-20270116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270116T084000
+DTEND:20270116T101000
+SUMMARY:Анатомия — лекция
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!B39#s1
+LOCATION:1 корпус\, аудитория 411\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:cc021cd6-20270116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270116T103000
+DTEND:20270116T120000
+SUMMARY:Латинский язык — практическое занятие
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J40#s1
+LOCATION:1 корпус\, ул. Владимирская\, 137
+END:VEVENT
+BEGIN:VEVENT
+UID:f47141b6-20270116@kgmu-109
+DTSTAMP:20261001T070000Z
+DTSTART:20270116T164000
+DTEND:20270116T204500
+SUMMARY:Основы российской государственности — зачет с оценкой
+DESCRIPTION:Группа 109\nИсточник: КГМУ\, 1 леч.1!J36#s2
+LOCATION:1 корпус\, аудитория 320\, ул. Владимирская\, 137
+END:VEVENT
+END:VCALENDAR
