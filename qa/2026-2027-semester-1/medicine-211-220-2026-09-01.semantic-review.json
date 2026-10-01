@@ -1,0 +1,76 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-211-220-2026-09-01-review-v1",
+  "sourceSha256": "aad51a270f56edf79e668f9a84e44bb089fcc4b02450fe7c1e30b8b37f736e38",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "R01",
+    "R02",
+    "R12",
+    "R35",
+    "R40",
+    "R45",
+    "R57",
+    "R66",
+    "R69",
+    "R78"
+  ],
+  "stream": {
+    "groups": [
+      "211",
+      "212",
+      "213",
+      "214",
+      "215",
+      "216",
+      "217",
+      "218",
+      "219",
+      "220"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/01/1078/2_lech._2_potok-01-09-2026-12.xlsx",
+    "sourceSha256": "aad51a270f56edf79e668f9a84e44bb089fcc4b02450fe7c1e30b8b37f736e38",
+    "sheet": "2леч.2",
+    "mainTableLogicalSourceCells": 134,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "coverage": {
+    "logicalSourceCellCount": 134,
+    "coveredSourceCellCount": 134
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "J21",
+      "status": "PASS: group 219 Ecology is 08:30–10:00 exactly on 02.09, 16.09, 30.09, 14.10, 28.10 in 1-419; explicit dates take priority under G06/R01."
+    },
+    {
+      "locator": "J22",
+      "status": "PASS: group 219 Nursing is the current 02.09–25.11 Wednesday range; two consecutive intervals merge to 10:45–13:10 under R12, and the current lower reference supplies the oncology practical base under G12/R40."
+    },
+    {
+      "locator": "J23",
+      "status": "PASS: removal of the old J22:J23 vertical merge makes J23 an independent Ecology block at 14:00–15:30 on 09.09, 23.09, 07.10, 21.10; lower Ecology reference supplies only 1 корпус + address, with no invented room."
+    },
+    {
+      "locator": "H23/H41",
+      "status": "PASS: two previously reviewed R66 computed-occurrence suppressions are revalidated against unchanged current source content."
+    }
+  ],
+  "normalizationPolicy": "Fresh current-SHA review of all changed cells and changed merge geometry. Previous decisions are reused only where the current workbook is unchanged and independently revalidated; no cross-SHA automatic approval.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "PASS",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-01"
+}

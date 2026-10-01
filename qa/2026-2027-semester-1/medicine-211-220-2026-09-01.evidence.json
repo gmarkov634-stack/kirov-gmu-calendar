@@ -1,0 +1,80 @@
+{
+  "fixtureId": "medicine-211-220-2026-2027-semester-1-2026-09-01",
+  "sourceSha256": "aad51a270f56edf79e668f9a84e44bb089fcc4b02450fe7c1e30b8b37f736e38",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-211-220-2026-09-01.decisions.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review",
+  "candidateDigest": "sha256:817790a6f4a3ce8a30823721fb18225284be1c10ca8d368f998fcb8dd99cd9d9",
+  "eventCount": 2646,
+  "groupEventCounts": {
+    "211": 265,
+    "212": 266,
+    "213": 265,
+    "214": 265,
+    "215": 264,
+    "216": 265,
+    "217": 262,
+    "218": 266,
+    "219": 263,
+    "220": 265
+  },
+  "logicalSourceCellCount": 134,
+  "coveredSourceCellCount": 134,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 0,
+  "overlapPolicy": "No overlap pairs remain in the current reviewed candidate; prior J21/J22 group-219 overlaps were removed by the current official source.",
+  "r66SuppressedComputedOccurrences": [
+    {
+      "groupId": "217",
+      "date": "2026-12-16",
+      "locator": "H23#s1"
+    },
+    {
+      "groupId": "218",
+      "date": "2026-10-31",
+      "locator": "H41#s1"
+    }
+  ],
+  "currentSourceReview": {
+    "changedCoordinates": [
+      "J21",
+      "J22",
+      "J23"
+    ],
+    "removedMergedRanges": [
+      "J22:J23"
+    ],
+    "group219": {
+      "J21": {
+        "discipline": "Экология",
+        "time": "08:30-10:00",
+        "dates": [
+          "2026-09-02",
+          "2026-09-16",
+          "2026-09-30",
+          "2026-10-14",
+          "2026-10-28"
+        ],
+        "location": "1 корпус, аудитория 419, ул. Владимирская, 137"
+      },
+      "J22": {
+        "discipline": "Сестринское дело",
+        "time": "10:45-13:10",
+        "range": "2026-09-02..2026-11-25 Wednesdays",
+        "location": "КОГБУЗ «Центр онкологии и медицинской радиобиологии», пр-т Строителей, 23"
+      },
+      "J23": {
+        "discipline": "Экология",
+        "time": "14:00-15:30",
+        "dates": [
+          "2026-09-09",
+          "2026-09-23",
+          "2026-10-07",
+          "2026-10-21"
+        ],
+        "location": "1 корпус, ул. Владимирская, 137"
+      }
+    }
+  }
+}

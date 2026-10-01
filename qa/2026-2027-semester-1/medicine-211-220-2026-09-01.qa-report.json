@@ -1,0 +1,90 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-211-220-2026-09-01-v1",
+  "parsingJobId": "reviewed-medicine-211-220-aad51a27-v1",
+  "candidateDigest": "sha256:817790a6f4a3ce8a30823721fb18225284be1c10ca8d368f998fcb8dd99cd9d9",
+  "decision": "pass",
+  "publicationAllowed": true,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 aad51a270f56edf79e668f9a84e44bb089fcc4b02450fe7c1e30b8b37f736e38 was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "Exactly J21/J22/J23 changed materially and merged range J22:J23 was removed; all four source deltas were reviewed."
+    },
+    {
+      "code": "j21-ecology-explicit-dates",
+      "status": "pass",
+      "message": "Group 219 J21 Ecology is 08:30–10:00 on exactly five explicitly listed dates, location 1-419."
+    },
+    {
+      "code": "j22-nursing-range",
+      "status": "pass",
+      "message": "Group 219 J22 Nursing is 02.09–25.11 on Wednesdays; its sequential intervals normalize to 10:45–13:10 and the current lower reference supplies the oncology practical base."
+    },
+    {
+      "code": "j23-independent-ecology",
+      "status": "pass",
+      "message": "Removed J22:J23 merge makes J23 an independent Ecology event series at 14:00–15:30 on four explicit dates; lower reference supplies building/address only."
+    },
+    {
+      "code": "r66-suppressions-revalidated",
+      "status": "pass",
+      "message": "The two existing R66 suppressions for groups 217/218 remain source-backed and unchanged."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "134/134 logical timetable cells are covered by reviewed decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 2646 events."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Groups 211–220 only with pinned per-group counts."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "overlap-audit",
+      "status": "pass",
+      "message": "No time-overlap pairs remain in the current candidate; six old J21/J22 overlaps disappear under the new official source."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "shared-contract-boundary",
+      "status": "pass",
+      "message": "medical-calendar-core publication boundary evidence is retained from the reviewed baseline."
+    }
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "2d5877892aa790826f3e149defcd5d156e0a25cc",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  },
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-211-220-2026-09-01-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "platformCompatibility": {
+    "status": "pass",
+    "reason": "No new platform bridge is required; the current source uses explicit reviewed R-profile events already supported by ScheduleEventV1 ingestion."
+  },
+  "createdAt": "2026-10-01T22:35:00+03:00"
+}
