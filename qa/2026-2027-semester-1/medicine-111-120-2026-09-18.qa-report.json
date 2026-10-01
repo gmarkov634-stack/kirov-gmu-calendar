@@ -18,7 +18,7 @@
     {
       "code": "operator-confirmed-b40",
       "status": "pass",
-      "message": "Owner confirmed 12.09 Biology remains a timed 11:00–12:30 lecture, location null, with the current source phrase preserved as a note."
+      "message": "Owner confirmed 12.09 Biology is an ordinary timed 11:00–12:30 lecture; R91 applies, physical location remains null, and the source phrase is preserved as a note."
     },
     {
       "code": "main-table-content-accounted-for",
@@ -58,7 +58,7 @@
     {
       "code": "platform-source-note-bridge",
       "status": "pass",
-      "message": "medschedule-platform 1c7d4d4f492384ee77ebf52a12ef81b51dee0da4 preserves reviewed KGMU source notes in ScheduleEvent.note; PR #39 CI passed before merge."
+      "message": "Platform PR #39 passed CI and merged as 1c7d4d4f492384ee77ebf52a12ef81b51dee0da4; reviewed source notes are preserved in ScheduleEvent.note."
     }
   ],
   "semanticReview": {
@@ -68,9 +68,9 @@
   },
   "compatibilityGate": {
     "status": "pass",
-    "platformCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
     "platformPullRequest": 39,
-    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
+    "platformMergedCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
+    "stagingPublicationGate": "open"
   },
   "createdAt": "2026-10-01T20:58:00+03:00"
 }
