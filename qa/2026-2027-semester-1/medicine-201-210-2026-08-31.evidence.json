@@ -87,7 +87,10 @@
     "b36UpdatedEvents": 90
   },
   "platformCompatibility": {
-    "status": "pending",
-    "reason": "medschedule reviewed-source bridge must preserve evidence.operatorEventAdditions before this source can publish"
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 40,
+    "mergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "requirement": "reviewed-source bridge expands evidence.operatorEventAdditions without inventing semantics"
   }
 }
