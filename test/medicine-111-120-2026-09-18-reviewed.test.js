@@ -35,6 +35,16 @@ test('current medicine 111-120 source has a fully reviewed candidate', async () 
   assert.equal(evidence.sourceSha256, source.source.sha256);
   assert.equal(semantic.stream.unresolvedAmbiguities, 0);
   assert.equal(review.qaState.unresolvedAmbiguityCount, 0);
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(review.publicationAllowed, true);
+  assert.equal(review.qaState.compatibilityGate, 'pass');
+  assert.equal(review.qaState.scheduleVersionAllowed, true);
+  assert.equal(manifest.candidateDigest, evidence.candidateDigest);
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(
+    evidence.platformCompatibility.commit,
+    '1c7d4d4f492384ee77ebf52a12ef81b51dee0da4',
+  );
 
   const context = {
     universityId: source.universityId,
