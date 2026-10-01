@@ -78,7 +78,13 @@
   ],
   "normalizationPolicy": "Fresh review of the current SHA. Only B8 and B36 changed materially; unchanged source-specific operator and R66 decisions were revalidated against the current workbook rather than reused merely because the old source was approved.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "PENDING_OPERATOR_EVENT_BRIDGE",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
-  "updatedAt": "2026-10-01"
+  "updatedAt": "2026-10-01",
+  "platformEvidence": {
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 40,
+    "mergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "ci": "PASS"
+  }
 }
