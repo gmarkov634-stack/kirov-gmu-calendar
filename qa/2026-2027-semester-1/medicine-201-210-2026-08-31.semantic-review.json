@@ -1,0 +1,90 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-201-210-2026-08-31-review-v1",
+  "sourceSha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "R01",
+    "R02",
+    "R03",
+    "R07",
+    "R08",
+    "R09",
+    "R12",
+    "R37",
+    "R40",
+    "R45",
+    "R66",
+    "R67",
+    "R69",
+    "R78"
+  ],
+  "stream": {
+    "groups": [
+      "201",
+      "202",
+      "203",
+      "204",
+      "205",
+      "206",
+      "207",
+      "208",
+      "209",
+      "210"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/2_lech._1_potok-31-08-2026-13.xlsx",
+    "sourceSha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+    "sheet": "2 леч.1",
+    "mainTableLogicalSourceCells": 134,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "coverage": {
+    "logicalSourceCellCount": 134,
+    "coveredSourceCellCount": 134
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "B8",
+      "status": "PASS under G06/R01: Ecology uses only explicit dates 14.09, 12.10, 09.11; 07.12 is removed from the current source. The independent Nursing block remains unchanged."
+    },
+    {
+      "locator": "B36",
+      "status": "PASS: Immunology keeps its explicit dates and 3-819 location; only time changes from 08:40–10:10 to 08:30–10:00."
+    },
+    {
+      "locator": "G23/G28",
+      "status": "PASS: current source leaves the reviewed group-206 Anatomy note unchanged. Preserve both 30.12 source events and the source-specific operator-confirmed extra 31.12 event; this is not R91 and creates no reusable rule."
+    },
+    {
+      "locator": "B34",
+      "status": "PASS: reviewed R66 suppression for group 201 / 18.12 remains encoded; no computed B34 occurrence is present."
+    },
+    {
+      "locator": "B37",
+      "status": "PASS: online lecture remains Онлайн; no hyperlink target is invented."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of the current SHA. Only B8 and B36 changed materially; unchanged source-specific operator and R66 decisions were revalidated against the current workbook rather than reused merely because the old source was approved.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "PASS",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-01",
+  "platformEvidence": {
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 40,
+    "mergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "ci": "PASS"
+  }
+}

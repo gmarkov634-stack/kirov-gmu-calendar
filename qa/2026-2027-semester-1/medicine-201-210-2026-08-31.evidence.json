@@ -1,0 +1,96 @@
+{
+  "fixtureId": "medicine-201-210-2026-2027-semester-1-2026-08-31",
+  "sourceSha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-201-210-2026-08-31.decisions.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review + source-specific-operator-event",
+  "baseCandidateDigest": "sha256:15eb7dd236894057d09ec51897d13ba613dc66ebe01645311b94dc991a716054",
+  "candidateDigest": "sha256:06f58bf7c6a39c8b890a99073de8b6573d36da9ccf9f56f63eeb394a8f816b17",
+  "eventCount": 2652,
+  "groupEventCounts": {
+    "201": 265,
+    "202": 267,
+    "203": 266,
+    "204": 266,
+    "205": 268,
+    "206": 265,
+    "207": 265,
+    "208": 264,
+    "209": 263,
+    "210": 263
+  },
+  "logicalSourceCellCount": 134,
+  "coveredSourceCellCount": 134,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 1,
+  "overlapPolicy": "Preserved under G16/R69 unless a reviewed R66 explicit-vs-computed conflict suppresses the computed occurrence.",
+  "r66SuppressedComputedOccurrences": [
+    {
+      "groupId": "201",
+      "date": "2026-12-18",
+      "locator": "B34#s1"
+    }
+  ],
+  "overlaps": [
+    {
+      "groupId": "206",
+      "date": "2026-12-30",
+      "left": "G23#s1",
+      "right": "G28#s2"
+    }
+  ],
+  "operatorEventAdditions": [
+    {
+      "decisionId": "medicine-206-anatomy-extra-2026-12-31",
+      "groupId": "206",
+      "templateSourceLocator": "2 леч.1!G23#s1",
+      "templateDate": "2026-12-30",
+      "discipline": "Анатомия",
+      "startTime": "13:10",
+      "endTime": "15:35",
+      "date": "2026-12-31",
+      "expectedWeekday": 4,
+      "sourceLocator": "2 леч.1!G23#operator-extra-2026-12-31",
+      "reason": "Current-source revalidation of the source-specific operator decision: G23 requires one additional Thursday Anatomy lesson, fixed as 31.12.2026. This does not create a reusable parser rule."
+    }
+  ],
+  "operatorConfirmedException": {
+    "groupId": "206",
+    "mainSourceLocator": "2 леч.1!G23#s1",
+    "relatedExplicitSourceLocator": "2 леч.1!G28#s2",
+    "discipline": "Анатомия",
+    "decision": "Keep both source-backed Anatomy events on 30.12.2026 and add exactly one source-specific extra Anatomy event on Thursday 31.12.2026 at 13:10–15:35. No R91 rule applies.",
+    "rules": [
+      "R03",
+      "R07",
+      "R08",
+      "R09",
+      "R67",
+      "R69"
+    ]
+  },
+  "onlineLecture": {
+    "sourceLocator": "2 леч.1!B37#s1",
+    "date": "2026-09-12",
+    "location": "Онлайн",
+    "hyperlinkTarget": null,
+    "decision": "The XLSX contains no hyperlink target; the calendar must not invent a URL."
+  },
+  "currentSourceReview": {
+    "changedCoordinates": [
+      "B8",
+      "B36"
+    ],
+    "mergedRangeChanges": 0,
+    "removedEcologyEvents": 10,
+    "b36UpdatedEvents": 90
+  },
+  "platformCompatibility": {
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 40,
+    "mergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "requirement": "reviewed-source bridge expands evidence.operatorEventAdditions without inventing semantics"
+  }
+}

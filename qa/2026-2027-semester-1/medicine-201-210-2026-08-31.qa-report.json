@@ -1,0 +1,95 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-201-210-2026-08-31-v1",
+  "parsingJobId": "reviewed-medicine-201-210-8845fd50-v1",
+  "candidateDigest": "sha256:06f58bf7c6a39c8b890a99073de8b6573d36da9ccf9f56f63eeb394a8f816b17",
+  "decision": "pass",
+  "publicationAllowed": true,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551 was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "Exactly B8 and B36 changed materially; merge geometry is unchanged."
+    },
+    {
+      "code": "b8-explicit-ecology-dates",
+      "status": "pass",
+      "message": "B8 Ecology now has exactly 14.09, 12.10 and 09.11; the removed 07.12 source date is not synthesized from the week marker under G06/R01."
+    },
+    {
+      "code": "b36-immunology-time",
+      "status": "pass",
+      "message": "B36 Immunology keeps the same explicit dates/location and now uses 08:30–10:00."
+    },
+    {
+      "code": "operator-anatomy-extra-revalidated",
+      "status": "pass",
+      "message": "Group 206 keeps both 30.12 Anatomy events and the reviewed source-specific 31.12 13:10–15:35 extra event; no R91 rule applies."
+    },
+    {
+      "code": "r66-suppression-revalidated",
+      "status": "pass",
+      "message": "Group 201 B34 computed occurrence on 18.12 remains suppressed under R66."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "134/134 logical timetable cells are covered by reviewed decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 2652 events: 2651 explicit-manifest events plus one source-specific operator event."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Groups 201–210 only with pinned per-group counts."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "One source-backed overlap remains for group 206 on 30.12 (G23/G28) and is preserved under G16/R69."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-operator-event-bridge",
+      "status": "pass",
+      "message": "medschedule-platform PR #40 passed CI and merged as 8799b672e061b2caecfdfefd4585ad38b0ced902; reviewed operatorEventAdditions are preserved by the source bridge."
+    }
+  ],
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-201-210-2026-08-31-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "compatibilityGate": {
+    "status": "pass",
+    "platformPullRequest": 40,
+    "platformMergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "verifiedChecks": [
+      "reviewed-source-operator-event-expansion"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required"
+  },
+  "createdAt": "2026-10-01T21:20:00+03:00",
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "2d5877892aa790826f3e149defcd5d156e0a25cc",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  }
+}
