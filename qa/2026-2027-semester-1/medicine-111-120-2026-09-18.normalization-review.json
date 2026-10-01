@@ -4,7 +4,7 @@
   "publicationAllowed": true,
   "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
   "approvedSourceSha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
-  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
   "parserProfile": "weekly",
   "sheetName": "1 леч. 2",
   "fullWorkbookDiffEvidence": "qa/2026-2027-semester-1/medicine-111-120-2026-09-18.source-change-full-diff.json",
@@ -236,13 +236,14 @@
         "R01",
         "R06",
         "R37",
-        "R78"
+        "R78",
+        "R91"
       ],
       "operatorConfirmation": {
         "confirmed": true,
         "confirmedAt": "2026-10-01",
         "choice": "timed-event",
-        "note": "Project owner selected option 1 in the review dialog."
+        "note": "Project owner confirmed: treat 12.09 as an ordinary timed lecture."
       }
     }
   ],
