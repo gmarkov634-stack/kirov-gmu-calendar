@@ -43,7 +43,16 @@
     "events": 920
   },
   "platformCompatibility": {
-    "status": "pending",
-    "reason": "medschedule reviewed-source bridge must expand the source-backed facultative fixture instead of dropping optional events"
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "eba644505fe3541c023bf45c5d5ef7f0ec92eefc",
+    "evidence": [
+      "reviewed-source bridge expands the source-backed R90 facultative fixture into the same 4331-event candidate digest",
+      "stable facultativeId values project to optional MULTIPLE ChoiceGroup/ChoiceOption records without changing source semantics",
+      "unselected facultatives remain hidden by the shared Visibility Resolver and user choices stay outside ScheduleVersion",
+      "GRADED_CREDIT reference data is supported for the reviewed course-1 event set",
+      "old engine-level REVIEW_REQUIRED imports can be requeued only after a reviewed-engine revision change"
+    ],
+    "aggregatePublication": "must still pass the staging clone publication/continuity gate before live ScheduleVersion publication"
   }
 }
