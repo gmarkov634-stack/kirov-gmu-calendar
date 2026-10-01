@@ -1,0 +1,297 @@
+{
+  "schemaVersion": "kgmu-normalization-review-delta-v1",
+  "status": "qa-pass-platform-compatible",
+  "publicationAllowed": true,
+  "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
+  "approvedSourceSha256": "781acc69637de634c25738d455cf0f8226212f8eeb1ef016a68c659ec20e358e",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserProfile": "weekly",
+  "sheetName": "1 леч. 2",
+  "fullWorkbookDiffEvidence": "qa/2026-2027-semester-1/medicine-111-120-2026-09-18.source-change-full-diff.json",
+  "reviewMethod": {
+    "sourceOfTruth": "current official XLSX bytes",
+    "automaticCrossShaReuse": false,
+    "unchangedGeometry": "merged-range geometry is unchanged: 153 merged ranges",
+    "unchangedFacultatives": "A45:K45 facultative row and A46:K46 service-week grid were re-read in the current XLSX and are unchanged",
+    "changedCells": "all 12 substantive changed coordinates were freshly reviewed against canonical G/R rules"
+  },
+  "deterministicChanges": [
+    {
+      "source": "K12",
+      "scope": [
+        "120"
+      ],
+      "decision": "preserve Pravovedenie and add a second explicit Safety event series",
+      "normalizedEffect": {
+        "preserved": "Правоведение 15:35–17:05 on 1-week Mondays through 11.01, location 1-323",
+        "added": "Безопасность жизнедеятельности 16:20–17:50 on 21.09, 05.10, 19.10, 02.11",
+        "addedLocation": "ул. Красноармейская, 35"
+      },
+      "rules": [
+        "G09",
+        "G12",
+        "R01",
+        "R34",
+        "R40",
+        "R45",
+        "R78"
+      ]
+    },
+    {
+      "source": "H14",
+      "scope": [
+        "117",
+        "118"
+      ],
+      "decision": "update explicit Economics time only",
+      "normalizedEffect": "Экономика 08:30–10:00 on the existing 08.09–29.12 Tuesday series, location 1-305",
+      "rules": [
+        "G06",
+        "R02",
+        "R78"
+      ]
+    },
+    {
+      "source": "I15",
+      "scope": [
+        "118"
+      ],
+      "decision": "replace Latin with Foreign Language and apply the two explicit consecutive intervals",
+      "normalizedEffect": "Иностранный язык 10:10–12:35 on the existing 08.09–12.01 Tuesday series; location from the same-discipline lower reference: 1 корпус, ул. Владимирская, 137",
+      "rules": [
+        "G09",
+        "G12",
+        "R02",
+        "R12",
+        "R40",
+        "R45",
+        "R78"
+      ]
+    },
+    {
+      "source": "I16",
+      "scope": [
+        "118"
+      ],
+      "decision": "update both explicit Physics/Math intervals",
+      "normalizedEffect": "Физика, математика 13:15–15:40 on the existing 08.09–12.01 Tuesday series",
+      "rules": [
+        "R02",
+        "R12",
+        "R78"
+      ]
+    },
+    {
+      "source": "B17",
+      "scope": [
+        "111",
+        "112"
+      ],
+      "decision": "update explicit Fundamentals of Russian Statehood time only",
+      "normalizedEffect": "Основы российской государственности 16:20–17:50 on the existing 08.09–12.01 Tuesday series; existing assessment semantics remain source-backed",
+      "rules": [
+        "G06",
+        "R02",
+        "R41",
+        "R78"
+      ]
+    },
+    {
+      "source": "K19",
+      "scope": [
+        "120"
+      ],
+      "decision": "replace the old broad range with the new explicit listed dates",
+      "normalizedEffect": "Безопасность жизнедеятельности 08:50–10:20 exactly on 02.09, 16.09, 30.09, 14.10, 28.10, 11.11, 25.11, 09.12, 23.12, 13.01; location ул. Красноармейская, 35",
+      "rules": [
+        "G06",
+        "G12",
+        "R01",
+        "R40",
+        "R45",
+        "R78"
+      ]
+    },
+    {
+      "source": "K22",
+      "scope": [
+        "120"
+      ],
+      "decision": "update the second explicit Chemistry interval",
+      "normalizedEffect": "Общая и биоорганическая химия 13:10–15:35 on the existing 02.09–13.01 Wednesday series",
+      "rules": [
+        "R02",
+        "R12",
+        "R78"
+      ]
+    },
+    {
+      "source": "J30",
+      "scope": [
+        "119",
+        "120"
+      ],
+      "decision": "update explicit Economics time and location",
+      "normalizedEffect": "Экономика 14:45–16:15 on the existing 03.09–24.12 Thursday series, location 1-407",
+      "rules": [
+        "G12",
+        "R02",
+        "R37",
+        "R42",
+        "R78"
+      ]
+    },
+    {
+      "source": "J31",
+      "scope": [
+        "119",
+        "120"
+      ],
+      "decision": "update explicit History of Russia time and location",
+      "normalizedEffect": "История России 16:25–17:55 on the existing 03.09–14.01 Thursday series, location 1-407",
+      "rules": [
+        "G12",
+        "R02",
+        "R37",
+        "R42",
+        "R78"
+      ]
+    },
+    {
+      "source": "I38",
+      "scope": [
+        "118"
+      ],
+      "decision": "replace Foreign Language with Latin and replace the explicit time",
+      "normalizedEffect": "Латинский язык 08:50–10:20 on the existing 05.09–16.01 Saturday series; location from the same-discipline lower reference: 1 корпус, ул. Владимирская, 137",
+      "rules": [
+        "G12",
+        "R02",
+        "R40",
+        "R45",
+        "R78"
+      ]
+    },
+    {
+      "source": "B42:K42",
+      "scope": [
+        "111",
+        "112",
+        "113",
+        "114",
+        "115",
+        "116",
+        "117",
+        "118",
+        "119",
+        "120"
+      ],
+      "decision": "apply the current explicit Economics lecture dates, date-specific time, and location",
+      "normalizedEffect": {
+        "12.09": "12:40–15:50, 3 корпус, ауд. 803",
+        "26.09": "12:40–15:50, 3 корпус, ауд. 819",
+        "10.10": "12:40–15:50, 3 корпус, ауд. 819",
+        "24.10": "12:40–14:10, 3 корпус, ауд. 819",
+        "07.11": "12:40–14:10, 3 корпус, ауд. 819"
+      },
+      "rules": [
+        "G02",
+        "G06",
+        "G10",
+        "G12",
+        "R01",
+        "R04",
+        "R13",
+        "R31",
+        "R37",
+        "R44",
+        "R78"
+      ]
+    },
+    {
+      "source": "B40:K40",
+      "scope": [
+        "111",
+        "112",
+        "113",
+        "114",
+        "115",
+        "116",
+        "117",
+        "118",
+        "119",
+        "120"
+      ],
+      "decision": "keep 12.09 as a timed Biology lecture at 11:00–12:30, with no physical location, and preserve the current source phrase as an event note",
+      "normalizedEffect": {
+        "05.09": "11:00–12:30, 3 корпус, ауд. 819",
+        "12.09": "11:00–12:30, location null, note «размещена на образовательном сайте»",
+        "19.09–05.12": "existing explicit Saturday lecture series 11:00–12:30, 3 корпус, ауд. 819"
+      },
+      "rules": [
+        "G02",
+        "G04",
+        "G10",
+        "G21",
+        "R01",
+        "R06",
+        "R37",
+        "R78",
+        "R91"
+      ],
+      "operatorConfirmation": {
+        "confirmed": true,
+        "confirmedAt": "2026-10-01",
+        "choice": "timed-event",
+        "note": "Project owner confirmed: treat 12.09 as an ordinary timed lecture."
+      }
+    }
+  ],
+  "unresolvedAmbiguities": [],
+  "revalidatedUnchangedSourceAreas": [
+    {
+      "source": "A45:K46",
+      "decision": "R90 facultative/service-week semantics remain source-backed in the current workbook",
+      "rules": [
+        "G02",
+        "R37",
+        "R39",
+        "R56",
+        "R86",
+        "R90"
+      ]
+    }
+  ],
+  "qaState": {
+    "freshChangedCellReviewCompleted": true,
+    "unresolvedAmbiguityCount": 0,
+    "freshCandidateComputed": true,
+    "candidateDigestPinned": true,
+    "qaDecision": "pass",
+    "compatibilityGate": "pass",
+    "scheduleVersionAllowed": true,
+    "platformBridgeCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4"
+  },
+  "expectedCandidate": {
+    "eventCount": 4294,
+    "baseEventCount": 3374,
+    "facultativeEventCount": 920,
+    "groupEventCounts": {
+      "111": 429,
+      "112": 429,
+      "113": 429,
+      "114": 428,
+      "115": 428,
+      "116": 429,
+      "117": 424,
+      "118": 424,
+      "119": 446,
+      "120": 428
+    },
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 363,
+    "overlapPairsInvolvingFacultatives": 362,
+    "baseOverlapPairCount": 1,
+    "candidateDigest": "sha256:aa0bfea32c191e71da8d13c9728f2b4ad56b8fd0c9edf08ae169b4d2af97411b"
+  }
+}

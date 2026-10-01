@@ -1,0 +1,55 @@
+{
+  "fixtureId": "medicine-111-120-2026-2027-semester-1-2026-09-18",
+  "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-111-120-2026-09-18.decisions.json",
+  "facultativeFixture": "fixtures/2026-2027-semester-1/medicine-111-120-2026-09-18.facultatives.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review + operator-confirmed-r90 + owner-confirmed-r91",
+  "baseCandidateDigest": "sha256:676007b275eb73a93e2da7034cd3c5e6f6ac077c057e564642f67eee69629e60",
+  "candidateDigest": "sha256:aa0bfea32c191e71da8d13c9728f2b4ad56b8fd0c9edf08ae169b4d2af97411b",
+  "eventCount": 4294,
+  "baseEventCount": 3374,
+  "facultativeEventCount": 920,
+  "groupEventCounts": {
+    "111": 429,
+    "112": 429,
+    "113": 429,
+    "114": 428,
+    "115": 428,
+    "116": 429,
+    "117": 424,
+    "118": 424,
+    "119": 446,
+    "120": 428
+  },
+  "logicalSourceCellCount": 147,
+  "coveredSourceCellCount": 147,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 363,
+  "baseExplicitOverlapCount": 1,
+  "facultativeOverlapCount": 362,
+  "overlapPolicy": "Preserved under G16/R69; a source-backed timetable overlap is not a parsing error.",
+  "currentSourceReview": {
+    "substantiveChangedCoordinates": 12,
+    "mergedRangeChanges": 0,
+    "b40OwnerConfirmation": "12.09 Biology is an ordinary timed 11:00–12:30 lecture; physical location is null; note is «размещена на образовательном сайте»; source-specific rule R91.",
+    "k12AddedSafetyEvents": 4,
+    "k19ExplicitSafetyDates": 10,
+    "b42Added0711LectureEvents": 10
+  },
+  "facultatives": {
+    "scope": "groups 111-120 from merged A45:K45",
+    "weekGrid": "A46:K46, all 19 academic service-week intervals",
+    "defaultSelected": false,
+    "facultativeCount": 5,
+    "events": 920
+  },
+  "platformCompatibility": {
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 39,
+    "mergedCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
+    "requirement": "reviewed KGMU source note maps to ScheduleEvent.note without changing schedule semantics"
+  }
+}
