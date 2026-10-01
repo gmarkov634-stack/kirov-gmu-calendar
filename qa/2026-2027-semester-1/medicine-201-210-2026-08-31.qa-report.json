@@ -3,7 +3,7 @@
   "parsingJobId": "reviewed-medicine-201-210-8845fd50-v1",
   "candidateDigest": "sha256:06f58bf7c6a39c8b890a99073de8b6573d36da9ccf9f56f63eeb394a8f816b17",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -67,8 +67,8 @@
     },
     {
       "code": "platform-operator-event-bridge",
-      "status": "warning",
-      "message": "Canonical semantic QA is PASS, but ScheduleVersion publication remains blocked until medschedule-platform expands evidence.operatorEventAdditions in the reviewed-source bridge."
+      "status": "pass",
+      "message": "medschedule-platform PR #40 passed CI and merged as 8799b672e061b2caecfdfefd4585ad38b0ced902; reviewed operatorEventAdditions are preserved by the source bridge."
     }
   ],
   "semanticReview": {
@@ -77,11 +77,13 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "pending",
-    "requiredChecks": [
-      "reviewed-source-operator-event-expansion",
-      "aggregate-clone-publication"
-    ]
+    "status": "pass",
+    "platformPullRequest": 40,
+    "platformMergedCommit": "8799b672e061b2caecfdfefd4585ad38b0ced902",
+    "verifiedChecks": [
+      "reviewed-source-operator-event-expansion"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required"
   },
   "createdAt": "2026-10-01T21:20:00+03:00",
   "sharedContractEvidence": {
