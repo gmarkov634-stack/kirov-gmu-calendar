@@ -2,7 +2,7 @@
   "schema": "kgmu-semantic-source-review-v1",
   "reviewId": "kgmu-2026-2027-s1-medicine-111-120-2026-09-18-review-v1",
   "sourceSha256": "bcfe7e65bd548c4a6acbed8c09e0e9086964dbc73e0fc6911ce63521d29cec7e",
-  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
   "parserProfile": "weekly",
   "rules": [
     "G01",
@@ -30,7 +30,8 @@
     "R69",
     "R78",
     "R86",
-    "R90"
+    "R90",
+    "R91"
   ],
   "stream": {
     "groups": [
@@ -74,14 +75,15 @@
       ],
       "sourceText": "11.00-12.30 ЛЕКЦИЯ БИОЛОГИЯ 05.09, 12.09-размещена на образовательном сайте; 19.09-05.12 3 корпус, аудитория 819 ул. Владимирская,112",
       "question": "Does 12.09 remain a timed 11:00–12:30 lecture or is it asynchronous material only?",
-      "decision": "Keep a timed Biology lecture on 12.09 at 11:00–12:30; do not assign a physical location; preserve «размещена на образовательном сайте» as the event note.",
+      "decision": "Treat 12.09 Biology as an ordinary timed lecture at 11:00–12:30; physical location remains null because the current XLSX does not state one; preserve «размещена на образовательном сайте» as the event note.",
       "confirmed": true,
       "confirmedAt": "2026-10-01",
       "rules": [
         "G04",
         "G21",
         "R06",
-        "R78"
+        "R78",
+        "R91"
       ]
     }
   ],
@@ -147,5 +149,11 @@
   "semanticPublicationGate": "PASS",
   "platformPublicationGate": "PASS",
   "publicationPerformed": false,
-  "updatedAt": "2026-10-01"
+  "updatedAt": "2026-10-01",
+  "platformEvidence": {
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 39,
+    "mergedCommit": "1c7d4d4f492384ee77ebf52a12ef81b51dee0da4",
+    "ci": "PASS"
+  }
 }
