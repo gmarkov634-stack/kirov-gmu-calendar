@@ -145,7 +145,7 @@
   ],
   "normalizationPolicy": "Fresh current-source review; no semantic decision was reused solely because most workbook cells were unchanged.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "PENDING",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-01"
 }
