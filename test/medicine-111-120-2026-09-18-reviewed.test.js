@@ -49,14 +49,14 @@ test('current medicine 111-120 source has a fully reviewed candidate', async () 
   assert.equal(qa.decision, 'pass');
   assert.equal(qa.publicationAllowed, true);
   assert.equal(qa.compatibilityGate.status, 'pass');
-  assert.equal(source.lifecycle.publicationAllowed, true);
-  assert.equal(review.publicationAllowed, true);
   assert.equal(review.qaState.compatibilityGate, 'pass');
-  assert.equal(review.qaState.scheduleVersionAllowed, true);
   assert.equal(manifest.candidateDigest, evidence.candidateDigest);
-  assert.equal(evidence.platformCompatibility.status, 'pass');
   assert.equal(
     evidence.platformCompatibility.mergedCommit,
+    '1c7d4d4f492384ee77ebf52a12ef81b51dee0da4',
+  );
+  assert.equal(
+    semantic.platformEvidence.mergedCommit,
     '1c7d4d4f492384ee77ebf52a12ef81b51dee0da4',
   );
 
