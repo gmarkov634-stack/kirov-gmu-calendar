@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "kgmu-normalization-review-delta-v1",
+  "status": "qa-pass-awaiting-platform-facultative-bridge",
+  "publicationAllowed": false,
+  "sourceSha256": "f83baaf4cf924a2e38e8e74455b4b6f2207e18d0bb66dd917785b0a5bb2946cb",
+  "approvedSourceSha256": "9c5fa026b30cad5920c77f40f1550b88fb0f28f950aa6f2659ff18984969b4ca",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "sheetName": "1 леч.1",
+  "fullWorkbookDiffEvidence": "qa/2026-2027-semester-1/medicine-101-110-2026-09-04.source-change-full-diff.json",
+  "reviewMethod": {
+    "unchangedCells": "previous reviewed semantics are revalidated only where raw cell content and merge geometry are unchanged",
+    "changedCells": "B41 and the J35:K35 merge were freshly reviewed against the current XLSX and canonical G/R rules",
+    "optionalAndAssessmentArea": "rows 43-56 have no substantive cell or merge delta; R90 facultative semantics are freshly revalidated against unchanged source content",
+    "automaticCrossShaReuse": false
+  },
+  "decisionDelta": {
+    "removeExactTuples": [
+      [
+        "J35#s1",
+        "100",
+        "4104104104104104104104104",
+        "10:35",
+        "12:05",
+        15,
+        3,
+        11
+      ]
+    ],
+    "addTuples": [
+      [
+        "J35#s1",
+        "300",
+        "4104104104104104104104104",
+        "10:35",
+        "12:05",
+        15,
+        3,
+        11
+      ]
+    ],
+    "resultingLogicalSourceCellCount": 144,
+    "resultingDecisionCount": 194
+  },
+  "semanticReview": [
+    {
+      "source": "B41",
+      "groups": [
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106",
+        "107",
+        "108",
+        "109",
+        "110"
+      ],
+      "decision": "preserve-reviewed-event-set",
+      "reason": "the current cell changes punctuation between 14.11 and the explicit 12.12 exception plus trailing whitespace; explicit dates, times, disciplines and place remain the same, so fresh review reproduces the prior three lecture segments",
+      "rules": [
+        "G06",
+        "G09",
+        "R01",
+        "R04",
+        "R13",
+        "R78"
+      ]
+    },
+    {
+      "source": "J35:K35",
+      "groups": [
+        "109",
+        "110"
+      ],
+      "decision": "expand-scope-to-both-covered-groups",
+      "reason": "the current XLSX explicitly adds the horizontal merged range J35:K35; under R37/R56 the J35 Economics block applies to both group columns, adding the same 17 Friday events to group 110",
+      "rules": [
+        "G02",
+        "G10",
+        "R37",
+        "R56",
+        "R78"
+      ]
+    }
+  ],
+  "expectedCandidate": {
+    "eventCount": 4331,
+    "baseEventCount": 3411,
+    "facultativeEventCount": 920,
+    "groupEventCounts": {
+      "101": 428,
+      "102": 427,
+      "103": 427,
+      "104": 427,
+      "105": 428,
+      "106": 428,
+      "107": 439,
+      "108": 439,
+      "109": 444,
+      "110": 444
+    },
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 134,
+    "overlapPairsInvolvingFacultatives": 126,
+    "baseOverlapPairCount": 8,
+    "candidateDigest": "sha256:ab39f5ccf8d4678222f6c27b668581197c00d083cedf463ee8750cf1cadddf79"
+  },
+  "qaState": {
+    "freshCandidateComputed": true,
+    "candidateDigestPinned": true,
+    "qaDecision": "pass",
+    "compatibilityGate": "platform-facultative-bridge-pending",
+    "scheduleVersionAllowed": false
+  }
+}
