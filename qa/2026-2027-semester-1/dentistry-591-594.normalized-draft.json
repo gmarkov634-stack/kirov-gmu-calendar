@@ -1,0 +1,30 @@
+{
+  "schema": "kgmu-normalized-draft-index-v1",
+  "draftId": "normalized-draft-dentistry-591-594-0c8b13b7e4dc409e-v1",
+  "parsingJobId": "parsing-job-dentistry-591-594-0c8b13b7-v1",
+  "sourceArtifactId": "source-artifact-dentistry-591-594-2026-09-03-v1",
+  "sourceSha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+  "parserProfile": "cyclic",
+  "profileLayer": "C",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "status": "REVIEW_REQUIRED",
+  "coverage": "safe-resolved-subset",
+  "candidatePath": "fixtures/2026-2027-semester-1/normalized/dentistry-591-594.normalized.compact.json",
+  "candidateDigest": "sha256:e94a07c81fc6d583a51ab2a5883685257f89c22bdfdb226d95f31786ebdbe232",
+  "eventCount": 492,
+  "eventCountsByGroup": {
+    "591": 123,
+    "592": 123,
+    "593": 123,
+    "594": 123
+  },
+  "assessmentBearingEventCount": 292,
+  "sourceBackedOverlapCount": 3,
+  "unresolvedEventOccurrenceCount": 48,
+  "expectedGroupIds": [
+    "591",
+    "592",
+    "593",
+    "594"
+  ]
+}

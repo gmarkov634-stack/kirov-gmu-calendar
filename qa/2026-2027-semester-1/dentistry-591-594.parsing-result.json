@@ -1,0 +1,84 @@
+{
+  "schema": "kgmu-parsing-result-v1",
+  "jobId": "parsing-job-dentistry-591-594-0c8b13b7-v1",
+  "sourceArtifactId": "source-artifact-dentistry-591-594-2026-09-03-v1",
+  "sourceSha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+  "parserProfile": "cyclic",
+  "profileLayer": "C",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "courseParserRulesVersion": "dentistry-591-594-v1",
+  "status": "REVIEW_REQUIRED",
+  "expectedGroupIds": [
+    "591",
+    "592",
+    "593",
+    "594"
+  ],
+  "sheetName": "2026-2027 осень 5 курс Стом",
+  "logicalSourceBlockCount": 37,
+  "groupLocalCycleBlockCount": 33,
+  "independentScheduleBlockCount": 1,
+  "serviceBlockCount": 2,
+  "unresolvedCommonBlockCount": 1,
+  "resolvedOccurrenceCount": 492,
+  "unresolvedOccurrenceCount": 48,
+  "diagnostics": [
+    {
+      "rule": "G04/G21",
+      "kind": "practice-period",
+      "locator": "DC15:DN18",
+      "groupIds": [
+        "591",
+        "592",
+        "593",
+        "594"
+      ],
+      "dates": [
+        "2027-01-11",
+        "2027-01-12",
+        "2027-01-13",
+        "2027-01-14",
+        "2027-01-15",
+        "2027-01-16",
+        "2027-01-18",
+        "2027-01-19",
+        "2027-01-20",
+        "2027-01-21",
+        "2027-01-22",
+        "2027-01-23"
+      ],
+      "sourceLabel": "Практика",
+      "c22Applicable": false,
+      "c22Reason": "Canonical C22 is source-specific to a different historical 5-course XLSX and cannot supply title/time/location for 5_stomat-24-08-2026-14.xlsx.",
+      "reason": "The current official XLSX provides the Practice period dates but not an exact practice title, daily time or location; these details are therefore withheld rather than inferred."
+    }
+  ],
+  "serviceBlocks": [
+    {
+      "rule": "C07/C14",
+      "locator": "CW15:DB18",
+      "label": "Экзамены",
+      "dates": [
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2027-01-09"
+      ]
+    },
+    {
+      "rule": "G07",
+      "locator": "DO15:DT18",
+      "label": "Каникулы",
+      "dates": [
+        "2027-01-25",
+        "2027-01-26",
+        "2027-01-27",
+        "2027-01-28",
+        "2027-01-29",
+        "2027-01-30"
+      ]
+    }
+  ]
+}
