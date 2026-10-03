@@ -1,0 +1,54 @@
+name: Build dentistry 391-394 normalized draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/dentistry-391-394-2026-27-s1
+    paths:
+      - 'fixtures/tools/build_dentistry_391_394_candidate.py'
+      - 'fixtures/tools/run_dentistry_391_394_candidate.py'
+      - 'fixtures/tools/resolve_dentistry_391_394_manual_review.py'
+      - 'fixtures/2026-2027-semester-1/dentistry-391-394.source-probe.json'
+      - 'fixtures/2026-2027-semester-1/dentistry-391-394.manual-resolution.json'
+      - 'catalog/2026-2027-semester-1.json'
+      - '.github/workflows/build-dentistry-391-394-draft.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dentistry-391-394-2026-27-s1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build deterministic normalized draft and QA evidence
+        run: python fixtures/tools/run_dentistry_391_394_candidate.py
+      - name: Commit deterministic evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            fixtures/2026-2027-semester-1/dentistry-391-394.source.json \
+            fixtures/2026-2027-semester-1/dentistry-391-394.source-artifact.json \
+            fixtures/2026-2027-semester-1/dentistry-391-394.parsing-job.json \
+            qa/2026-2027-semester-1/dentistry-391-394.parsing-result.json \
+            qa/2026-2027-semester-1/dentistry-391-394.normalized-draft.partial.json \
+            qa/2026-2027-semester-1/dentistry-391-394.semantic-review.json \
+            qa/2026-2027-semester-1/dentistry-391-394.qa-report.json \
+            qa/2026-2027-semester-1/dentistry-391-394.normalized-draft.json \
+            qa/2026-2027-semester-1/dentistry-391-394.semantic-review.resolved.json \
+            qa/2026-2027-semester-1/dentistry-391-394.qa-report.final.json
+          if git diff --cached --quiet; then
+            echo 'draft/QA evidence unchanged'
+            exit 0
+          fi
+          git commit -m 'Record dentistry 391-394 normalized draft QA'
+          git push origin HEAD:feat/dentistry-391-394-2026-27-s1
