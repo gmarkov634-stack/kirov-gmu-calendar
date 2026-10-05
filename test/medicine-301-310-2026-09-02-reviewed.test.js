@@ -1,5 +1,3 @@
-[Reading 173 lines from start (total: 173 lines, 0 remaining)]
-
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -173,5 +171,3 @@ test('current medicine 301-310 source is freshly reviewed without cross-SHA sema
     new Set(['3 леч.1!I21#s1', '3 леч.1!I10#s2']),
   );
 });
-
-[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
