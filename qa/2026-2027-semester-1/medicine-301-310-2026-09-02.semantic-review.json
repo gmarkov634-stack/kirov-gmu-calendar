@@ -1,0 +1,88 @@
+[Reading 84 lines from start (total: 84 lines, 0 remaining)]
+
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-301-310-2026-09-02-review-v1",
+  "sourceSha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "G21",
+    "R01",
+    "R06",
+    "R08",
+    "R12",
+    "R37",
+    "R44",
+    "R66",
+    "R69"
+  ],
+  "stream": {
+    "groups": [
+      "301",
+      "302",
+      "303",
+      "304",
+      "305",
+      "306",
+      "307",
+      "308",
+      "309",
+      "310"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech._1_potok-02-09-2026-12.xlsx",
+    "sourceSha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+    "sheet": "3 леч.1",
+    "mainTableLogicalSourceCells": 114,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "coverage": {
+    "logicalSourceCellCount": 114,
+    "coveredSourceCellCount": 114
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "J16",
+      "status": "PASS: current source changes group 309 Pathophysiology from 10:50–13:15 to 10:40–13:05; the existing date mask/scope remains unchanged."
+    },
+    {
+      "locator": "B27",
+      "status": "PASS: current source removes the “группа №1” suffix from Statistics. Preserve the same all-groups choice option statistical-evidence-medicine but normalize the discipline label without a subgroup suffix."
+    },
+    {
+      "locator": "B31",
+      "status": "PASS: Statistics is absent from the current common choice-practice block. Remove the former B31#s6 and B31#s10 Statistics segments; keep the remaining explicitly listed choice disciplines and their existing scope/date semantics."
+    },
+    {
+      "locator": "B15/B18",
+      "status": "PASS: the Molecular-pathology source region and merge geometry are unchanged. Revalidate the existing source-specific user-confirmed group-310 occurrence on 30.12.2026 08:00–10:25; do not broaden the B18:J18 merge."
+    },
+    {
+      "locator": "I10/I21",
+      "status": "PASS: group 308 on 23.12 still contains both explicit General Surgery and Hygiene events. Preserve the source-explicit overlap under G16/R69."
+    },
+    {
+      "locator": "B18#s2",
+      "status": "PASS: the reviewed R66 suppression of the computed group-308 physical-education occurrence on 23.12 remains valid against the unchanged current source."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of current SHA 367de1a0. Only J16, B27 and B31 are materially changed versus the previous approved workbook. Unchanged source-specific operator/R66/overlap decisions were revalidated against the current cells and unchanged merge geometry; no cross-SHA automatic approval and no new reusable G/R rule.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-05"
+}
+
+[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
