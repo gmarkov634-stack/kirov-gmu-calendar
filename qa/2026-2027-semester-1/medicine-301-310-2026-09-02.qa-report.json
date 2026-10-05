@@ -1,0 +1,99 @@
+[Reading 95 lines from start (total: 95 lines, 0 remaining)]
+
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-301-310-2026-09-02-v1",
+  "parsingJobId": "reviewed-medicine-301-310-367de1a0-v1",
+  "candidateDigest": "sha256:87bd585f77cea68307967e21bdc52bb660717d9e84642523d5869c25b1857dfb",
+  "decision": "pass",
+  "publicationAllowed": false,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1 was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "Exactly J16, B27 and B31 changed materially; workbook geometry and merged ranges are unchanged."
+    },
+    {
+      "code": "j16-pathophysiology-time",
+      "status": "pass",
+      "message": "Group 309 J16 now normalizes to 10:40–13:05 on the unchanged reviewed date set."
+    },
+    {
+      "code": "b27-statistics-label",
+      "status": "pass",
+      "message": "B27 Statistics no longer carries the subgroup №1 suffix; all 120 expanded events retain the statistical-evidence-medicine choice option with the unqualified source discipline label."
+    },
+    {
+      "code": "b31-statistics-removed",
+      "status": "pass",
+      "message": "The current B31 block no longer lists Statistics; former B31#s6/B31#s10 contribute zero current events. Other explicitly listed choice disciplines remain."
+    },
+    {
+      "code": "operator-group310-revalidated",
+      "status": "pass",
+      "message": "The source-specific group-310 Molecular mechanisms event on 30.12 08:00–10:25 is revalidated against unchanged B15/B18 content and unchanged merge geometry; no reusable parser rule is introduced."
+    },
+    {
+      "code": "r66-suppression-revalidated",
+      "status": "pass",
+      "message": "Group 308 computed physical-education occurrence on 23.12 remains suppressed under R66 in favor of explicit source-backed events."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "114/114 logical timetable cells are covered by reviewed decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 3531 events: 3530 explicit-manifest events plus one revalidated source-specific operator event."
+    },
+    {
+      "code": "choice-selection-metadata",
+      "status": "pass",
+      "message": "All seven discipline-by-choice families carry explicit selection IDs and labels under medicine-3-choice-discipline-2026-s1; 1208 choice events are preserved for personalization."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "overlaps-classified",
+      "status": "warning",
+      "message": "1967 overlaps are between mutually exclusive choice options; one source-explicit non-selection overlap remains for group 308 on 23.12 and is preserved under G16/R69."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent/ChoiceGroup ingestion."
+    }
+  ],
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-301-310-2026-09-02-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until platform bridge PASS"
+  },
+  "createdAt": "2026-10-05T19:30:00+03:00",
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "2d5877892aa790826f3e149defcd5d156e0a25cc",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  }
+}
+
+[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
