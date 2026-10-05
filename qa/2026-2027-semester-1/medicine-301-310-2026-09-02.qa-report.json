@@ -1,5 +1,3 @@
-[Reading 95 lines from start (total: 95 lines, 0 remaining)]
-
 {
   "qaReportId": "qa-kgmu-2026-2027-s1-medicine-301-310-2026-09-02-v1",
   "parsingJobId": "reviewed-medicine-301-310-367de1a0-v1",
@@ -95,5 +93,3 @@
     "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
   }
 }
-
-[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
