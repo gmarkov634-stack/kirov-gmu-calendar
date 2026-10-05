@@ -1,0 +1,124 @@
+[Reading 120 lines from start (total: 120 lines, 0 remaining)]
+
+{
+  "fixtureId": "medicine-301-310-2026-2027-semester-1-2026-09-02",
+  "sourceSha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-301-310-2026-09-02.decisions.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review + source-specific-operator-event",
+  "baseCandidateDigest": "sha256:676f821b4047d9060a98aba6247368bb421b0cdba3b3873075de98aca547acdc",
+  "candidateDigest": "sha256:87bd585f77cea68307967e21bdc52bb660717d9e84642523d5869c25b1857dfb",
+  "eventCount": 3531,
+  "groupEventCounts": {
+    "301": 352,
+    "302": 352,
+    "303": 356,
+    "304": 356,
+    "305": 356,
+    "306": 356,
+    "307": 356,
+    "308": 355,
+    "309": 353,
+    "310": 339
+  },
+  "logicalSourceCellCount": 114,
+  "coveredSourceCellCount": 114,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 1,
+  "selectionAlternativeOverlapCount": 1967,
+  "selectionDependentOverlapCount": 0,
+  "overlapPolicy": "Different selectionOptionId values inside medicine-3-choice-discipline-2026-s1 are expected mutually exclusive alternatives and are not schedule conflicts. The one remaining non-selection overlap is explicitly source-backed and preserved under G16/R69.",
+  "selectionGroupId": "medicine-3-choice-discipline-2026-s1",
+  "selectionOptionIds": [
+    "biochemical-healthy-lifestyle",
+    "dietology",
+    "functional-diagnostics",
+    "intercultural-professional-communication",
+    "latin-pharmaceutical-terminology",
+    "molecular-pathology",
+    "statistical-evidence-medicine"
+  ],
+  "choiceEventCount": 1208,
+  "mandatoryEventCount": 2323,
+  "r66SuppressedComputedOccurrences": [
+    {
+      "groupId": "308",
+      "date": "2026-12-23",
+      "locator": "B18#s2",
+      "discipline": "Элективные дисциплины по физической культуре и спорту",
+      "reason": "Explicit Hygiene and General Surgery events on 23.12 take priority over the computed weekly physical-education occurrence under R66; current source region is unchanged."
+    }
+  ],
+  "overlaps": [
+    {
+      "groupId": "308",
+      "date": "2026-12-23",
+      "left": "I21#s1",
+      "right": "I10#s2",
+      "decision": "Both events remain explicitly source-backed in the current workbook; preserve under G16/R69."
+    }
+  ],
+  "operatorEventAdditions": [
+    {
+      "decisionId": "M301-MOLECULAR-WEDNESDAY-G310",
+      "groupId": "310",
+      "templateDate": "2026-12-29",
+      "templateSourceLocator": "3 леч.1!B15#s1",
+      "discipline": "Молекулярные механизмы в патологии человека",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "date": "2026-12-30",
+      "sourceLocator": "3 леч.1!B18#operator-g310",
+      "expectedWeekday": 3,
+      "reason": "Current-source revalidation of the user-confirmed decision from 2026-08-31: unchanged B15/B18 semantics still require one Wednesday Molecular mechanisms occurrence for group 310 on 30.12.2026 08:00–10:25; B18:J18 merge geometry is not expanded."
+    }
+  ],
+  "operatorConfirmedException": {
+    "decisionId": "M301-MOLECULAR-WEDNESDAY-G310",
+    "groupId": "310",
+    "mainSourceLocator": "3 леч.1!B15#s1",
+    "relatedSourceLocator": "3 леч.1!B18#operator-g310",
+    "decision": "Include 30.12.2026 08:00–10:25 Molecular mechanisms for group 310 as the one Wednesday occurrence; current B15/B18 semantics and merge geometry are unchanged.",
+    "rules": [
+      "G21",
+      "R06",
+      "R08",
+      "R37",
+      "R44",
+      "R69"
+    ]
+  },
+  "currentSourceReview": {
+    "changedCoordinates": [
+      "J16",
+      "B27",
+      "B31"
+    ],
+    "mergedRangeChanges": 0,
+    "j16": {
+      "oldTime": "10:50–13:15",
+      "newTime": "10:40–13:05",
+      "affectedEvents": 18
+    },
+    "b27": {
+      "change": "removed “группа №1” qualifier",
+      "normalizedChoiceOption": "statistical-evidence-medicine",
+      "affectedEvents": 120
+    },
+    "b31": {
+      "change": "Statistics removed from common choice-practice block",
+      "removedDecisionIds": [
+        "B31#s6",
+        "B31#s10"
+      ],
+      "removedEvents": 120
+    }
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform ScheduleEvent/choice ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+  }
+}
+
+[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
