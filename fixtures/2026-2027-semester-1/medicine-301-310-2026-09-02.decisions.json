@@ -1,5 +1,3 @@
-[Reading 1000 lines from start (total: 2085 lines, 1085 remaining)]
-
 {
   "schema": "kgmu-explicit-semantic-decisions-v3",
   "fixtureId": "medicine-301-310-2026-2027-semester-1-2026-09-02",
@@ -1000,5 +998,3 @@
       "17:05",
       17,
       1,
-
-[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
