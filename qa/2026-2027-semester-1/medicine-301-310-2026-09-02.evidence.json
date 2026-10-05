@@ -1,5 +1,3 @@
-[Reading 120 lines from start (total: 120 lines, 0 remaining)]
-
 {
   "fixtureId": "medicine-301-310-2026-2027-semester-1-2026-09-02",
   "sourceSha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
@@ -120,5 +118,3 @@
     "requirement": "Run current medschedule-platform ScheduleEvent/choice ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
   }
 }
-
-[executed on device: MacBook-Air-Grigorij.local (34120fb1-1c5a-401e-9bc8-c9ef02fa8fba)]
