@@ -1,0 +1,187 @@
+{
+  "schema": "kgmu-candidate-qa-report-v1",
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-331-337-2026-09-02-v1",
+  "parsingJobId": "reviewed-pediatrics-331-337-6ad088c6-v1",
+  "fixtureId": "pediatrics-331-337-2026-2027-semester-1-2026-09-02",
+  "sourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
+  "candidateDigest": "sha256:5257c73ffc8c0affce67f84079a1358f8565e8c18d51cebeee94ef301eb19663",
+  "decision": "pass",
+  "publicationAllowed": false,
+  "blockingIssues": [],
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1 was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "After whitespace normalization exactly G24 changed; no cells were added/removed and merged-range geometry is identical."
+    },
+    {
+      "code": "g24-immunology-time",
+      "status": "pass",
+      "message": "Group 336 Immunology G24 now normalizes to 13:00–14:30 on 12 unchanged Thursday dates from 03.09 through 19.11."
+    },
+    {
+      "code": "source-cells-covered",
+      "status": "pass",
+      "message": "98/98 timetable source cells and 131/131 source segments remain covered by reviewed decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 1781 events with unchanged per-group counts."
+    },
+    {
+      "code": "duplicate-events",
+      "status": "pass",
+      "message": "Current candidate has 0 duplicate normalized event signatures."
+    },
+    {
+      "code": "operator-confirmation-revalidated",
+      "status": "pass",
+      "message": "PED3-D20-D12-MICROBIOLOGY-MISSING-MONDAY remains resolved by the explicit user-confirmed 07.12.2026 event; D20/D12 are unchanged."
+    },
+    {
+      "code": "location-safety-revalidated",
+      "status": "pass",
+      "message": "Suspicious C39 literal is unchanged and is not silently corrected or propagated as an inferred clinical-base location."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "The same 4 source-backed overlap pairs remain preserved under G16/R69."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent/PostgreSQL compatibility."
+    }
+  ],
+  "checksDetail": {
+    "sourceCells": {
+      "expected": 98,
+      "covered": 98,
+      "missing": [],
+      "extra": []
+    },
+    "sourceSegments": {
+      "expected": 131,
+      "covered": 131,
+      "missing": [],
+      "extra": []
+    },
+    "normalizedEvents": {
+      "count": 1781,
+      "invalidCount": 0,
+      "invalidEvents": []
+    },
+    "exactLogicalDuplicates": {
+      "count": 0,
+      "items": []
+    },
+    "overlaps": {
+      "count": 4,
+      "blocking": false,
+      "reason": "Explicit source overlaps are preserved as source facts.",
+      "items": [
+        {
+          "key": "333|2026-12-24",
+          "left": {
+            "discipline": "Топографическая анатомия и оперативная хирургия",
+            "startTime": "10:30",
+            "endTime": "13:40",
+            "sourceLocator": "3пед.!D23#s1#t2"
+          },
+          "right": {
+            "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
+            "startTime": "13:30",
+            "endTime": "15:55",
+            "sourceLocator": "3пед.!D25#s1"
+          }
+        },
+        {
+          "key": "334|2026-12-03",
+          "left": {
+            "discipline": "Патологическая анатомия, клиническая патологическая анатомия, патологическая анатомия (модуль)",
+            "startTime": "08:00",
+            "endTime": "10:25",
+            "sourceLocator": "3пед.!E23#s1"
+          },
+          "right": {
+            "discipline": "Фармакология",
+            "startTime": "08:00",
+            "endTime": "10:25",
+            "sourceLocator": "3пед.!E23#s2"
+          }
+        },
+        {
+          "key": "334|2026-12-24",
+          "left": {
+            "discipline": "Топографическая анатомия и оперативная хирургия",
+            "startTime": "10:30",
+            "endTime": "13:40",
+            "sourceLocator": "3пед.!E23#s3#t2"
+          },
+          "right": {
+            "discipline": "Патофизиология, клиническая патофизиология. Патофизиология (модуль)",
+            "startTime": "13:30",
+            "endTime": "15:55",
+            "sourceLocator": "3пед.!E25#s1"
+          }
+        },
+        {
+          "key": "337|2026-11-25",
+          "left": {
+            "discipline": "Учебная практика. Практика по получению первичных профессиональных умений и навыков диагностического профиля",
+            "startTime": "13:30",
+            "endTime": "16:40",
+            "sourceLocator": "3пед.!H20#s2"
+          },
+          "right": {
+            "discipline": "Иммунология",
+            "startTime": "15:20",
+            "endTime": "16:50",
+            "sourceLocator": "3пед.!H21#s1"
+          }
+        }
+      ]
+    },
+    "group333MicrobiologyResolution": {
+      "confirmationId": "USER-2026-09-02-PED3-KEEP-07-12",
+      "mondayEvents": [
+        {
+          "date": "2026-12-07",
+          "sourceLocator": "3пед.!D12#s2",
+          "startTime": "15:40",
+          "endTime": "18:05"
+        }
+      ],
+      "resolvedExplicitCount": 1,
+      "d20SyntheticCount": 0
+    },
+    "locationSafety": {
+      "suspiciousSourceAddressPropagatedCount": 0
+    }
+  },
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-pediatrics-331-337-2026-09-02-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0,
+    "operatorConfirmationIds": [
+      "USER-2026-09-02-PED3-KEEP-07-12"
+    ]
+  },
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until platform bridge PASS"
+  },
+  "createdAt": "2026-10-06T17:20:00+03:00"
+}

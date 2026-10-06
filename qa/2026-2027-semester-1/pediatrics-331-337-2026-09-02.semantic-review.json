@@ -1,0 +1,108 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-pediatrics-331-337-2026-09-02-review-v1",
+  "sourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G14",
+    "G16",
+    "G19",
+    "G20",
+    "G21",
+    "R01",
+    "R06",
+    "R08",
+    "R12",
+    "R40",
+    "R41",
+    "R67",
+    "R69",
+    "R83"
+  ],
+  "stream": {
+    "programId": "pediatrics",
+    "course": 3,
+    "groups": [
+      "331",
+      "332",
+      "333",
+      "334",
+      "335",
+      "336",
+      "337"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1085/3_ped-02-09-2026-10.xlsx",
+    "sourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
+    "sheet": "3пед.",
+    "logicalSourceCells": 98,
+    "sourceSegments": 131,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "coverage": {
+    "logicalSourceCellCount": 98,
+    "coveredSourceCellCount": 98,
+    "sourceSegmentCount": 131,
+    "coveredSourceSegmentCount": 131
+  },
+  "unresolvedAmbiguities": [],
+  "resolvedAmbiguities": [
+    {
+      "ambiguityId": "PED3-D20-D12-MICROBIOLOGY-MISSING-MONDAY",
+      "sourceLocators": [
+        "3пед.!D20",
+        "3пед.!D12"
+      ],
+      "groupId": "333",
+      "discipline": "Микробиология, вирусология",
+      "issue": "D20 declares 2 additional Monday sessions, while the current workbook still contains only one explicit same-group Monday Microbiology date in D12: 07.12.2026.",
+      "resolution": "Keep only the explicit D12 event on 07.12.2026 15:40–18:05; do not synthesize a second Monday event.",
+      "resolvedEvents": [
+        {
+          "date": "2026-12-07",
+          "sourceLocator": "3пед.!D12"
+        }
+      ],
+      "omittedSyntheticEventCount": 1,
+      "resolutionBasis": "user-confirmed-explicit-source-date-only",
+      "confirmationId": "USER-2026-09-02-PED3-KEEP-07-12",
+      "rules": [
+        "G21",
+        "R67",
+        "R83"
+      ],
+      "revalidation": "D20 and D12 normalized text and merge geometry are unchanged in current SHA; only G24 changed."
+    }
+  ],
+  "confirmedSourceSemantics": [
+    {
+      "locator": "G24",
+      "status": "PASS: current source changes group 336 Immunology from 13:00–15:25 to 13:00–14:30 on the unchanged Thursday date set 03.09–19.11. The former 14:40–15:25 segment is explicitly absent in the current cell."
+    },
+    {
+      "locator": "D20/D12",
+      "status": "PASS: user-confirmed 07.12.2026 15:40–18:05 Microbiology event remains the only explicit Monday event; unchanged source cells revalidate the G21/R67/R83 exception without synthesizing another Monday."
+    },
+    {
+      "locator": "C39",
+      "status": "PASS: suspicious source literal “ул. Щорса, 640” is unchanged; preserve it only as review evidence and do not silently correct or infer a clinical-base location."
+    },
+    {
+      "locator": "explicit overlaps",
+      "status": "PASS: the same four source-backed overlap pairs remain and are preserved under G16/R69."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of current SHA 6ad088c6. Mechanical normalized workbook diff versus the archived official baseline probe is exactly one changed cell G24; there are no added/removed cells and no merged-range changes. D20/D12 user-confirmed resolution and prior location-safety handling were freshly revalidated because their source cells are unchanged. No cross-SHA automatic approval and no new reusable G/R rule.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-06"
+}

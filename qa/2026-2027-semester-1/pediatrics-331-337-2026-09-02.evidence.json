@@ -1,0 +1,90 @@
+{
+  "schema": "kgmu-normalized-candidate-evidence-v1",
+  "fixtureId": "pediatrics-331-337-2026-2027-semester-1-2026-09-02",
+  "sourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
+  "candidateDigest": "sha256:5257c73ffc8c0affce67f84079a1358f8565e8c18d51cebeee94ef301eb19663",
+  "sourceCellCount": 98,
+  "sourceSegmentCount": 131,
+  "decisionCount": 144,
+  "eventCount": 1781,
+  "groupEventCounts": {
+    "331": 254,
+    "332": 254,
+    "333": 253,
+    "334": 254,
+    "335": 255,
+    "336": 255,
+    "337": 256
+  },
+  "firstDate": "2026-09-01",
+  "lastDate": "2026-12-30",
+  "unresolvedAmbiguities": 0,
+  "operatorConfirmationIds": [
+    "USER-2026-09-02-PED3-KEEP-07-12"
+  ],
+  "group333MondayMicrobiology": [
+    {
+      "date": "2026-12-07",
+      "startTime": "15:40",
+      "endTime": "18:05",
+      "sourceLocator": "3пед.!D12#s2"
+    }
+  ],
+  "d20SyntheticMondayCount": 0,
+  "locationPolicy": {
+    "ambiguousClinicalBasesUseNull": true,
+    "suspiciousSourceLiteralCorrected": false,
+    "nullLocationDisciplines": [
+      "Общая хирургия",
+      "Пропедевтика внутренних болезней",
+      "Пропедевтика детских болезней",
+      "Учебная практика. Практика по получению первичных профессиональных умений и навыков диагностического профиля"
+    ],
+    "currentSourceRevalidation": "C39 and all location-reference cells are normalized-unchanged; no inferred correction is introduced."
+  },
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/pediatrics-331-337-2026-09-02.decisions.json",
+  "semanticDecisionMode": "fresh-current-source-review + operator-authored-explicit + revalidated-source-specific-decision",
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 4,
+  "overlapPolicy": "Preserved under G16/R69; explicit source overlaps are source facts, not parser errors.",
+  "currentSourceReview": {
+    "previousSourceSha256": "894e844bba40c75c8b7851d383974feba3a1a68f8b41b98312455c2593110555",
+    "currentSourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
+    "normalizedChangedCells": [
+      "G24"
+    ],
+    "normalizedAddedCells": [],
+    "normalizedRemovedCells": [],
+    "mergedRangeChanges": {
+      "added": [],
+      "removed": []
+    },
+    "g24": {
+      "groupId": "336",
+      "discipline": "Иммунология",
+      "oldTime": "13:00–15:25",
+      "newTime": "13:00–14:30",
+      "affectedEvents": 12,
+      "dates": [
+        "2026-09-03",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-24",
+        "2026-10-01",
+        "2026-10-08",
+        "2026-10-15",
+        "2026-10-22",
+        "2026-10-29",
+        "2026-11-05",
+        "2026-11-12",
+        "2026-11-19"
+      ]
+    },
+    "semanticDecisionReuseAllowed": false
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform ScheduleEvent ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+  }
+}
