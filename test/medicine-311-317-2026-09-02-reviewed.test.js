@@ -17,7 +17,7 @@ const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime) &&
   minutes(right.startTime) < minutes(left.endTime);
 
-test('current medicine 311-317 source is freshly reviewed and platform-compatible', async () => {
+test('current medicine 311-317 source keeps B29 location source-faithful and fail-closed pending platform recheck', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.source.json'),
@@ -37,20 +37,12 @@ test('current medicine 311-317 source is freshly reviewed and platform-compatibl
   assert.equal(semantic.parserRulesVersion, source.parserRulesVersion);
   assert.equal(evidence.parserRulesVersion, source.parserRulesVersion);
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, true);
-  assert.equal(source.lifecycle.publicationAllowed, true);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
-  assert.equal(semantic.platformPublicationGate, 'PASS');
-  assert.equal(evidence.platformCompatibility.status, 'pass');
-  assert.equal(
-    evidence.platformCompatibility.commit,
-    'b7735243adc224efeb26cbb2ed420b14fdf33770',
-  );
-  assert.equal(qa.compatibilityGate.status, 'pass');
-  assert.equal(
-    qa.compatibilityGate.platformCommit,
-    'b7735243adc224efeb26cbb2ed420b14fdf33770',
-  );
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(qa.compatibilityGate.status, 'review-required');
   assert.deepEqual(diff.cellDiff.changed.map((item) => item.coord), ['B29']);
   assert.equal(diff.mergedRangeDiff.added.length, 0);
   assert.equal(diff.mergedRangeDiff.removed.length, 0);
@@ -61,11 +53,11 @@ test('current medicine 311-317 source is freshly reviewed and platform-compatibl
   );
   assert.deepEqual(
     manifest.decisions.filter((tuple) => tuple[0] === 'B29#s8'),
-    [['B29#s8','7f','8208208208208208000000000','13:00','15:25',18,1,3]],
+    [['B29#s8','7f','8208208208208208000000000','13:00','15:25',18,1,10]],
   );
   assert.deepEqual(
     manifest.decisions.filter((tuple) => tuple[0] === 'B29#s9'),
-    [['B29#s9','7f','200000000','14:40','17:05',18,1,3]],
+    [['B29#s9','7f','200000000','14:40','17:05',18,1,10]],
   );
   assert.equal(manifest.decisionCount, 126);
 
@@ -76,7 +68,7 @@ test('current medicine 311-317 source is freshly reviewed and platform-compatibl
 
   const plan = buildExplicitPublicationPlan({ manifest, source, evidence, qa });
   assert.equal(plan.events.length, 2522);
-  assert.equal(plan.candidateDigest, 'sha256:1eef6ceea89cee97c6cb4e3cf05de5f853ad8788916f6a09bfb6e02589629747');
+  assert.equal(plan.candidateDigest, 'sha256:7b8eed2d995ec3aa1fa49c02b4ddf050f05b5b3c87e6ae1ebf93142110139c91');
   assert.deepEqual(Object.fromEntries(plan.versions.map((version) => [version.groupId, version.eventCount])), {
     '311': 361, '312': 361, '313': 359, '314': 360,
     '315': 360, '316': 360, '317': 361,
@@ -96,6 +88,12 @@ test('current medicine 311-317 source is freshly reviewed and platform-compatibl
     event.discipline === 'Статистические методы в доказательной медицине с использованием информационных технологий' &&
     event.selection?.selectionGroupId === 'medicine-3-choice-discipline-2026-s1' &&
     event.selection?.selectionOptionId === 'statistical-evidence-medicine'
+  ));
+  assert.ok(b29Statistics.every((event) =>
+    event.location === null &&
+    event.assessment?.type === 'credit' &&
+    event.assessment?.label === 'зачет' &&
+    event.assessment?.sourceRef?.locator === '3 леч.2!E38'
   ));
   assert.equal(
     b29Statistics.filter((event) => event.date === '2026-10-09').length,
