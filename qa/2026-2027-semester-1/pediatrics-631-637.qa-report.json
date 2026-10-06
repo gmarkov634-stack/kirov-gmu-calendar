@@ -93,7 +93,22 @@
       "code": "publication-path-date-only-support",
       "status": "pass",
       "message": "Shared core now implements date-only schema validation, SQLite persistence/migration and RFC 5545 all-day ICS rendering without synthetic time or relative alarms. Production publication remains fail-closed until the deployed core boundary is verified against the approved publication evidence."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, including 42 date-only C15 events, but publication remains blocked until exact SHA c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60 passes the current medschedule-platform ScheduleEvent/PostgreSQL/calendar compatibility gate."
     }
   ],
-  "createdAt": "2026-09-02T08:46:00+03:00"
+  "createdAt": "2026-09-02T08:46:00+03:00",
+  "schema": "kgmu-candidate-qa-report-v1",
+  "fixtureId": "pediatrics-631-637-2026-2027-semester-1",
+  "sourceSha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+  "publicationAllowed": false,
+  "blockingIssues": [],
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until exact-SHA platform bridge PASS"
+  },
+  "lastRevalidatedAt": "2026-10-06"
 }
