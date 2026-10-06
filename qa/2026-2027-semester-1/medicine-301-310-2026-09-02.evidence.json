@@ -114,7 +114,16 @@
     }
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent/choice ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "0943fbf015890f2ee6915cbd866e0a9ddd91515f",
+    "evidence": [
+      "exact reviewed source SHA and byte length are verified before bridge execution",
+      "canonical publicationAllowed=false state is verified fail-closed before temporary compatibility testing",
+      "ScheduleEvent/PostgreSQL ingestion preserves 3531 reviewed events and source provenance",
+      "medicine-3-choice-discipline-2026-s1 projects to 10 group-scoped ChoiceGroup rows and 70 ChoiceOption rows",
+      "idempotent replay preserves the same candidate ScheduleVersion without duplicate events"
+    ],
+    "aggregatePublication": "must still pass the staging clone publication/continuity gate before live ScheduleVersion publication"
   }
 }

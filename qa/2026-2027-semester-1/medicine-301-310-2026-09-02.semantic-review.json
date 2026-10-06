@@ -78,7 +78,7 @@
   ],
   "normalizationPolicy": "Fresh review of current SHA 367de1a0. Only J16, B27 and B31 are materially changed versus the previous approved workbook. Unchanged source-specific operator/R66/overlap decisions were revalidated against the current cells and unchanged merge geometry; no cross-SHA automatic approval and no new reusable G/R rule.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
-  "updatedAt": "2026-10-05"
+  "updatedAt": "2026-10-06"
 }
