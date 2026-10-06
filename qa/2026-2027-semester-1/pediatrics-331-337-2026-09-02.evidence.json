@@ -84,7 +84,18 @@
     "semanticDecisionReuseAllowed": false
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "d5e417d4163a9ba153487d2a65fe420e11222e8a",
+    "evidence": [
+      "exact official source SHA and byte length verified before bridge execution",
+      "canonical publicationAllowed=false state verified fail-closed before temporary compatibility testing",
+      "ScheduleEvent/PostgreSQL ingestion preserves all 1781 reviewed events and source provenance",
+      "G24 persists 12 group-336 Immunology events at 13:00–14:30",
+      "D20/D12 user-confirmed explicit-date-only Microbiology resolution remains intact",
+      "no ChoiceGroup rows are invented for this stream",
+      "idempotent replay preserves the same candidate ScheduleVersion"
+    ],
+    "aggregatePublication": "staging aggregate clone continuity gate remains required before live publication"
   }
 }
