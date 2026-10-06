@@ -1,0 +1,109 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-pediatrics-131-140-2026-09-07-review-v1",
+  "sourceSha256": "b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "G21",
+    "R01",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R35",
+    "R40",
+    "R41",
+    "R48",
+    "R49",
+    "R69",
+    "R83",
+    "R90"
+  ],
+  "stream": {
+    "programId": "pediatrics",
+    "course": 1,
+    "groups": [
+      "131",
+      "132",
+      "133",
+      "134",
+      "135",
+      "136",
+      "137",
+      "138",
+      "139",
+      "140"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/07/1085/1_ped-07-09-2026-15.xlsx",
+    "sourceSha256": "b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd",
+    "sheet": "1 пед. 10 гр.",
+    "logicalSourceCells": 128,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "coverage": {
+    "logicalSourceCellCount": 128,
+    "coveredSourceCellCount": 128
+  },
+  "unresolvedAmbiguities": [],
+  "resolvedAmbiguities": [
+    {
+      "ambiguityId": "PED1-K16-2026-12-15-PRACTICE-LOCATION",
+      "sourceLocator": "1 пед. 10 гр.!K16",
+      "groupId": "140",
+      "date": "2026-12-15",
+      "startTime": "11:00",
+      "endTime": "14:10",
+      "decision": "KODKB",
+      "status": "revalidated on current source: K16 text and K16:K19 merge geometry are unchanged from the user-confirmed reviewed baseline"
+    }
+  ],
+  "confirmedSourceSemantics": [
+    {
+      "locator": "D36/D38",
+      "status": "PASS: group 133 Friday chemistry moved to D36 at 08:00–10:25 for 04.09–15.01; pediatric practice moved to D38 at 11:35–14:45 with the same explicit DKKDC/KODKB date segments. Lower-table practice locations and graded-credit metadata are unchanged."
+    },
+    {
+      "locator": "K27",
+      "status": "PASS: group 140 now explicitly has General and bioorganic chemistry on Wednesdays 02.09–13.01 at 13:40–16:05. The old undated curator-hour content is no longer present in K27."
+    },
+    {
+      "locator": "K39",
+      "status": "PASS: new group-140 curator hour at 15:40–16:40 has no dates; R17 therefore keeps only the first two possible Friday occurrences, 04.09 and 11.09."
+    },
+    {
+      "locator": "J45/J46/K45",
+      "status": "PASS: merge geometry changed from J46:K46 to K45:K46. J45 and J46 now repeat the same 16.01 graded-credit event for group 139 and are deduplicated; K45 supplies the same explicit 16.01 16:40–19:05 graded-credit event for group 140. The former K45 weekly chemistry cycle is absent."
+    },
+    {
+      "locator": "A47/A48",
+      "status": "PASS: R90 facultative text, service-week grid and merged scope are semantically unchanged. Five default-unselected facultatives remain 920 events across groups 131–140."
+    },
+    {
+      "locator": "A49:K62",
+      "status": "PASS: lower department/location/assessment table is semantically unchanged after whitespace normalization; existing R40/R41 metadata remains source-backed."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of current SHA b0840a7f. Normalized text diff in the timetable is exactly D36, D38, K27, K45 plus newly populated K39; merged-range diff is exactly removed J46:K46 and added K45:K46. All other timetable cells are unchanged after whitespace normalization. No cross-SHA automatic approval and no new reusable G/R rule.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-06"
+}

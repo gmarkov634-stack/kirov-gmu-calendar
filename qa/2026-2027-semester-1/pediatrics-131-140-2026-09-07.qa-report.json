@@ -1,0 +1,103 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-131-140-2026-09-07-v1",
+  "parsingJobId": "reviewed-pediatrics-131-140-b0840a7f-v1",
+  "candidateDigest": "sha256:05b8562e0ee15ffc73cf68b6ac0e9fbb68aa6faf3d55e1fac8f2f9b743401351",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd was reviewed as a distinct source version; cross-SHA semantic reuse is prohibited."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "After whitespace normalization, timetable changes are exactly D36, D38, K27, K45 plus new K39; merge geometry removes J46:K46 and adds K45:K46. Lower reference-table semantics are unchanged."
+    },
+    {
+      "code": "d36-d38-relocation",
+      "status": "pass",
+      "message": "Group 133 chemistry/practice positions are rebuilt from the current D36/D38 source cells with explicit date ranges, times and practice locations."
+    },
+    {
+      "code": "k27-k39-group140",
+      "status": "pass",
+      "message": "Group 140 chemistry is rebuilt from K27 for 02.09–13.01; undated curator hour moved to K39 and expands only to 04.09 and 11.09 under R17."
+    },
+    {
+      "code": "j45-j46-k45-dedup",
+      "status": "pass",
+      "message": "Current merge geometry is honored: exact J45/J46 group-139 duplicate is deduplicated and K45 provides group 140 graded-credit on 16.01; old K45 chemistry is absent."
+    },
+    {
+      "code": "operator-confirmed-k16-location",
+      "status": "pass",
+      "message": "Prior user-confirmed K16/KODKB decision was freshly revalidated because current K16 normalized text and K16:K19 merge geometry are unchanged."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "128/128 logical timetable cells are accounted for by explicit decisions or documented exact-duplicate resolution."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 3820 events: 2900 base events and 920 facultative events."
+    },
+    {
+      "code": "source-groups-match-expected-groups",
+      "status": "pass",
+      "message": "Candidate contains groups 131–140 only, with group counts pinned in QA evidence."
+    },
+    {
+      "code": "facultative-r90-revalidated",
+      "status": "pass",
+      "message": "A47/A48 are semantically unchanged; five default-unselected R90 facultatives remain 920 events."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures remain after current J45/J46/K45 source geometry handling."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "158 source-backed overlap pairs are preserved under R69: 2 base timetable pairs and 156 involving facultatives."
+    },
+    {
+      "code": "cross-day-count-constraints",
+      "status": "pass",
+      "message": "All 12 prior R83 cross-day checks reference normalized-unchanged source cells and remain satisfied."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ingestion and visibility-choice compatibility."
+    }
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "2ad1ca3c94b35701a73ade5735d1c5257604a8a0",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "a9b61d6bb5da412e2f6ff0b5b85474af41e6216e"
+  },
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-pediatrics-131-140-2026-09-07-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0,
+    "operatorConfirmationIds": [
+      "PED1-K16-2026-12-15-PRACTICE-LOCATION:KODKB"
+    ]
+  },
+  "createdAt": "2026-10-06T11:20:00+03:00",
+  "publicationAllowed": false,
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until platform bridge PASS"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schema": "kgmu-source-change-full-diff-v1",
+  "programId": "pediatrics",
+  "course": 1,
+  "groups": [
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "140"
+  ],
+  "sheetName": "1 пед. 10 гр.",
+  "previousSource": {
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1085/1_ped-31-08-2026-09.xlsx",
+    "sha256": "bdfeb2e127c5fe596a995fe553b1487bf3948771e7848368e69747c34035ad27",
+    "byteLength": 20899
+  },
+  "currentSource": {
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/07/1085/1_ped-07-09-2026-15.xlsx",
+    "sha256": "b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd",
+    "byteLength": 20870
+  },
+  "structuralReview": {
+    "status": "REVIEW_REQUIRED",
+    "currentLogicalSourceCellCount": 128,
+    "approvedLogicalSourceCellCount": 127,
+    "missingApprovedSourceCells": [],
+    "newUnreviewedSourceCells": [
+      "K39"
+    ],
+    "reasonCodes": [
+      "SOURCE_FINGERPRINT_CHANGED",
+      "UNREVIEWED_SOURCE_CELL_ADDED"
+    ],
+    "semanticDecisionReuseAllowed": false
+  },
+  "normalizedSemanticDiff": {
+    "changedCells": [
+      "D36",
+      "D38",
+      "K27",
+      "K45"
+    ],
+    "addedCells": [
+      "K39"
+    ],
+    "removedCells": [],
+    "lowerReferenceTableChanges": []
+  },
+  "mergedRangeDiff": {
+    "removed": [
+      "J46:K46"
+    ],
+    "added": [
+      "K45:K46"
+    ]
+  },
+  "unchangedCriticalRegions": {
+    "k16OperatorResolution": true,
+    "r90FacultativeBlockA47A48": true,
+    "lowerReferenceTableA49K62": true
+  },
+  "conclusion": "REVIEW_REQUIRED until fresh semantic review; this artifact does not authorize cross-SHA reuse."
+}
