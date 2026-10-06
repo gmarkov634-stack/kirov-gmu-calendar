@@ -57,19 +57,31 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "warning",
-      "message": "Semantic QA is PASS, but publication remains blocked until exact SHA 190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024 passes medschedule-platform ScheduleEvent/PostgreSQL compatibility."
+      "status": "pass",
+      "message": "medschedule-platform 136fb55a20d62672d9c26593ecb7df45ff8cf6a1 passed exact-source ScheduleEvent/PostgreSQL compatibility for this reviewed candidate."
     }
   ],
   "createdAt": "2026-09-02T07:40:00Z",
   "schema": "kgmu-candidate-qa-report-v1",
   "fixtureId": "pediatrics-531-537-2026-2027-semester-1",
   "sourceSha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "blockingIssues": [],
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until exact-SHA platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "136fb55a20d62672d9c26593ecb7df45ff8cf6a1",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "canonical-fail-closed-state",
+      "reviewed-source-bundle-build",
+      "ScheduleEvent-PostgreSQL-ingestion",
+      "operator-confirmed-physical-education-thursdays",
+      "source-defined-overlap-preservation",
+      "source-provenance",
+      "zero-invented-choice-groups",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "lastRevalidatedAt": "2026-10-06"
 }
