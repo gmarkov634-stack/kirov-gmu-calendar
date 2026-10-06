@@ -231,7 +231,7 @@
   "unresolvedAmbiguityCount": 0,
   "unresolvedAmbiguityIds": [],
   "qaPass": true,
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "publicationNotExecutedByScope": true,
   "sharedCoreChangeRequired": false,
   "exactShaRevalidation": {
@@ -243,7 +243,19 @@
     "candidateDigestUnchanged": true
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent/PostgreSQL bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "136fb55a20d62672d9c26593ecb7df45ff8cf6a1",
+    "evidence": [
+      "exact official source SHA and byte length verified before bridge execution",
+      "canonical publicationAllowed=false state verified fail-closed before temporary CI compatibility testing",
+      "generic reviewed-source bundle reproduces exactly 910 events and the canonical candidate digest",
+      "direct-user-confirmed Physical Education interpretation remains 15 Thursdays x 7 groups at 14:30-16:00",
+      "10 source-defined Physical Education / Medicine of Catastrophes overlaps remain preserved",
+      "ScheduleEvent/PostgreSQL ingestion preserves all reviewed events and source provenance",
+      "no ChoiceGroup rows are invented for this stream",
+      "idempotent replay preserves the same candidate ScheduleVersion"
+    ],
+    "aggregatePublication": "staging aggregate clone continuity gate remains required before live publication"
   }
 }
