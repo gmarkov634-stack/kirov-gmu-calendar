@@ -6,7 +6,7 @@
   "academicYear": "2026-2027",
   "academicPeriodId": "2026-2027-semester-1",
   "parserProfile": "weekly",
-  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserRulesVersion": "kgmu-2026-10-06-v6",
   "source": {
     "sourceId": "medicine",
     "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech_2_potok-02-09-2026-12.xlsx",
@@ -43,8 +43,8 @@
     "immutableSourceStoredInObjectStorage": true
   },
   "lifecycle": {
-    "status": "semantic-qa-pass-platform-compatible",
+    "status": "semantic-qa-pass-platform-review-required",
     "supersedesApprovedSource": true,
-    "publicationAllowed": true
+    "publicationAllowed": false
   }
 }
