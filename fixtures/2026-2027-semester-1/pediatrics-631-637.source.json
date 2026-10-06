@@ -14,9 +14,19 @@
     "byteLength": 31283,
     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   },
-  "expectedGroupIds": ["631", "632", "633", "634", "635", "636", "637"],
+  "expectedGroupIds": [
+    "631",
+    "632",
+    "633",
+    "634",
+    "635",
+    "636",
+    "637"
+  ],
   "workbookExpectations": {
-    "sheetNames": ["6 курс осень 2026-2027 Пед"],
+    "sheetNames": [
+      "6 курс осень 2026-2027 Пед"
+    ],
     "maxRow": 282,
     "maxColumn": 115,
     "mergedRangeCount": 238,
@@ -26,11 +36,15 @@
   "discovery": {
     "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
     "strategy": "html-xlsx-links",
-    "verifiedAt": "2026-09-02"
+    "verifiedAt": "2026-10-06"
   },
   "storagePolicy": {
     "repositoryStoresBinarySource": false,
     "productionSourceIsServerFetched": true,
     "immutableSourceStoredInObjectStorage": true
+  },
+  "lifecycle": {
+    "status": "semantic-qa-pass-platform-review-required",
+    "publicationAllowed": false
   }
 }
