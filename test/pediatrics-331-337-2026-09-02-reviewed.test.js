@@ -148,6 +148,8 @@ test('current pediatrics 331-337 source is freshly reviewed and remains fail-clo
     }
   }
   assert.equal(pairs.length, 4);
+  assert.equal(qa.checksDetail.overlaps.count, 4);
+  assert.equal(evidence.explicitOverlapWarningCount, 4);
   assert.deepEqual(
     pairs.map(([left,right]) => [left.groupId,left.date,left.sourceRef.locator,right.sourceRef.locator]),
     [
