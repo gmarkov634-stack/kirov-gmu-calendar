@@ -198,7 +198,18 @@
     "semanticDecisionReuseAllowed": false
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent/facultative-choice ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "0a3539e9a76c2902e1fe114864b921854a9c020a",
+    "evidence": [
+      "reviewed-source bridge dispatches kgmu-pediatrics-facultatives-v1 through the canonical pediatrics facultative expander",
+      "exact current official source SHA and byte length are verified before bridge execution",
+      "canonical publicationAllowed=false state is verified fail-closed before temporary compatibility testing",
+      "PostgreSQL ScheduleEvent ingestion preserves all 3820 reviewed events and source provenance",
+      "five default-unselected facultatives project to 10 group-scoped ChoiceGroup rows and 50 ChoiceOption rows",
+      "current D36/D38/K27/K39/K45 and revalidated K16 semantics persist correctly",
+      "idempotent replay preserves the same candidate ScheduleVersion without duplicate events"
+    ],
+    "aggregatePublication": "must still pass staging clone continuity/visibility gate before live ScheduleVersion publication"
   }
 }
