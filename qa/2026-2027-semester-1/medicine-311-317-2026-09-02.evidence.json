@@ -1,0 +1,114 @@
+{
+  "fixtureId": "medicine-311-317-2026-2027-semester-1-2026-09-02",
+  "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json",
+  "semanticDecisionMode": "operator-authored-explicit-current-source-review",
+  "candidateDigest": "sha256:1eef6ceea89cee97c6cb4e3cf05de5f853ad8788916f6a09bfb6e02589629747",
+  "eventCount": 2522,
+  "groupEventCounts": {
+    "311": 361,
+    "312": 361,
+    "313": 359,
+    "314": 360,
+    "315": 360,
+    "316": 360,
+    "317": 361
+  },
+  "logicalSourceCellCount": 69,
+  "coveredSourceCellCount": 69,
+  "unresolvedAmbiguities": 0,
+  "duplicateEvents": 0,
+  "explicitOverlapWarningCount": 0,
+  "selectionAlternativeOverlapCount": 1491,
+  "selectionDependentOverlapCount": 0,
+  "overlapPolicy": "Different selectionOptionId values inside medicine-3-choice-discipline-2026-s1 are expected mutually exclusive alternatives and are not schedule conflicts. No same-option/non-selection overlaps remain after R66 suppression.",
+  "selectionGroupId": "medicine-3-choice-discipline-2026-s1",
+  "selectionOptionIds": [
+    "biochemical-healthy-lifestyle",
+    "dietology",
+    "functional-diagnostics",
+    "intercultural-professional-communication",
+    "latin-pharmaceutical-terminology",
+    "molecular-pathology",
+    "statistical-evidence-medicine"
+  ],
+  "choiceEventCount": 903,
+  "mandatoryEventCount": 1619,
+  "r66SuppressedComputedOccurrences": [
+    {
+      "groupId": "313",
+      "date": "2026-12-17",
+      "locator": "D24#s2",
+      "discipline": "Пропедевтика внутренних болезней",
+      "reason": "Explicit Microbiology on 17.12 takes priority over the computed Propedeutics weekly occurrence under R66; current source region is unchanged."
+    },
+    {
+      "groupId": "314",
+      "date": "2026-12-16",
+      "locator": "E20#s1",
+      "discipline": "Общая хирургия",
+      "reason": "Explicit Pathophysiology on 16.12 takes priority over the computed General surgery week-2 occurrence under R66; current source region is unchanged."
+    },
+    {
+      "groupId": "315",
+      "date": "2026-11-11",
+      "locator": "F21#s1",
+      "discipline": "Топографическая анатомия и оперативная хирургия",
+      "reason": "Explicit Pathophysiology on 11.11 takes priority over the computed Topographic anatomy weekly occurrence under R66; current source region is unchanged."
+    }
+  ],
+  "onlineEvents": [
+    {
+      "sourceLocator": "3 леч.2!B16#s2",
+      "date": "2026-09-01",
+      "discipline": "Гигиена",
+      "location": "Онлайн",
+      "hyperlinkTarget": null
+    },
+    {
+      "sourceLocator": "3 леч.2!B18#s2",
+      "date": "2026-09-01",
+      "discipline": "Патологическая анатомия, клиническая патологическая анатомия. Патологическая анатомия (модуль)",
+      "location": "Онлайн",
+      "hyperlinkTarget": null
+    },
+    {
+      "sourceLocator": "3 леч.2!B27#s2",
+      "date": "2026-09-11",
+      "discipline": "Пропедевтика внутренних болезней",
+      "location": "Онлайн",
+      "hyperlinkTarget": null
+    }
+  ],
+  "currentSourceReview": {
+    "changedCoordinates": [
+      "B29"
+    ],
+    "mergedRangeChanges": 0,
+    "b29": {
+      "change": "unqualified Statistics added to common discipline-by-choice practice block",
+      "normalizedChoiceOption": "statistical-evidence-medicine",
+      "mainCycle": "16.10.2026–25.12.2026 Fridays 13:00–15:25",
+      "exception": "09.10.2026 14:40–17:05",
+      "affectedGroups": [
+        "311",
+        "312",
+        "313",
+        "314",
+        "315",
+        "316",
+        "317"
+      ],
+      "addedEvents": 84,
+      "decisionIds": [
+        "B29#s8",
+        "B29#s9"
+      ]
+    }
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform ScheduleEvent/choice ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+  }
+}
