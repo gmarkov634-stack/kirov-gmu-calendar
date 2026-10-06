@@ -110,7 +110,18 @@
     }
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run medschedule-platform exact-artifact compatibility against parser review revision kgmu-2026-10-06-v6 before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "07a294f28f5dd3bef8bd24acfa01a9e003ec541c",
+    "evidence": [
+      "exact reviewed source SHA and byte length are verified before bridge execution",
+      "canonical v6 publicationAllowed=false state is verified fail-closed before temporary compatibility testing",
+      "parserRulesVersion kgmu-2026-10-06-v6 is preserved into the PostgreSQL candidate identity",
+      "ScheduleEvent/PostgreSQL ingestion preserves 2522 reviewed events and source provenance",
+      "B29 Statistics persists without an inferred location and with credit assessment sourced from 3 леч.2!E38",
+      "medicine-3-choice-discipline-2026-s1 projects to 7 group-scoped ChoiceGroup rows and 49 ChoiceOption rows",
+      "idempotent replay preserves the same v6 candidate without duplicate events"
+    ],
+    "aggregatePublication": "must still pass the staging clone publication/continuity gate before live ScheduleVersion publication"
   }
 }

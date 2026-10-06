@@ -3,7 +3,7 @@
   "parsingJobId": "reviewed-medicine-311-317-00798076-v1",
   "candidateDigest": "sha256:7b8eed2d995ec3aa1fa49c02b4ddf050f05b5b3c87e6ae1ebf93142110139c91",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -62,8 +62,8 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "warning",
-      "message": "Corrected B29 semantics require a new exact-artifact platform compatibility run under source-specific review revision kgmu-2026-10-06-v6."
+      "status": "pass",
+      "message": "medschedule-platform 07a294f28f5dd3bef8bd24acfa01a9e003ec541c passed the exact corrected v6 ScheduleEvent/ChoiceGroup/PostgreSQL gate, including new candidate identity, null B29 location and credit from E38."
     }
   ],
   "semanticReview": {
@@ -72,8 +72,20 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until corrected v6 platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "07a294f28f5dd3bef8bd24acfa01a9e003ec541c",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "fail-closed-v6-canonical-state",
+      "parser-review-v6-candidate-identity",
+      "ScheduleEvent-PostgreSQL-ingestion",
+      "B29-null-location",
+      "B29-credit-assessment",
+      "group-scoped-choice-projection",
+      "source-provenance",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "createdAt": "2026-10-06T09:45:00+03:00",
   "sharedContractEvidence": {
