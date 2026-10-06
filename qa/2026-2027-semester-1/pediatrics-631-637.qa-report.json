@@ -92,18 +92,30 @@
     {
       "code": "publication-path-date-only-support",
       "status": "pass",
-      "message": "Shared core now implements date-only schema validation, SQLite persistence/migration and RFC 5545 all-day ICS rendering without synthetic time or relative alarms. Production publication remains fail-closed until the deployed core boundary is verified against the approved publication evidence."
+      "message": "medschedule-platform 43d0d7f26939bf2703446e5c8b665e0adc3b90cb passed exact-SHA date-only bundle, ScheduleEvent/PostgreSQL persistence and RFC 5545 all-day rendering. Staging runtime deployment and aggregate continuity remain separate guarded steps."
     }
   ],
   "createdAt": "2026-09-02T08:46:00+03:00",
   "schema": "kgmu-candidate-qa-report-v1",
   "fixtureId": "pediatrics-631-637-2026-2027-semester-1",
   "sourceSha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "blockingIssues": [],
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until exact-SHA platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "43d0d7f26939bf2703446e5c8b665e0adc3b90cb",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "canonical-fail-closed-state",
+      "reviewed-source-bundle-date-only-sort",
+      "ScheduleEvent-PostgreSQL-date-only-ingestion",
+      "RFC5545-all-day-rendering",
+      "zero-synthetic-time-location",
+      "source-provenance",
+      "zero-invented-choice-groups",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "compatible platform runtime deployment and aggregate clone continuity remain required before live publication"
   },
   "lastRevalidatedAt": "2026-10-06"
 }
