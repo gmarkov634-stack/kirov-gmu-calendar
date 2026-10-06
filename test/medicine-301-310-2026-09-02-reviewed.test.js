@@ -17,7 +17,7 @@ const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime) &&
   minutes(right.startTime) < minutes(left.endTime);
 
-test('current medicine 301-310 source is freshly reviewed without cross-SHA semantic reuse', async () => {
+test('current medicine 301-310 source is freshly reviewed and platform-compatible', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-301-310-2026-09-02.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-301-310-2026-09-02.source.json'),
@@ -37,6 +37,20 @@ test('current medicine 301-310 source is freshly reviewed without cross-SHA sema
   assert.equal(semantic.parserRulesVersion, source.parserRulesVersion);
   assert.equal(evidence.parserRulesVersion, source.parserRulesVersion);
   assert.equal(qa.decision, 'pass');
+  assert.equal(qa.publicationAllowed, true);
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(
+    evidence.platformCompatibility.commit,
+    '0943fbf015890f2ee6915cbd866e0a9ddd91515f',
+  );
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(
+    qa.compatibilityGate.platformCommit,
+    '0943fbf015890f2ee6915cbd866e0a9ddd91515f',
+  );
   assert.equal(semantic.stream.unresolvedAmbiguities, 0);
   assert.deepEqual(diff.cellDiff.changed.map((item) => item.coord).sort(), ['B27', 'B31', 'J16']);
   assert.equal(diff.mergedRangeDiff.added.length, 0);
