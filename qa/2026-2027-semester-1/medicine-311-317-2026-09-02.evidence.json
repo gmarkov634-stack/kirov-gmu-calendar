@@ -4,7 +4,7 @@
   "parserRulesVersion": "kgmu-2026-10-01-v5",
   "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json",
   "semanticDecisionMode": "operator-authored-explicit-current-source-review",
-  "candidateDigest": "sha256:1eef6ceea89cee97c6cb4e3cf05de5f853ad8788916f6a09bfb6e02589629747",
+  "candidateDigest": "sha256:7b8eed2d995ec3aa1fa49c02b4ddf050f05b5b3c87e6ae1ebf93142110139c91",
   "eventCount": 2522,
   "groupEventCounts": {
     "311": 361,
@@ -104,20 +104,13 @@
       "decisionIds": [
         "B29#s8",
         "B29#s9"
-      ]
+      ],
+      "location": "not specified in B29; normalized as null",
+      "assessment": "зачет from 3 леч.2!E38"
     }
   },
   "platformCompatibility": {
-    "status": "pass",
-    "repository": "gmarkov634-stack/medschedule-platform",
-    "commit": "b7735243adc224efeb26cbb2ed420b14fdf33770",
-    "evidence": [
-      "exact reviewed source SHA and byte length are verified before bridge execution",
-      "canonical publicationAllowed=false state is verified fail-closed before temporary compatibility testing",
-      "ScheduleEvent/PostgreSQL ingestion preserves 2522 reviewed events and source provenance",
-      "medicine-3-choice-discipline-2026-s1 projects to 7 group-scoped ChoiceGroup rows and 49 ChoiceOption rows",
-      "idempotent replay preserves the same candidate ScheduleVersion without duplicate events"
-    ],
-    "aggregatePublication": "must still pass the staging clone publication/continuity gate before live ScheduleVersion publication"
+    "status": "review-required",
+    "requirement": "Rerun medschedule-platform ScheduleEvent/ChoiceGroup ingestion after correcting B29 location and assessment metadata."
   }
 }
