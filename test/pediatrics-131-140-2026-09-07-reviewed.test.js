@@ -14,7 +14,7 @@ const mins = (value) => {
 };
 const overlaps = (a,b) => mins(a.startTime) < mins(b.endTime) && mins(b.startTime) < mins(a.endTime);
 
-test('current pediatrics 131-140 source is freshly reviewed and remains fail-closed for platform publication', async () => {
+test('current pediatrics 131-140 source is freshly reviewed and platform-compatible', async () => {
   const [manifest, facultatives, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/pediatrics-131-140-2026-09-07.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/pediatrics-131-140-2026-09-07.facultatives.json'),
@@ -27,14 +27,17 @@ test('current pediatrics 131-140 source is freshly reviewed and remains fail-clo
 
   assert.equal(source.source.sha256, 'b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd');
   assert.equal(source.source.byteLength, 20870);
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.publicationAllowed, true);
   assert.equal(semantic.semanticPublicationGate, 'PASS');
-  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
   assert.deepEqual(semantic.unresolvedAmbiguities, []);
-  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(evidence.platformCompatibility.commit, '0a3539e9a76c2902e1fe114864b921854a9c020a');
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(qa.compatibilityGate.platformCommit, '0a3539e9a76c2902e1fe114864b921854a9c020a');
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(facultatives.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
