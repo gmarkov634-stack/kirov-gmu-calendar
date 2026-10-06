@@ -1,0 +1,50 @@
+{
+  "schema": "kgmu-source-change-full-diff-v1",
+  "programId": "pediatrics",
+  "course": 2,
+  "groups": [
+    "231",
+    "232",
+    "233",
+    "234",
+    "235",
+    "236",
+    "237",
+    "238",
+    "239"
+  ],
+  "sheetName": "2пед.",
+  "previousSource": {
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/01/1085/2_ped-01-09-2026-10.xlsx",
+    "sha256": "a6cf064db85e8db9a6709737754390dc1d24bebbd7cfeff4aa6de282ec9ecd37",
+    "byteLength": 18192
+  },
+  "currentSource": {
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/03/1085/2_ped-03-09-2026-13.xlsx",
+    "sha256": "eff3de3dbf59f9612f45165db70737c7b510ea3dcf063ac95f6319a8f3b23a69",
+    "byteLength": 18263
+  },
+  "currentWorkbook": {
+    "maxRow": 48,
+    "maxColumn": 10,
+    "nonEmptyCellCount": 183,
+    "mergedRangeCount": 97
+  },
+  "normalizedSemanticDiff": {
+    "changedCells": [
+      {
+        "coord": "J26",
+        "old": "12.10-13.40 Философия 03.09-24.12 1-323",
+        "new": "12.05-13.35 Философия 03.09-24.12 1-323"
+      }
+    ],
+    "addedCells": [],
+    "removedCells": []
+  },
+  "mergedRangeDiff": {
+    "added": [],
+    "removed": []
+  },
+  "semanticDecisionReuseAllowed": false,
+  "conclusion": "REVIEW_REQUIRED until fresh semantic review; this artifact does not authorize cross-SHA reuse."
+}
