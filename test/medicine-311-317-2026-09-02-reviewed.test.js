@@ -17,7 +17,7 @@ const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime) &&
   minutes(right.startTime) < minutes(left.endTime);
 
-test('current medicine 311-317 source is source-faithful and platform-compatible', async () => {
+test('current medicine 311-317 corrected v6 review is source-faithful and fail-closed pending platform gate', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.source.json'),
@@ -32,25 +32,17 @@ test('current medicine 311-317 source is source-faithful and platform-compatible
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(semantic.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
-  assert.equal(source.parserRulesVersion, 'kgmu-2026-10-01-v5');
+  assert.equal(source.parserRulesVersion, 'kgmu-2026-10-06-v6');
   assert.equal(manifest.parserRulesVersion, source.parserRulesVersion);
   assert.equal(semantic.parserRulesVersion, source.parserRulesVersion);
   assert.equal(evidence.parserRulesVersion, source.parserRulesVersion);
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, true);
-  assert.equal(source.lifecycle.publicationAllowed, true);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
-  assert.equal(semantic.platformPublicationGate, 'PASS');
-  assert.equal(evidence.platformCompatibility.status, 'pass');
-  assert.equal(qa.compatibilityGate.status, 'pass');
-  assert.equal(
-    evidence.platformCompatibility.commit,
-    '501d192c0b7cd233d4cdc751bc302ba9d6b820c5',
-  );
-  assert.equal(
-    qa.compatibilityGate.platformCommit,
-    '501d192c0b7cd233d4cdc751bc302ba9d6b820c5',
-  );
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(qa.compatibilityGate.status, 'review-required');
   assert.deepEqual(diff.cellDiff.changed.map((item) => item.coord), ['B29']);
   assert.equal(diff.mergedRangeDiff.added.length, 0);
   assert.equal(diff.mergedRangeDiff.removed.length, 0);
