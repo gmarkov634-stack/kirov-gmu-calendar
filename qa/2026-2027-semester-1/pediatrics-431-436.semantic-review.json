@@ -117,7 +117,7 @@
     "sourceBackedOverlapPairCount": 4,
     "qaReport": "qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json"
   },
-  "nextGate": "Exact-SHA semantic QA remains PASS, but ScheduleVersion publication is fail-closed until medschedule-platform ScheduleEvent/PostgreSQL compatibility passes for this exact bundle.",
+  "nextGate": "Exact-SHA semantic QA and medschedule-platform compatibility are PASS. Staging aggregate clone continuity and live publication remain separate guarded steps.",
   "parserProfile": "cyclic",
   "rules": [
     "C01",
@@ -132,7 +132,7 @@
     "C20",
     "G21"
   ],
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-06"
 }
