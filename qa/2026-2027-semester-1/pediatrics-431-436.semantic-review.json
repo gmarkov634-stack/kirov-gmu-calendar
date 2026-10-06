@@ -8,7 +8,14 @@
   "reviewedScope": {
     "programId": "pediatrics",
     "course": 4,
-    "groups": ["431", "432", "433", "434", "435", "436"],
+    "groups": [
+      "431",
+      "432",
+      "433",
+      "434",
+      "435",
+      "436"
+    ],
     "sheetName": "4 курс осень 2026 Пед"
   },
   "sourceChecks": {
@@ -35,7 +42,14 @@
       "rule": "C20/G21",
       "discipline": "Менеджмент в здравоохранении",
       "referenceCell": "4 курс осень 2026 Пед!CE35",
-      "groups": ["431", "432", "433", "434", "435", "436"],
+      "groups": [
+        "431",
+        "432",
+        "433",
+        "434",
+        "435",
+        "436"
+      ],
       "affectedCycleBlockCount": 6,
       "baseTime": "08:30-11:35",
       "exceptionTime": "08:30-13:10",
@@ -51,7 +65,14 @@
       "rule": "C20/G21",
       "discipline": "Инклюзивно ориентированная компетентность врача-педиатра",
       "referenceCell": "4 курс осень 2026 Пед!CE36",
-      "groups": ["431", "432", "433", "434", "435", "436"],
+      "groups": [
+        "431",
+        "432",
+        "433",
+        "434",
+        "435",
+        "436"
+      ],
       "affectedCycleBlockCount": 6,
       "baseTime": "09:00-12:05",
       "exceptionTime": "09:00-13:40",
@@ -96,5 +117,22 @@
     "sourceBackedOverlapPairCount": 4,
     "qaReport": "qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json"
   },
-  "nextGate": "Ready for review. ScheduleVersion publication remains a separate guarded step requiring a fresh publication preflight and explicit authorization; no publication is included here."
+  "nextGate": "Exact-SHA semantic QA remains PASS, but ScheduleVersion publication is fail-closed until medschedule-platform ScheduleEvent/PostgreSQL compatibility passes for this exact bundle.",
+  "parserProfile": "cyclic",
+  "rules": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C07",
+    "C08",
+    "C12",
+    "C13",
+    "C14",
+    "C20",
+    "G21"
+  ],
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-06"
 }
