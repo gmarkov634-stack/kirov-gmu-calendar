@@ -1,0 +1,85 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-medicine-311-317-2026-09-02-v1",
+  "parsingJobId": "reviewed-medicine-311-317-00798076-v1",
+  "candidateDigest": "sha256:1eef6ceea89cee97c6cb4e3cf05de5f853ad8788916f6a09bfb6e02589629747",
+  "decision": "pass",
+  "publicationAllowed": false,
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "Exactly B29 changed materially; workbook geometry and merged ranges are unchanged."
+    },
+    {
+      "code": "b29-statistics-added",
+      "status": "pass",
+      "message": "B29 explicitly adds unqualified Statistics to the common choice-practice block. It expands to all groups 311–317 on 09.10 14:40–17:05 and 16.10–25.12 Fridays 13:00–15:25, matching the common block header and already approved same-course structure."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "69/69 logical timetable cells are covered by reviewed decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 2522 events, exactly 84 more than the previous source due to the new B29 Statistics option."
+    },
+    {
+      "code": "choice-selection-metadata",
+      "status": "pass",
+      "message": "All seven discipline-by-choice families carry explicit selection IDs and UI labels under medicine-3-choice-discipline-2026-s1; 903 choice events are preserved for personalization."
+    },
+    {
+      "code": "online-events-revalidated",
+      "status": "pass",
+      "message": "All three prior date-scoped Online events remain unchanged; no hyperlink target is invented."
+    },
+    {
+      "code": "r66-suppressions-revalidated",
+      "status": "pass",
+      "message": "All three prior R66 suppressions remain absent from normalized output against unchanged source regions."
+    },
+    {
+      "code": "duplicate-events-resolved",
+      "status": "pass",
+      "message": "No duplicate normalized event signatures."
+    },
+    {
+      "code": "overlaps-classified",
+      "status": "pass",
+      "message": "1491 overlap pairs are between mutually exclusive choice options; there are zero selection-dependent and zero non-selection overlap pairs."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent/ChoiceGroup ingestion."
+    }
+  ],
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-medicine-311-317-2026-09-02-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0
+  },
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until platform bridge PASS"
+  },
+  "createdAt": "2026-10-06T09:45:00+03:00",
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "33985e57fb69f3418f52d36e0a45cac69b5a0c30",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "6e889cb7c8b9b9a8d8d6b94d2486454644db7c2e"
+  }
+}

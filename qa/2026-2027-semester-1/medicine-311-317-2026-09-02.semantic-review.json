@@ -1,0 +1,70 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-medicine-311-317-2026-09-02-review-v1",
+  "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "R01",
+    "R04",
+    "R06",
+    "R12",
+    "R37",
+    "R40",
+    "R44",
+    "R56",
+    "R66",
+    "R69"
+  ],
+  "stream": {
+    "groups": [
+      "311",
+      "312",
+      "313",
+      "314",
+      "315",
+      "316",
+      "317"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech_2_potok-02-09-2026-12.xlsx",
+    "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+    "sheet": "3 леч.2",
+    "mainTableLogicalSourceCells": 69,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "unresolvedAmbiguities": [],
+  "coverage": {
+    "logicalSourceCellCount": 69,
+    "coveredSourceCellCount": 69
+  },
+  "confirmedSourceSemantics": [
+    {
+      "locator": "B29",
+      "status": "PASS: current source adds unqualified Statistics to the common Friday choice-practice block. Under G09/G10/R37/R44 and the already approved structurally identical course-3 common choice block, Statistics follows the common 16.10–25.12 cycle at 13:00–15:25 plus the explicit 09.10 exception at 14:40–17:05 for all groups 311–317. The adjacent 04.09–18.12 clause remains scoped only to Intercultural professional communication."
+    },
+    {
+      "locator": "B16/B18/B27",
+      "status": "PASS: the three date-scoped Online events are unchanged and remain source-backed; no URL is invented."
+    },
+    {
+      "locator": "D24/E20/F21",
+      "status": "PASS: all three previously reviewed R66 suppressions remain valid because the relevant source regions are unchanged."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of current SHA 00798076. Only B29 changed materially versus the previous approved workbook. The added Statistics option is resolved from the explicit common block header and existing same-course approved structure; unchanged R66/online semantics were revalidated. No cross-SHA automatic approval and no new reusable G/R rule.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-06"
+}
