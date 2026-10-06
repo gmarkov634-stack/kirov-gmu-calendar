@@ -103,7 +103,7 @@
   ],
   "normalizationPolicy": "Fresh review of current SHA b0840a7f. Normalized text diff in the timetable is exactly D36, D38, K27, K45 plus newly populated K39; merged-range diff is exactly removed J46:K46 and added K45:K46. All other timetable cells are unchanged after whitespace normalization. No cross-SHA automatic approval and no new reusable G/R rule.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-06"
 }
