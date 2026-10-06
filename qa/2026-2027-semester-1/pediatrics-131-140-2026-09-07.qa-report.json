@@ -76,8 +76,8 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "warning",
-      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ingestion and visibility-choice compatibility."
+      "status": "pass",
+      "message": "medschedule-platform 0a3539e9a76c2902e1fe114864b921854a9c020a passed exact-SHA pediatrics ScheduleEvent/facultative-choice/PostgreSQL compatibility for this reviewed candidate."
     }
   ],
   "sharedContractEvidence": {
@@ -95,9 +95,20 @@
     ]
   },
   "createdAt": "2026-10-06T11:20:00+03:00",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "0a3539e9a76c2902e1fe114864b921854a9c020a",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "fail-closed-canonical-state",
+      "pediatrics-facultative-bridge",
+      "ScheduleEvent-PostgreSQL-ingestion",
+      "group-scoped-facultative-choice-projection",
+      "current-source-cell-semantics",
+      "source-provenance",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity/visibility check remains required before live publication"
   }
 }
