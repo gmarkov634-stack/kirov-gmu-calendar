@@ -102,7 +102,7 @@
   ],
   "normalizationPolicy": "Fresh review of current SHA 6ad088c6. Mechanical normalized workbook diff versus the archived official baseline probe is exactly one changed cell G24; there are no added/removed cells and no merged-range changes. D20/D12 user-confirmed resolution and prior location-safety handling were freshly revalidated because their source cells are unchanged. No cross-SHA automatic approval and no new reusable G/R rule.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-06"
 }

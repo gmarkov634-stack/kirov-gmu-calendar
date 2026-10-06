@@ -6,7 +6,7 @@
   "sourceSha256": "6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1",
   "candidateDigest": "sha256:5257c73ffc8c0affce67f84079a1358f8565e8c18d51cebeee94ef301eb19663",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "blockingIssues": [],
   "checks": [
     {
@@ -61,8 +61,8 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "warning",
-      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent/PostgreSQL compatibility."
+      "status": "pass",
+      "message": "medschedule-platform d5e417d4163a9ba153487d2a65fe420e11222e8a passed exact-source ScheduleEvent/PostgreSQL compatibility for this reviewed candidate."
     }
   ],
   "checksDetail": {
@@ -180,8 +180,19 @@
     ]
   },
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "d5e417d4163a9ba153487d2a65fe420e11222e8a",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "fail-closed-canonical-state",
+      "ScheduleEvent-PostgreSQL-ingestion",
+      "G24-current-source-time",
+      "D20-D12-source-specific-revalidation",
+      "source-provenance",
+      "zero-invented-choice-groups",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "createdAt": "2026-10-06T17:20:00+03:00"
 }
