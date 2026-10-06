@@ -103,11 +103,11 @@
     "unresolved": 0
   },
   "publication": {
-    "eligible": false,
-    "reason": "Normalized draft QA is independent from publication support. Date-only persistence/ICS rendering is not included in core PR #245.",
+    "eligible": true,
+    "reason": "medschedule-platform 43d0d7f26939bf2703446e5c8b665e0adc3b90cb passed exact-SHA date-only ScheduleEvent/PostgreSQL/ICS compatibility; staging deployment and aggregate clone continuity remain separate guarded steps.",
     "performed": false
   },
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "publicationNotExecutedByScope": true,
   "exactShaRevalidation": {
     "verifiedAt": "2026-10-06",
@@ -119,7 +119,19 @@
     "candidateDigestUnchanged": true
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run the current medschedule-platform exact-SHA bridge across reviewed-source bundle generation, 42 date-only C15 events, ScheduleEvent/PostgreSQL persistence, calendar rendering, provenance and idempotent replay before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "43d0d7f26939bf2703446e5c8b665e0adc3b90cb",
+    "evidence": [
+      "exact official source SHA and byte length verified before bridge execution",
+      "canonical publicationAllowed=false state verified fail-closed before temporary CI compatibility testing",
+      "generic reviewed-source bundle reproduces exactly 679 events and the canonical candidate digest",
+      "42 C15 date-only events remain without synthetic start/end time or location",
+      "ScheduleEvent/PostgreSQL ingestion persists date-only rows as all-day with NULL times",
+      "RFC 5545 rendering uses VALUE=DATE and omits VALARM for the date-only event",
+      "no ChoiceGroup rows are invented for neutral C15 placeholders",
+      "idempotent replay preserves the same candidate ScheduleVersion"
+    ],
+    "aggregatePublication": "staging runtime deployment and aggregate clone continuity remain required before live publication"
   }
 }
