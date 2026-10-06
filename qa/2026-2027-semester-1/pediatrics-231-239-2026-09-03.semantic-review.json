@@ -96,7 +96,7 @@
   ],
   "normalizationPolicy": "Fresh review of current SHA eff3de3d. Mechanical normalized workbook diff versus the archived official baseline is exactly one changed cell J26; there are no added/removed cells and no merged-range changes. No cross-SHA automatic approval and no new reusable G/R rule.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-06"
 }

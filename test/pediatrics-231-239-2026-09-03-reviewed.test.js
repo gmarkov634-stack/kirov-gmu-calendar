@@ -14,7 +14,7 @@ const mins = (value) => {
 };
 const overlaps = (a,b) => mins(a.startTime) < mins(b.endTime) && mins(b.startTime) < mins(a.endTime);
 
-test('current pediatrics 231-239 source is freshly reviewed and fail-closed pending platform compatibility', async () => {
+test('current pediatrics 231-239 source is freshly reviewed and platform-compatible', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/pediatrics-231-239-2026-09-03.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/pediatrics-231-239-2026-09-03.source.json'),
@@ -26,14 +26,17 @@ test('current pediatrics 231-239 source is freshly reviewed and fail-closed pend
 
   assert.equal(source.source.sha256, 'eff3de3dbf59f9612f45165db70737c7b510ea3dcf063ac95f6319a8f3b23a69');
   assert.equal(source.source.byteLength, 18263);
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.publicationAllowed, true);
   assert.equal(semantic.semanticPublicationGate, 'PASS');
-  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
   assert.deepEqual(semantic.unresolvedAmbiguities, []);
-  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(evidence.platformCompatibility.commit, '23c6a686df2204b6d942dfe9187b318f0d268a88');
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(qa.compatibilityGate.platformCommit, '23c6a686df2204b6d942dfe9187b318f0d268a88');
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
 

@@ -375,7 +375,17 @@
     "semanticDecisionReuseAllowed": false
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent ingestion bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "23c6a686df2204b6d942dfe9187b318f0d268a88",
+    "evidence": [
+      "exact official source SHA/byte length verified before bridge execution",
+      "canonical publicationAllowed=false state verified fail-closed before temporary compatibility testing",
+      "ScheduleEvent/PostgreSQL ingestion preserves all 2353 reviewed events and exact source provenance",
+      "J26 persists 17 group-239 Philosophy events at 12:05–13:35",
+      "D11/D33 operator-confirmed event and G08/R12 corrections remain intact",
+      "idempotent replay preserves the same candidate ScheduleVersion"
+    ],
+    "aggregatePublication": "staging aggregate clone continuity gate remains required before live publication"
   }
 }
