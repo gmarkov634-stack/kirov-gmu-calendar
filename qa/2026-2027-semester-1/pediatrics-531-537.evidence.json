@@ -233,5 +233,17 @@
   "qaPass": true,
   "publicationAllowed": false,
   "publicationNotExecutedByScope": true,
-  "sharedCoreChangeRequired": false
+  "sharedCoreChangeRequired": false,
+  "exactShaRevalidation": {
+    "verifiedAt": "2026-10-06",
+    "officialSourceUnchanged": true,
+    "sha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+    "byteLength": 26428,
+    "eventCountUnchanged": true,
+    "candidateDigestUnchanged": true
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform ScheduleEvent/PostgreSQL bridge against this exact reviewed bundle before publicationAllowed=true."
+  }
 }

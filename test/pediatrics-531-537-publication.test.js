@@ -16,11 +16,13 @@ async function readJson(relativePath) {
 }
 
 test('Pediatrics course 5 normalized draft is the approved publication candidate', async () => {
-  const [source, draft, qa, publication] = await Promise.all([
+  const [source, draft, qa, publication, semantic, evidence] = await Promise.all([
     readJson('../fixtures/2026-2027-semester-1/pediatrics-531-537.source.json'),
     readJson('../qa/2026-2027-semester-1/pediatrics-531-537.normalized-draft.json'),
     readJson('../qa/2026-2027-semester-1/pediatrics-531-537.qa-report.json'),
-    readJson('../qa/2026-2027-semester-1/pediatrics-531-537.publication-evidence.json')
+    readJson('../qa/2026-2027-semester-1/pediatrics-531-537.publication-evidence.json'),
+    readJson('../qa/2026-2027-semester-1/pediatrics-531-537.semantic-review.json'),
+    readJson('../qa/2026-2027-semester-1/pediatrics-531-537.evidence.json')
   ]);
   const digest = digestNormalizedEvents(draft.events);
 
@@ -31,6 +33,14 @@ test('Pediatrics course 5 normalized draft is the approved publication candidate
   assert.equal(digest, publication.candidateDigest);
   assert.equal(draft.status, 'PASS');
   assert.equal(qa.decision, 'pass');
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.deepEqual(semantic.rules, semantic.rulesApplied);
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.compatibilityGate.status, 'review-required');
+  assert.equal(evidence.publicationAllowed, false);
+  assert.equal(evidence.platformCompatibility.status, 'review-required');
   assert.ok(qa.checks.every((check) => check.status !== 'fail'));
   assert.deepEqual(Object.fromEntries(source.expectedGroupIds.map((groupId) => [groupId, draft.events.filter((event) => event.groupId === groupId).length])), publication.groupEventCounts);
   assert.ok(draft.events.every((event) => event.timeSemantics === 'floating'));

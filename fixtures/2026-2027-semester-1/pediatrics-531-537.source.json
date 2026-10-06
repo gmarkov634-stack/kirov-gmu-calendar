@@ -37,11 +37,15 @@
   "discovery": {
     "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
     "strategy": "html-xlsx-links",
-    "verifiedAt": "2026-09-02"
+    "verifiedAt": "2026-10-06"
   },
   "storagePolicy": {
     "repositoryStoresBinarySource": false,
     "productionSourceIsServerFetched": true,
     "immutableSourceStoredInObjectStorage": true
+  },
+  "lifecycle": {
+    "status": "semantic-qa-pass-platform-review-required",
+    "publicationAllowed": false
   }
 }

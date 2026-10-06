@@ -1392,5 +1392,28 @@
       "rule": "C13",
       "blocking": false
     }
-  ]
+  ],
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G11",
+    "G12",
+    "G13",
+    "G14",
+    "G19",
+    "G20",
+    "G21",
+    "C01",
+    "C07",
+    "C08",
+    "C12",
+    "C14",
+    "C13"
+  ],
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "nextGate": "Exact-SHA semantic QA remains PASS, but ScheduleVersion publication is fail-closed until medschedule-platform ScheduleEvent/PostgreSQL compatibility passes for this exact bundle.",
+  "updatedAt": "2026-10-06"
 }
