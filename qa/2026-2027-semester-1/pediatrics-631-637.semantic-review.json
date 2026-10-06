@@ -18,5 +18,17 @@
   "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
   "publicationEligible": false,
   "publicationBlocker": "Date-only persistence/ICS rendering is intentionally outside the normalization-only core PR #245 and must be implemented and regression-tested before publication.",
-  "publicationPerformed": false
+  "publicationPerformed": false,
+  "parserProfile": "C",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "rules": [
+    "C02",
+    "C07",
+    "C08",
+    "C14",
+    "C15"
+  ],
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "nextGate": "Exact-SHA semantic QA remains PASS, including 42 reviewed date-only C15 events. ScheduleVersion publication stays fail-closed until the current medschedule-platform ScheduleEvent/PostgreSQL/calendar compatibility gate passes for this exact bundle.",
+  "updatedAt": "2026-10-06"
 }

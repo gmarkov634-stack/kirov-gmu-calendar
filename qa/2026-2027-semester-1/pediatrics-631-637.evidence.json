@@ -5,7 +5,15 @@
     "sha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
     "sheetName": "6 курс осень 2026-2027 Пед",
     "profile": "C",
-    "groups": ["631", "632", "633", "634", "635", "636", "637"],
+    "groups": [
+      "631",
+      "632",
+      "633",
+      "634",
+      "635",
+      "636",
+      "637"
+    ],
     "mechanicalProbeWorkflowRunId": 33593293119,
     "mechanicalProbeArtifactId": 9832499924
   },
@@ -57,7 +65,10 @@
       "syntheticLocationCount": 0
     },
     "examAndVacation": {
-      "rules": ["C07", "C14"],
+      "rules": [
+        "C07",
+        "C14"
+      ],
       "synthesizedEvents": 0
     },
     "abbreviatedGridLabels": {
@@ -95,5 +106,20 @@
     "eligible": false,
     "reason": "Normalized draft QA is independent from publication support. Date-only persistence/ICS rendering is not included in core PR #245.",
     "performed": false
+  },
+  "publicationAllowed": false,
+  "publicationNotExecutedByScope": true,
+  "exactShaRevalidation": {
+    "verifiedAt": "2026-10-06",
+    "officialSourceUnchanged": true,
+    "sha256": "c450e454b23ba83cb273571c09fe2a1b283bec6eaa23f10e08dbf0c88ce41d60",
+    "byteLength": 31283,
+    "eventCountUnchanged": true,
+    "dateOnlyEventCountUnchanged": true,
+    "candidateDigestUnchanged": true
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run the current medschedule-platform exact-SHA bridge across reviewed-source bundle generation, 42 date-only C15 events, ScheduleEvent/PostgreSQL persistence, calendar rendering, provenance and idempotent replay before publicationAllowed=true."
   }
 }
