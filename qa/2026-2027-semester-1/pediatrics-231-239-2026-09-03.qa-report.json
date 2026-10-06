@@ -1,0 +1,90 @@
+{
+  "qaReportId": "qa-kgmu-2026-2027-s1-pediatrics-231-239-2026-09-03-v1",
+  "parsingJobId": "reviewed-pediatrics-231-239-eff3de3d-v1",
+  "candidateDigest": "sha256:d3a12214e4aeea6c6a019d4c7b114661a04ae4f49508766f1a9a677397acc6a0",
+  "decision": "pass",
+  "checks": [
+    {
+      "code": "source-fingerprint-reviewed",
+      "status": "pass",
+      "message": "Current official workbook SHA-256 eff3de3dbf59f9612f45165db70737c7b510ea3dcf063ac95f6319a8f3b23a69 was reviewed as a distinct source version; no cross-SHA automatic semantic reuse."
+    },
+    {
+      "code": "full-workbook-diff-reviewed",
+      "status": "pass",
+      "message": "After whitespace normalization exactly J26 changed; no cells were added/removed and merged-range geometry is identical."
+    },
+    {
+      "code": "j26-philosophy-time",
+      "status": "pass",
+      "message": "Group 239 Philosophy J26 now normalizes to 12:05–13:35 on the unchanged Thursday date set 03.09–24.12."
+    },
+    {
+      "code": "main-table-content-accounted-for",
+      "status": "pass",
+      "message": "114/114 logical timetable source cells are classified and represented by explicit decisions."
+    },
+    {
+      "code": "candidate-event-count",
+      "status": "pass",
+      "message": "Current reviewed candidate contains 2353 events with unchanged per-group counts."
+    },
+    {
+      "code": "duplicate-events",
+      "status": "pass",
+      "message": "Current candidate has 0 duplicate normalized event signatures."
+    },
+    {
+      "code": "source-corrections-revalidated",
+      "status": "pass",
+      "message": "G18/J18 and D26 G08+R12 corrections are unchanged and revalidated against the current workbook."
+    },
+    {
+      "code": "operator-confirmation-revalidated",
+      "status": "pass",
+      "message": "PED2-D33-D11-BIOCHEM-EXTRA-MONDAY remains resolved by the explicit user-confirmed 08.12.2026 09:30–10:15 D11 event; D11/D33 are unchanged."
+    },
+    {
+      "code": "explicit-overlaps-preserved",
+      "status": "warning",
+      "message": "The same 3 source-backed overlap pairs remain preserved under R69."
+    },
+    {
+      "code": "cross-day-count-constraints",
+      "status": "pass",
+      "message": "All existing cross-day/additional-session constraints reference unchanged source cells and remain satisfied."
+    },
+    {
+      "code": "unresolved-ambiguities-zero-before-pass",
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities remain after fresh current-source review."
+    },
+    {
+      "code": "platform-compatibility-gate",
+      "status": "warning",
+      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent ingestion."
+    }
+  ],
+  "sharedContractEvidence": {
+    "repository": "gmarkov634-stack/medical-calendar-core",
+    "commit": "8643642a4aa889b8e8dc1b444a7c2ea3719d0602",
+    "productionRuntimeCommit": "5a35ce015949c7163f41478cfc20003e2e28729d",
+    "normalizedEventSchemaBlob": "18cce682c311659a515390ba6ce706ba4a2f4072",
+    "icsRendererBlob": "a9b61d6bb5da412e2f6ff0b5b85474af41e6216e"
+  },
+  "semanticReview": {
+    "reviewId": "kgmu-2026-2027-s1-pediatrics-231-239-2026-09-03-review-v1",
+    "gate": "PASS",
+    "unresolvedAmbiguities": 0,
+    "operatorConfirmationIds": [
+      "USER-2026-09-02-PED2-KEEP-08-12"
+    ]
+  },
+  "createdAt": "2026-10-06T12:30:00+03:00",
+  "updatedOn": "2026-09-02",
+  "publicationAllowed": false,
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until platform bridge PASS"
+  }
+}
