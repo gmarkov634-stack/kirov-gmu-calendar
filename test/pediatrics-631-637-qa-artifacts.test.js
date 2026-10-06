@@ -60,6 +60,18 @@ test('historical normalized-draft evidence remains non-authorizing while publica
   assert.equal(semantic.publicationPerformed, false);
   assert.equal(evidence.publication.eligible, false);
   assert.equal(evidence.publication.performed, false);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(semantic.parserProfile, 'C');
+  assert.deepEqual(semantic.rules, ['C02', 'C07', 'C08', 'C14', 'C15']);
+  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.compatibilityGate.status, 'review-required');
+  assert.equal(evidence.publicationAllowed, false);
+  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(evidence.exactShaRevalidation.sha256, source.source.sha256);
+  assert.equal(evidence.exactShaRevalidation.eventCountUnchanged, true);
+  assert.equal(evidence.exactShaRevalidation.dateOnlyEventCountUnchanged, true);
 
   const publicationCheck = qa.checks.find((check) => check.code === 'publication-path-date-only-support');
   assert.ok(publicationCheck);
