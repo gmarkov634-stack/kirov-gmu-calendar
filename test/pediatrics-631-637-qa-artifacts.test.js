@@ -55,20 +55,22 @@ test('semantic review and QA are pinned to the deterministic normalized candidat
   assert.equal(evidence.ambiguities.unresolved, 0);
 });
 
-test('historical normalized-draft evidence remains non-authorizing while publication is runtime-gated', () => {
-  assert.equal(semantic.publicationEligible, false);
+test('reviewed date-only candidate is platform-compatible but staging publication remains separately gated', () => {
+  assert.equal(semantic.publicationEligible, true);
   assert.equal(semantic.publicationPerformed, false);
-  assert.equal(evidence.publication.eligible, false);
+  assert.equal(evidence.publication.eligible, true);
   assert.equal(evidence.publication.performed, false);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
-  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
+  assert.equal(source.lifecycle.publicationAllowed, true);
   assert.equal(semantic.parserProfile, 'C');
   assert.deepEqual(semantic.rules, ['C02', 'C07', 'C08', 'C14', 'C15']);
-  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
-  assert.equal(qa.publicationAllowed, false);
-  assert.equal(qa.compatibilityGate.status, 'review-required');
-  assert.equal(evidence.publicationAllowed, false);
-  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
+  assert.equal(qa.publicationAllowed, true);
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(qa.compatibilityGate.platformCommit, '43d0d7f26939bf2703446e5c8b665e0adc3b90cb');
+  assert.equal(evidence.publicationAllowed, true);
+  assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(evidence.platformCompatibility.commit, '43d0d7f26939bf2703446e5c8b665e0adc3b90cb');
   assert.equal(evidence.exactShaRevalidation.sha256, source.source.sha256);
   assert.equal(evidence.exactShaRevalidation.eventCountUnchanged, true);
   assert.equal(evidence.exactShaRevalidation.dateOnlyEventCountUnchanged, true);
@@ -76,8 +78,8 @@ test('historical normalized-draft evidence remains non-authorizing while publica
   const publicationCheck = qa.checks.find((check) => check.code === 'publication-path-date-only-support');
   assert.ok(publicationCheck);
   assert.equal(publicationCheck.status, 'pass');
-  assert.match(publicationCheck.message, /production publication remains fail-closed/i);
-  assert.match(publicationCheck.message, /deployed core boundary/i);
+  assert.match(publicationCheck.message, /medschedule-platform/i);
+  assert.match(publicationCheck.message, /aggregate continuity/i);
 });
 
 test('historical draft core dependency evidence remains exact and CI-verified', () => {
