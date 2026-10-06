@@ -2,7 +2,7 @@
   "schema": "kgmu-explicit-semantic-decisions-v3",
   "fixtureId": "medicine-311-317-2026-2027-semester-1-2026-09-02",
   "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
-  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserRulesVersion": "kgmu-2026-10-06-v6",
   "sheetName": "3 леч.2",
   "semanticDecisionMode": "operator-authored-explicit",
   "logicalSourceCellCount": 69,

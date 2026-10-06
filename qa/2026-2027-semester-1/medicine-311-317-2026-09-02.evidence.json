@@ -1,7 +1,7 @@
 {
   "fixtureId": "medicine-311-317-2026-2027-semester-1-2026-09-02",
   "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
-  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserRulesVersion": "kgmu-2026-10-06-v6",
   "semanticDecisionManifest": "fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json",
   "semanticDecisionMode": "operator-authored-explicit-current-source-review",
   "candidateDigest": "sha256:7b8eed2d995ec3aa1fa49c02b4ddf050f05b5b3c87e6ae1ebf93142110139c91",
@@ -111,6 +111,6 @@
   },
   "platformCompatibility": {
     "status": "review-required",
-    "requirement": "Rerun medschedule-platform ScheduleEvent/ChoiceGroup ingestion after correcting B29 location and assessment metadata."
+    "requirement": "Run medschedule-platform exact-artifact compatibility against parser review revision kgmu-2026-10-06-v6 before publicationAllowed=true."
   }
 }

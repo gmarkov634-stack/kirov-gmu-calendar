@@ -2,7 +2,7 @@
   "schema": "kgmu-semantic-source-review-v1",
   "reviewId": "kgmu-2026-2027-s1-medicine-311-317-2026-09-02-review-v1",
   "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
-  "parserRulesVersion": "kgmu-2026-10-01-v5",
+  "parserRulesVersion": "kgmu-2026-10-06-v6",
   "parserProfile": "weekly",
   "rules": [
     "G01",
@@ -62,7 +62,7 @@
       "status": "PASS: all three previously reviewed R66 suppressions remain valid because the relevant source regions are unchanged."
     }
   ],
-  "normalizationPolicy": "Fresh review of current SHA 00798076. Only B29 changed materially versus the previous approved workbook. The added Statistics option is resolved from the explicit common block header and existing same-course approved structure. Its room is intentionally left unset because B29 names only the department; E38 supplies the source-backed credit assessment. Unchanged R66/online semantics were revalidated. No cross-SHA automatic approval and no new reusable G/R rule.",
+  "normalizationPolicy": "Fresh review of current SHA 00798076. Only B29 changed materially versus the previous approved workbook. The added Statistics option is resolved from the explicit common block header and existing same-course approved structure. Its room is intentionally left unset because B29 names only the department; E38 supplies the source-backed credit assessment. Unchanged R66/online semantics were revalidated. No cross-SHA automatic approval and no new reusable G/R rule. The source-specific review revision is bumped to kgmu-2026-10-06-v6 solely to give the corrected immutable candidate a new audit/idempotency identity; canonical G/R rule semantics are unchanged.",
   "semanticPublicationGate": "PASS",
   "platformPublicationGate": "REVIEW_REQUIRED",
   "publicationPerformed": false,

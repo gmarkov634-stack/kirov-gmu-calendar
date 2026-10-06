@@ -17,7 +17,7 @@ const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime) &&
   minutes(right.startTime) < minutes(left.endTime);
 
-test('current medicine 311-317 source keeps B29 location source-faithful and fail-closed pending platform recheck', async () => {
+test('current medicine 311-317 corrected v6 review is source-faithful and fail-closed pending platform gate', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/medicine-311-317-2026-09-02.source.json'),
@@ -32,7 +32,7 @@ test('current medicine 311-317 source keeps B29 location source-faithful and fai
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(semantic.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
-  assert.equal(source.parserRulesVersion, 'kgmu-2026-10-01-v5');
+  assert.equal(source.parserRulesVersion, 'kgmu-2026-10-06-v6');
   assert.equal(manifest.parserRulesVersion, source.parserRulesVersion);
   assert.equal(semantic.parserRulesVersion, source.parserRulesVersion);
   assert.equal(evidence.parserRulesVersion, source.parserRulesVersion);

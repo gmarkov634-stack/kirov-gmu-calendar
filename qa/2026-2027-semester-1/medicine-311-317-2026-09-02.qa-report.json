@@ -63,7 +63,7 @@
     {
       "code": "platform-compatibility-gate",
       "status": "warning",
-      "message": "Platform compatibility must be rerun after the B29 source-semantics correction (no inferred room; credit from E38)."
+      "message": "Corrected B29 semantics require a new exact-artifact platform compatibility run under source-specific review revision kgmu-2026-10-06-v6."
     }
   ],
   "semanticReview": {
@@ -73,7 +73,7 @@
   },
   "compatibilityGate": {
     "status": "review-required",
-    "stagingPublicationGate": "blocked until corrected platform bridge PASS"
+    "stagingPublicationGate": "blocked until corrected v6 platform bridge PASS"
   },
   "createdAt": "2026-10-06T09:45:00+03:00",
   "sharedContractEvidence": {
