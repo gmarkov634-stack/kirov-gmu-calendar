@@ -5,12 +5,14 @@ import test from 'node:test';
 import { expandExplicitDecisionManifest } from '../src/explicit-decisions.js';
 
 const readJson = async (path) => JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'));
-const [manifest, source, semantic, review, evidence] = await Promise.all([
+const [manifest, source, semantic, review, evidence, canonicalEvidence, qa] = await Promise.all([
   readJson('fixtures/2026-2027-semester-1/pediatrics-431-436.decisions.json'),
   readJson('fixtures/2026-2027-semester-1/pediatrics-431-436.source.json'),
   readJson('fixtures/2026-2027-semester-1/pediatrics-431-436.semantic-source.json'),
   readJson('qa/2026-2027-semester-1/pediatrics-431-436.semantic-review.json'),
-  readJson('qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json')
+  readJson('qa/2026-2027-semester-1/pediatrics-431-436.normalization-evidence.json'),
+  readJson('qa/2026-2027-semester-1/pediatrics-431-436.evidence.json'),
+  readJson('qa/2026-2027-semester-1/pediatrics-431-436.qa-report.json')
 ]);
 
 const events = expandExplicitDecisionManifest(manifest, {
@@ -42,6 +44,16 @@ test('manifest is bound to the verified Pediatrics course-4 source and resolved 
   assert.deepEqual(manifest.groupTable, groups);
   assert.deepEqual(review.unresolvedAmbiguities, []);
   assert.equal(review.qaGate.semanticAmbiguitiesResolved, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(review.parserProfile, 'cyclic');
+  assert.equal(review.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.compatibilityGate.status, 'review-required');
+  assert.equal(canonicalEvidence.sourceSha256, SOURCE_SHA);
+  assert.equal(canonicalEvidence.candidateDigest, 'sha256:56324602152102118f29829f4ceb99247e6d0c48c873a077441db4e615636ecd');
+  assert.equal(canonicalEvidence.eventCount, 768);
+  assert.equal(canonicalEvidence.platformCompatibility.status, 'review-required');
   const byId = Object.fromEntries(review.resolvedAmbiguities.map((item) => [item.ambiguityId, item]));
   assert.equal(byId['PED4-C20-MANAGEMENT-EXTENDED-DAYS'].exceptionDatePolicy, 'last-2-calendar-dates');
   assert.equal(byId['PED4-C20-IOK-EXTENDED-DAY'].exceptionDatePolicy, 'last-1-calendar-date');

@@ -14,9 +14,18 @@
     "byteLength": 28692,
     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   },
-  "expectedGroupIds": ["431", "432", "433", "434", "435", "436"],
+  "expectedGroupIds": [
+    "431",
+    "432",
+    "433",
+    "434",
+    "435",
+    "436"
+  ],
   "workbookExpectations": {
-    "sheetNames": ["4 курс осень 2026 Пед"],
+    "sheetNames": [
+      "4 курс осень 2026 Пед"
+    ],
     "maxRow": 45,
     "maxColumn": 125,
     "mergedRangeCount": 224,
@@ -25,11 +34,15 @@
   "discovery": {
     "pageUrl": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
     "strategy": "html-xlsx-links",
-    "verifiedAt": "2026-09-02"
+    "verifiedAt": "2026-10-06"
   },
   "storagePolicy": {
     "repositoryStoresBinarySource": false,
     "productionSourceIsServerFetched": true,
     "immutableSourceStoredInObjectStorage": true
+  },
+  "lifecycle": {
+    "status": "semantic-qa-pass-platform-review-required",
+    "publicationAllowed": false
   }
 }
