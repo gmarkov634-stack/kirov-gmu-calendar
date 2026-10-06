@@ -39,6 +39,9 @@ test('current pediatrics 331-337 source is freshly reviewed and platform-compati
   assert.equal(semantic.platformPublicationGate, 'PASS');
   assert.deepEqual(semantic.unresolvedAmbiguities, []);
   assert.equal(evidence.platformCompatibility.status, 'pass');
+  assert.equal(evidence.platformCompatibility.commit, 'd5e417d4163a9ba153487d2a65fe420e11222e8a');
+  assert.equal(qa.compatibilityGate.status, 'pass');
+  assert.equal(qa.compatibilityGate.platformCommit, 'd5e417d4163a9ba153487d2a65fe420e11222e8a');
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
 
