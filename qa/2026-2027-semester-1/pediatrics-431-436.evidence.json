@@ -42,7 +42,18 @@
     "candidateDigestUnchanged": true
   },
   "platformCompatibility": {
-    "status": "review-required",
-    "requirement": "Run current medschedule-platform ScheduleEvent/PostgreSQL bridge against this exact reviewed bundle before publicationAllowed=true."
+    "status": "pass",
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "commit": "3ceb152ff33a3e76617d551cd393b306964e5f78",
+    "evidence": [
+      "exact official source SHA and byte length verified before bridge execution",
+      "canonical publicationAllowed=false state verified fail-closed before temporary CI compatibility testing",
+      "generic reviewed-source bundle reproduces exactly 768 events and the canonical candidate digest",
+      "ScheduleEvent/PostgreSQL ingestion preserves all reviewed events and source provenance",
+      "C20/G21 Management last-two-date and IOK last-date timing decisions remain intact",
+      "no ChoiceGroup rows are invented for this stream",
+      "idempotent replay preserves the same candidate ScheduleVersion"
+    ],
+    "aggregatePublication": "staging aggregate clone continuity gate remains required before live publication"
   }
 }
