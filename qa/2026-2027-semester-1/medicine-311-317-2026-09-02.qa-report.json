@@ -1,9 +1,9 @@
 {
   "qaReportId": "qa-kgmu-2026-2027-s1-medicine-311-317-2026-09-02-v1",
   "parsingJobId": "reviewed-medicine-311-317-00798076-v1",
-  "candidateDigest": "sha256:1eef6ceea89cee97c6cb4e3cf05de5f853ad8788916f6a09bfb6e02589629747",
+  "candidateDigest": "sha256:7b8eed2d995ec3aa1fa49c02b4ddf050f05b5b3c87e6ae1ebf93142110139c91",
   "decision": "pass",
-  "publicationAllowed": true,
+  "publicationAllowed": false,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -18,7 +18,7 @@
     {
       "code": "b29-statistics-added",
       "status": "pass",
-      "message": "B29 explicitly adds unqualified Statistics to the common choice-practice block. It expands to all groups 311–317 on 09.10 14:40–17:05 and 16.10–25.12 Fridays 13:00–15:25, matching the common block header and already approved same-course structure."
+      "message": "B29 explicitly adds unqualified Statistics to the common choice-practice block. It expands to all groups 311–317 on 09.10 14:40–17:05 and 16.10–25.12 Fridays 13:00–15:25. B29 contains no room, so location is null rather than inherited from B19/B28; the choice-discipline credit is source-backed by E38."
     },
     {
       "code": "main-table-content-accounted-for",
@@ -62,8 +62,8 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "pass",
-      "message": "medschedule-platform b7735243adc224efeb26cbb2ed420b14fdf33770 passed the exact current-source ScheduleEvent/ChoiceGroup/PostgreSQL compatibility gate for this reviewed candidate."
+      "status": "warning",
+      "message": "Platform compatibility must be rerun after the B29 source-semantics correction (no inferred room; credit from E38)."
     }
   ],
   "semanticReview": {
@@ -72,17 +72,8 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "pass",
-    "platformCommit": "b7735243adc224efeb26cbb2ed420b14fdf33770",
-    "verifiedChecks": [
-      "exact-source-fingerprint",
-      "fail-closed-canonical-state",
-      "ScheduleEvent-PostgreSQL-ingestion",
-      "group-scoped-choice-projection",
-      "source-provenance",
-      "idempotent-replay"
-    ],
-    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until corrected platform bridge PASS"
   },
   "createdAt": "2026-10-06T09:45:00+03:00",
   "sharedContractEvidence": {
