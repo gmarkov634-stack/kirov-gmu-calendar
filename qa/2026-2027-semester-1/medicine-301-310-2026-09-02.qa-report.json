@@ -3,7 +3,7 @@
   "parsingJobId": "reviewed-medicine-301-310-367de1a0-v1",
   "candidateDigest": "sha256:87bd585f77cea68307967e21bdc52bb660717d9e84642523d5869c25b1857dfb",
   "decision": "pass",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "checks": [
     {
       "code": "source-fingerprint-reviewed",
@@ -72,8 +72,8 @@
     },
     {
       "code": "platform-compatibility-gate",
-      "status": "warning",
-      "message": "Semantic QA is PASS, but publication remains blocked until the exact current bundle passes medschedule-platform ScheduleEvent/ChoiceGroup ingestion."
+      "status": "pass",
+      "message": "medschedule-platform 0943fbf015890f2ee6915cbd866e0a9ddd91515f passed the exact current-source ScheduleEvent/ChoiceGroup/PostgreSQL compatibility gate for this reviewed candidate."
     }
   ],
   "semanticReview": {
@@ -82,8 +82,17 @@
     "unresolvedAmbiguities": 0
   },
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "0943fbf015890f2ee6915cbd866e0a9ddd91515f",
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "fail-closed-canonical-state",
+      "ScheduleEvent-PostgreSQL-ingestion",
+      "group-scoped-choice-projection",
+      "source-provenance",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "aggregate clone continuity check remains required before live publication"
   },
   "createdAt": "2026-10-05T19:30:00+03:00",
   "sharedContractEvidence": {
