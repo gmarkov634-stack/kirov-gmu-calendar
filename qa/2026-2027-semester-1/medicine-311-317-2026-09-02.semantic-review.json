@@ -64,7 +64,7 @@
   ],
   "normalizationPolicy": "Fresh review of current SHA 00798076. Only B29 changed materially versus the previous approved workbook. The added Statistics option is resolved from the explicit common block header and existing same-course approved structure. Its room is intentionally left unset because B29 names only the department; E38 supplies the source-backed credit assessment. Unchanged R66/online semantics were revalidated. No cross-SHA automatic approval and no new reusable G/R rule.",
   "semanticPublicationGate": "PASS",
-  "platformPublicationGate": "REVIEW_REQUIRED",
+  "platformPublicationGate": "PASS",
   "publicationPerformed": false,
   "updatedAt": "2026-10-06"
 }
