@@ -1,0 +1,102 @@
+{
+  "schema": "kgmu-semantic-source-review-v1",
+  "reviewId": "kgmu-2026-2027-s1-pediatrics-231-239-2026-09-03-review-v1",
+  "sourceSha256": "eff3de3dbf59f9612f45165db70737c7b510ea3dcf063ac95f6319a8f3b23a69",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "parserProfile": "weekly",
+  "rules": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G08",
+    "G09",
+    "G10",
+    "G12",
+    "G16",
+    "G19",
+    "G20",
+    "G21",
+    "R01",
+    "R06",
+    "R08",
+    "R12",
+    "R17",
+    "R40",
+    "R41",
+    "R69",
+    "R75",
+    "R83",
+    "R87"
+  ],
+  "stream": {
+    "programId": "pediatrics",
+    "course": 2,
+    "groups": [
+      "231",
+      "232",
+      "233",
+      "234",
+      "235",
+      "236",
+      "237",
+      "238",
+      "239"
+    ],
+    "sourceUrl": "https://kirovgma.ru/sites/default/files/files/2026/09/03/1085/2_ped-03-09-2026-13.xlsx",
+    "sourceSha256": "eff3de3dbf59f9612f45165db70737c7b510ea3dcf063ac95f6319a8f3b23a69",
+    "sheet": "2пед.",
+    "logicalSourceCells": 114,
+    "unresolvedAmbiguities": 0,
+    "status": "SEMANTIC_QA_PASS"
+  },
+  "coverage": {
+    "logicalSourceCellCount": 114,
+    "coveredSourceCellCount": 114
+  },
+  "unresolvedAmbiguities": [],
+  "resolvedAmbiguities": [
+    {
+      "ambiguityId": "PED2-D33-D11-BIOCHEM-EXTRA-MONDAY",
+      "sourceLocators": [
+        "2пед.!D33",
+        "2пед.!D11"
+      ],
+      "groupId": "233",
+      "discipline": "Биохимия",
+      "issue": "D33 says “1 занятие в пн.”, but the separate Biochemistry entry D11 is explicitly dated 08.12.2026, which is Tuesday.",
+      "resolution": "Keep the explicit D11 event on 08.12.2026 09:30–10:15. Treat the conflicting weekday note in D33 as a source inconsistency and do not infer or move the event to a Monday.",
+      "resolvedEvent": {
+        "date": "2026-12-08",
+        "startTime": "09:30",
+        "endTime": "10:15"
+      },
+      "resolutionBasis": "user-confirmed-explicit-source-date",
+      "confirmationId": "USER-2026-09-02-PED2-KEEP-08-12",
+      "revalidation": "current D11/D33 normalized text and merge geometry are unchanged from the user-confirmed approved baseline"
+    }
+  ],
+  "confirmedSourceSemantics": [
+    {
+      "locator": "J26",
+      "status": "PASS: current official source changes only group 239 Philosophy time from 12:10–13:40 to 12:05–13:35 on the unchanged 03.09–24.12 Thursday date set; discipline, scope and room remain unchanged."
+    },
+    {
+      "locator": "D11/D33",
+      "status": "PASS: user-confirmed Biochemistry event remains 08.12.2026 09:30–10:15; both source cells are normalized-unchanged, so the conflicting “1 занятие в пн.” note is still treated as source inconsistency under G21."
+    },
+    {
+      "locator": "G18/J18",
+      "status": "PASS: previously reviewed impossible repeated intervals are unchanged and remain corrected under G08 + R12 to the source-supported 08:00–10:25 sequence."
+    },
+    {
+      "locator": "D26",
+      "status": "PASS: previously reviewed malformed 15:35–7:05 interval is unchanged and remains uniquely corrected under G08 + R12 to 15:35–18:00."
+    }
+  ],
+  "normalizationPolicy": "Fresh review of current SHA eff3de3d. Mechanical normalized workbook diff versus the archived official baseline is exactly one changed cell J26; there are no added/removed cells and no merged-range changes. No cross-SHA automatic approval and no new reusable G/R rule.",
+  "semanticPublicationGate": "PASS",
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "publicationPerformed": false,
+  "updatedAt": "2026-10-06"
+}
