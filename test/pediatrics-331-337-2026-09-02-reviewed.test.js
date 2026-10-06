@@ -19,7 +19,7 @@ const overlaps = (left, right) =>
   minutes(left.startTime) < minutes(right.endTime)
   && minutes(right.startTime) < minutes(left.endTime);
 
-test('current pediatrics 331-337 source is freshly reviewed and remains fail-closed for platform publication', async () => {
+test('current pediatrics 331-337 source is freshly reviewed and platform-compatible', async () => {
   const [manifest, source, semantic, evidence, qa, diff] = await Promise.all([
     readJson('fixtures/2026-2027-semester-1/pediatrics-331-337-2026-09-02.decisions.json'),
     readJson('fixtures/2026-2027-semester-1/pediatrics-331-337-2026-09-02.source.json'),
@@ -31,14 +31,14 @@ test('current pediatrics 331-337 source is freshly reviewed and remains fail-clo
 
   assert.equal(source.source.sha256, '6ad088c6b39973a5c9d76a694a64bab4e34641f8d4b80123dc97bc3f3af0bba1');
   assert.equal(source.source.byteLength, 19647);
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
   assert.equal(qa.decision, 'pass');
-  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.publicationAllowed, true);
   assert.equal(semantic.semanticPublicationGate, 'PASS');
-  assert.equal(semantic.platformPublicationGate, 'REVIEW_REQUIRED');
+  assert.equal(semantic.platformPublicationGate, 'PASS');
   assert.deepEqual(semantic.unresolvedAmbiguities, []);
-  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(evidence.platformCompatibility.status, 'pass');
   assert.equal(manifest.sourceSha256, source.source.sha256);
   assert.equal(evidence.sourceSha256, source.source.sha256);
 
