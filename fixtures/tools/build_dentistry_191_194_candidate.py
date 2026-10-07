@@ -128,7 +128,10 @@ def materialize_r90_confirmation(decisions):
     decisions["unresolved"] = [
         item for item in decisions["unresolved"] if item["id"] != confirmation["id"]
     ]
-    decisions["resolvedMainTableSourceCellCount"] = 77
+    decisions["resolvedMainTableSourceCellCount"] = (
+        decisions["logicalMainTableSourceCellCount"]
+        - len({item["sourceCell"] for item in decisions["unresolved"]})
+    )
     decisions["manualConfirmations"] = [
         {
             "id": confirmation["id"],
@@ -202,7 +205,7 @@ def main():
     source_cells = {coord for coord, value in probe_cells.items() if coord[0] in "BCDE" and 10 <= int(coord[1:]) <= 49 and value.strip()}
     decision_cells = {x["sourceCell"] for x in decisions["decisions"]}
     unresolved_cells = {x["sourceCell"] for x in decisions["unresolved"]}
-    assert len(source_cells) == decisions["logicalMainTableSourceCellCount"] == 77
+    assert len(source_cells) == decisions["logicalMainTableSourceCellCount"]
     assert len(decision_cells) == decisions["resolvedMainTableSourceCellCount"]
     assert len(decision_cells) + len(unresolved_cells) == len(source_cells)
     assert source_cells == decision_cells | unresolved_cells and decision_cells.isdisjoint(unresolved_cells)
