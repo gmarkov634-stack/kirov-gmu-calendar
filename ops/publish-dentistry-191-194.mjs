@@ -78,7 +78,7 @@ async function loadPlan() {
   if (normalizedEventSetDigest !== publication.eventSetDigest) {
     throw new Error(`Dentistry course-1 event-set digest mismatch: ${normalizedEventSetDigest}`);
   }
-  if (events.length !== 1656 || events.length !== qa.eventCount || events.length !== publication.eventCount) {
+  if (events.length !== qa.eventCount || events.length !== publication.eventCount) {
     throw new Error(`Dentistry course-1 event count mismatch: ${events.length}`);
   }
   if (events.some((event) => event.timeSemantics !== 'floating')) {
