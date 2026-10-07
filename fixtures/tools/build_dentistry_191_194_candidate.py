@@ -83,7 +83,7 @@ def materialize_r90_confirmation(decisions):
 
     matches = [x for x in decisions["unresolved"] if x["id"] == confirmation["id"]]
     if not matches:
-        assert decisions["resolvedMainTableSourceCellCount"] == decisions["logicalMainTableSourceCellCount"] == 77
+        # R90 may already be resolved while an unrelated current-source item remains REVIEW_REQUIRED.
         assert any(x["sourceCell"] == "B49" and x.get("facultativeId") for x in decisions["decisions"])
         return
 
@@ -302,12 +302,12 @@ def main():
         {"code":"assessment-metadata-lossless","status":"pass","message":f"{len(decisions['assessmentMetadata'])} source-explicit assessment metadata mappings preserved"},
         {"code":"duplicate-events-resolved","status":"pass","message":"0 duplicate normalized event signatures"},
         {"code":"source-backed-overlaps-preserved","status":"warning" if overlaps else "pass","message":f"{len(overlaps)} overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"},
-        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved item(s): R90 periodicity confirmation blocks B49 expansion/publication" if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"},
+        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved semantic item(s) block publication: " + ", ".join(item["id"] for item in decisions["unresolved"]) if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"},
         {"code":"publication-not-performed","status":"pass","message":"QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"},
     ]
     qa_decision = "review-required" if decisions["unresolved"] else "pass"
     report = {
-        "qaReportId":"qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v3",
+        "qaReportId":f"qa-kgmu-2026-2027-s1-dentistry-191-194-{source_meta['sha256'][:8]}-v1",
         "parsingJobId":job["jobId"],
         "candidateDigest":digest,
         "decision":qa_decision,
