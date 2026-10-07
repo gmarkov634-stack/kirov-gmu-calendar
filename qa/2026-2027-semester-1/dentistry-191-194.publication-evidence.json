@@ -34,9 +34,15 @@
       "B26#s2",
       "B49#r90-2"
     ],
-    "kgmu-2026-2027-s1-dentistry-facultative-biology": ["B49#r90-1"],
-    "kgmu-2026-2027-s1-dentistry-facultative-physics": ["B49#r90-3"],
-    "kgmu-2026-2027-s1-dentistry-facultative-math": ["B49#r90-4"]
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": [
+      "B49#r90-1"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": [
+      "B49#r90-3"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-math": [
+      "B49#r90-4"
+    ]
   },
   "facultativeIds": [
     "kgmu-2026-2027-s1-dentistry-facultative-biology",
@@ -51,5 +57,10 @@
     "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
     "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
   },
-  "createdAt": "2026-09-03T07:23:00Z"
+  "createdAt": "2026-09-03T07:23:00Z",
+  "lifecycleStatus": "SUPERSEDED_SOURCE_REVISION",
+  "publicationAllowed": false,
+  "currentSourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "supersededReason": "Official course-1 Dentistry XLSX changed from the reviewed 2026-09-02 revision to the 2026-09-14 revision. This evidence remains historical and cannot authorize current publication.",
+  "supersededAt": "2026-10-07"
 }
