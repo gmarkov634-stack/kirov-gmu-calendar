@@ -3,7 +3,7 @@ name: Probe dentistry 191-194 official source
 on:
   push:
     branches:
-      - feat/dentistry-191-194-2026-09-03
+      - revalidate/dentistry-191-194-20260914
     paths:
       - 'fixtures/tools/probe_dentistry_191_194_source.py'
       - '.github/workflows/probe-dentistry-191-194.yml'
@@ -38,7 +38,7 @@ jobs:
             echo 'Mechanical evidence unchanged'
           else
             git commit -m 'Record Dentistry 191-194 mechanical source evidence'
-            git push origin HEAD:feat/dentistry-191-194-2026-09-03
+            git push origin HEAD:revalidate/dentistry-191-194-20260914
           fi
       - uses: actions/upload-artifact@v4
         if: always()
