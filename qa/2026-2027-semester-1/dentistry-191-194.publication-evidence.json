@@ -1,20 +1,20 @@
 {
   "schema": "kgmu-dentistry-publication-evidence-v1",
-  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
-  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
-  "eventSetDigest": "sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374",
-  "eventCount": 1656,
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487",
+  "eventSetDigest": "sha256:8e433532541a8b8f642e6dc14ae18ba06b569c0743278c0ac63a07a083935405",
+  "eventCount": 1669,
   "groupEventCounts": {
-    "191": 413,
+    "191": 428,
     "192": 413,
-    "193": 415,
-    "194": 415
+    "193": 414,
+    "194": 414
   },
   "groupDefaultVisibleEventCounts": {
-    "191": 328,
+    "191": 343,
     "192": 328,
-    "193": 330,
-    "194": 330
+    "193": 329,
+    "194": 329
   },
   "groupFacultativeEventCounts": {
     "191": 85,
@@ -34,9 +34,15 @@
       "B26#s2",
       "B49#r90-2"
     ],
-    "kgmu-2026-2027-s1-dentistry-facultative-biology": ["B49#r90-1"],
-    "kgmu-2026-2027-s1-dentistry-facultative-physics": ["B49#r90-3"],
-    "kgmu-2026-2027-s1-dentistry-facultative-math": ["B49#r90-4"]
+    "kgmu-2026-2027-s1-dentistry-facultative-biology": [
+      "B49#r90-1"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-physics": [
+      "B49#r90-3"
+    ],
+    "kgmu-2026-2027-s1-dentistry-facultative-math": [
+      "B49#r90-4"
+    ]
   },
   "facultativeIds": [
     "kgmu-2026-2027-s1-dentistry-facultative-biology",
@@ -51,5 +57,42 @@
     "normalizedEventSchemaBlob": "027699254f920e30822ca26214ddc0746c258c3c",
     "icsRendererBlob": "b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96"
   },
-  "createdAt": "2026-09-03T07:23:00Z"
+  "createdAt": "2026-10-07T20:21:00Z",
+  "publicationAllowed": false,
+  "publicationPerformed": false,
+  "sourceRevision": {
+    "priorCanonicalSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+    "officialSourceChanged": true,
+    "verifiedAt": "2026-10-07",
+    "changedSemanticCells": [
+      "B15",
+      "B23",
+      "D23",
+      "E23",
+      "B34"
+    ]
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform exact-SHA reviewed-source bundle, ScheduleEvent/PostgreSQL provenance, ChoiceGroup/Visibility and idempotent replay tests before publicationAllowed=true."
+  },
+  "previousPublishedCandidate": {
+    "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+    "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
+    "eventSetDigest": "sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374",
+    "eventCount": 1656,
+    "groupEventCounts": {
+      "191": 413,
+      "192": 413,
+      "193": 415,
+      "194": 415
+    },
+    "groupDefaultVisibleEventCounts": {
+      "191": 328,
+      "192": 328,
+      "193": 330,
+      "194": 330
+    },
+    "status": "published-before-current-source-revision"
+  }
 }

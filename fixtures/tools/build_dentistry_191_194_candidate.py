@@ -83,7 +83,7 @@ def materialize_r90_confirmation(decisions):
 
     matches = [x for x in decisions["unresolved"] if x["id"] == confirmation["id"]]
     if not matches:
-        assert decisions["resolvedMainTableSourceCellCount"] == decisions["logicalMainTableSourceCellCount"] == 77
+        assert decisions["resolvedMainTableSourceCellCount"] == decisions["logicalMainTableSourceCellCount"]
         assert any(x["sourceCell"] == "B49" and x.get("facultativeId") for x in decisions["decisions"])
         return
 
@@ -128,7 +128,7 @@ def materialize_r90_confirmation(decisions):
     decisions["unresolved"] = [
         item for item in decisions["unresolved"] if item["id"] != confirmation["id"]
     ]
-    decisions["resolvedMainTableSourceCellCount"] = 77
+    decisions["resolvedMainTableSourceCellCount"] = decisions["logicalMainTableSourceCellCount"]
     decisions["manualConfirmations"] = [
         {
             "id": confirmation["id"],
@@ -202,7 +202,7 @@ def main():
     source_cells = {coord for coord, value in probe_cells.items() if coord[0] in "BCDE" and 10 <= int(coord[1:]) <= 49 and value.strip()}
     decision_cells = {x["sourceCell"] for x in decisions["decisions"]}
     unresolved_cells = {x["sourceCell"] for x in decisions["unresolved"]}
-    assert len(source_cells) == decisions["logicalMainTableSourceCellCount"] == 77
+    assert len(source_cells) == decisions["logicalMainTableSourceCellCount"]
     assert len(decision_cells) == decisions["resolvedMainTableSourceCellCount"]
     assert len(decision_cells) + len(unresolved_cells) == len(source_cells)
     assert source_cells == decision_cells | unresolved_cells and decision_cells.isdisjoint(unresolved_cells)
@@ -270,6 +270,23 @@ def main():
                     "right": right["sourceRef"]["locator"],
                 })
 
+    expected_r89_math_dates = {
+        "2026-09-24", "2026-10-08", "2026-10-22", "2026-11-05",
+        "2026-11-19", "2026-12-03", "2026-12-17",
+    }
+    r89_math_dates = {
+        item["date"]
+        for item in overlaps
+        if {item["left"], item["right"]}
+        == {"1 стомат.!B34#r89-2", "1 стомат.!B49#r90-4"}
+    }
+    assert r89_math_dates == expected_r89_math_dates, r89_math_dates
+    assert not any(
+        item["date"] == "2026-09-10"
+        and "1 стомат.!B34#r89-2" in {item["left"], item["right"]}
+        for item in overlaps
+    ), "R66 must suppress computed B34 curator hour on explicit Library-hour date 10.09"
+
     counts = Counter(x["groupId"] for x in events)
     core = {
         "schema": "kgmu-normalized-draft-v1",
@@ -291,6 +308,26 @@ def main():
         "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "RESOLVED",
         "items": decisions["unresolved"],
         "manualConfirmations": decisions.get("manualConfirmations", []),
+        "parserProfile": "R",
+        "parserRulesVersion": decisions["parserRulesVersion"],
+        "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+        "publicationEligible": False,
+        "publicationPerformed": False,
+        "platformPublicationGate": "REVIEW_REQUIRED",
+        "revisionReview": {
+            "priorCanonicalSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+            "changedSemanticCells": ["B15", "B23", "D23", "E23", "B34"],
+            "rulesApplied": ["R66", "R69", "R89", "R90"],
+            "notes": [
+                "B15 chemistry lecture moves from 21.09 to explicit 28.09.",
+                "B23 curator hour and D23/E23 Library-hour entries were removed by the current official XLSX.",
+                "B34 now carries explicit Library hour 10.09 plus curator-hour times by 1/2 service-week parity under R89.",
+                "R66 suppresses the computed B34 curator occurrence on 10.09 because explicit Library hour occupies the conflicting interval.",
+                "R90 facultative identities and weekly periodicity remain unchanged."
+            ],
+        },
+        "nextGate": "Run the current medschedule-platform exact-SHA bridge for this reviewed b0912c1d bundle before publicationAllowed=true.",
+        "updatedAt": "2026-10-07",
     }
     checks = [
         {"code":"source-identity-coherent","status":"pass","message":"source fixture, SourceArtifact, ParsingJob and mechanical probe resolve to the same official XLSX SHA-256"},
@@ -303,11 +340,13 @@ def main():
         {"code":"duplicate-events-resolved","status":"pass","message":"0 duplicate normalized event signatures"},
         {"code":"source-backed-overlaps-preserved","status":"warning" if overlaps else "pass","message":f"{len(overlaps)} overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"},
         {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved item(s): R90 periodicity confirmation blocks B49 expansion/publication" if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"},
-        {"code":"publication-not-performed","status":"pass","message":"QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"},
+        {"code":"current-source-r89-r66-curator","status":"pass","message":"B34 R89 curator parity expands to 17 events for group 191; 10.09 computed curator is suppressed by R66 in favor of the explicit Library hour; seven source-backed curator/Math-facultative overlaps remain visible under R69."},
+        {"code":"facultative-visibility-contract","status":"pass","message":"Four stable R90 facultative variants remain fully normalized; user selection stays outside ScheduleVersion and is delegated to the shared Visibility Resolver."},
+        {"code":"publication-not-performed","status":"pass","message":"Semantic QA is PASS but publication remains fail-closed until the current medschedule-platform exact-SHA compatibility bridge passes."},
     ]
     qa_decision = "review-required" if decisions["unresolved"] else "pass"
     report = {
-        "qaReportId":"qa-kgmu-2026-2027-s1-dentistry-191-194-719d8081-v3",
+        "qaReportId":f"qa-kgmu-2026-2027-s1-dentistry-191-194-{source_meta['sha256'][:8]}-v3",
         "parsingJobId":job["jobId"],
         "candidateDigest":digest,
         "decision":qa_decision,
@@ -318,6 +357,16 @@ def main():
         "unresolvedSemanticItemCount":len(decisions["unresolved"]),
         "readyForScheduleVersion":not decisions["unresolved"],
         "publicationPerformed":False,
+        "schema":"kgmu-candidate-qa-report-v1",
+        "fixtureId":decisions["fixtureId"],
+        "sourceSha256":decisions["sourceSha256"],
+        "publicationAllowed":False,
+        "blockingIssues":[],
+        "compatibilityGate":{
+            "status":"review-required",
+            "stagingPublicationGate":"blocked until exact-SHA medschedule-platform bridge PASS",
+        },
+        "lastRevalidatedAt":"2026-10-07",
     }
     evidence = {
         "schema":"kgmu-dentistry-191-194-evidence-v1",
@@ -336,6 +385,28 @@ def main():
         "crossCheckCount":len(decisions["crossChecks"]),
         "unresolved":decisions["unresolved"],
         "manualConfirmations":decisions.get("manualConfirmations", []),
+        "publicationAllowed":False,
+        "publicationNotExecutedByScope":True,
+        "sourceRevision":{
+            "priorCanonicalSha256":"719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+            "officialSourceChanged":True,
+            "verifiedAt":"2026-10-07",
+            "changedSemanticCells":["B15","B23","D23","E23","B34"],
+        },
+        "candidate":{
+            "candidateDigest":digest,
+            "eventCount":len(events),
+            "groupEventCounts":dict(sorted(counts.items())),
+            "logicalMainTableSourceCellCount":len(source_cells),
+            "decisionCount":len(decisions["decisions"]),
+            "duplicateEventSignatures":len(duplicates),
+            "overlapPairCount":len(overlaps),
+            "r89MathFacultativeOverlapCount":len(r89_math_dates),
+        },
+        "platformCompatibility":{
+            "status":"review-required",
+            "requirement":"Run current medschedule-platform exact-SHA reviewed-source bundle, ScheduleEvent/PostgreSQL provenance, ChoiceGroup/Visibility and idempotent replay tests before publicationAllowed=true.",
+        },
     }
 
     NORMALIZED.parent.mkdir(parents=True, exist_ok=True)

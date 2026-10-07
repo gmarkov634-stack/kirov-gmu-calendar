@@ -49,14 +49,21 @@ test('Pages and production configs expose exactly the Dentistry course 1 faculta
   }
 });
 
-test('Dentistry landing exposure is bound to the exact merged publication evidence', async () => {
+test('Dentistry landing keeps the previous published candidate while the current source revision is platform-gated', async () => {
   const evidence = JSON.parse(await read('qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json'));
   assert.equal(evidence.schema, 'kgmu-dentistry-publication-evidence-v1');
-  assert.equal(evidence.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
-  assert.equal(evidence.eventSetDigest, 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
-  assert.equal(evidence.eventCount, 1656);
-  assert.deepEqual(evidence.groupEventCounts, { '191': 413, '192': 413, '193': 415, '194': 415 });
-  assert.deepEqual(evidence.groupDefaultVisibleEventCounts, { '191': 328, '192': 328, '193': 330, '194': 330 });
+  assert.equal(evidence.publicationAllowed, false);
+  assert.equal(evidence.platformCompatibility.status, 'review-required');
+  assert.equal(evidence.candidateDigest, 'sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487');
+  assert.equal(evidence.eventCount, 1669);
+
+  const published = evidence.previousPublishedCandidate;
+  assert.equal(published.status, 'published-before-current-source-revision');
+  assert.equal(published.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
+  assert.equal(published.eventSetDigest, 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
+  assert.equal(published.eventCount, 1656);
+  assert.deepEqual(published.groupEventCounts, { '191': 413, '192': 413, '193': 415, '194': 415 });
+  assert.deepEqual(published.groupDefaultVisibleEventCounts, { '191': 328, '192': 328, '193': 330, '194': 330 });
   assert.deepEqual(evidence.facultativeIds, facultatives.map(({ facultativeId }) => facultativeId));
 });
 

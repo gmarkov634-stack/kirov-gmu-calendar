@@ -1,7 +1,7 @@
 {
   "schema": "kgmu-semantic-review-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
-  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
   "status": "RESOLVED",
   "items": [],
   "manualConfirmations": [
@@ -15,5 +15,36 @@
       "confirmedOn": "2026-09-03",
       "provenance": "direct-user-confirmation"
     }
-  ]
+  ],
+  "parserProfile": "R",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+  "publicationEligible": false,
+  "publicationPerformed": false,
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "revisionReview": {
+    "priorCanonicalSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+    "changedSemanticCells": [
+      "B15",
+      "B23",
+      "D23",
+      "E23",
+      "B34"
+    ],
+    "rulesApplied": [
+      "R66",
+      "R69",
+      "R89",
+      "R90"
+    ],
+    "notes": [
+      "B15 chemistry lecture moves from 21.09 to explicit 28.09.",
+      "B23 curator hour and D23/E23 Library-hour entries were removed by the current official XLSX.",
+      "B34 now carries explicit Library hour 10.09 plus curator-hour times by 1/2 service-week parity under R89.",
+      "R66 suppresses the computed B34 curator occurrence on 10.09 because explicit Library hour occupies the conflicting interval.",
+      "R90 facultative identities and weekly periodicity remain unchanged."
+    ]
+  },
+  "nextGate": "Run the current medschedule-platform exact-SHA bridge for this reviewed b0912c1d bundle before publicationAllowed=true.",
+  "updatedAt": "2026-10-07"
 }

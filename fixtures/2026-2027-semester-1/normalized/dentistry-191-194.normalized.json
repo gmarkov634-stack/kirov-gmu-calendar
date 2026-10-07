@@ -2,7 +2,7 @@
   "schema": "kgmu-normalized-draft-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
   "sourceFixtureId": "dentistry-191-194-2026-2027-semester-1",
-  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
   "status": "NORMALIZED",
   "assessmentMetadata": [
@@ -50,24 +50,6 @@
     }
   ],
   "events": [
-    {
-      "eventId": "kgmu-6d9633a647449d30c461f2b8",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "191",
-      "date": "2026-09-01",
-      "startTime": "16:40",
-      "endTime": "17:40",
-      "timeSemantics": "floating",
-      "discipline": "Час куратора",
-      "lessonType": "other",
-      "location": null,
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B23#s1"
-      }
-    },
     {
       "eventId": "kgmu-41acc58dcc0f110e1a439036",
       "universityId": "kirov-gmu",
@@ -211,6 +193,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B32#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3f1894df1604324d72baf3f9",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-09-03",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -510,24 +510,6 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B22#s1"
-      }
-    },
-    {
-      "eventId": "kgmu-90f90b0d8673320e39c86f3e",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "191",
-      "date": "2026-09-08",
-      "startTime": "16:40",
-      "endTime": "17:40",
-      "timeSemantics": "floating",
-      "discipline": "Час куратора",
-      "lessonType": "other",
-      "location": null,
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B23#s1"
       }
     },
     {
@@ -1138,6 +1120,24 @@
       }
     },
     {
+      "eventId": "kgmu-c06c93b5d51044a71912b61d",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-09-17",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
+      }
+    },
+    {
       "eventId": "kgmu-edbb4f2bedc6c5f7fd40912c",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -1306,24 +1306,6 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
-      }
-    },
-    {
-      "eventId": "kgmu-6eeb62495253e53b25aeb4ed",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "191",
-      "date": "2026-09-21",
-      "startTime": "14:40",
-      "endTime": "16:10",
-      "timeSemantics": "floating",
-      "discipline": "Общая и биоорганическая химия",
-      "lessonType": "lecture",
-      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -1600,6 +1582,24 @@
       }
     },
     {
+      "eventId": "kgmu-b16fe7b214117bb77a0bdca4",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-09-24",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-2488a34b7cffd2996dc3949e",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -1768,6 +1768,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-0fb611a97fd955250c2a8e50",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-09-28",
+      "startTime": "14:40",
+      "endTime": "16:10",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "lecture",
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -2023,6 +2041,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B32#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-a46a032152625713062a4cca",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-10-01",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -2470,6 +2506,24 @@
       }
     },
     {
+      "eventId": "kgmu-ceb365e4c245a1d670d38773",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-10-08",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-fac5c5bb948b60b9cdf85a5c",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -2893,6 +2947,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B32#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-253ab5534bb54071a3d06fa2",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-10-15",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -3340,6 +3412,24 @@
       }
     },
     {
+      "eventId": "kgmu-e4e3774cef9db17a0003f728",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-10-22",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-8bed11c34412ffd10516cf42",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -3763,6 +3853,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B32#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-f3879ad340fd4b2e2f462aa7",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-10-29",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -4192,6 +4300,24 @@
       }
     },
     {
+      "eventId": "kgmu-d8330bc0c9cbc88f8991af57",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-11-05",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-36b7b27500773b7adfe23b01",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -4580,6 +4706,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B32#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3f0865da587e5bd9c07bbbfb",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-11-12",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -5025,6 +5169,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B33#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-0a5509d8fb5a8eb6e0bf9d23",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-11-19",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
       }
     },
     {
@@ -5474,6 +5636,24 @@
       }
     },
     {
+      "eventId": "kgmu-78e4c558693daa46bfce6580",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-11-26",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
+      }
+    },
+    {
       "eventId": "kgmu-e4d1663de30763dc9ed77e18",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -5919,6 +6099,24 @@
       }
     },
     {
+      "eventId": "kgmu-84824682ba6d320514c59b8f",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-03",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-a05e7f4972300ba4d7eab7fc",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -6347,6 +6545,24 @@
       }
     },
     {
+      "eventId": "kgmu-c79a10a00ac171d21f7293f6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-10",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
+      }
+    },
+    {
       "eventId": "kgmu-6ece810a8d8be6150209a091",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -6756,6 +6972,24 @@
       }
     },
     {
+      "eventId": "kgmu-f7ae587b50b0ee4b375416d6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-17",
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-2"
+      }
+    },
+    {
       "eventId": "kgmu-40b899e1acf73ee18acdd934",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -7127,6 +7361,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B33#s2"
+      }
+    },
+    {
+      "eventId": "kgmu-7971366580f72217acb52b27",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-24",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -7616,6 +7868,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-909057de04cfa43fdbad6ac7",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2027-01-14",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "timeSemantics": "floating",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null,
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B34#r89-1"
       }
     },
     {
@@ -8977,24 +9247,6 @@
       }
     },
     {
-      "eventId": "kgmu-688ea5b91cacd3f223d33722",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "192",
-      "date": "2026-09-21",
-      "startTime": "14:40",
-      "endTime": "16:10",
-      "timeSemantics": "floating",
-      "discipline": "Общая и биоорганическая химия",
-      "lessonType": "lecture",
-      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B15#s2"
-      }
-    },
-    {
       "eventId": "kgmu-e6ed39e426cc825bb56c79bb",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -9436,6 +9688,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-26f6b2b486c3b12fa1fc9a7d",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "192",
+      "date": "2026-09-28",
+      "startTime": "14:40",
+      "endTime": "16:10",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "lecture",
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -15849,24 +16119,6 @@
       }
     },
     {
-      "eventId": "kgmu-f50a8bbf0c31587cb2cc663d",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "193",
-      "date": "2026-09-08",
-      "startTime": "16:20",
-      "endTime": "17:50",
-      "timeSemantics": "floating",
-      "discipline": "Библиотечный час",
-      "lessonType": "other",
-      "location": "1 корпус, аудитория 408, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!D23#s1"
-      }
-    },
-    {
       "eventId": "kgmu-0e8defc96673505ec9599ea0",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -16663,24 +16915,6 @@
       }
     },
     {
-      "eventId": "kgmu-466e6cdd76e527d4261fbbad",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "193",
-      "date": "2026-09-21",
-      "startTime": "14:40",
-      "endTime": "16:10",
-      "timeSemantics": "floating",
-      "discipline": "Общая и биоорганическая химия",
-      "lessonType": "lecture",
-      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B15#s2"
-      }
-    },
-    {
       "eventId": "kgmu-51b8024ec5e0f9d27d935643",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -17122,6 +17356,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-5056670a65026ce62ee82914",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-09-28",
+      "startTime": "14:40",
+      "endTime": "16:10",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "lecture",
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -23996,24 +24248,6 @@
       }
     },
     {
-      "eventId": "kgmu-63f5ca460064f47bb4f401fd",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "194",
-      "date": "2026-09-15",
-      "startTime": "16:40",
-      "endTime": "18:10",
-      "timeSemantics": "floating",
-      "discipline": "Библиотечный час",
-      "lessonType": "other",
-      "location": "1 корпус, аудитория 307, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!E23#s2"
-      }
-    },
-    {
       "eventId": "kgmu-21098ad4e6592b30709ea888",
       "universityId": "kirov-gmu",
       "academicPeriodId": "2026-2027-semester-1",
@@ -24345,24 +24579,6 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
-      }
-    },
-    {
-      "eventId": "kgmu-95531247e37874cb5bad822b",
-      "universityId": "kirov-gmu",
-      "academicPeriodId": "2026-2027-semester-1",
-      "groupId": "194",
-      "date": "2026-09-21",
-      "startTime": "14:40",
-      "endTime": "16:10",
-      "timeSemantics": "floating",
-      "discipline": "Общая и биоорганическая химия",
-      "lessonType": "lecture",
-      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
-      "teacher": null,
-      "sourceRef": {
-        "sourceId": "dentistry",
-        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -24807,6 +25023,24 @@
       "sourceRef": {
         "sourceId": "dentistry",
         "locator": "1 стомат.!B13#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-adf39bceb71849263cf31937",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-09-28",
+      "startTime": "14:40",
+      "endTime": "16:10",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "lecture",
+      "location": "1 корпус, аудитория 106, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B15#s2"
       }
     },
     {
@@ -30793,5 +31027,5 @@
       }
     }
   ],
-  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91"
+  "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487"
 }

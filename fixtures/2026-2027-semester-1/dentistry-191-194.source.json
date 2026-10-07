@@ -9,22 +9,37 @@
   "parserRulesVersion": "kgmu-2026-08-27-v3",
   "source": {
     "sourceId": "dentistry",
-    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1097/1_stomat-02-09-2026-09.xlsx",
-    "sha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
-    "byteLength": 17899,
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/14/1097/1_stomat-14-09-2026-14.xlsx",
+    "sha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+    "byteLength": 17803,
     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   },
-  "expectedGroupIds": ["191", "192", "193", "194"],
+  "expectedGroupIds": [
+    "191",
+    "192",
+    "193",
+    "194"
+  ],
   "workbookExpectations": {
-    "sheetNames": ["1 стомат."],
+    "sheetNames": [
+      "1 стомат."
+    ],
     "maxRow": 75,
     "maxColumn": 6,
-    "mergedRangeCount": 91,
-    "nonEmptyCellCount": 145
+    "mergedRangeCount": 93,
+    "nonEmptyCellCount": 143
   },
   "storagePolicy": {
     "repositoryStoresBinarySource": false,
     "productionSourceIsServerFetched": true,
     "immutableSourceStoredInObjectStorage": true
+  },
+  "lifecycle": {
+    "status": "semantic-qa-pass-platform-review-required",
+    "publicationAllowed": false
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+    "verifiedAt": "2026-10-07"
   }
 }

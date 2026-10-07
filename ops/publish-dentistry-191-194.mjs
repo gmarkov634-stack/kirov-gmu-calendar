@@ -48,6 +48,9 @@ async function loadPlan() {
   if (source.academicYear !== '2026-2027' || source.academicPeriodId !== '2026-2027-semester-1') {
     throw new Error('unexpected academic period');
   }
+  if (source.lifecycle?.publicationAllowed !== true || publication.publicationAllowed !== true) {
+    throw new Error('Dentistry course-1 publication gate is fail-closed pending medschedule-platform exact-SHA compatibility');
+  }
   const sourceSha256 = assertNonEmptyString(source.source?.sha256, 'source.source.sha256');
   if (draft.sourceSha256 !== sourceSha256 || publication.sourceSha256 !== sourceSha256) {
     throw new Error('Dentistry course-1 source SHA-256 evidence mismatch');
@@ -75,7 +78,7 @@ async function loadPlan() {
   if (normalizedEventSetDigest !== publication.eventSetDigest) {
     throw new Error(`Dentistry course-1 event-set digest mismatch: ${normalizedEventSetDigest}`);
   }
-  if (events.length !== 1656 || events.length !== qa.eventCount || events.length !== publication.eventCount) {
+  if (events.length !== qa.eventCount || events.length !== publication.eventCount) {
     throw new Error(`Dentistry course-1 event count mismatch: ${events.length}`);
   }
   if (events.some((event) => event.timeSemantics !== 'floating')) {

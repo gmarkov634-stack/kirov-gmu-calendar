@@ -15,7 +15,7 @@ async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, import.meta.url), 'utf8'));
 }
 
-test('Dentistry course 1 normalized draft is the approved publication candidate', async () => {
+test('Dentistry course 1 current reviewed candidate is internally exact but platform-gated', async () => {
   const [source, draft, qa, publication] = await Promise.all([
     readJson('../fixtures/2026-2027-semester-1/dentistry-191-194.source.json'),
     readJson('../fixtures/2026-2027-semester-1/normalized/dentistry-191-194.normalized.json'),
@@ -26,11 +26,11 @@ test('Dentistry course 1 normalized draft is the approved publication candidate'
   assert.equal(source.programId, 'dentistry');
   assert.equal(source.course, 1);
   assert.deepEqual(source.expectedGroupIds, ['191', '192', '193', '194']);
-  assert.equal(draft.events.length, 1656);
-  assert.equal(draft.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
+  assert.equal(draft.events.length, 1669);
+  assert.equal(draft.candidateDigest, 'sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487');
   assert.equal(draft.candidateDigest, qa.candidateDigest);
   assert.equal(draft.candidateDigest, publication.candidateDigest);
-  assert.equal(digestNormalizedEvents(draft.events), 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
+  assert.equal(digestNormalizedEvents(draft.events), 'sha256:8e433532541a8b8f642e6dc14ae18ba06b569c0743278c0ac63a07a083935405');
   assert.equal(digestNormalizedEvents(draft.events), publication.eventSetDigest);
   assert.equal(draft.status, 'NORMALIZED');
   assert.equal(qa.decision, 'pass');
@@ -40,39 +40,40 @@ test('Dentistry course 1 normalized draft is the approved publication candidate'
   assert.equal(new Set(draft.events.map((event) => event.eventId)).size, draft.events.length);
   assert.ok(draft.events.every((event) => event.timeSemantics === 'floating'));
 
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(publication.publicationAllowed, false);
+  assert.equal(publication.platformCompatibility.status, 'review-required');
+
   const groupCounts = Object.fromEntries(source.expectedGroupIds.map((groupId) => [
     groupId,
     draft.events.filter((event) => event.groupId === groupId).length
   ]));
   assert.deepEqual(groupCounts, publication.groupEventCounts);
+  assert.deepEqual(groupCounts, { '191': 428, '192': 413, '193': 414, '194': 414 });
 
   const facultativeIds = [...new Set(draft.events.filter((event) => event.facultativeId != null).map((event) => event.facultativeId))].sort();
   assert.deepEqual(facultativeIds, [...publication.facultativeIds].sort());
   for (const groupId of source.expectedGroupIds) {
     const events = draft.events.filter((event) => event.groupId === groupId);
     const facultativeCount = events.filter((event) => event.facultativeId != null).length;
+    assert.equal(facultativeCount, 85);
     assert.equal(facultativeCount, publication.groupFacultativeEventCounts[groupId]);
     assert.equal(events.length - facultativeCount, publication.groupDefaultVisibleEventCounts[groupId]);
   }
-
-  assert.equal(publication.sharedContractEvidence.productionRuntimeCommit, 'e5414c1d8b8754f8e47397f24d7aeb5d413431ec');
-  assert.equal(publication.sharedContractEvidence.normalizedEventSchemaBlob, '027699254f920e30822ca26214ddc0746c258c3c');
-  assert.equal(publication.sharedContractEvidence.icsRendererBlob, 'b75aea9bd6b54fab9ae454c1f7fedcf233d8ea96');
 });
 
-test('Dentistry course 1 publication preflight is deterministic and does not open SQLite', async () => {
+test('Dentistry course 1 legacy publication preflight fails closed before platform compatibility', async () => {
   const script = fileURLToPath(new URL('../ops/publish-dentistry-191-194.mjs', import.meta.url));
-  const { stdout, stderr } = await execFileAsync(process.execPath, [script, '--preflight']);
-  assert.equal(stderr, '');
-  assert.match(stdout, /"eventCount": 1656/);
-  assert.match(stdout, /sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91/);
-  assert.match(stdout, /sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374/);
-  assert.match(stdout, /kgmu-2026-2027-s1-dentistry-191-60851036434561da/);
-  assert.match(stdout, /kgmu-2026-2027-s1-dentistry-facultative-biology/);
-  assert.match(stdout, /PREFLIGHT_OK_NO_DATABASE_CHANGES/);
+  await assert.rejects(
+    execFileAsync(process.execPath, [script, '--preflight']),
+    (error) => {
+      assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /publication gate is fail-closed pending medschedule-platform exact-SHA compatibility/);
+      return true;
+    }
+  );
 });
 
-test('Dentistry course 1 apply fails closed before core import when production commit differs', async () => {
+test('Dentistry course 1 apply fails closed before legacy core or database checks', async () => {
   const script = fileURLToPath(new URL('../ops/publish-dentistry-191-194.mjs', import.meta.url));
   const coreRoot = await mkdtemp(join(tmpdir(), 'kgmu-dentistry-191-194-core-'));
   try {
@@ -86,7 +87,9 @@ test('Dentistry course 1 apply fails closed before core import when production c
         }
       }),
       (error) => {
-        assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /deployed core commit mismatch/);
+        const output = `${error.stderr ?? ''}${error.stdout ?? ''}`;
+        assert.match(output, /publication gate is fail-closed pending medschedule-platform exact-SHA compatibility/);
+        assert.doesNotMatch(output, /deployed core commit mismatch/);
         return true;
       }
     );
