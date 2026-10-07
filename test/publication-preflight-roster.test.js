@@ -18,6 +18,12 @@ test('current publication preflight gate discovers publisher entrypoints and iso
   assert.match(script, /historical group-102 correction migration/);
   assert.match(script, /delete preflightEnv\.MEDICAL_CALENDAR_DB_PATH/);
   assert.match(script, /delete preflightEnv\.MEDICAL_CALENDAR_CORE_ROOT/);
+  assert.match(script, /EXPECTED_BLOCKED_PUBLICATIONS/);
+  assert.match(script, /publish-dentistry-191-194\.mjs/);
+  assert.match(script, /dentistry-191-194\.source\.json/);
+  assert.match(script, /publicationAllowed !== false/);
+  assert.match(script, /publication blocked by source lifecycle/);
+  assert.match(script, /blockedAsExpected/);
   assert.match(script, /--preflight/);
   assert.match(script, /CURRENT_PUBLICATION_PREFLIGHTS_OK/);
 
