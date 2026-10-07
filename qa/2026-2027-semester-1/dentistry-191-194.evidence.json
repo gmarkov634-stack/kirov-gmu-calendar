@@ -1,18 +1,18 @@
 {
   "schema": "kgmu-dentistry-191-194-evidence-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
-  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
-  "sourceArtifactId": "source-artifact-dentistry-191-194-719d8081-v1",
-  "parsingJobId": "parsing-job-dentistry-191-194-719d8081-v1",
-  "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91",
-  "logicalMainTableSourceCellCount": 77,
-  "resolvedMainTableSourceCellCount": 77,
-  "normalizedBaseEventCount": 1656,
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "sourceArtifactId": "source-artifact-dentistry-191-194-b0912c1d-v1",
+  "parsingJobId": "parsing-job-dentistry-191-194-b0912c1d-v1",
+  "candidateDigest": "sha256:d988ce1572e2d03bb8741ec63c06afdb196d78c2f9dfa04bee52615ef853fd57",
+  "logicalMainTableSourceCellCount": 75,
+  "resolvedMainTableSourceCellCount": 74,
+  "normalizedBaseEventCount": 1651,
   "eventCountByGroup": {
-    "191": 413,
+    "191": 410,
     "192": 413,
-    "193": 415,
-    "194": 415
+    "193": 414,
+    "194": 414
   },
   "duplicateSignatureCount": 0,
   "overlapPairs": [
@@ -30,21 +30,9 @@
     },
     {
       "groupId": "191",
-      "date": "2026-09-08",
-      "left": "1 стомат.!B22#s1",
-      "right": "1 стомат.!B23#s1"
-    },
-    {
-      "groupId": "191",
       "date": "2026-09-09",
       "left": "1 стомат.!B26#s1",
       "right": "1 стомат.!B49#r90-2"
-    },
-    {
-      "groupId": "191",
-      "date": "2026-09-10",
-      "left": "1 стомат.!B34#s1",
-      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -57,12 +45,6 @@
       "date": "2026-09-16",
       "left": "1 стомат.!B26#s1",
       "right": "1 стомат.!B49#r90-2"
-    },
-    {
-      "groupId": "191",
-      "date": "2026-09-21",
-      "left": "1 стомат.!B15#s2",
-      "right": "1 стомат.!B14#s1"
     },
     {
       "groupId": "191",
@@ -315,12 +297,6 @@
       "date": "2026-09-17",
       "left": "1 стомат.!C34#s1",
       "right": "1 стомат.!B49#r90-4"
-    },
-    {
-      "groupId": "192",
-      "date": "2026-09-21",
-      "left": "1 стомат.!B15#s2",
-      "right": "1 стомат.!B14#s1"
     },
     {
       "groupId": "192",
@@ -625,12 +601,6 @@
     {
       "groupId": "193",
       "date": "2026-09-21",
-      "left": "1 стомат.!B15#s2",
-      "right": "1 стомат.!B14#s1"
-    },
-    {
-      "groupId": "193",
-      "date": "2026-09-21",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
     },
@@ -883,12 +853,6 @@
     {
       "groupId": "194",
       "date": "2026-09-21",
-      "left": "1 стомат.!B15#s2",
-      "right": "1 стомат.!B14#s1"
-    },
-    {
-      "groupId": "194",
-      "date": "2026-09-21",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
     },
@@ -1105,7 +1069,37 @@
   ],
   "assessmentMetadataCount": 7,
   "crossCheckCount": 12,
-  "unresolved": [],
+  "unresolved": [
+    {
+      "id": "dentistry-191-194-b34-curator-week-parity",
+      "rule": "R06/R17/R81",
+      "sourceCell": "B34",
+      "weekGridCell": "B50",
+      "groupIds": [
+        "191"
+      ],
+      "sourceText": "16.50-18.20 Библиотечный час 10.09 1-307 15.00-16.00 Час куратора (1 нед.) 16.40-17.40 Час куратора (2 нед.)",
+      "knownSourceFacts": {
+        "preservedLibraryEvent": "10.09 16:50-18:20, 1-307",
+        "curatorFragments": [
+          {
+            "startTime": "15:00",
+            "endTime": "16:00",
+            "weekLabel": "1 нед."
+          },
+          {
+            "startTime": "16:40",
+            "endTime": "17:40",
+            "weekLabel": "2 нед."
+          }
+        ]
+      },
+      "ambiguity": "Bare 1 нед./2 нед. labels are explicit, but no date range is attached. R17 selects the first two feasible curator slots when dates are absent, while R81 defines numbered-week expansion only with limiting boundaries. Applying either while ignoring the other would invent semantics.",
+      "requiredResolution": "Confirm how the two week-parity curator fragments map to concrete dates. Until then the entire B34 cell is withheld from the non-publishable review draft.",
+      "publicationImpact": "REVIEW_REQUIRED",
+      "requiresOperatorConfirmation": true
+    }
+  ],
   "manualConfirmations": [
     {
       "id": "dentistry-191-194-facultatives-weekly-periodicity",
