@@ -45,6 +45,9 @@ async function loadPlan() {
   if (source.universityId !== 'kirov-gmu' || source.programId !== 'dentistry' || source.course !== 1) {
     throw new Error('unexpected Dentistry course-1 source identity');
   }
+  if (source.lifecycle?.publicationAllowed !== true) {
+    throw new Error(`Dentistry course-1 publication blocked by source lifecycle: ${source.lifecycle?.status ?? 'missing'}`);
+  }
   if (source.academicYear !== '2026-2027' || source.academicPeriodId !== '2026-2027-semester-1') {
     throw new Error('unexpected academic period');
   }
