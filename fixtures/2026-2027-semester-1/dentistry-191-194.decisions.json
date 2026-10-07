@@ -1,12 +1,12 @@
 {
   "schema": "kgmu-explicit-semantic-decisions-v4",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
-  "sourceSha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
   "parserRulesVersion": "kgmu-2026-08-27-v3",
   "sheetName": "1 стомат.",
   "semanticDecisionMode": "operator-authored-explicit",
-  "logicalMainTableSourceCellCount": 77,
-  "resolvedMainTableSourceCellCount": 77,
+  "logicalMainTableSourceCellCount": 75,
+  "resolvedMainTableSourceCellCount": 74,
   "groupIds": [
     "191",
     "192",
@@ -383,7 +383,7 @@
         "194"
       ],
       "dates": [
-        "2026-09-21"
+        "2026-09-28"
       ],
       "startTime": "14:40",
       "endTime": "16:10",
@@ -780,39 +780,6 @@
       "location": "1 корпус, аудитория 320, ул. Владимирская, 137"
     },
     {
-      "id": "B23#s1",
-      "sourceCell": "B23",
-      "sourceLocator": "1 стомат.!B23#s1",
-      "groupIds": [
-        "191"
-      ],
-      "dates": [
-        "2026-09-01",
-        "2026-09-08"
-      ],
-      "startTime": "16:40",
-      "endTime": "17:40",
-      "discipline": "Час куратора",
-      "lessonType": "other",
-      "location": null
-    },
-    {
-      "id": "D23#s1",
-      "sourceCell": "D23",
-      "sourceLocator": "1 стомат.!D23#s1",
-      "groupIds": [
-        "193"
-      ],
-      "dates": [
-        "2026-09-08"
-      ],
-      "startTime": "16:20",
-      "endTime": "17:50",
-      "discipline": "Библиотечный час",
-      "lessonType": "other",
-      "location": "1 корпус, аудитория 408, ул. Владимирская, 137"
-    },
-    {
       "id": "E23#s1",
       "sourceCell": "E23",
       "sourceLocator": "1 стомат.!E23#s1",
@@ -843,22 +810,6 @@
       "discipline": "Латинский язык",
       "lessonType": "practice",
       "location": "1 корпус, ул. Владимирская, 137"
-    },
-    {
-      "id": "E23#s2",
-      "sourceCell": "E23",
-      "sourceLocator": "1 стомат.!E23#s2",
-      "groupIds": [
-        "194"
-      ],
-      "dates": [
-        "2026-09-15"
-      ],
-      "startTime": "16:40",
-      "endTime": "18:10",
-      "discipline": "Библиотечный час",
-      "lessonType": "other",
-      "location": "1 корпус, аудитория 307, ул. Владимирская, 137"
     },
     {
       "id": "B24#s1",
@@ -1763,22 +1714,6 @@
       "discipline": "Медицинская и биологическая физика",
       "lessonType": "practice",
       "location": "3 корпус, ул. Владимирская, 112"
-    },
-    {
-      "id": "B34#s1",
-      "sourceCell": "B34",
-      "sourceLocator": "1 стомат.!B34#s1",
-      "groupIds": [
-        "191"
-      ],
-      "dates": [
-        "2026-09-10"
-      ],
-      "startTime": "16:50",
-      "endTime": "18:20",
-      "discipline": "Библиотечный час",
-      "lessonType": "other",
-      "location": "1 корпус, аудитория 307, ул. Владимирская, 137"
     },
     {
       "id": "C34#s1",
@@ -2933,7 +2868,37 @@
       "lessonType": "graded-credit"
     }
   ],
-  "unresolved": [],
+  "unresolved": [
+    {
+      "id": "dentistry-191-194-b34-curator-week-parity",
+      "rule": "R06/R17/R81",
+      "sourceCell": "B34",
+      "weekGridCell": "B50",
+      "groupIds": [
+        "191"
+      ],
+      "sourceText": "16.50-18.20 Библиотечный час 10.09 1-307 15.00-16.00 Час куратора (1 нед.) 16.40-17.40 Час куратора (2 нед.)",
+      "knownSourceFacts": {
+        "preservedLibraryEvent": "10.09 16:50-18:20, 1-307",
+        "curatorFragments": [
+          {
+            "startTime": "15:00",
+            "endTime": "16:00",
+            "weekLabel": "1 нед."
+          },
+          {
+            "startTime": "16:40",
+            "endTime": "17:40",
+            "weekLabel": "2 нед."
+          }
+        ]
+      },
+      "ambiguity": "Bare 1 нед./2 нед. labels are explicit, but no date range is attached. R17 selects the first two feasible curator slots when dates are absent, while R81 defines numbered-week expansion only with limiting boundaries. Applying either while ignoring the other would invent semantics.",
+      "requiredResolution": "Confirm how the two week-parity curator fragments map to concrete dates. Until then the entire B34 cell is withheld from the non-publishable review draft.",
+      "publicationImpact": "REVIEW_REQUIRED",
+      "requiresOperatorConfirmation": true
+    }
+  ],
   "sourceEvidenceMode": "source-sha256-plus-complete-cell-locator-coverage",
   "manualConfirmations": [
     {

@@ -22,15 +22,16 @@ const facultatives = [
   { facultativeId: 'kgmu-2026-2027-s1-dentistry-facultative-math', label: 'Математика' }
 ];
 
-test('Dentistry course 1 remains published when course 4 is also exposed', async () => {
+test('Dentistry course 1 is fail-closed while course 4 remains exposed', async () => {
   const source = await read('landing/availability-status.js');
   for (const groupId of groups) assert.match(source, new RegExp(`"${groupId}"`));
   assert.match(source, /program === "Стоматология"/);
-  assert.match(source, /"1 и 4 курсы доступны"/);
-  assert.match(source, /"Группы 191–194 и 491–494 · опубликованы и доступны для 7-дневной бесплатной пробы"/);
+  assert.match(source, /"4 курс доступен"/);
+  assert.match(source, /"Группы 491–494 опубликованы · группы 191–194 проходят проверку новой официальной версии"/);
   assert.match(source, /isDentistry/);
-  assert.match(source, /"Группы 191–194 доступны"/);
-  assert.match(source, /Стоматология: 1 и 4 курсы опубликованы/);
+  assert.match(source, /"Группы 191–194 — проверка новой версии"/);
+  assert.match(source, /Стоматология: 4 курс опубликован/);
+  assert.doesNotMatch(source, /"191", "192", "193", "194",/);
 });
 
 test('Pages and production configs expose exactly the Dentistry course 1 facultatives for all four groups', async () => {
@@ -49,15 +50,19 @@ test('Pages and production configs expose exactly the Dentistry course 1 faculta
   }
 });
 
-test('Dentistry landing exposure is bound to the exact merged publication evidence', async () => {
-  const evidence = JSON.parse(await read('qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json'));
-  assert.equal(evidence.schema, 'kgmu-dentistry-publication-evidence-v1');
-  assert.equal(evidence.candidateDigest, 'sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91');
-  assert.equal(evidence.eventSetDigest, 'sha256:26345b104791dd2635560ebbf062329797c8328efe9e49eb066232623627d374');
-  assert.equal(evidence.eventCount, 1656);
-  assert.deepEqual(evidence.groupEventCounts, { '191': 413, '192': 413, '193': 415, '194': 415 });
-  assert.deepEqual(evidence.groupDefaultVisibleEventCounts, { '191': 328, '192': 328, '193': 330, '194': 330 });
-  assert.deepEqual(evidence.facultativeIds, facultatives.map(({ facultativeId }) => facultativeId));
+test('Dentistry course 1 historical publication evidence cannot authorize the current source revision', async () => {
+  const [source, evidence, qa] = await Promise.all([
+    read('fixtures/2026-2027-semester-1/dentistry-191-194.source.json').then(JSON.parse),
+    read('qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json').then(JSON.parse),
+    read('qa/2026-2027-semester-1/dentistry-191-194.qa-report.json').then(JSON.parse)
+  ]);
+  assert.equal(source.lifecycle.publicationAllowed, false);
+  assert.equal(evidence.lifecycleStatus, 'SUPERSEDED_SOURCE_REVISION');
+  assert.equal(evidence.publicationAllowed, false);
+  assert.equal(evidence.currentSourceSha256, source.source.sha256);
+  assert.notEqual(evidence.sourceSha256, source.source.sha256);
+  assert.equal(qa.decision, 'review-required');
+  assert.equal(qa.readyForScheduleVersion, false);
 });
 
 test('Dentistry landing preparation does not change trial or checkout policy', async () => {

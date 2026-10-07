@@ -21,12 +21,12 @@ test('Dentistry course 4 is prepared as published landing availability only for 
   const source = await read('landing/availability-status.js');
   for (const groupId of groups) assert.match(source, new RegExp(`"${groupId}"`));
   assert.match(source, /program === "Стоматология"/);
-  assert.match(source, /"1 и 4 курсы доступны"/);
-  assert.match(source, /"Группы 191–194 и 491–494 · опубликованы и доступны для 7-дневной бесплатной пробы"/);
+  assert.match(source, /"4 курс доступен"/);
+  assert.match(source, /"Группы 491–494 опубликованы · группы 191–194 проходят проверку новой официальной версии"/);
   assert.match(source, /isDentistry/);
   assert.match(source, /title === "4 курс"/);
   assert.match(source, /"Группы 491–494 доступны"/);
-  assert.match(source, /Стоматология: 1 и 4 курсы опубликованы/);
+  assert.match(source, /Стоматология: 4 курс опубликован/);
 });
 
 test('Dentistry course 4 landing exposure is bound to the exact publication evidence', async () => {
