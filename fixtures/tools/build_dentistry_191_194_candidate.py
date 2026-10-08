@@ -273,6 +273,23 @@ def main():
                     "right": right["sourceRef"]["locator"],
                 })
 
+    expected_r89_math_dates = {
+        "2026-09-24", "2026-10-08", "2026-10-22", "2026-11-05",
+        "2026-11-19", "2026-12-03", "2026-12-17",
+    }
+    r89_math_dates = {
+        item["date"]
+        for item in overlaps
+        if {item["left"], item["right"]}
+        == {"1 стомат.!B34#r89-2", "1 стомат.!B49#r90-4"}
+    }
+    assert r89_math_dates == expected_r89_math_dates, r89_math_dates
+    assert not any(
+        item["date"] == "2026-09-10"
+        and "1 стомат.!B34#r89-2" in {item["left"], item["right"]}
+        for item in overlaps
+    ), "R66 must suppress computed B34 curator hour on explicit Library-hour date 10.09"
+
     counts = Counter(x["groupId"] for x in events)
     core = {
         "schema": "kgmu-normalized-draft-v1",
@@ -291,9 +308,23 @@ def main():
         "schema": "kgmu-semantic-review-v1",
         "fixtureId": decisions["fixtureId"],
         "sourceSha256": decisions["sourceSha256"],
-        "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "RESOLVED",
+        "status": "REVIEW_REQUIRED" if decisions["unresolved"] else "SEMANTIC_QA_PASS",
         "items": decisions["unresolved"],
         "manualConfirmations": decisions.get("manualConfirmations", []),
+        "parserProfile": "R",
+        "parserRulesVersion": decisions["parserRulesVersion"],
+        "rules": ["G16", "R07", "R08", "R66", "R69", "R83", "R89", "R90"],
+        "unresolvedAmbiguities": len(decisions["unresolved"]),
+        "coverage": {
+            "logicalSourceCellCount": len(source_cells),
+            "resolvedSourceCellCount": len(decision_cells),
+        },
+        "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+        "publicationEligible": False,
+        "publicationPerformed": False,
+        "platformPublicationGate": "REVIEW_REQUIRED",
+        "nextGate": "Run the current medschedule-platform exact-SHA bridge for the b0912c1d reviewed bundle before publicationAllowed=true.",
+        "updatedAt": "2026-10-08",
     }
     checks = [
         {"code":"source-identity-coherent","status":"pass","message":"source fixture, SourceArtifact, ParsingJob and mechanical probe resolve to the same official XLSX SHA-256"},
@@ -305,8 +336,10 @@ def main():
         {"code":"assessment-metadata-lossless","status":"pass","message":f"{len(decisions['assessmentMetadata'])} source-explicit assessment metadata mappings preserved"},
         {"code":"duplicate-events-resolved","status":"pass","message":"0 duplicate normalized event signatures"},
         {"code":"source-backed-overlaps-preserved","status":"warning" if overlaps else "pass","message":f"{len(overlaps)} overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"},
-        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved semantic item(s) block publication: " + ", ".join(item["id"] for item in decisions["unresolved"]) if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity is explicitly confirmed and materialized"},
-        {"code":"publication-not-performed","status":"pass","message":"QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"},
+        {"code":"unresolved-ambiguities-zero-before-pass","status":"fail" if decisions["unresolved"] else "pass","message":f"{len(decisions['unresolved'])} unresolved semantic item(s) block publication: " + ", ".join(item["id"] for item in decisions["unresolved"]) if decisions["unresolved"] else "0 unresolved semantic ambiguities; R90 B49 periodicity and B34 R89/R66 semantics are source-backed and resolved"},
+        {"code":"current-source-r89-r66-curator","status":"pass","message":"B34 expands to 17 curator-hour events for group 191 under R89; the computed 10.09 second-week curator is suppressed under R66 in favor of the explicit Library hour; seven curator/Math-facultative overlaps remain source-backed under R69."},
+        {"code":"facultative-visibility-contract","status":"pass","message":"Four stable R90 facultative variants remain normalized; user selection remains outside ScheduleVersion and is delegated to the shared Visibility Resolver."},
+        {"code":"publication-not-performed","status":"pass","message":"Semantic QA is PASS but publication remains fail-closed until the current medschedule-platform exact-SHA compatibility bridge passes."},
     ]
     qa_decision = "review-required" if decisions["unresolved"] else "pass"
     report = {
@@ -321,6 +354,16 @@ def main():
         "unresolvedSemanticItemCount":len(decisions["unresolved"]),
         "readyForScheduleVersion":not decisions["unresolved"],
         "publicationPerformed":False,
+        "schema":"kgmu-candidate-qa-report-v1",
+        "fixtureId":decisions["fixtureId"],
+        "sourceSha256":decisions["sourceSha256"],
+        "publicationAllowed":False,
+        "blockingIssues":[],
+        "compatibilityGate":{
+            "status":"review-required",
+            "stagingPublicationGate":"blocked until exact-SHA medschedule-platform bridge PASS",
+        },
+        "lastRevalidatedAt":"2026-10-08",
     }
     evidence = {
         "schema":"kgmu-dentistry-191-194-evidence-v1",
@@ -339,6 +382,23 @@ def main():
         "crossCheckCount":len(decisions["crossChecks"]),
         "unresolved":decisions["unresolved"],
         "manualConfirmations":decisions.get("manualConfirmations", []),
+        "parserRulesVersion":decisions["parserRulesVersion"],
+        "publicationAllowed":False,
+        "publicationNotExecutedByScope":True,
+        "candidate":{
+            "candidateDigest":digest,
+            "eventCount":len(events),
+            "groupEventCounts":dict(sorted(counts.items())),
+            "logicalMainTableSourceCellCount":len(source_cells),
+            "decisionCount":len(decisions["decisions"]),
+            "duplicateEventSignatures":len(duplicates),
+            "overlapPairCount":len(overlaps),
+            "r89MathFacultativeOverlapCount":len(r89_math_dates),
+        },
+        "platformCompatibility":{
+            "status":"review-required",
+            "requirement":"Run current medschedule-platform exact-SHA reviewed-source bridge, ScheduleEvent/PostgreSQL provenance, facultative ChoiceGroup/Visibility and idempotent replay before publicationAllowed=true.",
+        },
     }
 
     NORMALIZED.parent.mkdir(parents=True, exist_ok=True)
