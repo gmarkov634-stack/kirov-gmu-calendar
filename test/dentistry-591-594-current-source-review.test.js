@@ -32,7 +32,33 @@ test('current official Dentistry 591-594 source is pinned mechanically and fails
   }
   assert.ok(review.reviewItems.length >= 4);
   assert.equal(new Set(review.reviewItems.map(item => item.id)).size, review.reviewItems.length);
-  assert.ok(review.reviewItems.every(item => item.status === 'REVIEW_REQUIRED' && item.sourceCells.length > 0));
+  assert.equal(review.parserProfile, 'C');
+  assert.equal(review.sourceSpecificRule, 'C24');
+  assert.ok(review.confirmedRules.includes('C24'));
+  assert.equal(review.manualConfirmation.count, 4);
+  assert.deepEqual(review.reviewItems.map(item => item.status),
+    ['CONFIRMED', 'CONFIRMED', 'CONFIRMED', 'CONFIRMED', 'REVIEW_REQUIRED']);
+  assert.ok(review.reviewItems.every(item => item.sourceCells.length > 0));
+  assert.equal(review.reviewItems[0].confirmation.subjects.length, 2);
+  assert.deepEqual(review.reviewItems[0].confirmation.subjects.map(s => [s.title, s.startTime, s.endTime]), [
+    ['Медицина катастроф', '08:30', '11:35'],
+    ['Физическая подготовка', '13:00', '14:30'],
+  ]);
+  assert.equal(review.reviewItems[1].confirmation.title, 'Комплексное зубопротезирование и имплантология');
+  assert.equal(review.reviewItems[1].confirmation.retainDisjointSourceRanges, true);
+  assert.deepEqual(review.reviewItems[2].confirmation.groups, ['591', '592', '593', '594']);
+  assert.equal(review.reviewItems[2].confirmation.eventKind, 'MANDATORY');
+  assert.equal(review.reviewItems[2].confirmation.choiceGroup, null);
+  assert.deepEqual([review.reviewItems[2].confirmation.startDate,
+    review.reviewItems[2].confirmation.endDate], ['2026-09-04', '2026-12-18']);
+  assert.deepEqual([review.reviewItems[2].confirmation.startTime,
+    review.reviewItems[2].confirmation.endTime], ['14:30', '16:00']);
+  assert.deepEqual(review.reviewItems[3].confirmation.titles, ['Экзамены', 'Практика', 'Каникулы']);
+  assert.equal(review.reviewItems[3].confirmation.eventKind, 'INFO');
+  assert.equal(review.reviewItems[3].confirmation.isAllDay, true);
+  assert.equal(review.reviewItems[3].confirmation.lessonReminders, false);
+  assert.equal(review.reviewItems[3].confirmation.nextLesson, false);
+  assert.ok(review.pendingQa.some(item => item.id === 'dent5-info-consumer-gate'));
   assert.match(review.nextGate, /exact-SHA/);
 });
 
