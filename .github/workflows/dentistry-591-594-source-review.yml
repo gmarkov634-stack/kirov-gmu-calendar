@@ -5,6 +5,8 @@ on:
     paths:
       - 'qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json'
       - 'test/dentistry-591-594-current-source-review.test.js'
+      - 'test/dentistry-591-594-overlap-resolution.test.js'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json'
       - 'qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json'
       - 'qa/2026-2027-semester-1/dentistry-591-594.candidate-manifest.json'
       - 'fixtures/tools/audit_dentistry_591_594_grid.py'
@@ -125,4 +127,4 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test test/dentistry-591-594-current-source-review.test.js
+      - run: node --test test/dentistry-591-594-current-source-review.test.js test/dentistry-591-594-overlap-resolution.test.js
