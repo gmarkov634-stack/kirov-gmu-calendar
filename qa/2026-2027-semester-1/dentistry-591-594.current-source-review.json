@@ -272,7 +272,7 @@
       "question": "Reconcile date grid and confirmed holidays/non-teaching days against canonical cyclic C rules. No generated events until this is complete."
     }
   ],
-  "nextGate": "Four source-specific user confirmations recorded in canonical C24. Validate all remaining merged-range/date and consumer INFO semantics, build exact-SHA normalized draft/QA/adapter, run full regression and platform PostgreSQL gate. Keep REVIEW_REQUIRED until PASS; no publication.",
+  "nextGate": "All three official-source overlaps explicitly acknowledged by owner with keep-both QA warning C24(5). Reject changed/extra intersections; no automatic shift or omission. Source pinned 588-event normalized draft and dedicated PostgreSQL tests pass, but full CI and guarded staging release remain; publicationAllowed=false.",
   "parserProfile": "C",
   "confirmedRules": [
     "G01",
@@ -300,16 +300,20 @@
   },
   "pendingQa": [
     {
-      "id": "dent5-holiday-date-grid",
-      "reason": "Complete 1:1 XLSX merged-range/date/weekday coverage, exclude unlisted/nonteaching dates without guesswork."
+      "id": "dent5-platform-full-ci",
+      "reason": "Dedicated exact-source KGMU and PostgreSQL review checks already passed; full platform CI remains blocked by old medicine 501–516 original XLSX 404 (issue #60)."
     },
     {
-      "id": "dent5-info-consumer-gate",
-      "reason": "Prove INFO all-day periods render informationally and never appear as timed Next Lesson or lesson reminders in MAX/ICS/Notification consumers."
-    },
-    {
-      "id": "dent5-complete-normalization",
-      "reason": "Generate an exact-SHA C24+G/C candidate, QA all source cells and check same-day overlaps, provenance, idempotent PostgreSQL ingestion and immutable source."
+      "id": "dent5-authorized-deploy",
+      "reason": "Root-only staging release and continuity QA not authorized/available; production gate not approved."
     }
-  ]
+  ],
+  "acknowledgedSourceOverlaps": {
+    "count": 3,
+    "classification": "SOURCE_BACKED_ACKNOWLEDGED_OVERLAP",
+    "decision": "KEEP_BOTH_EXPLICIT_EVENTS_AND_RECORD_QA_WARNING",
+    "severity": "WARNING",
+    "decisionArtifact": "qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json",
+    "rule": "C24(5)"
+  }
 }
