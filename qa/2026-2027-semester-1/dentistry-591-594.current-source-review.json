@@ -60,7 +60,7 @@
     },
     {
       "cell": "AY15",
-      "text": "Медицина катастроф\\nФизическая подготовка",
+      "text": "Медицина катастроф\nФизическая подготовка",
       "type": "group-date-grid"
     },
     {
@@ -70,7 +70,7 @@
     },
     {
       "cell": "C17",
-      "text": "Медицина катастроф\\nФизическая подготовка",
+      "text": "Медицина катастроф\nФизическая подготовка",
       "type": "group-date-grid"
     },
     {
@@ -85,7 +85,7 @@
     },
     {
       "cell": "BI18",
-      "text": "Комплексное зубопротезирова-\\nние и имплантология\\nтология (КЗП)",
+      "text": "Комплексное зубопротезирова-\nние и имплантология\nтология (КЗП)",
       "type": "group-date-grid"
     },
     {
@@ -105,12 +105,12 @@
     },
     {
       "cell": "CE28",
-      "text": "8.00-11.55\\nгр. 591, 593",
+      "text": "8.00-11.55\nгр. 591, 593",
       "type": "lower-reference-time"
     },
     {
       "cell": "CI28",
-      "text": "12.30-16.25\\nгр. 592, 594",
+      "text": "12.30-16.25\nгр. 592, 594",
       "type": "lower-reference-time"
     },
     {
@@ -125,7 +125,7 @@
     },
     {
       "cell": "CE31",
-      "text": "пятница с 04.09 по 18.12\\n14.30-16.00",
+      "text": "пятница с 04.09 по 18.12\n14.30-16.00",
       "type": "lower-reference-schedule"
     },
     {
@@ -190,5 +190,5 @@
       "question": "Reconcile date grid and confirmed holidays/non-teaching days against canonical cyclic C rules. No generated events until this is complete."
     }
   ],
-  "nextGate": "Produce an exact-SHA canonical C/G semantic decision manifest, source-locator coverage, QA report and reviewed candidate. Publish only after all REVIEW_REQUIRED items resolve with evidence and platform PostgreSQL compatibility passes."
+  "nextGate": "Confirm the parser profile against canonical G/C/R/S and produce an exact-SHA semantic decision manifest, source-locator coverage, QA report and reviewed candidate. Publish only after all REVIEW_REQUIRED items resolve with evidence and platform PostgreSQL compatibility passes."
 }
