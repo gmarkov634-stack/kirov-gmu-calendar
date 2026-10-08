@@ -6,6 +6,7 @@ on:
       - 'qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json'
       - 'test/dentistry-591-594-current-source-review.test.js'
       - 'qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.candidate-manifest.json'
       - 'fixtures/tools/audit_dentistry_591_594_grid.py'
       - '.github/workflows/dentistry-591-594-source-review.yml'
   push:
@@ -94,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python fixtures/tools/audit_dentistry_591_594_grid.py /tmp/kgmu-dentistry-591-594-current.xlsx > /tmp/dentistry5-grid-audit.json
+          python fixtures/tools/audit_dentistry_591_594_grid.py /tmp/kgmu-dentistry-591-594-current.xlsx /tmp/dentistry5-review-only-draft.json > /tmp/dentistry5-grid-audit.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -103,6 +104,22 @@ jobs:
           if actual != expected:
               raise SystemExit('REVIEW_REQUIRED: exact-source C24 coverage differs from reviewed grid evidence')
           print('EXACT_C24_GRID_PASS; 588 projected source-grounded occurrences; 3 retained time overlaps; NOT published')
+          draft=json.loads(Path('/tmp/dentistry5-review-only-draft.json').read_text())
+          manifest=json.loads(Path('qa/2026-2027-semester-1/dentistry-591-594.candidate-manifest.json').read_text())
+          if draft['sourceSha256']!=manifest['sourceSha256'] or draft['candidateDigest']!=manifest['candidateDigest']:
+              raise SystemExit('REVIEW_REQUIRED: pinned normalized C24 event digest changed')
+          if draft['eventCount']!=manifest['eventCount'] or len(draft['events'])!=588 or len(draft['eventProvenanceById'])!=588:
+              raise SystemExit('REVIEW_REQUIRED: reviewed normalized/provenance event count changed')
+          if draft['status']!='REVIEW_REQUIRED' or draft['publicationAllowed'] is not False:
+              raise SystemExit('REVIEW_REQUIRED: candidate prematurely marked publishable')
+          kinds=[draft['eventProvenanceById'][e['eventId']]['eventKind'] for e in draft['events']]
+          if kinds.count('INFO')!=96 or kinds.count('MANDATORY')!=492:
+              raise SystemExit('REVIEW_REQUIRED: INFO and mandatory classifications differ')
+          if any(e['timeSemantics']!='date-only' for e in draft['events'] if draft['eventProvenanceById'][e['eventId']]['eventKind']=='INFO'):
+              raise SystemExit('REVIEW_REQUIRED: INFO must be date-only')
+          if any('!' not in e['sourceRef']['locator'] or not draft['eventProvenanceById'][e['eventId']]['appliedRules'] for e in draft['events']):
+              raise SystemExit('REVIEW_REQUIRED: missing canonical source provenance')
+          print('EXACT_C24_NORMALIZED_DRAFT_PASS; 588 traceable events; SHA-pinned digest; still REVIEW_REQUIRED')
           PY
       - name: Run source lifecycle regression
         uses: actions/setup-node@v4
