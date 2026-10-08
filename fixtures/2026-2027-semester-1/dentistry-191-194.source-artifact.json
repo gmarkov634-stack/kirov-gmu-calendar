@@ -20,7 +20,9 @@
   "productionObjectStorageWritePerformed": false,
   "publicationPerformed": false,
   "lifecycle": {
-    "status": "mechanical-probe-pass-semantic-qa-pass-platform-review-required",
-    "publicationAllowed": false
+    "status": "mechanical-probe-pass-semantic-qa-pass-platform-compatible",
+    "publicationAllowed": true,
+    "publisher": "medschedule-platform",
+    "publicationPerformed": false
   }
 }
