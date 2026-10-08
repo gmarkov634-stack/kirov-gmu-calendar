@@ -40,9 +40,9 @@
     "verifiedAt": "2026-10-07"
   },
   "lifecycle": {
-    "status": "semantic-review-required",
+    "status": "semantic-qa-pass-platform-review-required",
     "publicationAllowed": false,
-    "reason": "Official source revision changed on 2026-09-14; B34 contains bare week-parity curator fragments not uniquely resolved by current R17/R81 rules."
+    "reason": "Current 2026-09-14 source semantic QA is resolved under existing R89/R66; exact-SHA medschedule-platform compatibility remains required before publication."
   },
   "previousReviewedSource": {
     "sha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
