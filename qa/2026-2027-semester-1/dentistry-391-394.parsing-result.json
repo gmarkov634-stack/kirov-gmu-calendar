@@ -1,0 +1,279 @@
+{
+  "schema": "kgmu-parsing-result-v1",
+  "jobId": "parsing-job-dentistry-391-394-82fcb87377663455-v1",
+  "sourceArtifactId": "source-artifact-dentistry-391-394-82fcb87377663455",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "parserProfile": "cyclic",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "status": "REVIEW_REQUIRED",
+  "expectedGroupIds": [
+    "391",
+    "392",
+    "393",
+    "394"
+  ],
+  "sheetName": "3 Стомат 2026-27 студ",
+  "logicalSourceBlockCount": 54,
+  "groupLocalCycleBlockCount": 52,
+  "independentScheduleBlockCount": 1,
+  "serviceBlockCount": 1,
+  "resolvedOccurrenceCount": 464,
+  "unresolvedOccurrenceCount": 68,
+  "excludedServiceOccurrenceCount": 32,
+  "eventBearingOccurrenceCount": 532,
+  "diagnostics": [
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "philosophy",
+      "locator": "BA16",
+      "groupId": "394",
+      "discipline": "Философия",
+      "dates": [
+        "2026-10-29",
+        "2026-10-30",
+        "2026-10-31",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-05",
+        "2026-11-06"
+      ],
+      "sourceTimeText": "11.10-14.15",
+      "sourceAdjacentTimeNote": "1 день 2 часа",
+      "reason": "Source gives base time '11.10-14.15' plus '1 день 2 часа' without identifying the calendar date or an exact replacement clock interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "iok",
+      "locator": "CO13",
+      "groupId": "391",
+      "discipline": "Инклюзивно ориентированная компетентность врача-стоматолога",
+      "dates": [
+        "2026-12-16",
+        "2026-12-17",
+        "2026-12-18",
+        "2026-12-19"
+      ],
+      "sourceTimeText": "9.00-12.05 (один день 9.00-13.40)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (один день 9.00-13.40)' but does not identify which date uses the exceptional 09:00-13:40 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "philosophy",
+      "locator": "CW13",
+      "groupId": "391",
+      "discipline": "Философия",
+      "dates": [
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2027-01-09",
+        "2027-01-11"
+      ],
+      "sourceTimeText": "11.10-14.15",
+      "sourceAdjacentTimeNote": "1 день 2 часа",
+      "reason": "Source gives base time '11.10-14.15' plus '1 день 2 часа' without identifying the calendar date or an exact replacement clock interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "philosophy",
+      "locator": "BA15",
+      "groupId": "393",
+      "discipline": "Философия",
+      "dates": [
+        "2026-10-29",
+        "2026-10-30",
+        "2026-10-31",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-05",
+        "2026-11-06"
+      ],
+      "sourceTimeText": "11.10-14.15",
+      "sourceAdjacentTimeNote": "1 день 2 часа",
+      "reason": "Source gives base time '11.10-14.15' plus '1 день 2 часа' without identifying the calendar date or an exact replacement clock interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "obstetrics",
+      "locator": "AQ16",
+      "groupId": "394",
+      "discipline": "Акушерство",
+      "dates": [
+        "2026-10-17",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23"
+      ],
+      "sourceTimeText": "9.00-12.05 (два дня 9.00-12.55)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (два дня 9.00-12.55)' but does not identify which two dates use the exceptional 09:00-12:55 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "iok",
+      "locator": "CH14",
+      "groupId": "392",
+      "discipline": "Инклюзивно ориентированная компетентность врача-стоматолога",
+      "dates": [
+        "2026-12-08",
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11"
+      ],
+      "sourceTimeText": "9.00-12.05 (один день 9.00-13.40)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (один день 9.00-13.40)' but does not identify which date uses the exceptional 09:00-13:40 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "obstetrics",
+      "locator": "I15",
+      "groupId": "393",
+      "discipline": "Акушерство",
+      "dates": [
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-12",
+        "2026-09-14"
+      ],
+      "sourceTimeText": "9.00-12.05 (два дня 9.00-12.55)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (два дня 9.00-12.55)' but does not identify which two dates use the exceptional 09:00-12:55 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "obstetrics",
+      "locator": "BI14",
+      "groupId": "392",
+      "discipline": "Акушерство",
+      "dates": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14"
+      ],
+      "sourceTimeText": "9.00-12.05 (два дня 9.00-12.55)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (два дня 9.00-12.55)' but does not identify which two dates use the exceptional 09:00-12:55 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "obstetrics",
+      "locator": "CI13",
+      "groupId": "391",
+      "discipline": "Акушерство",
+      "dates": [
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11",
+        "2026-12-12",
+        "2026-12-14",
+        "2026-12-15"
+      ],
+      "sourceTimeText": "9.00-12.05 (два дня 9.00-12.55)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (два дня 9.00-12.55)' but does not identify which two dates use the exceptional 09:00-12:55 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "iok",
+      "locator": "AW16",
+      "groupId": "394",
+      "discipline": "Инклюзивно ориентированная компетентность врача-стоматолога",
+      "dates": [
+        "2026-10-24",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28"
+      ],
+      "sourceTimeText": "9.00-12.05 (один день 9.00-13.40)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (один день 9.00-13.40)' but does not identify which date uses the exceptional 09:00-13:40 interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "philosophy",
+      "locator": "CW14",
+      "groupId": "392",
+      "discipline": "Философия",
+      "dates": [
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2027-01-09",
+        "2027-01-11"
+      ],
+      "sourceTimeText": "11.10-14.15",
+      "sourceAdjacentTimeNote": "1 день 2 часа",
+      "reason": "Source gives base time '11.10-14.15' plus '1 день 2 часа' without identifying the calendar date or an exact replacement clock interval."
+    },
+    {
+      "rule": "C20",
+      "c21Applicable": false,
+      "c21Reason": "C21 is source-specific to 3_kurs_stomatologicheskiy_fakultet-19-01-2026-15.xlsx, not 3_stomat-24-08-2026-14.xlsx.",
+      "kind": "iok",
+      "locator": "AB15",
+      "groupId": "393",
+      "discipline": "Инклюзивно ориентированная компетентность врача-стоматолога",
+      "dates": [
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03"
+      ],
+      "sourceTimeText": "9.00-12.05 (один день 9.00-13.40)",
+      "sourceAdjacentTimeNote": null,
+      "reason": "Source gives '9.00-12.05 (один день 9.00-13.40)' but does not identify which date uses the exceptional 09:00-13:40 interval."
+    }
+  ],
+  "serviceBlocks": [
+    {
+      "rule": "C07/C14",
+      "locator": "DM13",
+      "label": "Экзамены",
+      "dates": [
+        "2027-01-22",
+        "2027-01-23",
+        "2027-01-25",
+        "2027-01-26",
+        "2027-01-27",
+        "2027-01-28",
+        "2027-01-29",
+        "2027-01-30"
+      ]
+    }
+  ]
+}
