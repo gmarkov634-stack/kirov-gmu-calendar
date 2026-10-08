@@ -116,3 +116,64 @@ result={'schema':'kgmu-dentistry5-c24-grid-audit-v1',
  'dateWeekdayMismatches':mismatches,'unknownCycleBlocks':unknown,
  'nextGate':'Normalize every occurrence into traceable ScheduleEvent with INFO override, classify 3 overlaps and pass PostgreSQL and full CI before publication.'}
 print(json.dumps(result,ensure_ascii=False,sort_keys=True))
+
+
+if len(sys.argv)>2:
+ events=[];provenance={}
+ def add_event(group,d,title,locator,kind,reference=0,ftime=None,place=None):
+  e={'universityId':'kirov-gmu','groupId':group,'academicPeriodId':'2026-2027-semester-1',
+     'date':str(d),'timeSemantics':'date-only' if kind=='INFO' else 'floating',
+     'discipline':title,'lessonType':'other' if kind=='INFO' else 'practice','teacher':None,
+     'location':place,'sourceRef':{'sourceId':'dentistry',
+       'locator':'2026-2027 осень 5 курс Стом!'+locator}}
+  if kind!='INFO':
+   if not ftime:raise ValueError('timing missing')
+   e.update(startTime=ftime[0],endTime=ftime[1])
+  form=(cells.get('X'+str(reference)) or '').strip() if reference else ''
+  if form and kind!='INFO':
+   if form not in ('Экзамен','Зачёт'):raise ValueError(('unknown form',form))
+   e['assessment']={'type':'exam' if form=='Экзамен' else 'credit','label':form,
+      'sourceRef':{'sourceId':'dentistry','locator':'2026-2027 осень 5 курс Стом!X'+str(reference)}}
+  stable=json.dumps(e,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+  event_id='kgmu-'+hashlib.sha256(stable.encode()).hexdigest()[:24]
+  if event_id in provenance:raise ValueError('duplicate event')
+  events.append({'eventId':event_id,**e})
+  provenance[event_id]={'eventKind':kind,
+     'appliedRules':['G01','G02','G09','G13','C01','C08','C12','C24'] if kind!='INFO'
+                    else ['G01','G02','C07','C14','C24'],
+     'sourceCell':locator.split(':')[0],'sourceRange':locator}
+ for a,b,x,y,xx,yy in spans:
+  if not(15<=y<=18 and y==yy and 3<=x<=100):continue
+  group=groups[y-15]
+  value=' '.join(cells[a].split())
+  rows=mapping[value]
+  for day_num in range(x,xx+1):
+   for row in (rows if isinstance(rows,tuple) else (rows,)):
+    title=' '.join(cells['C'+str(row)].split())
+    site=', '.join(' '.join(cells[v+str(row)].split()) for v in ('AS','BW'))
+    clock_cell='CI28' if row==28 and group in ('592','594') else 'CE'+str(row)
+    add_event(group,days[day_num],title,a+':'+b,'MANDATORY',row,
+              parse_clock(cells[clock_cell]),site)
+ for friday in fridays:
+  for group in groups:
+   add_event(group,friday,cells['C31'],'CE31','MANDATORY',31,
+             ('14:30','16:00'),', '.join(cells[x+'31'].strip() for x in ('AS','BW')))
+ for period in infos:
+  a,b=period['range'].split(':')
+  start,end=coord(a)[0],coord(b)[0]
+  for day_num in range(start,end+1):
+   for group in groups:add_event(group,days[day_num],period['label'],period['range'],'INFO')
+ events.sort(key=lambda e:(e['groupId'],e['date'],e.get('startTime',''),e['discipline'],e['eventId']))
+ count=collections.Counter(e['groupId'] for e in events)
+ if len(events)!=588 or dict(count)!={g:147 for g in groups}:raise ValueError('unexpected draft counts')
+ if sum(p['eventKind']=='INFO' for p in provenance.values())!=96:raise ValueError('INFO count')
+ digest=hashlib.sha256(json.dumps(events,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+ draft={'schema':'kgmu-normalized-draft-v1','status':'REVIEW_REQUIRED',
+        'publicationAllowed':False,'sourceSha256':expected_sha,'parserProfile':'cyclic',
+        'parserRulesVersion':'kgmu-2026-08-27-v3','sourceSpecificRule':'C24',
+        'candidateDigest':'sha256:'+digest,'eventCount':len(events),
+        'expectedGroupIds':groups,'eventCountsByGroup':dict(count),
+        'events':events,'eventProvenanceById':provenance}
+ with open(sys.argv[2],'w') as dest:
+  json.dump(draft,dest,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+  dest.write('\n')
