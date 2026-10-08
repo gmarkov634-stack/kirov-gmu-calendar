@@ -61,8 +61,10 @@ test('Dentistry course 1 historical publication evidence cannot authorize the cu
   assert.equal(evidence.publicationAllowed, false);
   assert.equal(evidence.currentSourceSha256, source.source.sha256);
   assert.notEqual(evidence.sourceSha256, source.source.sha256);
-  assert.equal(qa.decision, 'review-required');
-  assert.equal(qa.readyForScheduleVersion, false);
+  assert.equal(qa.decision, 'pass');
+  assert.equal(qa.readyForScheduleVersion, true);
+  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.compatibilityGate.status, 'review-required');
 });
 
 test('Dentistry landing preparation does not change trial or checkout policy', async () => {
