@@ -12,7 +12,13 @@
     "194"
   ],
   "requestedAt": "2026-10-07T17:36:48+03:00",
-  "executionMode": "qa-only-operator-authored-explicit-platform-review-required",
+  "executionMode": "qa-only-operator-authored-explicit-platform-compatible",
   "productionPersistencePerformed": false,
-  "publicationPerformed": false
+  "publicationPerformed": false,
+  "platformCompatibility": {
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 57,
+    "commit": "531da7078051d4de5564af1c86a88ade2a5c7845",
+    "ciRunId": 37764702203
+  }
 }
