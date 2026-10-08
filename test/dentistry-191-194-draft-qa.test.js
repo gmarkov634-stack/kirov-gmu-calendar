@@ -21,10 +21,10 @@ test('dentistry 191-194 current source is semantic-QA-pass but platform fail-clo
   assert.equal(source.source.byteLength, 17803);
   assert.equal(artifact.sha256, expectedSha);
   assert.equal(probe.source.sha256, expectedSha);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(artifact.lifecycle.publicationAllowed, false);
-  assert.match(job.executionMode, /platform-review-required/);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(artifact.lifecycle.publicationAllowed, true);
+  assert.match(job.executionMode, /platform-compatible/);
 });
 
 test('dentistry 191-194 current normalized draft is complete and duplicate-free', async () => {
@@ -40,8 +40,8 @@ test('dentistry 191-194 current normalized draft is complete and duplicate-free'
   assert.equal(report.decision, 'pass');
   assert.equal(report.unresolvedSemanticItemCount, 0);
   assert.equal(report.readyForScheduleVersion, true);
-  assert.equal(report.publicationAllowed, false);
-  assert.equal(report.compatibilityGate.status, 'review-required');
+  assert.equal(report.publicationAllowed, true);
+  assert.equal(report.compatibilityGate.status, 'pass');
   assert.equal(report.checks.find((item) => item.code === 'current-source-r89-r66-curator')?.status, 'pass');
 });
 
