@@ -20,9 +20,21 @@
   "publicationAllowed": false,
   "status": "REVIEW_REQUIRED",
   "nextGates": [
-    "Three source-backed time overlaps classified but not resolved by university evidence",
-    "Platform Info event_kind mapping/ingestion test",
-    "Full platform CI historical XLSX fallback",
-    "Guarded staging clone and continuity QA"
-  ]
+    "Exactly three source overlap QA WARNINGS, preserving six original events; block any new conflict",
+    "Full generic platform CI historical XLSX fix issue #60",
+    "Guarded staging clone and continuity QA and separate release authorization"
+  ],
+  "acknowledgedSourceOverlaps": {
+    "count": 3,
+    "classification": "SOURCE_BACKED_ACKNOWLEDGED_OVERLAP",
+    "decision": "KEEP_BOTH_EXPLICIT_EVENTS_AND_RECORD_QA_WARNING",
+    "decisionArtifact": "qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json",
+    "severity": "WARNING",
+    "sourceRules": [
+      "G16",
+      "C13",
+      "C24(5)"
+    ],
+    "noScheduleTimeEdits": true
+  }
 }
