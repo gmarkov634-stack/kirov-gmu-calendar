@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - feat/dentistry-191-194-2026-09-03
-      - resolve/dentistry-191-194-b34-r89
     paths:
       - 'fixtures/2026-2027-semester-1/dentistry-191-194.source.json'
       - 'fixtures/2026-2027-semester-1/dentistry-191-194.source-artifact.json'
