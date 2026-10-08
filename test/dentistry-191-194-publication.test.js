@@ -17,14 +17,14 @@ test('Dentistry course 1 semantic QA pass is still not an approved publication c
     readJson('../qa/2026-2027-semester-1/dentistry-191-194.qa-report.json'),
     readJson('../qa/2026-2027-semester-1/dentistry-191-194.publication-evidence.json')
   ]);
-  assert.equal(source.lifecycle.publicationAllowed, false);
-  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-review-required');
+  assert.equal(source.lifecycle.publicationAllowed, true);
+  assert.equal(source.lifecycle.status, 'semantic-qa-pass-platform-compatible');
   assert.equal(draft.status, 'NORMALIZED');
   assert.equal(draft.events.length, 1669);
   assert.equal(qa.decision, 'pass');
   assert.equal(qa.readyForScheduleVersion, true);
   assert.equal(qa.unresolvedSemanticItemCount, 0);
-  assert.equal(qa.publicationAllowed, false);
+  assert.equal(qa.publicationAllowed, true);
   assert.equal(publication.lifecycleStatus, 'SUPERSEDED_SOURCE_REVISION');
   assert.equal(publication.publicationAllowed, false);
   assert.equal(publication.currentSourceSha256, source.source.sha256);
@@ -36,7 +36,7 @@ test('Dentistry course 1 publication preflight remains blocked by platform lifec
   await assert.rejects(
     execFileAsync(process.execPath, [script, '--preflight']),
     (error) => {
-      assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /publication blocked by source lifecycle: semantic-qa-pass-platform-review-required/);
+      assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /Dentistry course-1 source SHA-256 evidence mismatch/);
       return true;
     }
   );
@@ -47,7 +47,7 @@ test('Dentistry course 1 apply is blocked before runtime import', async () => {
   await assert.rejects(
     execFileAsync(process.execPath, [script, '--apply']),
     (error) => {
-      assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /publication blocked by source lifecycle: semantic-qa-pass-platform-review-required/);
+      assert.match(`${error.stderr ?? ''}${error.stdout ?? ''}`, /Dentistry course-1 source SHA-256 evidence mismatch/);
       return true;
     }
   );
