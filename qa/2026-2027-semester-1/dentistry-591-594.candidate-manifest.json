@@ -1,0 +1,28 @@
+{
+  "schema": "kgmu-dentistry5-c24-candidate-manifest-v1",
+  "sourceSha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+  "sourceSheet": "2026-2027 осень 5 курс Стом",
+  "parserProfile": "C",
+  "sourceRule": "C24",
+  "candidateDigest": "sha256:bd0dc06bd82a1fbd2444c1086d87cf2621772965fdc053fe2c98640a72530192",
+  "eventCount": 588,
+  "eventCountByGroup": {
+    "591": 147,
+    "592": 147,
+    "593": 147,
+    "594": 147
+  },
+  "mandatoryTimedCount": 492,
+  "informationalAllDayCount": 96,
+  "provenanceEventCount": 588,
+  "sourceBackedOverlapCount": 3,
+  "readyForScheduleVersion": false,
+  "publicationAllowed": false,
+  "status": "REVIEW_REQUIRED",
+  "nextGates": [
+    "Three source-backed time overlaps classified but not resolved by university evidence",
+    "Platform Info event_kind mapping/ingestion test",
+    "Full platform CI historical XLSX fallback",
+    "Guarded staging clone and continuity QA"
+  ]
+}
