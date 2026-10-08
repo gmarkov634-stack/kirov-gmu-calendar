@@ -36,5 +36,15 @@
       "C24(5)"
     ],
     "noScheduleTimeEdits": true
-  }
+  },
+  "sourceSemanticQa": "PASS_WITH_3_ACKNOWLEDGED_SOURCE_OVERLAP_WARNINGS",
+  "releaseGateStatus": "REVIEW_REQUIRED",
+  "sourceQaWarnings": [
+    {
+      "code": "ACKNOWLEDGED_SOURCE_TIME_OVERLAP",
+      "count": 3,
+      "reviewed": true,
+      "decisionArtifact": "qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json"
+    }
+  ]
 }
