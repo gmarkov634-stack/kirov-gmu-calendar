@@ -5,6 +5,8 @@ on:
     paths:
       - 'qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json'
       - 'test/dentistry-591-594-current-source-review.test.js'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json'
+      - 'fixtures/tools/audit_dentistry_591_594_grid.py'
       - '.github/workflows/dentistry-591-594-source-review.yml'
   push:
     branches: [main]
@@ -84,8 +86,23 @@ jobs:
               if '04.09' not in cells['CE31'] or '18.12' not in cells['CE31']:
                   raise SystemExit('REVIEW_REQUIRED: PE note changed')
 
+          Path('/tmp/kgmu-dentistry-591-594-current.xlsx').write_bytes(data)
           print(json.dumps({'status':'MECHANICAL_SOURCE_PASS_SEMANTIC_REVIEW_REQUIRED',
                             'sha256':sha, 'byteLength':len(data), 'mergedRangeCount':len(merged)}))
+          PY
+      - name: Verify full C24 calendar geometry and expected 3 source conflicts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python fixtures/tools/audit_dentistry_591_594_grid.py /tmp/kgmu-dentistry-591-594-current.xlsx > /tmp/dentistry5-grid-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          actual=json.loads(Path('/tmp/dentistry5-grid-audit.json').read_text())
+          expected=json.loads(Path('qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json').read_text())
+          if actual != expected:
+              raise SystemExit('REVIEW_REQUIRED: exact-source C24 coverage differs from reviewed grid evidence')
+          print('EXACT_C24_GRID_PASS; 588 projected source-grounded occurrences; 3 retained time overlaps; NOT published')
           PY
       - name: Run source lifecycle regression
         uses: actions/setup-node@v4
