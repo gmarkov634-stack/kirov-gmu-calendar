@@ -6,7 +6,7 @@
   "sheetName": "1 стомат.",
   "semanticDecisionMode": "operator-authored-explicit",
   "logicalMainTableSourceCellCount": 75,
-  "resolvedMainTableSourceCellCount": 74,
+  "resolvedMainTableSourceCellCount": 75,
   "groupIds": [
     "191",
     "192",
@@ -2718,6 +2718,69 @@
           "locator": "1 стомат.!E58"
         }
       }
+    },
+    {
+      "id": "B34#s1",
+      "sourceCell": "B34",
+      "sourceLocator": "1 стомат.!B34#s1",
+      "groupIds": [
+        "191"
+      ],
+      "dates": [
+        "2026-09-10"
+      ],
+      "startTime": "16:50",
+      "endTime": "18:20",
+      "discipline": "Библиотечный час",
+      "lessonType": "other",
+      "location": "1 корпус, аудитория 307, ул. Владимирская, 137"
+    },
+    {
+      "id": "B34#r89-1",
+      "sourceCell": "B34",
+      "sourceLocator": "1 стомат.!B34#r89-1",
+      "groupIds": [
+        "191"
+      ],
+      "dates": [
+        "2026-09-03",
+        "2026-09-17",
+        "2026-10-01",
+        "2026-10-15",
+        "2026-10-29",
+        "2026-11-12",
+        "2026-11-26",
+        "2026-12-10",
+        "2026-12-24",
+        "2027-01-14"
+      ],
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null
+    },
+    {
+      "id": "B34#r89-2",
+      "sourceCell": "B34",
+      "sourceLocator": "1 стомат.!B34#r89-2",
+      "groupIds": [
+        "191"
+      ],
+      "dates": [
+        "2026-09-24",
+        "2026-10-08",
+        "2026-10-22",
+        "2026-11-05",
+        "2026-11-19",
+        "2026-12-03",
+        "2026-12-17"
+      ],
+      "startTime": "16:40",
+      "endTime": "17:40",
+      "discipline": "Час куратора",
+      "lessonType": "other",
+      "location": null
     }
   ],
   "crossChecks": [
@@ -2868,37 +2931,7 @@
       "lessonType": "graded-credit"
     }
   ],
-  "unresolved": [
-    {
-      "id": "dentistry-191-194-b34-curator-week-parity",
-      "rule": "R06/R17/R81",
-      "sourceCell": "B34",
-      "weekGridCell": "B50",
-      "groupIds": [
-        "191"
-      ],
-      "sourceText": "16.50-18.20 Библиотечный час 10.09 1-307 15.00-16.00 Час куратора (1 нед.) 16.40-17.40 Час куратора (2 нед.)",
-      "knownSourceFacts": {
-        "preservedLibraryEvent": "10.09 16:50-18:20, 1-307",
-        "curatorFragments": [
-          {
-            "startTime": "15:00",
-            "endTime": "16:00",
-            "weekLabel": "1 нед."
-          },
-          {
-            "startTime": "16:40",
-            "endTime": "17:40",
-            "weekLabel": "2 нед."
-          }
-        ]
-      },
-      "ambiguity": "Bare 1 нед./2 нед. labels are explicit, but no date range is attached. R17 selects the first two feasible curator slots when dates are absent, while R81 defines numbered-week expansion only with limiting boundaries. Applying either while ignoring the other would invent semantics.",
-      "requiredResolution": "Confirm how the two week-parity curator fragments map to concrete dates. Until then the entire B34 cell is withheld from the non-publishable review draft.",
-      "publicationImpact": "REVIEW_REQUIRED",
-      "requiresOperatorConfirmation": true
-    }
-  ],
+  "unresolved": [],
   "sourceEvidenceMode": "source-sha256-plus-complete-cell-locator-coverage",
   "manualConfirmations": [
     {
@@ -2910,6 +2943,20 @@
       "recurrence": "every-service-week",
       "confirmedOn": "2026-09-03",
       "provenance": "direct-user-confirmation"
+    }
+  ],
+  "semanticResolutions": [
+    {
+      "id": "dentistry-191-194-b34-curator-week-parity",
+      "sourceCell": "B34",
+      "weekGridCell": "B50",
+      "status": "resolved-by-canonical-rule",
+      "rules": [
+        "R66",
+        "R89"
+      ],
+      "resolution": "Apply R89 across the full B50 service-week grid: 15:00–16:00 on 1-week Thursdays and 16:40–17:40 on 2-week Thursdays. Omit computed curator hour on 10.09 under R66 because B34 explicitly schedules Library hour 16:50–18:20 on that date.",
+      "confirmedBy": "existing-canonical-rules-no-new-operator-rule"
     }
   ]
 }
