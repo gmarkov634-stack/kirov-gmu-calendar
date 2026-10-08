@@ -1,8 +1,8 @@
 {
   "qaReportId": "qa-kgmu-2026-2027-s1-dentistry-191-194-b0912c1d-v1",
   "parsingJobId": "parsing-job-dentistry-191-194-b0912c1d-v1",
-  "candidateDigest": "sha256:d988ce1572e2d03bb8741ec63c06afdb196d78c2f9dfa04bee52615ef853fd57",
-  "decision": "review-required",
+  "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487",
+  "decision": "pass",
   "checks": [
     {
       "code": "source-identity-coherent",
@@ -12,12 +12,12 @@
     {
       "code": "main-table-content-accounted-for",
       "status": "pass",
-      "message": "74/75 main-table cells normalized; 1 represented explicitly in semantic review"
+      "message": "75/75 main-table cells normalized; 0 represented explicitly in semantic review"
     },
     {
       "code": "source-cell-locator-coverage",
       "status": "pass",
-      "message": "all 101 decision segments point to cells present in the hash-pinned mechanical probe"
+      "message": "all 104 decision segments point to cells present in the hash-pinned mechanical probe"
     },
     {
       "code": "groups-match-expected",
@@ -27,7 +27,7 @@
     {
       "code": "dates-within-service-grid",
       "status": "pass",
-      "message": "all 1651 normalized base events fall inside B50 service-week intervals"
+      "message": "all 1669 normalized base events fall inside B50 service-week intervals"
     },
     {
       "code": "hard-count-cross-checks",
@@ -47,28 +47,48 @@
     {
       "code": "source-backed-overlaps-preserved",
       "status": "warning",
-      "message": "175 overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"
+      "message": "183 overlap pairs remain visible for G16/R69 audit; no time shifting/deletion"
     },
     {
       "code": "unresolved-ambiguities-zero-before-pass",
-      "status": "fail",
-      "message": "1 unresolved semantic item(s) block publication: dentistry-191-194-b34-curator-week-parity"
+      "status": "pass",
+      "message": "0 unresolved semantic ambiguities; R90 B49 periodicity and B34 R89/R66 semantics are source-backed and resolved"
+    },
+    {
+      "code": "current-source-r89-r66-curator",
+      "status": "pass",
+      "message": "B34 expands to 17 curator-hour events for group 191 under R89; the computed 10.09 second-week curator is suppressed under R66 in favor of the explicit Library hour; seven curator/Math-facultative overlaps remain source-backed under R69."
+    },
+    {
+      "code": "facultative-visibility-contract",
+      "status": "pass",
+      "message": "Four stable R90 facultative variants remain normalized; user selection remains outside ScheduleVersion and is delegated to the shared Visibility Resolver."
     },
     {
       "code": "publication-not-performed",
       "status": "pass",
-      "message": "QA-only draft; no ScheduleVersion publish, production persistence, subscription or opaque ICS URL mutation"
+      "message": "Semantic QA is PASS but publication remains fail-closed until the current medschedule-platform exact-SHA compatibility bridge passes."
     }
   ],
-  "eventCount": 1651,
+  "eventCount": 1669,
   "eventCountByGroup": {
-    "191": 410,
+    "191": 428,
     "192": 413,
     "193": 414,
     "194": 414
   },
-  "overlapPairCount": 175,
-  "unresolvedSemanticItemCount": 1,
-  "readyForScheduleVersion": false,
-  "publicationPerformed": false
+  "overlapPairCount": 183,
+  "unresolvedSemanticItemCount": 0,
+  "readyForScheduleVersion": true,
+  "publicationPerformed": false,
+  "schema": "kgmu-candidate-qa-report-v1",
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
+  "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "publicationAllowed": false,
+  "blockingIssues": [],
+  "compatibilityGate": {
+    "status": "review-required",
+    "stagingPublicationGate": "blocked until exact-SHA medschedule-platform bridge PASS"
+  },
+  "lastRevalidatedAt": "2026-10-08"
 }

@@ -4,12 +4,12 @@
   "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
   "sourceArtifactId": "source-artifact-dentistry-191-194-b0912c1d-v1",
   "parsingJobId": "parsing-job-dentistry-191-194-b0912c1d-v1",
-  "candidateDigest": "sha256:d988ce1572e2d03bb8741ec63c06afdb196d78c2f9dfa04bee52615ef853fd57",
+  "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487",
   "logicalMainTableSourceCellCount": 75,
-  "resolvedMainTableSourceCellCount": 74,
-  "normalizedBaseEventCount": 1651,
+  "resolvedMainTableSourceCellCount": 75,
+  "normalizedBaseEventCount": 1669,
   "eventCountByGroup": {
-    "191": 410,
+    "191": 428,
     "192": 413,
     "193": 414,
     "194": 414
@@ -33,6 +33,12 @@
       "date": "2026-09-09",
       "left": "1 стомат.!B26#s1",
       "right": "1 стомат.!B49#r90-2"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-09-10",
+      "left": "1 стомат.!B34#s1",
+      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -60,6 +66,12 @@
     },
     {
       "groupId": "191",
+      "date": "2026-09-24",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
+    },
+    {
+      "groupId": "191",
       "date": "2026-09-28",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
@@ -81,6 +93,12 @@
       "date": "2026-10-07",
       "left": "1 стомат.!B26#s1",
       "right": "1 стомат.!B49#r90-2"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-10-08",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -108,6 +126,12 @@
     },
     {
       "groupId": "191",
+      "date": "2026-10-22",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
+    },
+    {
+      "groupId": "191",
       "date": "2026-10-26",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
@@ -123,6 +147,12 @@
       "date": "2026-11-02",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-11-05",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -150,6 +180,12 @@
     },
     {
       "groupId": "191",
+      "date": "2026-11-19",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
+    },
+    {
+      "groupId": "191",
       "date": "2026-11-23",
       "left": "1 стомат.!B49#r90-3",
       "right": "1 стомат.!B49#r90-1"
@@ -171,6 +207,12 @@
       "date": "2026-12-02",
       "left": "1 стомат.!B49#r90-2",
       "right": "1 стомат.!B26#s2"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-03",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -207,6 +249,12 @@
       "date": "2026-12-16",
       "left": "1 стомат.!B49#r90-2",
       "right": "1 стомат.!B26#s2"
+    },
+    {
+      "groupId": "191",
+      "date": "2026-12-17",
+      "left": "1 стомат.!B34#r89-2",
+      "right": "1 стомат.!B49#r90-4"
     },
     {
       "groupId": "191",
@@ -1069,37 +1117,7 @@
   ],
   "assessmentMetadataCount": 7,
   "crossCheckCount": 12,
-  "unresolved": [
-    {
-      "id": "dentistry-191-194-b34-curator-week-parity",
-      "rule": "R06/R17/R81",
-      "sourceCell": "B34",
-      "weekGridCell": "B50",
-      "groupIds": [
-        "191"
-      ],
-      "sourceText": "16.50-18.20 Библиотечный час 10.09 1-307 15.00-16.00 Час куратора (1 нед.) 16.40-17.40 Час куратора (2 нед.)",
-      "knownSourceFacts": {
-        "preservedLibraryEvent": "10.09 16:50-18:20, 1-307",
-        "curatorFragments": [
-          {
-            "startTime": "15:00",
-            "endTime": "16:00",
-            "weekLabel": "1 нед."
-          },
-          {
-            "startTime": "16:40",
-            "endTime": "17:40",
-            "weekLabel": "2 нед."
-          }
-        ]
-      },
-      "ambiguity": "Bare 1 нед./2 нед. labels are explicit, but no date range is attached. R17 selects the first two feasible curator slots when dates are absent, while R81 defines numbered-week expansion only with limiting boundaries. Applying either while ignoring the other would invent semantics.",
-      "requiredResolution": "Confirm how the two week-parity curator fragments map to concrete dates. Until then the entire B34 cell is withheld from the non-publishable review draft.",
-      "publicationImpact": "REVIEW_REQUIRED",
-      "requiresOperatorConfirmation": true
-    }
-  ],
+  "unresolved": [],
   "manualConfirmations": [
     {
       "id": "dentistry-191-194-facultatives-weekly-periodicity",
@@ -1111,5 +1129,27 @@
       "confirmedOn": "2026-09-03",
       "provenance": "direct-user-confirmation"
     }
-  ]
+  ],
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "publicationAllowed": false,
+  "publicationNotExecutedByScope": true,
+  "candidate": {
+    "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487",
+    "eventCount": 1669,
+    "groupEventCounts": {
+      "191": 428,
+      "192": 413,
+      "193": 414,
+      "194": 414
+    },
+    "logicalMainTableSourceCellCount": 75,
+    "decisionCount": 104,
+    "duplicateEventSignatures": 0,
+    "overlapPairCount": 183,
+    "r89MathFacultativeOverlapCount": 7
+  },
+  "platformCompatibility": {
+    "status": "review-required",
+    "requirement": "Run current medschedule-platform exact-SHA reviewed-source bridge, ScheduleEvent/PostgreSQL provenance, facultative ChoiceGroup/Visibility and idempotent replay before publicationAllowed=true."
+  }
 }

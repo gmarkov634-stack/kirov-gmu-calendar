@@ -2,38 +2,8 @@
   "schema": "kgmu-semantic-review-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
   "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
-  "status": "REVIEW_REQUIRED",
-  "items": [
-    {
-      "id": "dentistry-191-194-b34-curator-week-parity",
-      "rule": "R06/R17/R81",
-      "sourceCell": "B34",
-      "weekGridCell": "B50",
-      "groupIds": [
-        "191"
-      ],
-      "sourceText": "16.50-18.20 Библиотечный час 10.09 1-307 15.00-16.00 Час куратора (1 нед.) 16.40-17.40 Час куратора (2 нед.)",
-      "knownSourceFacts": {
-        "preservedLibraryEvent": "10.09 16:50-18:20, 1-307",
-        "curatorFragments": [
-          {
-            "startTime": "15:00",
-            "endTime": "16:00",
-            "weekLabel": "1 нед."
-          },
-          {
-            "startTime": "16:40",
-            "endTime": "17:40",
-            "weekLabel": "2 нед."
-          }
-        ]
-      },
-      "ambiguity": "Bare 1 нед./2 нед. labels are explicit, but no date range is attached. R17 selects the first two feasible curator slots when dates are absent, while R81 defines numbered-week expansion only with limiting boundaries. Applying either while ignoring the other would invent semantics.",
-      "requiredResolution": "Confirm how the two week-parity curator fragments map to concrete dates. Until then the entire B34 cell is withheld from the non-publishable review draft.",
-      "publicationImpact": "REVIEW_REQUIRED",
-      "requiresOperatorConfirmation": true
-    }
-  ],
+  "status": "SEMANTIC_QA_PASS",
+  "items": [],
   "manualConfirmations": [
     {
       "id": "dentistry-191-194-facultatives-weekly-periodicity",
@@ -45,5 +15,28 @@
       "confirmedOn": "2026-09-03",
       "provenance": "direct-user-confirmation"
     }
-  ]
+  ],
+  "parserProfile": "R",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "rules": [
+    "G16",
+    "R07",
+    "R08",
+    "R66",
+    "R69",
+    "R83",
+    "R89",
+    "R90"
+  ],
+  "unresolvedAmbiguities": 0,
+  "coverage": {
+    "logicalSourceCellCount": 75,
+    "resolvedSourceCellCount": 75
+  },
+  "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+  "publicationEligible": false,
+  "publicationPerformed": false,
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "nextGate": "Run the current medschedule-platform exact-SHA bridge for the b0912c1d reviewed bundle before publicationAllowed=true.",
+  "updatedAt": "2026-10-08"
 }

@@ -12,7 +12,7 @@
     "194"
   ],
   "requestedAt": "2026-10-07T17:36:48+03:00",
-  "executionMode": "qa-only-operator-authored-explicit-review-required",
+  "executionMode": "qa-only-operator-authored-explicit-platform-review-required",
   "productionPersistencePerformed": false,
   "publicationPerformed": false
 }

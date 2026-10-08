@@ -53,5 +53,5 @@ jobs:
             echo 'Dentistry normalized draft and QA evidence unchanged'
           else
             git commit -m 'Record Dentistry 191-194 normalized draft QA evidence'
-            git push origin HEAD:feat/dentistry-191-194-2026-09-03
+            git push origin HEAD:${{ github.ref_name }}
           fi
