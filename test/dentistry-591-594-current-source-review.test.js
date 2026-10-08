@@ -67,3 +67,28 @@ test('Dentistry 591-594 current source has no authorized parser fixture, normali
     await assert.rejects(access(path), error => error?.code === 'ENOENT');
   }
 });
+
+test('Dentistry 591–594 C24 source calendar projects 588 events with exactly three documented conflicts', async () => {
+  const audit = JSON.parse(await readFile(new URL('../qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json', import.meta.url), 'utf8'));
+  const review = JSON.parse(await readFile(reviewPath, 'utf8'));
+  assert.equal(audit.sourceSha256, review.source.sha256);
+  assert.equal(audit.sourceSpecificRule, 'C24');
+  assert.equal(audit.parserProfile, 'C');
+  assert.equal(audit.status, 'REVIEW_REQUIRED');
+  assert.equal(audit.publicationAllowed, false);
+  assert.equal(audit.mergedRangeCount, 127);
+  assert.equal(audit.dateHeaderCount, 122);
+  assert.deepEqual(audit.groupCycleDateCoverage, {'591':98,'592':98,'593':98,'594':98});
+  assert.deepEqual(audit.groupCycleAnchors, {'591':8,'592':8,'593':8,'594':9});
+  assert.deepEqual(audit.mandatoryTimedOccurrencesByGroup, {'591':123,'592':123,'593':123,'594':123});
+  assert.deepEqual(audit.allDayInfoOccurrencesByGroup, {'591':24,'592':24,'593':24,'594':24});
+  assert.deepEqual(audit.projectedEventCountByGroup, {'591':147,'592':147,'593':147,'594':147});
+  assert.equal(audit.projectedTotal, 588);
+  assert.equal(audit.independentFridayPeDateCount, 16);
+  assert.equal(audit.sourceBackedOverlaps.length, 3);
+  assert.deepEqual(audit.sourceBackedOverlaps.map(({group,date}) => [group,date]), [
+    ['592','2026-09-04'],['594','2026-10-30'],['594','2026-11-06']
+  ]);
+  assert.equal(audit.dateWeekdayMismatches.length, 0);
+  assert.equal(audit.unknownCycleBlocks.length, 0);
+});
