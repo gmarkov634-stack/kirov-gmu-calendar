@@ -9,7 +9,8 @@ const OPS = resolve(ROOT, 'ops');
 const PUBLISHER_PATTERN = /^publish-(medicine|pediatrics|dentistry)-.+\.mjs$/;
 
 const HISTORICAL_MIGRATIONS = new Map([
-  ['publish-medicine-101-110.mjs', 'historical group-102 correction migration; not the current Medicine 101-110 publisher']
+  ['publish-medicine-101-110.mjs', 'historical group-102 correction migration; not the current Medicine 101-110 publisher'],
+  ['publish-dentistry-191-194.mjs', 'legacy Dentistry course-1 entrypoint']
 ]);
 
 const EXPECTED_BLOCKED_PUBLICATIONS = new Map([
