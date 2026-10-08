@@ -58,8 +58,9 @@ test('current official Dentistry 591-594 source is pinned mechanically and fails
   assert.equal(review.reviewItems[3].confirmation.isAllDay, true);
   assert.equal(review.reviewItems[3].confirmation.lessonReminders, false);
   assert.equal(review.reviewItems[3].confirmation.nextLesson, false);
-  assert.ok(review.pendingQa.some(item => item.id === 'dent5-info-consumer-gate'));
-  assert.match(review.nextGate, /exact-SHA/);
+  assert.ok(review.pendingQa.some(item => item.id === 'dent5-platform-full-ci'));
+  assert.equal(review.acknowledgedSourceOverlaps.count, 3);
+  assert.match(review.nextGate, /Gated|CI|full CI|staging/i);
 });
 
 test('Dentistry 591-594 current source has no authorized parser fixture, normalized draft or publisher', async () => {
