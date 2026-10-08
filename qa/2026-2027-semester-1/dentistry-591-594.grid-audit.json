@@ -1,0 +1,138 @@
+{
+  "allDayInfoOccurrencesByGroup": {
+    "591": 24,
+    "592": 24,
+    "593": 24,
+    "594": 24
+  },
+  "byteLength": 23903,
+  "dateHeaderCount": 122,
+  "dateWeekdayMismatches": [],
+  "groupCycleAnchors": {
+    "591": 8,
+    "592": 8,
+    "593": 8,
+    "594": 9
+  },
+  "groupCycleDateCoverage": {
+    "591": 98,
+    "592": 98,
+    "593": 98,
+    "594": 98
+  },
+  "independentFridayPeDateCount": 16,
+  "independentFridayPeFirst": "2026-09-04",
+  "independentFridayPeLast": "2026-12-18",
+  "informationPeriods": {
+    "Каникулы": {
+      "firstGridDate": "2027-01-25",
+      "gridDateCount": 6,
+      "lastGridDate": "2027-01-30",
+      "range": "DO15:DT18"
+    },
+    "Практика": {
+      "firstGridDate": "2027-01-11",
+      "gridDateCount": 12,
+      "lastGridDate": "2027-01-23",
+      "range": "DC15:DN18"
+    },
+    "Экзамены": {
+      "firstGridDate": "2026-12-25",
+      "gridDateCount": 6,
+      "lastGridDate": "2027-01-09",
+      "range": "CW15:DB18"
+    }
+  },
+  "jointGroups": {
+    "591": {
+      "dateCount": 9,
+      "dateFrom": "2026-10-27",
+      "dateTo": "2026-11-06",
+      "sourceRange": "AY15:BG15"
+    },
+    "592": {
+      "dateCount": 9,
+      "dateFrom": "2026-12-03",
+      "dateTo": "2026-12-12",
+      "sourceRange": "CD16:CL16"
+    },
+    "593": {
+      "dateCount": 9,
+      "dateFrom": "2026-09-01",
+      "dateTo": "2026-09-10",
+      "sourceRange": "C17:K17"
+    },
+    "594": {
+      "dateCount": 9,
+      "dateFrom": "2026-10-07",
+      "dateTo": "2026-10-16",
+      "sourceRange": "AH18:AP18"
+    }
+  },
+  "mandatoryTimedOccurrencesByGroup": {
+    "591": 123,
+    "592": 123,
+    "593": 123,
+    "594": 123
+  },
+  "mergedRangeCount": 127,
+  "nextGate": "Normalize every occurrence into traceable ScheduleEvent with INFO override, classify 3 overlaps and pass PostgreSQL and full CI before publication.",
+  "parserProfile": "C",
+  "projectedEventCountByGroup": {
+    "591": 147,
+    "592": 147,
+    "593": 147,
+    "594": 147
+  },
+  "projectedTotal": 588,
+  "publicationAllowed": false,
+  "schema": "kgmu-dentistry5-c24-grid-audit-v1",
+  "sourceBackedOverlaps": [
+    {
+      "date": "2026-09-04",
+      "first": {
+        "discipline": "Костнопластические материалы и технологии",
+        "sourceCell": "C16",
+        "time": "12:30-16:25"
+      },
+      "group": "592",
+      "second": {
+        "discipline": "Элективные дисциплины по физической культуре и спорту",
+        "sourceCell": "CE31",
+        "time": "14:30-16:00"
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "first": {
+        "discipline": "Костнопластические материалы и технологии",
+        "sourceCell": "BA18",
+        "time": "12:30-16:25"
+      },
+      "group": "594",
+      "second": {
+        "discipline": "Элективные дисциплины по физической культуре и спорту",
+        "sourceCell": "CE31",
+        "time": "14:30-16:00"
+      }
+    },
+    {
+      "date": "2026-11-06",
+      "first": {
+        "discipline": "Костнопластические материалы и технологии",
+        "sourceCell": "BA18",
+        "time": "12:30-16:25"
+      },
+      "group": "594",
+      "second": {
+        "discipline": "Элективные дисциплины по физической культуре и спорту",
+        "sourceCell": "CE31",
+        "time": "14:30-16:00"
+      }
+    }
+  ],
+  "sourceSha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+  "sourceSpecificRule": "C24",
+  "status": "REVIEW_REQUIRED",
+  "unknownCycleBlocks": []
+}

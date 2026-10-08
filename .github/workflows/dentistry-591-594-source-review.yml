@@ -1,0 +1,130 @@
+name: Dentistry 591-594 current XLSX mechanical gate
+
+on:
+  pull_request:
+    paths:
+      - 'qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json'
+      - 'test/dentistry-591-594-current-source-review.test.js'
+      - 'test/dentistry-591-594-overlap-resolution.test.js'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json'
+      - 'qa/2026-2027-semester-1/dentistry-591-594.candidate-manifest.json'
+      - 'fixtures/tools/audit_dentistry_591_594_grid.py'
+      - '.github/workflows/dentistry-591-594-source-review.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json'
+      - '.github/workflows/dentistry-591-594-source-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-official-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact official workbook bytes and mechanical anchors
+        run: |
+          python - <<'PY'
+          import hashlib
+          import io
+          import json
+          from pathlib import Path
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          import zipfile
+
+          review = json.loads(Path('qa/2026-2027-semester-1/dentistry-591-594.current-source-review.json').read_text())
+          assert review['status'] == 'REVIEW_REQUIRED'
+          assert review['publicationAllowed'] is False
+          assert review['readyForScheduleVersion'] is False
+          assert review['semanticParsingPerformed'] is False
+          source = review['source']
+          request = urllib.request.Request(source['url'], headers={'User-Agent': 'kgmu-dentistry5-source-audit/1.0'})
+          with urllib.request.urlopen(request, timeout=45) as response:
+              data = response.read(source['byteLength'] + 1)
+          sha = hashlib.sha256(data).hexdigest()
+          if sha != source['sha256'] or len(data) != source['byteLength']:
+              raise SystemExit(f'REVIEW_REQUIRED: source bytes changed: sha={sha}, size={len(data)}')
+          with zipfile.ZipFile(io.BytesIO(data)) as archive:
+              workbook = ET.fromstring(archive.read('xl/workbook.xml'))
+              names = [x.attrib['name'] for x in workbook.findall('./{*}sheets/{*}sheet')]
+              if names != review['workbook']['sheetNames']:
+                  raise SystemExit('REVIEW_REQUIRED: sheet names differ')
+              sheet = ET.fromstring(archive.read('xl/worksheets/sheet1.xml'))
+              dimensions = sheet.find('./{*}dimension')
+              merged = sheet.findall('.//{*}mergeCell')
+              if dimensions is None or dimensions.attrib.get('ref') != review['workbook']['xmlDimension']:
+                  raise SystemExit('REVIEW_REQUIRED: sheet geometry changed')
+              if len(merged) != review['workbook']['mergedRangeCount']:
+                  raise SystemExit('REVIEW_REQUIRED: merged ranges changed')
+
+              shared = []
+              if 'xl/sharedStrings.xml' in archive.namelist():
+                  string_root = ET.fromstring(archive.read('xl/sharedStrings.xml'))
+                  for item in string_root.findall('./{*}si'):
+                      shared.append(''.join(t.text or '' for t in item.findall('.//{*}t')))
+              cells = {}
+              for node in sheet.findall('.//{*}sheetData/{*}row/{*}c'):
+                  raw = node.find('./{*}v')
+                  inline = node.find('./{*}is')
+                  if node.get('t') == 's' and raw is not None:
+                      value = shared[int(raw.text)]
+                  elif inline is not None:
+                      value = ''.join(x.text or '' for x in inline.findall('.//{*}t'))
+                  else:
+                      value = raw.text if raw is not None else None
+                  cells[node.attrib['r']] = value
+              for group_id, row in review['workbook']['groupRows'].items():
+                  if cells.get('B'+str(row)) != group_id:
+                      raise SystemExit('REVIEW_REQUIRED: group header differs')
+              for anchor in ('C15','AY15','C16','C17','C18','AY18','BI18','CE28','CI28','CE29','CE30','CE31'):
+                  if not cells.get(anchor):
+                      raise SystemExit('REVIEW_REQUIRED: expected source anchor missing: ' + anchor)
+              if '04.09' not in cells['CE31'] or '18.12' not in cells['CE31']:
+                  raise SystemExit('REVIEW_REQUIRED: PE note changed')
+
+          Path('/tmp/kgmu-dentistry-591-594-current.xlsx').write_bytes(data)
+          print(json.dumps({'status':'MECHANICAL_SOURCE_PASS_SEMANTIC_REVIEW_REQUIRED',
+                            'sha256':sha, 'byteLength':len(data), 'mergedRangeCount':len(merged)}))
+          PY
+      - name: Verify full C24 calendar geometry and expected 3 source conflicts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python fixtures/tools/audit_dentistry_591_594_grid.py /tmp/kgmu-dentistry-591-594-current.xlsx /tmp/dentistry5-review-only-draft.json > /tmp/dentistry5-grid-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          actual=json.loads(Path('/tmp/dentistry5-grid-audit.json').read_text())
+          expected=json.loads(Path('qa/2026-2027-semester-1/dentistry-591-594.grid-audit.json').read_text())
+          if actual != expected:
+              raise SystemExit('REVIEW_REQUIRED: exact-source C24 coverage differs from reviewed grid evidence')
+          print('EXACT_C24_GRID_PASS; 588 projected source-grounded occurrences; 3 retained time overlaps; NOT published')
+          draft=json.loads(Path('/tmp/dentistry5-review-only-draft.json').read_text())
+          manifest=json.loads(Path('qa/2026-2027-semester-1/dentistry-591-594.candidate-manifest.json').read_text())
+          if draft['sourceSha256']!=manifest['sourceSha256'] or draft['candidateDigest']!=manifest['candidateDigest']:
+              raise SystemExit('REVIEW_REQUIRED: pinned normalized C24 event digest changed')
+          if draft['eventCount']!=manifest['eventCount'] or len(draft['events'])!=588 or len(draft['eventProvenanceById'])!=588:
+              raise SystemExit('REVIEW_REQUIRED: reviewed normalized/provenance event count changed')
+          if draft['status']!='REVIEW_REQUIRED' or draft['publicationAllowed'] is not False:
+              raise SystemExit('REVIEW_REQUIRED: candidate prematurely marked publishable')
+          kinds=[draft['eventProvenanceById'][e['eventId']]['eventKind'] for e in draft['events']]
+          if kinds.count('INFO')!=96 or kinds.count('MANDATORY')!=492:
+              raise SystemExit('REVIEW_REQUIRED: INFO and mandatory classifications differ')
+          if any(e['timeSemantics']!='date-only' for e in draft['events'] if draft['eventProvenanceById'][e['eventId']]['eventKind']=='INFO'):
+              raise SystemExit('REVIEW_REQUIRED: INFO must be date-only')
+          if any('!' not in e['sourceRef']['locator'] or not draft['eventProvenanceById'][e['eventId']]['appliedRules'] for e in draft['events']):
+              raise SystemExit('REVIEW_REQUIRED: missing canonical source provenance')
+          print('EXACT_C24_NORMALIZED_DRAFT_PASS; 588 traceable events; SHA-pinned digest; still REVIEW_REQUIRED')
+          PY
+      - name: Run source lifecycle regression
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test test/dentistry-591-594-current-source-review.test.js test/dentistry-591-594-overlap-resolution.test.js

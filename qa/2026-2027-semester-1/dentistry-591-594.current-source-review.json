@@ -1,0 +1,319 @@
+{
+  "schema": "kgmu-dentistry-current-source-review-v1",
+  "status": "REVIEW_REQUIRED",
+  "publicationAllowed": false,
+  "readyForScheduleVersion": false,
+  "semanticParsingPerformed": false,
+  "publicationPerformed": false,
+  "source": {
+    "timetablePage": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/10/08/1097/5_stomat-08-10-2026-08.xlsx",
+    "sha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+    "byteLength": 23903,
+    "observedOn": "2026-10-08",
+    "academicYear": "2026-2027",
+    "term": 1,
+    "programId": "dentistry",
+    "course": 5,
+    "expectedGroupIds": [
+      "591",
+      "592",
+      "593",
+      "594"
+    ]
+  },
+  "workbook": {
+    "sheetNames": [
+      "2026-2027 осень 5 курс Стом"
+    ],
+    "xmlDimension": "A1:DT36",
+    "mergedRangeCount": 127,
+    "dateHeaderCells": {
+      "months": [
+        "C12",
+        "AC12",
+        "BD12",
+        "CB12",
+        "DB12"
+      ],
+      "days": "C13:DT13",
+      "weekdays": "C14:DT14"
+    },
+    "groupRows": {
+      "591": 15,
+      "592": 16,
+      "593": 17,
+      "594": 18
+    },
+    "lowerReferenceRange": "B20:CE31"
+  },
+  "mechanicalAnchors": [
+    {
+      "cell": "C15",
+      "text": "Костнопластические материалы и технологии",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "K15",
+      "text": "Челюстно-лицевая хирургия",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "AY15",
+      "text": "Медицина катастроф\nФизическая подготовка",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "C16",
+      "text": "Костнопластические материалы и технологии",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "C17",
+      "text": "Медицина катастроф\nФизическая подготовка",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "C18",
+      "text": "Пародонтология",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "AY18",
+      "text": "КЗП",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "BI18",
+      "text": "Комплексное зубопротезирова-\nние и имплантология\nтология (КЗП)",
+      "type": "group-date-grid"
+    },
+    {
+      "cell": "CW15:CW18",
+      "text": "Экзамены",
+      "type": "administrative-period"
+    },
+    {
+      "cell": "DC15:DC18",
+      "text": "Практика",
+      "type": "administrative-period"
+    },
+    {
+      "cell": "DO15:DO18",
+      "text": "Каникулы",
+      "type": "administrative-period"
+    },
+    {
+      "cell": "CE28",
+      "text": "8.00-11.55\nгр. 591, 593",
+      "type": "lower-reference-time"
+    },
+    {
+      "cell": "CI28",
+      "text": "12.30-16.25\nгр. 592, 594",
+      "type": "lower-reference-time"
+    },
+    {
+      "cell": "CE29",
+      "text": "8:30-11:35",
+      "type": "lower-reference-time"
+    },
+    {
+      "cell": "CE30",
+      "text": "13:00-14:30",
+      "type": "lower-reference-time"
+    },
+    {
+      "cell": "CE31",
+      "text": "пятница с 04.09 по 18.12\n14.30-16.00",
+      "type": "lower-reference-schedule"
+    },
+    {
+      "cell": "C33",
+      "text": "Лекции по дисциплинам размещенны на образовательном сайте Кировского ГМУ",
+      "type": "external-information"
+    }
+  ],
+  "reviewItems": [
+    {
+      "id": "dent5-joint-medicine-catastrophes-physical",
+      "status": "CONFIRMED",
+      "sourceCells": [
+        "AY15",
+        "CD16",
+        "C17",
+        "AH18",
+        "C29",
+        "C30",
+        "CE29",
+        "CE30"
+      ],
+      "question": "The grid combines two named disciplines, but the lower reference assigns different time and location metadata. Require a source-backed split/recurrence mapping for each group/date; do not infer concurrent or alternating events.",
+      "confirmation": {
+        "choice": "two-timed-events-per-covered-day",
+        "subjects": [
+          {
+            "title": "Медицина катастроф",
+            "startTime": "08:30",
+            "endTime": "11:35",
+            "referenceCells": [
+              "C29",
+              "AS29",
+              "BW29",
+              "CE29"
+            ],
+            "eventKind": "MANDATORY"
+          },
+          {
+            "title": "Физическая подготовка",
+            "startTime": "13:00",
+            "endTime": "14:30",
+            "referenceCells": [
+              "C30",
+              "AS30",
+              "BW30",
+              "CE30"
+            ],
+            "eventKind": "MANDATORY"
+          }
+        ],
+        "appliesTo": "Each group's actual date columns covered by the joined grid block; no arbitrary expansion beyond merged ranges.",
+        "rule": "C24(1)"
+      }
+    },
+    {
+      "id": "dent5-krp-abbreviation",
+      "status": "CONFIRMED",
+      "sourceCells": [
+        "AY18",
+        "BI18",
+        "C26"
+      ],
+      "question": "Verify whether the separately displayed КЗП cell and the longer truncated label are the same cycle and whether the boundary/time can be expanded without overlap or a duplicate.",
+      "confirmation": {
+        "choice": "same-canonical-subject",
+        "title": "Комплексное зубопротезирование и имплантология",
+        "aliases": [
+          "КЗП",
+          "Комплексное зубопротезирование и имплантология (КЗП)"
+        ],
+        "retainDisjointSourceRanges": true,
+        "rule": "C24(2)"
+      }
+    },
+    {
+      "id": "dent5-friday-pe",
+      "status": "CONFIRMED",
+      "sourceCells": [
+        "C31",
+        "CE31",
+        "C15:DT18"
+      ],
+      "question": "Confirm per-group scope and classification of the Friday 04.09–18.12 sports elective note before creating occurrence-level events or user ChoiceGroups.",
+      "confirmation": {
+        "choice": "mandatory-all-groups",
+        "title": "Элективные дисциплины по физической культуре и спорту",
+        "groups": [
+          "591",
+          "592",
+          "593",
+          "594"
+        ],
+        "weekDay": "FRIDAY",
+        "startDate": "2026-09-04",
+        "endDate": "2026-12-18",
+        "startTime": "14:30",
+        "endTime": "16:00",
+        "eventKind": "MANDATORY",
+        "choiceGroup": null,
+        "sourceReferenceCells": [
+          "C31",
+          "AS31",
+          "BW31",
+          "CE31"
+        ],
+        "rule": "C24(3)"
+      }
+    },
+    {
+      "id": "dent5-admin-periods",
+      "status": "CONFIRMED",
+      "sourceCells": [
+        "CW15:CW18",
+        "DC15:DC18",
+        "DO15:DO18"
+      ],
+      "question": "Exam/practice/vacation period headings are not timed lessons. Determine explicit actionable exam/practice rows from official source before creating events; do not synthesize activities.",
+      "confirmation": {
+        "choice": "info-only-periods",
+        "titles": [
+          "Экзамены",
+          "Практика",
+          "Каникулы"
+        ],
+        "eventKind": "INFO",
+        "isAllDay": true,
+        "startTime": null,
+        "endTime": null,
+        "lessonReminders": false,
+        "nextLesson": false,
+        "generatedExamLesson": false,
+        "requireConsumerCompatibility": true,
+        "rule": "C24(4)"
+      }
+    },
+    {
+      "id": "dent5-holiday-date-grid",
+      "status": "REVIEW_REQUIRED",
+      "sourceCells": [
+        "C12:DT14",
+        "C15:DT18"
+      ],
+      "question": "Reconcile date grid and confirmed holidays/non-teaching days against canonical cyclic C rules. No generated events until this is complete."
+    }
+  ],
+  "nextGate": "All three official-source overlaps explicitly acknowledged by owner with keep-both QA warning C24(5). Reject changed/extra intersections; no automatic shift or omission. Source pinned 588-event normalized draft and dedicated PostgreSQL tests pass, but full CI and guarded staging release remain; publicationAllowed=false.",
+  "parserProfile": "C",
+  "confirmedRules": [
+    "G01",
+    "G02",
+    "G09",
+    "G11",
+    "G12",
+    "G13",
+    "G14",
+    "G16",
+    "G21",
+    "C01",
+    "C07",
+    "C08",
+    "C12",
+    "C13",
+    "C14",
+    "C24"
+  ],
+  "sourceSpecificRule": "C24",
+  "manualConfirmation": {
+    "confirmedOn": "2026-10-08",
+    "provenance": "direct-user-confirmation",
+    "count": 4
+  },
+  "pendingQa": [
+    {
+      "id": "dent5-platform-full-ci",
+      "reason": "Dedicated exact-source KGMU and PostgreSQL review checks already passed; full platform CI remains blocked by old medicine 501–516 original XLSX 404 (issue #60)."
+    },
+    {
+      "id": "dent5-authorized-deploy",
+      "reason": "Root-only staging release and continuity QA not authorized/available; production gate not approved."
+    }
+  ],
+  "acknowledgedSourceOverlaps": {
+    "count": 3,
+    "classification": "SOURCE_BACKED_ACKNOWLEDGED_OVERLAP",
+    "decision": "KEEP_BOTH_EXPLICIT_EVENTS_AND_RECORD_QA_WARNING",
+    "severity": "WARNING",
+    "decisionArtifact": "qa/2026-2027-semester-1/dentistry-591-594.overlap-resolution.json",
+    "rule": "C24(5)"
+  }
+}
