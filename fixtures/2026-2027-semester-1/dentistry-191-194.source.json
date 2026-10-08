@@ -40,13 +40,22 @@
     "verifiedAt": "2026-10-07"
   },
   "lifecycle": {
-    "status": "semantic-qa-pass-platform-review-required",
-    "publicationAllowed": false,
-    "reason": "Current 2026-09-14 source semantic QA is resolved under existing R89/R66; exact-SHA medschedule-platform compatibility remains required before publication."
+    "status": "semantic-qa-pass-platform-compatible",
+    "publicationAllowed": true,
+    "publisher": "medschedule-platform",
+    "reason": "Exact-SHA PostgreSQL/ChoiceGroup/Visibility/idempotent-replay compatibility PASS in medschedule-platform 531da7078051d4de5564af1c86a88ade2a5c7845; staging aggregate continuity and live publication remain separate guarded steps."
   },
   "previousReviewedSource": {
     "sha256": "719d80814c1b5335f311b5b81a978b9c49f499ef38bbbcea32a4fc1bbf93247a",
     "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1097/1_stomat-02-09-2026-09.xlsx",
     "candidateDigest": "sha256:60851036434561dadc342752b19aca8384169c51d33e16529e90cbaa9e4f0c91"
+  },
+  "platformCompatibility": {
+    "repository": "gmarkov634-stack/medschedule-platform",
+    "pullRequest": 57,
+    "commit": "531da7078051d4de5564af1c86a88ade2a5c7845",
+    "ciRunId": 37764702203,
+    "ciConclusion": "success",
+    "canonicalSemanticCommit": "8daebd690f178abb3aaadd80bbfe2aee94b1fa17"
   }
 }
