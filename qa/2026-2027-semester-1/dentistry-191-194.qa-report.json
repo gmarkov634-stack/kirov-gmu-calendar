@@ -67,7 +67,7 @@
     {
       "code": "publication-not-performed",
       "status": "pass",
-      "message": "Semantic QA is PASS but publication remains fail-closed until the current medschedule-platform exact-SHA compatibility bridge passes."
+      "message": "medschedule-platform 531da7078051d4de5564af1c86a88ade2a5c7845 exact-SHA compatibility PASS; staging publication has not been performed."
     }
   ],
   "eventCount": 1669,
@@ -84,11 +84,26 @@
   "schema": "kgmu-candidate-qa-report-v1",
   "fixtureId": "dentistry-191-194-2026-2027-semester-1-current",
   "sourceSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "blockingIssues": [],
   "compatibilityGate": {
-    "status": "review-required",
-    "stagingPublicationGate": "blocked until exact-SHA medschedule-platform bridge PASS"
+    "status": "pass",
+    "platformCommit": "531da7078051d4de5564af1c86a88ade2a5c7845",
+    "platformPullRequest": 57,
+    "ciRunId": 37764702203,
+    "verifiedChecks": [
+      "exact-source-fingerprint",
+      "canonical-fail-closed-state",
+      "reviewed-object-form-normalized-draft",
+      "PostgreSQL-ScheduleEvent-ingestion",
+      "inline-facultative-ChoiceGroup-projection",
+      "default-hidden-Visibility",
+      "selected-facultative-Visibility",
+      "B34-R89-R66",
+      "source-provenance",
+      "idempotent-replay"
+    ],
+    "stagingPublicationGate": "deploy compatible platform runtime and run isolated aggregate continuity before live publication"
   },
   "lastRevalidatedAt": "2026-10-08"
 }
