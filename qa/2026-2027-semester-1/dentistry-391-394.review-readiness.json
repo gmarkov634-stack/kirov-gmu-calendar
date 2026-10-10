@@ -1,0 +1,17 @@
+{
+  "schema": "kgmu-review-readiness-v1",
+  "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "candidateDigest": "sha256:91013965a93ee7f854f286be13ae5a60de8068083ae810b93c4ed30ab16ba34b",
+  "groups": ["391", "392", "393", "394"],
+  "normalizedEventCount": 532,
+  "eventCountsByGroup": {"391": 133, "392": 133, "393": 133, "394": 133},
+  "duplicates": 0,
+  "timedOverlaps": 0,
+  "remainingReviewItems": 0,
+  "qaStatus": "PASS",
+  "scheduleVersionReady": true,
+  "publicationPerformed": false,
+  "productionWritePerformed": false,
+  "evidenceWorkflowRunId": 33692546318,
+  "evidenceWorkflowConclusion": "success"
+}

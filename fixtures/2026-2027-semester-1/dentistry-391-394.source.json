@@ -1,0 +1,23 @@
+{
+  "schema": "kgmu-source-config-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "program": "dentistry",
+  "course": 3,
+  "expectedGroupIds": [
+    "391",
+    "392",
+    "393",
+    "394"
+  ],
+  "originUrl": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/3_stomat-24-08-2026-14.xlsx",
+  "sha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+  "parserProfile": "cyclic",
+  "profileLayer": "C",
+  "parserRulesVersion": "kgmu-2026-08-30-v4",
+  "idempotency": {
+    "reuseIfShaMatches": true,
+    "sourceArtifactIdentity": "originUrl+sha256"
+  },
+  "publicationRequested": false
+}
