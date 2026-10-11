@@ -1,0 +1,85 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "sourceSha256": "0c8b13b7e4dc409eaec551f8d4720d77dee88d76e8e7e89e4efcfe2aeed42109",
+  "status": "REVIEW_REQUIRED",
+  "parserProfile": "C",
+  "sourceScope": {
+    "program": "dentistry",
+    "course": 5,
+    "groupIds": [
+      "591",
+      "592",
+      "593",
+      "594"
+    ]
+  },
+  "ruleApplications": [
+    {
+      "rule": "C01/C08",
+      "result": "PASS",
+      "detail": "33 group-local merged cycle blocks expanded across explicit calendar columns and normalized against the lower reference table."
+    },
+    {
+      "rule": "G09",
+      "result": "PASS",
+      "detail": "Four source cells containing Medicine of Disasters and Physical Training are split into separate events using each discipline's explicit lower-table time and location."
+    },
+    {
+      "rule": "C12",
+      "result": "PASS",
+      "detail": "The independent Friday physical-culture elective schedule expands to 16 Fridays per group (64 events)."
+    },
+    {
+      "rule": "C07/C14",
+      "result": "PASS",
+      "detail": "The common Exam period is service metadata only; no synthetic exam events are created."
+    },
+    {
+      "rule": "G07",
+      "result": "PASS",
+      "detail": "The common Holiday block is non-study metadata and creates no class events."
+    },
+    {
+      "rule": "G04/G21",
+      "result": "REVIEW_REQUIRED",
+      "detail": "The current source Practice period has explicit dates but lacks an exact practice title, daily time and location."
+    },
+    {
+      "rule": "C22",
+      "result": "NOT_APPLICABLE",
+      "detail": "C22 belongs to a different historical 5-course source and is not transplanted to the current 2026/27 XLSX."
+    }
+  ],
+  "unresolved": [
+    {
+      "rule": "G04/G21",
+      "kind": "practice-period",
+      "locator": "DC15:DN18",
+      "groupIds": [
+        "591",
+        "592",
+        "593",
+        "594"
+      ],
+      "dates": [
+        "2027-01-11",
+        "2027-01-12",
+        "2027-01-13",
+        "2027-01-14",
+        "2027-01-15",
+        "2027-01-16",
+        "2027-01-18",
+        "2027-01-19",
+        "2027-01-20",
+        "2027-01-21",
+        "2027-01-22",
+        "2027-01-23"
+      ],
+      "sourceLabel": "Практика",
+      "c22Applicable": false,
+      "c22Reason": "Canonical C22 is source-specific to a different historical 5-course XLSX and cannot supply title/time/location for 5_stomat-24-08-2026-14.xlsx.",
+      "reason": "The current official XLSX provides the Practice period dates but not an exact practice title, daily time or location; these details are therefore withheld rather than inferred."
+    }
+  ],
+  "publishEligible": false
+}
