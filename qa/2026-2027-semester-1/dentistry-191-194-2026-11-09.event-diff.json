@@ -1,0 +1,1106 @@
+{
+  "sha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+  "previousSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "oldEvents": 1669,
+  "newEvents": 1672,
+  "addedEventSignatures": 30,
+  "removedEventSignatures": 27,
+  "addedBySource": [
+    {
+      "cell": "1 стомат.!B40#s2",
+      "discipline": "Физика, математика",
+      "count": 4
+    },
+    {
+      "cell": "1 стомат.!B46#s1",
+      "discipline": "Медицинская и биологическая физика",
+      "count": 4
+    },
+    {
+      "cell": "1 стомат.!D12#s1",
+      "discipline": "Медицинская информатика",
+      "count": 8
+    },
+    {
+      "cell": "1 стомат.!D16#s1",
+      "discipline": "Общая и биоорганическая химия",
+      "count": 1
+    },
+    {
+      "cell": "1 стомат.!D47#s1",
+      "discipline": "Физика, математика",
+      "count": 4
+    },
+    {
+      "cell": "1 стомат.!E17#s1",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "count": 1
+    },
+    {
+      "cell": "1 стомат.!E43#s1",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "count": 8
+    }
+  ],
+  "removedBySource": [
+    {
+      "cell": "1 стомат.!B45#s1",
+      "discipline": "Физика, математика",
+      "count": 4
+    },
+    {
+      "cell": "1 стомат.!D12#s1",
+      "discipline": "Медицинская информатика",
+      "count": 8
+    },
+    {
+      "cell": "1 стомат.!D16#s1",
+      "discipline": "Общая и биоорганическая химия",
+      "count": 1
+    },
+    {
+      "cell": "1 стомат.!D27#s1",
+      "discipline": "Физика, математика",
+      "count": 5
+    },
+    {
+      "cell": "1 стомат.!E29#s1",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "count": 9
+    }
+  ],
+  "unchangedEventSignatures": 1642,
+  "oldFacultativeEvents": 340,
+  "newFacultativeEvents": 340,
+  "publicationAllowed": false,
+  "added": [
+    {
+      "eventId": "kgmu-26adc37e382531739eb7e784",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-19",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская и биологическая физика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B46#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-a18cbf23208c3e37a1aa2e98",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2026-12-25",
+      "startTime": "12:40",
+      "endTime": "14:10",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 803, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B40#s2"
+      }
+    },
+    {
+      "eventId": "kgmu-5a0d012327cff8d7aeec2d3c",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "192",
+      "date": "2026-12-19",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская и биологическая физика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B46#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-5d3946ddfb1bd2d8f9a4bd80",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "192",
+      "date": "2026-12-25",
+      "startTime": "12:40",
+      "endTime": "14:10",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 803, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B40#s2"
+      }
+    },
+    {
+      "eventId": "kgmu-83f8276210045185baec37a1",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-09-07",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-79d8b262bb4006a0b3b5d06a",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-09-21",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-094af1745064b23ca6879a4a",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-10-05",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-6e213b6d3d38f9cc5abb22c1",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-10-19",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-5f2fff351b8daeb58186e8ff",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-02",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-692cb9fe5eb7a41065090c88",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-07",
+      "startTime": "12:40",
+      "endTime": "15:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D47#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-b23a765c71544d1509241d8d",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-09",
+      "startTime": "14:20",
+      "endTime": "17:30",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "practice",
+      "location": "1 корпус, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D16#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-b068aa999adb5932909a0e03",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-14",
+      "startTime": "12:40",
+      "endTime": "15:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D47#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-fae42b5a53f89e245ba12072",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-16",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-8fb19cb78e02f880c9edf7b4",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-21",
+      "startTime": "12:40",
+      "endTime": "15:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D47#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-f0316c036a1f60e24478918b",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-28",
+      "startTime": "12:40",
+      "endTime": "15:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D47#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-11e93fd532e7d537e4fc782c",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-30",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-d48880c3b3037722ccb0beee",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-12-14",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-9da945e74f51543d72775002",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-12-19",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская и биологическая физика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B46#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-02fadb00df3bde6931a0c274",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-12-25",
+      "startTime": "12:40",
+      "endTime": "14:10",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 803, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B40#s2"
+      }
+    },
+    {
+      "eventId": "kgmu-145231d8cf8b82143751f2f3",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-07",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-25b6e64e9fd4f4e3d05dede0",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-14",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3992dcd9e26d514524f378be",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-21",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-4ad20619dbab03cb96fc062e",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-28",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-9973d29ab796ac5bb0463fcf",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-05",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-98a341ce9303564537f9a15c",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-12",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-d9cda3ab6f8a15553f57e1f6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-19",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-c9b363c02143372ef771d60b",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-19",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская и биологическая физика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B46#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-22d10ed8acb771f101c7c267",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-22",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E17#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-8a0c2999ce1bc3f71f1af170",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-25",
+      "startTime": "12:40",
+      "endTime": "14:10",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 803, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B40#s2"
+      }
+    },
+    {
+      "eventId": "kgmu-f3d6d029f1e86d73b70536ec",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-26",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E43#s1"
+      }
+    }
+  ],
+  "removed": [
+    {
+      "eventId": "kgmu-17ceec9bdb2780cae1410ae7",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "191",
+      "date": "2027-01-16",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B45#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-c81ea9a1336d7de39febb813",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "192",
+      "date": "2027-01-16",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B45#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-2c185fba6e0beb863e4045b6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-09-07",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-ce33cf1d1fdf6545295c8b4f",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-09-21",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-95059358b93245fba7813897",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-10-05",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-e313a560d20d5ad055e631b9",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-10-19",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-4ce0cefa26826bb9e3229d9e",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-10-19",
+      "startTime": "14:20",
+      "endTime": "17:30",
+      "timeSemantics": "floating",
+      "discipline": "Общая и биоорганическая химия",
+      "lessonType": "practice",
+      "location": "1 корпус, ул. Владимирская, 137",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D16#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-a8bf7c14e0a34d4fa765889d",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-02",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3e80741398b5a865e903917c",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-04",
+      "startTime": "15:40",
+      "endTime": "18:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-8ff819a9d616d673953dc5b4",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-11",
+      "startTime": "15:40",
+      "endTime": "18:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-2c0af6c23b9100208fbb006f",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-16",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3e92c6b3b0fab17925ac0012",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-18",
+      "startTime": "15:40",
+      "endTime": "18:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-3f4e9977a4189a037da1fc05",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-25",
+      "startTime": "15:40",
+      "endTime": "18:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-8dbabc9e7b500678a2056cc6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-11-30",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-173840cc32af9f7373e00fac",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-12-02",
+      "startTime": "15:40",
+      "endTime": "18:50",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "practice",
+      "location": "3 корпус, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D27#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-f493a6c1e69ee84e6c4c42ad",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2026-12-14",
+      "startTime": "10:10",
+      "endTime": "11:40",
+      "timeSemantics": "floating",
+      "discipline": "Медицинская информатика",
+      "lessonType": "practice",
+      "location": "3 корпус, аудитория 414, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!D12#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-91c530e6e0642e282e4a9c8a",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "193",
+      "date": "2027-01-16",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B45#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-7383cf6c42301aa36bd1dac9",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-05",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-7d1fb49a42d09149374f96c4",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-12",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-548425523036a78f92e3bae9",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-19",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-e78fa0f2c4f2dd2f3470b0da",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-11-26",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-5333247eeb60b3b8e49517fa",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-03",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-1fd6986952a124652862ba5f",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-10",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-e5c502be2fe4097757708063",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-17",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-9a278d5254ed992c3b0f9586",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2026-12-24",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-86d5ccbf733febc6045e268f",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2027-01-14",
+      "startTime": "08:00",
+      "endTime": "10:25",
+      "timeSemantics": "floating",
+      "discipline": "Анатомия человека-анатомия головы и шеи",
+      "lessonType": "practice",
+      "location": "2 корпус, ул. Пролетарская, 38",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!E29#s1"
+      }
+    },
+    {
+      "eventId": "kgmu-aee1e1749ee62741d559f1e6",
+      "universityId": "kirov-gmu",
+      "academicPeriodId": "2026-2027-semester-1",
+      "groupId": "194",
+      "date": "2027-01-16",
+      "startTime": "10:50",
+      "endTime": "12:20",
+      "timeSemantics": "floating",
+      "discipline": "Физика, математика",
+      "lessonType": "lecture",
+      "location": "3 корпус, аудитория 702, ул. Владимирская, 112",
+      "teacher": null,
+      "sourceRef": {
+        "sourceId": "dentistry",
+        "locator": "1 стомат.!B45#s1"
+      }
+    }
+  ]
+}

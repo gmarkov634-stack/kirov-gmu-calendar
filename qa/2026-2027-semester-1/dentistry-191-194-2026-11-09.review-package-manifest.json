@@ -1,0 +1,91 @@
+{
+  "schema": "kgmu-local-review-package-v1",
+  "sourceSha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+  "sourceObject": {
+    "relativeToLocalRoot": "source-review/objects/a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5.xlsx",
+    "sha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+    "byteLength": 17983,
+    "includedInGitPayload": false
+  },
+  "sourceVersionStem": "dentistry-191-194-2026-11-09",
+  "canonicalBaseCommit": "b5359c73b7c3ea764d41a1c9ef323dfbb567e594",
+  "platformBaseCommit": "89e556cc43c6df12ea7df67e8fbbbb3fb6868d79",
+  "semanticQA": "PASS",
+  "exactByteLocalCompatibility": "PASS",
+  "githubCI": "NOT_RUN",
+  "publicationAllowed": false,
+  "publicationPerformed": false,
+  "pending": [
+    "Record immutable official-source GitHub workflow artifact or authorized object-storage evidence for the new SHA; local file is not a cloud archive.",
+    "Review new source revision separately from pinned historical b0912c1d regression.",
+    "Run canonical GitHub source and platform compatibility CI on new SHA without overwriting old fixture history.",
+    "Only after canonical CI and environment-specific aggregate/QA gates approve a release; never set publicationAllowed merely to make runtime work."
+  ],
+  "files": [
+    {
+      "path": "fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.decisions.json",
+      "sha256": "3f1ac6754968b58b1be79c445ee6406236f870764cec3f200388acb9fcd14521",
+      "bytes": 77273
+    },
+    {
+      "path": "fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.parsing-job.json",
+      "sha256": "553d93cb7ebedd65457038dbbcf21856c168769d5dd7a00e0e2aff854c2403aa",
+      "bytes": 567
+    },
+    {
+      "path": "fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.r90-confirmation.json",
+      "sha256": "f3541c92b5f31338ab1ac3d2a4ef2639e647bf69e1e6b3505bf9ee38cb13bd8b",
+      "bytes": 368
+    },
+    {
+      "path": "fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.source-artifact.json",
+      "sha256": "ef52a46899fe35402a3a571a8c905b7a582582b89ca92a42a38f58db952322b9",
+      "bytes": 1043
+    },
+    {
+      "path": "fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.source.json",
+      "sha256": "7fe6c5d878515435957315c0f267a5f40c96e89cef4d2eca79a64429cb04447a",
+      "bytes": 1752
+    },
+    {
+      "path": "fixtures/2026-2027-semester-1/normalized/dentistry-191-194-2026-11-09.normalized.json",
+      "sha256": "3737bc6e9df0c78a3b7b02dcdbce199b076701dd609d738648b289af5fbeeb3e",
+      "bytes": 1036312
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.event-diff.json",
+      "sha256": "783f0816ce5ab10c80e5b4690f8ee8de58ab9fcb9aefcb6852014d891fe79512",
+      "bytes": 37043
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.evidence.json",
+      "sha256": "0dcca700464f225f7c4df1b319ed2aa637c24c2af7ceaa112dde9efc863087e4",
+      "bytes": 28820
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.local-compatibility-evidence.json",
+      "sha256": "f263c8d781acc08889efed9c24c338092f66d6a3404969a8bf9e5ffe32cd04b6",
+      "bytes": 1207
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.qa-report.json",
+      "sha256": "438a459b5312d1f1250c6c09033fcc01ea5e2e8949868fd0b9e400013a4dc302",
+      "bytes": 3526
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.semantic-review.json",
+      "sha256": "6d134b6cefa8b5e1bea1636fcd72c5e31e0406844d196a7ea1bda8a939aa17e6",
+      "bytes": 3182
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.source-diff.json",
+      "sha256": "e3db14c1e38368fa38a7434eaddf388c50d74cc1b5564e0a9d0e2aa101b6139b",
+      "bytes": 5306
+    },
+    {
+      "path": "qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.source-probe.json",
+      "sha256": "c30d5a9641672152a042327836cd57c63b0bdb125db49465cb5abcad1e115391",
+      "bytes": 28553
+    }
+  ]
+}

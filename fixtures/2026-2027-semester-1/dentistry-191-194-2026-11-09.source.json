@@ -1,0 +1,53 @@
+{
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1",
+  "universityId": "kirov-gmu",
+  "programId": "dentistry",
+  "course": 1,
+  "academicYear": "2026-2027",
+  "academicPeriodId": "2026-2027-semester-1",
+  "parserProfile": "weekly",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "source": {
+    "sourceId": "dentistry",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/11/09/1097/1_stomat-09-11-2026-10.xlsx",
+    "sha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+    "byteLength": 17983,
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  "expectedGroupIds": [
+    "191",
+    "192",
+    "193",
+    "194"
+  ],
+  "workbookExpectations": {
+    "sheetNames": [
+      "1 стомат."
+    ],
+    "maxRow": 75,
+    "maxColumn": 6,
+    "mergedRangeCount": 93,
+    "nonEmptyCellCount": 144
+  },
+  "storagePolicy": {
+    "repositoryStoresBinarySource": false,
+    "productionSourceIsServerFetched": true,
+    "immutableSourceStoredInObjectStorage": false,
+    "localImmutableSourceStored": true
+  },
+  "discovery": {
+    "pageUrl": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+    "strategy": "html-xlsx-links",
+    "verifiedAt": "2026-11-26"
+  },
+  "lifecycle": {
+    "status": "local-semantic-review-pending-platform-gate",
+    "publicationAllowed": false,
+    "reason": "Local candidate only; exact SHA bridge not executed."
+  },
+  "previousReviewedSource": {
+    "sha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+    "url": "https://kirovgma.ru/sites/default/files/files/2026/09/14/1097/1_stomat-14-09-2026-14.xlsx",
+    "candidateDigest": "sha256:577393c16cac90055fcc8ef1ba5d69fdca2be213b699773e0a83205b84122487"
+  }
+}
