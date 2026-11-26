@@ -1,0 +1,158 @@
+{
+  "schema": "kgmu-semantic-review-v1",
+  "fixtureId": "dentistry-191-194-2026-2027-semester-1-local-a0ea5829",
+  "sourceSha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+  "status": "SEMANTIC_QA_PASS",
+  "items": [],
+  "manualConfirmations": [
+    {
+      "id": "dentistry-191-194-facultatives-weekly-periodicity",
+      "rule": "R90",
+      "sourceCell": "B49",
+      "weekGridCell": "B50",
+      "periodicityConfirmed": true,
+      "recurrence": "every-service-week",
+      "confirmedOn": "2026-09-03",
+      "provenance": "direct-user-confirmation"
+    }
+  ],
+  "parserProfile": "R",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "rules": [
+    "G01",
+    "G02",
+    "G05",
+    "G10",
+    "G16",
+    "G19",
+    "G20",
+    "R01",
+    "R02",
+    "R07",
+    "R08",
+    "R10",
+    "R11",
+    "R12",
+    "R14",
+    "R18",
+    "R19",
+    "R32",
+    "R34",
+    "R37",
+    "R40",
+    "R43",
+    "R45",
+    "R46",
+    "R47",
+    "R66",
+    "R69",
+    "R78",
+    "R81",
+    "R83",
+    "R86",
+    "R88",
+    "R89",
+    "R90"
+  ],
+  "unresolvedAmbiguities": 0,
+  "coverage": {
+    "logicalSourceCellCount": 76,
+    "resolvedSourceCellCount": 76
+  },
+  "semanticPublicationGate": "NORMALIZED_DRAFT_QA_ELIGIBLE",
+  "publicationEligible": false,
+  "publicationPerformed": false,
+  "platformPublicationGate": "REVIEW_REQUIRED",
+  "nextGate": "Run current medschedule-platform exact-SHA bridge for a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5 before publicationAllowed=true.",
+  "updatedAt": "2026-11-26",
+  "changedSourceCellRules": {
+    "B40": [
+      "R01",
+      "R10",
+      "R18",
+      "R19",
+      "R34",
+      "R37"
+    ],
+    "B45": [
+      "R01",
+      "R10",
+      "R37"
+    ],
+    "B46": [
+      "R01",
+      "R10",
+      "R37"
+    ],
+    "D12": [
+      "R11",
+      "R18",
+      "R19",
+      "R81"
+    ],
+    "D16": [
+      "R01",
+      "R07",
+      "R08",
+      "R11",
+      "R40",
+      "R45"
+    ],
+    "D27": [
+      "R02",
+      "R11",
+      "R12",
+      "R32",
+      "R40",
+      "R45",
+      "R86"
+    ],
+    "D47": [
+      "R02",
+      "R11",
+      "R12",
+      "R32",
+      "R40",
+      "R45",
+      "R86"
+    ],
+    "E17": [
+      "R01",
+      "R11",
+      "R12",
+      "R34",
+      "R40",
+      "R45"
+    ],
+    "E29": [
+      "R02",
+      "R11",
+      "R12",
+      "R32",
+      "R40",
+      "R45",
+      "R86"
+    ],
+    "E43": [
+      "R02",
+      "R11",
+      "R12",
+      "R14",
+      "R32",
+      "R34",
+      "R40",
+      "R45",
+      "R86",
+      "R88"
+    ]
+  },
+  "previousVerifiedSha256": "b0912c1da92106e9f282fdc4657ad45ead8b4f1dfce30a93ba78c4e0d4a510a7",
+  "reuseEvidence": "134 exact same nonempty cells; same sheet names, dimensions, merge geometry, group headers, service week row, lower discipline/location/assessment table. Prior R90 direct confirmation applies to unchanged B49/B50 and group coverage.",
+  "overlapAudit": {
+    "oldPairs": 183,
+    "newPairs": 180,
+    "addedPairs": 2,
+    "removedPairs": 5,
+    "newPairsExplanation": "D16 explicit chemistry on 09.11 overlaps optional B49 physics and biology for 193; preserved under R69. All optional variants remain separately selectable."
+  }
+}

@@ -1,0 +1,35 @@
+name: Dentistry 191-194 November exact-source review
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fixtures/2026-2027-semester-1/dentistry-191-194-2026-11-09.*'
+      - 'fixtures/2026-2027-semester-1/normalized/dentistry-191-194-2026-11-09.normalized.json'
+      - 'qa/2026-2027-semester-1/dentistry-191-194-2026-11-09.*'
+      - 'fixtures/tools/verify_dentistry_191_194_2026_11_09_review.py'
+      - '.github/workflows/qa-dentistry-191-194-2026-11-09.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-source-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Verify exact source and rebuild draft without publication
+        run: python fixtures/tools/verify_dentistry_191_194_2026_11_09_review.py --output-dir "${RUNNER_TEMP}/dentistry-191-194-review"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dentistry-191-194-2026-11-09-a0ea5829-source-review
+          path: ${{ runner.temp }}/dentistry-191-194-review/
+          if-no-files-found: error
+          retention-days: 90

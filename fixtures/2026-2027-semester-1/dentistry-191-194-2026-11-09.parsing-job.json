@@ -1,0 +1,18 @@
+{
+  "jobId": "parsing-job-dentistry-191-194-a0ea5829-v1",
+  "universityId": "kirov-gmu",
+  "academicPeriodId": "2026-2027-semester-1",
+  "sourceId": "dentistry",
+  "sourceObjectKey": "source-review/objects/a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5.xlsx",
+  "parserRulesVersion": "kgmu-2026-08-27-v3",
+  "expectedGroupIds": [
+    "191",
+    "192",
+    "193",
+    "194"
+  ],
+  "requestedAt": "2026-11-26T14:05:54Z",
+  "executionMode": "local-qa-only-chatgpt-explicit",
+  "productionPersistencePerformed": false,
+  "publicationPerformed": false
+}

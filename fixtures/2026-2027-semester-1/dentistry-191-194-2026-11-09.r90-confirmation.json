@@ -1,0 +1,16 @@
+{
+  "schema": "kgmu-r90-manual-confirmation-v1",
+  "id": "dentistry-191-194-facultatives-weekly-periodicity",
+  "sourceCell": "B49",
+  "weekGridCell": "B50",
+  "groupIds": [
+    "191",
+    "192",
+    "193",
+    "194"
+  ],
+  "periodicityConfirmed": true,
+  "recurrence": "every-service-week",
+  "confirmedOn": "2026-09-03",
+  "provenance": "direct-user-confirmation"
+}

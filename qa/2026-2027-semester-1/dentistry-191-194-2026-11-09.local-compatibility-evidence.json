@@ -1,0 +1,29 @@
+{
+  "schema": "local-platform-exact-sha-compatibility-v1",
+  "checkedAt": "2026-11-26T14:19:49.274197+00:00",
+  "sourceSha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+  "originalBytes": 17983,
+  "candidateDigest": "sha256:069cba1ec84088ea35630d79d05c464a5dbd597c73900ab6abdb460a9cde8198",
+  "eventSetDigest": "sha256:bd040398e9490062a9f7c56e693882295969f14879cfb8ff4ce1ca7a889af45c",
+  "sourceIdentity": "exact-bytes",
+  "engineCommit": "b5359c73b7c3ea764d41a1c9ef323dfbb567e594",
+  "platformCommit": "89e556cc43c6df12ea7df67e8fbbbb3fb6868d79",
+  "compatibilityRegression": "PASS",
+  "originalGate": "BLOCKED",
+  "wrongShaGate": "BLOCKED",
+  "deterministicBridgeReplay": "PASS",
+  "bridgeBundleSha256": "5789fe51032c833c85b48db275209d7628f981a3e643be4ca217001734297c7e",
+  "postgresTest": "PASS",
+  "rollbackCounts": {
+    "source_files": 0,
+    "schedule_versions": 0,
+    "schedule_events": 0
+  },
+  "eventCount": 1672,
+  "facultativeCount": 340,
+  "publicationAllowed": false,
+  "publicationPerformed": false,
+  "githubCI": "NOT_RUN",
+  "cloudRuTouched": false,
+  "scope": "local isolated temporary compatibility test only; ephemeral CI simulation discarded automatically"
+}
