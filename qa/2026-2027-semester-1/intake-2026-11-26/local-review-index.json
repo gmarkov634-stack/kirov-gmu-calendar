@@ -1,0 +1,386 @@
+{
+  "schema": "kgmu-local-source-review-index-v1",
+  "intake": "intake-20261126T140554Z.json",
+  "intakeSha256": "bf5d5d4dfa05bb5a4aaa53877d80816860e73207ccc069a21b64687e07c3a406",
+  "reviewedSources": 12,
+  "remainingReviewRequired": 0,
+  "knownSources": 8,
+  "publicationAllowed": false,
+  "sources": [
+    {
+      "program": "medicine",
+      "label": "101-110 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/20/1078/1_lech._1_potok-20-10-2026-14.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "18003c64e396d6b03333253b126acb8d9e527590499dd9a730f26dbb391fcbdf",
+      "bytes": 21167,
+      "path": "objects/18003c64e396d6b03333253b126acb8d9e527590499dd9a730f26dbb391fcbdf.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "review_evidence": "medicine-101-110/18003c64e396d6b03333253b126acb8d9e527590499dd9a730f26dbb391fcbdf/local-compatibility-evidence.json",
+      "review_evidence_sha256": "fd4c6c3a473079d21b461fef9b538e459ff087eee11354755ce02af4d9f05417"
+    },
+    {
+      "program": "medicine",
+      "label": "111-120 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/22/1078/1_lech._2_potok-22-10-2026-14.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "11056e3eddc9c9d82d1c094cc77f8562bdcced883e60f9c7bb20274b0eb86954",
+      "bytes": 22061,
+      "path": "objects/11056e3eddc9c9d82d1c094cc77f8562bdcced883e60f9c7bb20274b0eb86954.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "review_evidence": "medicine-111-120/11056e3eddc9c9d82d1c094cc77f8562bdcced883e60f9c7bb20274b0eb86954/local-final-evidence.json",
+      "review_evidence_sha256": "60c4721c6b97420616fbfb58fd4e4a03578d1692ba1c07ec9d21ae047c56dbf9"
+    },
+    {
+      "program": "medicine",
+      "label": "201-210 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/31/1078/2_lech._1_potok-31-08-2026-13.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+      "bytes": 20049,
+      "path": "objects/8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551.xlsx",
+      "matches": [
+        {
+          "fixture": "medicine-201-210-2026-08-31.source.json",
+          "length": 20049,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "medicine",
+      "label": "211-220 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/20/1078/2_lech._2_potok-20-10-2026-14.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "d20bd97fb558596667595a939200bac05919e5dca075a537c2a1fb5555c731ab",
+      "bytes": 20045,
+      "path": "objects/d20bd97fb558596667595a939200bac05919e5dca075a537c2a1fb5555c731ab.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "review_evidence": "medicine-211-220/d20bd97fb558596667595a939200bac05919e5dca075a537c2a1fb5555c731ab/local-compatibility-evidence.json",
+      "review_evidence_sha256": "875d19bbbb829fbf02d023e36e8bd4742aacb489e9a8f63e5feabd1f9841226f"
+    },
+    {
+      "program": "medicine",
+      "label": "301-310 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech._1_potok-02-09-2026-12.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+      "bytes": 19404,
+      "path": "objects/367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1.xlsx",
+      "matches": [
+        {
+          "fixture": "medicine-301-310-2026-09-02.source.json",
+          "length": 19404,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "medicine",
+      "label": "311-317(первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/09/02/1078/3_lech_2_potok-02-09-2026-12.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+      "bytes": 17892,
+      "path": "objects/007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee.xlsx",
+      "matches": [
+        {
+          "fixture": "medicine-311-317-2026-09-02.source.json",
+          "length": 17892,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "medicine",
+      "label": "401-416 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/4_lech-24-08-2026-13.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "fb79b4c7b08b8f85bd2f238f2190404ea5eae01ab2be47339985272b565ead6b",
+      "bytes": 30756,
+      "path": "objects/fb79b4c7b08b8f85bd2f238f2190404ea5eae01ab2be47339985272b565ead6b.xlsx",
+      "matches": [
+        {
+          "fixture": "medicine-401-416.source.json",
+          "length": 30756,
+          "publishable": null
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "medicine",
+      "label": "501-516 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/08/1078/5_lech-08-10-2026-08.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "98f37e30a3443e02bf68c9e7ea515ee6dbf8a8596cd50b6ba6eb6115b92f014e",
+      "bytes": 31752,
+      "path": "objects/98f37e30a3443e02bf68c9e7ea515ee6dbf8a8596cd50b6ba6eb6115b92f014e.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "review_evidence": "medicine-501-516/98f37e30a3443e02bf68c9e7ea515ee6dbf8a8596cd50b6ba6eb6115b92f014e/local-compatibility-evidence.json",
+      "review_evidence_sha256": "c31e342cc4f7eb7fc2f126f50606b9efba1bc1d423f94572bfa272e5b68d9c91"
+    },
+    {
+      "program": "medicine",
+      "label": "601-616 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1078/6_lech-24-08-2026-13.xlsx",
+      "page": "https://kirovgma.ru/lechebnyy-fakultet-raspisanie",
+      "publication_allowed": false,
+      "sha256": "0b5c4a06fd45e50bdaf28586fcb3f4bddade4efe514bc54dd84c359aa04fcb23",
+      "bytes": 32986,
+      "path": "objects/0b5c4a06fd45e50bdaf28586fcb3f4bddade4efe514bc54dd84c359aa04fcb23.xlsx",
+      "matches": [
+        {
+          "fixture": "medicine-601-616.source.json",
+          "length": 32986,
+          "publishable": null
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "pediatrics",
+      "label": "131-140 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/09/07/1085/1_ped-07-09-2026-15.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd",
+      "bytes": 20870,
+      "path": "objects/b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd.xlsx",
+      "matches": [
+        {
+          "fixture": "pediatrics-131-140-2026-09-07.source.json",
+          "length": 20870,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "pediatrics",
+      "label": "231-239 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/11/23/1085/2_ped-23-11-2026-15.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "586c86b1d1a559a5c80f15beba5dfdac31b2c740b396245b34a080b0345e38af",
+      "bytes": 18442,
+      "path": "objects/586c86b1d1a559a5c80f15beba5dfdac31b2c740b396245b34a080b0345e38af.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "raw_baseline_comparison": "BLOCKED",
+      "review_evidence": "pediatrics-231-239/586c86b1d1a559a5c80f15beba5dfdac31b2c740b396245b34a080b0345e38af/local-final-evidence.json",
+      "review_evidence_sha256": "8c3d2a65973349ec835e16e9dc475b4d7b2e28a9786ef90bad4c21ea8296b05d"
+    },
+    {
+      "program": "pediatrics",
+      "label": "331-337 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/11/23/1085/3_ped-23-11-2026-13.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "c1d14c35d5d49092f0740181b5db3505ef0ddd18ce904a4727f5d7ffb080fe31",
+      "bytes": 19720,
+      "path": "objects/c1d14c35d5d49092f0740181b5db3505ef0ddd18ce904a4727f5d7ffb080fe31.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "unresolved_ambiguities": 0,
+      "raw_baseline_comparison": "BLOCKED_HTTP_404",
+      "normalized_archived_comparison": "PASS",
+      "review_evidence": "pediatrics-331-337/c1d14c35d5d49092f0740181b5db3505ef0ddd18ce904a4727f5d7ffb080fe31/local-final-evidence.json",
+      "canonical_ci": "PENDING",
+      "review_evidence_sha256": "2c18205449c7345633faa1b24853d066d3e60bb887619adc45926ece5c1d53ae"
+    },
+    {
+      "program": "pediatrics",
+      "label": "431-436 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/4_ped-24-08-2026-13.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
+      "bytes": 28692,
+      "path": "objects/2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86.xlsx",
+      "matches": [
+        {
+          "fixture": "pediatrics-431-436.source.json",
+          "length": 28692,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "pediatrics",
+      "label": "531-537 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1085/5_ped-24-08-2026-13.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+      "bytes": 26428,
+      "path": "objects/190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024.xlsx",
+      "matches": [
+        {
+          "fixture": "pediatrics-531-537.source.json",
+          "length": 26428,
+          "publishable": true
+        }
+      ],
+      "status": "KNOWN_SOURCE",
+      "review_status": "KNOWN_SOURCE"
+    },
+    {
+      "program": "pediatrics",
+      "label": "631-637 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/08/1085/6_ped-08-10-2026-08.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-pediatricheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "c0bb84725d9c2f76d17e33d34f74936b3cafb17a27c0963371075747f9cb1ef2",
+      "bytes": 30942,
+      "path": "objects/c0bb84725d9c2f76d17e33d34f74936b3cafb17a27c0963371075747f9cb1ef2.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "raw_baseline_comparison": "BLOCKED_HTTP_404",
+      "normalized_archived_comparison": "PASS",
+      "review_evidence": "pediatrics-631-637/c0bb84725d9c2f76d17e33d34f74936b3cafb17a27c0963371075747f9cb1ef2/local-final-evidence.json",
+      "review_evidence_sha256": "3f3ce36ac3b1a963c3160bb2d22165a6488c184e5e3ea26abdcae8e36c231199"
+    },
+    {
+      "program": "dentistry",
+      "label": "191-194 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/11/09/1097/1_stomat-09-11-2026-10.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+      "bytes": 17983,
+      "path": "objects/a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "review_evidence": "dentistry-191-194/a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5/review-package/manifest.json"
+    },
+    {
+      "program": "dentistry",
+      "label": "291-294 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/28/1097/2_stomat-28-10-2026-15.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b",
+      "bytes": 18340,
+      "path": "objects/f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "review_evidence": "dentistry-291-294/f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b/local-reviewed-draft-v2/local-compatibility-evidence.json",
+      "review_evidence_sha256": "ba9f81d71ce1f89712085c160ad61aef2b4eef62fbd50f6552ba810a1d9f7d43"
+    },
+    {
+      "program": "dentistry",
+      "label": "391-394 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/08/24/1097/3_stomat-24-08-2026-14.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+      "bytes": 24523,
+      "path": "objects/82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "unresolved_ambiguities": 0,
+      "exact_archived_source_match": true,
+      "review_evidence": "dentistry-391-394/82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d/local-final-evidence.json",
+      "review_evidence_sha256": "5d8c12f33753135ae8ff4936be618f49e47e6d7a9cfc3ed3c71735a8abc0ea4e",
+      "canonical_ci": "PENDING"
+    },
+    {
+      "program": "dentistry",
+      "label": "494-494 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/11/20/1097/4_stomat-20-11-2026-14.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5",
+      "bytes": 26652,
+      "path": "objects/da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "note": "Official page group label repeats the same number; scope must be verified, not inferred.",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING",
+      "unresolved_ambiguities": 0,
+      "actual_groups": [
+        "491",
+        "492",
+        "493",
+        "494"
+      ],
+      "review_evidence": "dentistry-491-494/da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5/local-final-evidence.json",
+      "review_evidence_sha256": "b325b16f2962199f1174982a59ab4257e895da510e3522ff140bff43e7bb260f"
+    },
+    {
+      "program": "dentistry",
+      "label": "591-594 (первое полугодие 2026-2027 уч. г.)",
+      "url": "https://kirovgma.ru/sites/default/files/files/2026/10/08/1097/5_stomat-08-10-2026-08.xlsx",
+      "page": "https://kirovgma.ru/raspisanie-stomatologicheskiy-fakultet",
+      "publication_allowed": false,
+      "sha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+      "bytes": 23903,
+      "path": "objects/55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff.xlsx",
+      "matches": [],
+      "status": "REVIEW_REQUIRED",
+      "review_status": "SEMANTIC_QA_PASS_LOCAL_ISOLATED_PR61_COMPATIBILITY_PASS",
+      "canonical_ci": "PENDING_FULL_CI_404",
+      "unresolved_ambiguities": 0,
+      "acknowledged_source_overlap_warnings": 3,
+      "compatibility_verified_on_pr_head": "31e80595a5adc18980d4801acdd05b03220b7bee",
+      "pinned_main_compatibility": false,
+      "release_gate": "REVIEW_REQUIRED",
+      "review_evidence": "dentistry-591-594/55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff/local-final-evidence.json",
+      "review_evidence_sha256": "eae5774093ef78f50bad223d9ec372c1a9da7b3450d49caa2acd4c8f67c3cd94"
+    }
+  ],
+  "semanticLocalCoverage": {
+    "known": 8,
+    "reviewed": 12,
+    "total": 20,
+    "note": "All locally reviewed; Dentistry 591–594 compatibility verified in isolated PR61, NOT installed pinned main; canonical release gates remain closed."
+  }
+}

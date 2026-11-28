@@ -1,0 +1,316 @@
+{
+  "historical501516": {
+    "byteLength": 31755,
+    "exactBytesVerified": true,
+    "sourceSha256": "43ecb37de9db7ba69153c8514f62de0b058e51c2032e0ee320b117378a740c62"
+  },
+  "originalXlsxVerified": 20,
+  "publicationAllowed": false,
+  "regenerated": 7,
+  "regeneratedEvents": 18458,
+  "releaseGate": "REVIEW_REQUIRED",
+  "reviewedCount": 12,
+  "reviewedLocatorCount": 1212,
+  "schema": "kgmu-reviewed-intake-archive-replay-v1",
+  "sourceCount": 20,
+  "sources": [
+    {
+      "byteLength": 21167,
+      "correction": null,
+      "eventCount": 4331,
+      "exactWorkbookSheets": [
+        "1 леч.1"
+      ],
+      "originalEventSetDigest": "sha256:fddebcd6f8d488add29eca20c619cfcb62da03a68c701a1559fc7f1b200a67bb",
+      "program": "medicine",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:fddebcd6f8d488add29eca20c619cfcb62da03a68c701a1559fc7f1b200a67bb",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "18003c64e396d6b03333253b126acb8d9e527590499dd9a730f26dbb391fcbdf",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 145
+    },
+    {
+      "byteLength": 22061,
+      "correction": {
+        "correctedEventSetDigest": "sha256:97fd0f8812e4d256693e5e6034933313e73176272064d55a5a8edf94a9b5ebe4",
+        "eventCount": 4293,
+        "exactSheet": "1 леч. 2  ",
+        "priorEventSetDigest": "sha256:d34ae9e9efbef7330064c60d9ffa413a459aa4234009ca41d0775f85a95e83af",
+        "priorSheet": "1 леч. 2",
+        "publicationAllowed": false,
+        "releaseGate": "REVIEW_REQUIRED",
+        "scope": "EXACT_SOURCE_SHEET_NAME",
+        "semanticChanges": 0
+      },
+      "eventCount": 4293,
+      "exactWorkbookSheets": [
+        "1 леч. 2  "
+      ],
+      "originalEventSetDigest": "sha256:d34ae9e9efbef7330064c60d9ffa413a459aa4234009ca41d0775f85a95e83af",
+      "program": "medicine",
+      "replay": "EXPLICIT_MANIFEST_EXACT_WITH_PROVENANCE_CORRECTION",
+      "replayedEventSetDigest": "sha256:97fd0f8812e4d256693e5e6034933313e73176272064d55a5a8edf94a9b5ebe4",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "11056e3eddc9c9d82d1c094cc77f8562bdcced883e60f9c7bb20274b0eb86954",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 148
+    },
+    {
+      "byteLength": 20049,
+      "exactWorkbookSheets": [
+        "2 леч.1"
+      ],
+      "fixture": "medicine-201-210-2026-08-31.source.json",
+      "program": "medicine",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "8845fd50d4eb534eac81cc84a12dbf5c4f4f2001ef190f5d6ffd3dd2b7d70551",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 20045,
+      "correction": null,
+      "eventCount": 2647,
+      "exactWorkbookSheets": [
+        "2леч.2"
+      ],
+      "originalEventSetDigest": "sha256:593aa32af8ce25d5bf40f73931312aab79443fba1c1ad9955a032f5b548a96b9",
+      "program": "medicine",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:593aa32af8ce25d5bf40f73931312aab79443fba1c1ad9955a032f5b548a96b9",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "d20bd97fb558596667595a939200bac05919e5dca075a537c2a1fb5555c731ab",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 135
+    },
+    {
+      "byteLength": 19404,
+      "exactWorkbookSheets": [
+        "3 леч.1"
+      ],
+      "fixture": "medicine-301-310-2026-09-02.source.json",
+      "program": "medicine",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "367de1a0311d94477691c3c7729460e0455e3b7cb67e5cb8bb38148f531e37c1",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 17892,
+      "exactWorkbookSheets": [
+        "3 леч.2"
+      ],
+      "fixture": "medicine-311-317-2026-09-02.source.json",
+      "program": "medicine",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "007980762e5b3648546851f5357bca12fc867e17752862602f6e2518febd1eee",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 30756,
+      "exactWorkbookSheets": [
+        "4 курс осень 2026 Леч"
+      ],
+      "fixture": "medicine-401-416.source.json",
+      "program": "medicine",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "fb79b4c7b08b8f85bd2f238f2190404ea5eae01ab2be47339985272b565ead6b",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 31752,
+      "correction": null,
+      "eventCount": 2400,
+      "exactWorkbookSheets": [
+        "2026+-2027 осень 5 курс  Леч"
+      ],
+      "originalEventSetDigest": "sha256:846924ed373976fc4f6bbae8259859ce459e45ac22b8e5ff0485d318550b5a18",
+      "program": "medicine",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:846924ed373976fc4f6bbae8259859ce459e45ac22b8e5ff0485d318550b5a18",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "98f37e30a3443e02bf68c9e7ea515ee6dbf8a8596cd50b6ba6eb6115b92f014e",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 194
+    },
+    {
+      "byteLength": 32986,
+      "exactWorkbookSheets": [
+        "6 курс осень 2026-2027 Леч"
+      ],
+      "fixture": "medicine-601-616.source.json",
+      "program": "medicine",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "0b5c4a06fd45e50bdaf28586fcb3f4bddade4efe514bc54dd84c359aa04fcb23",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 20870,
+      "exactWorkbookSheets": [
+        "1 пед. 10 гр."
+      ],
+      "fixture": "pediatrics-131-140-2026-09-07.source.json",
+      "program": "pediatrics",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "b0840a7ff48ebb84ee37b9a390450c1f18ef46270ca5b588899f89c37e1268bd",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 18442,
+      "correction": null,
+      "eventCount": 2327,
+      "exactWorkbookSheets": [
+        "2пед."
+      ],
+      "originalEventSetDigest": "sha256:8259a17f26577809074e3a25aab4df325b65b7d99b0685124ef805b181e5d1a3",
+      "program": "pediatrics",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:8259a17f26577809074e3a25aab4df325b65b7d99b0685124ef805b181e5d1a3",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "586c86b1d1a559a5c80f15beba5dfdac31b2c740b396245b34a080b0345e38af",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 114
+    },
+    {
+      "byteLength": 19720,
+      "correction": null,
+      "eventCount": 1781,
+      "exactWorkbookSheets": [
+        "3пед."
+      ],
+      "originalEventSetDigest": "sha256:2aba34e1efb5d3aa071e8dfa2e784e90a08959842b4daed60733ba744fefd112",
+      "program": "pediatrics",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:2aba34e1efb5d3aa071e8dfa2e784e90a08959842b4daed60733ba744fefd112",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "c1d14c35d5d49092f0740181b5db3505ef0ddd18ce904a4727f5d7ffb080fe31",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 98
+    },
+    {
+      "byteLength": 28692,
+      "exactWorkbookSheets": [
+        "4 курс осень 2026 Пед"
+      ],
+      "fixture": "pediatrics-431-436.source.json",
+      "program": "pediatrics",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "2a06f31b31e59e2c8408a6c20876e62869ce9ce8b98a4ea5dc2004fa2a486c86",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 26428,
+      "exactWorkbookSheets": [
+        "2026-2027 осень 5 курс  Пед"
+      ],
+      "fixture": "pediatrics-531-537.source.json",
+      "program": "pediatrics",
+      "sourceReplayScope": "EXACT_BYTES_ONLY_KNOWN_FIXTURE",
+      "sourceSha256": "190d990d2c505490696d04339f13450f03085c85db997ec3ff5b047ac1c27024",
+      "status": "KNOWN_EXACT_SOURCE",
+      "verifiedNonemptyLocators": 0
+    },
+    {
+      "byteLength": 30942,
+      "correction": null,
+      "eventCount": 679,
+      "exactWorkbookSheets": [
+        "6 курс осень 2026-2027 Пед"
+      ],
+      "originalEventSetDigest": "sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f",
+      "program": "pediatrics",
+      "replay": "EXPLICIT_MANIFEST_EXACT",
+      "replayedEventSetDigest": "sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "c0bb84725d9c2f76d17e33d34f74936b3cafb17a27c0963371075747f9cb1ef2",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 77
+    },
+    {
+      "byteLength": 17983,
+      "correction": null,
+      "eventCount": 1672,
+      "exactWorkbookSheets": [
+        "1 стомат."
+      ],
+      "originalEventSetDigest": "sha256:bd040398e9490062a9f7c56e693882295969f14879cfb8ff4ce1ca7a889af45c",
+      "program": "dentistry",
+      "replay": "PROVENANCE_AUDIT_ONLY",
+      "replayedEventSetDigest": "sha256:bd040398e9490062a9f7c56e693882295969f14879cfb8ff4ce1ca7a889af45c",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 76
+    },
+    {
+      "byteLength": 18340,
+      "correction": null,
+      "eventCount": 1066,
+      "exactWorkbookSheets": [
+        "2 стомат."
+      ],
+      "originalEventSetDigest": "sha256:17254798662e9f2eb4ed85e217cbe3a94488c0a43727e95145b6b141725b51d6",
+      "program": "dentistry",
+      "replay": "PROVENANCE_AUDIT_ONLY",
+      "replayedEventSetDigest": "sha256:17254798662e9f2eb4ed85e217cbe3a94488c0a43727e95145b6b141725b51d6",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 83
+    },
+    {
+      "byteLength": 24523,
+      "correction": null,
+      "eventCount": 528,
+      "exactWorkbookSheets": [
+        "3 Стомат 2026-27 студ"
+      ],
+      "originalEventSetDigest": "sha256:b0d6a22fe100862059e9daea023e06f7c3a9636eecac3a7607779b723555aec0",
+      "program": "dentistry",
+      "replay": "PROVENANCE_AUDIT_ONLY",
+      "replayedEventSetDigest": "sha256:b0d6a22fe100862059e9daea023e06f7c3a9636eecac3a7607779b723555aec0",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 53
+    },
+    {
+      "byteLength": 26652,
+      "correction": null,
+      "eventCount": 564,
+      "exactWorkbookSheets": [
+        "4 курс осень 2026 Стом"
+      ],
+      "originalEventSetDigest": "sha256:bbe0a69095f9e7cbc514d95ed070fc0b480d3943be0b5ed0014cd1d277a9e272",
+      "program": "dentistry",
+      "replay": "PROVENANCE_AUDIT_ONLY",
+      "replayedEventSetDigest": "sha256:bbe0a69095f9e7cbc514d95ed070fc0b480d3943be0b5ed0014cd1d277a9e272",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 52
+    },
+    {
+      "byteLength": 23903,
+      "correction": null,
+      "eventCount": 588,
+      "exactWorkbookSheets": [
+        "2026-2027 осень 5 курс Стом"
+      ],
+      "originalEventSetDigest": "sha256:bd0dc06bd82a1fbd2444c1086d87cf2621772965fdc053fe2c98640a72530192",
+      "program": "dentistry",
+      "replay": "PROVENANCE_AUDIT_ONLY",
+      "replayedEventSetDigest": "sha256:bd0dc06bd82a1fbd2444c1086d87cf2621772965fdc053fe2c98640a72530192",
+      "sourceReplayScope": "EXACT_BYTES_AND_LOCATORS",
+      "sourceSha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+      "status": "LOCAL_SEMANTIC_QA_PASS_RELEASE_BLOCKED",
+      "verifiedNonemptyLocators": 37
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "schema": "kgmu.reviewed-intake.native-worker-report.v1",
+  "date": "2026-11-28",
+  "scope": "isolated PostgreSQL 16; archived XLSX test reader; review-only; no deployment",
+  "registrySha256": "9dfc7c2fb3daf04d01a84ead5319355cd3d4f0854d4c1a25c6cb49e55e4ad385",
+  "platformBase": "89e556cc43c6df12ea7df67e8fbbbb3fb6868d79",
+  "engineBase": "b5359c73b7c3ea764d41a1c9ef323dfbb567e594",
+  "enginePriorDraft": "0542f5d64bb05c9fe4c9d5a5f010b665e23f71c5",
+  "platformDrafts": {
+    "61": "f1f46535188d3b36e302e3b8907c6009991c49c4",
+    "67": "ff9e75779cd29c0c53954a461fd2f8e5d33cceb3"
+  },
+  "workerEvidence": {
+    "sourceCount": 12,
+    "eventCount": 22876,
+    "sources": [
+      {
+        "sourceSha256": "18003c64e396d6b03333253b126acb8d9e527590499dd9a730f26dbb391fcbdf",
+        "eventCount": 4331,
+        "eventKinds": {
+          "FACULTATIVE": 920,
+          "MANDATORY": 3411
+        },
+        "eventSetDigest": "sha256:fddebcd6f8d488add29eca20c619cfcb62da03a68c701a1559fc7f1b200a67bb",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "11056e3eddc9c9d82d1c094cc77f8562bdcced883e60f9c7bb20274b0eb86954",
+        "eventCount": 4293,
+        "eventKinds": {
+          "FACULTATIVE": 920,
+          "MANDATORY": 3373
+        },
+        "eventSetDigest": "sha256:97fd0f8812e4d256693e5e6034933313e73176272064d55a5a8edf94a9b5ebe4",
+        "mode": "EXPLICIT_MANIFEST_EXACT_WITH_PROVENANCE_CORRECTION",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "d20bd97fb558596667595a939200bac05919e5dca075a537c2a1fb5555c731ab",
+        "eventCount": 2647,
+        "eventKinds": {
+          "MANDATORY": 2647
+        },
+        "eventSetDigest": "sha256:593aa32af8ce25d5bf40f73931312aab79443fba1c1ad9955a032f5b548a96b9",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "98f37e30a3443e02bf68c9e7ea515ee6dbf8a8596cd50b6ba6eb6115b92f014e",
+        "eventCount": 2400,
+        "eventKinds": {
+          "MANDATORY": 1888,
+          "CHOICE": 512
+        },
+        "eventSetDigest": "sha256:846924ed373976fc4f6bbae8259859ce459e45ac22b8e5ff0485d318550b5a18",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "586c86b1d1a559a5c80f15beba5dfdac31b2c740b396245b34a080b0345e38af",
+        "eventCount": 2327,
+        "eventKinds": {
+          "MANDATORY": 2327
+        },
+        "eventSetDigest": "sha256:8259a17f26577809074e3a25aab4df325b65b7d99b0685124ef805b181e5d1a3",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "c1d14c35d5d49092f0740181b5db3505ef0ddd18ce904a4727f5d7ffb080fe31",
+        "eventCount": 1781,
+        "eventKinds": {
+          "MANDATORY": 1781
+        },
+        "eventSetDigest": "sha256:2aba34e1efb5d3aa071e8dfa2e784e90a08959842b4daed60733ba744fefd112",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "c0bb84725d9c2f76d17e33d34f74936b3cafb17a27c0963371075747f9cb1ef2",
+        "eventCount": 679,
+        "eventKinds": {
+          "MANDATORY": 679
+        },
+        "eventSetDigest": "sha256:d2e3987a60ea05fc97de83afba9993285022dd932fd16a082da155efe589567f",
+        "mode": "EXPLICIT_MANIFEST_EXACT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "a0ea58290bd5e3a3de909b48e3ea9f1c69217b7134185d2606b56cd78e1029e5",
+        "eventCount": 1672,
+        "eventKinds": {
+          "MANDATORY": 1332,
+          "FACULTATIVE": 340
+        },
+        "eventSetDigest": "sha256:bd040398e9490062a9f7c56e693882295969f14879cfb8ff4ce1ca7a889af45c",
+        "mode": "FROZEN_NORMALIZED_DRAFT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b",
+        "eventCount": 1066,
+        "eventKinds": {
+          "MANDATORY": 1066
+        },
+        "eventSetDigest": "sha256:17254798662e9f2eb4ed85e217cbe3a94488c0a43727e95145b6b141725b51d6",
+        "mode": "FROZEN_NORMALIZED_DRAFT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+        "eventCount": 528,
+        "eventKinds": {
+          "MANDATORY": 528
+        },
+        "eventSetDigest": "sha256:b0d6a22fe100862059e9daea023e06f7c3a9636eecac3a7607779b723555aec0",
+        "mode": "FROZEN_NORMALIZED_DRAFT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5",
+        "eventCount": 564,
+        "eventKinds": {
+          "MANDATORY": 500,
+          "CHOICE": 64
+        },
+        "eventSetDigest": "sha256:bbe0a69095f9e7cbc514d95ed070fc0b480d3943be0b5ed0014cd1d277a9e272",
+        "mode": "FROZEN_NORMALIZED_DRAFT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      },
+      {
+        "sourceSha256": "55f6431357309340f3a075d807814fa5ff3dd982d16230792ee24ec5f0e5cdff",
+        "eventCount": 588,
+        "eventKinds": {
+          "INFO": 96,
+          "MANDATORY": 492
+        },
+        "eventSetDigest": "sha256:bd0dc06bd82a1fbd2444c1086d87cf2621772965fdc053fe2c98640a72530192",
+        "mode": "FROZEN_NORMALIZED_DRAFT",
+        "qaStatus": "REVIEW_REQUIRED",
+        "publishBlocked": true,
+        "repeatSkipped": true
+      }
+    ],
+    "published": 0,
+    "notifications": 0,
+    "unknownRejected": true,
+    "publicationAllowed": false
+  },
+  "platformSuite": {
+    "passed": 206,
+    "skipped": 20,
+    "warnings": 17
+  },
+  "engineRuntimeSuite": {
+    "passed": 2,
+    "failed": 0
+  },
+  "continuitySuite": {
+    "passed": 1,
+    "warnings": 2,
+    "preview": {
+      "unchanged": 4263,
+      "timeChanged": 20,
+      "added": 10,
+      "removed": 11,
+      "retained": 4283
+    }
+  },
+  "afterRollback": {
+    "versions": 0,
+    "events": 0,
+    "imports": 0,
+    "changes": 0
+  },
+  "publicationAllowed": false
+}
