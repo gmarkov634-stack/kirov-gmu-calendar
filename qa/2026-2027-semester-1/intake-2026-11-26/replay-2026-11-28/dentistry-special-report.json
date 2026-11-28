@@ -1,0 +1,80 @@
+{
+  "engineBaseCommit": "b5359c73b7c3ea764d41a1c9ef323dfbb567e594",
+  "eventCount": 2158,
+  "platformBaseCommit": "89e556cc43c6df12ea7df67e8fbbbb3fb6868d79",
+  "publicationAllowed": false,
+  "releaseGate": "REVIEW_REQUIRED",
+  "schema": "kgmu-local-dentistry-replay-v1",
+  "sourceCount": 3,
+  "sources": [
+    {
+      "builderSteps": [
+        "build_dentistry_291_294_candidate.py",
+        "resolve_dentistry_291_294_qa.py",
+        "finalize_dentistry_291_294_draft.mjs"
+      ],
+      "byteLength": 18340,
+      "eventCount": 1066,
+      "eventSetDigest": "sha256:17254798662e9f2eb4ed85e217cbe3a94488c0a43727e95145b6b141725b51d6",
+      "groupCounts": {
+        "291": 265,
+        "292": 266,
+        "293": 266,
+        "294": 269
+      },
+      "originalEvidenceSha256": "ba9f81d71ce1f89712085c160ad61aef2b4eef62fbd50f6552ba810a1d9f7d43",
+      "packageSha256": "cad9d6d0779dbefc875a859a54f05094f5924f4fb8d63879e4f7cf98c3382a39",
+      "profile": "dentistry-291-294",
+      "publicationAllowed": false,
+      "semanticDifferences": 0,
+      "sourceSha256": "f3cd3e91d7ee4fdb5409d263aa0c853331e3575760ca804869acae33fa47610b",
+      "sourceVerification": "exact local XLSX supplied to pinned builder"
+    },
+    {
+      "builderSteps": [
+        "run_dentistry_391_394_candidate.py",
+        "audit-current.py",
+        "build-final-local.mjs"
+      ],
+      "byteLength": 24523,
+      "eventCount": 528,
+      "eventSetDigest": "sha256:b0d6a22fe100862059e9daea023e06f7c3a9636eecac3a7607779b723555aec0",
+      "groupCounts": {
+        "391": 132,
+        "392": 132,
+        "393": 132,
+        "394": 132
+      },
+      "originalEvidenceSha256": "5d8c12f33753135ae8ff4936be618f49e47e6d7a9cfc3ed3c71735a8abc0ea4e",
+      "packageSha256": "25abc8f6c66d391fadfc64d519bff1c4cd536413e3280ea9b3d66022a55c3162",
+      "profile": "dentistry-391-394",
+      "publicationAllowed": false,
+      "semanticDifferences": 0,
+      "sourceSha256": "82fcb873776634553f9dcc5bf3da581654d59f4ef10db5ad6a779aa6d53f950d",
+      "sourceVerification": "exact current XLSX audited against archived mechanical probe"
+    },
+    {
+      "builderSteps": [
+        "run_dentistry_491_494_prepost_candidate.py",
+        "postprocess_dentistry_491_494_candidate.py",
+        "build-local.py"
+      ],
+      "byteLength": 26652,
+      "eventCount": 564,
+      "eventSetDigest": "sha256:bbe0a69095f9e7cbc514d95ed070fc0b480d3943be0b5ed0014cd1d277a9e272",
+      "groupCounts": {
+        "491": 141,
+        "492": 141,
+        "493": 141,
+        "494": 141
+      },
+      "originalEvidenceSha256": "b325b16f2962199f1174982a59ab4257e895da510e3522ff140bff43e7bb260f",
+      "packageSha256": "3cb42cdb909368bd7c4c021df6d6294dec8f9490b0a73e3484e0a6544a56e714",
+      "profile": "dentistry-491-494",
+      "publicationAllowed": false,
+      "semanticDifferences": 0,
+      "sourceSha256": "da25494598eab8d62d4b444a2ec4ce1ea28300250df8892ec992513777d7efe5",
+      "sourceVerification": "exact current XLSX audited against prior validated archived mechanical probe; old XLSX unavailable"
+    }
+  ]
+}
